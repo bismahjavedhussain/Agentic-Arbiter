@@ -1,0 +1,175 @@
+{
+ "purpose": "b with SE and 95 % CI -- adopted after a 4-point proxy slope was reported without an interval and had to be withdrawn",
+ "target_site": "2026-08-12 14:00-16:00",
+ "rows": [
+  {
+   "lead_h": 1.494,
+   "n": 17862,
+   "bias": 1.0177378960922627,
+   "sd": 0.11226509217653075,
+   "rms": 1.0239110684350035,
+   "q90": 1.1214999999999975
+  },
+  {
+   "lead_h": 3.494,
+   "n": 17862,
+   "bias": 1.1787019538685477,
+   "sd": 0.12991407959287768,
+   "rms": 1.1858397716934597,
+   "q90": 1.2872000000000021
+  },
+  {
+   "lead_h": 5.494,
+   "n": 17862,
+   "bias": 0.8845857182846266,
+   "sd": 0.09586526897992022,
+   "rms": 0.8897651615958682,
+   "q90": 0.9830000000000041
+  },
+  {
+   "lead_h": 7.494,
+   "n": 17862,
+   "bias": 1.0850102228193932,
+   "sd": 0.10844533900838345,
+   "rms": 1.0904162394128365,
+   "q90": 1.1970000000000027
+  },
+  {
+   "lead_h": 9.407,
+   "n": 17862,
+   "bias": 0.8395574067853544,
+   "sd": 0.10564083498802912,
+   "rms": 0.8461776558767768,
+   "q90": 0.9685999999999986
+  }
+ ],
+ "leads_h": [
+  1.494,
+  3.494,
+  5.494,
+  7.494,
+  9.407
+ ],
+ "thresholds": {
+  "breakeven": 0.129,
+  "twosigma": 0.187,
+  "assumed_in_n24_headline": 0.5
+ },
+ "fits": {
+  "sd": {
+   "fit": {
+    "n": 5,
+    "dof": 3,
+    "b": -0.06079848785683274,
+    "se": 0.08026289462974338,
+    "t": -0.7574918414953647,
+    "r2": 0.1605559547092268,
+    "ci_lo": -0.31619501856867616,
+    "ci_hi": 0.1945980428550107,
+    "tcrit": 3.182
+   },
+   "thresholds": {
+    "zero": {
+     "value": 0.0,
+     "excluded": false,
+     "side": ""
+    },
+    "breakeven_0.129": {
+     "value": 0.129,
+     "excluded": false,
+     "side": ""
+    },
+    "twosigma_0.187": {
+     "value": 0.187,
+     "excluded": false,
+     "side": ""
+    },
+    "assumed_0.500": {
+     "value": 0.5,
+     "excluded": true,
+     "side": "above CI"
+    },
+    "ci_entirely_above_twosigma": false,
+    "ci_entirely_above_breakeven": false,
+    "ci_entirely_below_breakeven": false
+   }
+  },
+  "q90": {
+   "fit": {
+    "n": 5,
+    "dof": 3,
+    "b": -0.06345829001094054,
+    "se": 0.09073837461283729,
+    "t": -0.6993544934180772,
+    "r2": 0.14017860451324105,
+    "ci_lo": -0.3521877980289888,
+    "ci_hi": 0.2252712180071077,
+    "tcrit": 3.182
+   },
+   "thresholds": {
+    "zero": {
+     "value": 0.0,
+     "excluded": false,
+     "side": ""
+    },
+    "breakeven_0.129": {
+     "value": 0.129,
+     "excluded": false,
+     "side": ""
+    },
+    "twosigma_0.187": {
+     "value": 0.187,
+     "excluded": false,
+     "side": ""
+    },
+    "assumed_0.500": {
+     "value": 0.5,
+     "excluded": true,
+     "side": "above CI"
+    },
+    "ci_entirely_above_twosigma": false,
+    "ci_entirely_above_breakeven": false,
+    "ci_entirely_below_breakeven": false
+   }
+  },
+  "rms": {
+   "fit": {
+    "n": 5,
+    "dof": 3,
+    "b": -0.08080348495779477,
+    "se": 0.1008866984083375,
+    "t": -0.8009329895081292,
+    "r2": 0.17616223305338563,
+    "ci_lo": -0.4018249592931247,
+    "ci_hi": 0.24021798937753513,
+    "tcrit": 3.182
+   },
+   "thresholds": {
+    "zero": {
+     "value": 0.0,
+     "excluded": false,
+     "side": ""
+    },
+    "breakeven_0.129": {
+     "value": 0.129,
+     "excluded": false,
+     "side": ""
+    },
+    "twosigma_0.187": {
+     "value": 0.187,
+     "excluded": false,
+     "side": ""
+    },
+    "assumed_0.500": {
+     "value": 0.5,
+     "excluded": true,
+     "side": "above CI"
+    },
+    "ci_entirely_above_twosigma": false,
+    "ci_entirely_above_breakeven": false,
+    "ci_entirely_below_breakeven": false
+   }
+  }
+ },
+ "limits": "one target window on one day; the CI is sampling error across five leads only"
+}

@@ -1,0 +1,293 @@
+{
+ "question": "does wind-direction uncertainty, through the solver, sharpen enough for the DP?",
+ "why": "N-25 measured b = -0.0608 (CI [-0.316, +0.195]) on temperature: FAIL, underpowered, but it EXCLUDES the 0.500 N-24's headline assumed",
+ "wind_data": {
+  "station": "KIAD",
+  "decision_hour_site": 16,
+  "min_kt": 3.0,
+  "n_hours": 1619,
+  "n_days": 72,
+  "span": "2026-06-01 to 2026-08-11",
+  "quantity": "persistence error of wind direction",
+  "why_lower_bound": "any real forecast beats persistence; this understates skill",
+  "calm_excluded_because": "ASOS reports drct=0 when calm, which is not a direction"
+ },
+ "direction_fit": {
+  "n": 12,
+  "dof": 10,
+  "b": 0.2778366858765482,
+  "se": 0.0335303415406897,
+  "t": 8.286127522422882,
+  "r2": 0.8728704356930879,
+  "ci_lo": 0.20313108492389154,
+  "ci_hi": 0.35254228682920485,
+  "tcrit": 2.228
+ },
+ "our_defect_fixed": {
+  "was": "solver.ensemble wind_sd_deg = 15.0",
+  "measured_deg": [
+   47.32863826479693,
+   71.58212067269312
+  ],
+  "understated_by": 4.011862451860561
+ },
+ "construction": "sigma_total = sqrt(sigma_ambient(N-25, measured, flat)^2 + sigma_recirc^2)",
+ "n_members": 100,
+ "primary_dir_deg": 265.0,
+ "wind_speed_ms": 3.0,
+ "rows": [
+  {
+   "lead_h": 1,
+   "dir_sd_deg": 57.84200004924597,
+   "recirc_mean": 0.2817646408081055,
+   "recirc_sd": 0.25973430776931256,
+   "recirc_p90": 0.6710317611694336,
+   "frac_hot": 0.71,
+   "sigma_ambient": 0.1123,
+   "sigma_total": 0.28297208454616857
+  },
+  {
+   "lead_h": 2,
+   "dir_sd_deg": 43.91957755863884,
+   "recirc_mean": 0.29184091567993165,
+   "recirc_sd": 0.2685010793665587,
+   "recirc_p90": 0.6782264709472657,
+   "frac_hot": 0.76,
+   "sigma_ambient": 0.116788,
+   "sigma_total": 0.2928007284229448
+  },
+  {
+   "lead_h": 3,
+   "dir_sd_deg": 51.502672285282955,
+   "recirc_mean": 0.1910225486755371,
+   "recirc_sd": 0.21935463386529377,
+   "recirc_p90": 0.5363708496093752,
+   "frac_hot": 0.67,
+   "sigma_ambient": 0.125588,
+   "sigma_total": 0.25276234122625363
+  },
+  {
+   "lead_h": 4,
+   "dir_sd_deg": 51.26392395232636,
+   "recirc_mean": 0.258526611328125,
+   "recirc_sd": 0.27141680611134367,
+   "recirc_p90": 0.6810611724853517,
+   "frac_hot": 0.71,
+   "sigma_ambient": 0.12122999999999999,
+   "sigma_total": 0.29726048432255964
+  },
+  {
+   "lead_h": 5,
+   "dir_sd_deg": 55.96490603110763,
+   "recirc_mean": 0.19721271514892577,
+   "recirc_sd": 0.22280845441050373,
+   "recirc_p90": 0.49047374725341797,
+   "frac_hot": 0.64,
+   "sigma_ambient": 0.10422999999999999,
+   "sigma_total": 0.24598272349251993
+  },
+  {
+   "lead_h": 6,
+   "dir_sd_deg": 56.83033405397921,
+   "recirc_mean": 0.1581315803527832,
+   "recirc_sd": 0.23244248174474283,
+   "recirc_p90": 0.578402900695801,
+   "frac_hot": 0.57,
+   "sigma_ambient": 0.0990875,
+   "sigma_total": 0.25268130119956467
+  },
+  {
+   "lead_h": 7,
+   "dir_sd_deg": 62.08913436391753,
+   "recirc_mean": 0.15687114715576173,
+   "recirc_sd": 0.20449114799213092,
+   "recirc_p90": 0.4455202102661137,
+   "frac_hot": 0.62,
+   "sigma_ambient": 0.1053375,
+   "sigma_total": 0.23002742991519423
+  },
+  {
+   "lead_h": 8,
+   "dir_sd_deg": 65.79766966491543,
+   "recirc_mean": 0.150344181060791,
+   "recirc_sd": 0.21708900486197352,
+   "recirc_p90": 0.5309955596923829,
+   "frac_hot": 0.53,
+   "sigma_ambient": 0.10765625,
+   "sigma_total": 0.2423169498735581
+  },
+  {
+   "lead_h": 9,
+   "dir_sd_deg": 65.42626353075622,
+   "recirc_mean": 0.14843496322631836,
+   "recirc_sd": 0.22144027534068997,
+   "recirc_p90": 0.5017498016357431,
+   "frac_hot": 0.47,
+   "sigma_ambient": 0.10619791666666666,
+   "sigma_total": 0.24558866636573615
+  },
+  {
+   "lead_h": 10,
+   "dir_sd_deg": 77.2862970853936,
+   "recirc_mean": 0.14232187271118163,
+   "recirc_sd": 0.21876227148360822,
+   "recirc_p90": 0.46871414184570337,
+   "frac_hot": 0.41,
+   "sigma_ambient": 0.1056,
+   "sigma_total": 0.24291622305780217
+  },
+  {
+   "lead_h": 11,
+   "dir_sd_deg": 60.63835503219148,
+   "recirc_mean": 0.14788702011108398,
+   "recirc_sd": 0.206350998538417,
+   "recirc_p90": 0.4478950500488283,
+   "frac_hot": 0.52,
+   "sigma_ambient": 0.1056,
+   "sigma_total": 0.23180184338741092
+  },
+  {
+   "lead_h": 12,
+   "dir_sd_deg": 73.54480528112359,
+   "recirc_mean": 0.10359046936035156,
+   "recirc_sd": 0.16470620535280173,
+   "recirc_p90": 0.3494993209838868,
+   "frac_hot": 0.43,
+   "sigma_ambient": 0.1056,
+   "sigma_total": 0.19565146071961562
+  }
+ ],
+ "fit_sigma_recirc": {
+  "n": 12,
+  "dof": 10,
+  "b": -0.13227525826106806,
+  "se": 0.03882663780930001,
+  "t": -3.4068172194241506,
+  "r2": 0.5371742470146847,
+  "ci_lo": -0.2187810073001885,
+  "ci_hi": -0.04576950922194763,
+  "tcrit": 2.228
+ },
+ "fit_sigma_total": {
+  "n": 12,
+  "dof": 10,
+  "b": -0.11657385111316916,
+  "se": 0.030954053244766657,
+  "t": -3.766028642238576,
+  "r2": 0.586485891397962,
+  "ci_lo": -0.18553948174250928,
+  "ci_hi": -0.04760822048382904,
+  "tcrit": 2.228
+ },
+ "dp_normalised": {
+  "label": "measured shape, normalised to N-24's sd",
+  "gain": -0.5806,
+  "se": 0.0478860087655233,
+  "sigma_of_gain": -12.12462710857659,
+  "dp_cost": 13.0234,
+  "adv_cost": 12.4428,
+  "adv_hour": 2,
+  "sigma_array": [
+   0.05,
+   0.21746015124190113,
+   0.22501332874834815,
+   0.19424437940396963,
+   0.22844058975887363,
+   0.18903433651191373,
+   0.194182101259153,
+   0.17677291305737475,
+   0.1862172399531613,
+   0.18873150903504166,
+   0.18667777314494216,
+   0.17813652538207722,
+   0.15035545399123917
+  ]
+ },
+ "dp_absolute": {
+  "label": "measured shape AND level",
+  "gain": -0.9614,
+  "se": 0.05320476519403095,
+  "sigma_of_gain": -18.06981003475718,
+  "dp_cost": 13.664,
+  "adv_cost": 12.7026,
+  "adv_hour": 2,
+  "sigma_array": [
+   0.05,
+   0.28297208454616857,
+   0.2928007284229448,
+   0.25276234122625363,
+   0.29726048432255964,
+   0.24598272349251993,
+   0.25268130119956467,
+   0.23002742991519423,
+   0.2423169498735581,
+   0.24558866636573615,
+   0.24291622305780217,
+   0.23180184338741092,
+   0.19565146071961562
+  ]
+ },
+ "sensitivity_by_direction": {
+  "180.0": {
+   "b": 0.13233594233712612,
+   "se": 0.06678801110379651,
+   "ci_lo": -0.016467746402132527,
+   "ci_hi": 0.28113963107638473,
+   "sd_range": [
+    0.061617836484733526,
+    0.20465755748250145
+   ],
+   "mean_rise": 0.04888371467590332
+  },
+  "250.0": {
+   "b": -0.06329539867842969,
+   "se": 0.033135034890431896,
+   "ci_lo": -0.13712025641431197,
+   "ci_hi": 0.010529459057452575,
+   "sd_range": [
+    0.19053735981434178,
+    0.2950929446310141
+   ],
+   "mean_rise": 0.19148585001627605
+  },
+  "285.0": {
+   "b": -0.09262610743330225,
+   "se": 0.057434341076307134,
+   "ci_lo": -0.22058981935131455,
+   "ci_hi": 0.03533760448471006,
+   "sd_range": [
+    0.14484971796614798,
+    0.2633592902885133
+   ],
+   "mean_rise": 0.14997101147969563
+  },
+  "315.0": {
+   "b": -0.16280453049985694,
+   "se": 0.05453873186792231,
+   "ci_lo": -0.28431682510158784,
+   "ci_hi": -0.041292235898126015,
+   "sd_range": [
+    0.0891493992815381,
+    0.208959149321137
+   ],
+   "mean_rise": 0.08259768962860108
+  }
+ },
+ "thresholds": {
+  "w1_min_sigma": 2.0,
+  "w2_min_b": 0.129,
+  "w3_min_leads": 8
+ },
+ "w1": false,
+ "w2": false,
+ "w3": true,
+ "pass": false,
+ "n24_reference": {
+  "bias_c": 0.34893848727272736,
+  "sd_c": 0.15035545399123917,
+  "hw_c": 0.49499999999999744,
+  "assumed_exponent": 0.5,
+  "peak_sd_h": 1.4475
+ },
+ "limits": "persistence is a LOWER bound on forecast skill; one site geometry; sigma_ambient comes from one day (N-25)"
+}

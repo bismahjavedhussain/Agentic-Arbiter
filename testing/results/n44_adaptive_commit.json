@@ -1,0 +1,123 @@
+{
+ "why": "N-40 measured sigma-in-C inverting; AUC is the decision-relevant quantity that sigma-in-C is structurally blind to (dilution vs confidence)",
+ "measured_inputs": {
+  "peak_sd_h": 1.4475,
+  "peak_sd_h_source": "N-38, 15 days",
+  "wind_error_source": {
+   "station": "KIAD",
+   "decision_hour_site": 16,
+   "min_kt": 3.0,
+   "n_hours": 1619,
+   "n_days": 72,
+   "span": "2026-06-01 to 2026-08-11",
+   "quantity": "persistence error of wind direction",
+   "why_lower_bound": "any real forecast beats persistence; this understates skill",
+   "calm_excluded_because": "ASOS reports drct=0 when calm, which is not a direction"
+  },
+  "dir_sd_12h": 71.86543391621714,
+  "dir_sd_1h": 52.5187605638346
+ },
+ "threshold_rise_c": 0.009776456015449853,
+ "capacity_rise_c": 0.25,
+ "phase1_auc_by_lead": {
+  "1": {
+   "auc": 0.8395855295760688,
+   "ci_lo": 0.8232615123490205,
+   "ci_hi": 0.8564625482506095,
+   "base_rate": 0.245
+  },
+  "2": {
+   "auc": 0.8520120497407044,
+   "ci_lo": 0.8341885676187856,
+   "ci_hi": 0.8648523019622225,
+   "base_rate": 0.25033333333333335
+  },
+  "3": {
+   "auc": 0.8531069779790262,
+   "ci_lo": 0.839130492258772,
+   "ci_hi": 0.8666655641448995,
+   "base_rate": 0.25166666666666665
+  },
+  "4": {
+   "auc": 0.8278998521085377,
+   "ci_lo": 0.8138794538365469,
+   "ci_hi": 0.8431666130580506,
+   "base_rate": 0.249
+  },
+  "5": {
+   "auc": 0.7886003372292704,
+   "ci_lo": 0.7702247547393268,
+   "ci_hi": 0.8065018860724107,
+   "base_rate": 0.261
+  },
+  "6": {
+   "auc": 0.7671373795658567,
+   "ci_lo": 0.7490243374684384,
+   "ci_hi": 0.7824134580375551,
+   "base_rate": 0.24266666666666667
+  },
+  "7": {
+   "auc": 0.7214597201105095,
+   "ci_lo": 0.7006078565460495,
+   "ci_hi": 0.741710896680312,
+   "base_rate": 0.25866666666666666
+  },
+  "8": {
+   "auc": 0.7051656306003584,
+   "ci_lo": 0.6836096380329442,
+   "ci_hi": 0.7266514692750999,
+   "base_rate": 0.256
+  },
+  "9": {
+   "auc": 0.7450572578481993,
+   "ci_lo": 0.725407886529017,
+   "ci_hi": 0.7632061329342819,
+   "base_rate": 0.247
+  },
+  "10": {
+   "auc": 0.6916518820015074,
+   "ci_lo": 0.6713099144517056,
+   "ci_hi": 0.7118077111205895,
+   "base_rate": 0.23766666666666666
+  },
+  "11": {
+   "auc": 0.7322323767625614,
+   "ci_lo": 0.7109090498956465,
+   "ci_hi": 0.7501543758233434,
+   "base_rate": 0.249
+  },
+  "12": {
+   "auc": 0.67616471056296,
+   "ci_lo": 0.6569599209187883,
+   "ci_hi": 0.6999676328896589,
+   "base_rate": 0.23833333333333334
+  }
+ },
+ "auc_gain_1h_vs_12h": 0.1634208190131088,
+ "cis_disjoint": true,
+ "adversary": {
+  "hour": 3,
+  "margin": 2.7755575615628914e-16,
+  "test_cost": 21.1095,
+  "n_commits": 2622
+ },
+ "adaptive": {
+  "test_cost": 31.70525,
+  "n_commits": 3521,
+  "modal_hour": 2,
+  "off_modal_fraction": 0.665435955694405
+ },
+ "gain": -10.59575,
+ "se": 0.5469972664344372,
+ "sigma": -19.37075493826074,
+ "thresholds": {
+  "p1_min_auc_gain": 0.0,
+  "p2_min_sigma": 2.0,
+  "p3_min_off_modal": 0.25
+ },
+ "p1": true,
+ "p2": false,
+ "p3": true,
+ "pass": false,
+ "limits": "one site layout (N-28 showed layout sensitivity); persistence wind error is a LOWER bound on forecast skill; simulated days with real solver physics"
+}

@@ -1,0 +1,122 @@
+{
+ "version": 4,
+ "supersedes": [
+  "v1 circular p90-vs-max",
+  "v2 uniform-direction p99 (+0.502 C), void",
+  "v3 pre-calibration solver (+0.874 C), void: exponent 2.0 / exchange_s 20 s falsified in N-21, refitted in N-22. v3 also claimed under-protection on the aligned direction, which is unreachable by construction. Archived at results/n8_saving_v3_ARCHIVED.json"
+ ],
+ "calibrated": {
+  "exponent": 1.25,
+  "uc": 8.0,
+  "exchange_s": 47.4
+ },
+ "backend": "warp GPU",
+ "steps": 800,
+ "n_scan": 40,
+ "n_base": 600,
+ "n_cond": 200,
+ "design_wind_ms": 6.0,
+ "direction_scan": {
+  "0": 0.0,
+  "45": 0.0,
+  "90": 0.0,
+  "135": 0.0,
+  "180": 0.0,
+  "225": 0.028806791986738123,
+  "270": 0.5684198158127921,
+  "315": 0.00751846517835375
+ },
+ "worst_direction": 270,
+ "n_directions_near_zero": 5,
+ "baseline_p99": 0.8044527401242921,
+ "baseline_quantiles": {
+  "50": 0.34849456378391785,
+  "90": 0.6660407611301967,
+  "95": 0.7337352275848379,
+  "99": 0.8044527401242921
+ },
+ "by_direction": [
+  {
+   "wind_from": 0,
+   "cond_p90": 0.0,
+   "saving": 0.8044527401242921,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 45,
+   "cond_p90": 0.0,
+   "saving": 0.8044527401242921,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 90,
+   "cond_p90": 0.0,
+   "saving": 0.8044527401242921,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 135,
+   "cond_p90": 0.0,
+   "saving": 0.8044527401242921,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 180,
+   "cond_p90": 2.6430402471078166e-06,
+   "saving": 0.804450097084045,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 225,
+   "cond_p90": 0.09565187862941257,
+   "saving": 0.7088008614948795,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 270,
+   "cond_p90": 0.7214144298008506,
+   "saving": 0.08303831032344156,
+   "verdict": "partial"
+  },
+  {
+   "wind_from": 315,
+   "cond_p90": 0.06239288193838842,
+   "saving": 0.7420598581859037,
+   "verdict": "relax"
+  }
+ ],
+ "median_saving": 0.8044514186041686,
+ "best_saving": 0.8044527401242921,
+ "worst_saving": 0.08303831032344156,
+ "best_saving_frac_of_baseline": 1.0,
+ "n_relax": 7,
+ "n_hold": 0,
+ "two_sided": "False",
+ "sweeps": [
+  {
+   "design_wind": 3.0,
+   "baseline": 0.8387520115716122,
+   "best_saving": 0.8387520115716122,
+   "worst_saving": 0.11086337293897264
+  },
+  {
+   "design_wind": 6.0,
+   "baseline": 0.8128717293058132,
+   "best_saving": 0.8128717293058132,
+   "worst_saving": 0.031945167950222286
+  },
+  {
+   "design_wind": 9.0,
+   "baseline": 0.8209933512551426,
+   "best_saving": 0.8209933512551426,
+   "worst_saving": 0.15777691704886243
+  },
+  {
+   "design_wind": 12.0,
+   "baseline": 0.6400212131227758,
+   "best_saving": 0.6400212131227758,
+   "worst_saving": 0.06045774527958314
+  }
+ ],
+ "pass": "False"
+}

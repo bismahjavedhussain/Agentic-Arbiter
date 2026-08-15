@@ -1,0 +1,37 @@
+{
+ "authorised": "user, 2026-08-16, exactly two calls",
+ "site": [
+  39.01,
+  -77.446
+ ],
+ "sat_payload": {
+  "sat": {
+   "latitude": 39.01,
+   "longitude": -77.446
+  },
+  "date_time": {
+   "start_date": "2026-06-23",
+   "filter_type": 3
+  },
+  "granularity": 60
+ },
+ "sv_payload": {
+  "latitude": 39.01,
+  "longitude": -77.446,
+  "vertical_angle": 0,
+  "horizontal_angle": 0,
+  "back_view": false
+ },
+ "credits_before": 180980,
+ "credits_after": 180980,
+ "credits_note": "meter frozen since 2026-07-19; a zero difference does not prove zero spend",
+ "satellite": {
+  "ok": true,
+  "sync": false,
+  "secs": 15.1
+ },
+ "streetview": {
+  "error": "timeout after 240s"
+ },
+ "fixtures": "results/fixtures/probe_satellite*.json, probe_streetview*.json"
+}

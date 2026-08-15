@@ -1,0 +1,38 @@
+# ---------------------------------------------------------------- SECRETS
+# The FortyGuard API key lives here. It must NEVER be committed.
+.env
+.env.*
+*.key
+secrets*
+
+# ---------------------------------------------------------------- Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------------- THIRD-PARTY COPYRIGHTED DOCUMENTS
+# These are vendor/standards-body publications used as sources. They are read and CITED in the
+# project documents, but they are not ours to redistribute in a public repository.
+#   - The Green Grid WP46 states explicitly: "No part of this publication may be used, reproduced,
+#     photocopied, transmitted, or stored in any retrieval system of any nature without the written
+#     permission of the copyright owner."
+#   - Trane DC-WPR003A-EN and the Honeywell JADE white paper are vendor publications.
+#   - i-p_a19_ch46.pdf is an ASHRAE Handbook chapter (ASHRAE material is licensed, not public domain).
+# Every claim drawn from them is quoted with a citation in the .md files, which is fair use; shipping
+# the documents themselves is not. Keep them locally, out of the repo.
+idea2files(pdf)/
+idea2files(md)/
+i-p_a19_ch46.pdf
+
+# NOTE the deliberate exception: validation-data/CEC-500-2013-065*.pdf is a California Energy
+# Commission report and IS public domain, so it stays in the repo as the evidence behind the
+# physics-validation claims.
+
+# ---------------------------------------------------------------- personal / scratch
+WhatsApp Image*.jpeg
+*.tmp
+scratch/
+diag*.py.bak

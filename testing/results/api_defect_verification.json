@@ -1,0 +1,857 @@
+{
+ "verified_at": "2026-08-11T20:32:58.222570",
+ "n_calls": 32,
+ "before": 180980,
+ "after": 180980,
+ "findings": {
+  "D1": {
+   "id": "D1",
+   "title": "Unavailable forecast window returns status=completed with zero tiles instead of an error or retry signal",
+   "status": "CONFIRMED",
+   "expected": "Either tiles, or a non-success status / explicit error the client can retry on",
+   "actual": "status=completed, map_data.features=[] , stats_data present but empty. 10/10 attempts empty, 0/10 returned tiles",
+   "trials": {
+    "n": 10,
+    "empty": 10,
+    "ok": 0,
+    "outcomes": [
+     "EMPTY_completed",
+     "EMPTY_completed",
+     "EMPTY_completed",
+     "EMPTY_completed",
+     "EMPTY_completed",
+     "EMPTY_completed",
+     "EMPTY_completed",
+     "EMPTY_completed",
+     "EMPTY_completed",
+     "EMPTY_completed"
+    ]
+   },
+   "payloads": [
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "tcm",
+     "date_time": {
+      "start_date": "2026-08-12",
+      "start_time": "02:00",
+      "filter_type": 1
+     }
+    }
+   ],
+   "notes": "FortyGuard confirms the 12 h forecast exists and transient failures are retryable. This entry is about the failure MODE, not the capability: a retryable condition is indistinguishable from a legitimately empty result, so clients cannot know to retry."
+  },
+  "D2": {
+   "id": "D2",
+   "title": "analytic_type=time_of_measure returns non-reproducible and physically implausible hours",
+   "status": "CONFIRMED",
+   "expected": "The hour of the daily maximum: for Ashburn VA in July, mid-afternoon, and identical across identical requests",
+   "actual": "Identical requests returned [22.0, 22.0, 22.0]. tcm on the same date: 12:00-16:00 = 31.122 C vs 20:00-23:00 = 24.676 C, so the maximum is in the afternoon.",
+   "trials": {
+    "runs": [
+     {
+      "n": 397,
+      "min": 14.0,
+      "max": 22.0,
+      "mean": 18.876574307304786,
+      "modal": 22.0
+     },
+     {
+      "n": 397,
+      "min": 14.0,
+      "max": 22.0,
+      "mean": 18.876574307304786,
+      "modal": 22.0
+     },
+     {
+      "n": 397,
+      "min": 14.0,
+      "max": 22.0,
+      "mean": 18.876574307304786,
+      "modal": 22.0
+     }
+    ],
+    "identical_across_calls": true,
+    "tcm_windows": {
+     "12:00": 31.12170176322418,
+     "20:00": 24.67609420654912
+    },
+    "physically_implausible": true
+   },
+   "payloads": [
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.45756073907697,
+            39.00095628267043
+           ],
+           [
+            -77.43443926092303,
+            39.00095628267043
+           ],
+           [
+            -77.43443926092303,
+            39.019043717329566
+           ],
+           [
+            -77.45756073907697,
+            39.019043717329566
+           ],
+           [
+            -77.45756073907697,
+            39.00095628267043
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "time_of_measure",
+     "date_time": {
+      "start_date": "2026-07-28",
+      "start_time": "01:00",
+      "end_time": "23:00",
+      "filter_type": 2
+     }
+    }
+   ],
+   "notes": "A previously saved response for this same date and window returned 14.0 for all tiles with spatial sd 0.000, while later calls returned a modal hour of 22 with range 14-22."
+  },
+  "D3": {
+   "id": "D3",
+   "title": "analytic_type=persistence returns values identical to exceedance",
+   "status": "CONFIRMED",
+   "expected": "persistence should describe run-length / duration above threshold; exceedance describes count or magnitude of exceedance. They should differ.",
+   "actual": "84 of 84 tiles identical (100.0%)",
+   "trials": {
+    "tiles_compared": 84,
+    "identical": 84,
+    "fraction": 1.0
+   },
+   "payloads": [
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "exceedance",
+     "threshold_temperature": 30.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "10:00",
+      "end_time": "18:00",
+      "filter_type": 2
+     }
+    },
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "persistence",
+     "threshold_temperature": 30.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "10:00",
+      "end_time": "18:00",
+      "filter_type": 2
+     }
+    }
+   ],
+   "notes": ""
+  },
+  "D4a": {
+   "id": "D4a",
+   "title": "Parameter named cloud_cover_octas returns values outside the octas range 0-8",
+   "status": "CONFIRMED",
+   "expected": "Octas are eighths of sky cover: integers 0-8",
+   "actual": "observed values [81.0, 89.0, 44.0, 38.0]; 4 of 4 exceed 8",
+   "trials": {
+    "values": [
+     81.0,
+     89.0,
+     44.0,
+     38.0
+    ],
+    "n_over_8": 4
+   },
+   "payloads": [
+    {
+     "latitude": 39.01,
+     "longitude": -77.446,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "06:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 39.06,
+     "longitude": -77.396,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "12:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 32.779,
+     "longitude": -96.808,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "18:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 33.448,
+     "longitude": -112.074,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "15:00",
+      "filter_type": 1
+     }
+    }
+   ],
+   "notes": "Values look like percentages. Either the field should be renamed cloud_cover_percent or the values divided by 12.5."
+  },
+  "D4b": {
+   "id": "D4b",
+   "title": "heat_index_celsius is near-constant across widely different conditions",
+   "status": "CONFIRMED",
+   "expected": "Heat index should vary with temperature and humidity, comparably to apparent temperature",
+   "actual": "heat_index values [25.7, 25.9, 25.5, 24.8] (sd 0.415) vs apparent_temperature [25.9, 34.0, 37.3, 42.9] (sd 6.154) over the same four points/hours spanning Virginia, Texas and Arizona",
+   "trials": {
+    "heat_index": [
+     25.7,
+     25.9,
+     25.5,
+     24.8
+    ],
+    "apparent": [
+     25.9,
+     34.0,
+     37.3,
+     42.9
+    ],
+    "hi_sd": 0.41457809879442425,
+    "ap_sd": 6.154419143997263
+   },
+   "payloads": [
+    {
+     "latitude": 39.01,
+     "longitude": -77.446,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "06:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 39.06,
+     "longitude": -77.396,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "12:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 32.779,
+     "longitude": -96.808,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "18:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 33.448,
+     "longitude": -112.074,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "15:00",
+      "filter_type": 1
+     }
+    }
+   ],
+   "notes": ""
+  },
+  "D4c": {
+   "id": "D4c",
+   "title": "Timezone label does not reflect daylight saving",
+   "status": "OBSERVED_ONCE",
+   "expected": "Eastern US in August is EDT = GMT-4",
+   "actual": "labels seen: [] (for points spanning Eastern, Central and Mountain zones)",
+   "trials": {
+    "labels": []
+   },
+   "payloads": [
+    {
+     "latitude": 39.01,
+     "longitude": -77.446,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "06:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 39.06,
+     "longitude": -77.396,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "12:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 32.779,
+     "longitude": -96.808,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "18:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 33.448,
+     "longitude": -112.074,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "15:00",
+      "filter_type": 1
+     }
+    }
+   ],
+   "notes": "Previously observed as GMT-5 in both July and August. A single label across multiple US time zones would be a separate issue."
+  },
+  "D5": {
+   "id": "D5",
+   "title": "start_time equal to end_time returns HTTP 500 Internal Server Error",
+   "status": "CONFIRMED",
+   "expected": "A 400-class validation error naming the problem, or a zero-length window handled gracefully",
+   "actual": "HTTP 500 on 3 of 3 attempts",
+   "trials": {
+    "attempts": [
+     "submit: HTTP Error 500: Internal Server Error",
+     "submit: HTTP Error 500: Internal Server Error",
+     "submit: HTTP Error 500: Internal Server Error"
+    ],
+    "n_500": 3
+   },
+   "payloads": [
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "tcm",
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "14:00",
+      "end_time": "14:00",
+      "filter_type": 2
+     }
+    }
+   ],
+   "notes": ""
+  },
+  "D6": {
+   "id": "D6",
+   "title": "heatmap and env_params disagree substantially for the same point, hour and quantity",
+   "status": "CONFIRMED",
+   "expected": "Two endpoints describing air temperature at the same coordinate and hour should agree to well within 1 C, or the difference should be documented",
+   "actual": "differences ['+1.560', '+9.180']",
+   "trials": {
+    "pairs": [
+     {
+      "hour": "09:00",
+      "heatmap_mean_avg_c": 26.56,
+      "env_params_c": 25.0,
+      "difference_c": 1.5599999999999987
+     },
+     {
+      "hour": "15:00",
+      "heatmap_mean_avg_c": 34.18,
+      "env_params_c": 25.0,
+      "difference_c": 9.18
+     }
+    ],
+    "n_over_1C": 2
+   },
+   "payloads": [
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.44889018476924,
+            39.007739070667604
+           ],
+           [
+            -77.44310981523076,
+            39.007739070667604
+           ],
+           [
+            -77.44310981523076,
+            39.01226092933239
+           ],
+           [
+            -77.44889018476924,
+            39.01226092933239
+           ],
+           [
+            -77.44889018476924,
+            39.007739070667604
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "tcm",
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "09:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 39.01,
+     "longitude": -77.446,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "09:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.44889018476924,
+            39.007739070667604
+           ],
+           [
+            -77.44310981523076,
+            39.007739070667604
+           ],
+           [
+            -77.44310981523076,
+            39.01226092933239
+           ],
+           [
+            -77.44889018476924,
+            39.01226092933239
+           ],
+           [
+            -77.44889018476924,
+            39.007739070667604
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "tcm",
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "15:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "latitude": 39.01,
+     "longitude": -77.446,
+     "temperature": 25.0,
+     "date_time": {
+      "start_date": "2026-08-10",
+      "start_time": "15:00",
+      "filter_type": 1
+     }
+    }
+   ],
+   "notes": "If the two serve different quantities (e.g. tile-aggregate vs point, or different reference heights) that should be stated in the docs so clients do not blend them."
+  },
+  "D7": {
+   "id": "D7",
+   "title": "Historical coverage floor is undocumented; older years return empty successes",
+   "status": "CONFIRMED",
+   "expected": "Either data, or an error stating the earliest supported date",
+   "actual": "by year: {2019: 'error:timeout', 2021: 'EMPTY_completed', 2023: 'ok:84', 2025: 'ok:84'}",
+   "trials": {
+    "by_year": {
+     "2019": "error:timeout",
+     "2021": "EMPTY_completed",
+     "2023": "ok:84",
+     "2025": "ok:84"
+    },
+    "served_years": [
+     2023,
+     2025
+    ]
+   },
+   "payloads": [
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "tcm",
+     "date_time": {
+      "start_date": "2019-07-15",
+      "start_time": "15:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "tcm",
+     "date_time": {
+      "start_date": "2021-07-15",
+      "start_time": "15:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "tcm",
+     "date_time": {
+      "start_date": "2023-07-15",
+      "start_time": "15:00",
+      "filter_type": 1
+     }
+    },
+    {
+     "polygon_aoi": {
+      "type": "FeatureCollection",
+      "features": [
+       {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.00547814133521
+           ],
+           [
+            -77.44021963046151,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.014521858664786
+           ],
+           [
+            -77.45178036953848,
+            39.00547814133521
+           ]
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     "granularity": 100,
+     "analytic_type": "tcm",
+     "date_time": {
+      "start_date": "2025-07-15",
+      "start_time": "15:00",
+      "filter_type": 1
+     }
+    }
+   ],
+   "notes": "Same failure mode as D1: unsupported ranges arrive as successful empty responses."
+  }
+ }
+}

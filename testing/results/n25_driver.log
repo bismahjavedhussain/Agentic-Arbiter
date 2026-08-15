@@ -1,0 +1,82 @@
+2026-08-12 08:37:19  driver started
+2026-08-12 08:37:19  next due 10:30:00 UTC -- sleeping 113.0 min
+2026-08-12 10:31:19  poll rc=0
+   FORECAST shot  planned lead 7.50 h, actual lead 7.49 h  ->  n25_f_lead07.49
+      17,862 tiles   mean per-tile max 32.2006 C
+   1 call(s) made this poll. 3 forecast shot(s) still pending.
+      next due 2026-08-12 12:30 UTC (in 1.98 h)
+   credits: before 180,980  after 180,980  APPARENT SPEND 0
+2026-08-12 10:31:24  next due 12:30:00 UTC -- sleeping 118.9 min
+2026-08-12 12:31:16  poll rc=0
+   FORECAST shot  planned lead 5.50 h, actual lead 5.49 h  ->  n25_f_lead05.49
+      17,862 tiles   mean per-tile max 32.0002 C
+   1 call(s) made this poll. 2 forecast shot(s) still pending.
+      next due 2026-08-12 14:30 UTC (in 1.98 h)
+   credits: before 180,980  after 180,980  APPARENT SPEND 0
+2026-08-12 12:31:21  next due 14:30:00 UTC -- sleeping 119.0 min
+2026-08-12 14:31:19  poll rc=0
+   FORECAST shot  planned lead 3.50 h, actual lead 3.49 h  ->  n25_f_lead03.49
+      17,862 tiles   mean per-tile max 32.2943 C
+   1 call(s) made this poll. 1 forecast shot(s) still pending.
+      next due 2026-08-12 16:30 UTC (in 1.98 h)
+   credits: before 180,980  after 180,980  APPARENT SPEND 0
+2026-08-12 14:31:24  next due 16:30:00 UTC -- sleeping 118.9 min
+2026-08-12 16:31:25  poll rc=0
+   FORECAST shot  planned lead 1.50 h, actual lead 1.49 h  ->  n25_f_lead01.49
+      17,862 tiles   mean per-tile max 32.1334 C
+   1 call(s) made this poll. 0 forecast shot(s) still pending.
+      all shots fired; OUTCOME due 2026-08-12 20:15 UTC (in 3.73 h)
+   credits: before 180,980  after 180,980  APPARENT SPEND 0
+2026-08-12 16:31:30  next due 20:15:00 UTC -- sleeping 223.8 min
+2026-08-12 20:16:23  poll rc=0
+   OUTCOME  the window has elapsed; requesting it as history ...
+      17,862 tiles   mean per-tile max 31.1156 C
+   1 call(s) made this poll. 0 forecast shot(s) still pending.
+      everything collected -- run 'report'.
+   credits: before 180,980  after 180,980  APPARENT SPEND 0
+2026-08-12 20:16:28  all shots and the outcome are collected -- running report
+2026-08-12 20:16:31  report rc=1
+
+==============================================================================
+N-25 report  fitting the sharpening exponent against a pre-registered threshold
+==============================================================================
+   target window 2026-08-12 14:00-16:00 site-local (America/New_York)
+   outcome: 17,862 tiles, mean per-tile max 31.1156 C
+
+     lead h   n tiles    bias C     sd C    rms C  q90|res|  quadrant sd (NE NW SE SW)
+       9.41    17,862   +0.8396   0.1056   0.8462    0.9686  0.0624 0.1265 0.0784 0.1209
+       7.49    17,862   +1.0850   0.1084   1.0904    1.1970  0.0415 0.0832 0.0892 0.1221
+       5.49    17,862   +0.8846   0.0959   0.8898    0.9830  0.0334 0.1214 0.0757 0.0973
+       3.49    17,862   +1.1787   0.1299   1.1858    1.2872  0.0801 0.1070 0.1436 0.0948
+       1.49    17,862   +1.0177   0.1123   1.0239    1.1215  0.0274 0.0861 0.0910 0.1255
+
+   DID A NEW FORECAST ACTUALLY ARRIVE BETWEEN SHOTS?
+      issued pair                 tiles   frac chg    rms chg 
+      9.41 h -> 7.49 h           17,862     100.0%     0.2549 new forecast
+      7.49 h -> 5.49 h           17,862     100.0%     0.2076 new forecast
+      5.49 h -> 3.49 h           17,862     100.0%     0.3082 new forecast
+      3.49 h -> 1.49 h           17,862     100.0%     0.1834 new forecast
+      -> 5 distinct forecast(s) across 5 shots
+
+   FIT  sigma(lead) = A * lead ** b   over leads 1.49-9.41 h (6.3x baseline)
+      b from per-tile sd        : -0.061   (R^2 0.161)  <- the headline
+      b from |residual| q90     : -0.063   (the quantity the conformal bound uses)
+      b from rms (bias + sd)    : -0.081   (total error, if no bias correction)
+      b per spatial quadrant    : NE +0.255  NW +0.124  SE -0.129  SW -0.005
+      -> spread -0.129 to +0.255. Tiles are spatially correlated, so THIS spread is
+         the honest uncertainty on b, not the 17,862 tile count.
+
+   MEASURED IN-RANGE RATIO  sigma(1.49 h) / sigma(9.41 h) = 1.063
+   rho EXTRAPOLATED to the N-24 definition sigma(3h)/sigma(12h) = 1.088
+      [S] this last number extrapolates the fitted power law beyond the measured range.
+          Quote b against the threshold; quote rho only with this caveat attached.
+
+   VERDICT AGAINST THE N-24 PRE-REGISTERED THRESHOLDS
+      b >= 0.187  -> stopping rule beats the tuned adversary by > 2 sigma
+      0.129-0.187  -> break-even to marginal; re-run N-9 at the measured b
+      b <  0.129  -> waiting buys nothing; report the null
+      measured b = -0.061
+      -> FAIL
+
+   VERDICT: FAIL - measured b = -0.061 is below the 0.129 break-even pre-registered in N-24, across 5 distinct forecasts so the result IS identified. At this sharpening rate waiting buys no information and the stopping rule earns nothing over a tuned fixed-hour rule. Report the null honestly and rebuild the agency claim on the peak-hour risk alone -- N-24's joint grid says that will not be enough on its own, so this outcome means the central decision is not agentic and the project needs rethinking before 18 Aug.
+

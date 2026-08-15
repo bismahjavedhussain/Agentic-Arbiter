@@ -1,0 +1,49 @@
+{
+ "question": "what diffusivity does real weather imply, hour by hour?",
+ "wind_source": "KIAD ASOS via Iowa State Environmental Mesonet, America/New_York",
+ "separation_m": 230.0,
+ "current_fixed_D": 8.0,
+ "n_hours": 970,
+ "class_distribution": {
+  "D": 165,
+  "C": 301,
+  "C-D": 19,
+  "B": 90,
+  "E": 201,
+  "F": 90,
+  "B-C": 84,
+  "A": 3,
+  "A-B": 17
+ },
+ "D_quantiles": {
+  "5": 0.2685104792032277,
+  "25": 1.1044828362113,
+  "50": 3.790788955113512,
+  "75": 5.720422655987395,
+  "95": 11.093223900642844
+ },
+ "D_min": 0.2685104792032277,
+ "D_max": 16.395458916119974,
+ "D_median": 3.790788955113512,
+ "ratio_to_fixed": 2.1103786295484883,
+ "frac_within_factor_2": 0.42577319587628865,
+ "flagged_source_cells": {
+  "source cell '>6 / Slight' reads C, which is not physical; using D": 27,
+  "row<2 night is BLANK in the source; standard versions give F": 206
+ },
+ "insolation_method": "OURS - solar elevation banded then reduced for cloud; the rigorous route is Turner (1964) net-radiation index",
+ "decision_hours": {
+  "n": 286,
+  "D_median": 7.395482600428562,
+  "classes": {
+   "C-D": 13,
+   "D": 46,
+   "C": 79,
+   "B": 61,
+   "B-C": 67,
+   "A": 3,
+   "A-B": 17
+  }
+ },
+ "pass": false
+}

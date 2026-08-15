@@ -1,0 +1,19 @@
+{
+ "device": "cuda:0",
+ "grid": 200,
+ "dx_m": 10.0,
+ "steps": 800,
+ "correct": true,
+ "max_diff_c": 0.0002473687766517685,
+ "mean_diff_c": 1.4015063100206592e-05,
+ "single_cpu_s": 0.5925788879394531,
+ "single_gpu_s": 2.594420909881592,
+ "n_ensemble": 100,
+ "cpu_ensemble_s": 63.58355259895325,
+ "gpu_ensemble_s": 0.8740613460540771,
+ "speedup": 72.7449542140254,
+ "ensemble_max_diff_c": 7.16096233865926e-05,
+ "cpu_p90": 0.8802664502551382,
+ "gpu_p90": 0.8802282797127878,
+ "pass": true
+}

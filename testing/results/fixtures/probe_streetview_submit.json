@@ -1,0 +1,8 @@
+{
+ "error": false,
+ "status_code": 200,
+ "message": "Street View Segmentation Submitted Successfully",
+ "data": {
+  "activity_id": "1cf837aa-a857-452a-a349-dd83a0b92186"
+ }
+}

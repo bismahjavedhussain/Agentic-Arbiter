@@ -1,0 +1,67 @@
+{
+ "question": "is env_params' daylight-saving error in the LABEL only, or in the DATA?",
+ "conclusion": "DATA SHIFTED -- env_params computes on STANDARD time (EST, -05:00) even on dates when the AOI is on daylight time (EDT, -04:00)",
+ "decisive_evidence": {
+  "method": "clear-sky GHI is pure astronomy, no weather noise. Its peak must fall at true solar noon.",
+  "ghi_by_labelled_hour": {
+   "10": 738.27,
+   "11": 836.59,
+   "12": 880.09,
+   "13": 865.54,
+   "14": 793.99,
+   "15": 670.76
+  },
+  "ghi_peak_labelled_hour": 12,
+  "solar_noon_if_label_is_EDT": 13,
+  "solar_noon_if_label_is_EST": 12,
+  "solar_algorithm": "verified to 0.0 deg against a known value in N-33"
+ },
+ "inconclusive_attempts": {
+  "rh_single_day": {
+   "best_lag": 0,
+   "corr": 0.7682,
+   "runner_up_corr": 0.749,
+   "margin": 0.0193,
+   "verdict": "UNRESOLVED"
+  },
+  "rh_pooled_8_days": {
+   "n_pairs": 192,
+   "best_lag": 0,
+   "corr": 0.9181,
+   "runner_up_corr": 0.9012,
+   "margin": 0.0169,
+   "verdict": "UNRESOLVED"
+  },
+  "rh_min_hour_offsets": [
+   0,
+   2,
+   1,
+   0,
+   -3,
+   -5,
+   -1,
+   1
+  ],
+  "per_day_best_lag_tally": {
+   "0": 5,
+   "1": 2,
+   "2": 1
+  },
+  "why_they_failed": "env_params RH is a modelled field whose diurnal phase does not track a station 8 km away closely enough; the correlation curve is too flat near its peak to locate a 1-hour shift regardless of sample size"
+ },
+ "consequence": "a caller requesting 12:00 on a summer day receives the conditions for 12:00 EST = 13:00 EDT, i.e. one hour LATER in true local time than requested",
+ "affects_our_work": {
+  "N-33 stability": "NOT affected -- used ASOS wind and our own solar calculation, not env_params timing",
+  "N-25 sharpening / N-26 coverage": "NOT affected -- both use heatmap, and forecast and outcome are requested with the SAME window specification, so any systematic offset cancels",
+  "N-31 wind alignment": "potentially misaligned by up to 1 h against ASOS, but its conclusion rests on the single-template finding which does not depend on wind timing",
+  "open": "whether heatmap is ALSO on EST cannot be distinguished by the horizon test -- both readings fit the 12 h cut. Our tests are self-consistent either way."
+ },
+ "secondary_finding": "with a multi-hour window, env_params returns ARRAYS for parameters (24 values) but a SCALAR for solar_irradiance -- inconsistent, and it blocked the array version of this test",
+ "calls_used": {
+  "env_params_day_windows": 8,
+  "env_params_single_hours": 6
+ },
+ "credits_before": 180980,
+ "credits_after": 180980,
+ "pass": false
+}

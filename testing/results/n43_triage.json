@@ -1,0 +1,70 @@
+{
+ "prediction": "real chance of passing, due to N-23's 27.04x measured uncertainty swing; real risk of failing like N-20 if site curves are similarly shaped",
+ "n_sites": 20,
+ "n_dir_bins": 72,
+ "n_members_per_bin": 15,
+ "k_served": 4,
+ "n_test_days": 3000,
+ "decision_lead_h": 3,
+ "wind_error_source": {
+  "station": "KIAD",
+  "decision_hour_site": 16,
+  "min_kt": 3.0,
+  "n_hours": 1619,
+  "n_days": 72,
+  "span": "2026-06-01 to 2026-08-11",
+  "quantity": "persistence error of wind direction",
+  "why_lower_bound": "any real forecast beats persistence; this understates skill",
+  "calm_excluded_because": "ASOS reports drct=0 when calm, which is not a direction"
+ },
+ "threshold_rise": 0.32908204137062586,
+ "per_site_marginal_p90": [
+  0.1770645024825116,
+  0.05591561842937948,
+  0.20187938845887354,
+  0.5375893884775584,
+  0.4024082183837895,
+  0.09746399704290881,
+  2.4126482438068004,
+  0.28327302738111937,
+  0.24362703050885776,
+  0.6310667466144165,
+  1.1570384823546114,
+  0.814431727662377,
+  0.49262515087517106,
+  0.37489105536013234,
+  0.9409438074851534,
+  0.24358601472815686,
+  0.06464715685163351,
+  0.06955831488784522,
+  0.5729984789478525,
+  0.03293185720638482
+ ],
+ "costs": {
+  "equal_rotation": {
+   "mean": 2.463,
+   "sd": 1.0659939560670393
+  },
+  "top_k_mean": {
+   "mean": 0.9706666666666667,
+   "sd": 1.0373837013709917
+  },
+  "top_k_marginal": {
+   "mean": 2.108,
+   "sd": 0.9855589490981158
+  },
+  "random_k": {
+   "mean": 2.45,
+   "sd": 1.0938763741120903
+  },
+  "ensemble_p90": {
+   "mean": 1.0126666666666666,
+   "sd": 0.9709894416113884
+  }
+ },
+ "best_baseline": "top_k_mean",
+ "gain": -0.042,
+ "se": 0.011561954065648286,
+ "sigma": -3.632603949256828,
+ "pass": false
+}

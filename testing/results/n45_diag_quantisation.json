@@ -1,0 +1,96 @@
+{
+ "measures": "whether the empty last-straw band is a real physical result or an artifact of whole-Fahrenheit ASOS quantisation, and how many days each candidate remedy size could actually flip",
+ "n_days": 534,
+ "fahrenheit_grid_fraction": 1.0,
+ "grid_spacing_c": 0.5555555555555556,
+ "band_0.40C_is_below_resolution": true,
+ "days_within_remedy_of_limit": {
+  "limit_33.0": {
+   "remedy_0.25": {
+    "n_days": 12,
+    "frac": 0.02247191011235955
+   },
+   "remedy_0.40": {
+    "n_days": 12,
+    "frac": 0.02247191011235955
+   },
+   "remedy_1.00": {
+    "n_days": 38,
+    "frac": 0.07116104868913857
+   },
+   "remedy_1.50": {
+    "n_days": 80,
+    "frac": 0.149812734082397
+   },
+   "remedy_2.00": {
+    "n_days": 104,
+    "frac": 0.1947565543071161
+   }
+  },
+  "limit_35.0": {
+   "remedy_0.25": {
+    "n_days": 0,
+    "frac": 0.0
+   },
+   "remedy_0.40": {
+    "n_days": 0,
+    "frac": 0.0
+   },
+   "remedy_1.00": {
+    "n_days": 10,
+    "frac": 0.018726591760299626
+   },
+   "remedy_1.50": {
+    "n_days": 25,
+    "frac": 0.04681647940074907
+   },
+   "remedy_2.00": {
+    "n_days": 42,
+    "frac": 0.07865168539325842
+   }
+  },
+  "limit_40.0": {
+   "remedy_0.25": {
+    "n_days": 0,
+    "frac": 0.0
+   },
+   "remedy_0.40": {
+    "n_days": 0,
+    "frac": 0.0
+   },
+   "remedy_1.00": {
+    "n_days": 0,
+    "frac": 0.0
+   },
+   "remedy_1.50": {
+    "n_days": 0,
+    "frac": 0.0
+   },
+   "remedy_2.00": {
+    "n_days": 0,
+    "frac": 0.0
+   }
+  }
+ },
+ "days_ambient_alone_over_limit": {
+  "limit_33.0": {
+   "n_days": 68,
+   "frac": 0.12734082397003746
+  },
+  "limit_35.0": {
+   "n_days": 26,
+   "frac": 0.04868913857677903
+  },
+  "limit_40.0": {
+   "n_days": 0,
+   "frac": 0.0
+  }
+ },
+ "ambient_c": {
+  "p90": 33.33,
+  "p95": 34.44,
+  "p99": 36.67,
+  "max": 37.22,
+  "median": 29.44
+ }
+}

@@ -1,0 +1,113 @@
+{
+ "version": 3,
+ "supersedes": [
+  "v1 circular p90-vs-max",
+  "v2 uniform-direction p99 (+0.502 C), void"
+ ],
+ "calibrated": {
+  "uc": 8.0,
+  "exchange_s": 20.0
+ },
+ "design_wind_ms": 6.0,
+ "direction_scan": {
+  "0": 1.0239635332235746e-07,
+  "45": 0.0,
+  "90": 0.0,
+  "135": 0.0,
+  "180": 1.1936383733276064e-09,
+  "225": 0.019227373556395772,
+  "270": 0.5891027697248544,
+  "315": 0.0023156316324343487
+ },
+ "worst_direction": 270,
+ "baseline_p99": 0.8737175254744998,
+ "baseline_quantiles": {
+  "50": 0.34930443369233544,
+  "90": 0.745224460679555,
+  "95": 0.7950039072738578,
+  "99": 0.8737175254744998
+ },
+ "by_direction": [
+  {
+   "wind_from": 0,
+   "cond_p90": 6.091681896691653e-08,
+   "saving": 0.8737174645576808,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 45,
+   "cond_p90": 0.0,
+   "saving": 0.8737175254744998,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 90,
+   "cond_p90": 0.0,
+   "saving": 0.8737175254744998,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 135,
+   "cond_p90": 0.0,
+   "saving": 0.8737175254744998,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 180,
+   "cond_p90": 2.9750698971042772e-08,
+   "saving": 0.8737174957238008,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 225,
+   "cond_p90": 0.10341253612410067,
+   "saving": 0.770304989350399,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 270,
+   "cond_p90": 0.7080135077905937,
+   "saving": 0.16570401768390608,
+   "verdict": "partial"
+  },
+  {
+   "wind_from": 315,
+   "cond_p90": 0.11960517922045613,
+   "saving": 0.7541123462540437,
+   "verdict": "relax"
+  }
+ ],
+ "median_saving": 0.8737174801407408,
+ "best_saving": 0.8737175254744998,
+ "worst_saving": 0.16570401768390608,
+ "n_relax": 7,
+ "n_hold": 0,
+ "two_sided": "False",
+ "sweeps": [
+  {
+   "design_wind": 3.0,
+   "baseline": 0.8915301748498761,
+   "best_saving": 0.891530174756784,
+   "worst_saving": 0.5140218972974082
+  },
+  {
+   "design_wind": 6.0,
+   "baseline": 0.9710280789145522,
+   "best_saving": 0.9710280789145522,
+   "worst_saving": 0.292752030074384
+  },
+  {
+   "design_wind": 9.0,
+   "baseline": 0.9402242890339608,
+   "best_saving": 0.9402242890339608,
+   "worst_saving": 0.1397597609736455
+  },
+  {
+   "design_wind": 12.0,
+   "baseline": 0.8174460375037857,
+   "best_saving": 0.8174460375037857,
+   "worst_saving": -0.15595023283256415
+  }
+ ],
+ "pass": "False"
+}

@@ -1,0 +1,40 @@
+{
+ "warp_installed": false,
+ "single_solve": [
+  {
+   "dx": 20.0,
+   "grid": 100,
+   "secs": 0.052,
+   "rise": 1.8595
+  },
+  {
+   "dx": 10.0,
+   "grid": 200,
+   "secs": 0.583,
+   "rise": 1.5781
+  },
+  {
+   "dx": 5.0,
+   "grid": 400,
+   "secs": 15.723,
+   "rise": 1.7169
+  }
+ ],
+ "extrapolated": {
+  "20.0": {
+   "total_s": 104.0,
+   "verdict": "CPU is fine"
+  },
+  "10.0": {
+   "total_s": 1166.0,
+   "verdict": "CPU too slow for a 5-min cycle"
+  },
+  "5.0": {
+   "total_s": 31446.000000000004,
+   "verdict": "CPU IMPOSSIBLE (8.7 hours)"
+  }
+ },
+ "per_run_s": 0.435625159740448,
+ "full_cycle_s": 871.250319480896,
+ "bottleneck": true
+}

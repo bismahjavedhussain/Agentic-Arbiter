@@ -1,0 +1,39 @@
+{
+ "before": 180980,
+ "after": 180980,
+ "spent": 0,
+ "cool": {
+  "lat": 39.038966968612264,
+  "lon": -77.44391461057222,
+  "heatmap_c": 29.9818
+ },
+ "hot": {
+  "lat": 38.97535077654745,
+  "lon": -77.43066022666281,
+  "heatmap_c": 32.4266
+ },
+ "separation_m": 7165.907473857949,
+ "a": {
+  "wet_bulb_temperature_celsius": 22.2,
+  "relative_humidity_percent": 69.6,
+  "air_quality_o3:idx": 42.2,
+  "air_quality_pm2p5:idx": 94.0,
+  "apparent_temperature_celsius": 29.5,
+  "elevation": 74.0,
+  "solar_ghi": 702.56,
+  "_secs": 13.6
+ },
+ "b": {
+  "wet_bulb_temperature_celsius": 21.8,
+  "relative_humidity_percent": 62.2,
+  "air_quality_o3:idx": 44.7,
+  "air_quality_pm2p5:idx": 88.7,
+  "apparent_temperature_celsius": 30.1,
+  "elevation": 93.0,
+  "solar_ghi": 702.69,
+  "_secs": 13.9
+ },
+ "c": null,
+ "n1_pass": true,
+ "n2_pass": null
+}

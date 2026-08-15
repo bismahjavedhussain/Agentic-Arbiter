@@ -1,0 +1,35 @@
+{
+ "R1": {
+  "rows": [
+   {
+    "input": 10.0,
+    "echo": 10.0,
+    "hi": 10.0,
+    "ap": 30.8,
+    "wb": 24.6
+   },
+   {
+    "input": 25.0,
+    "echo": 25.0,
+    "hi": 25.8,
+    "ap": 30.8,
+    "wb": 24.6
+   },
+   {
+    "input": 40.0,
+    "echo": 40.0,
+    "hi": 86.7,
+    "ap": 30.8,
+    "wb": 24.6
+   }
+  ],
+  "heat_index_tracks_input": true,
+  "temperature_is_echo": true
+ },
+ "R2": {
+  "n": 84,
+  "identical": 0,
+  "fraction": 0.0,
+  "verdict": "WITHDRAWN"
+ }
+}

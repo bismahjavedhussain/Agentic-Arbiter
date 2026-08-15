@@ -1,0 +1,158 @@
+{
+ "machine_now": "2026-08-11T16:00:00",
+ "centre": [
+  39.01,
+  -77.446
+ ],
+ "side_km": 1.0,
+ "granularity": 100,
+ "win_h": 2,
+ "offsets": [
+  -30,
+  -24,
+  -12,
+  -6,
+  -4,
+  -2,
+  0,
+  2,
+  4,
+  6,
+  8,
+  10,
+  12,
+  18,
+  24
+ ],
+ "rows": [
+  {
+   "offset_h": -30,
+   "date": "2026-08-10",
+   "start": "10:00",
+   "end": "12:00",
+   "status": "ok (84 tiles)",
+   "mean_max_c": 31.39909166666667
+  },
+  {
+   "offset_h": -24,
+   "date": "2026-08-10",
+   "start": "16:00",
+   "end": "18:00",
+   "status": "ok (84 tiles)",
+   "mean_max_c": 34.10764761904762
+  },
+  {
+   "offset_h": -12,
+   "date": "2026-08-11",
+   "start": "04:00",
+   "end": "06:00",
+   "status": "ok (84 tiles)",
+   "mean_max_c": 21.145354761904763
+  },
+  {
+   "offset_h": -6,
+   "date": "2026-08-11",
+   "start": "10:00",
+   "end": "12:00",
+   "status": "ok (84 tiles)",
+   "mean_max_c": 28.378495238095237
+  },
+  {
+   "offset_h": -4,
+   "date": "2026-08-11",
+   "start": "12:00",
+   "end": "14:00",
+   "status": "ok (84 tiles)",
+   "mean_max_c": 31.359792857142857
+  },
+  {
+   "offset_h": -2,
+   "date": "2026-08-11",
+   "start": "14:00",
+   "end": "16:00",
+   "status": "ok (84 tiles)",
+   "mean_max_c": 33.30689404761905
+  },
+  {
+   "offset_h": 0,
+   "date": "2026-08-11",
+   "start": "16:00",
+   "end": "18:00",
+   "status": "ok (84 tiles)",
+   "mean_max_c": 33.81964404761905
+  },
+  {
+   "offset_h": 2,
+   "date": "2026-08-11",
+   "start": "18:00",
+   "end": "20:00",
+   "status": "ok (84 tiles)",
+   "mean_max_c": 33.34643928571428
+  },
+  {
+   "offset_h": 4,
+   "date": "2026-08-11",
+   "start": "20:00",
+   "end": "22:00",
+   "status": "EMPTY",
+   "mean_max_c": null
+  },
+  {
+   "offset_h": 6,
+   "date": "2026-08-11",
+   "start": "22:00",
+   "end": "00:00",
+   "status": "skipped: crosses midnight",
+   "mean_max_c": null
+  },
+  {
+   "offset_h": 8,
+   "date": "2026-08-12",
+   "start": "00:00",
+   "end": "02:00",
+   "status": "EMPTY",
+   "mean_max_c": null
+  },
+  {
+   "offset_h": 10,
+   "date": "2026-08-12",
+   "start": "02:00",
+   "end": "04:00",
+   "status": "EMPTY",
+   "mean_max_c": null
+  },
+  {
+   "offset_h": 12,
+   "date": "2026-08-12",
+   "start": "04:00",
+   "end": "06:00",
+   "status": "EMPTY",
+   "mean_max_c": null
+  },
+  {
+   "offset_h": 18,
+   "date": "2026-08-12",
+   "start": "10:00",
+   "end": "12:00",
+   "status": "EMPTY",
+   "mean_max_c": null
+  },
+  {
+   "offset_h": 24,
+   "date": "2026-08-12",
+   "start": "16:00",
+   "end": "18:00",
+   "status": "EMPTY",
+   "mean_max_c": null
+  }
+ ],
+ "n_ok": 8,
+ "n_empty": 6,
+ "n_error": 0,
+ "max_future_offset_h": 2,
+ "min_past_offset_h": -30,
+ "before": 180980,
+ "after": 180980,
+ "meter_moved": false,
+ "pass": false
+}

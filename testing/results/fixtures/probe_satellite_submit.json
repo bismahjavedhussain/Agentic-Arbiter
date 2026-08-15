@@ -1,0 +1,8 @@
+{
+ "error": false,
+ "status_code": 200,
+ "message": "Satellite Segmentation Submitted Successfully",
+ "data": {
+  "activity_id": "b5238194-fb44-4e7d-bd93-0aed12a00189"
+ }
+}

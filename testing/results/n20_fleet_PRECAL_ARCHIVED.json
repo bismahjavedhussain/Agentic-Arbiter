@@ -1,0 +1,49 @@
+{
+ "prediction": "expected to FAIL against equal-split / marginality ranking",
+ "n_sites": 20,
+ "n_ref": 120,
+ "budget": 200,
+ "scout": 3,
+ "n_trials": 400,
+ "threshold_rise": 0.4190503665379114,
+ "true_p90_range": [
+  0.07727407727922726,
+  1.1170516695295045
+ ],
+ "site_sd_range": [
+  0.05544794059887745,
+  0.4275037129724587
+ ],
+ "baselines": {
+  "equal_split": {
+   "margin": 0.10000000000000187,
+   "train": 1.1163333333333334,
+   "test": 1.1555000000000002
+  },
+  "top_m_by_mean": {
+   "margin": 0.40000000000000213,
+   "train": 1.2106666666666663,
+   "test": 1.2362999999999997
+  },
+  "top_m_marginal": {
+   "margin": 0.40000000000000213,
+   "train": 1.2046666666666666,
+   "test": 1.2558999999999998
+  },
+  "random": {
+   "margin": 0.30000000000000204,
+   "train": 1.1899999999999997,
+   "test": 1.1745999999999999
+  }
+ },
+ "two_stage": {
+  "margin": 0.30000000000000204,
+  "train": 1.2373333333333332,
+  "test": 1.2291999999999998
+ },
+ "best_baseline": "equal_split",
+ "gain": -0.07369999999999996,
+ "se": 0.03691256043401063,
+ "sigma": -1.9966103443773568,
+ "pass": false
+}

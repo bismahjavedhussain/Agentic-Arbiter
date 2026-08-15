@@ -1,0 +1,20 @@
+{
+ "rows": [
+  {
+   "day": "2026-08-12",
+   "lead_h": 9.41,
+   "site_error_c": 0.9061755102040815,
+   "n_cells": 49,
+   "source": "N-26"
+  },
+  {
+   "day": "2026-08-13",
+   "lead_h": 9.498,
+   "site_error_c": 0.8261244897959182,
+   "n_cells": 49,
+   "source": "N-26"
+  }
+ ],
+ "pass": null,
+ "reason": "fewer than 3 usable leads"
+}

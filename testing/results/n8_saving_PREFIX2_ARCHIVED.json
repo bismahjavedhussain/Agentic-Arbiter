@@ -1,0 +1,122 @@
+{
+ "version": 4,
+ "supersedes": [
+  "v1 circular p90-vs-max",
+  "v2 uniform-direction p99 (+0.502 C), void",
+  "v3 pre-calibration solver (+0.874 C), void: exponent 2.0 / exchange_s 20 s falsified in N-21, refitted in N-22. v3 also claimed under-protection on the aligned direction, which is unreachable by construction. Archived at results/n8_saving_v3_ARCHIVED.json"
+ ],
+ "calibrated": {
+  "exponent": 1.25,
+  "uc": 8.0,
+  "exchange_s": 47.4
+ },
+ "backend": "warp GPU",
+ "steps": 800,
+ "n_scan": 40,
+ "n_base": 600,
+ "n_cond": 200,
+ "design_wind_ms": 6.0,
+ "direction_scan": {
+  "0": 0.0,
+  "45": 0.0,
+  "90": 0.0,
+  "135": 0.0,
+  "180": 0.0,
+  "225": 0.015874696264461363,
+  "270": 0.30679266209505024,
+  "315": 0.004170123898253308
+ },
+ "worst_direction": 270,
+ "n_directions_near_zero": 6,
+ "baseline_p99": 0.43687275010712234,
+ "baseline_quantiles": {
+  "50": 0.18798104111029268,
+  "90": 0.36071191904496025,
+  "95": 0.39634261228600276,
+  "99": 0.43687275010712234
+ },
+ "by_direction": [
+  {
+   "wind_from": 0,
+   "cond_p90": 0.0,
+   "saving": 0.43687275010712234,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 45,
+   "cond_p90": 0.0,
+   "saving": 0.43687275010712234,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 90,
+   "cond_p90": 0.0,
+   "saving": 0.43687275010712234,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 135,
+   "cond_p90": 0.0,
+   "saving": 0.43687275010712234,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 180,
+   "cond_p90": 1.4052099114536507e-06,
+   "saving": 0.4368713448972109,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 225,
+   "cond_p90": 0.052772214461344544,
+   "saving": 0.3841005356457778,
+   "verdict": "relax"
+  },
+  {
+   "wind_from": 270,
+   "cond_p90": 0.38786769010582844,
+   "saving": 0.0490050600012939,
+   "verdict": "DO NOT RELAX - exhaust on the intake"
+  },
+  {
+   "wind_from": 315,
+   "cond_p90": 0.03454104442985544,
+   "saving": 0.4023317056772669,
+   "verdict": "relax"
+  }
+ ],
+ "median_saving": 0.4368720475021666,
+ "best_saving": 0.43687275010712234,
+ "worst_saving": 0.0490050600012939,
+ "best_saving_frac_of_baseline": 1.0,
+ "n_relax": 7,
+ "n_hold": 1,
+ "two_sided": "True",
+ "sweeps": [
+  {
+   "design_wind": 3.0,
+   "baseline": 0.4363034481904947,
+   "best_saving": 0.4363034481904947,
+   "worst_saving": 0.07213151308954907
+  },
+  {
+   "design_wind": 6.0,
+   "baseline": 0.4415897739176862,
+   "best_saving": 0.4415897739176862,
+   "worst_saving": 0.022894129461172863
+  },
+  {
+   "design_wind": 9.0,
+   "baseline": 0.4470534710008255,
+   "best_saving": 0.4470534710008255,
+   "worst_saving": 0.0815631609546883
+  },
+  {
+   "design_wind": 12.0,
+   "baseline": 0.3570643471698366,
+   "best_saving": 0.3570643471698366,
+   "worst_saving": 0.035432366740946186
+  }
+ ],
+ "pass": true
+}

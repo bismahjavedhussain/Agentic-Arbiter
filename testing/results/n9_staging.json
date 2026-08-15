@@ -1,0 +1,284 @@
+{
+ "calibration": {
+  "n_tiles": 6875,
+  "bias_c": 0.34893848727272736,
+  "sd_c": 0.15035545399123917,
+  "conformal_halfwidth_c": 0.49499999999999744,
+  "n_residuals": 6875,
+  "alpha": 0.1
+ },
+ "spec": {
+  "thr_c": 33.0,
+  "capacity_c": 1.5,
+  "lead_h": 3,
+  "horizon_h": 12,
+  "end_h": 12,
+  "c_stage_hr": 1.0,
+  "c_stage_fixed": 2.0,
+  "c_excursion": 120.0,
+  "peak_centre_h": 8.0,
+  "peak_sd_h": 1.5
+ },
+ "n_train": 20000,
+ "n_test": 20000,
+ "protect_prob": {
+  "0": 0.9999048086752341,
+  "1": 0.9988675781525326,
+  "2": 0.9912034236327676,
+  "3": 0.9548928218854127,
+  "4": 0.8445909530966909,
+  "5": 0.6297522484649511,
+  "6": 0.36145117516781644,
+  "7": 0.1466124705360767,
+  "8": 0.0363106017473549,
+  "9": 0.0,
+  "10": 0.0,
+  "11": 0.0
+ },
+ "costs_heldout": {
+  "stopping_rule": 11.77265,
+  "deadline_thr": 22.3677,
+  "threshold_t0": 13.4435,
+  "myopic_hourly": 13.394,
+  "always_stage": 19.334,
+  "never_stage": 39.624,
+  "oracle": 9.91035
+ },
+ "excursions_heldout": {
+  "stopping_rule": 1431,
+  "deadline_thr": 3331,
+  "threshold_t0": 1389,
+  "myopic_hourly": 1389,
+  "always_stage": 1389,
+  "never_stage": 6604,
+  "oracle": null
+ },
+ "oracle": 9.91035,
+ "adversary": {
+  "hour": 2,
+  "margin": -0.15000000000001013,
+  "train_cost": 11.70255,
+  "test_cost": 12.12885,
+  "excursions": 1443
+ },
+ "gain_vs_best_tuned": 0.3561999999999994,
+ "gain_paired_se": 0.03171129701412283,
+ "gain_sigma": 11.23259007165062,
+ "stage_epoch_histogram": {
+  "0": 1052,
+  "1": 561,
+  "2": 4147,
+  "3": 660,
+  "4": 387,
+  "5": 131,
+  "6": 45,
+  "7": 26,
+  "8": 20,
+  "9": 25,
+  "10": 7,
+  "11": 0
+ },
+ "modal_epoch": 2,
+ "off_modal_frac": 0.4126894207619317,
+ "sweeps": [
+  {
+   "variation": "tightening exponent 0.00 (none)",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 12.2901,
+   "stopping": 12.49385,
+   "gain": -0.20375,
+   "se": 0.039947297608277706,
+   "sigma": -5.100470174427514
+  },
+  {
+   "variation": "tightening exponent 0.50",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 12.12885,
+   "stopping": 11.77265,
+   "gain": 0.3562,
+   "se": 0.03171129701412283,
+   "sigma": 11.23259007165062
+  },
+  {
+   "variation": "tightening exponent 1.00",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 11.94945,
+   "stopping": 11.57655,
+   "gain": 0.3729,
+   "se": 0.035314510264645625,
+   "sigma": 10.559398876141882
+  },
+  {
+   "variation": "peak-hour sd 0.5 h",
+   "best_tuned_hour": 4,
+   "best_tuned_test": 10.94575,
+   "stopping": 10.94115,
+   "gain": 0.0046,
+   "se": 0.023226728483490788,
+   "sigma": 0.19804769334043798
+  },
+  {
+   "variation": "peak-hour sd 1.0 h",
+   "best_tuned_hour": 3,
+   "best_tuned_test": 11.4772,
+   "stopping": 11.3302,
+   "gain": 0.147,
+   "se": 0.025674062940551377,
+   "sigma": 5.725622794505894
+  },
+  {
+   "variation": "peak-hour sd 2.5 h",
+   "best_tuned_hour": 0,
+   "best_tuned_test": 13.1449,
+   "stopping": 12.64575,
+   "gain": 0.49915,
+   "se": 0.045854989890740286,
+   "sigma": 10.885402029077662
+  },
+  {
+   "variation": "peak-hour sd 4.0 h",
+   "best_tuned_hour": 0,
+   "best_tuned_test": 15.4009,
+   "stopping": 15.12785,
+   "gain": 0.27305,
+   "se": 0.04577618876498885,
+   "sigma": 5.964891516019737
+  },
+  {
+   "variation": "excursion cost 20",
+   "best_tuned_hour": 3,
+   "best_tuned_test": 4.4538,
+   "stopping": 4.03795,
+   "gain": 0.41585,
+   "se": 0.019239268342307544,
+   "sigma": 21.614647324479453
+  },
+  {
+   "variation": "excursion cost 60",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 7.68585,
+   "stopping": 7.3282,
+   "gain": 0.35765,
+   "se": 0.029585394853786088,
+   "sigma": 12.088735058887714
+  },
+  {
+   "variation": "excursion cost 240",
+   "best_tuned_hour": 1,
+   "best_tuned_test": 20.7225,
+   "stopping": 20.341,
+   "gain": 0.3815,
+   "se": 0.060927526584252406,
+   "sigma": 6.261537623268694
+  },
+  {
+   "variation": "excursion cost 600",
+   "best_tuned_hour": 1,
+   "best_tuned_test": 45.9675,
+   "stopping": 45.53305,
+   "gain": 0.43445,
+   "se": 0.06964009367460207,
+   "sigma": 6.238503957648252
+  },
+  {
+   "variation": "lead time 1 h",
+   "best_tuned_hour": 4,
+   "best_tuned_test": 11.97225,
+   "stopping": 11.72225,
+   "gain": 0.25,
+   "se": 0.0319384721503732,
+   "sigma": 7.827550385721214
+  },
+  {
+   "variation": "lead time 2 h",
+   "best_tuned_hour": 3,
+   "best_tuned_test": 11.9883,
+   "stopping": 11.72125,
+   "gain": 0.26705,
+   "se": 0.03847370174757438,
+   "sigma": 6.941104907245804
+  },
+  {
+   "variation": "lead time 4 h",
+   "best_tuned_hour": 1,
+   "best_tuned_test": 12.13545,
+   "stopping": 11.8296,
+   "gain": 0.30585,
+   "se": 0.03728491380055552,
+   "sigma": 8.203049674086763
+  },
+  {
+   "variation": "lead time 6 h",
+   "best_tuned_hour": 0,
+   "best_tuned_test": 12.9712,
+   "stopping": 12.8757,
+   "gain": 0.0955,
+   "se": 0.04285995609297582,
+   "sigma": 2.2281870703001303
+  },
+  {
+   "variation": "capacity gain 0.5 C",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 29.35485,
+   "stopping": 27.8258,
+   "gain": 1.52905,
+   "se": 0.0430423098462065,
+   "sigma": 35.52434814635678
+  },
+  {
+   "variation": "capacity gain 1.0 C",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 19.02285,
+   "stopping": 18.21675,
+   "gain": 0.8061,
+   "se": 0.03657255825206729,
+   "sigma": 22.041116031428693
+  },
+  {
+   "variation": "capacity gain 3.0 C",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 4.43685,
+   "stopping": 4.51415,
+   "gain": -0.0773,
+   "se": 0.019038234115009482,
+   "sigma": -4.060250521820074
+  },
+  {
+   "variation": "fixed staging cost 0",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 11.35755,
+   "stopping": 11.08895,
+   "gain": 0.2686,
+   "se": 0.029766961645426297,
+   "sigma": 9.023426817942317
+  },
+  {
+   "variation": "fixed staging cost 6",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 13.5934,
+   "stopping": 13.10255,
+   "gain": 0.49085,
+   "se": 0.04235074371424494,
+   "sigma": 11.590115236509991
+  },
+  {
+   "variation": "fixed staging cost 15",
+   "best_tuned_hour": 2,
+   "best_tuned_test": 16.8023,
+   "stopping": 16.00065,
+   "gain": 0.80165,
+   "se": 0.06369445198002453,
+   "sigma": 12.585868550237446
+  }
+ ],
+ "n_sweeps_won": 18,
+ "n_sweeps_lost": 2,
+ "all_sweeps_positive": false,
+ "weakest_sweep": [
+  "tightening exponent 0.00 (none)",
+  -0.20375
+ ],
+ "q1_beats_best_tuned": true,
+ "q2_state_dependent": true,
+ "pass": true
+}

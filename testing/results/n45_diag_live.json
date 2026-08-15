@@ -1,0 +1,112 @@
+{
+ "measures": "whether a physically-specified commitment decision has any live days, and whether ambient uncertainty shrinks with lead once the diurnal cycle is removed",
+ "does_not_measure": "FortyGuard forecast skill (this is KIAD persistence, a LOWER bound), and not the policy comparison itself",
+ "n_days": 534,
+ "ambient_c": {
+  "min": 17.78,
+  "median": 29.44,
+  "p90": 33.33,
+  "p99": 36.67,
+  "max": 37.22
+ },
+ "max_rise_c_assumed": 0.4,
+ "max_rise_source": "N-23 direction sweep, p90 peaked 0.3962 C at 265 deg",
+ "ashrae_limits_source": "Green Grid WP46 on disk, quoting ASHRAE 2011 Allowable; ONE CITATION LAYER REMOVED, confirm against ASHRAE primary before quoting",
+ "q1_decision_relevant_days": {
+  "A2": {
+   "limit_c": 35.0,
+   "n_ambient_breach": 26,
+   "n_last_straw": 0,
+   "frac_last_straw": 0.0
+  },
+  "A3": {
+   "limit_c": 40.0,
+   "n_ambient_breach": 0,
+   "n_last_straw": 0,
+   "frac_last_straw": 0.0
+  }
+ },
+ "q2_ambient_error_by_lead": {
+  "1": {
+   "n": 533,
+   "raw_mean_c": -0.4285553470919325,
+   "raw_sd_c": 1.5716442874257073,
+   "anomaly_sd_c": 1.5716442874257073
+  },
+  "2": {
+   "n": 533,
+   "raw_mean_c": -0.427579737335835,
+   "raw_sd_c": 2.2149692278201423,
+   "anomaly_sd_c": 2.2149692278201423
+  },
+  "3": {
+   "n": 533,
+   "raw_mean_c": -0.08133208255159469,
+   "raw_sd_c": 2.45926098159673,
+   "anomaly_sd_c": 2.45926098159673
+  },
+  "4": {
+   "n": 533,
+   "raw_mean_c": 0.5127579737335836,
+   "raw_sd_c": 2.5335056419770847,
+   "anomaly_sd_c": 2.5335056419770847
+  },
+  "5": {
+   "n": 533,
+   "raw_mean_c": 1.189155722326454,
+   "raw_sd_c": 2.5886778929066807,
+   "anomaly_sd_c": 2.5886778929066807
+  },
+  "6": {
+   "n": 533,
+   "raw_mean_c": 2.224333958724203,
+   "raw_sd_c": 2.6141187967937976,
+   "anomaly_sd_c": 2.6141187967937976
+  },
+  "7": {
+   "n": 533,
+   "raw_mean_c": 3.51155722326454,
+   "raw_sd_c": 2.656820704283235,
+   "anomaly_sd_c": 2.656820704283235
+  },
+  "8": {
+   "n": 534,
+   "raw_mean_c": 5.043483146067415,
+   "raw_sd_c": 2.803181495031475,
+   "anomaly_sd_c": 2.803181495031475
+  },
+  "9": {
+   "n": 533,
+   "raw_mean_c": 6.713621013133208,
+   "raw_sd_c": 3.108003526987726,
+   "anomaly_sd_c": 3.108003526987726
+  },
+  "10": {
+   "n": 534,
+   "raw_mean_c": 8.44760299625468,
+   "raw_sd_c": 3.8413032135822975,
+   "anomaly_sd_c": 3.8413032135822975
+  },
+  "11": {
+   "n": 533,
+   "raw_mean_c": 9.09733583489681,
+   "raw_sd_c": 4.2095172818300055,
+   "anomaly_sd_c": 4.2095172818300055
+  },
+  "12": {
+   "n": 534,
+   "raw_mean_c": 8.783576779026218,
+   "raw_sd_c": 4.12468459612927,
+   "anomaly_sd_c": 4.12468459612927
+  }
+ },
+ "q2_fit": {
+  "b": 0.34143699161419094,
+  "se": 0.044317328785083286,
+  "ci_lo": 0.24269798308102536,
+  "ci_hi": 0.4401760001473565,
+  "n_points": 12,
+  "sd_ratio_12h_over_1h": 2.6244390216855904,
+  "ci_excludes_zero": true
+ }
+}

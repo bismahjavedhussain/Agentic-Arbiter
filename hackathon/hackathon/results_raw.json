@@ -1,0 +1,155 @@
+{
+  "coverage": {
+    "ashburn_va": {
+      "ok": true,
+      "submit_status": 200,
+      "final_status": "completed",
+      "cells": 64,
+      "mean_c": 31.1299140625,
+      "stddev": 0.11493199351112149,
+      "raw_error": null
+    },
+    "phoenix_goodyear_az": {
+      "ok": true,
+      "submit_status": 200,
+      "final_status": "completed",
+      "cells": 63,
+      "mean_c": 39.81189682539682,
+      "stddev": 0.004295870795121154,
+      "raw_error": null
+    },
+    "hillsboro_or": {
+      "ok": true,
+      "submit_status": 200,
+      "final_status": "completed",
+      "cells": 63,
+      "mean_c": 26.495695238095244,
+      "stddev": 0.15883990969665798,
+      "raw_error": null
+    }
+  },
+  "S-3": {
+    "stats_keys": [
+      "minimum",
+      "maximum",
+      "mean",
+      "standard_deviation"
+    ],
+    "api_stddev": 0.11473813598381839,
+    "my_tile_pstdev": 0.1144,
+    "n_tiles": 172,
+    "min": 30.9151,
+    "max": 31.352,
+    "mean": 31.115205813953484,
+    "granularity": 60
+  },
+  "S-7_C-2": {
+    "submit_status": 200,
+    "final_status": "completed",
+    "raw_error": null,
+    "top_keys": [
+      "map_data",
+      "stats_data"
+    ],
+    "sample_feature_props": {
+      "tile_id": 0,
+      "average_temperature": 27.4874,
+      "min_temperature": 22.883,
+      "max_temperature": 32.0886
+    },
+    "stats": {
+      "minimum": 27.2289,
+      "maximum": 27.4874,
+      "mean": 27.3744390625,
+      "standard_deviation": 0.06500386708200595
+    }
+  },
+  "B-1": {
+    "control_past": {
+      "submit_status": 200,
+      "final_status": "completed",
+      "mean_c": 31.1299140625,
+      "n": 64,
+      "raw_error": null
+    },
+    "future_today_23": {
+      "submit_status": 200,
+      "final_status": "completed",
+      "mean_c": 22.7285296875,
+      "n": 64,
+      "raw_error": null
+    }
+  },
+  "E-8": {
+    "note": "heatmap request has no variable selector; analytic_type in [tcm,time_of_measure,exceedance,persistence]; feature carries average_temperature only",
+    "feature_property_keys": [
+      "tile_id",
+      "average_temperature",
+      "min_temperature",
+      "max_temperature"
+    ]
+  },
+  "B-6": {
+    "series": [
+      {
+        "hour": 3,
+        "mean_c": 23.336170312500002
+      },
+      {
+        "hour": 9,
+        "mean_c": 24.3929453125
+      },
+      {
+        "hour": 15,
+        "mean_c": 31.1299140625
+      },
+      {
+        "hour": 21,
+        "mean_c": 22.793634374999996
+      }
+    ],
+    "amplitude_c": 8.34
+  },
+  "B-8": {
+    "submit_status": 200,
+    "final_status": "completed",
+    "raw_error": null,
+    "input_dry_bulb": 25.0,
+    "api_wet_bulb": 22.6,
+    "api_humidity_pct": 72.0,
+    "apparent": 30.4,
+    "available_params": [
+      "heat_index_celsius",
+      "apparent_temperature_celsius",
+      "relative_humidity_percent",
+      "precipitation_mm",
+      "cloud_cover_octas",
+      "wet_bulb_temperature_celsius",
+      "air_quality:idx",
+      "air_quality_pm2p5:idx",
+      "air_quality_pm10:idx",
+      "air_quality_no2:idx",
+      "aqi_us_co",
+      "air_quality_o3:idx",
+      "air_quality_so2:idx",
+      "methane_ppb",
+      "co2_ppm"
+    ],
+    "psychrolib_wet_bulb": 21.25,
+    "wetbulb_le_drybulb": true
+  },
+  "A-1_A-2": {
+    "auth_header": "api-key (confirmed working on all data endpoints)",
+    "usage_endpoint": {
+      "get": {
+        "status": 405,
+        "body": "{\"detail\":\"Method Not Allowed\"}"
+      },
+      "post": {
+        "status": 422,
+        "body": "{\"error\":true,\"status_code\":422,\"message\":\"Field 'request' is required.\",\"field\":\"request\",\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+      }
+    }
+  },
+  "G-2_note": "first_404_poll captured per submit_poll call where present"
+}

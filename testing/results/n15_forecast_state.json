@@ -1,0 +1,74 @@
+{
+ "machine_now": "2026-08-11T17:00:00",
+ "future_hour": "2026-08-11T23:00:00",
+ "usage_response": {
+  "api_key": "REDACTED-see-.env",
+  "subscription_id": "sub_s46ed3os83",
+  "plan_details": {
+   "plan_type": "Premium",
+   "cycle_type": "One-Time",
+   "subscription_start_date": "Jun 19, 2026",
+   "billing_period": "Jun 19, 2026 \u2013 Jul 19, 2026",
+   "active": false,
+   "credits_reset_date": "Aug 31, 2026"
+  },
+  "credit_summary": {
+   "total_available_credits": 1000000,
+   "cycle_credits_used": 819020,
+   "cycle_remaining_credits": 180980,
+   "cycle_usage_percentage": 81.9,
+   "total_credits_used": 3011080,
+   "total_remaining_credits": -2011080
+  },
+  "activity_breakdown": [
+   {
+    "name": "Environment Parameter Analysis",
+    "credits": 287100,
+    "count": 99,
+    "percentage": 28.71
+   },
+   {
+    "name": "Heatmap Generation",
+    "credits": 278520,
+    "count": 66,
+    "percentage": 27.85
+   },
+   {
+    "name": "Tile Satellite Segmentation",
+    "credits": 244800,
+    "count": 17,
+    "percentage": 24.48
+   },
+   {
+    "name": "Heat Intelligence Report",
+    "credits": 8600,
+    "count": 1,
+    "percentage": 0.86
+   },
+   {
+    "name": "Unused Credits",
+    "credits": 180980,
+    "count": 0,
+    "percentage": 18.1
+   }
+  ],
+  "total_credits_used": 819020,
+  "billing_cycle": {
+   "start_date": "2026-06-19T13:53:14.163493+00:00",
+   "end_date": "2026-07-19T13:53:14.163498+00:00",
+   "credits_reset_date": "2026-08-31T13:53:14+00:00"
+  }
+ },
+ "probes": {
+  "heatmap_ft1": "EMPTY: ZERO TILES with completed status",
+  "heatmap_ft2": "error: submit: HTTP Error 500: Internal Server Error",
+  "env_params_future": "ok: 1 locations",
+  "heatmap_dallas_future": "EMPTY: ZERO TILES with completed status",
+  "heatmap_past_control": "ok: 84 tiles"
+ },
+ "any_future_ok": true,
+ "past_control_ok": true,
+ "prior_evidence": "fb_1_FCST_12H.json: 6875-tile 12 h forecast on 2026-08-08, residuals measured (bias +0.349 C, sd 0.150)",
+ "before": 180980,
+ "after": 180980
+}

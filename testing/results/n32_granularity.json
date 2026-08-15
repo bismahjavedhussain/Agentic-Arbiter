@@ -1,0 +1,94 @@
+{
+ "purpose": "separate granularity from area as the cause of N-31's single-template finding",
+ "date": "2026-07-28",
+ "windows": [
+  [
+   "12:00",
+   "14:00"
+  ],
+  [
+   "16:00",
+   "18:00"
+  ]
+ ],
+ "centre": [
+  39.01,
+  -77.446
+ ],
+ "design": "fully crossed {2km,8km} x {g100,g60} at identical times",
+ "held_cells": {
+  "('2km', 100)": [
+   "n12c_2026-07-28_1200",
+   "n12c_2026-07-28_1600"
+  ]
+ },
+ "thresholds": {
+  "single_template_r": 0.999,
+  "single_template_resid_pct": 5.0
+ },
+ "cells": [
+  {
+   "n": 397,
+   "r": 0.9999950875108,
+   "slope": 0.15746815856528534,
+   "resid_rms": 0.00016039572800913358,
+   "resid_pct_of_sd": 0.31344783085475664,
+   "sd_a": 0.3249620501462272,
+   "sd_b": 0.051171427019208404,
+   "cell": "2km/g100",
+   "aoi": "2km",
+   "gran": 100,
+   "single_template": true
+  },
+  {
+   "n": 1120,
+   "r": 0.9999952016896226,
+   "slope": 0.15747081197749427,
+   "resid_rms": 0.00015716261435747177,
+   "resid_pct_of_sd": 0.3097837589455563,
+   "sd_a": 0.3221724862165733,
+   "sd_b": 0.050733006434043784,
+   "cell": "2km/g60",
+   "aoi": "2km",
+   "gran": 60,
+   "single_template": true
+  },
+  {
+   "n": 6445,
+   "r": 0.5996963989906904,
+   "slope": 0.8222011740176722,
+   "resid_rms": 0.44778858722560744,
+   "resid_pct_of_sd": 80.02276107693352,
+   "sd_a": 0.4081434553884013,
+   "sd_b": 0.5595765269772502,
+   "cell": "8km/g100",
+   "aoi": "8km",
+   "gran": 100,
+   "single_template": false
+  },
+  {
+   "n": 17862,
+   "r": 0.6016858006824507,
+   "slope": 0.8285133201672155,
+   "resid_rms": 0.4470382172187351,
+   "resid_pct_of_sd": 79.87328697738174,
+   "sd_a": 0.40645583536614366,
+   "sd_b": 0.5596842625812131,
+   "cell": "8km/g60",
+   "aoi": "8km",
+   "gran": 60,
+   "single_template": false
+  }
+ ],
+ "by_cell": {
+  "2km/g100": true,
+  "2km/g60": true,
+  "8km/g100": false,
+  "8km/g60": false
+ },
+ "cause": "AREA",
+ "errors": {},
+ "credits_before": 180980,
+ "credits_after": 180980,
+ "pass": true
+}
