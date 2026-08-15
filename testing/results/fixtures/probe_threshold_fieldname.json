@@ -1,0 +1,81 @@
+{
+ "payload_sent": {
+  "polygon_aoi": {
+   "type": "FeatureCollection",
+   "features": [
+    {
+     "type": "Feature",
+     "properties": {},
+     "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+       [
+        [
+         -77.45756073907697,
+         39.00095628267043
+        ],
+        [
+         -77.43443926092303,
+         39.00095628267043
+        ],
+        [
+         -77.43443926092303,
+         39.019043717329566
+        ],
+        [
+         -77.45756073907697,
+         39.019043717329566
+        ],
+        [
+         -77.45756073907697,
+         39.00095628267043
+        ]
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  "date_time": {
+   "start_date": "2026-06-23",
+   "start_time": "15:00",
+   "end_time": "17:00",
+   "filter_type": 2
+  },
+  "granularity": 7,
+  "analytic_type": "exceedance",
+  "threshold": "not-a-number",
+  "threshold_temperature": "not-a-number",
+  "direction": "above"
+ },
+ "status": 422,
+ "body": {
+  "error": true,
+  "status_code": 422,
+  "message": "Field 'granularity' is invalid: Input should be 60, 80 or 100",
+  "field": "granularity",
+  "detail": [
+   {
+    "type": "literal_error",
+    "loc": [
+     "body",
+     "granularity"
+    ],
+    "msg": "Input should be 60, 80 or 100",
+    "input": 7,
+    "ctx": {
+     "expected": "60, 80 or 100"
+    }
+   },
+   {
+    "type": "float_parsing",
+    "loc": [
+     "body",
+     "threshold"
+    ],
+    "msg": "Input should be a valid number, unable to parse string as a number",
+    "input": "not-a-number"
+   }
+  ]
+ }
+}

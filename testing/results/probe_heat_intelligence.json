@@ -1,0 +1,22 @@
+{
+ "authorised": "user, 2026-08-16 -- heat_intelligence probe plus the threshold field-name check",
+ "site": [
+  39.01,
+  -77.446
+ ],
+ "date": "2026-06-23",
+ "credits_before": 180980,
+ "credits_after": 180980,
+ "credits_note": "meter frozen since 2026-07-19; a zero difference does not prove zero spend",
+ "job_a_heat_intelligence": {
+  "status": 200,
+  "activity_id": "257e8e7a-2223-4a5d-b398-d580cf37cbf3",
+  "result_keys": [
+   "download_link"
+  ],
+  "relevant_terms": []
+ },
+ "job_b_threshold_fieldname": {
+  "skipped": true
+ }
+}

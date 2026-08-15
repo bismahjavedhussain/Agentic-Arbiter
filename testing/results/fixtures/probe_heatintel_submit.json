@@ -1,0 +1,21 @@
+{
+ "payload_sent": {
+  "latitude": 39.01,
+  "longitude": -77.446,
+  "temperature": 30.0,
+  "date": "2026-06-23",
+  "analysis": [
+   "anthropogenic",
+   "urban"
+  ]
+ },
+ "status": 200,
+ "body": {
+  "error": false,
+  "status_code": 200,
+  "message": "Heat Intelligence Submitted Successfully",
+  "data": {
+   "activity_id": "257e8e7a-2223-4a5d-b398-d580cf37cbf3"
+  }
+ }
+}

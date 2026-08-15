@@ -362,12 +362,57 @@ from miles away, which a [published review](https://link.springer.com/article/10
 says deviates from a real site by amounts *"large enough to influence design and operation
 decisions"* [L].
 
+### 1.5b ⭐ "But 60 m can't resolve an intake — so why use FortyGuard at all?" (added 2026-08-16)
+
+**This is the sharpest question anyone can ask about the project, and the answer is quantitative.**
+The objection assumes there is one quantity at one scale. There are **two**, at two different scales:
+
+| Term | Physical scale | Who supplies it |
+|---|---|---|
+| **The ambient air arriving at the site** | **neighbourhood.** This air has been mixing over hundreds of metres upwind — it is not a few-metres property, and 60 m is the *appropriate* resolution for it | **FortyGuard** |
+| **The recirculation increment** — your own exhaust curling back onto your own intake | **a few metres** | **our solver** |
+
+**So the division is physics, not a workaround.** Now the numbers that make it decisive:
+
+| Quantity | Measured |
+|---|---|
+| FortyGuard field variation, 60 m → 2 km | median \|ΔT\| **0.011 / 0.025 / 0.048 / 0.093 / 0.170 / 0.301 °C** [M] |
+| Spatial contrast across the 64 km² AOI | **1.3–1.5 °C**, and the sd **doubles on hot days** (0.24 → 0.42) [M] |
+| **The entire recirculation term our physics computes** | **0 – 0.855 °C** [M] |
+| **The margin saving we claim** | **0.05 – 0.15 °C** [M] |
+
+> **The spatial correction FortyGuard supplies is LARGER than the whole quantity our solver computes.**
+> Substitute a station reading from miles away and you inject roughly a degree of error into a
+> sub-degree answer — the solver would be computing 0.1 °C on top of a 1 °C mistake. **FortyGuard is
+> not a convenience here; it is what makes a sub-degree question askable at all.**
+
+**And for the forecast leg there is no substitute.** The nearest alternative is NWS/HRRR at **3 km** —
+a cell **50× coarser**, averaging over ~0.3–0.5 °C of real variation, which *by itself* exceeds the
+0.05–0.15 °C the agent is trying to save. **FortyGuard's resolution is a precondition for the margin
+claim being meaningful, not a nice-to-have.**
+
+**Third, and unique to them:** the **forecast↔history symmetry** — the *same request shape* returns a
+prediction, and later the outcome. Residual bias **+0.349 °C**, sd **0.150**, **n = 6,875** [M]. **That
+pairing is what makes a calibrated conformal bound possible, and the bound is the product.** No other
+source offers it at 60 m.
+
+**The one-line answer for a judge:**
+
+> *"Our computed signal is a few tenths of a degree. A station reading is wrong by about a degree.
+> FortyGuard is what makes a sub-degree question askable."*
+
 ## 1.6 Why NVIDIA is required
 
-FortyGuard's smallest square is 60 m. An intake is a few metres wide, and the air it breathes is
-shaped by the building's own geometry, its own exhaust curling back, and the structure next door —
-**exactly the blind spot FortyGuard names** (*"dense equipment, reflective surfaces, or nearby
-structures"*). 60 m cannot resolve it. Getting from one to the other is a physics problem.
+**⚠ REFRAMED 2026-08-16.** This section used to open by leading with FortyGuard's *limitation*
+(*"60 m cannot resolve it"*), which invites exactly the objection answered in §1.5b and undersells the
+data the whole product rests on. **Lead with what 60 m enables — see §1.5b — and only then explain what
+the GPU adds on top of it.**
+
+FortyGuard resolves the incoming air mass at the scale that quantity genuinely varies on. What no
+outdoor field product can resolve is a facility's own perturbation of it: the building's geometry, its
+exhaust curling back, and the structure next door — **exactly the blind spot FortyGuard names** in its
+own brief (*"dense equipment, reflective surfaces, or nearby structures"*). **Bridging that last step
+is a physics problem, and the physics is where the GPU earns its place.**
 
 **And here is why the GPU is load-bearing rather than decorative. Lead with the loss:**
 
@@ -1012,11 +1057,52 @@ plant must carry, with a band around it showing how *sure* the system is.
 
 **Fifteen seconds, and it contains the entire product.**
 
+## 9.1b ⭐ Screen ZERO: FortyGuard's field, before the dial (added 2026-08-16)
+
+**The wind dial cannot be the first thing a judge sees.** *"Technical Quality — implementation and use
+of FortyGuard API"* is an explicitly scored criterion, and the dial shows **our** physics. If the field
+only appears later as a supporting screen, a judge can watch the whole demo without ever seeing the
+sponsor's data do work. **Fix the order: FortyGuard's data opens the demo.**
+
+**On screen, in this order, before the dial is touched:**
+
+```
+  1. THE FIELD          17,862 tiles at 60 m over 8 x 8 km, from ONE call, in 67 s.
+                        Show it as a heat surface with the facility cluster marked.
+                        Say: "this is FortyGuard, not a model of ours."
+
+  2. THE SCALE ARGUMENT Drop a pin at the site and a second pin where the nearest
+                        airport station is. Show the temperature at both.
+                        Say: "the difference between these two pins is about a degree.
+                              Everything my agent computes is a few TENTHS of a degree.
+                              Without this field I would be computing a correction on
+                              top of an error ten times its size."
+
+  3. THE SAME CALL,     Flip the analytic layer live: tcm (snapshot) -> exceedance ->
+     FOUR WAYS          persistence, and name time_of_measure as the one we PROVED
+                        broken and code around. Four layers of one endpoint.
+                        Say: "we did not just call the API. We characterised it."
+
+  4. FORECAST -> OUTCOME  The same request shape, run once as a prediction and once as
+                        the realised outcome. Residual bias +0.349 C, sd 0.150, n=6,875.
+                        Say: "this pairing is what lets me make a 90 % promise at all.
+                              Nothing else I can buy does this at 60 metres."
+
+  ---> ONLY NOW turn the wind dial (9.1). The dial is the agent's JUDGEMENT.
+       Screen zero is the EVIDENCE the judgement is built on.
+```
+
+**Why this ordering wins rather than just being polite to the sponsor:** it converts the strongest
+objection — *"60 m can't resolve an intake, so why FortyGuard?"* (§1.5b) — from a question a judge asks
+you into a point **you make first, with their own data on screen.** And screen 4 is where the eleven
+documented API defects stop looking like criticism and start looking like engagement: **we found what
+their data can and cannot do, and built to it.**
+
 ## 9.2 The rest of the demo
 
 | Screen | Content |
 |---|---|
-| **Perceive** | The 60 m field over the cluster, 17,862 tiles from one call |
+| ~~**Perceive**~~ | **Promoted to Screen Zero (§9.1b) — it now opens the demo rather than following the dial** |
 | **Ensemble** | 100 members resolving on the GPU in **0.9 s**, with the CPU comparison alongside |
 | **The bound** | Point estimate, then the calibrated margin, then the 90 % bound |
 | **The decision** | The hour-by-hour table: **wait, wait, ACT, ACT… wait** — and the sentence *"no threshold can switch on and then off in time"* |
@@ -1051,7 +1137,7 @@ knowing what the others did.**
 |---|---|---|
 | `POST /v1/heatmap` | Temperature field over a polygon AOI. `granularity` **60/80/100**; `analytic_type` **`tcm` (snapshot), `time_of_measure`, `exceedance`, `persistence`**; `threshold` + `direction` (`above`/`below`) | ✅ **the boundary condition.** 17,862 tiles over 8×8 km at 60 m, one call, ~67 s |
 | `POST /v1/env_params` | 15 parameters at a point + `elevation` + a separate `solar_irradiance` block (**clear-sky GHI/DNI/DHI**). Confirmed present: `heat_index_celsius`, `apparent_temperature_celsius`, `relative_humidity_percent`, `precipitation_mm`, `cloud_cover_octas`, `wet_bulb_temperature_celsius`, seven AQI indices, `methane_ppb`, `co2_ppm` | ✅ used. `cloud_cover_octas` + solar feed the stability class |
-| `POST /v1/heat_intelligence` | lat/lon/`temperature`/`date` + an **`analysis`** list | ❌ **never probed** |
+| `POST /v1/heat_intelligence` | lat/lon/`temperature`/`date` + an **`analysis`** list (`geographic` \| `environmental` \| `urban` \| `events` \| `anthropogenic`). **Returns a `download_link` to a 748 KB human-readable PDF** — *"Heat Intelligence Report"*, rendered by `wkhtmltopdf 0.12.6.1` with embedded JPEG charts | 🔴 **probed 2026-08-16 — NOT USABLE as an agent input.** An agent cannot consume a rendered report as a data feed. Took **217 s** to produce |
 | `POST /v1/satellite` | Satellite **segmentation** at a point — see 11.2 | 🟡 probed, ruled out for geometry |
 | `POST /v1/streetview` | Streetview **segmentation** at a point with view angles | 🟡 probed, did not complete |
 | `GET /v1/status/{activity_id}` | Async poll for all of the above | ✅ used |
@@ -1113,10 +1199,50 @@ Additions to the eleven in [fortyguard-api-findings.md](fortyguard-api-findings.
 | **12.3** | **Type inconsistency.** The request schema requires `latitude`/`longitude` as `number`; the response returns them as **strings** (`"39.01"`, `"-77.446"`) | same |
 | **12.4** | **A task can sit in `Processing` indefinitely** with no error, timeout or ETA — streetview exceeded **25 minutes** while satellite completed in **15 seconds**. Operationally there is no way to distinguish slow from stuck | `probe_streetview_submit.json` |
 
-**A fifth observation, not a defect but a documentation gap:** the FAQ states *"credits are only used
+**A further observation, not a defect but a documentation gap:** the FAQ states *"credits are only used
 when a task succeeds"*, which sits awkwardly beside existing defect #2 — an out-of-horizon request
 returns `status: completed` with **zero tiles**. Whether that "success" is charged **cannot be
 determined while the meter is frozen.** Do not assert either way.
+
+## 11.5 🔴 Four MORE defects from the second probe — and one is severe (2026-08-16)
+
+| # | Defect | Severity | Evidence |
+|---|---|---|---|
+| **12.5** | **🔴 THE CALLER'S API KEY IS EMBEDDED IN THE `download_link` URL PATH.** `/v1/heat_intelligence` returns an S3 link of the form `.../enterprise_api/accountid%3Dacc%23<ACCOUNT>/api_key%3D<32-CHAR-KEY>/type%3D.../activity_id%3D...` — the live credential, in a URL, together with the account id | **SEVERE** | `results/fixtures/probe_heatintel.json` (**now redacted**) |
+| **12.6** | **`heat_intelligence` returns a rendered PDF, not data.** The spec's response schema is literally `{}`, giving no warning. A programmatic caller gets a 748 KB `wkhtmltopdf` report | **HIGH** — makes the endpoint unusable for any agent | same |
+| **12.7** | **Spec/server mismatch on `analysis`.** The published schema says `maxItems: 5`; the server returns HTTP 400 *"Heat Intelligence analysis types exceed current model limit of 2 types for premium plan"*. An undocumented plan-tier limit contradicting the published contract | MEDIUM | `probe_heatintel_submit.json` |
+| **12.8** | **Unknown body fields are silently dropped, with no warning.** `threshold_temperature` is accepted and ignored while the real field is `threshold`. **This silently broke one of our own tests for eight days** (see below) | MEDIUM — and it is the kind of defect that costs *callers* real money in wasted calls | `probe_threshold_fieldname.json` |
+
+**Why 12.5 matters far beyond us, and why it should lead the handover to FortyGuard.** A credential in a
+URL *path* leaks into places nobody audits: web-server access logs, browser history, proxy and CDN
+caches, and HTTP `Referer` headers. It is also written into any file that stores the response — **which
+is exactly how it landed in our own fixture, in a repository we are required to make PUBLIC as a
+submission condition.** We caught it with a pre-commit secret scan; a team without one would publish
+their key and not know. **The fix is standard and cheap: put the credential in a header or use an
+opaque signed token, never in the object path.**
+
+> **Also fixed on our side, same day:** the key was found hard-coded in
+> `hackathon/hackathon/run_checks.py` (a plaintext literal, present since 2026-08-08) and captured into
+> `testing/results/n15_forecast_state.json`. Both redacted **before the repository's first commit**, so
+> no credential has ever entered git history. `.env` is gitignored, and a scan of all 354 tracked files
+> confirms zero occurrences.
+
+## 11.6 ⚠ A defect in OUR OWN code, found by defect 12.8 — and it affects a published finding
+
+[verify_api_defects.py:172](testing/verify_api_defects.py#L172) sends **`"threshold_temperature": 30.0`**.
+The API validates **`threshold`** and, per 12.8, **silently ignored ours.** Proven for **zero credits**
+by sending both field names with deliberately invalid values alongside an out-of-enum `granularity: 7`,
+so the request could only ever 422 and never become a billable task. The response named
+**`body.threshold`** (`float_parsing`) and **did not mention `threshold_temperature` at all.**
+
+**Consequence, stated plainly:** the exceedance-vs-persistence comparison behind **defect D3 never
+applied the 30.0 °C threshold it intended** — it ran against whatever the server default is. D3 was
+already *withdrawn* for a different reason (the test window), and this gives a second, independent
+reason the original comparison was invalid. **We also never sent the companion `direction`
+(`above`/`below`) parameter at all.**
+
+**Required before either analytic layer is quoted again:** re-run with `threshold` and `direction`
+spelled as the spec defines them. **Cost: 2 paid calls. Not yet done — flagged, not hidden.**
 
 ## 11.4 A physics source found on disk, unused, and worth not losing
 
