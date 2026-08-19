@@ -1,0 +1,194 @@
+{
+ "measures": "distribution of Pasquill stability classes over 5 real years at the site, and how free-cooling hours distribute across those classes",
+ "why": "the 2 m -> intake-height offset is class-dependent, so which classes carry the free-cooling hours determines how much the offset matters",
+ "does_not_measure": "the offset itself. That is LEARNED from intake-sensor residuals; no published gradient table is used, because none could be sourced from any primary document available (ASHRAE ch.46 searched: zero hits)",
+ "caveat_cloud": "cloud fraction is absent from this fixture so every hour is treated as CLEAR, biasing day classes unstable and night classes stable. FortyGuard's cloud_cover_octas and solar_irradiance replace this once the key is live.",
+ "n_hours_classified": 43708,
+ "night_hours": 21873,
+ "class_counts": {
+  "A": 290,
+  "A-B": 1377,
+  "B": 4943,
+  "B-C": 2364,
+  "C": 7827,
+  "C-D": 691,
+  "D": 7085,
+  "E": 10782,
+  "F": 8349
+ },
+ "class_median_drybulb_c": {
+  "A": 28.33,
+  "A-B": 25.56,
+  "B": 20.56,
+  "B-C": 23.33,
+  "C": 17.22,
+  "C-D": 21.67,
+  "D": 11.11,
+  "E": 12.78,
+  "F": 10.0
+ },
+ "free_cooling_by_class": {
+  "limit_18": {
+   "total_hours": 25988,
+   "per_class": {
+    "A": 23,
+    "A-B": 205,
+    "B": 2073,
+    "B-C": 626,
+    "C": 4172,
+    "C-D": 233,
+    "D": 5299,
+    "E": 7135,
+    "F": 6222
+   },
+   "per_class_share": {
+    "A": 0.0008850238571648453,
+    "A-B": 0.007888256118208405,
+    "B": 0.07976758503924888,
+    "B-C": 0.024088040634138833,
+    "C": 0.1605356318300754,
+    "C-D": 0.00896567646606126,
+    "D": 0.20390180083115284,
+    "E": 0.27454979221179004,
+    "F": 0.23941819301215947
+   }
+  },
+  "limit_21": {
+   "total_hours": 30084,
+   "per_class": {
+    "A": 41,
+    "A-B": 330,
+    "B": 2558,
+    "B-C": 864,
+    "C": 4910,
+    "C-D": 311,
+    "D": 5835,
+    "E": 8267,
+    "F": 6968
+   },
+   "per_class_share": {
+    "A": 0.0013628506847493684,
+    "A-B": 0.010969285999202234,
+    "B": 0.08502858662411913,
+    "B-C": 0.028719585161547666,
+    "C": 0.1632096795638878,
+    "C-D": 0.010337721047733015,
+    "D": 0.19395692062225767,
+    "E": 0.2747972344103178,
+    "F": 0.23161813588618535
+   }
+  },
+  "limit_24": {
+   "total_hours": 35744,
+   "per_class": {
+    "A": 78,
+    "A-B": 547,
+    "B": 3329,
+    "B-C": 1281,
+    "C": 5970,
+    "C-D": 424,
+    "D": 6344,
+    "E": 9710,
+    "F": 8061
+   },
+   "per_class_share": {
+    "A": 0.0021821844225604296,
+    "A-B": 0.015303267681289168,
+    "B": 0.09313451208594449,
+    "B-C": 0.03583818263205014,
+    "C": 0.16702103849597136,
+    "C-D": 0.011862130707251567,
+    "D": 0.17748433303491495,
+    "E": 0.27165398388540735,
+    "F": 0.22552036705461057
+   }
+  },
+  "limit_27": {
+   "total_hours": 39236,
+   "per_class": {
+    "A": 119,
+    "A-B": 813,
+    "B": 3909,
+    "B-C": 1657,
+    "C": 6761,
+    "C-D": 517,
+    "D": 6683,
+    "E": 10464,
+    "F": 8313
+   },
+   "per_class_share": {
+    "A": 0.0030329289428076256,
+    "A-B": 0.020720766642878988,
+    "B": 0.09962789275155469,
+    "B-C": 0.04223162401875828,
+    "C": 0.17231624018758282,
+    "C-D": 0.013176674482618004,
+    "D": 0.1703282699561627,
+    "E": 0.2666938525843613,
+    "F": 0.21187175043327555
+   }
+  }
+ },
+ "height_offset_model": {
+  "intake_height_m": null,
+  "adiabatic_floor_c": null,
+  "per_class": {
+   "A": {
+    "offset_c": 0.0,
+    "spread_c": null,
+    "n_observations": 0,
+    "known": false
+   },
+   "A-B": {
+    "offset_c": 0.0,
+    "spread_c": null,
+    "n_observations": 0,
+    "known": false
+   },
+   "B": {
+    "offset_c": 0.0,
+    "spread_c": null,
+    "n_observations": 0,
+    "known": false
+   },
+   "B-C": {
+    "offset_c": 0.0,
+    "spread_c": null,
+    "n_observations": 0,
+    "known": false
+   },
+   "C": {
+    "offset_c": 0.0,
+    "spread_c": null,
+    "n_observations": 0,
+    "known": false
+   },
+   "C-D": {
+    "offset_c": 0.0,
+    "spread_c": null,
+    "n_observations": 0,
+    "known": false
+   },
+   "D": {
+    "offset_c": 0.0,
+    "spread_c": null,
+    "n_observations": 0,
+    "known": false
+   },
+   "E": {
+    "offset_c": 0.0,
+    "spread_c": null,
+    "n_observations": 0,
+    "known": false
+   },
+   "F": {
+    "offset_c": 0.0,
+    "spread_c": null,
+    "n_observations": 0,
+    "known": false
+   }
+  },
+  "status": "NO SENSOR DATA YET -- every offset is UNKNOWN and the agent must say so"
+ },
+ "adiabatic_lapse_k_per_m": 0.0098
+}

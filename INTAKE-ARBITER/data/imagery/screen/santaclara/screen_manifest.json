@@ -1,0 +1,189 @@
+{
+ "purpose": "screen clear-path candidates for grade vs rooftop cooling before committing a site; section 8d's scope statement depends on it",
+ "source": "ESRI World Imagery, ArcGIS REST export. Cross-check with USGS before asserting anything in PLAN.",
+ "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+ "candidates": [
+  {
+   "rank": 1,
+   "file": "01_1314010354_1075445245.png",
+   "source_osm_id": 1314010354,
+   "receptor_osm_id": 1075445245,
+   "source_name": "Vantage Santa Clara CA2",
+   "receptor_name": null,
+   "true_gap_m": 350.4,
+   "longest_facade_m": 136.4,
+   "usable_exposure": 0.31657,
+   "source_latlon": [
+    37.363976,
+    -121.946576
+   ],
+   "receptor_latlon": [
+    37.361105,
+    -121.94218
+   ],
+   "bbox": [
+    -121.94777599999999,
+    37.360205,
+    -121.94098,
+    37.364876
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 2,
+   "file": "02_38305431_38305568.png",
+   "source_osm_id": 38305431,
+   "receptor_osm_id": 38305568,
+   "source_name": "Digital Realty Silicon Valley SJC34",
+   "receptor_name": "Csquare SFO1",
+   "true_gap_m": 247.9,
+   "longest_facade_m": 122.0,
+   "usable_exposure": 0.10903,
+   "source_latlon": [
+    37.372552,
+    -121.973669
+   ],
+   "receptor_latlon": [
+    37.371404,
+    -121.96955
+   ],
+   "bbox": [
+    -121.974869,
+    37.370504,
+    -121.96835,
+    37.373452
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 3,
+   "file": "03_224998784_1075445245.png",
+   "source_osm_id": 224998784,
+   "receptor_osm_id": 1075445245,
+   "source_name": "Microsoft",
+   "receptor_name": null,
+   "true_gap_m": 217.0,
+   "longest_facade_m": 111.3,
+   "usable_exposure": 0.08149,
+   "source_latlon": [
+    37.362111,
+    -121.946398
+   ],
+   "receptor_latlon": [
+    37.361105,
+    -121.94218
+   ],
+   "bbox": [
+    -121.947598,
+    37.360205,
+    -121.94098,
+    37.363011
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 4,
+   "file": "04_1313995085_38305611.png",
+   "source_osm_id": 1313995085,
+   "receptor_osm_id": 38305611,
+   "source_name": null,
+   "receptor_name": "Vantage",
+   "true_gap_m": 235.8,
+   "longest_facade_m": 145.0,
+   "usable_exposure": 0.00909,
+   "source_latlon": [
+    37.370499,
+    -121.974223
+   ],
+   "receptor_latlon": [
+    37.373377,
+    -121.972863
+   ],
+   "bbox": [
+    -121.97542299999999,
+    37.369599,
+    -121.971663,
+    37.374277
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 5,
+   "file": "05_1460855151_1314010354.png",
+   "source_osm_id": 1460855151,
+   "receptor_osm_id": 1314010354,
+   "source_name": "STACK SVY02",
+   "receptor_name": "Vantage Santa Clara CA2",
+   "true_gap_m": 474.8,
+   "longest_facade_m": 126.5,
+   "usable_exposure": 0.00075,
+   "source_latlon": [
+    37.361941,
+    -121.953723
+   ],
+   "receptor_latlon": [
+    37.363976,
+    -121.946576
+   ],
+   "bbox": [
+    -121.954923,
+    37.361041,
+    -121.945376,
+    37.364876
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 6,
+   "file": "06_1313995085_38305568.png",
+   "source_osm_id": 1313995085,
+   "receptor_osm_id": 38305568,
+   "source_name": null,
+   "receptor_name": "Csquare SFO1",
+   "true_gap_m": 289.9,
+   "longest_facade_m": 145.0,
+   "usable_exposure": 0.00062,
+   "source_latlon": [
+    37.370499,
+    -121.974223
+   ],
+   "receptor_latlon": [
+    37.371404,
+    -121.96955
+   ],
+   "bbox": [
+    -121.97542299999999,
+    37.369599,
+    -121.96835,
+    37.372304
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 7,
+   "file": "07_358455179_224998784.png",
+   "source_osm_id": 358455179,
+   "receptor_osm_id": 224998784,
+   "source_name": "Digital Realty Silicon Valley SC1",
+   "receptor_name": "Microsoft",
+   "true_gap_m": 54.1,
+   "longest_facade_m": 122.1,
+   "usable_exposure": 0.0,
+   "source_latlon": [
+    37.361777,
+    -121.943816
+   ],
+   "receptor_latlon": [
+    37.362111,
+    -121.946398
+   ],
+   "bbox": [
+    -121.947598,
+    37.360876999999995,
+    -121.942616,
+    37.363011
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  }
+ ]
+}

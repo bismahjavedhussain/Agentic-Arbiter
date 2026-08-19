@@ -1,0 +1,215 @@
+{
+ "purpose": "screen clear-path candidates for grade vs rooftop cooling before committing a site; section 8d's scope statement depends on it",
+ "source": "ESRI World Imagery, ArcGIS REST export. Cross-check with USGS before asserting anything in PLAN.",
+ "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+ "candidates": [
+  {
+   "rank": 1,
+   "file": "01_597970809_597970806.png",
+   "source_osm_id": 597970809,
+   "receptor_osm_id": 597970806,
+   "source_name": "Digital Realty Northern Virginia IAD35",
+   "receptor_name": "Digital Realty Northern Virginia IAD36",
+   "true_gap_m": 69.1,
+   "longest_facade_m": 116.2,
+   "usable_exposure": 0.31716,
+   "source_latlon": [
+    39.000433,
+    -77.480738
+   ],
+   "receptor_latlon": [
+    39.001737,
+    -77.479381
+   ],
+   "bbox": [
+    -77.481938,
+    38.999533,
+    -77.478181,
+    39.002637
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 2,
+   "file": "02_744496750_744496741.png",
+   "source_osm_id": 744496750,
+   "receptor_osm_id": 744496741,
+   "source_name": "Amazon Web Services IAD116",
+   "receptor_name": "Amazon Web Services IAD117",
+   "true_gap_m": 60.3,
+   "longest_facade_m": 153.2,
+   "usable_exposure": 0.2587,
+   "source_latlon": [
+    39.024569,
+    -77.420334
+   ],
+   "receptor_latlon": [
+    39.023464,
+    -77.419049
+   ],
+   "bbox": [
+    -77.421534,
+    39.022563999999996,
+    -77.417849,
+    39.025469
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 3,
+   "file": "03_1534356805_1544360250.png",
+   "source_osm_id": 1534356805,
+   "receptor_osm_id": 1544360250,
+   "source_name": null,
+   "receptor_name": null,
+   "true_gap_m": 87.1,
+   "longest_facade_m": 178.9,
+   "usable_exposure": 0.25253,
+   "source_latlon": [
+    39.003157,
+    -77.448549
+   ],
+   "receptor_latlon": [
+    39.003921,
+    -77.446803
+   ],
+   "bbox": [
+    -77.449749,
+    39.002257,
+    -77.445603,
+    39.004821
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 4,
+   "file": "04_1534356805_1534356804.png",
+   "source_osm_id": 1534356805,
+   "receptor_osm_id": 1534356804,
+   "source_name": null,
+   "receptor_name": null,
+   "true_gap_m": 101.3,
+   "longest_facade_m": 178.9,
+   "usable_exposure": 0.22594,
+   "source_latlon": [
+    39.003157,
+    -77.448549
+   ],
+   "receptor_latlon": [
+    39.005217,
+    -77.446853
+   ],
+   "bbox": [
+    -77.449749,
+    39.002257,
+    -77.44565300000001,
+    39.006117
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 5,
+   "file": "05_460050155_1188715508.png",
+   "source_osm_id": 460050155,
+   "receptor_osm_id": 1188715508,
+   "source_name": "Equinix Ashburn DC10",
+   "receptor_name": "CyrusOne NVA14",
+   "true_gap_m": 72.9,
+   "longest_facade_m": 168.4,
+   "usable_exposure": 0.21053,
+   "source_latlon": [
+    39.020972,
+    -77.451834
+   ],
+   "receptor_latlon": [
+    39.019753,
+    -77.450132
+   ],
+   "bbox": [
+    -77.453034,
+    39.018853,
+    -77.448932,
+    39.021872
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 6,
+   "file": "06_300162674_298242260.png",
+   "source_osm_id": 300162674,
+   "receptor_osm_id": 298242260,
+   "source_name": "Digital Realty ACC5",
+   "receptor_name": "Equinix Ashburn DC3",
+   "true_gap_m": 112.7,
+   "longest_facade_m": 122.9,
+   "usable_exposure": 0.20283,
+   "source_latlon": [
+    39.019949,
+    -77.462937
+   ],
+   "receptor_latlon": [
+    39.022221,
+    -77.461026
+   ],
+   "bbox": [
+    -77.464137,
+    39.019048999999995,
+    -77.459826,
+    39.023121
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 7,
+   "file": "07_701930921_48242814.png",
+   "source_osm_id": 701930921,
+   "receptor_osm_id": 48242814,
+   "source_name": "Amazon IAD99",
+   "receptor_name": "Amazon IAD10",
+   "true_gap_m": 192.9,
+   "longest_facade_m": 237.8,
+   "usable_exposure": 0.19707,
+   "source_latlon": [
+    39.0192,
+    -77.433749
+   ],
+   "receptor_latlon": [
+    39.021814,
+    -77.432831
+   ],
+   "bbox": [
+    -77.434949,
+    39.018299999999996,
+    -77.431631,
+    39.022714
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  },
+  {
+   "rank": 8,
+   "file": "08_298126010_1309123034.png",
+   "source_osm_id": 298126010,
+   "receptor_osm_id": 1309123034,
+   "source_name": "Digital Realty ACC4",
+   "receptor_name": "Equinix Ashburn DC4",
+   "true_gap_m": 65.9,
+   "longest_facade_m": 127.7,
+   "usable_exposure": 0.19301,
+   "source_latlon": [
+    39.018098,
+    -77.462688
+   ],
+   "receptor_latlon": [
+    39.01648,
+    -77.461792
+   ],
+   "bbox": [
+    -77.463888,
+    39.01558,
+    -77.460592,
+    39.018998
+   ],
+   "architecture_verdict": "NOT YET ASSESSED -- record in PLAN section 8d"
+  }
+ ]
+}

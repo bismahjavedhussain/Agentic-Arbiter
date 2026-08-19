@@ -1,0 +1,64 @@
+{
+ "neg_thr32": {
+  "n": 17862,
+  "n_negative": 1236,
+  "frac_negative": 0.06919717836748404,
+  "most_negative": -0.1938,
+  "neg_median": -0.06355,
+  "frac_below_minus_0p1": 0.018754898667562424,
+  "frac_below_minus_0p5": 0.0
+ },
+ "neg_thr31": {
+  "n": 17862,
+  "n_negative": 428,
+  "frac_negative": 0.02396148247676632,
+  "most_negative": -0.5811,
+  "neg_median": -0.2343,
+  "frac_below_minus_0p1": 0.01797111185757474,
+  "frac_below_minus_0p5": 0.0012876497592654798
+ },
+ "monotonicity": {
+  "n": 17862,
+  "n_violations": 1619,
+  "frac_violations": 0.09063934609786138,
+  "n_violations_beyond_0p05": 1328,
+  "worst_violation_h": -0.6251999999999999,
+  "mean_diff_h": 1.4917047139178143
+ },
+ "edge_test": {
+  "frac_tiles_at_edge": 0.1891165602955996,
+  "frac_negatives_at_edge": 0.10514018691588785,
+  "enrichment": 0.5559544164273501,
+  "n_negative": 428
+ },
+ "thr32_mode": {
+  "most_common": [
+   [
+    1.0,
+    8551
+   ],
+   [
+    1.01,
+    1037
+   ],
+   [
+    0.99,
+    930
+   ],
+   [
+    0.98,
+    508
+   ],
+   [
+    0.97,
+    386
+   ],
+   [
+    1.02,
+    289
+   ]
+  ],
+  "n": 17862
+ },
+ "conclusion": "Explanation (B): 9.06 % of tiles violate monotonicity in threshold, which a real duration cannot do. The quantity is NOT a coherent duration and nothing may be keyed on it until FortyGuard defines it."
+}

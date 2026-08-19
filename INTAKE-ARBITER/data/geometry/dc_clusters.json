@@ -1,0 +1,1219 @@
+{
+ "generated_by": "src/discover_dc_clusters.py",
+ "api_calls_made": 0,
+ "source": "OpenStreetMap via Overpass (ODbL). No FortyGuard credential used.",
+ "tag_filter": "telecom=data_center OR building=data_center",
+ "caveat": "crowd-sourced tagging; counts are a LOWER BOUND and are not evidence about market size",
+ "cell_deg": 0.1,
+ "min_cluster": 3,
+ "states_searched": [
+  "VA",
+  "AZ",
+  "IL",
+  "CA"
+ ],
+ "clusters": {
+  "VA_38.73_-77.59": {
+   "state": "VA",
+   "n_tagged": 52,
+   "lat_range": [
+    38.7345976,
+    38.7999718
+   ],
+   "lon_range": [
+    -77.594905,
+    -77.5039772
+   ],
+   "centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "suggested_bbox": [
+    38.7226,
+    -77.6099,
+    38.812,
+    -77.489
+   ],
+   "operators": [
+    "Amazon Web Services",
+    "Digital Realty",
+    "Google",
+    "Iron Mountain",
+    "Microsoft",
+    "Quality Technology Services"
+   ],
+   "sample_names": [
+    "AWS IAD104",
+    "AWS IAD105",
+    "AWS IAD106",
+    "Amazon IAD100",
+    "Amazon IAD101"
+   ]
+  },
+  "VA_39.00_-77.49": {
+   "state": "VA",
+   "n_tagged": 106,
+   "lat_range": [
+    39.000032,
+    39.0487658
+   ],
+   "lon_range": [
+    -77.4870935,
+    -77.4122043
+   ],
+   "centre": [
+    39.024398899999994,
+    -77.4496489
+   ],
+   "suggested_bbox": [
+    38.988,
+    -77.5021,
+    39.0608,
+    -77.3972
+   ],
+   "operators": [
+    "Aligned",
+    "Amazon Web Services",
+    "Centersquare",
+    "CloudHQ",
+    "Cologix",
+    "CyrusOne",
+    "DataBank",
+    "Digital Realty"
+   ],
+   "sample_names": [
+    "AWS Building E",
+    "Aligned Ashburn",
+    "Aligned IAD02",
+    "Amazon IAD-169",
+    "Amazon IAD-179"
+   ]
+  },
+  "VA_38.95_-77.38": {
+   "state": "VA",
+   "n_tagged": 6,
+   "lat_range": [
+    38.9483343,
+    38.9615728
+   ],
+   "lon_range": [
+    -77.3774178,
+    -77.3273071
+   ],
+   "centre": [
+    38.95495355,
+    -77.35236245
+   ],
+   "suggested_bbox": [
+    38.9363,
+    -77.3924,
+    38.9736,
+    -77.3123
+   ],
+   "operators": [
+    "CoreSite",
+    "Digital Realty",
+    "Equinix",
+    "Evocative"
+   ],
+   "sample_names": [
+    "CoreSite Reston Campus VA1",
+    "CoreSite Reston Campus VA2",
+    "CoreSite Reston VA3",
+    "Equinix DC97",
+    "IAD1"
+   ]
+  },
+  "VA_38.91_-77.23": {
+   "state": "VA",
+   "n_tagged": 5,
+   "lat_range": [
+    38.9083675,
+    38.9200207
+   ],
+   "lon_range": [
+    -77.2258342,
+    -77.2116187
+   ],
+   "centre": [
+    38.9141941,
+    -77.21872644999999
+   ],
+   "suggested_bbox": [
+    38.8964,
+    -77.2408,
+    38.932,
+    -77.1966
+   ],
+   "operators": [
+    "DataBank",
+    "Equinix",
+    "Lumen Technologies"
+   ],
+   "sample_names": [
+    "DataBank McLean IAD2",
+    "Element Critical VA1",
+    "Equinix DC7",
+    "Lumen McLean"
+   ]
+  },
+  "VA_38.80_-77.65": {
+   "state": "VA",
+   "n_tagged": 9,
+   "lat_range": [
+    38.8012504,
+    38.8169707
+   ],
+   "lon_range": [
+    -77.6543195,
+    -77.6204762
+   ],
+   "centre": [
+    38.80911055,
+    -77.63739785
+   ],
+   "suggested_bbox": [
+    38.7893,
+    -77.6693,
+    38.829,
+    -77.6055
+   ],
+   "operators": [
+    "Amazon",
+    "Amazon Web Services"
+   ],
+   "sample_names": [
+    "Amazon IAD-55",
+    "Amazon IAD64",
+    "Amazon IAD84",
+    "Amazon Web Services"
+   ]
+  },
+  "VA_38.90_-77.50": {
+   "state": "VA",
+   "n_tagged": 78,
+   "lat_range": [
+    38.9043442,
+    38.9995402
+   ],
+   "lon_range": [
+    -77.4980579,
+    -77.4104754
+   ],
+   "centre": [
+    38.9519422,
+    -77.45426665
+   ],
+   "suggested_bbox": [
+    38.8923,
+    -77.5131,
+    39.0115,
+    -77.3955
+   ],
+   "operators": [
+    "Aligned",
+    "Amazon Web Services",
+    "Centersquare",
+    "CyrusOne",
+    "Digital Realty",
+    "Quality Technology Services",
+    "Vantage Data Centers"
+   ],
+   "sample_names": [
+    "Aligned IAD03",
+    "Amazon IAD-165",
+    "Amazon IAD-166",
+    "Amazon IAD-167",
+    "Amazon IAD-168"
+   ]
+  },
+  "VA_38.90_-77.46": {
+   "state": "VA",
+   "n_tagged": 3,
+   "lat_range": [
+    38.8978637,
+    38.8997236
+   ],
+   "lon_range": [
+    -77.4551032,
+    -77.4534439
+   ],
+   "centre": [
+    38.89879365,
+    -77.45427355
+   ],
+   "suggested_bbox": [
+    38.8859,
+    -77.4701,
+    38.9117,
+    -77.4384
+   ],
+   "operators": [
+    "Amazon Web Services"
+   ],
+   "sample_names": [
+    "Amazon IAD-1",
+    "Amazon IAD-9",
+    "Amazon IAD22"
+   ]
+  },
+  "VA_37.48_-77.25": {
+   "state": "VA",
+   "n_tagged": 17,
+   "lat_range": [
+    37.4770151,
+    37.4943952
+   ],
+   "lon_range": [
+    -77.2529958,
+    -77.2264818
+   ],
+   "centre": [
+    37.48570515,
+    -77.2397388
+   ],
+   "suggested_bbox": [
+    37.465,
+    -77.268,
+    37.5064,
+    -77.2115
+   ],
+   "operators": [
+    "Bank of America",
+    "Meta",
+    "Quality Technology Services"
+   ],
+   "sample_names": [
+    "DC4",
+    "DC5",
+    "DC6",
+    "Meta Henrico Data Center",
+    "RIC2 DC1"
+   ]
+  },
+  "VA_37.36_-77.33": {
+   "state": "VA",
+   "n_tagged": 4,
+   "lat_range": [
+    37.356296,
+    37.3607028
+   ],
+   "lon_range": [
+    -77.3336573,
+    -77.3256869
+   ],
+   "centre": [
+    37.3584994,
+    -77.3296721
+   ],
+   "suggested_bbox": [
+    37.3443,
+    -77.3487,
+    37.3727,
+    -77.3107
+   ],
+   "operators": [
+    "Digital Fortress",
+    "PowerHouse"
+   ],
+   "sample_names": [
+    "Digital Fortress: Richmond",
+    "PowerHouse CTP-02",
+    "Virginia Information Technologies Agency"
+   ]
+  },
+  "VA_38.94_-77.56": {
+   "state": "VA",
+   "n_tagged": 19,
+   "lat_range": [
+    38.9418116,
+    38.9583257
+   ],
+   "lon_range": [
+    -77.5605449,
+    -77.5057277
+   ],
+   "centre": [
+    38.950068650000006,
+    -77.5331363
+   ],
+   "suggested_bbox": [
+    38.9298,
+    -77.5755,
+    38.9703,
+    -77.4907
+   ],
+   "operators": [
+    "Amazon Web Services",
+    "CyrusOne",
+    "Google",
+    "Microsoft"
+   ],
+   "sample_names": [
+    "Amazon IAD124",
+    "Amazon IAD125",
+    "Amazon IAD62",
+    "Amazon IAD68",
+    "Amazon IAD81"
+   ]
+  },
+  "VA_39.04_-77.57": {
+   "state": "VA",
+   "n_tagged": 20,
+   "lat_range": [
+    39.0416534,
+    39.0821895
+   ],
+   "lon_range": [
+    -77.5651208,
+    -77.534801
+   ],
+   "centre": [
+    39.06192145,
+    -77.5499609
+   ],
+   "suggested_bbox": [
+    39.0297,
+    -77.5801,
+    39.0942,
+    -77.5198
+   ],
+   "operators": [
+    "Google",
+    "Microsoft",
+    "True North Data Solutions"
+   ],
+   "sample_names": [
+    "42254 THUNDERBALL DR",
+    "42255 THUNDERBALL DR",
+    "42310 THUNDERBALL DR",
+    "42311 THUNDERBALL DR",
+    "Google Data Center"
+   ]
+  },
+  "VA_38.72_-77.50": {
+   "state": "VA",
+   "n_tagged": 6,
+   "lat_range": [
+    38.7150171,
+    38.7495466
+   ],
+   "lon_range": [
+    -77.4999396,
+    -77.4930098
+   ],
+   "centre": [
+    38.73228185,
+    -77.4964747
+   ],
+   "suggested_bbox": [
+    38.703,
+    -77.5149,
+    38.7615,
+    -77.478
+   ],
+   "operators": [
+    "Amazon Web Services",
+    "CloudHQ"
+   ],
+   "sample_names": [
+    "Amazon Web Services",
+    "CloudHQ MCC1",
+    "CloudHQ MCC2",
+    "CloudHQ MCC3"
+   ]
+  },
+  "VA_36.68_-78.38": {
+   "state": "VA",
+   "n_tagged": 18,
+   "lat_range": [
+    36.6756936,
+    36.6949343
+   ],
+   "lon_range": [
+    -78.3779683,
+    -78.3739103
+   ],
+   "centre": [
+    36.68531395,
+    -78.3759393
+   ],
+   "suggested_bbox": [
+    36.6637,
+    -78.393,
+    36.7069,
+    -78.3589
+   ],
+   "operators": [],
+   "sample_names": []
+  },
+  "AZ_33.40_-112.07": {
+   "state": "AZ",
+   "n_tagged": 6,
+   "lat_range": [
+    33.4002195,
+    33.494309
+   ],
+   "lon_range": [
+    -112.0707916,
+    -112.0094718
+   ],
+   "centre": [
+    33.44726425,
+    -112.0401317
+   ],
+   "suggested_bbox": [
+    33.3882,
+    -112.0858,
+    33.5063,
+    -111.9945
+   ],
+   "operators": [
+    "Cogent Communications, Inc.",
+    "Iron Mountain",
+    "Lumen Technologies"
+   ],
+   "sample_names": [
+    "Cogent Data Center",
+    "Data Storage Centers",
+    "Iron Mountain Records Storage",
+    "Lumen",
+    "PhoenixNAP"
+   ]
+  },
+  "AZ_33.31_-111.68": {
+   "state": "AZ",
+   "n_tagged": 10,
+   "lat_range": [
+    33.3053366,
+    33.3531912
+   ],
+   "lon_range": [
+    -111.6780726,
+    -111.6041418
+   ],
+   "centre": [
+    33.3292639,
+    -111.6411072
+   ],
+   "suggested_bbox": [
+    33.2933,
+    -111.6931,
+    33.3652,
+    -111.5891
+   ],
+   "operators": [
+    "Apple Inc.",
+    "EdgeConneX"
+   ],
+   "sample_names": [
+    "AZ Labs",
+    "Apple Data Center",
+    "EdgeConneX PHX02 Data Center",
+    "EdgeCore",
+    "L3Harris Technologies Inc"
+   ]
+  },
+  "AZ_33.34_-111.90": {
+   "state": "AZ",
+   "n_tagged": 3,
+   "lat_range": [
+    33.3426083,
+    33.3619309
+   ],
+   "lon_range": [
+    -111.8992189,
+    -111.8392899
+   ],
+   "centre": [
+    33.3522696,
+    -111.86925439999999
+   ],
+   "suggested_bbox": [
+    33.3306,
+    -111.9142,
+    33.3739,
+    -111.8243
+   ],
+   "operators": [
+    "Digital Realty"
+   ],
+   "sample_names": [
+    "Digital Realty Data Center",
+    "GoDaddy - Gilbert",
+    "StrongMind"
+   ]
+  },
+  "AZ_33.27_-111.89": {
+   "state": "AZ",
+   "n_tagged": 10,
+   "lat_range": [
+    33.2663278,
+    33.2769993
+   ],
+   "lon_range": [
+    -111.8866379,
+    -111.8815838
+   ],
+   "centre": [
+    33.27166355,
+    -111.88411085
+   ],
+   "suggested_bbox": [
+    33.2543,
+    -111.9016,
+    33.289,
+    -111.8666
+   ],
+   "operators": [
+    "CyrusOne",
+    "Digital Realty",
+    "H5"
+   ],
+   "sample_names": [
+    "CyrusOne PHX1",
+    "CyrusOne PHX3",
+    "CyrusOne PHX4",
+    "CyrusOne PHX5",
+    "CyrusOne PHX6"
+   ]
+  },
+  "AZ_33.41_-112.38": {
+   "state": "AZ",
+   "n_tagged": 8,
+   "lat_range": [
+    33.4079462,
+    33.4463027
+   ],
+   "lon_range": [
+    -112.377048,
+    -112.3599883
+   ],
+   "centre": [
+    33.427124449999994,
+    -112.36851815
+   ],
+   "suggested_bbox": [
+    33.3959,
+    -112.392,
+    33.4583,
+    -112.345
+   ],
+   "operators": [
+    "Microsoft",
+    "Vantage Data Centers"
+   ],
+   "sample_names": [
+    "PHX-10",
+    "PHX-11",
+    "PHX-12",
+    "PHX-13",
+    "PHX-14"
+   ]
+  },
+  "AZ_33.45_-112.00": {
+   "state": "AZ",
+   "n_tagged": 4,
+   "lat_range": [
+    33.4521575,
+    33.4646803
+   ],
+   "lon_range": [
+    -111.9975601,
+    -111.9762182
+   ],
+   "centre": [
+    33.4584189,
+    -111.98688915
+   ],
+   "suggested_bbox": [
+    33.4402,
+    -112.0126,
+    33.4767,
+    -111.9612
+   ],
+   "operators": [
+    "Iron Mountain",
+    "Quality Technology Services"
+   ],
+   "sample_names": [
+    "Iron Mountain AZP-1",
+    "Iron Mountain AZP-2",
+    "QTS"
+   ]
+  },
+  "IL_41.77_-88.25": {
+   "state": "IL",
+   "n_tagged": 3,
+   "lat_range": [
+    41.7721034,
+    41.7966077
+   ],
+   "lon_range": [
+    -88.2469648,
+    -88.2170821
+   ],
+   "centre": [
+    41.78435555,
+    -88.23202345
+   ],
+   "suggested_bbox": [
+    41.7601,
+    -88.262,
+    41.8086,
+    -88.2021
+   ],
+   "operators": [
+    "CyrusOne"
+   ],
+   "sample_names": [
+    "CyrusOne Chicago Aurora CME",
+    "Lincoln Rackhouse"
+   ]
+  },
+  "IL_41.91_-87.97": {
+   "state": "IL",
+   "n_tagged": 11,
+   "lat_range": [
+    41.9129628,
+    41.9991244
+   ],
+   "lon_range": [
+    -87.973521,
+    -87.9175163
+   ],
+   "centre": [
+    41.9560436,
+    -87.94551865
+   ],
+   "suggested_bbox": [
+    41.901,
+    -87.9885,
+    42.0111,
+    -87.9025
+   ],
+   "operators": [
+    "Aligned",
+    "Centersquare",
+    "Digital Realty",
+    "Element Critical",
+    "Microsoft",
+    "Skybox",
+    "Stream"
+   ],
+   "sample_names": [
+    "Aligned Data Center - Chicago ORD-01",
+    "Aligned Data Center - Chicago ORD-02",
+    "Centersquare Elk Grove Village Data Center Campus ORD2",
+    "Digital Realty CH1",
+    "Digital Realty CH2"
+   ]
+  },
+  "IL_41.84_-87.67": {
+   "state": "IL",
+   "n_tagged": 6,
+   "lat_range": [
+    41.8421621,
+    41.8743036
+   ],
+   "lon_range": [
+    -87.6689315,
+    -87.6182716
+   ],
+   "centre": [
+    41.85823285,
+    -87.64360155
+   ],
+   "suggested_bbox": [
+    41.8302,
+    -87.6839,
+    41.8863,
+    -87.6033
+   ],
+   "operators": [
+    "CoreSite",
+    "Digital Realty",
+    "Iron Mountain",
+    "Quality Technology Services",
+    "Serverfarm"
+   ],
+   "sample_names": [
+    "CoreSite Chicago Data Center (CH2)",
+    "Digital Realty ORD11",
+    "Iron Mountain Data & Record Storage",
+    "Lakeside Technology Center",
+    "QTS Chicago"
+   ]
+  },
+  "IL_42.00_-87.98": {
+   "state": "IL",
+   "n_tagged": 8,
+   "lat_range": [
+    42.0007751,
+    42.0231434
+   ],
+   "lon_range": [
+    -87.9755567,
+    -87.9507686
+   ],
+   "centre": [
+    42.011959250000004,
+    -87.96316265
+   ],
+   "suggested_bbox": [
+    41.9888,
+    -87.9906,
+    42.0351,
+    -87.9358
+   ],
+   "operators": [
+    "EdgeConneX",
+    "Equinix",
+    "Stack Infrastructure",
+    "Stream",
+    "T5 Data Centers"
+   ],
+   "sample_names": [
+    "EdgeConneX CHI01",
+    "EdgeConneX CHI02",
+    "Equinix Chicago CH3",
+    "STACK Chicago CHI01",
+    "Stream Chicago I"
+   ]
+  },
+  "IL_41.99_-88.01": {
+   "state": "IL",
+   "n_tagged": 4,
+   "lat_range": [
+    41.9869408,
+    41.9891013
+   ],
+   "lon_range": [
+    -88.0079846,
+    -88.0047584
+   ],
+   "centre": [
+    41.98802105,
+    -88.0063715
+   ],
+   "suggested_bbox": [
+    41.9749,
+    -88.023,
+    42.0011,
+    -87.9898
+   ],
+   "operators": [
+    "NTT"
+   ],
+   "sample_names": [
+    "NTT Chicago CH1",
+    "NTT Chicago CH2",
+    "NTT Chicago CH3",
+    "NTT Chicago CH4"
+   ]
+  },
+  "IL_41.89_-88.73": {
+   "state": "IL",
+   "n_tagged": 3,
+   "lat_range": [
+    41.8885461,
+    41.890305
+   ],
+   "lon_range": [
+    -88.7310298,
+    -88.7218341
+   ],
+   "centre": [
+    41.88942555,
+    -88.72643195
+   ],
+   "suggested_bbox": [
+    41.8765,
+    -88.746,
+    41.9023,
+    -88.7068
+   ],
+   "operators": [
+    "Meta"
+   ],
+   "sample_names": []
+  },
+  "CA_34.05_-118.26": {
+   "state": "CA",
+   "n_tagged": 4,
+   "lat_range": [
+    34.0473304,
+    34.0581039
+   ],
+   "lon_range": [
+    -118.25751,
+    -118.2353939
+   ],
+   "centre": [
+    34.05271715,
+    -118.24645195
+   ],
+   "suggested_bbox": [
+    34.0353,
+    -118.2725,
+    34.0701,
+    -118.2204
+   ],
+   "operators": [
+    "United States Postal Service"
+   ],
+   "sample_names": [
+    "DRT LAX10",
+    "One Wilshire",
+    "USPO Terminal Annex"
+   ]
+  },
+  "CA_38.64_-121.50": {
+   "state": "CA",
+   "n_tagged": 4,
+   "lat_range": [
+    38.6442393,
+    38.6504319
+   ],
+   "lon_range": [
+    -121.4987627,
+    -121.4862686
+   ],
+   "centre": [
+    38.647335600000005,
+    -121.49251565
+   ],
+   "suggested_bbox": [
+    38.6322,
+    -121.5138,
+    38.6624,
+    -121.4713
+   ],
+   "operators": [
+    "NTT",
+    "Quality Technology Services"
+   ],
+   "sample_names": [
+    "QTS Sacramento",
+    "RagingWire CA1",
+    "RagingWire CA2",
+    "RagingWire CA3"
+   ]
+  },
+  "CA_37.24_-121.78": {
+   "state": "CA",
+   "n_tagged": 4,
+   "lat_range": [
+    37.2412288,
+    37.242615
+   ],
+   "lon_range": [
+    -121.7847536,
+    -121.7817852
+   ],
+   "centre": [
+    37.2419219,
+    -121.7832694
+   ],
+   "suggested_bbox": [
+    37.2292,
+    -121.7998,
+    37.2546,
+    -121.7668
+   ],
+   "operators": [
+    "Equinix"
+   ],
+   "sample_names": [
+    "Equinix SV1",
+    "Equinix SV10",
+    "Equinix SV11",
+    "Equinix SV5"
+   ]
+  },
+  "CA_37.36_-121.99": {
+   "state": "CA",
+   "n_tagged": 53,
+   "lat_range": [
+    37.3611541,
+    37.3986381
+   ],
+   "lon_range": [
+    -121.9886718,
+    -121.9423402
+   ],
+   "centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "suggested_bbox": [
+    37.3492,
+    -122.0037,
+    37.4106,
+    -121.9273
+   ],
+   "operators": [
+    "Amazon Web Services",
+    "Cologix",
+    "CoreSite",
+    "Csquare",
+    "Digital Realty",
+    "Equinix",
+    "Layer42",
+    "Lumen Technologies"
+   ],
+   "sample_names": [
+    "Amazon",
+    "Cologix Santa Clara SV1 Data Center",
+    "Colovore",
+    "CoreSite SV3",
+    "CoreSite SV4"
+   ]
+  },
+  "CA_36.06_-115.22": {
+   "state": "CA",
+   "n_tagged": 10,
+   "lat_range": [
+    36.0555857,
+    36.0652076
+   ],
+   "lon_range": [
+    -115.2230608,
+    -115.210197
+   ],
+   "centre": [
+    36.06039665,
+    -115.21662889999999
+   ],
+   "suggested_bbox": [
+    36.0436,
+    -115.2381,
+    36.0772,
+    -115.1952
+   ],
+   "operators": [
+    "Switch"
+   ],
+   "sample_names": [
+    "Switch Edge 1",
+    "Switch Las Vegas 10",
+    "Switch Las Vegas 11",
+    "Switch Las Vegas 12",
+    "Switch Las Vegas 14"
+   ]
+  },
+  "CA_37.72_-122.40": {
+   "state": "CA",
+   "n_tagged": 3,
+   "lat_range": [
+    37.7236272,
+    37.7889916
+   ],
+   "lon_range": [
+    -122.3979543,
+    -122.3901367
+   ],
+   "centre": [
+    37.756309400000006,
+    -122.3940455
+   ],
+   "suggested_bbox": [
+    37.7116,
+    -122.413,
+    37.801,
+    -122.3751
+   ],
+   "operators": [
+    "Digital Realty"
+   ],
+   "sample_names": [
+    "360 Spear Street Data Center",
+    "365 Main Street Data Center",
+    "Digital Realty San Francisco SFO10"
+   ]
+  },
+  "CA_37.41_-121.97": {
+   "state": "CA",
+   "n_tagged": 6,
+   "lat_range": [
+    37.4056857,
+    37.4898848
+   ],
+   "lon_range": [
+    -121.9659803,
+    -121.9162604
+   ],
+   "centre": [
+    37.447785249999995,
+    -121.94112035
+   ],
+   "suggested_bbox": [
+    37.3937,
+    -121.981,
+    37.5019,
+    -121.9013
+   ],
+   "operators": [
+    "CoreSite Real Estate 1656 McCarthy, L.P.",
+    "DataBank",
+    "Hurricane Electric",
+    "XO"
+   ],
+   "sample_names": [
+    "CoreSite SV2",
+    "DataBank Santa Clara SFO1",
+    "Dell 350 Holger Way",
+    "Hurricane Electric Fremont 1",
+    "Hurricane Electric Fremont 2"
+   ]
+  },
+  "CA_36.14_-115.08": {
+   "state": "CA",
+   "n_tagged": 5,
+   "lat_range": [
+    36.1427635,
+    36.1829977
+   ],
+   "lon_range": [
+    -115.0833851,
+    -115.0626696
+   ],
+   "centre": [
+    36.1628806,
+    -115.07302735
+   ],
+   "suggested_bbox": [
+    36.1308,
+    -115.0984,
+    36.195,
+    -115.0477
+   ],
+   "operators": [
+    "Lumen Technologies",
+    "Switch"
+   ],
+   "sample_names": [
+    "CenturyLink",
+    "Switch Las Vegas 4",
+    "Switch Las Vegas 5",
+    "Verizon"
+   ]
+  },
+  "CA_33.92_-118.39": {
+   "state": "CA",
+   "n_tagged": 3,
+   "lat_range": [
+    33.9156593,
+    33.9217415
+   ],
+   "lon_range": [
+    -118.3864588,
+    -118.3846186
+   ],
+   "centre": [
+    33.918700400000006,
+    -118.3855387
+   ],
+   "suggested_bbox": [
+    33.9037,
+    -118.4015,
+    33.9337,
+    -118.3696
+   ],
+   "operators": [
+    "Centurylink",
+    "Digital Realty",
+    "Serverfarm LLC."
+   ],
+   "sample_names": [
+    "DRT LAX12",
+    "Serverfarm - LAX1"
+   ]
+  },
+  "CA_37.40_-121.89": {
+   "state": "CA",
+   "n_tagged": 3,
+   "lat_range": [
+    37.4022094,
+    37.4039641
+   ],
+   "lon_range": [
+    -121.893391,
+    -121.8892308
+   ],
+   "centre": [
+    37.40308675,
+    -121.89131090000001
+   ],
+   "suggested_bbox": [
+    37.3902,
+    -121.9084,
+    37.416,
+    -121.8742
+   ],
+   "operators": [
+    "NTT Limited",
+    "Stack Infrastructure"
+   ],
+   "sample_names": [
+    "Stack Infrastructure"
+   ]
+  },
+  "CA_39.57_-119.55": {
+   "state": "CA",
+   "n_tagged": 11,
+   "lat_range": [
+    39.5651062,
+    39.5709863
+   ],
+   "lon_range": [
+    -119.5485335,
+    -119.5353174
+   ],
+   "centre": [
+    39.56804625,
+    -119.54192545000001
+   ],
+   "suggested_bbox": [
+    39.5531,
+    -119.5635,
+    39.583,
+    -119.5203
+   ],
+   "operators": [],
+   "sample_names": []
+  },
+  "CA_39.51_-119.48": {
+   "state": "CA",
+   "n_tagged": 5,
+   "lat_range": [
+    39.5080827,
+    39.5140681
+   ],
+   "lon_range": [
+    -119.4848531,
+    -119.4755145
+   ],
+   "centre": [
+    39.5110754,
+    -119.48018379999999
+   ],
+   "suggested_bbox": [
+    39.4961,
+    -119.4999,
+    39.5261,
+    -119.4605
+   ],
+   "operators": [
+    "Switch"
+   ],
+   "sample_names": [
+    "Tahoe Reno 1",
+    "Tahoe Reno 2",
+    "Tahoe Reno 3",
+    "Tahoe Reno 4",
+    "Tahoe Reno 5"
+   ]
+  }
+ }
+}

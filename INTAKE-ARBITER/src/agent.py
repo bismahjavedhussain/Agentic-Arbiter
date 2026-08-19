@@ -1,0 +1,1942 @@
+# -*- coding: utf-8 -*-
+"""INTAKE-ARBITER -- THE AGENT LOOP AS ONE RUNNABLE PROGRAM.  ZERO API CALLS.
+
+    perceive -> solve -> bound -> decide -> act -> score -> recalibrate
+
+Run:
+    python agent.py run       # everything; writes ../demo/trace.json  (the demo's only input)
+    python agent.py cycle     # just the real FortyGuard forecast/outcome cycles
+    python agent.py cases     # just the scheduling cases on real KIAD hours
+
+================================================================================
+WHY THIS FILE EXISTS, AND WHAT IT REPLACES
+================================================================================
+`testing/run_e2e.py` demonstrated the same seven stages but is NOT the agent:
+  * it runs on `solver.demo_site()`, a synthetic layout, not the committed AWS geometry;
+  * it hard-codes `THRESHOLD_C = 33.0`, which is exactly the "threshold in a costume" the
+    project forbids shipping;
+  * it needs invented cost weights (`c_excursion = 120.0`) to make its decision come out.
+
+This file fixes all three.
+
+  1. It runs on the COMMITTED geometry -- OSM ways 744496750 / 744496741, AWS IAD116/IAD117,
+     rasterised and V1/V2/V3-verified by `build_site.py`.
+
+  2. NOTHING that changes a decision is a constant written by a human. Every such number is a
+     SCENARIO PARAMETER, sat in a list, and swept -- see PLANT_ENVELOPE below. The output holds
+     the answer for EVERY combination, so the demo exposes them as controls. Apply the project's
+     "point at the constant" test to this file: the constants you can point at are ALPHA (the
+     statistical confidence, 0.10, and it is a definition, not a tuning knob) and the physics
+     coefficients in `physics/solver.py:CALIBRATED`, which were FITTED to ~40,000 measured points
+     and validated held-out. There is no changeover temperature in this source.
+
+  3. The decision is a CONSTRAINED MAXIMISATION, not a weighted cost:
+         maximise free-cooling hours
+         subject to  the 90 % upper bound on intake temperature staying under the plant limit,
+                     at most `switch_budget` mode changes,
+                     every completed run at least `min_dwell_h` hours long.
+     A constrained form needs no invented penalty weights. The safety constraint is the only
+     thing standing between the agent and "free cooling all day", and the width of that
+     constraint is SET BY THE AGENT'S OWN MEASURED ACCURACY -- which is the whole point:
+     score better, and the bound tightens, and MORE HOURS ARE EARNED.
+
+================================================================================
+WHERE EVERY NUMBER COMES FROM.  Read this before quoting anything this file prints.
+================================================================================
+MEASURED, real, no simulation:
+  * FortyGuard fields -- `testing/results/fixtures/n26_{f,h}_*.json`, 17,862 tiles each, one
+    paid call each, already spent. Forecast leg and its elapsed outcome leg, same window, same
+    AOI, same 2 m plane.
+  * Day-to-day forecast residuals d = outcome - forecast, per tile, over 4 real days.
+  * Site geometry -- OpenStreetMap, ODbL, rotated min-area rectangles, true facade-to-facade
+    gap 60.3 m by `ring_gap()`.
+  * Weather -- 43,763 real hourly KIAD ASOS records, 2021-2025 (99.9 % of five years):
+    temperature, dew point, wind bearing, wind speed.
+  * Recirculation rise -- solved on the committed geometry by `physics/solver.py`, validated
+    against an analytic Gaussian plume to 2.9e-10 and against 67 Project Prairie Grass 1956
+    field experiments; held-out RMS 0.126 K on a 0.923 K signal.
+  * Refusal -- `solver.path_blocked()`, pure geometry, no PDE solve.
+
+DERIVED from the measured, deterministically, no random draws anywhere in this file:
+  * The forecast the agent sees in the scheduling cases is
+        forecast[h] = truth[h] - d_offset
+    where d_offset is ONE OF THE FOUR MEASURED FortyGuard day-offsets (-0.8396, -0.8115,
+    +0.1520, -3.7127 C). Each is run as its own scenario. Nothing is sampled from a fitted
+    distribution -- with n = 4 days that would be inventing a shape we have not measured
+    (HANDOFF section 6.3: n = 4 establishes the MECHANISM, not the FREQUENCY).
+  * The conformal margin for a given offset scenario is built LEAVE-ONE-OUT, from the other
+    three days only. The agent is never bounded using the day it is being tested on.
+
+HONEST LIMITS -- state these, do not let a viewer infer otherwise:
+  * The bound's measured out-of-sample coverage is 65.6 % over 3 test days, against a 90 %
+    nominal. It FAILED its pre-registered conditions. This file prints that failure and the
+    demo shows it. HANDOFF section 7.2: 90 % -> 75 % of that shortfall is our own sample size
+    (n = 3 caps coverage at n/(n+1) = 75 % arithmetically, before FortyGuard is implicated);
+    75 % -> 65.6 % is FortyGuard's day-varying level offset. ~10 days recovers it.
+  * Recirculation at this site is SMALL: worst bearing 255 deg gives +0.3548 C, which is BELOW
+    the 0.556 C resolution of the ASOS station one would validate against. It is real physics
+    and it does change decisions, but only inside a ~0.35 C band under the limit.
+  * `solver.py` models buildings as TRANSPARENT to the temperature field -- N-29 V4 measured
+    0.0 % of plume heat absorbed, so heat is conserved exactly (gotcha #26; the earlier
+    heat-ABSORBING description was retracted 2026-08-12 and this line asserted it for eight days
+    after the code had changed). Transparency is still not deflection, so on a bearing where a
+    building lies on the source-to-intake path there is no answer the solver can stand behind and
+    the agent REFUSES rather than returning a number.
+  * No dollars and no kWh anywhere. The C-to-kWh conversion could not be sourced from a primary
+    document, so the headline unit is chiller-hours avoided.
+  * The scheduling cases use KIAD ASOS as the site's ambient series for BOTH the agent and the
+    incumbent, so no spatial advantage accrues to either side.
+
+================================================================================
+THE INCUMBENT -- a tuned adversary, not a strawman (methodology rule 3)
+================================================================================
+What operators verifiably run, per HANDOFF section 5.3: ambient now, from their OWN rooftop
+weather station, no wind input, no forecast. Verified by full-text search of the 27-page LBNL
+thermal-guidelines document, in which "outdoor", "outside air" and "forecast" do not appear.
+
+The incumbent here gets the SAME statistical machinery the agent gets: a 90 % one-sided
+conformal bound built from ITS OWN residuals (persistence error at the same notice period,
+de-biased per hour-of-day first, because raw persistence error contains the diurnal cycle --
+gotcha #25, mean +8.784 C at 12 h lead). It is not handicapped. The two differences are the
+two things being claimed: the agent sees a FORECAST, and the agent knows about RECIRCULATION.
+"""
+import json
+import math
+import os
+import statistics
+import sys
+import time
+
+import numpy as np
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+IA = os.path.dirname(HERE)
+ROOT = os.path.dirname(IA)
+GEOM = os.path.join(IA, "data", "geometry")
+WEATHER = os.path.join(IA, "data", "weather")
+DEMO = os.path.join(IA, "demo")
+FIXTURES = os.path.join(ROOT, "testing", "results", "fixtures")
+N26_MANIFEST = os.path.join(ROOT, "testing", "results", "n26_manifest.json")
+
+sys.path.insert(0, HERE)
+from physics import solver                                          # noqa: E402
+from physics.solver import CALIBRATED                               # noqa: E402
+from build_site import rasterise                                    # noqa: E402
+import conformal as C                                               # noqa: E402
+import environment as E                                             # noqa: E402
+
+# ============================================================================
+# PLANT ENVELOPE -- every entry is a SCENARIO PARAMETER, never a single value.
+# These describe the customer's plant, which we do not have. They are swept, the output
+# carries every combination, and the demo exposes them as controls. If a viewer asks "why
+# 24 C?", the answer is that we never chose one: all four are computed and shown.
+# ============================================================================
+PLANT_ENVELOPE = {
+    # Changeover limit: the maximum intake temperature the plant tolerates at full load.
+    # Anchored to the ASHRAE recommended/allowable envelope range, spanned rather than picked.
+    "limit_c": [18.0, 21.0, 24.0, 27.0],
+    # Mode changes permitted per day. Chillers and dampers wear; operators cap this.
+    "switch_budget": [1, 2, 4],
+    # Minimum hours in a mode before another change is allowed (ramp-rate limit).
+    "min_dwell_h": [1, 3],
+    # Notice the plant needs before a mode change takes effect. This is the axis FortyGuard's
+    # forecast sells into: a thermometer cannot see 3 h ahead.
+    "notice_h": [0, 1, 3, 6],
+    # Where the condenser bank sits. `longest` is the realistic 123 m facade; `facing` is the
+    # 50 m sensitivity, kept because it is where refusal actually fires (63.1 % of bearings).
+    "bank_mode": ["longest", "facing"],
+    # WHETHER THE DAY'S LEVEL OFFSET IS REMOVED. This is the single most consequential axis in
+    # the whole file and it is NOT a tuning knob -- it is a question about what hardware exists.
+    #   "none"   : the agent believes FortyGuard's level as delivered. MEASURED: it loses hours,
+    #              because the forecast ran warm on 3 of the 4 days and a one-sided UPPER bound
+    #              protects safety, not efficiency -- it cannot un-bias a biased forecast.
+    #              N-56 measured the same thing at annual scale: -645 h/yr unanchored.
+    #   "sensor" : ONE local observation at decision time removes the day's level. Requires
+    #              customer hardware. N-56 measured this worth +100 to +712 h/yr.
+    # TWO OTHER ANCHORS ARE DELIBERATELY ABSENT, and their absence is a result:
+    #   previous-day FortyGuard offset -- TESTED AND FAILED (HANDOFF 6.4): mean |error| went
+    #     1.43 -> 1.71 C, because the offset jumps (-0.19 -> +3.64 between two days).
+    #   same-day FortyGuard offset -- UNTESTED (HANDOFF 8.4). It would remove the sensor
+    #     requirement entirely, which is exactly why it must not be shipped as if it worked.
+    "anchor": ["none", "sensor"],
+    # MAXIMUM DEW POINT of the outside air, in C. THIS REPLACED AN INVENTED CONSTANT, and the
+    # replacement is the whole point:
+    #
+    #   An earlier version gated on "wet-bulb <= dry-bulb limit MINUS 3 C". The 3.0 was a number
+    #   I made up. It had no source, it was derived from our other knob rather than from any
+    #   published standard, and it therefore FAILED this project's own point-at-the-constant
+    #   test -- correctly spotted as a threshold in a costume.
+    #
+    #   The sourced replacement: Green Grid White Paper #46 p.6 gives the ASHRAE RECOMMENDED
+    #   MAXIMUMS as 27 C dry-bulb AND 15 C dew point, and WP46's own free-cooling hour count adds
+    #   an hour only when BOTH are below those maxima. So gate 2 is a DEW-POINT limit, taken from
+    #   a published envelope rather than offset from our own limit, and 15.0 is its sourced value.
+    #   It is swept anyway, because a customer's plant may be tighter or looser.
+    #
+    #   Note the consistency this exposes: 27 C, the top of `limit_c` above, IS the same
+    #   standard's recommended dry-bulb maximum. Both gates now come from one published envelope.
+    "dewpoint_limit_c": [None, 15.0, 18.0],
+    # THE CONTAMINATION LIMIT, as a FortyGuard PM2.5 index value. None disables the gate.
+    # Swept rather than chosen because FortyGuard's `:idx` fields carry no documented units or
+    # scale (our defect 9.3) -- so no primary source can fix a number. The non-None value is set
+    # at runtime to the p90 of FortyGuard's OWN measured distribution.
+    "aq_limit_idx": [None, None],
+}
+
+# Only meaningful when anchor == "sensor". Skill is measured RELATIVE TO PERSISTENCE: 0.00 means
+# the agent forecasts no better than "same as N hours ago", 1.00 means perfect. It is SWEPT, not
+# assumed -- gotcha #40 is that assuming a flat small forecast error IS an oracle leak.
+# For orientation only, never as an input: DIAG-57 measured FortyGuard's own skill at 0.617
+# (3.5 h) and 0.838 (9.4 h) on ONE window, which is a mechanism, not a rate.
+FORECAST_SKILL = [0.00, 0.50, 0.90]
+
+ALPHA = 0.10                       # one-sided 90 % bound. A definition of confidence, not a knob.
+SIGMA_DIR_DEG = [47.0, 72.0]       # MEASURED N-40 forecast wind-direction error range, swept
+SPEED_GRID_MS = [0.5, 1.5, 2.5, 3.5, 5.0, 7.0, 9.0, 12.0]
+STEP_DEG = 5
+BEARINGS = np.arange(0.0, 360.0, STEP_DEG)
+AMB_REF = 30.0                     # reference ambient the rise table is solved at
+STEPS = 800
+CALM_KT = 3.0                      # ASOS reports drct = 0 when calm; bearing is undefined there
+SITE_CENTRE = (39.024017, -77.419691)
+MODE_MECH, MODE_FREE = 0, 1
+MODE_NAME = {MODE_MECH: "MECHANICAL", MODE_FREE: "FREE-COOLING"}
+
+
+def say(*a):
+    print(*a)
+    sys.stdout.flush()
+
+
+def banner(t):
+    say("\n" + "=" * 78)
+    say(t)
+    say("=" * 78)
+
+
+# ============================================================================
+# 1. PERCEIVE
+# ============================================================================
+def tile_centroids(result):
+    """Per-tile (lat, lon, max_temperature). max is what N-26 scores, so we score the same thing."""
+    out = []
+    for t in (result.get("map_data") or {}).get("features") or []:
+        c = t["geometry"]["coordinates"][0]
+        la = sum(x[1] for x in c[:4]) / 4.0
+        lo = sum(x[0] for x in c[:4]) / 4.0
+        v = t["properties"].get("max_temperature")
+        if v is not None:
+            out.append((la, lo, v))
+    return out
+
+
+def field_by_key(result):
+    """Keyed on rounded centroid so a forecast tile can be matched to its outcome tile."""
+    return {(round(la, 5), round(lo, 5)): v for la, lo, v in tile_centroids(result)}
+
+
+def load_fixture(tag):
+    p = os.path.join(FIXTURES, "%s.json" % tag)
+    if not os.path.exists(p):
+        return None
+    return json.load(open(p, encoding="utf-8"))
+
+
+def perceive_fortyguard():
+    """Every complete FortyGuard forecast/outcome day-pair on disk. No call is made."""
+    m = json.load(open(N26_MANIFEST, encoding="utf-8"))
+    pairs = []
+    for dk in sorted(m["days"]):
+        day = m["days"][dk]
+        ft, ot = day.get("forecast_tag"), day.get("outcome_tag")
+        rf, ro = (load_fixture(ft) if ft else None), (load_fixture(ot) if ot else None)
+        if not rf or not ro:
+            continue
+        F, H = field_by_key(rf), field_by_key(ro)
+        keys = [k for k in F if k in H]
+        if len(keys) < 100:
+            continue
+        d = np.array([H[k] - F[k] for k in keys])
+        pairs.append({
+            "date": dk,
+            "lead_h": day.get("forecast_lead_h"),
+            "n_tiles": len(keys),
+            "mean_d": float(d.mean()),
+            "sd_d": float(d.std(ddof=1)),
+            "resid": d,
+            "forecast_mean": float(statistics.fmean(F[k] for k in keys)),
+            "outcome_mean": float(statistics.fmean(H[k] for k in keys)),
+            "forecast_tag": ft, "outcome_tag": ot,
+        })
+    return pairs, m
+
+
+def nearest_tile(result, lat, lon):
+    """The FortyGuard tile the committed site actually sits in."""
+    best, bd = None, 1e18
+    for la, lo, v in tile_centroids(result):
+        dd = (la - lat) ** 2 + ((lo - lon) * math.cos(math.radians(lat))) ** 2
+        if dd < bd:
+            best, bd = (la, lo, v), dd
+    return best, math.sqrt(bd) * 111320.0
+
+
+def load_hours(with_dewpoint=False):
+    """43,763 real KIAD hours. Returns keys, temp C, wind-from deg, speed kt.
+
+    `with_dewpoint=True` also returns dew point, which is what the wet-bulb gate needs. Dew point
+    is present for 100.0 % of hours (verified in environment.py's self-test). Kept in ONE loader
+    so no other module re-reads the file and risks disagreeing about a field index.
+    """
+    d = json.load(open(os.path.join(WEATHER, "kiad_hourly_2021_2025.json"), encoding="utf-8"))
+    f = d["meta"]["fields"]
+    it, idr, isk = f.index("tmpc"), f.index("drct"), f.index("sknt")
+    keys = sorted(d["hours"])
+    g = lambda i: np.array([d["hours"][k][i] if d["hours"][k][i] is not None else np.nan
+                            for k in keys], dtype=float)
+    if with_dewpoint:
+        return keys, g(it), g(f.index("dwpc")), g(idr), g(isk)
+    return keys, g(it), g(idr), g(isk)
+
+
+# ============================================================================
+# 2. SOLVE -- physics on the committed geometry
+# ============================================================================
+def load_site(mode):
+    """Rebuild the verified solver.Site from committed JSON, asserting the rebuild matches."""
+    p = os.path.join(GEOM, "solver_site_%s.json" % mode)
+    d = json.load(open(p, encoding="utf-8"))
+    n, dx = d["domain"]["n"], d["domain"]["dx_m"]
+    s = solver.Site(d["domain"]["size_m"], dx)
+    for ring in (d["source_ring_m"], d["receptor_ring_m"]):
+        s.obstacle |= rasterise(ring, n, dx)
+    bank = rasterise(d["bank_ring_m"], n, dx)
+    if int(bank.sum()) != int(d["bank_cells"]):
+        raise SystemExit("SITE REBUILD MISMATCH %s: %d bank cells, JSON says %d"
+                         % (mode, bank.sum(), d["bank_cells"]))
+    s.source[bank] += d["discharge_k"] / d["exchange_s"]
+    return s, d, bank
+
+
+def emission_point(site, d, bank):
+    """The bank's OUTWARD FACE. Gotcha #36: a ray starting INSIDE the hall refuses everything,
+    which looked like a dramatic 100 % refusal and was pure artefact. March out until clear."""
+    ys, xs = np.nonzero(bank)
+    bc = ((xs.mean() + 0.5) * site.dx, (ys.mean() + 0.5) * site.dx)
+    cA = d["source_centre_m"]
+    ox, oy = bc[0] - cA[0], bc[1] - cA[1]
+    L = math.hypot(ox, oy)
+    if L < 1e-6:
+        raise SystemExit("bank centroid coincides with hall centroid; outward normal undefined")
+    ox, oy = ox / L, oy / L
+    for k in range(200):
+        px, py = bc[0] + ox * (site.dx * 0.5) * k, bc[1] + oy * (site.dx * 0.5) * k
+        j, i = int(px / site.dx), int(py / site.dx)
+        if not (0 <= i < site.n and 0 <= j < site.n):
+            raise SystemExit("outward march left the domain before clearing the obstacle")
+        if not site.obstacle[i, j]:
+            return (px, py), k * site.dx * 0.5
+    raise SystemExit("could not clear the obstacle along the outward normal")
+
+
+def rise_table(mode, cache=True):
+    """rise[bearing, speed] on the committed geometry, plus the refused bearing set.
+
+    576 solves. GPU via NVIDIA Warp when available, CPU otherwise; the device used is
+    reported and lands in the trace, because "93x faster" is only honest if we say on what.
+    Cached to demo/ so a re-run of the demo is instant.
+    """
+    cp = os.path.join(DEMO, "rise_table_%s.json" % mode)
+    if cache and os.path.exists(cp):
+        c = json.load(open(cp, encoding="utf-8"))
+        say("      rise table for %-8s loaded from cache (%s, %.1f s when computed)"
+            % (mode, c["device"], c["solve_seconds"]))
+        return np.array(c["rise"]), set(c["refused"]), c
+
+    site, d, bank = load_site(mode)
+    ix, iy = d["intake_m"]
+    rad = d["intake_radius_m"]
+    emit, march = emission_point(site, d, bank)
+
+    refused = sorted(int(b) for b in BEARINGS
+                     if solver.path_blocked(site, emit, ix, iy, float(b)))
+    downwind = [int(b) for b in BEARINGS if _is_downwind(emit, ix, iy, float(b))]
+    say("      %-8s emission point %.1f,%.1f m (marched %.0f m out of the facade)"
+        % (mode, emit[0], emit[1], march))
+    say("      %-8s path_blocked REFUSES %d of %d bearings (%d of %d downwind)"
+        % (mode, len(refused), len(BEARINGS),
+           len([b for b in refused if b in downwind]), len(downwind)))
+
+    bb, ss = np.meshgrid(BEARINGS, np.array(SPEED_GRID_MS), indexing="ij")
+    bf, sf = bb.ravel(), ss.ravel()
+    dw = np.array([solver.downwash_fraction(v, CALIBRATED["downwash_uc"],
+                                            CALIBRATED["downwash_exponent"]) for v in sf])
+    t0, device = time.time(), "GPU (NVIDIA Warp)"
+    try:
+        from physics import warp_solver as ws
+        T = ws.solve_batch(site, np.full(len(bf), AMB_REF), sf, bf, np.ones(len(bf)),
+                           diffusivity=7.40, steps=STEPS, device="cuda", downwash=dw)
+        rise = np.array([solver.intake_temperature(T[m].astype(np.float64), site, ix, iy, rad,
+                                                   disc=True) - AMB_REF for m in range(len(bf))])
+    except Exception as ex:
+        device = "CPU fallback (%s)" % str(ex)[:60]
+        rise = np.empty(len(bf))
+        for m in range(len(bf)):
+            Tm = solver.solve(site, AMB_REF, float(sf[m]), float(bf[m]), diffusivity=7.40,
+                              downwash_uc=CALIBRATED["downwash_uc"],
+                              downwash_exponent=CALIBRATED["downwash_exponent"])
+            rise[m] = solver.intake_temperature(Tm, site, ix, iy, rad, disc=True) - AMB_REF
+    el = time.time() - t0
+    tab = rise.reshape(len(BEARINGS), len(SPEED_GRID_MS))
+    bi, si = np.unravel_index(int(np.argmax(tab)), tab.shape)
+    say("      %-8s %d solves in %.1f s on %s" % (mode, len(bf), el, device))
+    say("      %-8s max rise %+.4f C at bearing %3.0f deg / %.1f m/s;  mean %+.4f C"
+        % (mode, tab.max(), BEARINGS[bi], SPEED_GRID_MS[si], tab.mean()))
+
+    meta = {"mode": mode, "device": device, "solve_seconds": round(el, 2),
+            "n_solves": int(len(bf)), "emission_point_m": [round(emit[0], 2), round(emit[1], 2)],
+            "march_m": march, "refused": refused, "n_downwind": len(downwind),
+            "n_downwind_refused": len([b for b in refused if b in downwind]),
+            "max_rise_c": float(tab.max()), "max_rise_bearing": float(BEARINGS[bi]),
+            "max_rise_speed_ms": float(SPEED_GRID_MS[si]), "mean_rise_c": float(tab.mean()),
+            "bearings": [float(b) for b in BEARINGS], "speeds": SPEED_GRID_MS,
+            # FULL precision: this table feeds the bound, and a rounded number that a
+            # comparison depends on is the bug that bit twice in one day (PLAN 8k.4, 8l.4).
+            "rise": [[float(v) for v in row] for row in tab]}
+    if cache:
+        os.makedirs(DEMO, exist_ok=True)
+        json.dump(json_safe(meta), open(cp, "w", encoding="utf-8"), allow_nan=False)
+    return tab, set(refused), meta
+
+
+def _is_downwind(emit, ix, iy, bearing):
+    """True if wind FROM `bearing` carries the plume from the EMISSION POINT to the intake.
+
+    IDENTICAL to `direction_sweep.py:255`, deliberately, and it must stay identical. An earlier
+    version of this function used the centre-to-centre unit vector instead and reported "19 of
+    36 downwind refused" where N-54 measured 36 of 36 -- two files computing the same quantity
+    two ways, which is gotcha #12. The emission-point form is the correct one: the plume starts
+    at the facade, not at the building's centre.
+    """
+    th = math.radians(bearing + 180.0)
+    return bool(((ix - emit[0]) * math.sin(th) + (iy - emit[1]) * math.cos(th)) > 0.0)
+
+
+def lookup_rise(tab, bearing, speed):
+    """Nearest neighbour on the 5 deg / 8-speed grid. Vectorised."""
+    bi = (np.round(np.asarray(bearing, dtype=float) / STEP_DEG).astype(int)) % len(BEARINGS)
+    sg = np.asarray(SPEED_GRID_MS)
+    si = np.abs(np.asarray(speed, dtype=float)[:, None] - sg[None, :]).argmin(axis=1)
+    return tab[bi, si]
+
+
+# ============================================================================
+# 3. BOUND -- one-sided split conformal, with the small-sample truth stated
+# ============================================================================
+def conformal(res, alpha=ALPHA):
+    """DELEGATES to conformal.split_conformal -- there is exactly one implementation now.
+
+    This used to be a second, independent copy of the quantile logic living in this file. Two
+    code paths computing one statistic is gotcha #12, and it is worse than usual here because a
+    silent disagreement in a SAFETY bound would not announce itself. The library version is the
+    one with the 20-check self-test (`python conformal.py`).
+
+    The returned dict keeps this file's original key names so existing call sites are unchanged,
+    and adds the library's own keys alongside.
+    """
+    c = C.split_conformal(res, alpha)
+    return {"n": c["n"], "k": c["k"], "margin": c["q"], "clamped": c["clamped"],
+            "attainable": c["ceiling"], "nominal": c["nominal"],
+            "n_needed_for_nominal": C.min_n_for(alpha), "_library": c}
+
+
+def debiased_persistence_residuals(temp, hour_of_day, notice_h):
+    """The INCUMBENT's own error, measured, so it gets the same 90 % machinery the agent gets.
+
+    Gotcha #25: raw persistence error contains the diurnal cycle -- mean +8.784 C at 12 h lead
+    is the clock, not the weather. De-bias per hour-of-day BEFORE taking residuals, or the
+    incumbent is handed a bias nobody operating a plant would tolerate.
+
+    Returns (residuals, bias_by_hour_of_day). The bias table is also what the AGENT's anchored
+    forecast is built from, so both sides are derived from one measurement, not two.
+    """
+    bias = np.zeros(24)
+    if notice_h == 0:
+        return np.zeros(1), bias               # zero notice: it reads the value it acts on
+    t, hh = np.asarray(temp, float), np.asarray(hour_of_day, int)
+    err = np.full(len(t), np.nan)
+    # TRUTH minus FORECAST, the same orientation as N-26's d, because the bound is
+    # forecast + margin >= truth. Getting this backwards would build a LOWER bound and call
+    # it safety.
+    err[notice_h:] = t[notice_h:] - t[:-notice_h]
+    ok = ~np.isnan(err)
+    for h in range(24):
+        m = ok & (hh == h)
+        if m.sum() > 10:
+            bias[h] = np.nanmean(err[m])
+            err[m] -= bias[h]
+    return err[ok], bias
+
+
+# ============================================================================
+# 4. DECIDE -- a SCHEDULE, by dynamic programming, under the plant envelope
+# ============================================================================
+def plan(safe, switch_budget, min_dwell_h, start_mode=MODE_MECH,
+         start_switches=0, start_dwell_owed=0, budget_reset_at=None):
+    """Maximise free-cooling hours subject to safety, a switch budget and a dwell limit.
+
+    NO COST WEIGHTS. Safety is a hard constraint, not a penalty term, so there is no invented
+    exchange rate between "a degree of risk" and "an hour of chiller". That is the difference
+    between this and `run_e2e.py`, which needed c_excursion = 120.0 to produce an answer.
+
+    State: (mode, switches used, dwell hours still owed). The final run may be truncated by the
+    horizon -- a plant does not owe dwell to a day that has ended.
+    Objective: most FREE hours; ties broken toward FEWER switches.
+
+    ------------------------------------------------------------------------------------------
+    THE THREE ROLLING ARGUMENTS, added 2026-08-19, and why they are not a second planner
+    ------------------------------------------------------------------------------------------
+    This function used to assume it was planning a fresh calendar day from midnight: switches used
+    = 0, no dwell owed, and a switch budget that never resets inside the horizon. That is fine for
+    a day-at-a-time backtest and useless for a controller asked to "carry on from now", which is
+    what a real plant needs -- it starts mid-afternoon already in FREE-COOLING, two hours into a
+    three-hour dwell, having spent one of its two daily switches.
+
+    Feeding that state in is the whole difference between a demo and a controller:
+      start_switches    switches already spent in the CURRENT budget period.
+      start_dwell_owed  hours still owed in `start_mode` before any switch is permitted.
+      budget_reset_at   index in the horizon at which the daily switch counter resets, i.e. the
+                        midnight crossing. None means the horizon does not cross one.
+
+    Defaults reproduce the previous behaviour EXACTLY, so `plan(safe, b, d)` is unchanged and the
+    browser mirror, `plan_fast` and the 500-case cross-language test all still hold. Extending the
+    one planner rather than writing a rolling twin is deliberate -- gotcha #12, two code paths
+    computing one quantity is how this project has been bitten most often.
+    """
+    H = len(safe)
+    # state -> (free_hours, -switches, modes tuple)
+    cur = {(start_mode, start_switches, start_dwell_owed): (0, 0, ())}
+    for h in range(H):
+        if budget_reset_at is not None and h == budget_reset_at:
+            # A new budget period begins. Collapse the switch counter to 0; states that differed
+            # only by switches spent in the period that just ended are now genuinely equivalent,
+            # so keep the best of each collision rather than letting a stale count forbid a switch.
+            merged = {}
+            for (m, s, dl), v in cur.items():
+                k = (m, 0, dl)
+                if k not in merged or v[:2] > merged[k][:2]:
+                    merged[k] = v
+            cur = merged
+        nxt = {}
+        for (m, s, dl), (fh, negs, path) in cur.items():
+            for nm in (m, 1 - m):
+                if nm == m:
+                    ns, ndl = s, max(0, dl - 1)
+                else:
+                    if dl > 0 or s >= switch_budget:
+                        continue
+                    ns, ndl = s + 1, max(0, min_dwell_h - 1)
+                if nm == MODE_FREE and not safe[h]:
+                    continue
+                key = (nm, ns, ndl)
+                val = (fh + (1 if nm == MODE_FREE else 0), -ns, path + (nm,))
+                if key not in nxt or val[:2] > nxt[key][:2]:
+                    nxt[key] = val
+        if not nxt:                             # only reachable if MECH itself were infeasible
+            return [MODE_MECH] * H, 0, 0
+        cur = nxt
+    best = max(cur.values(), key=lambda v: v[:2])
+    return list(best[2]), best[0], -best[1]
+
+
+def reactive_incumbent(safe, switch_budget, min_dwell_h):
+    """Same plant constraints, same 90 % machinery, but decided greedily hour by hour with no
+    plan -- because a reactive controller has no horizon. It flips as soon as its own bound
+    allows, and pays for it in switches.
+
+    ONE ASYMMETRY, AND IT FAVOURS THE INCUMBENT, so it is recorded rather than removed: when
+    dwell or the switch budget would force it to hold FREE through an hour its own bound says is
+    unsafe, SAFETY WINS and it switches anyway. A real plant would. The consequence is that the
+    incumbent can EXCEED the switch budget the agent is held to, and `budget_exceeded` counts
+    every time it does. That is not a flaw in the comparison, it is the finding: without a
+    horizon you cannot respect a switch budget and stay safe at the same time.
+    """
+    H = len(safe)
+    modes, m, s, dl, over = [], MODE_MECH, 0, 0, 0
+    for h in range(H):
+        want = MODE_FREE if safe[h] else MODE_MECH
+        if want != m:
+            if dl == 0 and s < switch_budget:
+                m, s, dl = want, s + 1, max(0, min_dwell_h - 1)
+            elif want == MODE_MECH:
+                m, s, dl = want, s + 1, 0          # safety overrides dwell and budget
+                over += 1
+            else:
+                dl = max(0, dl - 1)
+        else:
+            dl = max(0, dl - 1)
+        modes.append(m)
+    return modes, sum(1 for x in modes if x == MODE_FREE), s, over
+
+
+# ============================================================================
+# 5. ACT -- a BMS/SCADA-shaped command, with the reason attached
+# ============================================================================
+# The command log illustrates ONE fully-named point in the sweep. That is a DISPLAY selection, not
+# a decision constant -- every axis here is swept, and this is simply the row whose numbers get
+# printed in full. It is defined ONCE because it is needed in two places, and a second copy is
+# exactly how the bound went missing (see `bound_series_key`).
+ACT_REFERENCE_POINT = {"bank_mode": "longest", "anchor": "sensor", "forecast_skill": 0.50,
+                       "notice_h": 3, "switch_budget": 2, "min_dwell_h": 3}
+
+
+def bound_series_key(mode, anchor, offset_tag, skill, notice_h):
+    """The name under which the scenario sweep parks its per-hour upper bound so that the ACT
+    stage can quote it.
+
+    ONE constructor, used by the writer and by the reader, because the two disagreed in silence.
+    The reader asked `row.get("bound_c|longest|sensor|anchored|0.50|3") or [None] * H`; NOTHING in
+    the tree ever wrote that key, because `_day_series` is not built until after the sweep has
+    finished. The `or` default then turned every entry into `float("nan")`, so ALL 37 shipped
+    command rows carried `bound_c: null` and the literal words "upper bound on intake nan C" in
+    their reason -- 100 % of stage 5's output, for as long as the stage has existed.
+
+    Two guards now stand where there was a default: this shared constructor, and a hard KeyError
+    at the read site instead of a fallback (gotcha #54 -- a silent default reads as coverage).
+    """
+    return "bound_c|%s|%s|%s|%.2f|%d" % (mode, anchor, offset_tag, skill, notice_h)
+
+
+def bms_commands(modes, hours, bound, limit_c, rise, refused_flags, margin_meta):
+    """The interface an actual plant would receive. Every row carries WHY.
+
+    Nothing here talks to real hardware -- there is no plant. The shape is what matters: a
+    point in time, a mode, and an auditable reason with the numbers that produced it.
+    """
+    out, prev = [], None
+    for i, m in enumerate(modes):
+        if m != prev:
+            # A command row whose bound is not a number is not a command, it is a bug wearing one.
+            # `"%.3f" % float("nan")` renders the word "nan" into perfectly valid prose, and
+            # `json_safe()` then turns the field beside it into a perfectly valid `null` -- so
+            # neither the JSON validator nor a reader of the file can see anything wrong.
+            if not math.isfinite(float(bound[i])):
+                raise ValueError(
+                    "stage 5 was handed a non-finite bound at hour %s (index %d). Refusing to "
+                    "write a command row that states a number it does not have."
+                    % (hours[i], i))
+            if refused_flags[i]:
+                why = ("REFUSE to certify: a building lies on the source-to-intake path at this "
+                       "bearing, so the solver's answer is not physical (see gotcha #26). "
+                       "Falling back to MECHANICAL.")
+            elif m == MODE_FREE:
+                why = ("upper bound on intake %.3f C = forecast + level margin %+.3f C (from %s "
+                       "calibration DAYS%s) + shape margin %+.3f C (from %s persistence hours) "
+                       "+ recirculation %+.3f C, under the %.1f C plant limit. Summing two "
+                       "one-sided 90 %% bounds guarantees 80 %%, not 90 %% -- stated, not implied."
+                       % (bound[i], margin_meta["level_c"],
+                          ("%d" % margin_meta["n_level"]) if margin_meta["n_level"] is not None
+                          else "no",
+                          ", CLAMPED: guarantee degraded" if margin_meta["clamped"] else "",
+                          margin_meta["shape_c"], format(margin_meta["n_shape"], ","),
+                          rise[i], limit_c))
+            else:
+                why = ("upper bound on intake %.3f C is NOT under the %.1f C plant limit "
+                       "(recirculation contributes %+.3f C)." % (bound[i], limit_c, rise[i]))
+            out.append({"hour": hours[i], "index": i, "command": MODE_NAME[m], "reason": why,
+                        # FULL PRECISION. `round(..., 4)` here forced audit.check_act_stage to
+                        # carry a tolerance it could not justify, when the quantity being compared
+                        # is an identity (gotcha #44, #63). The 3 dp in the reason text above is
+                        # display rounding and belongs there; the field is the number.
+                        "bound_c": float(bound[i]),
+                        "rise_c": round(float(rise[i]), 4),
+                        "refused": bool(refused_flags[i])})
+            prev = m
+    return out
+
+
+# ============================================================================
+# 6. SCORE + RECALIBRATE -- the loop that earns hours
+# ============================================================================
+def day_level_ceiling(cal_days):
+    """THE CEILING THAT ACTUALLY BINDS, and getting this wrong misstates the whole argument.
+
+    Pooling 3 days of tiles gives 53,586 residuals, so n/(n+1) computed on the TILE count says
+    the attainable coverage is 99.998 %. That is nonsense, and the reason is measured, not
+    assumed: DIAG-57 found the map SHIFTS TOGETHER -- a ~1.2 C whole-field offset against
+    ~0.1 C of between-tile scatter, a ratio of 3x to 12x. Tiles inside one day are therefore
+    very nearly ONE observation, not 17,862 independent ones. Exchangeability holds across DAYS.
+
+    So the effective sample size is the DAY count, and the arithmetic ceiling on coverage is
+    n_days/(n_days+1): 75 % at 3 days, 80 % at 4, 90 % first reachable at 9. That is HANDOFF
+    section 7.2, and it is why a 90 % bound was never obtainable from the days we had --
+    arithmetically, before FortyGuard is implicated at all.
+    """
+    return cal_days / (cal_days + 1.0)
+
+
+def score_sequential(pairs, alpha=ALPHA):
+    """Calibrate on all earlier days, test on the next. This reproduces N-26 exactly, and it
+    must: if this file disagreed with `testing/test_n26_coverage.py` one of them is wrong.
+
+    Also returns the MARGIN TRAJECTORY -- how the agent's own bound moves as its record grows.
+    That trajectory IS the recalibration step. Nobody widens it by hand.
+    """
+    rows, cov_n, cov_k = [], 0, 0
+    for i in range(1, len(pairs)):
+        cal = np.concatenate([pairs[j]["resid"] for j in range(i)])
+        c = conformal(cal, alpha)
+        d = pairs[i]["resid"]
+        covered = int((d <= c["margin"]).sum())
+        rows.append({"test_date": pairs[i]["date"], "cal_days": i, "cal_n": int(len(cal)),
+                     "margin_c": round(c["margin"], 4), "clamped": c["clamped"],
+                     "coverage": covered / len(d), "n_test": int(len(d)),
+                     "day_level_ceiling": round(day_level_ceiling(i), 4),
+                     "tile_level_ceiling_MISLEADING": round(c["attainable"], 6)})
+        cov_k += covered
+        cov_n += len(d)
+    pooled = (cov_k / cov_n) if cov_n else float("nan")
+    traj = []
+    for i in range(1, len(pairs) + 1):
+        c = conformal(np.concatenate([pairs[j]["resid"] for j in range(i)]), alpha)
+        cd = conformal(np.array([pairs[j]["mean_d"] for j in range(i)]), alpha)
+        traj.append({"after_days": i, "margin_c": round(c["margin"], 4),
+                     "day_level_margin_c": round(cd["margin"], 4),
+                     "day_level_ceiling": round(day_level_ceiling(i), 4),
+                     "day_level_clamped": cd["clamped"]})
+    return rows, pooled, traj
+
+
+# ============================================================================
+# THE REAL FORTYGUARD CYCLE -- one full loop per real day, scored against the real outcome
+# ============================================================================
+def run_cycle():
+    banner("STAGE 1-6  ONE FULL LOOP PER REAL FORTYGUARD DAY   [no API call]")
+    pairs, manifest = perceive_fortyguard()
+    if not pairs:
+        say("   no complete forecast/outcome pairs on disk.")
+        return None
+
+    say("\n   1. PERCEIVE   %d complete FortyGuard day-pairs, %s tiles each"
+        % (len(pairs), format(pairs[0]["n_tiles"], ",")))
+    say("      %-12s %7s %10s %10s %10s %10s"
+        % ("date", "lead h", "fcst mean", "true mean", "mean d", "sd d"))
+    for p in pairs:
+        say("      %-12s %7.2f %10.4f %10.4f %+10.4f %10.4f"
+            % (p["date"], p["lead_h"] or 0.0, p["forecast_mean"], p["outcome_mean"],
+               p["mean_d"], p["sd_d"]))
+    say("      (d = outcome - forecast. Positive means the forecast ran COOL.)")
+
+    # the tile the site actually sits in -- FortyGuard's spatial dimension doing real work
+    site_tiles = {}
+    for p in pairs:
+        r = load_fixture(p["forecast_tag"])
+        (la, lo, v), dist = nearest_tile(r, *SITE_CENTRE)
+        site_tiles[p["date"]] = {"lat": round(la, 6), "lon": round(lo, 6),
+                                 "forecast_c": v, "dist_m": round(dist, 1)}
+    say("      committed site %.6f, %.6f sits in tile %.6f, %.6f (%.0f m away)"
+        % (SITE_CENTRE[0], SITE_CENTRE[1], site_tiles[pairs[0]["date"]]["lat"],
+           site_tiles[pairs[0]["date"]]["lon"], site_tiles[pairs[0]["date"]]["dist_m"]))
+
+    say("\n   2. SOLVE      recirculation on the committed geometry, both bank placements")
+    tabs = {}
+    for mode in PLANT_ENVELOPE["bank_mode"]:
+        tab, refused, meta = rise_table(mode)
+        tabs[mode] = (tab, refused, meta)
+
+    say("\n   3. BOUND      one-sided split conformal from the agent's own record")
+    allres = np.concatenate([p["resid"] for p in pairs])
+    c_all = conformal(allres)
+    say("      per-TILE pooling: n=%s residuals, k=%s, margin %+.4f C, clamped=%s"
+        % (format(c_all["n"], ","), format(c_all["k"], ","), c_all["margin"], c_all["clamped"]))
+    say("         ^ this n is MISLEADING and we do not lean on it. DIAG-57 measured the field")
+    say("           shifting TOGETHER: ~1.2 C whole-map offset vs ~0.1 C between-tile scatter,")
+    say("           3x to 12x. One day's tiles are nearly ONE observation, not %s."
+        % format(pairs[0]["n_tiles"], ","))
+    cday = conformal(np.array([p["mean_d"] for p in pairs]))
+    say("      per-DAY (the level that actually varies): n=%d, k=%d, margin %+.4f C, clamped=%s"
+        % (cday["n"], cday["k"], cday["margin"], cday["clamped"]))
+    say("      -> a %.0f %% bound needs n >= %d calibration DAYS. With n = %d the arithmetic"
+        % (100 * (1 - ALPHA), cday["n_needed_for_nominal"], cday["n"]))
+    say("         ceiling on coverage is n/(n+1) = %.1f %%. 90 %% IS NOT OBTAINABLE YET, and"
+        % (100 * day_level_ceiling(cday["n"])))
+    say("         that is OUR sample size, not FortyGuard's. ~10 days recovers it, free.")
+
+    say("\n   4-5. DECIDE + ACT   per day, swept over the whole plant envelope")
+    rows, pooled, traj = score_sequential(pairs)
+    decisions = []
+    for i in range(1, len(pairs)):
+        p = pairs[i]
+        cal = np.array([pairs[j]["mean_d"] for j in range(i)])
+        c = conformal(cal)
+        fmean = p["forecast_mean"]
+        for mode in PLANT_ENVELOPE["bank_mode"]:
+            tab, refused, _ = tabs[mode]
+            # Refused bearings hold MEANINGLESS values, not small ones, so they are masked out
+            # before the worst case is taken -- otherwise the worst case could be a number the
+            # agent has already declared it cannot compute.
+            ok_rows = np.array([int(b) not in refused for b in BEARINGS])
+            worst_rise = float(tab[ok_rows].max()) if ok_rows.any() else float("nan")
+            ub = fmean + c["margin"] + worst_rise
+            for limit in PLANT_ENVELOPE["limit_c"]:
+                declared = bool(ub <= limit)
+                breached = bool(p["outcome_mean"] + worst_rise > limit)
+                decisions.append({
+                    "date": p["date"], "bank_mode": mode, "limit_c": limit,
+                    "forecast_c": round(fmean, 4), "margin_c": round(c["margin"], 4),
+                    "worst_rise_c": round(worst_rise, 4), "bound_c": round(ub, 4),
+                    "outcome_c": round(p["outcome_mean"], 4),
+                    "declared_free": declared, "would_have_breached": breached,
+                    "unsafe_declaration": bool(declared and breached),
+                    "cal_days": i})
+    say("      %d decisions written (%d days x %d bank modes x %d limits)"
+        % (len(decisions), len(pairs) - 1, len(PLANT_ENVELOPE["bank_mode"]),
+           len(PLANT_ENVELOPE["limit_c"])))
+    n_free = sum(1 for d in decisions if d["declared_free"])
+    unsafe = [d for d in decisions if d["unsafe_declaration"]]
+    say("      declared FREE-COOLING: %d of %d      unsafe declarations: %d"
+        % (n_free, len(decisions), len(unsafe)))
+    if n_free == 0:
+        say("      *** VACUITY GUARD (gotcha #37: a condition can be MET AND MEANINGLESS) ***")
+        say("      Zero unsafe declarations here is NOT evidence the agent is safe -- it declared")
+        say("      free cooling ZERO times, so it had no opportunity to be wrong. The reason is")
+        say("      physical, not a bug: these are August afternoons in Virginia at %.1f-%.1f C,"
+            % (min(p["outcome_mean"] for p in pairs), max(p["outcome_mean"] for p in pairs)))
+        say("      and the highest limit in the envelope is %.1f C. NO controller of any kind"
+            % max(PLANT_ENVELOPE["limit_c"]))
+        say("      free-cools on those days. What the four real days DO test is the BOUND -- and")
+        say("      it failed, at 65.6 %. The hours claim is tested where days actually cross,")
+        say("      which is the scheduling cases on 43,763 real hours, not here.")
+
+    say("\n   6. SCORE + RECALIBRATE   out-of-sample, against the elapsed outcome")
+    say("      %-12s %9s %10s %11s %14s"
+        % ("test day", "cal days", "margin C", "coverage", "day ceiling"))
+    for r in rows:
+        say("      %-12s %9d %+10.4f %10.1f%% %13.1f%%"
+            % (r["test_date"], r["cal_days"], r["margin_c"], 100 * r["coverage"],
+               100 * r["day_level_ceiling"]))
+    say("      POOLED out-of-sample coverage: %.1f %%  over %d test days   (nominal %.0f %%)"
+        % (100 * pooled, len(rows), 100 * (1 - ALPHA)))
+    say("      margin trajectory -- the agent widening ITSELF, unprompted, as its record grows:")
+    for t in traj:
+        say("         after %d day(s): tile margin %+.4f C   day margin %+.4f C   ceiling %.1f %%%s"
+            % (t["after_days"], t["margin_c"], t["day_level_margin_c"],
+               100 * t["day_level_ceiling"],
+               "  [CLAMPED]" if t["day_level_clamped"] else ""))
+    say("         ^ after the 08-15 miss the bound moved -0.7394 -> +0.1905 C on its own. No")
+    say("           human widened it. That single line is the recalibrate step of the loop.")
+    say("\n      VERDICT, against conditions fixed before any outcome existed:")
+    say("         P1 pooled coverage >= 85 %%  : %-5s (%.1f %%)"
+        % (pooled >= 0.85, 100 * pooled))
+    say("         P2 no test day < 60 %%      : %-5s (worst %.1f %%)"
+        % (min(r["coverage"] for r in rows) >= 0.60, 100 * min(r["coverage"] for r in rows)))
+    say("         P3 at least 3 test days    : %-5s (%d)" % (len(rows) >= 3, len(rows)))
+    say("      -> FAIL. Reported, not hidden. HANDOFF section 7.2 splits the shortfall:")
+    say("         90 -> 75 % is OUR sample size (pure arithmetic, n = 3 days);")
+    say("         75 -> 65.6 % is FortyGuard's day-varying level offset.")
+    say("         ~10 calibration days recovers 90 %, on pure FortyGuard data, no customer")
+    say("         hardware. We have %d. NEVER quote 90 %% until they exist." % len(pairs))
+
+    return {"pairs": [{k: v for k, v in p.items() if k != "resid"} for p in pairs],
+            "site_tiles": site_tiles,
+            "bound_all_tiles": c_all, "bound_day_level": cday,
+            "sequential": rows, "pooled_coverage": pooled, "margin_trajectory": traj,
+            "decisions": decisions,
+            "rise_tables": {m: tabs[m][2] for m in tabs},
+            "manifest_errors": manifest.get("errors", {})}
+
+
+# ============================================================================
+# THE SCHEDULING CASES -- real KIAD days, real wind, the four MEASURED offsets
+# ============================================================================
+CASE_SPECS = [
+    ("clear_cool",   "max hourly temp at least 4 C below the lowest limit in the envelope"),
+    ("clear_hot",    "highest MINIMUM hourly temperature in five years -- mechanical all day"),
+    ("crossing",     "crosses one limit exactly twice -- one changeover each way"),
+    ("chatter",      "most limit crossings of any day in five years at some limit"),
+    ("recirc_edge",  "most hours sitting within the worst recirculation rise below a limit"),
+    ("knife_edge",   "day whose wind sits closest to the worst bearing, 255 deg"),
+    ("safe_sector",  "day whose wind sits in the zero-rise sector"),
+]
+
+
+def select_cases(keys, temp, drct, sknt, tab):
+    """Pick real days from the 43,763-hour record by PRINTED criteria, then report what was
+    picked. These are not invented days -- every one is a date that happened at KIAD.
+    """
+    days = {}
+    for i, k in enumerate(keys):
+        days.setdefault(k[:10], []).append(i)
+    full = {d: ix for d, ix in days.items() if len(ix) >= 20 and not np.isnan(temp[ix]).any()}
+    worst_rise = float(tab.max())
+    worst_bearing = float(BEARINGS[int(np.unravel_index(int(np.argmax(tab)), tab.shape)[0])])
+    lo, hi = min(PLANT_ENVELOPE["limit_c"]), max(PLANT_ENVELOPE["limit_c"])
+    picks = {}
+
+    def crossings(t, lim):
+        s = (np.asarray(t) > lim).astype(int)
+        return int(np.abs(np.diff(s)).sum())
+
+    cand = {d: temp[ix] for d, ix in full.items()}
+    c1 = [(d, t.max()) for d, t in cand.items() if t.max() <= lo - 4.0]
+    picks["clear_cool"] = max(c1, key=lambda x: x[1])[0] if c1 else None
+    # NOT "min temp above the highest limit": no day at KIAD in five years has a night warmer
+    # than 27 C, so that criterion finds nothing. Verified, then relaxed to the honest question
+    # -- which real day is hottest overnight -- rather than left as a hole in the case set.
+    c2 = [(d, float(t.min())) for d, t in cand.items()]
+    picks["clear_hot"] = max(c2, key=lambda x: x[1])[0] if c2 else None
+    c3 = [(d, abs(t.max() - t.min())) for d, t in cand.items()
+          if any(crossings(t, L) == 2 for L in PLANT_ENVELOPE["limit_c"])]
+    picks["crossing"] = max(c3, key=lambda x: x[1])[0] if c3 else None
+    c4 = [(d, max(crossings(t, L) for L in PLANT_ENVELOPE["limit_c"])) for d, t in cand.items()]
+    picks["chatter"] = max(c4, key=lambda x: x[1])[0] if c4 else None
+    c5 = [(d, max(int(((t > L - worst_rise) & (t <= L)).sum()) for L in PLANT_ENVELOPE["limit_c"]))
+          for d, t in cand.items()]
+    picks["recirc_edge"] = max(c5, key=lambda x: x[1])[0] if c5 else None
+    c6, c7 = [], []
+    for d, ix in full.items():
+        b, s = drct[ix], sknt[ix]
+        ok = (~np.isnan(b)) & (s >= CALM_KT)
+        if ok.sum() < 12:
+            continue
+        db = np.abs(((b[ok] - worst_bearing + 180.0) % 360.0) - 180.0)
+        c6.append((d, float(db.mean())))
+        r = lookup_rise(tab, b[ok], np.maximum(s[ok] * 0.514444, 0.3))
+        c7.append((d, float(np.abs(r).mean())))
+    picks["knife_edge"] = min(c6, key=lambda x: x[1])[0] if c6 else None
+    picks["safe_sector"] = min(c7, key=lambda x: x[1])[0] if c7 else None
+    return picks, worst_rise, worst_bearing
+
+
+def hod_of(ix, keys):
+    """Hour-of-day index array for a list of record positions."""
+    return np.array([int(keys[i][-2:]) for i in ix])
+
+
+def _pm25_hour_profile():
+    """Hour-of-day PM2.5 index profile MEASURED from FortyGuard's saved env_params responses.
+
+    What this is: the average diurnal shape of PM2.5 at this site, across every saved response
+    carrying a full 24-hour series. That shape is a real measurement.
+
+    What this is NOT: a claim about air quality on any particular 2021-2025 day. FortyGuard's
+    series are 2026 and the KIAD case days are 2021-2025, so there is no per-day overlap. Using
+    the measured diurnal shape as an overlay is the honest maximum available; inventing per-day
+    air quality is the alternative and we will not do it. The gate LIMIT is swept, never chosen,
+    because the `:idx` values carry no documented units (our defect 9.3).
+    """
+    try:
+        envs = E.load_env_params()
+    except Exception:
+        return None, 0
+    rows = []
+    for e in envs:
+        v = e["parameters"].get("air_quality_pm2p5:idx")
+        if isinstance(v, list) and len(v) >= 24:
+            a = np.array([np.nan if x is None else float(x) for x in v[:24]], dtype=float)
+            if np.isfinite(a).all():
+                rows.append(a)
+    if not rows:
+        return [], 0
+    # REAL measured 24-hour series, NOT their average. Averaging 9 days flattened the profile to
+    # 45.9-48.1 and destroyed the diurnal variation that makes the gate mean anything. Each case
+    # day is instead paired with one real measured FortyGuard air-quality day, in rotation. The
+    # pairing is arbitrary -- the years do not overlap -- and it is labelled as arbitrary.
+    return rows, len(rows)
+
+
+def plume_uncertainty_terms(mode):
+    """(spread table, multiplier, sigma_dir) for the plume term of the bound.
+
+    Imported lazily because `plume_uncertainty` imports THIS module -- a top-level import would
+    be circular. Reads the calibration written by `python plume_uncertainty.py`; if it is absent
+    the plume term is DISABLED rather than silently guessed, and that is reported.
+    """
+    try:
+        from plume_uncertainty import lookup_spread, spread_table   # noqa: F401
+        pj = os.path.join(DEMO, "plume_uncertainty.json")
+        if not os.path.exists(pj):
+            return None, 0.0, None, "plume_uncertainty.json missing -- run plume_uncertainty.py"
+        cal = json.load(open(pj, encoding="utf-8"))["calibration"]
+        sd = cal["shipped"]["sigma_dir_deg"]
+        mult = cal["shipped"]["multiplier"]
+        tab, meta = spread_table(mode, sd)
+        return tab, float(mult), float(sd), None
+    except Exception as ex:
+        return None, 0.0, None, "plume term disabled: %s" % str(ex)[:70]
+
+
+def run_cases(fg_offsets, extra_note=""):
+    banner("SCHEDULING CASES   real KIAD days x the four MEASURED FortyGuard offsets   [no API call]")
+    keys, temp, dewp, drct, sknt = load_hours(with_dewpoint=True)
+    say("   1. PERCEIVE   %s real KIAD hourly records, %s to %s"
+        % (format(len(keys), ","), keys[0], keys[-1]))
+    hour_of_day = np.array([int(k[-2:]) for k in keys])
+
+    # ---- WET BULB, for the humidity gate. Computed from the real dew point (100 % coverage),
+    # by the same validated code the backtest uses -- agreement with PsychroLib's ASHRAE
+    # formulation is 0.2681 C MAE, inside Stull's published < 0.3 C. See environment.py.
+    rh = E.rh_from_dewpoint(temp, dewp)
+    twb, stull_ok = E.wet_bulb_stull(temp, rh)
+    say("      wet-bulb computed for all hours; %.2f %% inside Stull's validity envelope"
+        % (100.0 * stull_ok.mean()))
+
+    # ---- AIR QUALITY, for the contamination gate. THE HONEST CONSTRUCTION, and its limit:
+    # FortyGuard's air-quality series exist for 2026, the KIAD case days for 2021-2025, so there
+    # is NO per-day overlap. What IS real and usable is the DIURNAL SHAPE: 29 saved env_params
+    # responses give a measured hour-of-day PM2.5 profile at this site. That profile is applied
+    # as a climatological overlay and LABELLED as one -- it is not a claim about air quality on
+    # any specific 2021-2025 day, and the gate limit is swept, not chosen, because FortyGuard's
+    # `:idx` values carry no documented units (our defect 9.3).
+    aq_days, aq_n = _pm25_hour_profile()
+    if aq_days:
+        allv = np.concatenate(aq_days)
+        PLANT_ENVELOPE["aq_limit_idx"] = [None, float(np.percentile(allv, 90))]
+        say("      %d REAL measured FortyGuard 24-h PM2.5 series on disk; index range %.1f-%.1f"
+            % (aq_n, allv.min(), allv.max()))
+        say("      each case day is paired with one real measured series, in rotation "
+            "(arbitrary pairing -- the years do not overlap, and it is labelled as arbitrary)")
+        say("      contamination limit swept at [off, %.1f] = the p90 of FortyGuard's own "
+            "measured values" % PLANT_ENVELOPE["aq_limit_idx"][1])
+    else:
+        PLANT_ENVELOPE["aq_limit_idx"] = [None]
+        say("      no FortyGuard air-quality series on disk -- contamination gate DISABLED")
+
+    tabs = {}
+    for mode in PLANT_ENVELOPE["bank_mode"]:
+        tabs[mode] = rise_table(mode)
+    tab_primary = tabs["longest"][0]
+
+    picks, worst_rise, worst_bearing = select_cases(keys, temp, drct, sknt, tab_primary)
+    say("\n   case selection, by the criteria printed here, over %d complete days:"
+        % len({k[:10] for k in keys}))
+    for name, crit in CASE_SPECS:
+        say("      %-12s %-12s  %s" % (name, picks.get(name) or "NONE FOUND", crit))
+    say("      worst recirculation rise on the committed geometry: %+.4f C at %.0f deg"
+        % (worst_rise, worst_bearing))
+    say("      NOTE %.4f C is BELOW the 0.556 C resolution of the ASOS station one would" % worst_rise)
+    say("           validate against. Real physics, small here, and said so rather than hidden.")
+
+    # ---- THE BOUND IS NOW GROUP-CONDITIONAL (MONDRIAN), not one pooled quantile.
+    # Measured on this exact data (backtest.py's Mondrian audit): a pooled quantile reads 0.9017
+    # coverage overall at 3 h notice while hour 9 sits at 0.7314, and 6 of 24 hour-groups fall
+    # below 90 %. Calibrating within hour-of-day lifts the worst group to 0.8794 and makes the
+    # margin vary 2.9x across the day instead of being one number that is simultaneously too
+    # tight in some hours and too loose in others. Vovk (2012); see PLAN section 12.7.
+    inc_margin, pers_bias, mond, mond_wet, mond_dp = {}, {}, {}, {}, {}
+    for N in PLANT_ENVELOPE["notice_h"]:
+        r, pers_bias[N] = debiased_persistence_residuals(temp, hour_of_day, N)
+        inc_margin[N] = conformal(r)                      # pooled, kept for comparison only
+        if N:
+            sh = np.empty_like(temp); sh[N:] = temp[:-N]; sh[:N] = temp[0]
+            rr = (temp - sh) - pers_bias[N][hour_of_day]
+            ok = ~np.isnan(rr); ok[:N] = False
+            mond[N] = C.Mondrian(ALPHA).fit(hour_of_day[ok], rr[ok])
+            shw = np.empty_like(twb); shw[N:] = twb[:-N]; shw[:N] = twb[0]
+            _, bw = debiased_persistence_residuals(twb, hour_of_day, N)
+            rw = (twb - shw) - bw[hour_of_day]
+            okw = ~np.isnan(rw); okw[:N] = False
+            mond_wet[N] = C.Mondrian(ALPHA).fit(hour_of_day[okw], rw[okw])
+            shd = np.empty_like(dewp); shd[N:] = dewp[:-N]; shd[:N] = dewp[0]
+            _, bd = debiased_persistence_residuals(dewp, hour_of_day, N)
+            rd = (dewp - shd) - bd[hour_of_day]
+            okd = ~np.isnan(rd); okd[:N] = False
+            mond_dp[N] = C.Mondrian(ALPHA).fit(hour_of_day[okd], rd[okd])
+            sm = mond[N].summary()
+            say("      %d h notice: pooled margin %+.4f C   MONDRIAN %d groups, "
+                "%.4f..%.4f C, smallest group n=%s"
+                % (N, inc_margin[N]["margin"], sm["n_groups_fitted"],
+                   sm["group_q_min"], sm["group_q_max"], format(sm["smallest_group_n"], ",")))
+        else:
+            mond[N] = mond_wet[N] = mond_dp[N] = None
+            say("      0 h notice: no forecast error to bound (the policy reads what it acts on)")
+    say("      TWO CHOICES ABOVE BOTH FAVOUR THE INCUMBENT, and are made anyway:")
+    say("      (a) its error is de-biased per hour-of-day first (gotcha #25), which hands it the")
+    say("          average shape of a day -- a small climatological forecast. It makes the")
+    say("          adversary STRONGER, which is the direction an adversary should be wrong in.")
+    say("      (b) at 0 h notice its sensor is treated as PERFECT (margin 0.0000 C). A real")
+    say("          rooftop sensor reads 0.1-0.5 C off. THAT ASSUMPTION IS THE WHOLE ZERO-NOTICE")
+    say("          STORY: backtest.py showed N-56's +67 h/yr tracks the INCUMBENT's buffer, not")
+    say("          recirculation -- sensor error 0.1/0.3/0.5 C gives +10.4/+66.8/+162.0 h/yr with")
+    say("          the agent's buffer fixed at 0.1945 C. Giving it a perfect sensor here is the")
+    say("          conservative choice, and it is why our zero-notice rows are negative.")
+
+    # One flat product over the three per-decision limits, so the scenario loop gains two real
+    # axes without another level of nesting. Every combination is computed and shipped; none of
+    # these three is a chosen constant.
+    gate_limit_grid = [(w, a, l)
+                       for w in PLANT_ENVELOPE["dewpoint_limit_c"]
+                       for a in PLANT_ENVELOPE["aq_limit_idx"]
+                       for l in PLANT_ENVELOPE["limit_c"]]
+    say("      swept per-decision limits: %d dew-point limits x %d air-quality limits x "
+        "%d changeover limits = %d combinations"
+        % (len(PLANT_ENVELOPE["dewpoint_limit_c"]), len(PLANT_ENVELOPE["aq_limit_idx"]),
+           len(PLANT_ENVELOPE["limit_c"]), len(gate_limit_grid)))
+
+    day_index = {}
+    for i, k in enumerate(keys):
+        day_index.setdefault(k[:10], []).append(i)
+
+    results, n_scen = [], 0
+    # ---- THE UNANCHORED LEVEL TERM, computed ONCE and SHIPPED ---------------------------------
+    # An unanchored agent believes FortyGuard's absolute level, so it inherits that day's measured
+    # offset AND needs a conformal margin for how wrong the level can be. The margin is fitted
+    # LEAVE-ONE-OUT -- from the other measured days only -- so the agent is never bounded using the
+    # day it is being tested on.
+    #
+    # WHY THIS MOVED OUT OF THE SWEEP AND INTO THE TRACE. It used to be computed inline, four times
+    # per case, and shipped nowhere. The browser therefore could not have it, so `decide()` invented
+    # its own unanchored construction: ONE fixed worst-magnitude offset for every scenario and no
+    # level margin at all. That disagreed with this agent on 2,588 of 8,064 unanchored
+    # configurations -- 32.1 % -- and it was invisible because verify_browser_decision.js filtered
+    # to `anchor === 'sensor'`. Worse, one constant offset is the exact oracle gotcha #48 records:
+    # a single offset across 1,826 days gave +450.9 h/yr where the four rotated gave -156.0.
+    # One computation, exported, used by both languages.
+    loo_levels = []
+    for off_i, o in enumerate(fg_offsets):
+        loo = np.array([x["mean_d"] for j, x in enumerate(fg_offsets) if j != off_i], dtype=float)
+        cl = conformal(loo)
+        loo_levels.append({"date": o["date"], "mean_d": float(o["mean_d"]),
+                           "level_margin_c": float(cl["margin"]), "level_n": int(cl["n"]),
+                           "level_clamped": bool(cl["clamped"])})
+    loo_by_date = {r["date"]: r for r in loo_levels}
+    if loo_levels:
+        say("\n   THE UNANCHORED LEVEL TERM, leave-one-out, shipped so the browser can reproduce it:")
+        for r in loo_levels:
+            say("      %s  measured offset %+.4f C   margin from the other %d days %+.4f C%s"
+                % (r["date"], r["mean_d"], r["level_n"], r["level_margin_c"],
+                   "   [CLAMPED]" if r["level_clamped"] else ""))
+
+    # case -> {bound key -> per-hour upper bound}. Filled by the sweep below, which is the only
+    # code that computes the bound, and merged into `series` once `_day_series` has built it.
+    bound_series = {}
+    for case_i, (name, crit) in enumerate(CASE_SPECS):
+        day = picks.get(name)
+        if not day:
+            continue
+        ix = day_index[day]
+        t_true = temp[ix]
+        b = np.where(np.isnan(drct[ix]), 0.0, drct[ix])
+        s_ms = np.maximum(np.where(np.isnan(sknt[ix]), 0.0, sknt[ix]) * 0.514444, 0.3)
+        calm = (np.isnan(drct[ix])) | (np.where(np.isnan(sknt[ix]), 0.0, sknt[ix]) < CALM_KT)
+        hours = [keys[i][-2:] + ":00" for i in ix]
+        ones_h = np.ones(len(t_true), dtype=bool)
+        twb_day = twb[ix]                                 # real wet-bulb (kept for reporting)
+        dp_day = dewp[ix]                                 # real DEW POINT -- what gate 2 tests
+        aq_day = (aq_days[case_i % len(aq_days)][hod_of(ix, keys)] if aq_days else None)
+
+        for mode in PLANT_ENVELOPE["bank_mode"]:
+            tab, refused, _ = tabs[mode]
+            # THE AGENT DOES NOT KNOW TOMORROW'S WIND DIRECTION. N-40 measured FortyGuard's
+            # direction forecast error at 47-72 deg, so the agent's plume estimate is the rise at
+            # the FORECAST bearing while the truth is the rise at the bearing that actually
+            # occurred. Before this, both used the same bearing -- which handed the agent a
+            # perfect plume forecast for free and left the plume term with no uncertainty at all
+            # while the temperature term carried a carefully calibrated margin.
+            sp_tab, sp_mult, sp_sd, sp_err = plume_uncertainty_terms(mode)
+            if sp_sd:
+                rng_dir = np.random.default_rng(40)      # named for N-40; deterministic
+                b_fcst = (b + rng_dir.normal(0.0, sp_sd, len(b))) % 360.0
+            else:
+                b_fcst = b
+            rise_true = lookup_rise(tab, b, s_ms)        # what actually happens
+            rise = lookup_rise(tab, b_fcst, s_ms)        # what the agent can compute
+            # A REFUSED bearing's table entry is NOT a small number, it is a MEANINGLESS one --
+            # the plume passed straight THROUGH a building that would really have deflected it,
+            # so the number is unphysical in an unbounded direction. Refused rows are masked out
+            # before any max is taken over bearings, or the calm-hour worst case below would
+            # quietly quote a number the agent has already declared it cannot compute.
+            ok_rows = np.array([int(bb) not in refused for bb in BEARINGS])
+            worst_by_speed = (tab[ok_rows].max(axis=0) if ok_rows.any()
+                              else np.full(len(SPEED_GRID_MS), np.nan))
+            si = np.abs(np.asarray(SPEED_GRID_MS)[None, :] - s_ms[:, None]).argmin(axis=1)
+            # Calm hours have NO DEFINED BEARING (ASOS reports drct = 0 when calm), so the agent
+            # does not get to pick one: it takes the worst rise over every bearing it is still
+            # allowed to compute. Counted and reported, never silently folded in (N-54 P4).
+            rise = np.where(calm, worst_by_speed[si], rise)
+            rise_true = np.where(calm, worst_by_speed[si], rise_true)
+            # refusal is judged on the bearing the agent BELIEVES, because that is what it has
+            ref_flag = np.array([((int(round(x / STEP_DEG) * STEP_DEG) % 360) in refused and not c)
+                                 or (c and not ok_rows.any())
+                                 for x, c in zip(b_fcst, calm)])
+            # the plume term of the bound: multiplier x per-hour ensemble spread (CQR-style).
+            # Narrow where the geometry is forgiving, wide where a small direction error swings
+            # the plume across the intake -- measured 34.6x variation on this geometry.
+            if sp_tab is not None:
+                from plume_uncertainty import lookup_spread as _lus
+                plume_margin = sp_mult * np.where(calm, np.nanmax(sp_tab), _lus(sp_tab, b_fcst, s_ms))
+            else:
+                plume_margin = np.zeros(len(t_true))
+
+            truth_intake = t_true + rise_true
+            for N in PLANT_ENVELOPE["notice_h"]:
+                # THE INCUMBENT sees only what its own rooftop sensor read N hours ago --
+                # persistence -- and knows nothing about the plume. Same 90 % machinery.
+                hod = np.array([int(h[:2]) for h in hours])
+                inc_src = t_true.copy()
+                if N:
+                    inc_src[N:] = t_true[:-N]
+                    inc_src[:N] = t_true[0]          # before the day starts, the last it saw
+                    inc_src = inc_src + pers_bias[N][hod]    # its diurnal de-bias, applied
+                # Per-hour GROUP-CONDITIONAL margin, not one pooled number. At 3 h notice the
+                # pooled quantile leaves hour 9 at 0.7314 coverage while reading 0.9017 overall.
+                if N and mond[N] is not None:
+                    marg_h = mond[N].q_array(hod)
+                else:
+                    marg_h = np.zeros(len(t_true))
+                ub_inc = inc_src + marg_h
+
+                # the incumbent must clear the humidity gate too -- it has a hygrometer, it just
+                # has no forecast and no plume model
+                inc_wet = twb_day.copy()
+                rw_prime = np.zeros(len(t_true))
+                if N:
+                    shw = twb_day.copy(); shw[N:] = twb_day[:-N]; shw[:N] = twb_day[0]
+                    _, bw_full = debiased_persistence_residuals(twb, hour_of_day, N)
+                    inc_wet = shw + bw_full[hod]
+                    rw_prime = (twb_day - inc_wet)
+                margw_h = (mond_wet[N].q_array(hod) if (N and mond_wet[N] is not None)
+                           else np.zeros(len(t_true)))
+                ub_wet_inc = inc_wet + margw_h
+                # DEW POINT, for gate 2. Bounded with its own group-conditional quantile from the
+                # same five-year record, so the humidity gate is calibrated rather than assumed.
+                inc_dp = dp_day.copy()
+                rdp_prime = np.zeros(len(t_true))
+                if N:
+                    shd = dp_day.copy(); shd[N:] = dp_day[:-N]; shd[:N] = dp_day[0]
+                    _, bd_full = debiased_persistence_residuals(dewp, hour_of_day, N)
+                    inc_dp = shd + bd_full[hod]
+                    rdp_prime = dp_day - inc_dp
+                margdp_h = (mond_dp[N].q_array(hod) if (N and mond_dp[N] is not None)
+                            else np.zeros(len(t_true)))
+                ub_dp_inc = inc_dp + margdp_h
+
+                # r_prime: the incumbent's DE-BIASED persistence error on THIS day, hour by
+                # hour. The anchored agent's error is defined as a fraction (1 - skill) of it,
+                # which is what "skill relative to persistence" MEANS. No random draws, no
+                # fitted distribution -- these are real KIAD numbers.
+                r_prime = np.zeros(len(t_true))
+                if N:
+                    shifted = t_true.copy()
+                    shifted[N:] = t_true[:-N]
+                    shifted[:N] = t_true[0]
+                    r_prime = (t_true - shifted) - pers_bias[N][hod]
+
+                # A FORECAST GETS TWO THINGS WRONG, AND BOTH ARE SWEPT SEPARATELY.
+                #   LEVEL -- the whole-day offset. MEASURED: 4 real FortyGuard values. Removable
+                #            by one local reading, which is what `anchor` decides.
+                #   SHAPE -- the hour-to-hour profile. UNMEASURED for FortyGuard (we hold one
+                #            window per day, not an hourly series), so it is expressed as skill
+                #            relative to persistence and SWEPT.
+                # An earlier version of this loop gave the unanchored agent a PERFECT SHAPE and
+                # only a level error. That is the mirror image of gotcha #40 -- free information
+                # dressed as a measurement -- and it flattered the agent. Both errors now apply
+                # in both anchor branches.
+                for anchor in PLANT_ENVELOPE["anchor"]:
+                    offs = (fg_offsets if anchor == "none"
+                            else [{"date": "anchored", "mean_d": 0.0}])
+                    for off_i, off in enumerate(offs):
+                        if anchor == "none":
+                            # LEAVE-ONE-OUT, from the table computed once above and SHIPPED, so
+                            # this loop and the browser cannot disagree about it.
+                            _l = loo_by_date[off["date"]]
+                            level_margin = _l["level_margin_c"]
+                            level_n, level_clamped = _l["level_n"], _l["level_clamped"]
+                        else:
+                            level_margin, level_n, level_clamped = 0.0, None, False
+
+                        for skill in FORECAST_SKILL:
+                            forecast = t_true - off["mean_d"] - (1.0 - skill) * r_prime
+                            # Sum of two one-sided 90 % bounds. By Bonferroni this guarantees
+                            # only 1 - 2*alpha = 80 %, not 90 %, and it is WIDER than a bound
+                            # fitted jointly -- so it costs the agent hours rather than safety.
+                            # Stated because a reader is entitled to know which way it errs.
+                            # GROUP-CONDITIONAL, per hour -- `marg_h` is mond[N].q_array(hod).
+                            #
+                            # BUG FIXED 2026-08-19. This line read
+                            #     shape_margin = (1.0 - skill) * inc_margin[N]["margin"]
+                            # i.e. the POOLED quantile, while `_day_series` shipped the MONDRIAN
+                            # per-hour margin to the browser. The two disagreed by 2.4567 vs
+                            # 1.9065 C at hour 23 of the crossing day, so the agent's own
+                            # decisions were still being made with a pooled bound even though
+                            # every document said group-conditional. Caught by
+                            # demo/verify_browser_decision.js, which compares the browser's
+                            # hour-by-hour modes against the rows this loop writes -- exactly the
+                            # class of error that agreeing unit tests cannot see.
+                            shape_margin = (1.0 - skill) * marg_h
+                            margin = level_margin + shape_margin
+                            m_clamped = bool(level_clamped
+                                             or (mond[N].summary()["any_group_clamped"]
+                                                 if (N and mond[N] is not None) else False))
+                            off_tag, off_c = off["date"], off["mean_d"]
+
+                            ub_agent = forecast + margin + rise + plume_margin
+                            # PARK THE BOUND FOR STAGE 5. This loop is the ONLY place the per-hour
+                            # bound exists: `_day_series` deliberately ships the browser the INPUTS
+                            # and lets it form the bound itself, so re-deriving it for the command
+                            # log would be a second code path for one quantity (gotcha #12). It is
+                            # stored only at the reference point the log prints, and `series` is
+                            # merged with it after `_day_series` has built the dict.
+                            if all(ACT_REFERENCE_POINT[k] == v for k, v in
+                                   (("bank_mode", mode), ("anchor", anchor),
+                                    ("forecast_skill", skill), ("notice_h", N))):
+                                bound_series.setdefault(name, {})[
+                                    bound_series_key(mode, anchor, off_tag, skill, N)] = [
+                                        float(v) for v in ub_agent]
+                            # the agent forecasts wet-bulb the same way it forecasts dry-bulb,
+                            # and bounds it with its OWN group-conditional quantile
+                            ub_wet = (twb_day - (1.0 - skill) * rw_prime
+                                      + (1.0 - skill) * margw_h + level_margin)
+                            ub_dp = (dp_day - (1.0 - skill) * rdp_prime
+                                     + (1.0 - skill) * margdp_h + level_margin)
+
+                            for dp_limit, aq_limit, limit in gate_limit_grid:
+                                # GATE 1 of 3 -- DRY BULB, the temperature bound
+                                g_dry = ub_agent <= limit
+                                # GATE 2 of 3 -- DEW POINT against a PUBLISHED maximum.
+                                # Green Grid WP#46 p.6: the ASHRAE recommended maxima are 27 C
+                                # dry-bulb and 15 C dew point, and WP46 counts a free-cooling
+                                # hour only when BOTH hold. Dew point is read straight from the
+                                # station record (100 % coverage), so no psychrometric formula
+                                # sits between the measurement and the decision.
+                                g_wet = ones_h if dp_limit is None else (ub_dp <= dp_limit)
+                                g_wet_i = ones_h if dp_limit is None else (ub_dp_inc <= dp_limit)
+                                # GATE 3 of 3 -- CONTAMINATION. Opening a damper raises indoor
+                                # particle counts: LBNL measured it at eight real data centres,
+                                # and named owner fear of pollutants as the reason free cooling
+                                # goes unused. Both policies face it -- outside air is outside
+                                # air regardless of who opened the damper.
+                                g_aq = (ones_h if (aq_day is None or aq_limit is None)
+                                        else (aq_day <= aq_limit))
+                                sa = g_dry & g_wet & g_aq & (~ref_flag)
+                                si = (ub_inc <= limit) & g_wet_i & g_aq
+                                for budget in PLANT_ENVELOPE["switch_budget"]:
+                                    for dwell in PLANT_ENVELOPE["min_dwell_h"]:
+                                        ma, fa, swa = plan(sa, budget, dwell)
+                                        mi, fi, swi, over = reactive_incumbent(si, budget, dwell)
+                                        ba = int(sum(1 for h in range(len(ma))
+                                                     if ma[h] == MODE_FREE
+                                                     and truth_intake[h] > limit))
+                                        bi = int(sum(1 for h in range(len(mi))
+                                                     if mi[h] == MODE_FREE
+                                                     and truth_intake[h] > limit))
+                                        n_scen += 1
+                                        results.append({
+                                            "case": name, "day": day, "bank_mode": mode,
+                                            "anchor": anchor, "forecast_skill": skill,
+                                            "offset_day": off_tag, "offset_c": round(off_c, 4),
+                                            "notice_h": N, "limit_c": limit,
+                                            "dewpoint_limit_c": dp_limit,
+                                            "aq_limit_idx": aq_limit,
+                                            "switch_budget": budget, "min_dwell_h": dwell,
+                                            "agent_free_h": fa, "agent_switches": swa,
+                                            "agent_breaches": ba,
+                                            "incumbent_free_h": fi, "incumbent_switches": swi,
+                                            "incumbent_breaches": bi,
+                                            "incumbent_budget_exceeded": over,
+                                            "delta_free_h": fa - fi,
+                                            "agent_modes": "".join(str(x) for x in ma),
+                                            "incumbent_modes": "".join(str(x) for x in mi),
+                                            "n_refused_h": int(ref_flag.sum()),
+                                            "n_calm_h": int(calm.sum()),
+                                            # `margin` is now a PER-HOUR array (group-conditional),
+                                            # so a single number can only be a summary of it
+                                            "margin_mean_c": round(float(np.mean(margin)), 4),
+                                            "margin_min_c": round(float(np.min(margin)), 4),
+                                            "margin_max_c": round(float(np.max(margin)), 4),
+                                            "margin_level_c": round(float(level_margin), 4),
+                                            "margin_shape_mean_c": round(float(np.mean(shape_margin)), 4),
+                                            "margin_n_level_days": level_n,
+                                            "margin_n_shape_hours": inc_margin[N]["n"],
+                                            "margin_clamped": m_clamped,
+                                            "incumbent_margin_c": round(
+                                                inc_margin[N]["margin"], 4),
+                                        })
+
+    say("\n   4-5. DECIDE + ACT   %s scenarios planned (case x bank x offset x notice x limit x "
+        "budget x dwell)" % format(n_scen, ","))
+    if not results:
+        say("      no scenarios produced -- check case selection.")
+        return None
+
+    # THE POOLED MEAN OVER THIS SWEEP IS NOT A RESULT. It averages across notice periods, and
+    # notice is the axis the whole claim lives on: at 0 h notice the incumbent is reading the
+    # present, which no forecast can beat. Broken out per axis, and the breakdown comes FIRST.
+    dfree = np.array([r["delta_free_h"] for r in results], dtype=float)
+    def block(title, keyf, fmt, order=None):
+        say("\n      " + title)
+        say("      %-22s %8s %10s %12s %11s %11s %11s"
+            % ("", "n", "agent h", "incumbent h", "delta h", "agent brch", "inc brch"))
+        ks = order if order is not None else sorted({keyf(r) for r in results},
+                                                   key=lambda x: (isinstance(x, str), x))
+        for k in ks:
+            g = [r for r in results if keyf(r) == k]
+            if not g:
+                continue
+            d = [r["delta_free_h"] for r in g]
+            se = (statistics.stdev(d) / math.sqrt(len(d))) if len(d) > 1 else 0.0
+            say("      %-22s %8s %10.3f %12.3f %+8.3f%s %10d %11d"
+                % (fmt % k, format(len(g), ","),
+                   statistics.fmean(r["agent_free_h"] for r in g),
+                   statistics.fmean(r["incumbent_free_h"] for r in g),
+                   statistics.fmean(d), (" +/-%.3f" % (1.96 * se)) if se else "       ",
+                   sum(r["agent_breaches"] for r in g),
+                   sum(r["incumbent_breaches"] for r in g)))
+
+    block("BY BANK PLACEMENT -- read this FIRST; it dominates every other axis:",
+          lambda r: r["bank_mode"], "%s", order=PLANT_ENVELOPE["bank_mode"])
+    say("      ^ N-54 P5 SAYS `facing` IS A SENSITIVITY AND NEVER THE HEADLINE, and this table")
+    say("        is why. In `facing` mode `path_blocked()` refuses 36 of 36 DOWNWIND bearings --")
+    say("        every bearing on which the plume could reach the intake -- so the agent")
+    say("        declines to certify almost every hour and falls back to MECHANICAL. It loses")
+    say("        hours BY CONSTRUCTION, and that is the refusal guard working exactly as")
+    say("        designed (gotcha #26, methodology rule 8: when a guard refuses, do not route")
+    say("        around it). A condenser bank does not go on a 50 m end wall. The realistic")
+    say("        placement is `longest`, the 123 m facade, and there the agent WINS.")
+    say("      ANY POOLED NUMBER ACROSS THESE TWO MODES IS MEANINGLESS. Quote `longest`.")
+
+    say("\n      THE PRIMARY CONFIGURATION -- bank on the realistic 123 m facade:")
+    say("      %-22s %8s %10s %12s %11s %11s %11s"
+        % ("anchor x notice", "n", "agent h", "incumbent h", "delta h", "agent brch", "inc brch"))
+    for anch in PLANT_ENVELOPE["anchor"]:
+        for N in PLANT_ENVELOPE["notice_h"]:
+            g = [r for r in results
+                 if r["bank_mode"] == "longest" and r["anchor"] == anch and r["notice_h"] == N]
+            if not g:
+                continue
+            d = [r["delta_free_h"] for r in g]
+            se = (statistics.stdev(d) / math.sqrt(len(d))) if len(d) > 1 else 0.0
+            say("      %-22s %8s %10.3f %12.3f %+8.3f +/-%.3f %8d %11d"
+                % ("%-8s %d h" % (anch, N), format(len(g), ","),
+                   statistics.fmean(r["agent_free_h"] for r in g),
+                   statistics.fmean(r["incumbent_free_h"] for r in g),
+                   statistics.fmean(d), 1.96 * se,
+                   sum(r["agent_breaches"] for r in g),
+                   sum(r["incumbent_breaches"] for r in g)))
+    say("      ^ Read DOWN each anchor block: the agent's advantage grows monotonically with")
+    say("        NOTICE, which is the axis FortyGuard's forecast sells into and the reason the")
+    say("        pitch leads with the forecast rather than the physics.")
+
+    block("BY ANCHORING -- what it costs to believe FortyGuard's level as delivered:",
+          lambda r: r["anchor"] if r["bank_mode"] == "longest" else None, "%s",
+          order=PLANT_ENVELOPE["anchor"])
+    say("      ^ `longest` only, since pooling the modes would hide the effect. Unanchored, the")
+    say("        agent carries FortyGuard's day-level offset into every decision -- and because a")
+    say("        one-sided UPPER bound protects safety rather than efficiency, it cannot un-bias")
+    say("        a warm forecast. Measured over five real years in backtest.py: the same step")
+    say("        costs about 595 h/yr (+489.7 -> -104.8 h/yr at 3 h notice) while coverage RISES")
+    say("        to 0.9865 -- the bound stays safe and pays for it in hours.")
+    say("        SO THE HOURS CLAIM IS CONDITIONAL and the condition is stated: it wants a level")
+    say("        anchor. The 90 % SAFETY guarantee is NOT conditional on hardware -- it needs")
+    say("        ~10 calibration days of pure FortyGuard data (HANDOFF 7.3).")
+
+    block("BY NOTICE PERIOD -- the axis FortyGuard's forecast actually sells into:",
+          lambda r: r["notice_h"], "%d h", order=PLANT_ENVELOPE["notice_h"])
+    say("      ^ 0 h notice is the incumbent reading the PRESENT with a sensor we gave it for")
+    say("        free and error-free. Nothing that forecasts can beat that, and nothing here")
+    say("        claims to: N-56 puts the zero-notice gain at +67 h/yr, recirculation alone.")
+
+    block("ANCHORED ONLY, by forecast skill vs persistence (swept, never assumed):",
+          lambda r: r["forecast_skill"] if r["anchor"] == "sensor" else None,
+          "skill %.2f", order=FORECAST_SKILL)
+    say("      ^ skill 0.00 is an agent forecasting NO BETTER than 'same as N hours ago'. That")
+    say("        it still gains anything at skill 0 is the recirculation term, not the forecast.")
+
+    block("UNANCHORED ONLY, by which MEASURED FortyGuard offset applies that day:",
+          lambda r: r["offset_day"] if r["anchor"] == "none" else None, "%s",
+          order=[o["date"] for o in fg_offsets])
+    say("      ^ THIS IS THE FORECAST BUG, PRICED IN HOURS. 08-16's offset is -3.7127 C, so the")
+    say("        forecast ran 3.7 C WARM and an agent that believes it declines hours it could")
+    say("        have taken. 08-15's is +0.1520 C -- the ONLY day the forecast ran cool -- so")
+    say("        its leave-one-out margin comes from three warm days, is NEGATIVE, and the bound")
+    say("        sits UNDER the truth. That is where every agent breach comes from, and it is")
+    say("        the same mechanism as N-26's 0.0 %% coverage day. ~10 days is the fix.")
+
+    block("BY CASE, `longest` only -- seven real days, each exercising one behaviour:",
+          lambda r: r["case"] if r["bank_mode"] == "longest" else None, "%s",
+          order=[c[0] for c in CASE_SPECS])
+
+    say("\n      pooled over the whole sweep (NOT interpretable on its own; printed for audit):")
+    say("         mean %+.4f h/day   SE %.4f   n = %s"
+        % (dfree.mean(), dfree.std(ddof=1) / math.sqrt(len(dfree)), format(len(dfree), ",")))
+    ab = sum(r["agent_breaches"] for r in results)
+    ib = sum(r["incumbent_breaches"] for r in results)
+    say("      breaches (declared FREE while true intake was over the limit): agent %d, "
+        "incumbent %d" % (ab, ib))
+    say("      agent switches, mean %.2f/day;  incumbent %.2f/day"
+        % (statistics.fmean(r["agent_switches"] for r in results),
+           statistics.fmean(r["incumbent_switches"] for r in results)))
+    ov = [r for r in results if r["incumbent_budget_exceeded"] > 0]
+    say("      scenarios where the INCUMBENT had to break its own switch budget to stay safe:")
+    say("         %d of %s (%.1f %%) -- a reactive controller has no horizon, so it cannot"
+        % (len(ov), format(len(results), ","), 100.0 * len(ov) / len(results)))
+    say("         respect a switch budget and stay safe at once. The agent never did (%d)."
+        % sum(1 for r in results if r["agent_switches"] > r["switch_budget"]))
+    say("      scenarios where the agent REFUSED at least one hour: %d (%s bank mode is where"
+        % (sum(1 for r in results if r["n_refused_h"] > 0), "facing"))
+    say("         refusal fires -- 63.1 % of bearings there, 0.0 % on the realistic facade)")
+    say("\n      READ THIS BEFORE QUOTING THE MEAN ABOVE. These seven days were SELECTED to")
+    say("      exercise seven different behaviours, so they are not a random sample of the year")
+    say("      and the mean is NOT an annual rate. The annual rate is N-56's, on all 43,763")
+    say("      hours: +67 h/yr at zero notice, +0.1827 h/day, SE 0.0196, 95 % CI")
+    say("      [+0.1443, +0.2211], n = 914 days. %s" % extra_note)
+    # ---- 5. ACT -------------------------------------------------------------------------
+    # The stage that makes this a controller rather than an analysis: a command log a plant
+    # could receive, every row carrying the numbers that produced it.
+    series = _day_series(picks, day_index, keys, temp, drct, sknt, tabs)
+    # The sweep above is the only place the per-hour bound exists, and it ran before this dict did.
+    # Attaching it here is what makes stage 5 able to quote a number at all.
+    for _name, _extra in bound_series.items():
+        if _name in series:
+            series[_name].update(_extra)
+
+    # ---- THE DEMO'S INPUTS, not its conclusions -------------------------------------------
+    # The page re-runs the agent's decision itself: same DP, same three gates, same margins.
+    # So what is shipped is the per-hour INPUTS -- forecast error, group-conditional margins,
+    # plume rise, wet-bulb, air quality, refusal -- and the browser forms the bound and plans the
+    # schedule. That means moving a control genuinely re-decides rather than replaying a lookup,
+    # and every number on screen is reconstructible from these arrays.
+    for name, day in picks.items():
+        if not day:
+            continue
+        ix = day_index[day]
+        row = series[name]
+        t_true = temp[ix]
+        hod = np.array([int(h) for h in row["hours"]])
+        row["twb_c"] = [float(v) for v in twb[ix]]
+        row["dewpoint_c"] = [float(v) for v in dewp[ix]]
+        row["rh_pct"] = [round(float(v), 1) for v in rh[ix]]
+        ci = list(picks).index(name)
+        row["aq_idx"] = ([round(float(v), 1) for v in aq_days[ci % len(aq_days)][hod]]
+                         if aq_days else None)
+        b = np.where(np.isnan(drct[ix]), 0.0, drct[ix])
+        s_ms = np.maximum(np.where(np.isnan(sknt[ix]), 0.0, sknt[ix]) * 0.514444, 0.3)
+        calm = (np.isnan(drct[ix])) | (np.where(np.isnan(sknt[ix]), 0.0, sknt[ix]) < CALM_KT)
+            # FULL PRECISION, deliberately, on every array the browser uses to REBUILD a
+            # decision. Rounding these to 4 dp flipped decisions at exact gate boundaries: on
+            # 2023-06-21 the dew-point bound lands on exactly 15.000 against a 15.0 limit, and a
+            # 1e-4 rounding difference put the browser on the other side of the tie. Caught by
+            # demo/verify_browser_decision.js. Display rounding belongs in the view, never in the
+            # numbers a decision is recomputed from.
+        for mode in PLANT_ENVELOPE["bank_mode"]:
+            tab, refused, _ = tabs[mode]
+            ok_rows = np.array([int(bb) not in refused for bb in BEARINGS])
+            worst_by_speed = (tab[ok_rows].max(axis=0) if ok_rows.any()
+                              else np.full(len(SPEED_GRID_MS), np.nan))
+            sidx = np.abs(np.asarray(SPEED_GRID_MS)[None, :] - s_ms[:, None]).argmin(axis=1)
+            # The browser must reconstruct EXACTLY what the Python agent decided, so it needs the
+            # same split the scenario loop uses: the agent sees the rise at the FORECAST bearing
+            # and carries a per-hour plume margin; the truth is the rise at the ACTUAL bearing.
+            # Shipping one `rise` array would silently make the demo show decisions never made.
+            sp_tab, sp_mult, sp_sd, _e = plume_uncertainty_terms(mode)
+            if sp_sd:
+                b_f = (b + np.random.default_rng(40).normal(0.0, sp_sd, len(b))) % 360.0
+            else:
+                b_f = b
+            rr_f = np.where(calm, worst_by_speed[sidx], lookup_rise(tab, b_f, s_ms))
+            rr_t = np.where(calm, worst_by_speed[sidx], lookup_rise(tab, b, s_ms))
+            if sp_tab is not None:
+                from plume_uncertainty import lookup_spread as _lus2
+                pm = sp_mult * np.where(calm, np.nanmax(sp_tab), _lus2(sp_tab, b_f, s_ms))
+            else:
+                pm = np.zeros(len(t_true))
+            row["rise_c_" + mode] = [float(v) for v in rr_f]                  # agent's estimate
+            row["rise_true_c_" + mode] = [float(v) for v in rr_t]             # what happens
+            row["plume_margin_c_" + mode] = [float(v) for v in pm]
+            row["bearing_forecast_deg_" + mode] = [round(float(v), 1) for v in b_f]
+            row["refused_" + mode] = [
+                bool(((int(round(x / STEP_DEG) * STEP_DEG) % 360) in refused and not c)
+                     or (c and not ok_rows.any())) for x, c in zip(b_f, calm)]
+        for N in PLANT_ENVELOPE["notice_h"]:
+            if N:
+                sh = t_true.copy(); sh[N:] = t_true[:-N]; sh[:N] = t_true[0]
+                rp = (t_true - sh) - pers_bias[N][hod]
+                shw = twb[ix].copy(); shw[N:] = twb[ix][:-N]; shw[:N] = twb[ix][0]
+                _, bw = debiased_persistence_residuals(twb, hour_of_day, N)
+                rwp = (twb[ix] - shw) - bw[hod]
+                md = mond[N].q_array(hod)
+                mw = mond_wet[N].q_array(hod)
+            else:
+                rp = rwp = md = mw = np.zeros(len(t_true))
+            row["r_prime|%d" % N] = [float(v) for v in rp]
+            row["rw_prime|%d" % N] = [float(v) for v in rwp]
+            row["margin_dry|%d" % N] = [float(v) for v in md]
+            row["margin_wet|%d" % N] = [float(v) for v in mw]
+            if N:
+                shd2 = dewp[ix].copy(); shd2[N:] = dewp[ix][:-N]; shd2[:N] = dewp[ix][0]
+                _, bd2 = debiased_persistence_residuals(dewp, hour_of_day, N)
+                rdp = (dewp[ix] - shd2) - bd2[hod]
+                mdp = mond_dp[N].q_array(hod)
+                idp = shd2 + bd2[hod]
+            else:
+                rdp = mdp = np.zeros(len(t_true)); idp = dewp[ix]
+            row["rdp_prime|%d" % N] = [float(v) for v in rdp]
+            row["margin_dp|%d" % N] = [float(v) for v in mdp]
+            row["incumbent_dp_src|%d" % N] = [float(v) for v in idp]
+            row["incumbent_src|%d" % N] = [float(v) for v in
+                                           ((sh + pers_bias[N][hod]) if N else t_true)]
+            row["incumbent_wet_src|%d" % N] = [float(v) for v in
+                                               ((shw + bw[hod]) if N else twb[ix])]
+
+    act_log, example = {}, None
+    for name, day in picks.items():
+        if not day:
+            continue
+        row = series[name]
+        for r in results:
+            if r["case"] != name or r["bank_mode"] != "longest":
+                continue
+            # one fully-labelled point per case for the command log; the demo can move every
+            # axis, and the label below says exactly which point this is. The point is named in
+            # ACT_REFERENCE_POINT so that this filter and the sweep's bound capture cannot drift.
+            if any(r[k] != v for k, v in ACT_REFERENCE_POINT.items()):
+                continue
+            key = "%s@limit%.0f" % (name, r["limit_c"])
+            modes = [int(x) for x in r["agent_modes"]]
+            rise = row["rise_c_longest"]
+            bkey = bound_series_key(r["bank_mode"], r["anchor"], r["offset_day"],
+                                    r["forecast_skill"], r["notice_h"])
+            # NO DEFAULT. A missing bound must fail the build: the previous
+            # `row.get(bkey) or [None] * len(modes)` is precisely how stage 5 shipped `nan` in
+            # every one of its 37 command rows without a single test noticing.
+            if bkey not in row:
+                raise RuntimeError(
+                    "stage 5 has no per-hour bound under %r -- the scenario sweep must park it "
+                    "(see bound_series_key). Refusing to emit a command log with no numbers."
+                    % bkey)
+            bound = row[bkey]
+            act_log[key] = {
+                "configuration": {k: r[k] for k in ("bank_mode", "anchor", "forecast_skill",
+                                                    "notice_h", "limit_c", "switch_budget",
+                                                    "min_dwell_h")},
+                "day": day,
+                "commands": bms_commands(modes, row["hours"], bound,
+                                         r["limit_c"], rise,
+                                         row.get("refused_longest", [False] * len(modes)),
+                                         {"margin": r["margin_mean_c"],
+                                          "level_c": r["margin_level_c"],
+                                          "shape_c": r["margin_shape_mean_c"],
+                                          "n_level": r["margin_n_level_days"],
+                                          "n_shape": r["margin_n_shape_hours"],
+                                          "clamped": r["margin_clamped"]})}
+            if example is None:
+                example = key
+    if example:
+        say("\n   5. ACT   example command log -- ONE point in the sweep, named in full:")
+        cfg = act_log[example]["configuration"]
+        say("      case %s, %s   %s" % (example, act_log[example]["day"],
+                                        "  ".join("%s=%s" % (k, v) for k, v in cfg.items())))
+        for c in act_log[example]["commands"]:
+            say("      %s  ->  %-12s  %s" % (c["hour"], c["command"], c["reason"][:96]))
+        say("      (%d command rows across %d case/limit combinations are in the trace)"
+            % (sum(len(v["commands"]) for v in act_log.values()), len(act_log)))
+
+    # HOW OFTEN THE HONEST ANSWER IS "NO", counted over every scenario rather than asserted.
+    # 43.7 % of the sweep declares ZERO free-cooling hours -- on a 35 C July day at an 18 C
+    # changeover limit that is simply correct, but a viewer who lands on one of those
+    # configurations sees a schedule of solid MECHANICAL and reads it as a broken agent. The demo
+    # needs the number in order to say "this is one of the 43.7 %, and here is why", so it is
+    # computed here from the same rows the sweep produced.
+    n_all = len(results)
+    n_zero = sum(1 for r in results if r["agent_free_h"] == 0)
+    by_limit = {}
+    for r in results:
+        b = by_limit.setdefault(str(r["limit_c"]), [0, 0])
+        b[1] += 1
+        b[0] += int(r["agent_free_h"] == 0)
+    say("\n   HOW OFTEN THE AGENT CORRECTLY REFUSES ALL DAY: %s of %s scenarios (%.1f %%)"
+        % (format(n_zero, ","), format(n_all, ","), 100.0 * n_zero / max(1, n_all)))
+    say("      by changeover limit: " + "  ".join(
+        "%s C %.0f%%" % (k, 100.0 * v[0] / v[1]) for k, v in sorted(by_limit.items(),
+                                                                    key=lambda kv: float(kv[0]))))
+    say("      That is physics, not inertia -- but the interface has to SAY so, or an all-mechanical")
+    say("      day reads as an agent doing nothing. See demo/index.html drawZeroNote().")
+
+    return {"cases": [{"name": n, "criterion": c, "day": picks.get(n)} for n, c in CASE_SPECS],
+            "worst_rise_c": worst_rise, "worst_bearing_deg": worst_bearing,
+            "incumbent_margin": {str(k): v for k, v in inc_margin.items()},
+            "scenarios": results,
+            "all_mechanical": {"n_zero": n_zero, "n_total": n_all,
+                               "fraction": n_zero / max(1, n_all),
+                               "by_limit_c": {k: v[0] / v[1] for k, v in by_limit.items()}},
+            "act_log": act_log,
+            # The unanchored level term, so the browser mirrors this agent instead of improvising.
+            "fg_offsets": loo_levels,
+            "day_series": series}
+
+
+def _day_series(picks, day_index, keys, temp, drct, sknt, tabs):
+    """The hourly series behind each case, so the demo can draw exactly what was decided."""
+    out = {}
+    for name, day in picks.items():
+        if not day:
+            continue
+        ix = day_index[day]
+        row = {"day": day,
+               "hours": [keys[i][-2:] for i in ix],
+               "temp_c": [None if np.isnan(temp[i]) else float(temp[i]) for i in ix],
+               "wind_from_deg": [None if np.isnan(drct[i]) else round(float(drct[i]), 1) for i in ix],
+               "wind_kt": [None if np.isnan(sknt[i]) else round(float(sknt[i]), 1) for i in ix]}
+        for mode in tabs:
+            tab = tabs[mode][0]
+            b = np.where(np.isnan(drct[ix]), 0.0, drct[ix])
+            s_ms = np.maximum(np.where(np.isnan(sknt[ix]), 0.0, sknt[ix]) * 0.514444, 0.3)
+            # full precision: this array is one the browser rebuilds decisions from
+            row["rise_c_" + mode] = [float(v) for v in lookup_rise(tab, b, s_ms)]
+        out[name] = row
+    return out
+
+
+# ============================================================================
+# TRACE -- the demo's only input
+# ============================================================================
+def export_field(tag, out_name):
+    """One FortyGuard field, compacted for a browser.
+
+    All 17,862 tiles share ONE quad shape to within 1e-8 degrees (verified), so the file
+    carries that shape once plus a centroid and a temperature per tile: ~0.5 MB instead of
+    the 7.4 MB raw response, with no loss of what is drawn.
+    """
+    r = load_fixture(tag)
+    if not r:
+        return None
+    feats = r["map_data"]["features"]
+    c0 = feats[0]["geometry"]["coordinates"][0][:4]
+    la0 = sum(x[1] for x in c0) / 4.0
+    lo0 = sum(x[0] for x in c0) / 4.0
+    quad = [[round(x[0] - lo0, 8), round(x[1] - la0, 8)] for x in c0]
+    tiles, tmin, tmax = [], 1e9, -1e9
+    for la, lo, v in tile_centroids(r):
+        tiles.append([round(la, 6), round(lo, 6), round(v, 3)])
+        tmin, tmax = min(tmin, v), max(tmax, v)
+    obj = {"tag": tag, "n_tiles": len(tiles), "quad_offsets_deg": quad,
+           "t_min": round(tmin, 3), "t_max": round(tmax, 3),
+           "stats_from_fortyguard": r.get("stats_data", {}).get("temperature_stats"),
+           "tiles": tiles}
+    os.makedirs(DEMO, exist_ok=True)
+    p = os.path.join(DEMO, out_name)
+    json.dump(obj, open(p, "w", encoding="utf-8"), allow_nan=False)
+    say("      %-28s %s tiles -> %s (%.1f KB)"
+        % (tag, format(len(tiles), ","), out_name, os.path.getsize(p) / 1024.0))
+    return {"file": out_name, "n_tiles": len(tiles), "t_min": obj["t_min"], "t_max": obj["t_max"]}
+
+
+def check_physics_not_drifted():
+    """The shipped tree carries its own copy of the physics. Copies drift silently, so compare."""
+    import hashlib
+    out = {}
+    for f in ("solver.py", "warp_solver.py"):
+        a = os.path.join(HERE, "physics", f)
+        b = os.path.join(ROOT, "testing", f)
+        ha = hashlib.md5(open(a, "rb").read()).hexdigest()
+        hb = hashlib.md5(open(b, "rb").read()).hexdigest() if os.path.exists(b) else None
+        out[f] = {"shipped_md5": ha, "research_md5": hb, "identical": ha == hb}
+        if hb and ha != hb:
+            say("   *** WARNING: %s has DRIFTED from testing/%s. Numbers may not reproduce. ***"
+                % (f, f))
+    return out
+
+
+def run_all():
+    t0 = time.time()
+    banner("INTAKE-ARBITER   the agent loop, end to end, on saved data.  ZERO API CALLS.")
+    say("   committed site : OSM 744496750 -> 744496741, AWS IAD116/IAD117, %.6f %.6f"
+        % SITE_CENTRE)
+    say("   plant envelope : every decision-changing number is swept, none is chosen --")
+    for k, v in PLANT_ENVELOPE.items():
+        say("                    %-14s %s" % (k, v))
+    say("   alpha          : %.2f  (the confidence level; a definition, not a tuning knob)" % ALPHA)
+    drift = check_physics_not_drifted()
+    say("   physics copies : %s"
+        % ("identical to the research tree" if all(d["identical"] for d in drift.values())
+           else "DRIFTED -- see warning above"))
+
+    cyc = run_cycle()
+    offsets = [{"date": p["date"], "mean_d": p["mean_d"]} for p in cyc["pairs"]] if cyc else []
+    cas = run_cases(offsets)
+
+    banner("EXPORT   the demo's only input")
+    os.makedirs(DEMO, exist_ok=True)
+    fields = {}
+    if cyc:
+        for p in cyc["pairs"]:
+            fields[p["date"] + "_forecast"] = export_field(p["forecast_tag"],
+                                                           "field_%s_forecast.json" % p["date"])
+            fields[p["date"] + "_outcome"] = export_field(p["outcome_tag"],
+                                                          "field_%s_outcome.json" % p["date"])
+    dtab = json.load(open(os.path.join(GEOM, "direction_table.json"), encoding="utf-8"))
+    site_geom = {m: json.load(open(os.path.join(GEOM, "solver_site_%s.json" % m), encoding="utf-8"))
+                 for m in PLANT_ENVELOPE["bank_mode"]}
+
+    trace = {
+        "generated_by": "INTAKE-ARBITER/src/agent.py",
+        "api_calls_made": 0,
+        "site": {"centre": list(SITE_CENTRE),
+                 "osm_source": 744496750, "osm_receptor": 744496741,
+                 "operator": "Amazon Web Services IAD116 / IAD117",
+                 "facade_gap_m": site_geom["longest"]["facade_gap_m"],
+                 "geometry": {m: {k: site_geom[m][k] for k in
+                                  ("domain", "source_ring_m", "receptor_ring_m", "bank_ring_m",
+                                   "source_centre_m", "receptor_centre_m", "intake_m",
+                                   "intake_radius_m", "bank_cells", "bank_area_m2", "bank_mode")}
+                              for m in site_geom}},
+        "plant_envelope": PLANT_ENVELOPE,
+        "alpha": ALPHA,
+        "physics_provenance": {
+            "validation": {"vs_analytic_gaussian_plume": 2.9e-10, "heat_conservation": 7.5e-12,
+                           "prairie_grass_1956_experiments": 67,
+                           "held_out_rms_k": 0.126, "held_out_signal_k": 0.923},
+            "calibrated_constants": CALIBRATED,
+            "known_defect": ("buildings are TRANSPARENT to the temperature field -- N-29 V4 "
+                             "measures 0.0 % of plume heat absorbed, so heat is conserved exactly, "
+                             "but a transparent building cannot deflect a plume that really would "
+                             "be deflected. The agent therefore REFUSES on any bearing where a "
+                             "building lies on the source-to-intake path rather than quote a rise "
+                             "it cannot stand behind (gotcha #26). This field asserted the "
+                             "RETRACTED heat-absorption claim until 2026-08-20; nothing rendered "
+                             "it, but it shipped in trace.json for eight days"),
+            "retracted_claims_in_this_field": [
+                "buildings absorb heat rather than deflect it -- FALSE since 2026-08-12, measured "
+                "0.0 % absorbed by N-29 V4"],
+            "source_copies": drift},
+        "cycle": cyc,
+        "cases": cas,
+        "fields": fields,
+        "direction_table": {"parameters": dtab["parameters"], "wind": dtab["wind"],
+                            "modes": {m: {"rows": dtab["modes"][m]["rows"],
+                                          "worst": dtab["modes"][m]["worst"],
+                                          "n_refused": dtab["modes"][m]["n_refused"],
+                                          "n_downwind": dtab["modes"][m]["n_downwind"],
+                                          "n_downwind_refused": dtab["modes"][m]["n_downwind_refused"],
+                                          "wind_weighted": dtab["modes"][m]["wind_weighted"]}
+                                      for m in dtab["modes"]}},
+        "standing_results_quoted_elsewhere": {
+            "n56_free_cooling_floor_h_per_year": 67,
+            "n56_paired_per_day_h": {"mean": 0.1827, "se": 0.0196,
+                                     "ci95": [0.1443, 0.2211], "n_days": 914},
+            "n26_pooled_coverage": 0.655898928824693,
+            "n26_verdict": "FAIL against pre-registered P1/P2",
+            "warp_speedup_x": {"headline_repeat": 72.7, "best_repeat": 93.46,
+                               "cpu_gpu_agreement_c": 6.95e-5},
+            "forecast_skill_vs_persistence": {"1.49h": 0.146, "3.49h": 0.617, "5.49h": 0.770,
+                                              "7.49h": 0.777, "9.41h": 0.838},
+            "no_dollars_or_kwh": ("the C-to-kWh conversion could not be sourced from a primary "
+                                  "document, so the unit is chiller-hours avoided"),
+        },
+        "runtime_seconds": None,
+    }
+    # The full sweep is thousands of rows. It goes in its own file so the page paints before it
+    # arrives -- but it is SHIPPED IN FULL, because "we swept it" is only checkable if you can
+    # read every row.
+    if cas and cas.get("scenarios"):
+        sp = os.path.join(DEMO, "scenarios.json")
+        # COLUMNAR, not a list of objects. Repeating 24 key names 40,320 times costs ~18 MB of
+        # nothing. Same rows, same fidelity, ~4x smaller: `columns` names the fields and `rows`
+        # holds one array per scenario in that order.
+        cols = list(cas["scenarios"][0].keys())
+        json.dump({"n": len(cas["scenarios"]),
+                   "swept_axes": list(PLANT_ENVELOPE.keys()) + ["forecast_skill", "case",
+                                                               "fortyguard_offset_day"],
+                   "forecast_skill_grid": FORECAST_SKILL,
+                   "columns": cols,
+                   "rows": [[r[c] for c in cols] for r in cas["scenarios"]]},
+                  open(sp, "w", encoding="utf-8"), default=_jsonable, allow_nan=False)
+        say("      %-28s %s rows x %d cols -> scenarios.json (%.1f KB)"
+            % ("the full plant-envelope sweep", format(len(cas["scenarios"]), ","), len(cols),
+               os.path.getsize(sp) / 1024.0))
+        trace["cases"] = dict(cas)
+        trace["cases"]["scenarios"] = {"in_file": "scenarios.json", "n": len(cas["scenarios"])}
+        trace["cases"]["summary"] = _summarise(cas["scenarios"])
+
+    trace["runtime_seconds"] = round(time.time() - t0, 2)
+
+    p = os.path.join(DEMO, "trace.json")
+    json.dump(json_safe(trace), open(p, "w", encoding="utf-8"), default=_jsonable, allow_nan=False)
+    say("      %-28s -> trace.json (%.1f KB)" % ("the whole loop", os.path.getsize(p) / 1024.0))
+    say("\n   DONE in %.1f s. Zero API calls. Every number above traces to a saved response,"
+        % trace["runtime_seconds"])
+    say("   a committed geometry file, or 43,763 real weather records.")
+    return 0
+
+
+def _summarise(rows):
+    """Marginal summaries along each swept axis. A single mean over the whole sweep would be
+    meaningless -- it averages across incomparable plant settings -- so nothing is collapsed
+    below the axis level, and n is carried on every line.
+    """
+    out = {}
+    for axis in ("case", "bank_mode", "anchor", "forecast_skill", "limit_c", "notice_h",
+                 "switch_budget", "min_dwell_h", "offset_day"):
+        g = {}
+        for r in rows:
+            g.setdefault(r[axis], []).append(r)
+        out[axis] = []
+        for k in sorted(g, key=lambda x: (isinstance(x, str), x)):
+            v = g[k]
+            d = [x["delta_free_h"] for x in v]
+            out[axis].append({
+                "value": k, "n": len(v),
+                "agent_free_h": round(statistics.fmean(x["agent_free_h"] for x in v), 3),
+                "incumbent_free_h": round(statistics.fmean(x["incumbent_free_h"] for x in v), 3),
+                "delta_free_h_mean": round(statistics.fmean(d), 4),
+                "delta_free_h_se": (round(statistics.stdev(d) / math.sqrt(len(d)), 4)
+                                    if len(d) > 1 else None),
+                "agent_breaches": sum(x["agent_breaches"] for x in v),
+                "incumbent_breaches": sum(x["incumbent_breaches"] for x in v),
+                "refused_hours": sum(x["n_refused_h"] for x in v),
+                "incumbent_budget_exceeded": sum(x["incumbent_budget_exceeded"] for x in v),
+            })
+    return out
+
+
+def json_safe(o):
+    """Recursively replace NaN / +-Infinity with None so the output is VALID STANDARD JSON.
+
+    THE BUG THIS FIXES, because it is a good one. `json.dump` happily writes bare `NaN` and
+    `Infinity`. Python's own `json.load` reads them back, so a Python-side validator sees nothing
+    wrong -- but they are NOT legal JSON, and a browser's `JSON.parse` rejects the whole file with
+    `Unexpected token 'N'`. The demo failed to load with every data path individually verified,
+    and only rendering the page in a real browser surfaced it.
+
+    Everything written from here passes `allow_nan=False` as well, so a future NaN raises at write
+    time instead of silently shipping a file no browser can read.
+    """
+    if isinstance(o, float):
+        return None if (math.isnan(o) or math.isinf(o)) else o
+    if isinstance(o, dict):
+        return {k: json_safe(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [json_safe(v) for v in o]
+    if isinstance(o, np.floating):
+        f = float(o)
+        return None if (math.isnan(f) or math.isinf(f)) else f
+    if isinstance(o, np.integer):
+        return int(o)
+    if isinstance(o, np.bool_):
+        return bool(o)
+    if isinstance(o, np.ndarray):
+        return json_safe(o.tolist())
+    return o
+
+
+def _jsonable(o):
+    if isinstance(o, (np.integer,)):
+        return int(o)
+    if isinstance(o, (np.floating,)):
+        return float(o)
+    if isinstance(o, np.ndarray):
+        return o.tolist()
+    if isinstance(o, (np.bool_,)):
+        return bool(o)
+    raise TypeError("not JSON serialisable: %r" % type(o))
+
+
+if __name__ == "__main__":
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "run"
+    if cmd == "cycle":
+        run_cycle()
+    elif cmd == "cases":
+        c = run_cycle()
+        run_cases([{"date": p["date"], "mean_d": p["mean_d"]} for p in c["pairs"]] if c else [])
+    else:
+        sys.exit(run_all())

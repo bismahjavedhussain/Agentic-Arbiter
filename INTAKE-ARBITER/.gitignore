@@ -1,0 +1,32 @@
+# ---------------------------------------------------------------- SECRETS: never commit
+# The FortyGuard API key is read from .env at runtime. .env is NEVER committed.
+# Copy .env.example to .env and paste the key there. See README.md.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets*
+credentials*
+
+# A credential has already leaked into this project once, in two places, caught by a pre-commit
+# scan before the first commit. FortyGuard's own /v1/heat_intelligence endpoint ALSO returns the
+# caller's key inside a download URL, so any file that stores a raw API response can contain it.
+# Treat every cached response as credential-bearing until scanned.
+data/raw_api/
+*_submit.json
+
+# ---------------------------------------------------------------- Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------------- large / generated
+*.npy
+*.npz
+demo/build/
+docs/_build/

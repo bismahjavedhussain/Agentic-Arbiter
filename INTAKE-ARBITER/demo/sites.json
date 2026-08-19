@@ -1,0 +1,313 @@
+{
+ "generated_by": "INTAKE-ARBITER/src/metros.py --manifest",
+ "api_calls_made": 0,
+ "offerable_rule": "own geometry AND a data-centre-to-data-centre pair AND a >= 95 % own five-year station record. Without its own record a site has no conformal bound of its own, and borrowing another site's would be a lie about the only number this project promises.",
+ "screening_note": "Five sites were screened from aerial imagery. Two were REFUSED -- one rooftop-cooled, one not yet built -- and a third was refused by the solver itself because the intake disc would have averaged the exhaust it is meant to measure. The refusals are exported deliberately.",
+ "sites": [
+  {
+   "key": "ashburn",
+   "label": "Ashburn, Virginia",
+   "station": "KIAD",
+   "tz": "America/New_York",
+   "bbox": [
+    39.0,
+    -77.5,
+    39.06,
+    -77.41
+   ],
+   "data_ready": true,
+   "scope_verdict": "GRADE",
+   "scope_ok": true,
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 128,
+   "n_tagged_dc": 96,
+   "n_dc_to_dc_pairs": 381,
+   "weather_hours": 43763,
+   "weather_coverage": 0.9991552511415525,
+   "fortyguard_field": "purchased -- 9 heatmap calls, 8 saved fields plus a verified forecast",
+   "climate_note": "mixed-humid: the dew-point gate and the dry-bulb limit both bind",
+   "basis": "Loudoun County data-centre corridor; brackets the coordinate the earlier FortyGuard work used as its site centre (39.0100, -77.4460)",
+   "committed": {
+    "source_osm_id": 744496750,
+    "receptor_osm_id": 744496741,
+    "source_name": "Amazon Web Services IAD116",
+    "receptor_name": "Amazon Web Services IAD117",
+    "source_latlon": [
+     39.024569,
+     -77.420334
+    ],
+    "receptor_latlon": [
+     39.023464,
+     -77.419049
+    ],
+    "facade_gap_m": 165.5
+   },
+   "plume_field_file": "plume_field_ashburn_longest.json",
+   "verdicts": [
+    {
+     "pair": [
+      597970809,
+      597970806
+     ],
+     "name": "Digital Realty Northern Virginia IAD35 -> IAD36",
+     "verdict": "ROOFTOP",
+     "in_scope": false,
+     "consequence": "Fails PLAN section 8d. Excluded despite ranking FIRST on measured usable exposure (0.3172, 0.0 % refused). Selecting purely for plume-path physics would have committed the project to a site whose scope premise is false."
+    },
+    {
+     "pair": [
+      744496750,
+      744496741
+     ],
+     "name": "Amazon Web Services IAD116 -> IAD117",
+     "verdict": "GRADE",
+     "in_scope": true,
+     "consequence": "Satisfies PLAN section 8d, and the grade-level equipment lies IN THE GAP -- exactly where the modelled plume path runs. SELECTED."
+    }
+   ]
+  },
+  {
+   "key": "chicago",
+   "label": "Elk Grove Village, Illinois",
+   "station": "KORD",
+   "tz": "America/Chicago",
+   "bbox": [
+    41.901,
+    -87.9885,
+    42.0111,
+    -87.9025
+   ],
+   "data_ready": true,
+   "scope_verdict": "GRADE",
+   "scope_ok": true,
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 315,
+   "n_tagged_dc": 14,
+   "n_dc_to_dc_pairs": 15,
+   "weather_hours": 43775,
+   "weather_coverage": 0.9994292237442922,
+   "fortyguard_field": null,
+   "climate_note": "cold: free cooling should be abundant and the binding constraint should shift toward the switch budget. TO BE MEASURED",
+   "basis": "OSM cluster of 11 tagged data centres (Aligned, Centersquare, Digital Realty) at 41.9560, -87.9455, found by discover_dc_clusters.py; KORD is 4.4 km away",
+   "committed": {
+    "source_osm_id": 863162820,
+    "receptor_osm_id": 377032061,
+    "source_name": "Stream Chicago II",
+    "receptor_name": "Equinix Chicago CH3",
+    "source_latlon": [
+     41.999209,
+     -87.958012
+    ],
+    "receptor_latlon": [
+     42.001173,
+     -87.955194
+    ],
+    "facade_gap_m": 319.4
+   },
+   "plume_field_file": "plume_field_chicago_longest.json",
+   "verdicts": [
+    {
+     "pair": [
+      863162820,
+      377032061
+     ],
+     "name": "Stream Chicago II -> Equinix Chicago CH3",
+     "verdict": "GRADE",
+     "in_scope": true,
+     "consequence": "Passes PLAN section 8d. Committed as the chicago site."
+    }
+   ]
+  },
+  {
+   "key": "dulles",
+   "label": "Dulles corridor, Virginia",
+   "station": "KIAD",
+   "tz": "America/New_York",
+   "bbox": [
+    38.9298,
+    -77.5755,
+    38.9703,
+    -77.4907
+   ],
+   "data_ready": true,
+   "scope_verdict": "GRADE",
+   "scope_ok": true,
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 31,
+   "n_tagged_dc": 24,
+   "n_dc_to_dc_pairs": 42,
+   "weather_hours": 43763,
+   "weather_coverage": 0.9991552511415525,
+   "fortyguard_field": null,
+   "climate_note": "same station and climate as the committed Ashburn site, so this isolates GEOMETRY and OPERATOR from weather -- a genuinely different site, not a different climate",
+   "basis": "OSM cluster of 19 tagged data centres (Amazon Web Services, Google, Microsoft, CyrusOne) at 38.9501, -77.5331, found by discover_dc_clusters.py; 6.7 km from KIAD, whose five-year record is already on disk",
+   "committed": {
+    "source_osm_id": 693381107,
+    "receptor_osm_id": 545396372,
+    "source_name": "Amazon IAD81",
+    "receptor_name": "Amazon IAD62",
+    "source_latlon": [
+     38.948168,
+     -77.521635
+    ],
+    "receptor_latlon": [
+     38.949104,
+     -77.519826
+    ],
+    "facade_gap_m": 187.9
+   },
+   "plume_field_file": "plume_field_dulles_longest.json",
+   "verdicts": [
+    {
+     "pair": [
+      693390023,
+      990537857
+     ],
+     "name": "Amazon IAD121 -> Amazon IAD122",
+     "verdict": "GRADE",
+     "in_scope": true,
+     "consequence": "Passes PLAN section 8d. Committed as the dulles site. Facade-to-facade gap 55 m clears the DERIVED 50 m floor (intake standoff 20 m + radius 30 m) by only 5 m -- tighter than Ashburn's 60.3 m, so build_site.verify() and solver.assert_intake"
+    },
+    {
+     "pair": [
+      1317733642,
+      1543296494
+     ],
+     "name": "Digital Realty Northern Virginia IAD44 -> IAD44 (same name both ends)",
+     "verdict": "ROOFTOP + NOT BUILT",
+     "in_scope": false,
+     "consequence": "Rejected. Note the tell that prompted a closer look: BOTH footprints carry the identical name 'Digital Realty Northern Virginia IAD44' with areas 37,093 and 37,092 m2 -- identical to 1 m2. That is either a duplicated OSM way or two symmetri"
+    },
+    {
+     "pair": [
+      693381107,
+      545396372
+     ],
+     "name": "Amazon IAD81 -> Amazon IAD62",
+     "verdict": "GRADE",
+     "in_scope": true,
+     "consequence": "Passes PLAN section 8d. Gap 138 m clears the CORRECTED 60 m floor by 2.3x, against rank 1's 54.7 m which the builder refused."
+    }
+   ]
+  },
+  {
+   "key": "phoenix",
+   "label": "Mesa, Arizona",
+   "station": "KFFZ",
+   "tz": "America/Phoenix",
+   "bbox": [
+    33.2933,
+    -111.6931,
+    33.3652,
+    -111.5891
+   ],
+   "data_ready": true,
+   "scope_verdict": "NOT BUILT",
+   "scope_ok": false,
+   "offerable": false,
+   "not_offerable_because": "committed pair is NOT BUILT -- refused by the imagery scope gate",
+   "n_buildings": 111,
+   "n_tagged_dc": 8,
+   "n_dc_to_dc_pairs": 4,
+   "weather_hours": 41919,
+   "weather_coverage": 0.957054794520548,
+   "fortyguard_field": null,
+   "climate_note": "hot-dry: dry-bulb should dominate and the 15 C dew-point gate should rarely bind -- the opposite balance to Ashburn. TO BE MEASURED, not assumed",
+   "basis": "OSM cluster of 10 tagged data centres (Apple Data Center, EdgeConneX PHX02) at 33.3293, -111.6411, found by discover_dc_clusters.py. Station KFFZ chosen on measured record completeness, not proximity -- see the comment above",
+   "committed": {
+    "source_osm_id": 1456975947,
+    "receptor_osm_id": 1456975949,
+    "source_name": null,
+    "receptor_name": null,
+    "source_latlon": [
+     33.347299,
+     -111.632545
+    ],
+    "receptor_latlon": [
+     33.347321,
+     -111.625804
+    ],
+    "facade_gap_m": 626.3
+   },
+   "plume_field_file": null,
+   "verdicts": [
+    {
+     "pair": [
+      1456975947,
+      1456975949
+     ],
+     "name": "unnamed tagged data centres, Mesa AZ",
+     "verdict": "NOT BUILT",
+     "in_scope": false,
+     "consequence": "EXCLUDED. Recirculation between two buildings cannot be modelled when neither exists. No FortyGuard call was bought. The other Arizona cluster (Chandler: CyrusOne, Digital Realty, H5; 10 tagged; KPHX at 20.6 km) has not been screened yet."
+    }
+   ]
+  },
+  {
+   "key": "santaclara",
+   "label": "Santa Clara, California",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.3492,
+    -122.0037,
+    37.4106,
+    -121.9273
+   ],
+   "data_ready": true,
+   "scope_verdict": "ROOFTOP",
+   "scope_ok": false,
+   "offerable": false,
+   "not_offerable_because": "committed pair is ROOFTOP -- refused by the imagery scope gate",
+   "n_buildings": 119,
+   "n_tagged_dc": 14,
+   "n_dc_to_dc_pairs": 15,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9987899543378995,
+   "fortyguard_field": null,
+   "climate_note": "mild marine: a narrow annual range, so the margin should be tight and the hours plentiful. TO BE MEASURED",
+   "basis": "OSM cluster of 53 tagged data centres at 37.3799, -121.9655 -- the densest found outside Ashburn -- via discover_dc_clusters.py; KSJC is 4.3 km away. Also the location of the NetApp case ENERGY STAR documents and PLAN.md section 12 already cites, so one claim in the deck ties to this site",
+   "committed": {
+    "source_osm_id": 1314010354,
+    "receptor_osm_id": 1075445245,
+    "source_name": "Vantage Santa Clara CA2",
+    "receptor_name": null,
+    "source_latlon": [
+     37.363976,
+     -121.946576
+    ],
+    "receptor_latlon": [
+     37.361105,
+     -121.94218
+    ],
+    "facade_gap_m": 502.9
+   },
+   "plume_field_file": null,
+   "verdicts": [
+    {
+     "pair": [
+      1314010354,
+      1075445245
+     ],
+     "name": "Vantage Santa Clara CA2 -> 1075445245",
+     "verdict": "ROOFTOP",
+     "in_scope": false,
+     "consequence": "Fails PLAN section 8d and is EXCLUDED, despite santaclara having the best numbers of any new metro: the densest OSM cluster outside Ashburn (53 tagged data centres), the highest wind exposure (53.1 %), and 99.88 % weather coverage. No Forty"
+    },
+    {
+     "pair": [
+      38305431,
+      38305568
+     ],
+     "name": "Digital Realty Silicon Valley SJC34 -> Csquare SFO1",
+     "verdict": "ROOFTOP",
+     "in_scope": false,
+     "consequence": "Second consecutive santaclara pair excluded. See the metro-level note below."
+    }
+   ]
+  }
+ ]
+}

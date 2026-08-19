@@ -1,0 +1,71 @@
+{
+ "measures": "whether /v1/heatmap analytic_type=persistence honours a correctly-spelled `threshold`, what its units are, and whether the duration field varies across the cluster enough to support a decision",
+ "does_not_measure": "day-to-day behaviour, forecast skill on duration, or operator willingness to act (P4 in n47-persistence-PREREG.md)",
+ "authorised": "user, 2026-08-16, exactly 2 paid calls",
+ "window": {
+  "date": "2026-07-28",
+  "start_time_site": "10:00",
+  "end_time_site": "20:00",
+  "hours": 10,
+  "filter_type": 2,
+  "tz": "America/New_York"
+ },
+ "aoi": {
+  "centre": [
+   39.01,
+   -77.446
+  ],
+  "side_km": 8.0,
+  "granularity": 60
+ },
+ "thresholds": [
+  31.0,
+  32.0
+ ],
+ "direction": "above",
+ "field_reconnaissance": "2026-06-23 rejected: max 20.52 C. 2026-07-28 spans 29.98-32.43 C, median 31.15, from saved fixtures at zero cost",
+ "prior_art_note": "verify_api_defects.py:172 and test_n17_recheck.py:49 both sent the ignored field name `threshold_temperature`; this is the first test to send `threshold` as the spec defines it",
+ "summaries": {
+  "31.0": {
+   "name": "thr31.0",
+   "n": 17862,
+   "min": -0.5811,
+   "p10": 0.8233,
+   "median": 2.96,
+   "p90": 3.1845,
+   "max": 4.2478,
+   "mean": 2.3860978165938866,
+   "sd": 1.0148881254451265,
+   "distinct": 9971,
+   "frac_at_ceiling": 0.0,
+   "frac_zero": 0.02396148247676632
+  },
+  "32.0": {
+   "name": "thr32.0",
+   "n": 17862,
+   "min": -0.1938,
+   "p10": 0.0321,
+   "median": 0.9999,
+   "p90": 1.0422,
+   "max": 3.6367,
+   "mean": 0.8943931026760722,
+   "sd": 0.446186561194953,
+   "distinct": 4936,
+   "frac_at_ceiling": 0.0,
+   "frac_zero": 0.06936513268390998
+  }
+ },
+ "identical_across_thresholds": false,
+ "conditions": {
+  "p2_max_value": 10.0,
+  "p3_min_sd_h": 0.25,
+  "p3_min_distinct": 50
+ },
+ "p1": true,
+ "p2": false,
+ "p3": true,
+ "gate_passed": false,
+ "credits_before": 180980,
+ "credits_after": 180980,
+ "credits_note": "meter frozen since 2026-07-19; a zero difference does not prove zero spend"
+}

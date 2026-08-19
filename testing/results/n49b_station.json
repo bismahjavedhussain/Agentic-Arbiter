@@ -1,0 +1,169 @@
+{
+ "measures": "whether FortyGuard's 60 m ambient beats a station reading for fault detection, holding the sequential CUSUM machinery identical -- isolating ambient ACCURACY",
+ "does_not_measure": "field performance (faults are injected, no real sensor); gradual faults; and it uses a LOWER BOUND on the station error, so the real advantage is likely larger than measured here",
+ "why": "N-49's detector A had no outdoor reference at all, the weakest incumbent. This adds the realistic incumbent: intake minus a nearby airport reading.",
+ "station_error_measured_from_field": {
+  "DC_2026-07-28": {
+   "1": {
+    "n": 2613,
+    "median_abs_dt_c": 0.07479999999999976
+   },
+   "2": {
+    "n": 4372,
+    "median_abs_dt_c": 0.10109999999999886
+   },
+   "3": {
+    "n": 6119,
+    "median_abs_dt_c": 0.21170000000000044
+   },
+   "4": {
+    "n": 3375,
+    "median_abs_dt_c": 0.420300000000001
+   },
+   "5": {
+    "n": 508,
+    "median_abs_dt_c": 0.19125000000000014
+   }
+  },
+  "DC_2026-06-23": {
+   "1": {
+    "n": 2613,
+    "median_abs_dt_c": 0.10450000000000159
+   },
+   "2": {
+    "n": 4372,
+    "median_abs_dt_c": 0.17375000000000007
+   },
+   "3": {
+    "n": 6119,
+    "median_abs_dt_c": 0.3613999999999997
+   },
+   "4": {
+    "n": 3375,
+    "median_abs_dt_c": 0.39860000000000184
+   },
+   "5": {
+    "n": 508,
+    "median_abs_dt_c": 0.207650000000001
+   }
+  }
+ },
+ "station_sd_used_for_p5": 0.1,
+ "station_sd_measured_lower_bound": 0.19945000000000057,
+ "kiad_separation_note": "KIAD ~8 km from the AOI centre, outside the 8x8 km box, so the largest measurable separation understates the true station error",
+ "fault_c": 0.25,
+ "detector_C": {
+  "cusum_k": 0.0,
+  "cusum_h": 1.0062186410313472,
+  "far": 0.0465,
+  "delay": 2.826,
+  "miss": 0.0
+ },
+ "by_station_sd": {
+  "0.0": {
+   "station_sd_c": 0.0,
+   "delay_C": 2.826,
+   "delay_D": 2.826,
+   "miss_D": 0.0,
+   "gain_days": 0.0,
+   "se": 0.0,
+   "sigma": Infinity,
+   "far_D": 0.0465,
+   "cusum_k": 0.0,
+   "cusum_h": 1.0062186410313472
+  },
+  "0.1": {
+   "station_sd_c": 0.1,
+   "delay_C": 2.826,
+   "delay_D": 2.528,
+   "miss_D": 0.0,
+   "gain_days": -0.298,
+   "se": 0.03175062284468625,
+   "sigma": -9.38564265204243,
+   "far_D": 0.0545,
+   "cusum_k": 0.07093954704315623,
+   "cusum_h": 0.5588092669196754
+  },
+  "0.2": {
+   "station_sd_c": 0.2,
+   "delay_C": 2.826,
+   "delay_D": 7.299,
+   "miss_D": 0.0,
+   "gain_days": 4.473,
+   "se": 0.10615210612520795,
+   "sigma": 42.137647224107184,
+   "far_D": 0.056,
+   "cusum_k": 0.13729444132139373,
+   "cusum_h": 0.9345059843257321
+  },
+  "0.3": {
+   "station_sd_c": 0.3,
+   "delay_C": 2.826,
+   "delay_D": 18.3385,
+   "miss_D": 0.013,
+   "gain_days": 15.5125,
+   "se": 0.394229793952994,
+   "sigma": 39.3488778320231,
+   "far_D": 0.0545,
+   "cusum_k": 0.20323840743474159,
+   "cusum_h": 1.3548487728706802
+  },
+  "0.5": {
+   "station_sd_c": 0.5,
+   "delay_C": 2.826,
+   "delay_D": 62.484,
+   "miss_D": 0.3605,
+   "gain_days": 59.658,
+   "se": 1.0285577200584057,
+   "sigma": 58.00160636256016,
+   "far_D": 0.046,
+   "cusum_k": 0.33806936110742886,
+   "cusum_h": 2.281809615991175
+  },
+  "0.75": {
+   "station_sd_c": 0.75,
+   "delay_C": 2.826,
+   "delay_D": 91.318,
+   "miss_D": 0.6745,
+   "gain_days": 88.492,
+   "se": 0.9625085346840668,
+   "sigma": 91.93892501851587,
+   "far_D": 0.062,
+   "cusum_k": 0.5046285919567874,
+   "cusum_h": 3.3539849363228855
+  },
+  "1.0": {
+   "station_sd_c": 1.0,
+   "delay_C": 2.826,
+   "delay_D": 101.3745,
+   "miss_D": 0.7895,
+   "gain_days": 98.5485,
+   "se": 0.8391861775525724,
+   "sigma": 117.43341660775418,
+   "far_D": 0.054,
+   "cusum_k": 0.6760256608399347,
+   "cusum_h": 4.519329919367768
+  },
+  "1.5": {
+   "station_sd_c": 1.5,
+   "delay_C": 2.826,
+   "delay_D": 108.3145,
+   "miss_D": 0.8705,
+   "gain_days": 105.4885,
+   "se": 0.7050624017561743,
+   "sigma": 149.61583504842764,
+   "far_D": 0.0635,
+   "cusum_k": 1.0059442752140029,
+   "cusum_h": 6.675641827143684
+  }
+ },
+ "crossover_station_sd_c": 0.2,
+ "conditions": {
+  "min_sigma": 2.0,
+  "p6_far_tol": 0.02,
+  "target_far": 0.05
+ },
+ "p5": false,
+ "p6": true,
+ "pass": false
+}

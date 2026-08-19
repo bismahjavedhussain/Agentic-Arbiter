@@ -225,3 +225,50 @@ What failed is the claim that modelling beats a constant, not the claim that the
    of a degree. **Per P4, no energy or money figure may be quoted** — the conversion is still unsourced.
    The obvious lever on absolute size is **site layout**: this is one deliberately modest geometry, and
    N-28 already showed layout sensitivity. A tighter site would have a larger recirculation term.
+
+---
+
+### 2026-08-16 — N-48: does the saving scale with facility size? **NO — IT INVERTS.** Thesis closed.
+
+`test_n48_geometry_scale.py` → `results/n48_geometry_scale.json`. Conditions fixed before running. Only
+the site geometry changed — conformal construction, tuned adversary, real KIAD wind (449 days) and leads
+held identical — so any difference is attributable to facility size.
+
+**Geometry:** `demo_site` 60 × 120 m condenser bank vs **L6 `layout_wide_far` 160 × 200 m — 4.4× the
+source area.** Measured max rise **0.8549 → 3.2493 °C (3.80×)**; p90 peak 0.7887 → 2.9295 °C, both at 270°.
+
+| Direction error sd | demo_site saved | **L6 saved** | demo_site σ | **L6 σ** |
+|---|---|---|---|---|
+| 0° | +0.1437 | **+0.2555** | +120.2 | +62.8 |
+| 10° | +0.1017 | **+0.1046** | +67.6 | +19.4 |
+| 15° | +0.0746 | **+0.0117** | +46.0 | +2.00 |
+| 25° | +0.0316 | **−0.1276** | +18.5 | **−20.7** |
+| 68.37° (measured) | −0.0044 | **−0.1976** | −2.9 | **−35.5** |
+
+| Condition | Verdict |
+|---|---|
+| **P1** saving at 25° ≥ 0.1017 °C | ❌ **FAIL — −0.1276 °C, the wrong sign** |
+| P3 no safety sold | ✅ PASS (agent 93.4 % vs fixed 89.9 %) |
+| **P4** crossover ≥ 40° | ❌ **FAIL — L6 15°, demo_site 30°** |
+| P2 materiality ≥ 0.50 °C | ❌ not reached |
+
+**The mechanism, and it is coherent rather than a bug.** A stronger plume amplifies the *penalty* for
+direction error: when the forecast bearing is wrong the ensemble sprays across the compass and picks up
+plume members, and at L6 those members are ~3.8× hotter, so the agent's p90 inflates faster than the
+constant it must beat. Measured — **the fixed margin scales only 2.1× (0.2108 → 0.4426) for a 3.80× rise**,
+because the realised distribution is still zero on most bearings, while **the agent's margin at 25° scales
+~3.2× (0.1791 → 0.5702).** The gap flips sign.
+
+> ## 🔴 CONCLUSION: the margin thesis is closed at ALL facility sizes.
+> It is not merely small — **it inverts at exactly the facilities where the physics matters most**, and
+> the wind-forecast requirement *tightens* from ~30° to ~15° against a measured 68.37°. **A bigger
+> facility needs a better forecast.** P4 was written in advance to detect precisely this, and it did.
+
+*Two corrections this forces on earlier text:* **(a)** demo_site's crossover reads **30°** here against
+40° in N-46b — different seed and sample size. **Quote it as ~30–40°, seed-sensitive, never as a sharp
+40°.** **(b)** The note above suggesting *"a tighter site would have a larger recirculation term"* was
+right about the magnitude and **wrong about the consequence** — a larger term makes the agent worse, not
+better.
+
+L6's magnitude is ~3.5× outside the range the physics was validated on (a 0.923 K signal, RMS 0.126 K),
+so the scaling is a **model extrapolation**, labelled as one.

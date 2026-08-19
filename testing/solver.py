@@ -6,26 +6,36 @@ Upwind differencing for advection, central for diffusion, explicit time-stepping
 to steady state. Condenser banks are heat sources. Inflow boundary is held at
 ambient; outflow is zero-gradient.
 
-BUILDINGS ARE HEAT SINKS, NOT NO-FLOW WALLS -- corrected 2026-08-12 (N-29 V4).
-    This docstring previously said "Buildings are no-flow obstacle cells". That is FALSE. The
-    implementation does `newT = np.where(free, newT, ambient)`, pinning every obstacle cell to
-    ambient on every step. That is a fixed-temperature Dirichlet condition, which ABSORBS heat. A
-    no-flow wall would be zero-gradient: it reflects, deflects the plume around itself, and
-    conserves heat.
+BUILDINGS ARE TRANSPARENT, NOT HEAT SINKS AND NOT NO-FLOW WALLS -- fixed 2026-08-12 (N-29 V4).
+    Read the comment at the obstacle line in `_step()` for the full reasoning; this is the summary,
+    and it is kept here because the two previous versions of this paragraph were both wrong and a
+    reader is entitled to see what changed.
 
-    The consequence is not subtle. N-29 measured it directly: a 120 x 200 m building placed across
-    an otherwise verified Gaussian plume removed **99.7 %** of the heat, against 100.0 % conserved
-    in the open domain. Physically air flows AROUND a building; it is not annihilated by one.
+    v1 said "buildings are no-flow obstacle cells". FALSE: the code did
+    `newT = np.where(free, newT, ambient)`, a fixed-temperature Dirichlet condition, which ABSORBS
+    heat rather than deflecting it. N-29 measured the damage -- a 120 x 200 m building across an
+    otherwise exactly-conserving Gaussian plume removed 99.7 % of the heat -- and also found that
+    21 of the 49 cells in the reference intake disc sat inside the neighbouring building, pinned to
+    a rise of exactly zero, dragging the reported intake temperature down 43 %.
 
-    So intake rise is biased LOW -- potentially drastically -- for any wind direction where a
-    structure sits between the source and the intake. Directions blocked by a building will look
-    "safe" when they may not be.
+    v2 of this paragraph described that defect as real and "not yet changed". Also FALSE by then:
+    the pinning was REMOVED the same day the measurement was taken. Obstacles are now transparent
+    to the temperature field -- heat passes straight through where a building is -- which N-29 V4
+    re-measured at 0.0 % absorbed (max |dT| 0.000000 with a wall across the plume), so heat is
+    conserved exactly.
 
-    Not yet changed, because fixing it alters every number computed so far and that must be a
-    deliberate decision rather than a side effect. Results whose source-to-intake path is clear are
-    unaffected: demo_site's condenser bank spans x 800-860 and its intake sits at x 1090 with no
-    building between, so N-8/N-19/N-23/N-27 do not depend on this. N-28's multi-layout
-    classification may, and is flagged there.
+    WHAT IS STILL WRONG, STATED PLAINLY: transparency is not deflection either. Real air flows
+    AROUND a building. The error is now in one stated direction of a known size instead of
+    catastrophic, and it is bounded by conservation. The obstacle mask still does two jobs --
+    excluding building interiors from the intake average, and the line-of-sight test in
+    `path_blocked()`.
+
+    SO WHY DOES THE AGENT STILL REFUSE BLOCKED BEARINGS? Not because heat is absorbed -- it is not.
+    Because a transparent building cannot deflect a plume that physically would be deflected, so on
+    a bearing with a structure on the source-to-intake path the solver has no answer it can stand
+    behind. ASHRAE Ch. 46 corrects only a HIDDEN intake, and ours has line of sight, so there is no
+    published correction to apply. `path_blocked()` therefore declines instead of returning a
+    number. The right fix is a mass-consistent (divergence-free) wind field; see `_step()`.
 
 VERIFICATION STATUS (N-29, no measurements involved)
     diffusion term    EXACT -- fitted sigma_y^2 slope matches the analytic 2D/u to 0.00 % at

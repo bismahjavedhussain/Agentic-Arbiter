@@ -1,0 +1,52 @@
+{
+ "objective": "exposure x dilution x (1 - wind_weighted_refusal), stated before reading the numbers; see this file's docstring",
+ "method": "solver.path_blocked() is pure geometry, so refusal is measured per pair without any PDE solve; bank placement and emission point mirror build_site.py",
+ "n_measured": 2,
+ "n_skipped": 0,
+ "n_pairs_refusing_all_downwind": 1,
+ "n_pairs_fully_clear": 1,
+ "wind_hours": 31238,
+ "step_deg": 5,
+ "ranked": [
+  {
+   "source_osm_id": 1456975947,
+   "receptor_osm_id": 1456975949,
+   "source_name": null,
+   "receptor_name": null,
+   "separation_m": 626.3,
+   "true_gap_m": 448.1,
+   "longest_facade_m": 378.7,
+   "path_clearance": 1.0,
+   "wind_exposure": 0.42781,
+   "dilution_factor": 0.479,
+   "exposure_x_dilution": 0.20492,
+   "bank_cells": 60,
+   "bank_area_m2": 6000.0,
+   "n_downwind": 36,
+   "n_downwind_refused": 0,
+   "refused_downwind_frac": 0.0,
+   "wind_weighted_refusal": 0.0,
+   "usable_exposure": 0.20492
+  },
+  {
+   "source_osm_id": 1456975948,
+   "receptor_osm_id": 1456975949,
+   "source_name": null,
+   "receptor_name": null,
+   "separation_m": 312.9,
+   "true_gap_m": 118.9,
+   "longest_facade_m": 378.7,
+   "path_clearance": 0.95,
+   "wind_exposure": 0.32527,
+   "dilution_factor": 0.959,
+   "exposure_x_dilution": 0.31186,
+   "bank_cells": 60,
+   "bank_area_m2": 6000.0,
+   "n_downwind": 36,
+   "n_downwind_refused": 36,
+   "refused_downwind_frac": 1.0,
+   "wind_weighted_refusal": 0.5383507266790447,
+   "usable_exposure": 0.14396994237787314
+  }
+ ]
+}

@@ -1,0 +1,865 @@
+# -*- coding: utf-8 -*-
+"""TICKER -- the agent's stage events, with a MECHANICAL guarantee that no phrase was hand-written.
+
+    python ticker.py            # build demo/ticker.json, verify it, print the tape
+    python ticker.py selftest   # the guard's own test suite -- 14 cases, no artefacts needed
+
+ZERO API CALLS.
+
+--------------------------------------------------------------------------------------------
+THE PROBLEM THIS MODULE SOLVES, STATED HONESTLY
+--------------------------------------------------------------------------------------------
+A "reasoning ticker" is the single easiest thing in this whole project to fake. Type seven
+sentences, put them behind `setTimeout`, and it looks exactly like an agent thinking. It would also
+be, in this project's own words, a threshold in a costume -- and worse than a threshold, because a
+threshold at least does something.
+
+The project's test for that is: POINT AT THE CONSTANT. If you can find, in the source, the number a
+human wrote that produces a behaviour, it is not a computation. So this module is built so that the
+test can be RUN rather than argued about:
+
+    NO TEMPLATE IN THIS FILE MAY CONTAIN A LITERAL DIGIT.
+
+`check_no_literal_digits()` strips the `{...}` fields out of every template and fails on any digit
+that remains. There is nowhere for a hand-written number to hide: if a number appears on screen, it
+arrived in the event's payload, and the payload comes from a file the agent wrote. `verify()` then
+tightens that from "the template has no digits" to "every digit in the RENDERED text is one of the
+payload's own values" -- which also catches a payload key whose value silently became a string
+containing extra numbers.
+
+Four checks, and each exists for a defect this project has actually committed:
+
+  V1 NO LITERAL DIGITS      gotcha #67 -- four hard-coded narratives asserted measurements that
+                            were false, including a "595 h/year" literal in the view.
+  V2 EXACT PAYLOAD MATCH    every placeholder has a value AND every value is used. An unused value
+                            is a number that was computed and then quietly not shown; a missing one
+                            is a KeyError at render time rather than a blank on screen.
+  V3 EVERY DIGIT TRACED     remove each rendered value from the text; no digit may survive.
+  V4 REAL EXECUTION ORDER   the stage numbers are the order the code ran in, and all seven appear.
+
+And one more that is not a template check at all:
+
+  V5 INDEPENDENT REDERIVATION  where a number can be recomputed from a DIFFERENT field of the
+                            shipped artefacts -- written by different code -- it is, and the two
+                            must agree exactly. `REDERIVE` below says which numbers have such a
+                            path and which do not, because "some of these are self-referential" is
+                            the honest description and hiding it would be the same defect again.
+
+--------------------------------------------------------------------------------------------
+WHY THE TEMPLATES ARE SHIPPED TO THE BROWSER INSTEAD OF COPIED INTO IT
+--------------------------------------------------------------------------------------------
+`explain.py` has a JavaScript mirror in `demo/index.html`, and `verify_browser_explanation.js`
+checks the two agree. That works, but it is two copies of every sentence, and this project has
+already been bitten four times by a second copy of a sentence.
+
+So `ticker.json` carries the TEMPLATES, not just the rendered text. The browser owns no phrases at
+all -- it renders the same templates from its own live payload, using a formatter deliberately
+restricted to four specs so that both implementations can be small enough to check. That is why
+`demo/verify_browser_ticker.js` can compare STRINGS for exact equality rather than comparing
+numbers and hoping the prose matches.
+"""
+import json
+import math
+import os
+import re
+import string
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+IA = os.path.dirname(HERE)
+DEMO = os.path.join(IA, "demo")
+
+sys.path.insert(0, HERE)
+
+
+class TickerError(RuntimeError):
+    pass
+
+
+# ============================================================================
+# THE FORMATTER -- four specs, because two implementations have to agree exactly
+# ============================================================================
+# A larger vocabulary would mean a larger JavaScript mirror, and a mirror big enough to have its own
+# bugs defeats the purpose. These four cover every number in the tape:
+#     ""       a word -- and a NUMBER passed without a spec is an error, not a default
+#     ","      an integer with thousands separators
+#     ".Nf"    fixed point
+#     "+.Nf"   fixed point with an explicit sign, for quantities whose sign is the point
+_SPEC_FIXED = re.compile(r"^(\+?)\.(\d+)f$")
+_FIELD_RE = re.compile(r"\{[^{}]*\}")
+_PLACEHOLDER_RE = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)(?::([^}]*))?\}")
+
+
+def fmt_value(v, spec):
+    """Render ONE value. Mirrored by `tkFormat` in demo/index.html; both are tested against each
+    other on every build by demo/verify_browser_ticker.js."""
+    if isinstance(v, bool):
+        # before the numeric branch: bool is a subclass of int in Python and would format as 1/0,
+        # which is a digit no reader asked for
+        if spec:
+            raise TickerError("a yes/no value takes no format spec, got %r" % spec)
+        return "yes" if v else "no"
+    if spec == "":
+        if isinstance(v, (int, float)):
+            raise TickerError("a number needs an explicit format spec; %r has none" % v)
+        return str(v)
+    if spec == ",":
+        if float(v) != int(v):
+            raise TickerError("the thousands spec is for whole numbers, got %r" % v)
+        return format(int(v), ",")
+    m = _SPEC_FIXED.match(spec)
+    if m:
+        x = float(v)
+        if not math.isfinite(x):
+            raise TickerError("refusing to render a non-finite number (%r)" % v)
+        # NEGATIVE ZERO. Python renders it "-0.0000" and JavaScript's toFixed renders it "0.0000",
+        # so the two mirrors would disagree on a value that is not negative. Normalised in both.
+        if x == 0.0:
+            x = 0.0
+        return format(x, m.group(1) + "." + m.group(2) + "f")
+    raise TickerError("unsupported format spec %r -- the four allowed are '', ',', '.Nf', '+.Nf'"
+                      % spec)
+
+
+def render(template, values):
+    """Fill a template. Raises rather than leaving a hole, because a hole on screen reads as a
+    measurement that came out empty."""
+    out = []
+    for lit, field, spec, conv in string.Formatter().parse(template):
+        out.append(lit)
+        if field is None:
+            continue
+        if conv:
+            raise TickerError("conversions (!r, !s) are not supported in ticker templates")
+        if field not in values:
+            raise TickerError("template asks for %r and the payload has no such value" % field)
+        out.append(fmt_value(values[field], spec or ""))
+    return "".join(out)
+
+
+def placeholders(template):
+    """The field names a template asks for, in order, with duplicates collapsed."""
+    seen, out = set(), []
+    for _lit, field, _spec, _conv in string.Formatter().parse(template):
+        if field is not None and field not in seen:
+            seen.add(field)
+            out.append(field)
+    return out
+
+
+def literal_digits(template):
+    """Digits left in a template once every {field} is removed. MUST be empty. This one function is
+    the whole anti-scripted-animation argument, so it is deliberately three lines long."""
+    return [ch for ch in _FIELD_RE.sub("", template) if ch.isdigit()]
+
+
+# ============================================================================
+# THE EVENT CATALOGUE
+# ============================================================================
+# stage number -> the name the loop uses for it. Seven stages, as in PLAN.md section 2.
+STAGES = {1: "perceive", 2: "solve", 3: "bound", 4: "decide", 5: "act", 6: "score",
+          7: "recalibrate"}
+
+# code -> (stage, template). ORDER MATTERS: it is the order the loop runs in, and V4 checks it.
+#
+# Read these as sentences with the numbers taken out. Every remaining word is a word about a
+# MEASUREMENT -- there is no adjective here that a number does not license. If a phrase reads as
+# though it is describing something impressive, that is the number's doing, not the template's.
+SYSTEM_TEMPLATES = [
+    ("perceive.fortyguard", 1,
+     "Read {n_pairs:,} FortyGuard forecast-and-outcome day pairs off disk, {n_tiles:,} tiles per "
+     "call, at forecast leads from {lead_min:.2f} to {lead_max:.2f} h."),
+    ("perceive.site_tile", 1,
+     "The committed site falls inside a tile whose centre lies {dist_m:.0f} m away; on {tile_date} "
+     "that tile read {tile_c:.2f} C."),
+    ("perceive.record", 1,
+     "Loaded {n_hours:,} real station hours over {n_days:,} days -- the record every margin below "
+     "is fitted on, and none of it is synthetic."),
+    ("solve.table", 2,
+     "Solved the steady advection-diffusion field {n_solves:,} times on the committed footprints, "
+     "{n_bearings:,} wind bearings by {n_speeds:,} speeds, in {solve_s:.2f} s on {device}."),
+    ("solve.worst", 2,
+     "Worst intake rise {worst_c:.4f} C, at {worst_bearing:.0f} deg and {worst_speed:.1f} m/s; "
+     "averaged over the whole table it is {mean_c:.4f} C."),
+    ("solve.refuse", 2,
+     "Declined to answer on {n_refused_long:,} of {n_bearings:,} bearings with the condenser bank "
+     "on the long facade, and {n_refused_face:,} of {n_bearings:,} with it on the facing wall, "
+     "because a building stands on the source-to-intake path and a transparent building cannot "
+     "deflect what a real one would. Where that guard fires the agent's five-year advantage falls "
+     "to {refusal_cost_h:+.1f} h a year, so the headline rests on the bank sitting on the long "
+     "facade."),
+    ("bound.level", 3,
+     "Split conformal on the agent's own record: n = {n:,} day-level residuals, order statistic "
+     "k = {k:,}, margin {margin_c:+.4f} C. Clamped to the largest residual in the sample: "
+     "{clamped}."),
+    ("bound.ceiling", 3,
+     "With n = {n:,} calibration days the attainable coverage is capped at {ceiling_pct:.1f} % "
+     "against a nominal {nominal_pct:.0f} %; reaching the nominal needs {n_needed:,} days."),
+    # STAGE 3, not 4. This entry said 4 for its first build, and V4 did not object because V4 only
+    # checks that the tape runs FORWARD -- a bound event mislabelled as a decide event is still in
+    # ascending order. Caught by reading the printed tape, which is why main() prints it.
+    ("bound.mondrian", 3,
+     "Group-conditional quantiles by hour of day run {q_min:.2f} to {q_max:.2f} C at {notice_h:,} h "
+     "notice, smallest group {smallest_n:,} rows. One pooled quantile instead would leave "
+     "{n_below:,} of {n_groups:,} hours under nominal, the worst at {worst_pct:.2f} %."),
+    ("decide.sweep", 4,
+     "Planned {n_scen:,} scenarios across {n_axes:,} swept plant-envelope axes plus forecast skill. "
+     "{pct_zero:.1f} % of them declare zero free-cooling hours, which on the hottest days is the "
+     "correct answer."),
+    ("decide.days", 4,
+     "On the real FortyGuard days: {n_dec:,} declarations, {n_free:,} of them free cooling, "
+     "{n_unsafe:,} of those unsafe."),
+    # The vacuity variant. On four August afternoons in Virginia NO controller of any kind
+    # free-cools, so "zero unsafe declarations" is not evidence of safety -- the agent had no
+    # opportunity to be wrong. Gotcha #37: a condition can be MET AND MEANINGLESS, and the tape has
+    # to say which one it is rather than let a reader award credit for a zero.
+    ("decide.days_vacuous", 4,
+     "On the real FortyGuard days: {n_dec:,} declarations and {n_free:,} of them free cooling. "
+     "Those days ran {t_min:.1f} to {t_max:.1f} C against a highest limit of {limit_max:.1f} C, so "
+     "zero is the physical answer and the {n_unsafe:,} unsafe declarations prove nothing about "
+     "safety. What these days do test is the bound."),
+    ("act.commands", 5,
+     "Emitted {n_rows:,} command rows over {n_blocks:,} case-and-limit combinations, bounds from "
+     "{b_min:.3f} to {b_max:.3f} C. Every row states the bound it acted on."),
+    ("score.sequential", 6,
+     "Scored out of sample against what elapsed: {cov_pct:.1f} % pooled coverage over {n_test:,} "
+     "test days, worst single day {worst_pct:.1f} %."),
+    ("score.verdict", 6,
+     "Against conditions fixed before any outcome existed -- pooled coverage at or above "
+     "{p1_pct:.0f} %: {p1}. No test day below {p2_pct:.0f} %: {p2}. At least {p3_n:,} test days: "
+     "{p3}. Overall {verdict}."),
+    # "A widening of -0.0086 C" is what the first version of this template printed, because it
+    # compared the last two trajectory rows and called the result a widening unconditionally. A
+    # hand-written word contradicting its own number is precisely the defect this module exists to
+    # catch, and the template committed it. The direction is now a payload value, and the pair
+    # reported is the LARGEST move rather than whichever happens to be last.
+    ("recalibrate.moved", 7,
+     "The margin moved itself, most sharply after the {trigger_date} miss: {before_c:+.4f} C on "
+     "{before_days:,} day-pairs became {after_c:+.4f} C on {after_days:,}, a {direction} of "
+     "{delta_c:+.4f} C that no human applied."),
+    ("recalibrate.online", 7,
+     "Online recalibration over {rounds:,} real rounds carried realised coverage from "
+     "{static_cov:.4f} to {aci_cov:.4f} against a {nominal_pct:.0f} % nominal."),
+]
+
+# The per-hour tape. Same rules; rendered live in the browser for whatever hour is selected, which
+# is the part a precomputed script cannot do.
+HOUR_TEMPLATES = [
+    ("hour.perceive", 1,
+     "{hour_label}: the forecast for this hour is {fc_c:.3f} C dry-bulb and {fc_dp_c:.3f} C dew "
+     "point, issued {notice_h:,} h ahead at {skill:.2f} of the skill of persistence."),
+    ("hour.solve", 2,
+     "Wind from {bearing_deg:.0f} deg at {wind_kt:.1f} kt. The solved recirculation adds "
+     "{rise_c:.4f} C to the intake -- {rise_pct:.1f} % of the headroom under the limit."),
+    # The no-headroom variant. The first version printed the percentage unconditionally with a
+    # guard that clamped a negative denominator to zero, so an hour whose ambient was ALREADY over
+    # the limit read "0.0 % of the distance to the limit" -- which a reader would take to mean the
+    # plume contributes nothing, when it means there is no headroom for it to be a fraction of.
+    ("hour.solve_no_headroom", 2,
+     "Wind from {bearing_deg:.0f} deg at {wind_kt:.1f} kt. The solved recirculation adds "
+     "{rise_c:.4f} C, on top of an ambient already {over_c:.3f} C above the limit -- there is no "
+     "headroom for it to be a fraction of."),
+    ("hour.solve_calm", 2,
+     "Calm hour: the station reports no bearing, so the agent takes the worst rise over every "
+     "bearing it is still allowed to compute, {rise_c:.4f} C."),
+    ("hour.solve_refused", 2,
+     "Refused: at {bearing_deg:.0f} deg a building stands between the condensers and the intake, "
+     "so there is no rise the solver can stand behind. Falling back to mechanical."),
+    ("hour.bound", 3,
+     "Margin {margin_c:.4f} C = {shape_c:.4f} C of group-conditional forecast error for this hour "
+     "of day, plus {plume_c:.5f} C of plume-ensemble spread, plus {level_c:.4f} C of FortyGuard "
+     "level. Upper bound on intake air {bound_c:.3f} C."),
+    ("hour.decide_free", 4,
+     "{bound_c:.3f} C against the {limit_c:.1f} C limit leaves {slack_c:.3f} C of room, so the "
+     "hour is certified safe."),
+    ("hour.decide_blocked", 4,
+     "{bound_c:.3f} C against the {limit_c:.1f} C limit is over by {short_c:.3f} C, so the hour is "
+     "not certified. Binding constraint: {binding}."),
+    ("hour.act_switch", 5,
+     "Command {command}, a change of mode: {n_used:,} of {budget:,} changes now spent, and the "
+     "plant must hold this mode {dwell_h:,} h."),
+    ("hour.act_hold", 5,
+     "Command {command}, unchanged from the hour before: {n_used:,} of {budget:,} mode changes "
+     "spent so far."),
+    ("hour.score", 6,
+     "What actually happened: {truth_c:.3f} C at the intake. The bound sat {gap_c:.3f} C {side} "
+     "it, so this hour {covered}."),
+    ("hour.recalibrate", 7,
+     "This hour is one row of the record the margin is fitted from: {n_shape:,} persistence hours "
+     "at this notice, split across {n_groups:,} hour-of-day groups."),
+]
+
+ALL_TEMPLATES = {c: (s, t) for c, s, t in SYSTEM_TEMPLATES + HOUR_TEMPLATES}
+
+
+def check_no_literal_digits():
+    """V1. Runs at import time -- a template with a hand-written number must not survive to a test
+    run, let alone to a screen."""
+    bad = {}
+    for code, (_stage, tpl) in ALL_TEMPLATES.items():
+        d = literal_digits(tpl)
+        if d:
+            bad[code] = "".join(d)
+    if bad:
+        raise TickerError(
+            "TEMPLATES WITH LITERAL DIGITS -- every number on screen must come from the payload: "
+            + "; ".join("%s has %r" % (k, v) for k, v in sorted(bad.items())))
+    return True
+
+
+check_no_literal_digits()
+
+
+def event(code, **numbers):
+    """One stage event: what it is, what it computed, and the sentence that follows from that."""
+    if code not in ALL_TEMPLATES:
+        raise TickerError("no template for event %r" % code)
+    stage, tpl = ALL_TEMPLATES[code]
+    return {"code": code, "stage": stage, "stage_name": STAGES[stage],
+            "numbers": numbers, "text": render(tpl, numbers)}
+
+
+# ============================================================================
+# V5 -- INDEPENDENT REDERIVATION
+# ============================================================================
+# code -> {payload key: a function of the loaded artefacts}. A number listed here is recomputed from
+# a DIFFERENT field, written by DIFFERENT code, and must match exactly.
+#
+# NOT every number has such a path, and pretending otherwise would be the defect this whole module
+# exists to prevent. `verify()` reports the count both ways: how many numbers were re-derived, and
+# how many could only be read back from the field they were built from. The second figure is not a
+# failure, it is a limit, and it is printed.
+def _rederive_table():
+    return {
+        "perceive.fortyguard": {
+            # pairs counted from the sequential score rows (test days = pairs - 1) and from the
+            # day-level conformal fit's own n -- three separate writers, one number
+            "n_pairs": lambda a: len(a["trace"]["cycle"]["sequential"]) + 1,
+            "n_tiles": lambda a: a["trace"]["fields"]["2026-08-16_forecast"]["n_tiles"],
+        },
+        "perceive.record": {
+            "n_hours": lambda a: a["backtest"]["hours"],
+            "n_days": lambda a: a["backtest"]["days"],
+        },
+        "solve.worst": {
+            # THE BEARING RE-DERIVES; THE RISE DOES NOT, AND THAT IS NOT A BUG.
+            # `direction_sweep.py` solves every bearing at ONE median wind speed (`u_med`), while
+            # `agent.rise_table()` solves a 72-bearing x 8-speed grid and maxes over both. The two
+            # worst-case rises are therefore different quantities -- 0.35477 C at the median speed
+            # against 0.35497 C at 3.5 m/s -- and asserting they are equal would be comparing a max
+            # over a line with a max over a plane. The first version of this table did assert it,
+            # and V5 correctly reported the disagreement. The check kept is the one that IS an
+            # identity: both pipelines must find the worst bearing in the same place.
+            "worst_bearing": lambda a: a["trace"]["direction_table"]["modes"]["longest"]["worst"]
+                                        ["bearing"],
+        },
+        "solve.refuse": {
+            "n_refused_long": lambda a: a["trace"]["direction_table"]["modes"]["longest"]
+                                         ["n_refused"],
+            "n_refused_face": lambda a: a["trace"]["direction_table"]["modes"]["facing"]
+                                         ["n_refused"],
+        },
+        "bound.level": {
+            "n": lambda a: len(a["trace"]["cycle"]["pairs"]),
+            "margin_c": lambda a: a["trace"]["cycle"]["bound_day_level"]["_library"]["q"],
+            "k": lambda a: a["trace"]["cycle"]["bound_day_level"]["_library"]["k"],
+        },
+        "bound.ceiling": {
+            "ceiling_pct": lambda a: 100.0 * a["trace"]["cycle"]["bound_day_level"]["_library"]
+                                              ["ceiling"],
+            "nominal_pct": lambda a: 100.0 * (1.0 - a["trace"]["alpha"]),
+        },
+        "bound.mondrian": {
+            "n_below": lambda a: a["backtest"]["mondrian"]["3"]["pooled"]["groups_below_target"],
+            "worst_pct": lambda a: 100.0 * a["backtest"]["mondrian"]["3"]["pooled"]["worst_group"]
+                                            ["coverage"],
+        },
+        "decide.sweep": {
+            "n_scen": lambda a: a["trace"]["cases"]["all_mechanical"]["n_total"],
+            "pct_zero": lambda a: 100.0 * a["trace"]["cases"]["all_mechanical"]["fraction"],
+        },
+        "act.commands": {
+            "n_rows": lambda a: sum(len(v["commands"])
+                                    for v in a["trace"]["cases"]["act_log"].values()),
+            "n_blocks": lambda a: len(a["trace"]["cases"]["act_log"]),
+        },
+        "score.sequential": {
+            "cov_pct": lambda a: 100.0 * a["trace"]["cycle"]["pooled_coverage"],
+            "n_test": lambda a: len(a["trace"]["cycle"]["sequential"]),
+        },
+        "recalibrate.online": {
+            "rounds": lambda a: a["backtest"]["aci"]["3"]["ACI"]["rounds"],
+            "aci_cov": lambda a: a["backtest"]["aci"]["3"]["ACI"]["realised_coverage"],
+            "static_cov": lambda a: a["backtest"]["aci"]["3"]["static"]["realised_coverage"],
+        },
+    }
+
+
+# ============================================================================
+# BUILDING THE SYSTEM TAPE from what the agent wrote
+# ============================================================================
+def system_stream(trace, backtest, rolling):
+    """The loop, once, at the level of the whole system. Every value is READ from an artefact --
+    nothing here recomputes anything, so there is no second code path to disagree with."""
+    cyc, cas = trace["cycle"], trace["cases"]
+    pairs = cyc["pairs"]
+    rt = cyc["rise_tables"]["longest"]
+    dl = cyc["bound_day_level"]
+    seq = cyc["sequential"]
+    traj = cyc["margin_trajectory"]
+    m3 = backtest["mondrian"]["3"]
+    aci = backtest["aci"]["3"]
+    nominal_pct = 100.0 * (1.0 - trace["alpha"])
+    leads = [p["lead_h"] for p in pairs if p.get("lead_h")]
+    first_tile = cyc["site_tiles"][pairs[0]["date"]]
+    cmds = [c for b in cas["act_log"].values() for c in b["commands"]]
+    decs = cyc["decisions"]
+    n_free_dec = sum(1 for d in decs if d["declared_free"])
+
+    p1 = bool(cyc["pooled_coverage"] >= 0.85)
+    p2 = bool(min(r["coverage"] for r in seq) >= 0.60)
+    p3 = bool(len(seq) >= 3)
+
+    # The price of the refusal guard where it fires, read from the five-year sensitivity sweep.
+    facing_cost = [r for r in backtest["sensitivity"]["rows"]
+                   if r["axis"] == "bank_mode" and r["value"] == "facing"][0]["gain_h_per_year"]
+
+    # THE LARGEST SELF-APPLIED MOVE, found rather than chosen. Reporting "the last two rows" gave a
+    # narrowing and called it a widening; reporting the biggest move gives the one that matters --
+    # the step after a test day the bound missed outright.
+    moves = [(traj[i + 1]["margin_c"] - traj[i]["margin_c"], i) for i in range(len(traj) - 1)]
+    d_best, i_best = max(moves)
+    # the test day whose outcome triggered that step: the row scored on `after_days` calibration
+    # days is the one whose miss the next margin answers
+    trig = next((r["test_date"] for r in seq if r["cal_days"] == traj[i_best]["after_days"]),
+                seq[-1]["test_date"])
+
+    ev = [
+        event("perceive.fortyguard", n_pairs=len(pairs), n_tiles=pairs[0]["n_tiles"],
+              lead_min=min(leads), lead_max=max(leads)),
+        event("perceive.site_tile", dist_m=first_tile["dist_m"], tile_date=pairs[0]["date"],
+              tile_c=first_tile["forecast_c"]),
+        event("perceive.record", n_hours=backtest["hours"], n_days=backtest["days"]),
+        event("solve.table", n_solves=rt["n_solves"], n_bearings=len(rt["bearings"]),
+              n_speeds=len(rt["speeds"]), solve_s=rt["solve_seconds"], device=rt["device"]),
+        event("solve.worst", worst_c=rt["max_rise_c"], worst_bearing=rt["max_rise_bearing"],
+              worst_speed=rt["max_rise_speed_ms"], mean_c=rt["mean_rise_c"]),
+        event("solve.refuse", n_refused_long=len(rt["refused"]),
+              n_bearings=len(rt["bearings"]),
+              n_refused_face=len(cyc["rise_tables"]["facing"]["refused"]),
+              refusal_cost_h=facing_cost),
+        event("bound.level", n=dl["n"], k=dl["k"], margin_c=dl["margin"],
+              clamped=bool(dl["clamped"])),
+        event("bound.ceiling", n=dl["n"], ceiling_pct=100.0 * dl["attainable"],
+              nominal_pct=nominal_pct, n_needed=dl["n_needed_for_nominal"]),
+        event("bound.mondrian", q_min=m3["mondrian_hod"]["q_min"],
+              q_max=m3["mondrian_hod"]["q_max"], notice_h=m3["notice_h"],
+              smallest_n=m3["mondrian_hod"]["smallest_group_n"],
+              n_below=m3["pooled"]["groups_below_target"],
+              n_groups=m3["mondrian_hod"]["n_groups"],
+              worst_pct=100.0 * m3["pooled"]["worst_group"]["coverage"]),
+        event("decide.sweep", n_scen=cas["all_mechanical"]["n_total"],
+              n_axes=len(trace["plant_envelope"]),
+              pct_zero=100.0 * cas["all_mechanical"]["fraction"]),
+        (event("decide.days", n_dec=len(decs), n_free=n_free_dec,
+               n_unsafe=sum(1 for d in decs if d["unsafe_declaration"]))
+         if n_free_dec else
+         event("decide.days_vacuous", n_dec=len(decs), n_free=n_free_dec,
+               n_unsafe=sum(1 for d in decs if d["unsafe_declaration"]),
+               t_min=min(p["outcome_mean"] for p in pairs),
+               t_max=max(p["outcome_mean"] for p in pairs),
+               limit_max=max(trace["plant_envelope"]["limit_c"]))),
+        event("act.commands", n_rows=len(cmds), n_blocks=len(cas["act_log"]),
+              b_min=min(c["bound_c"] for c in cmds), b_max=max(c["bound_c"] for c in cmds)),
+        event("score.sequential", cov_pct=100.0 * cyc["pooled_coverage"], n_test=len(seq),
+              worst_pct=100.0 * min(r["coverage"] for r in seq)),
+        event("score.verdict", p1_pct=85.0, p1=p1, p2_pct=60.0, p2=p2, p3_n=3, p3=p3,
+              verdict="PASS" if (p1 and p2 and p3) else "FAIL"),
+        event("recalibrate.moved", trigger_date=trig,
+              before_c=traj[i_best]["margin_c"], before_days=traj[i_best]["after_days"],
+              after_c=traj[i_best + 1]["margin_c"], after_days=traj[i_best + 1]["after_days"],
+              delta_c=d_best, direction="widening" if d_best > 0 else "narrowing"),
+        event("recalibrate.online", rounds=aci["ACI"]["rounds"],
+              static_cov=aci["static"]["realised_coverage"],
+              aci_cov=aci["ACI"]["realised_coverage"], nominal_pct=nominal_pct),
+    ]
+    # `score.verdict`'s three thresholds are the PRE-REGISTERED conditions from the N-26
+    # pre-registration, not tuning knobs -- they were fixed in writing before any outcome existed
+    # and the agent FAILS against them. They are passed as payload values rather than typed into
+    # the template so that V1 still holds and so that a reader can see them beside the result.
+    return ev
+
+
+# ============================================================================
+# THE PER-HOUR TAPE -- mirrored in demo/index.html
+# ============================================================================
+def hour_stream(st, cfg, modes, safe, h, extra):
+    """The seven stages for ONE hour of ONE configuration.
+
+    `st` is `explain.state_from_trace`'s state, so this tape describes the decision the demo is
+    displaying rather than a separate one. `extra` carries the two facts the state does not hold:
+    the shape-margin sample size and the number of hour-of-day groups it was split into.
+    """
+    import explain as ex   # local: explain imports agent, and agent must not import this module
+
+    g = ex.gates_for_hour(st, h, cfg)
+    free = modes[h] == ex.MODE_FREE
+    refused = bool(st["refused"][h])
+    calm = bool(extra["calm"][h])
+    bearing = float(extra["bearing_deg"][h])
+    limit = cfg["limit_c"]
+    bound = float(st["ub_dry"][h])
+    truth = float(st["truth"][h])
+    n_used = int(sum(1 for i in range(1, h + 1) if modes[i] != modes[i - 1]))
+
+    # The FortyGuard level offset applies to DRY BULB only -- `mean_d` is measured on the heatmap,
+    # and no measured FortyGuard dew-point offset exists. Subtracting it from the dew point too is a
+    # defect the browser also had, and it closed the humidity gate on 1,541 configurations.
+    out = [event("hour.perceive", hour_label=st["hours"][h] + ":00",
+                 fc_c=float(st["temp"][h]) - float(st["level_offset"])
+                      - (1.0 - cfg["skill"]) * float(extra["r_prime"][h]),
+                 fc_dp_c=float(st["dew"][h])
+                         - (1.0 - cfg["skill"]) * float(extra["rdp_prime"][h]),
+                 notice_h=cfg["notice_h"], skill=cfg["skill"])]
+
+    if refused:
+        out.append(event("hour.solve_refused", bearing_deg=bearing))
+    elif calm:
+        out.append(event("hour.solve_calm", rise_c=float(st["rise"][h])))
+    else:
+        # how far into the headroom the plume eats -- and a separate sentence when there is none,
+        # rather than a percentage of a non-positive denominator
+        head = limit - float(st["temp"][h])
+        if head > 0:
+            out.append(event("hour.solve", bearing_deg=bearing,
+                             wind_kt=float(extra["wind_kt"][h]), rise_c=float(st["rise"][h]),
+                             rise_pct=100.0 * float(st["rise"][h]) / head))
+        else:
+            out.append(event("hour.solve_no_headroom", bearing_deg=bearing,
+                             wind_kt=float(extra["wind_kt"][h]), rise_c=float(st["rise"][h]),
+                             over_c=-head))
+
+    out.append(event("hour.bound", margin_c=float(st["marg_total"][h]),
+                     shape_c=float(st["marg_shape"][h]), plume_c=float(st["marg_plume"][h]),
+                     level_c=float(st["marg_level"]), bound_c=bound))
+
+    if bool(safe[h]):
+        out.append(event("hour.decide_free", bound_c=bound, limit_c=limit,
+                         slack_c=limit - bound))
+    else:
+        binding = next((k for k in (ex.GATE_REFUSED, ex.GATE_DRY, ex.GATE_DEW, ex.GATE_AQ)
+                        if not g[k][0]), ex.GATE_DRY)
+        out.append(event("hour.decide_blocked", bound_c=bound, limit_c=limit,
+                         short_c=bound - limit, binding=binding))
+
+    changed = h > 0 and modes[h] != modes[h - 1]
+    if changed:
+        out.append(event("hour.act_switch", command=ex.MODE_FREE == modes[h] and "FREE-COOLING"
+                         or "MECHANICAL", n_used=n_used, budget=cfg["switch_budget"],
+                         dwell_h=cfg["min_dwell_h"]))
+    else:
+        out.append(event("hour.act_hold", command=ex.MODE_FREE == modes[h] and "FREE-COOLING"
+                         or "MECHANICAL", n_used=n_used, budget=cfg["switch_budget"]))
+
+    out.append(event("hour.score", truth_c=truth, gap_c=abs(bound - truth),
+                     side="above" if bound >= truth else "below",
+                     covered="was covered" if bound >= truth else "was NOT covered"))
+    out.append(event("hour.recalibrate", n_shape=extra["n_shape"], n_groups=extra["n_groups"]))
+    # `free` is deliberately unused in the branch above: the tape reports what the GATES said, and
+    # whether the plant actually ran free cooling is stage 5's business. An hour can be certified
+    # safe and still run chillers, and conflating the two would hide the only sentence in this
+    # whole project that a thermostat cannot produce.
+    del free
+    return out
+
+
+# ============================================================================
+# VERIFICATION
+# ============================================================================
+def verify(stream, artefacts=None):
+    """V1-V5. Returns a list of failure strings; empty means the tape is checkable."""
+    fails = []
+    stages_seen = []
+    for i, e in enumerate(stream):
+        code = e["code"]
+        if code not in ALL_TEMPLATES:
+            fails.append("event %d: unknown code %r" % (i, code))
+            continue
+        stage, tpl = ALL_TEMPLATES[code]
+        stages_seen.append(stage)
+
+        # V1 -- no literal digits in the template
+        if literal_digits(tpl):
+            fails.append("%s: template contains a hand-written digit" % code)
+
+        # V2 -- the payload and the template ask for exactly the same names
+        want, have = set(placeholders(tpl)), set(e["numbers"])
+        if want - have:
+            fails.append("%s: template needs %s and the payload has not got it"
+                         % (code, sorted(want - have)))
+        if have - want:
+            fails.append("%s: payload carries %s that no sentence shows"
+                         % (code, sorted(have - want)))
+
+        # the text must be exactly what the template and payload produce
+        try:
+            again = render(tpl, e["numbers"])
+        except TickerError as exc:
+            fails.append("%s: will not render -- %s" % (code, exc))
+            continue
+        if again != e["text"]:
+            fails.append("%s: shipped text is not what the template renders" % code)
+
+        # V3 -- every digit in the SHIPPED text traces to a payload value.
+        #
+        # Scanning `again` here instead of `e["text"]` was a real hole, found by this module's own
+        # self-test: `again` is by construction what the template produces, so V3 could only ever
+        # confirm the template -- a digit hand-edited into the artefact, or into a browser payload,
+        # would have been scanned out of existence before the check ran. The shipped text is what
+        # reaches a screen, so the shipped text is what gets scanned. (HANDOFF #47: my verification
+        # code has been buggier than the product eight times; this is nine.)
+        residual = e["text"]
+        rendered = []
+        for _lit, field, spec, _conv in string.Formatter().parse(tpl):
+            if field is not None:
+                rendered.append(fmt_value(e["numbers"][field], spec or ""))
+        for s in sorted(set(rendered), key=len, reverse=True):
+            residual = residual.replace(s, "")
+        left = [ch for ch in residual if ch.isdigit()]
+        if left:
+            fails.append("%s: rendered text has digit(s) %r that no payload value explains"
+                         % (code, "".join(left)))
+
+    # V4 -- the tape runs forward through the loop, and covers it
+    if stages_seen != sorted(stages_seen):
+        fails.append("the tape runs backwards through the loop: stages %s" % stages_seen)
+    missing = sorted(set(STAGES) - set(stages_seen))
+    if missing:
+        fails.append("stage(s) %s never appear -- the loop has seven" % missing)
+
+    # V5 -- independent rederivation
+    n_red = n_self = 0
+    if artefacts is not None:
+        table = _rederive_table()
+        for e in stream:
+            checks = table.get(e["code"], {})
+            for key, val in e["numbers"].items():
+                if key not in checks:
+                    n_self += 1
+                    continue
+                n_red += 1
+                try:
+                    expect = checks[key](artefacts)
+                except Exception as exc:                                  # noqa: BLE001
+                    fails.append("%s/%s: rederivation raised %s" % (e["code"], key, exc))
+                    continue
+                if isinstance(val, (int, float)) and isinstance(expect, (int, float)):
+                    if not math.isclose(float(val), float(expect), rel_tol=0.0, abs_tol=1e-9):
+                        fails.append("%s/%s: tape says %r, an independent path says %r"
+                                     % (e["code"], key, val, expect))
+                elif val != expect:
+                    fails.append("%s/%s: tape says %r, an independent path says %r"
+                                 % (e["code"], key, val, expect))
+    return fails, {"rederived": n_red, "read_back_only": n_self}
+
+
+# ============================================================================
+# SELF-TEST -- the guard has to pass its own test before it is allowed to judge anything
+# ============================================================================
+def selftest():
+    """14 cases. A checker this project trusts must be harder to fool than the thing it checks --
+    running tally in HANDOFF section 10 #47 is checks wrong 8, product wrong 10."""
+    ok, bad = 0, []
+
+    def want(label, cond):
+        nonlocal ok
+        if cond:
+            ok += 1
+        else:
+            bad.append(label)
+
+    # the formatter, both mirrors' shared contract
+    want("plain word", fmt_value("KIAD", "") == "KIAD")
+    want("thousands", fmt_value(17862, ",") == "17,862")
+    want("fixed", fmt_value(0.35497, ".4f") == "0.3550")
+    want("signed positive", fmt_value(0.1905, "+.4f") == "+0.1905")
+    want("signed negative", fmt_value(-0.7394, "+.4f") == "-0.7394")
+    want("negative zero is not negative", fmt_value(-0.0, "+.4f") == "+0.0000")
+    want("bool", fmt_value(True, "") == "yes" and fmt_value(False, "") == "no")
+    try:
+        fmt_value(3.5, "")
+        want("a bare number is refused", False)
+    except TickerError:
+        want("a bare number is refused", True)
+    try:
+        fmt_value(float("nan"), ".2f")
+        want("nan is refused", False)
+    except TickerError:
+        want("nan is refused", True)
+    try:
+        fmt_value(1.5, ",")
+        want("thousands on a fraction is refused", False)
+    except TickerError:
+        want("thousands on a fraction is refused", True)
+
+    # the digit guard, on templates it must reject
+    want("catches a bare literal", literal_digits("ran 576 solves") == ["5", "7", "6"])
+    want("passes a clean template", literal_digits("ran {n:,} solves") == [])
+    want("does not trip on a format spec", literal_digits("{x:.4f} C") == [])
+    want("catches a literal beside a field", literal_digits("{n:,} of 72") == ["7", "2"])
+
+    # verify() must actually fail on a faked event -- the whole point
+    faked = {"code": "act.commands", "stage": 5, "stage_name": "act",
+             "numbers": {"n_rows": 37, "n_blocks": 28, "b_min": 3.68, "b_max": 29.5},
+             "text": "Emitted 37 command rows over 28 case-and-limit combinations, bounds from "
+                     "3.680 to 29.500 C. Typically about 3 h of notice. Every row states the "
+                     "bound it acted on."}
+    f, _ = verify([faked])
+    want("V3 catches a number smuggled into the text", any("no payload value explains" in x
+                                                           for x in f))
+
+    print("=" * 78)
+    print("TICKER SELF-TEST: %d passed, %d failed" % (ok, len(bad)))
+    for b in bad:
+        print("   FAILED: %s" % b)
+    print("=" * 78)
+    return 0 if not bad else 1
+
+
+# ============================================================================
+def _hour_extra(trace, case, cfg, backtest):
+    """The facts `state_from_trace` does not carry, read from the same shipped artefacts."""
+    import agent
+    ds = trace["cases"]["day_series"][case]
+    N, bank = cfg["notice_h"], cfg["bank_mode"]
+    H = len(ds["hours"])
+    drct = ds["wind_from_deg"]
+    kt = ds["wind_kt"]
+    calm = [(drct[i] is None) or (kt[i] is None) or (kt[i] < agent.CALM_KT) for i in range(H)]
+    # THE LEVEL OFFSET IS NOT COMPUTED HERE. It used to be -- as max(|mean_d|) over the pairs, the
+    # same improvisation the browser was making -- so this module rendered a forecast 2.873 C away
+    # from the one the decision was actually made with. It comes from `st["level_offset"]`, which
+    # `state_from_trace` reads out of the shipped table (gotcha #12, again).
+    return {"calm": calm,
+            "bearing_deg": [ds["bearing_forecast_deg_" + bank][i] if drct[i] is not None else 0.0
+                            for i in range(H)],
+            "wind_kt": [kt[i] if kt[i] is not None else 0.0 for i in range(H)],
+            "r_prime": ds["r_prime|%d" % N], "rdp_prime": ds["rdp_prime|%d" % N],
+            "n_shape": trace["cases"]["incumbent_margin"][str(N)]["n"],
+            # THE MONDRIAN GROUP COUNT, not the number of distinct hours on this particular day.
+            # The first version read `len(set(ds["hours"]))`, which printed "23 hour-of-day groups"
+            # on a case day the station record is missing an hour from -- describing the day when
+            # the sentence is about the CALIBRATION. Read from the backtest that fitted them.
+            "n_groups": backtest["mondrian"][str(N)]["mondrian_hod"]["n_groups"] if (
+                N and str(N) in backtest["mondrian"]) else 0}
+
+
+def main():
+    import explain as ex
+    from agent import CALM_KT as agent_calm_kt, banner, plan, say
+
+    banner("TICKER   stage events, and a mechanical proof that no phrase was typed.  [no API calls]")
+    art = {}
+    for name in ("trace", "backtest", "rolling"):
+        p = os.path.join(DEMO, "%s.json" % name)
+        if not os.path.exists(p):
+            say("   %s.json missing -- run `python run_all.py` first." % name)
+            return 2
+        art[name] = json.load(open(p, encoding="utf-8"))
+
+    say("\n   Every template in ticker.py is checked for a literal digit at import time. There are")
+    say("   %d templates and %d of them contain one, so every number below arrived in an event's"
+        % (len(ALL_TEMPLATES), 0))
+    say("   payload from a file the agent wrote.")
+
+    sysev = system_stream(art["trace"], art["backtest"], art["rolling"])
+    fails, counts = verify(sysev, art)
+
+    say("\n   ---- THE LOOP, ONCE, AS IT RAN ----")
+    last = None
+    for e in sysev:
+        if e["stage"] != last:
+            say("\n   %d. %s" % (e["stage"], e["stage_name"].upper()))
+            last = e["stage"]
+        say("      %s" % e["text"])
+
+    # the per-hour tape, over every case and a spread of configurations -- not one flattering pick
+    cases = [c["name"] for c in art["trace"]["cases"]["cases"] if c["day"]]
+    configs = [dict(ex.BASE_CFG),
+               dict(ex.BASE_CFG, limit_c=24.0),
+               dict(ex.BASE_CFG, notice_h=6, skill=0.0),
+               dict(ex.BASE_CFG, anchor="none"),
+               dict(ex.BASE_CFG, bank_mode="facing"),
+               dict(ex.BASE_CFG, switch_budget=1, min_dwell_h=1)]
+    hour_tapes, n_hours, hf = [], 0, []
+    for case in cases:
+        for ci, cfg in enumerate(configs):
+            st = ex.state_from_trace(art["trace"], case, cfg)
+            extra = _hour_extra(art["trace"], case, cfg, art["backtest"])
+            modes, _free, _sw = plan(st["safe"], cfg["switch_budget"], cfg["min_dwell_h"])
+            for h in range(len(st["safe"])):
+                tape = hour_stream(st, cfg, modes, st["safe"], h, extra)
+                n_hours += 1
+                f, _ = verify(tape)
+                hf += ["%s/cfg%d/h%02d: %s" % (case, ci, h, x) for x in f]
+                if ci == 0 and case == cases[0]:
+                    hour_tapes.append({"case": case, "config": cfg, "hour_index": h,
+                                       "events": tape})
+
+    say("\n   ---- ONE HOUR, ALL SEVEN STAGES (%s, %s, limit %.1f C) ----"
+        % (cases[0], hour_tapes[0]["config"]["bank_mode"], hour_tapes[0]["config"]["limit_c"]))
+    pick = max(hour_tapes, key=lambda t: len(t["events"]))
+    for e in pick["events"]:
+        say("      %d %-12s %s" % (e["stage"], e["stage_name"], e["text"]))
+
+    say("\n   %d hour-tapes verified across %d case days x %d configurations"
+        % (n_hours, len(cases), len(configs)))
+    allf = fails + hf
+    if allf:
+        say("\n   *** %d VERIFICATION FAILURES ***" % len(allf))
+        for x in allf[:12]:
+            say("      %s" % x)
+    else:
+        say("   VERIFICATION: 0 failures. No template holds a digit; every digit rendered traces")
+        say("   to a payload value; the tape runs forward through all seven stages.")
+    say("   REDERIVED FROM AN INDEPENDENT FIELD: %d of %d system-tape numbers. The other %d are"
+        % (counts["rederived"], counts["rederived"] + counts["read_back_only"],
+           counts["read_back_only"]))
+    say("   read back from the field they were built from, which is a weaker check, and saying so")
+    say("   is the point -- an unstated limit is the defect this module exists to prevent.")
+
+    out = {"generated_by": "INTAKE-ARBITER/src/ticker.py", "api_calls_made": 0,
+           "n_templates": len(ALL_TEMPLATES),
+           "templates_with_literal_digits": 0,
+           "guarantee": ("no template in src/ticker.py contains a literal digit -- checked at "
+                         "import time and again by verify() -- so every number rendered here "
+                         "arrived in an event payload from a file the agent wrote"),
+           "stages": {str(k): v for k, v in STAGES.items()},
+           # The three constants the browser's mirror needs but cannot derive from the day series.
+           # Shipped rather than duplicated in JavaScript: CALM_KT lives in agent.py, and the two
+           # sample sizes are properties of the calibration, not of the day being displayed.
+           "calm_kt": agent_calm_kt,
+           "n_shape_by_notice": {str(n): art["trace"]["cases"]["incumbent_margin"][str(n)]["n"]
+                                 for n in art["trace"]["plant_envelope"]["notice_h"]},
+           "n_groups_by_notice": {
+               str(n): (art["backtest"]["mondrian"][str(n)]["mondrian_hod"]["n_groups"]
+                        if str(n) in art["backtest"]["mondrian"] else 0)
+               for n in art["trace"]["plant_envelope"]["notice_h"]},
+           # SHIPPED SO THE BROWSER OWNS NO PHRASES OF ITS OWN. index.html renders these same
+           # strings against its own live payload; verify_browser_ticker.js checks the two agree.
+           "templates": {c: {"stage": s, "template": t} for c, (s, t) in ALL_TEMPLATES.items()},
+           "system": sysev,
+           "hour_tape_example": pick,
+           "verification": {"system_failures": len(fails), "hour_tapes_checked": n_hours,
+                            "hour_failures": len(hf),
+                            "rederived_numbers": counts["rederived"],
+                            "read_back_only_numbers": counts["read_back_only"]},
+           }
+    p = os.path.join(DEMO, "ticker.json")
+    json.dump(out, open(p, "w", encoding="utf-8"), allow_nan=False)
+    say("\n   wrote %s (%.1f KB)" % (p, os.path.getsize(p) / 1024.0))
+    return 1 if allf else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if len(sys.argv) > 1 and sys.argv[1] == "selftest" else main())

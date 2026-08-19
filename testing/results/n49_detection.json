@@ -1,0 +1,111 @@
+{
+ "measures": "detection delay for an injected step fault, at matched false-alarm rate, for three detectors isolating (A) the incumbent, (B) the value of removing weather with FortyGuard, (C) the value of a sequential decision",
+ "does_not_measure": "field performance -- faults are INJECTED and there is no real intake sensor; a step fault is easier than real gradual fouling, so this is an UPPER bound; one site layout; nothing in energy or money",
+ "why_this_escapes_the_root_cause": "a diagnostic is a hindcast on OBSERVED wind (5 deg sd), not a forecast (47-72 deg), which is what killed N-25/40/43/44/45/46/48",
+ "inputs": {
+  "n_real_dirs": 449,
+  "n_real_ambient": 534,
+  "ambient_span_c": [
+   17.78,
+   37.22
+  ],
+  "obs_dir_err_deg": 5.0
+ },
+ "calibration": {
+  "target_far": 0.05,
+  "thr_A": 37.553810670035226,
+  "thr_B": 0.39874162446884753,
+  "cusum_k": 0.0,
+  "cusum_h": 0.9941881440367023
+ },
+ "held_out_far": {
+  "A": 0.042,
+  "B": 0.0485,
+  "C": 0.0535
+ },
+ "window_days": 120,
+ "n_train_runs": 4000,
+ "n_test_runs": 2000,
+ "by_fault": {
+  "0.1": {
+   "fault_c": 0.1,
+   "delay_A": 113.118,
+   "delay_B": 107.8205,
+   "delay_C": 7.792,
+   "miss_A": 0.9265,
+   "miss_B": 0.863,
+   "miss_C": 0.0,
+   "B_vs_A_gain_days": 5.2975,
+   "B_vs_A_se": 0.8876386923174595,
+   "B_vs_A_sigma": 5.968081434315592,
+   "C_vs_B_gain_days": 100.0285,
+   "C_vs_B_se": 0.7077399181697224,
+   "C_vs_B_sigma": 141.335111150269,
+   "C_off_modal_fraction": 0.8029999999999999,
+   "C_modal_delay": 9
+  },
+  "0.25": {
+   "fault_c": 0.25,
+   "delay_A": 110.1445,
+   "delay_B": 57.4795,
+   "delay_C": 2.668,
+   "miss_A": 0.8935,
+   "miss_B": 0.323,
+   "miss_C": 0.0,
+   "B_vs_A_gain_days": 52.665,
+   "B_vs_A_se": 1.2060668248870154,
+   "B_vs_A_sigma": 43.666734639628004,
+   "C_vs_B_gain_days": 54.8115,
+   "C_vs_B_se": 1.0412156591693429,
+   "C_vs_B_sigma": 52.641832186549436,
+   "C_off_modal_fraction": 0.47950000000000004,
+   "C_modal_delay": 3
+  },
+  "0.5": {
+   "fault_c": 0.5,
+   "delay_A": 79.6925,
+   "delay_B": 0.032,
+   "delay_C": 1.0,
+   "miss_A": 0.552,
+   "miss_B": 0.0,
+   "miss_C": 0.0,
+   "B_vs_A_gain_days": 79.6605,
+   "B_vs_A_se": 1.053287865466402,
+   "B_vs_A_sigma": 75.6303215975301,
+   "C_vs_B_gain_days": -0.968,
+   "C_vs_B_se": 0.009194034214237312,
+   "C_vs_B_sigma": -105.28566431708674,
+   "C_off_modal_fraction": 0.17100000000000004,
+   "C_modal_delay": 1
+  },
+  "1.0": {
+   "fault_c": 1.0,
+   "delay_A": 63.6695,
+   "delay_B": 0.0,
+   "delay_C": 0.046,
+   "miss_A": 0.389,
+   "miss_B": 0.0,
+   "miss_C": 0.0,
+   "B_vs_A_gain_days": 63.6695,
+   "B_vs_A_se": 1.0692269441068167,
+   "B_vs_A_sigma": 59.54722741595947,
+   "C_vs_B_gain_days": -0.046,
+   "C_vs_B_se": 0.00468540035517181,
+   "C_vs_B_sigma": -9.817730932901938,
+   "C_off_modal_fraction": 0.04600000000000004,
+   "C_modal_delay": 0
+  }
+ },
+ "conditions": {
+  "p1_fault_c": 0.5,
+  "p2_fault_c": 0.25,
+  "min_sigma": 2.0,
+  "p3_min_off_modal": 0.25,
+  "p4_far_tol": 0.02
+ },
+ "p1": true,
+ "p2": true,
+ "p3": true,
+ "p4": true,
+ "gate_passed": true
+}
