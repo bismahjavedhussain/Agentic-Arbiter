@@ -1,0 +1,33 @@
+# WHY THIS FILE EXISTS, AND WHY IT IS NOT COSMETIC
+#
+# Committing the first PDF produced this warning:
+#     warning: in the working copy of 'INTAKE-ARBITER/demo/report.pdf',
+#              LF will be replaced by CRLF the next time Git touches it
+#
+# The blob that went in was byte-identical, so nothing looked wrong. But that warning is about the
+# NEXT checkout: with core.autocrlf active on Windows, git would rewrite every 0x0A inside the PDF
+# to 0x0D 0x0A on clone. A PDF carries a byte-offset xref table, so shifting bytes invalidates every
+# offset in it -- the file opens to an error, or not at all.
+#
+# The failure mode is the worst kind for a submission: it works perfectly in this working tree and
+# breaks for a judge who clones the repository. Same for the screening imagery, which is the
+# evidence behind "five sites screened, two refused".
+#
+# `-text` means: never do end-of-line conversion on these. `binary` is shorthand for `-text -diff`.
+
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.npy   binary
+*.npz   binary
+*.xlsx  binary
+
+# Source and data stay text so diffs remain readable; git normalises them in the repository and
+# checks them out with the platform's own endings, which is what it is for.
+*.py    text
+*.js    text
+*.json  text
+*.html  text
+*.md    text
+*.css   text
