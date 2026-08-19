@@ -782,7 +782,7 @@ higher the limit would need to be, that it is one of the 43.7 %, and the annual 
 
 ---
 
-# 9. NEXT STEPS — four sessions remain, in this order
+# 9. NEXT STEPS — ONE SESSION REMAINS, and it is the one that can disqualify the entry
 
 **DONE:** Sessions 1–3 (plume uncertainty, explain, audit) · **4** (UI pass + the invented-constant
 fix) · **0** (collector hardening) · **A** (present tense + churn) · **C** (annual headline + the
@@ -792,13 +792,33 @@ sourced, §6.12).
 
 **Order confirmed by the user 2026-08-20: D → F → G → H as written.**
 
-| # | Session | First action | Exit criterion |
-|---|---|---|---|
+## 9.1 SESSION H — the whole remaining risk, broken into what is blocked and what is not
 
-| **H** | **Submission — HIGHEST RISK** | Downloadable free-cooling report (CSV/PDF), README, API-usage doc, video, public repo | **Public GitHub repo + `fortyguard` collaborator + live demo link + 2–5 min video.** Full-tree key scan clean; branch renamed `main`; fixture-publication decision made |
+**Deadline Aug 30 23:59 GST. As of 2026-08-20 the code is done and NONE of the submission
+requirements exist.** Three of five requirements are met (working demo, documentation, API usage
+partly recorded); **the public repo, the collaborator, the live link and the video are not.**
+
+| # | Item | Blocked on | Notes |
+|---|---|---|---|
+| H1 | **Public GitHub repo** | 🔴 **USER — rule 11** | `gh` is NOT installed and no remote is configured. Branch must be renamed `master` → `main`. **Re-run the full-tree key scan first** — the exact script is in §12.1 and it currently reports 0 hits outside the two gitignored `.env` files |
+| H2 | **`fortyguard` as collaborator** | 🔴 **USER** — needs H1 | A hard submission requirement |
+| H3 | **Live demo link** | 🔴 **USER** — needs H1 | GitHub Pages serves `demo/` as static files with no build step, which is exactly what this demo is. **The only networked panel is the map, and it already fails soft** |
+| H4 | **2–5 minute video** | 🔴 **USER** | Nothing here can record one |
+| H5 | **Downloadable report (CSV/PDF)** | ✅ **not blocked** | Every number already exists in `demo/*.json`. A `src/report.py` writing a per-site CSV + a printable HTML is a self-contained job |
+| H6 | **API-usage document** | ✅ **not blocked** | `fortyguard-api-findings.md` is 64 KB of it already; needs a short front section stating: **10 paid calls, 42,200 credits, 2.11 %**, which endpoints, and the outage report |
+| H7 | **Repo-size decision** | ✅ **not blocked** | **194 MB**, of which `data/imagery/` is ~50 MB of screening PNGs and `scenarios.json` is 28.8 MB. Under every GitHub limit. **Decide deliberately whether the imagery ships** — it is the evidence behind "five screened, two refused", which is the single most credible thing in the project |
+
+**H5, H6 and H7 can be done without lifting rule 11, so do those first.** H1–H4 are the user's.
+
+⚠ **A judge will open the demo before reading anything.** `demo/README.md` must say
+`python -m http.server` in its first line, because **`file://` blocks `fetch()` and the page will
+show nothing but a red error.**
 
 **Also outstanding, cheap, and worth doing:**
-- **`PLAN.md` is not updated for Sessions A, B or E.** It is the citation-bearing design record.
+- 🔴 **`PLAN.md` is not updated for Sessions A, B, E, D, F or G.** It is the **citation-bearing
+  design record** and rule 5 attaches to it, so this is the largest documentation debt in the
+  project. Session G's citations are in **`money-sources.md`** instead, which is complete and
+  standalone — but PLAN.md does not yet reference it.
 - The **diag62 outcome leg** (one call, ~4,220) would give a **5th measured level offset** —
   strengthening the n=4 level term `backtest.py` rotates across 1,826 days. **NOT** a 5th coverage
   pair: its window is 19:00 and the series fixes 14:00 (§10 #70).
