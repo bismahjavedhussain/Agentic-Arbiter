@@ -65,6 +65,9 @@ CHAIN = [
     ("money, priced in this state's tariff", ["money.py"]),
     ("stage 7 explain, verified", ["explain.py"]),
     ("stage events", ["ticker.py"]),
+    # Last: the PDF quotes the explanation, the ladder, the rolling summary and the money table,
+    # so every one of them has to exist first.
+    ("downloadable PDF report", ["report.py"]),
 ]
 
 

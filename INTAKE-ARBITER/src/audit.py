@@ -809,6 +809,7 @@ def check_self_tests():
         run([sys.executable, f], HERE, "%-22s self-test" % f)
     run([sys.executable, "ticker.py", "selftest"], HERE, "%-22s self-test" % "ticker.py")
     run([sys.executable, "money.py", "selftest"], HERE, "%-22s self-test" % "money.py")
+    run([sys.executable, "report.py", "selftest"], HERE, "%-22s self-test" % "report.py")
 
 
 def check_cross_language():

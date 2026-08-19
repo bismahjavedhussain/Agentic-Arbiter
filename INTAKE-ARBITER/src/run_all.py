@@ -64,6 +64,7 @@ STEPS = [
     # names the audited chain reads); this step builds every other offerable site on its own
     # weather, geometry and bound. Without it the site picker offers three sites and only one of
     # them has any data, which is how it shipped for two sessions.
+    ("downloadable PDF report for ashburn", [sys.executable, "report.py", "ashburn"], HERE),
     ("every other offerable site, on its own data",
      [sys.executable, "build_sites.py", "chicago", "dulles"], HERE),
     ("site manifest again: now with per-site artefact filenames",

@@ -52,7 +52,8 @@
     "money": "money.json",
     "explanations": "explanations.json",
     "ticker": "ticker.json",
-    "scenarios": "scenarios.json"
+    "scenarios": "scenarios.json",
+    "report": "report.pdf"
    },
    "has_own_fortyguard_field": true,
    "verdicts": [
@@ -126,7 +127,8 @@
     "money": "chicago_money.json",
     "explanations": "chicago_explanations.json",
     "ticker": "chicago_ticker.json",
-    "scenarios": "chicago_scenarios.json"
+    "scenarios": "chicago_scenarios.json",
+    "report": "chicago_report.pdf"
    },
    "has_own_fortyguard_field": false,
    "verdicts": [
@@ -190,7 +192,8 @@
     "money": "dulles_money.json",
     "explanations": "dulles_explanations.json",
     "ticker": "dulles_ticker.json",
-    "scenarios": "dulles_scenarios.json"
+    "scenarios": "dulles_scenarios.json",
+    "report": "dulles_report.pdf"
    },
    "has_own_fortyguard_field": false,
    "verdicts": [

@@ -383,10 +383,12 @@ def export_manifest():
         # would report "not loaded" for a site the picker had already offered.
         artefacts = {}
         for nm in ("trace.json", "backtest.json", "rolling.json", "money.json",
-                   "explanations.json", "ticker.json", "scenarios.json"):
+                   "explanations.json", "ticker.json", "scenarios.json", "report.pdf"):
             fp = demo_path(nm, k)
             if os.path.exists(fp):
-                artefacts[nm.replace(".json", "")] = os.path.basename(fp)
+                # strip ANY extension, not just .json -- "report.pdf" was becoming the key
+                # "report.pdf", so the page looked up `artefacts["report"]` and got nothing
+                artefacts[os.path.splitext(nm)[0]] = os.path.basename(fp)
         # 🔴 SCOPE IS A SEPARATE GATE FROM DATA, AND THE MANIFEST CAUGHT ME CONFLATING THEM.
         # `readiness().offerable` asks only whether the DATA exists: own geometry, a
         # data-centre-to-data-centre pair, a >= 95 % station record. Phoenix and Santa Clara pass all
