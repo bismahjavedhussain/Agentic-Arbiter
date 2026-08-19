@@ -1,0 +1,51 @@
+{
+ "test": "chicago field, one paid call",
+ "authorised_by_user": "2026-08-19",
+ "api_calls_made": 1,
+ "metro": "chicago",
+ "pair": [
+  863162820,
+  377032061
+ ],
+ "names": [
+  "Stream Chicago II",
+  "Equinix Chicago CH3"
+ ],
+ "aoi_centre": [
+  42.000191,
+  -87.956603
+ ],
+ "side_km": 8.0,
+ "tz_used": "America/Chicago",
+ "tz_note": "explicit, because common.SITE_TZ_NAME is hard-coded to America/New_York and the endpoint reads start_time in the AOI's own zone (gotcha #1)",
+ "window_site": [
+  "2026-08-18T14:00:00-05:00",
+  "2026-08-18T16:00:00-05:00"
+ ],
+ "window_elapsed_h_before_call": 20.89,
+ "granularity": 60,
+ "analytic_type": "tcm",
+ "date_time": {
+  "start_date": "2026-08-18",
+  "start_time": "14:00",
+  "end_time": "16:00",
+  "filter_type": 2
+ },
+ "activity_id": "9a47a9f3-23bc-414e-ae04-334a0a08a2a9",
+ "elapsed_s": 41.7,
+ "empty_completed_polls": 0,
+ "tiles_returned": 17797,
+ "fortyguard_stats_tile_averages": {
+  "minimum": 28.0598,
+  "maximum": 30.2801,
+  "mean": 29.103385514412537,
+  "standard_deviation": 0.413776859817556
+ },
+ "error": null,
+ "credits_before": 1962020,
+ "credits_after": 1957800,
+ "credits_spent": 4220,
+ "buys": "spatial field + screen-zero visual for chicago",
+ "does_not_buy": "a level-offset measurement -- that needs a forecast leg AND its elapsed outcome, i.e. two calls",
+ "verdict": "OK"
+}

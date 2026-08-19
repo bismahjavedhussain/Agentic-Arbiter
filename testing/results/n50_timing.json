@@ -1,0 +1,298 @@
+{
+ "measures": "whether the TIMING of a setpoint commitment is a genuine sequential decision once ambient varies and its measured sharpening is present",
+ "does_not_measure": "FortyGuard forecast skill (persistence is a LOWER bound); field performance; anything in energy or money (P5 -- C->kWh unsourced); absolute margin-hours are not physically calibrated because W is a modelling choice that cancels from comparisons",
+ "why_not_a_repeat_of_n44": "N-44 froze AMB at 30.0 and scored recirculation rise only, deleting the sharpening term; and its hours_run made late commitment cheap twice over. Both fixed here.",
+ "inputs": {
+  "n_dirs": 449,
+  "n_ambient": 534,
+  "peak_centre_h": 12.0,
+  "peak_sd_h": 1.4475,
+  "lead_h": 3,
+  "decision_hours": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9
+  ],
+  "w_window": 1.0
+ },
+ "p0_sd_check": {
+  "amb_generated": {
+   "12": 4.04748203592697,
+   "11": 4.151410027964001,
+   "10": 3.842533391352594,
+   "9": 3.1187388418212616,
+   "8": 2.7740473784372273,
+   "7": 2.659601921974573,
+   "6": 2.6295457567984575,
+   "5": 2.6263151243059237,
+   "4": 2.5171004854422185,
+   "3": 2.432439044318702
+  },
+  "dir_generated": {
+   "12": 72.39129868313773,
+   "11": 67.25715296461951,
+   "10": 67.93395859717488,
+   "9": 68.50789974033438,
+   "8": 64.0815463776159,
+   "7": 63.1559303857185,
+   "6": 65.57493894891964,
+   "5": 61.68922623852951,
+   "4": 55.21728289976526,
+   "3": 51.692823783942096
+  }
+ },
+ "conformal_q_by_hour": [
+  4.54629724059658,
+  4.789378988689791,
+  4.318907362283262,
+  3.253547862969789,
+  2.726506863512924,
+  2.486051352556384,
+  2.2156601216830722,
+  2.13887755600258,
+  1.9186735023144728,
+  1.7513320825515954
+ ],
+ "r_grid": [
+  1.0,
+  3.0,
+  10.0,
+  30.0,
+  100.0,
+  300.0,
+  1000.0,
+  3000.0,
+  10000.0
+ ],
+ "rows": {
+  "1.0": {
+   "R": 1.0,
+   "fixed_hour": 6,
+   "fixed_margin": 2.799999999999999,
+   "cost_fixed": 0.68875,
+   "cost_dp": 0.68875,
+   "cost_clairvoyant": 0.68875,
+   "gain": 0.0,
+   "se": 0.0,
+   "sigma": Infinity,
+   "off_modal": 0.0,
+   "modal_hour": null,
+   "n_fired": 0,
+   "commit_rate": 0.0,
+   "p1_clairvoyant_ok": true,
+   "spearman_hour_vs_spread": 0.0,
+   "spearman_ci": [
+    0,
+    0
+   ]
+  },
+  "3.0": {
+   "R": 3.0,
+   "fixed_hour": 6,
+   "fixed_margin": 2.799999999999999,
+   "cost_fixed": 2.06625,
+   "cost_dp": 2.1389251678689916,
+   "cost_clairvoyant": 1.407843597016701,
+   "gain": -0.07267516786899127,
+   "se": 0.01667927004129544,
+   "sigma": -4.357215135258207,
+   "off_modal": 0.44001991040318567,
+   "modal_hour": 9,
+   "n_fired": 2009,
+   "commit_rate": 0.50225,
+   "p1_clairvoyant_ok": true,
+   "spearman_hour_vs_spread": 0.0,
+   "spearman_ci": [
+    0.0,
+    0.0
+   ]
+  },
+  "10.0": {
+   "R": 10.0,
+   "fixed_hour": 6,
+   "fixed_margin": -1.0,
+   "cost_fixed": 3.4149620736429434,
+   "cost_dp": 2.7128311407290795,
+   "cost_clairvoyant": 1.40806013536469,
+   "gain": 0.702130932913864,
+   "se": 0.05162864007373743,
+   "sigma": 13.59964027545683,
+   "off_modal": 0.5070836674685912,
+   "modal_hour": 6,
+   "n_fired": 3741,
+   "commit_rate": 0.93525,
+   "p1_clairvoyant_ok": true,
+   "spearman_hour_vs_spread": 0.1331335858919411,
+   "spearman_ci": [
+    0.09318988852283543,
+    0.15506872962382504
+   ]
+  },
+  "30.0": {
+   "R": 30.0,
+   "fixed_hour": 6,
+   "fixed_margin": -1.0,
+   "cost_fixed": 5.514962073642943,
+   "cost_dp": 3.224417789896268,
+   "cost_clairvoyant": 1.40806013536469,
+   "gain": 2.290544283746675,
+   "se": 0.14464705956566298,
+   "sigma": 15.83540163640088,
+   "off_modal": 0.32496765847347997,
+   "modal_hour": 6,
+   "n_fired": 3865,
+   "commit_rate": 0.96625,
+   "p1_clairvoyant_ok": true,
+   "spearman_hour_vs_spread": 0.07408738425173703,
+   "spearman_ci": [
+    0.056650482345196804,
+    0.11271188674562801
+   ]
+  },
+  "100.0": {
+   "R": 100.0,
+   "fixed_hour": 5,
+   "fixed_margin": -1.0,
+   "cost_fixed": 12.732765127768241,
+   "cost_dp": 4.240456471423913,
+   "cost_clairvoyant": 1.40806013536469,
+   "gain": 8.492308656344328,
+   "se": 0.5188642334260698,
+   "sigma": 16.367111296667073,
+   "off_modal": 0.08845271475911287,
+   "modal_hour": 6,
+   "n_fired": 3923,
+   "commit_rate": 0.98075,
+   "p1_clairvoyant_ok": true,
+   "spearman_hour_vs_spread": 0.022134237879510243,
+   "spearman_ci": [
+    -0.03867935381525757,
+    0.027246027673454618
+   ]
+  },
+  "300.0": {
+   "R": 300.0,
+   "fixed_hour": 4,
+   "fixed_margin": -1.0,
+   "cost_fixed": 31.74660130470882,
+   "cost_dp": 5.1292935525419745,
+   "cost_clairvoyant": 1.40806013536469,
+   "gain": 26.617307752166845,
+   "se": 1.4658702326114164,
+   "sigma": 18.15802460545821,
+   "off_modal": 0.470736629667003,
+   "modal_hour": 5,
+   "n_fired": 3964,
+   "commit_rate": 0.991,
+   "p1_clairvoyant_ok": true,
+   "spearman_hour_vs_spread": 0.09474591000201717,
+   "spearman_ci": [
+    0.06382928467855649,
+    0.12360069896417476
+   ]
+  },
+  "1000.0": {
+   "R": 1000.0,
+   "fixed_hour": 4,
+   "fixed_margin": -1.0,
+   "cost_fixed": 99.12160130470883,
+   "cost_dp": 5.102319978520252,
+   "cost_clairvoyant": 1.40806013536469,
+   "gain": 94.01928132618858,
+   "se": 4.729284174822869,
+   "sigma": 19.88023511607018,
+   "off_modal": 0.09999999999999998,
+   "modal_hour": 5,
+   "n_fired": 3990,
+   "commit_rate": 0.9975,
+   "p1_clairvoyant_ok": true,
+   "spearman_hour_vs_spread": 0.022911258041837648,
+   "spearman_ci": [
+    -0.03500511776344807,
+    0.023611801655555757
+   ]
+  },
+  "3000.0": {
+   "R": 3000.0,
+   "fixed_hour": 4,
+   "fixed_margin": -1.0,
+   "cost_fixed": 291.62160130470886,
+   "cost_dp": 5.696912709933148,
+   "cost_clairvoyant": 1.40806013536469,
+   "gain": 285.9246885947757,
+   "se": 14.047365445728701,
+   "sigma": 20.354328340031557,
+   "off_modal": 0.4512012012012012,
+   "modal_hour": 4,
+   "n_fired": 3996,
+   "commit_rate": 0.999,
+   "p1_clairvoyant_ok": true,
+   "spearman_hour_vs_spread": 0.1104960911071439,
+   "spearman_ci": [
+    0.09143356831706323,
+    0.1495220241557607
+   ]
+  },
+  "10000.0": {
+   "R": 10000.0,
+   "fixed_hour": 4,
+   "fixed_margin": -1.0,
+   "cost_fixed": 965.3716013047087,
+   "cost_dp": 5.348703105158247,
+   "cost_clairvoyant": 1.40806013536469,
+   "gain": 960.0228981995506,
+   "se": 46.58586088268539,
+   "sigma": 20.60760239286172,
+   "off_modal": 0.0960240060015004,
+   "modal_hour": 4,
+   "n_fired": 3999,
+   "commit_rate": 0.99975,
+   "p1_clairvoyant_ok": true,
+   "spearman_hour_vs_spread": 0.017447877914951473,
+   "spearman_ci": [
+    -0.03284707226550259,
+    0.026152849568069854
+   ]
+  }
+ },
+ "winning_band": [
+  10.0,
+  30.0,
+  100.0,
+  300.0,
+  1000.0,
+  3000.0,
+  10000.0
+ ],
+ "all_winning_r": [
+  1.0,
+  10.0,
+  30.0,
+  100.0,
+  300.0,
+  1000.0,
+  3000.0,
+  10000.0
+ ],
+ "spearman_band_mean": 0.06785090644130551,
+ "conditions": {
+  "p0_tol": 0.05,
+  "p2_min_sigma": 2.0,
+  "p2_min_band": 3,
+  "p3_min_off_modal": 0.25,
+  "p4_min_abs_rho": 0.15
+ },
+ "p0": true,
+ "p1": true,
+ "p2": true,
+ "p3": false,
+ "p4": false,
+ "pass": false
+}

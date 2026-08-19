@@ -81,6 +81,17 @@ ALPHA = 0.10                   # nominal 90 % one-sided coverage
 MIN_LEAD_H = 6.0
 MAX_LEAD_H = 11.5
 LEAD_SPREAD_WARN_H = 3.0
+
+# ---- RETRY BUDGET, added 2026-08-19 after a vendor outage cost two whole day-pairs.
+# The collector fires from a scheduled task and had exactly ONE attempt per day. A single transient
+# failure therefore lost a pair permanently, because by the time anyone noticed, the lead had fallen
+# below the comparability floor. Extra triggers now fire a few minutes apart (see HANDOFF section 4.2).
+#
+# They cost NOTHING when the first attempt succeeds -- `forecast_done` and `outcome_done` both
+# short-circuit before any call. They only spend after a failure, which is exactly when we want them.
+# This cap bounds the downside: during a multi-day outage the retries would otherwise burn
+# 3 x 4,220 per day forever. Three attempts is enough to clear a glitch and cheap enough to ignore.
+MAX_FORECAST_ATTEMPTS_PER_DAY = 3
 MANIFEST = os.path.join(RESULTS, "n26_manifest.json")
 
 MIN_COVERAGE = 0.85            # P1
@@ -184,13 +195,22 @@ def collect():
             print("      flatter the result. Today is skipped deliberately -- run earlier tomorrow.")
             day["forecast_error"] = "lead %.2f h below comparability floor %.1f h" % (lead,
                                                                                       MIN_LEAD_H)
+        elif day.get("forecast_attempts", 0) >= MAX_FORECAST_ATTEMPTS_PER_DAY:
+            print("      SKIP: %d attempts already made today and all failed (%s)."
+                  % (day.get("forecast_attempts"), day.get("forecast_error")))
+            print("      The retry budget is spent. Not burning another 4,220 on the same day --")
+            print("      a repeated zero-tile answer is a vendor-side condition, not something a")
+            print("      fourth identical request will fix. See HANDOFF gotcha #59.")
         else:
             tag = "n26_f_%s" % key_today
+            day["forecast_attempts"] = day.get("forecast_attempts", 0) + 1
+            write_manifest(m)          # record the attempt BEFORE the call, so a crash still counts
             d, n = call_window(key, aoi, w, tag)
             if d is None:
                 day["forecast_error"] = n
                 m["errors"][tag] = n
-                print("      FAILED: %s" % n)
+                print("      FAILED (attempt %d of %d): %s"
+                      % (day["forecast_attempts"], MAX_FORECAST_ATTEMPTS_PER_DAY, n))
             else:
                 day.update({"forecast_tag": tag, "forecast_lead_h": round(lead, 3),
                             "forecast_done": True, "forecast_n": n,
@@ -244,6 +264,98 @@ def collect():
           % (format(after, ","), format(before - after, ",")))
     print("   run this again tomorrow at about the same time (site window must be < %.0f h ahead)"
           % HORIZON_H)
+    return 0
+
+
+# ----------------------------------------------------------------- dry run
+def dryrun():
+    """Say exactly what `collect` would do RIGHT NOW, and make ZERO API calls.
+
+    WHY THIS EXISTS. The collector is on a scheduled task and its correctness depends entirely on
+    the lead that the firing time produces -- a quantity nobody could inspect without spending
+    4,220 credits to watch it happen. Two whole day-pairs were already lost to a vendor outage, and
+    a third would have been lost silently if the schedule had ever drifted out of the 6.0-11.5 h
+    comparability band, because an out-of-band run SKIPS by design and looks like a clean exit.
+
+    This reads the manifest, computes the window and the true lead through the same
+    site_window()/lead_hours() helpers the real path uses, and prints the decision. It touches no
+    endpoint and needs no key, so it can be run as often as you like.
+    """
+    banner("N-26 dry run   what collect() would do right now.  ZERO API CALLS, no key read.")
+    m = load_manifest()
+    today = site_now().date()
+    sn = site_now()
+    print("   machine local        : %s" % datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    print("   UTC                  : %s" % utc_now().strftime("%Y-%m-%d %H:%M:%S"))
+    print("   site local (%s) : %s" % (SITE_TZ_NAME, sn.strftime("%Y-%m-%d %H:%M:%S %z")))
+
+    w = window_for(today)
+    lead = lead_hours(w["_start_utc"])
+    day = m["days"].get(today.isoformat(), {})
+    print("\n   TODAY'S FORECAST TARGET  %s %s-%s site-local  (fixed hour %d for comparability)"
+          % (w["start_date"], w["start_time"], w["end_time"], TARGET_HOUR_SITE))
+    print("   window start (UTC)   : %s" % w["_start_utc"].strftime("%Y-%m-%d %H:%M"))
+    print("   LEAD RIGHT NOW       : %.2f h        band %.1f-%.1f h" % (lead, MIN_LEAD_H, MAX_LEAD_H))
+
+    if day.get("forecast_done"):
+        act = "NO CALL -- today's forecast is already recorded (%s)" % day.get("forecast_tag")
+    elif lead <= 0:
+        act = "SKIP -- the window has already started; nothing left to forecast"
+    elif lead > MAX_LEAD_H:
+        act = ("SKIP -- lead is %.2f h above the ceiling; re-run in %.1f h"
+               % (lead - MAX_LEAD_H, lead - MAX_LEAD_H))
+    elif lead < MIN_LEAD_H:
+        act = ("SKIP -- lead is %.2f h below the %.1f h floor. A short-lead forecast is far more "
+               "accurate, so recording it would FLATTER coverage" % (MIN_LEAD_H - lead, MIN_LEAD_H))
+    else:
+        act = "WOULD CALL -- one paid forecast, 4,220 credits, tag n26_f_%s" % today.isoformat()
+    print("   ACTION               : %s" % act)
+
+    # ---- the window of firing times that WOULD be in band today ------------
+    lo = w["_start_utc"] - timedelta(hours=MAX_LEAD_H)
+    hi = w["_start_utc"] - timedelta(hours=MIN_LEAD_H)
+    off_h = round((datetime.now().replace(tzinfo=timezone.utc) - utc_now()).total_seconds() / 3600)
+    print("\n   ANY RUN INSIDE THIS WINDOW LANDS IN BAND TODAY:")
+    print("      %s to %s UTC" % (lo.strftime("%H:%M"), hi.strftime("%H:%M")))
+    print("      %s to %s machine-local (UTC%+d)"
+          % ((lo + timedelta(hours=off_h)).strftime("%H:%M"),
+             (hi + timedelta(hours=off_h)).strftime("%H:%M"), off_h))
+    print("      -> that is a %.1f h window, so more than one scheduled trigger fits. A second and"
+          % ((hi - lo).total_seconds() / 3600))
+    print("         third trigger cost NOTHING when the first succeeds, because `forecast_done`")
+    print("         and `outcome_done` both short-circuit. They only spend after a failure.")
+
+    # ---- pending outcome legs ---------------------------------------------
+    pend = []
+    for dk in sorted(m["days"]):
+        d = m["days"][dk]
+        if d.get("outcome_done") or not d.get("forecast_done"):
+            continue
+        wd = window_for(datetime.fromisoformat(dk).date())
+        pend.append((dk, utc_now() >= wd["_end_utc"] + timedelta(minutes=15)))
+    print("\n   PENDING OUTCOME LEGS : %s"
+          % (", ".join("%s%s" % (k, " (ready)" if r else " (window not finished)")
+                       for k, r in pend) if pend else "none -- no outcome debt"))
+
+    done = sum(1 for d in m["days"].values()
+               if d.get("forecast_done") and d.get("outcome_done"))
+    # THE CEILING IS SET BY THE CALIBRATION SET, AND THE OFF-BY-ONE MATTERS.
+    # With n calibration residuals the largest attainable one-sided quantile is the maximum, which
+    # covers at most n/(n+1). So a 90 % bound needs n = 9 CALIBRATION days -- and scoring it needs a
+    # test day that is not one of them, hence 10 PAIRS, not 9. The first version of this line said 9
+    # and would have had us stop one pair short of the claim, at 8/9 = 88.9 %.
+    ncal_needed = 1
+    while ncal_needed / (ncal_needed + 1.0) < (1.0 - ALPHA):
+        ncal_needed += 1
+    pairs_needed = ncal_needed + 1
+    print("\n   COMPLETE DAY-PAIRS   : %d   (n calibration days cap attainable coverage at"
+          " n/(n+1) = %.1f %%)" % (done, 100.0 * done / (done + 1)))
+    print("   FOR A %.0f %% BOUND      : %d calibration days -> %d PAIRS total  (%d more needed)"
+          % (100 * (1 - ALPHA), ncal_needed, pairs_needed, max(0, pairs_needed - done)))
+    if m.get("errors"):
+        print("\n   RECORDED FAILURES (kept so a recurrence is visible, not silently retried):")
+        for k, v in m["errors"].items():
+            print("      %-24s %s" % (k, v[:64]))
     return 0
 
 
@@ -397,4 +509,5 @@ def report():
 
 if __name__ == "__main__":
     mode = (sys.argv[1] if len(sys.argv) > 1 else "collect").lower()
-    sys.exit({"collect": collect, "report": report}.get(mode, collect)())
+    sys.exit({"collect": collect, "report": report, "dryrun": dryrun,
+              "dry": dryrun}.get(mode, collect)())

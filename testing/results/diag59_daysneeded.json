@@ -1,0 +1,148 @@
+{
+ "test": "DIAG-59 coverage vs calibration days",
+ "measured_offsets_c": [
+  1.0907,
+  0.8009,
+  -0.1948,
+  3.6391
+ ],
+ "n_days_behind_offset_estimate": 4,
+ "caveat": "the offset distribution is estimated from FOUR days; the spread across three distributional assumptions is reported as the real uncertainty",
+ "arithmetic_ceiling": {
+  "3": 0.75,
+  "4": 0.8,
+  "5": 0.8333333333333334,
+  "6": 0.8571428571428571,
+  "7": 0.875,
+  "8": 0.8888888888888888,
+  "9": 0.9,
+  "10": 0.9090909090909091,
+  "12": 0.9230769230769231,
+  "14": 0.9333333333333333,
+  "16": 0.9411764705882353,
+  "19": 0.9,
+  "25": 0.9230769230769231,
+  "30": 0.9032258064516129,
+  "40": 0.9024390243902439
+ },
+ "unanchored_coverage": {
+  "3": {
+   "ceiling": 0.75,
+   "bootstrap": 0.85895,
+   "normal": 0.75375,
+   "heavy": 0.75205,
+   "worst": 0.75205
+  },
+  "4": {
+   "ceiling": 0.8,
+   "bootstrap": 0.90405,
+   "normal": 0.7956,
+   "heavy": 0.80595,
+   "worst": 0.7956
+  },
+  "5": {
+   "ceiling": 0.8333333333333334,
+   "bootstrap": 0.9343,
+   "normal": 0.8353,
+   "heavy": 0.8334,
+   "worst": 0.8334
+  },
+  "6": {
+   "ceiling": 0.8571428571428571,
+   "bootstrap": 0.95355,
+   "normal": 0.85725,
+   "heavy": 0.85565,
+   "worst": 0.85565
+  },
+  "7": {
+   "ceiling": 0.875,
+   "bootstrap": 0.96605,
+   "normal": 0.87425,
+   "heavy": 0.874,
+   "worst": 0.874
+  },
+  "8": {
+   "ceiling": 0.8888888888888888,
+   "bootstrap": 0.9746,
+   "normal": 0.88585,
+   "heavy": 0.88945,
+   "worst": 0.88585
+  },
+  "9": {
+   "ceiling": 0.9,
+   "bootstrap": 0.9803,
+   "normal": 0.89845,
+   "heavy": 0.897,
+   "worst": 0.897
+  },
+  "10": {
+   "ceiling": 0.9090909090909091,
+   "bootstrap": 0.986,
+   "normal": 0.90855,
+   "heavy": 0.9082,
+   "worst": 0.9082
+  },
+  "12": {
+   "ceiling": 0.9230769230769231,
+   "bootstrap": 0.99345,
+   "normal": 0.9249,
+   "heavy": 0.9223,
+   "worst": 0.9223
+  },
+  "14": {
+   "ceiling": 0.9333333333333333,
+   "bootstrap": 0.9953,
+   "normal": 0.9368,
+   "heavy": 0.93425,
+   "worst": 0.93425
+  },
+  "16": {
+   "ceiling": 0.9411764705882353,
+   "bootstrap": 0.99725,
+   "normal": 0.9421,
+   "heavy": 0.9401,
+   "worst": 0.9401
+  },
+  "19": {
+   "ceiling": 0.9,
+   "bootstrap": 0.9927,
+   "normal": 0.9019,
+   "heavy": 0.89555,
+   "worst": 0.89555
+  },
+  "25": {
+   "ceiling": 0.9230769230769231,
+   "bootstrap": 0.99865,
+   "normal": 0.9247,
+   "heavy": 0.92605,
+   "worst": 0.9247
+  },
+  "30": {
+   "ceiling": 0.9032258064516129,
+   "bootstrap": 0.9975,
+   "normal": 0.90795,
+   "heavy": 0.90405,
+   "worst": 0.90405
+  },
+  "40": {
+   "ceiling": 0.9024390243902439,
+   "bootstrap": 0.9989,
+   "normal": 0.9023,
+   "heavy": 0.89835,
+   "worst": 0.89835
+  }
+ },
+ "anchored_coverage": {
+  "3": 0.75285,
+  "4": 0.79755,
+  "6": 0.8545,
+  "9": 0.9011,
+  "12": 0.92105
+ },
+ "days_for_90pct_all_three": 10,
+ "days_for_85pct_all_three": 6,
+ "decomposition": {
+  "90_to_75": "our sample size, n=3, arithmetic",
+  "75_to_65.6": "FortyGuard day-varying level offset"
+ }
+}

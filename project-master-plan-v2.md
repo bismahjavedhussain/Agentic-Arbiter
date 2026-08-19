@@ -623,7 +623,7 @@ a real argument. Beginner-level explanations exist in two companion documents. *
 | **3** | **Free data predicts the field** | **R-2**, free, before Aug 18 | None — the premise would collapse | R² > 0.9 from OSM + NDVI + elevation |
 | **4** | **The money does not follow** | **U-1**, free | Ship the measurement half only | < ~20 h/yr in the decision band |
 | **5** | **Only 34 % of days usable** [M] | Already measured | **Build the matrix from history, not live accumulation.** Relax to ≥0.80/5 kt for 46 % and 8/8 octants | A bearing octant with < 5 days → mark that cell unreliable, do not interpolate |
-| **6** | Price unverified on the new key | Usage read either side of call #1 | Flat pricing rewards one big call | ≫4,220 → fewer, larger polygons |
+| **6** | Price unverified | Usage read either side of call #1 | Flat pricing rewards one big call | ≫4,220 → fewer, larger polygons |
 | **7** | **History does not reach 2019** [M] | Bisect 2025 / 2023 / 2021 | Commissioning analysis limited to whatever is real | Only ~1 yr → drop A4's before/after |
 | **8** | Silent empty beyond horizon [M] | Non-empty assertion on every response | Fail-safe rung 3 | — |
 | **9** | `persistence` broken [M] | Found | Client-side run lengths | Already mitigated |

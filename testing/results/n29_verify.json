@@ -8,7 +8,7 @@
   {
    "dx": 20.0,
    "steps": 425,
-   "secs": 0.10489130020141602,
+   "secs": 0.0957491397857666,
    "slope": 2.666666665905216,
    "intercept": 113.77777791821794,
    "expected_slope": 2.6666666666666665,
@@ -43,7 +43,7 @@
   {
    "dx": 10.0,
    "steps": 914,
-   "secs": 0.6237127780914307,
+   "secs": 0.6000638008117676,
    "slope": 2.6666666655120155,
    "intercept": 72.11111138833776,
    "expected_slope": 2.6666666666666665,
@@ -78,7 +78,7 @@
   {
    "dx": 5.0,
    "steps": 2274,
-   "secs": 29.729973077774048,
+   "secs": 34.35016965866089,
    "slope": 2.66666666420348,
    "intercept": 58.36111176759457,
    "expected_slope": 2.6666666666666665,
@@ -118,31 +118,31 @@
  "convergence": [
   {
    "dx": 20.0,
-   "steps": 335,
-   "secs": 0.07755422592163086,
-   "rise": 0.5623473211009511
+   "steps": 351,
+   "secs": 0.07595157623291016,
+   "rise": 0.8912633221698805
   },
   {
    "dx": 10.0,
-   "steps": 711,
-   "secs": 0.49976086616516113,
-   "rise": 0.4792222005325577
+   "steps": 741,
+   "secs": 0.4950137138366699,
+   "rise": 0.8864067746667139
   },
   {
    "dx": 5.0,
-   "steps": 1746,
-   "secs": 20.179530143737793,
-   "rise": 0.5211592332068129
+   "steps": 1814,
+   "secs": 29.51974129676819,
+   "rise": 0.8952958827448612
   }
  ],
- "diff_20_10": 0.08312512056839338,
- "diff_10_5": -0.04193703267425519,
+ "diff_20_10": 0.004856547503166553,
+ "diff_10_5": -0.008889108078147245,
  "observed_order": NaN,
  "richardson_limit": NaN,
  "v3_pass": false,
  "obstacle_flux_open": 92.82700421700568,
- "obstacle_flux_blocked": 0.29112624293830436,
- "obstacle_absorbed_frac": 0.9968637763828107,
+ "obstacle_flux_blocked": 92.82700421700568,
+ "obstacle_absorbed_frac": 0.0,
  "obstacle_finding": "obstacles are pinned to ambient, i.e. Dirichlet heat sinks, not the no-flow walls the docstring claims",
  "pass": false
 }

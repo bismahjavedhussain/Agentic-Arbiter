@@ -1,0 +1,43 @@
+{
+ "test": "DIAG-62 forecast recheck",
+ "authorised_by_user": "2026-08-19",
+ "api_calls_made": 1,
+ "site_tz": "America/New_York",
+ "site_now": "2026-08-19T09:35:52.835301-04:00",
+ "utc_now": "2026-08-19T13:35:52.835349+00:00",
+ "target_window_site": "2026-08-19T19:00:00-04:00",
+ "window_start_utc": "2026-08-19T23:00:00+00:00",
+ "lead_h": 9.4127,
+ "lead_band": [
+  6.0,
+  11.5
+ ],
+ "n25_reference_lead_h": 9.41,
+ "aoi_centre": [
+  39.01,
+  -77.446
+ ],
+ "side_km": 8.0,
+ "granularity": 60,
+ "analytic_type": "tcm",
+ "win_h": 2,
+ "date_time": {
+  "start_date": "2026-08-19",
+  "start_time": "19:00",
+  "end_time": "21:00",
+  "filter_type": 2
+ },
+ "activity_id": "f333f605-6ef6-4847-9bbf-1d22910ebcb6",
+ "elapsed_s": 35.7,
+ "empty_completed_polls": 0,
+ "tiles_returned": 17862,
+ "error": null,
+ "credits_before": 1966240,
+ "credits_after": 1962020,
+ "credits_spent": 4220,
+ "prereg": {
+  "P1": "> 0 tiles -> A3 recovered",
+  "P2": "0 tiles -> A1 leading"
+ },
+ "verdict": "P1 MET -- forecast works"
+}

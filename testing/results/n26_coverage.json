@@ -15,6 +15,20 @@
    "n": 17862,
    "mean_d": -0.8114965065502183,
    "sd_d": 0.06994108752368354
+  },
+  {
+   "date": "2026-08-15",
+   "lead_h": 9.265,
+   "n": 17862,
+   "mean_d": 0.15202845146120256,
+   "sd_d": 0.06442766116921918
+  },
+  {
+   "date": "2026-08-16",
+   "lead_h": 9.498,
+   "n": 17862,
+   "mean_d": -3.7126856119135594,
+   "sd_d": 0.29033115541040466
   }
  ],
  "tests": [
@@ -31,21 +45,49 @@
     "SE": 1.0,
     "SW": 1.0
    }
+  },
+  {
+   "test_date": "2026-08-15",
+   "n_cal_days": 2,
+   "n_cal": 35724,
+   "halfwidth": -0.7394000000000034,
+   "coverage": 0.0,
+   "n_breach": 17862,
+   "quad_coverage": {
+    "NE": 0.0,
+    "NW": 0.0,
+    "SE": 0.0,
+    "SW": 0.0
+   }
+  },
+  {
+   "test_date": "2026-08-16",
+   "n_cal_days": 3,
+   "n_cal": 53586,
+   "halfwidth": 0.1905000000000001,
+   "coverage": 1.0,
+   "n_breach": 0,
+   "quad_coverage": {
+    "NE": 1.0,
+    "NW": 1.0,
+    "SE": 1.0,
+    "SW": 1.0
+   }
   }
  ],
- "pooled_coverage": 0.9676967864740791,
- "worst_day_coverage": 0.9676967864740791,
- "n_test_days": 1,
- "lead_spread_h": 0.08799999999999919,
+ "pooled_coverage": 0.655898928824693,
+ "worst_day_coverage": 0.0,
+ "n_test_days": 3,
+ "lead_spread_h": 0.23299999999999876,
  "lead_range_h": [
-  9.41,
+  9.265,
   9.498
  ],
  "leads_comparable": true,
  "measures": "coverage across ~17.9k locations on an unseen day, bound calibrated on earlier days",
  "does_not_measure": "breach rate at one fixed site over many days; tiles are spatially correlated so the effective sample is far below the tile count",
- "p1_pooled": true,
- "p2_worst_day": true,
- "p3_enough_days": false,
+ "p1_pooled": false,
+ "p2_worst_day": false,
+ "p3_enough_days": true,
  "pass": false
 }

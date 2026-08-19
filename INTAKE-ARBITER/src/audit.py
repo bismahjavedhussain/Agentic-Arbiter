@@ -22,8 +22,15 @@ WHAT IT CHECKS, AND WHICH REAL BUG EACH ONE EXISTS FOR
   6. STALE PUBLISHED NUMBERS every headline figure quoted in PLAN.md / HANDOFF.md is re-read from
                         the JSON the code actually wrote. A figure that has drifted is a
                         hallucination with a paper trail, and this is the check that catches it.
+  6a. STAGE 5 NUMBERS   the ACT stage's command rows must carry a real bound. All 37 of them shipped
+                        `null` plus the literal word "nan" in their reason, because a `.get(key) or
+                        default` covered for a key nothing ever wrote.
+  6b. STAGE EVENTS      the reasoning tape's templates must contain no literal digit, and every digit
+                        in the shipped text must trace to a payload value -- so "none of this is
+                        hand-written" is a command rather than a claim.
   7. SELF-TESTS         every module's own suite still passes.
-  8. CROSS-LANGUAGE     the browser agrees with Python on decisions AND on reasons.
+  8. CROSS-LANGUAGE     the browser agrees with Python on decisions, reasons, stage-event sentences
+                        and the conformal quantile.
 """
 import ast
 import json
@@ -65,8 +72,12 @@ def check_dead_code():
             elif isinstance(n, ast.Attribute):
                 refs[n.attr] = refs.get(n.attr, 0) + 1
     extra = ""
+    # EVERY file that can reference a src/ function has to be listed here, or a function used only
+    # by a fixture generator gets reported as dead. Session D and F each added two.
     for p in ("index.html", "verify_browser_agent.js", "verify_browser_decision.js",
-              "verify_browser_explanation.js", "gen_dp_cases.py"):
+              "verify_browser_explanation.js", "verify_browser_ticker.js",
+              "verify_browser_conformal.js", "gen_dp_cases.py", "gen_ticker_cases.py",
+              "gen_conformal_cases.py"):
         fp = os.path.join(DEMO, p)
         if os.path.exists(fp):
             extra += open(fp, encoding="utf-8").read()
@@ -133,8 +144,10 @@ def check_decision_precision():
     decision-critical array as it is written.
 
     The stronger guarantee lives elsewhere and is already proven: verify_browser_decision.js
-    rebuilds every decision from these arrays and matches the Python agent across 2,016
-    configurations. That is an end-to-end equality test, which no precision heuristic can beat.
+    rebuilds every decision from these arrays and matches the Python agent across 20,160
+    configurations -- both anchor settings and both bank placements, since restricting it to
+    anchor == 'sensor' is what hid a 32 % disagreement. That is an end-to-end equality test, which no
+    precision heuristic can beat.
     """
     print("\n3. DECISION-CRITICAL ARRAYS ARE NOT DISPLAY-ROUNDED ON WRITE")
     src = open(os.path.join(HERE, "agent.py"), encoding="utf-8").read()
@@ -701,11 +714,13 @@ def check_cross_language():
     print("\n8. CROSS-LANGUAGE CONSISTENCY (browser vs Python)")
     run([sys.executable, "gen_dp_cases.py"], DEMO, "regenerate DP cases")
     run([sys.executable, "gen_ticker_cases.py"], DEMO, "regenerate stage-event tapes")
+    run([sys.executable, "gen_conformal_cases.py"], DEMO, "regenerate conformal cases")
     for js, label in (("verify_browser_agent.js", "scheduler agrees"),
                       ("verify_browser_decision.js", "decisions agree, bound included"),
                       ("verify_browser_explanation.js", "reasons agree"),
                       ("verify_browser_ticker.js", "stage-event sentences agree, character for "
-                                                   "character")):
+                                                   "character"),
+                      ("verify_browser_conformal.js", "conformal quantile agrees EXACTLY")):
         run(["node", js], DEMO, "%-38s" % label)
 
 

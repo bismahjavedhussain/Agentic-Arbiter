@@ -1,0 +1,50 @@
+{
+ "measures": "how FortyGuard's spatially-uniform forecast LEVEL offset varies with lead, on the one day where five leads were purchased",
+ "does_not_measure": "coverage. That needs several days at a short lead, which needs live forecast access. This is a single day (2026-08-12).",
+ "why": "N-26's live coverage failed at 65.6 % pooled / 0.0 % worst day because the forecast error is a day-level offset that flips sign; shortening the lead is the proposed fix",
+ "outcome_tag": "n25_outcome",
+ "alpha": 0.1,
+ "rows": [
+  {
+   "lead_h": 9.41,
+   "n_tiles": 17862,
+   "forecast_mean_c": 31.955173687157096,
+   "offset_c": -0.8395574067853544,
+   "within_day_sd_c": 0.10564379225123884,
+   "abs_offset_over_sd": 7.947058590898977
+  },
+  {
+   "lead_h": 7.49,
+   "n_tiles": 17862,
+   "forecast_mean_c": 32.20062650319113,
+   "offset_c": -1.0850102228193932,
+   "within_day_sd_c": 0.10844837477964889,
+   "abs_offset_over_sd": 10.004854614225193
+  },
+  {
+   "lead_h": 5.49,
+   "n_tiles": 17862,
+   "forecast_mean_c": 32.000201998656365,
+   "offset_c": -0.8845857182846266,
+   "within_day_sd_c": 0.09586795259022181,
+   "abs_offset_over_sd": 9.227126421127421
+  },
+  {
+   "lead_h": 3.49,
+   "n_tiles": 17862,
+   "forecast_mean_c": 32.294318234240286,
+   "offset_c": -1.1787019538685477,
+   "within_day_sd_c": 0.12991771635065272,
+   "abs_offset_over_sd": 9.072680670334348
+  },
+  {
+   "lead_h": 1.49,
+   "n_tiles": 17862,
+   "forecast_mean_c": 32.133354176464,
+   "offset_c": -1.0177378960922627,
+   "within_day_sd_c": 0.11226823487629135,
+   "abs_offset_over_sd": 9.06523467847972
+  }
+ ],
+ "verdict": "SHORTENING THE LEAD IS NOT THE FIX: the offset does not shrink (-0.8396 C at 9.41 h vs -1.0177 C at 1.49 h). The level error is not a lead-time artefact, so a short-lead bound would fail the same way. Do NOT spend credits on a short-lead coverage test on this basis."
+}

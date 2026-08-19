@@ -5,7 +5,7 @@ WHY THIS FILE EXISTS -- a severe defect found 2026-08-16
     /v1/heat_intelligence does not return data inline. It returns a `download_link` to S3, and that
     link has the CALLER'S API KEY EMBEDDED IN THE OBJECT PATH:
 
-        .../enterprise_api/accountid%3Dacc%23<ACCOUNT>/api_key%3D<32-CHAR-KEY>/type%3D.../activity_id%3D...
+        .../<tier>_api/accountid%3Dacc%23<ACCOUNT>/api_key%3D<32-CHAR-KEY>/type%3D.../activity_id%3D...
 
     A credential in a URL path is a serious exposure: URLs travel into server access logs, browser
     history, proxy and CDN caches, and HTTP Referer headers, and they are routinely pasted into

@@ -39,15 +39,61 @@
   "2026-08-15": {
    "date": "2026-08-15",
    "forecast_done": true,
-   "outcome_done": false,
+   "outcome_done": true,
    "forecast_tag": "n26_f_2026-08-15",
    "forecast_lead_h": 9.265,
    "forecast_n": 17862,
    "forecast_mean": 32.3287,
-   "forecast_issued_utc": "2026-08-15T08:44:47.622343+00:00"
+   "forecast_issued_utc": "2026-08-15T08:44:47.622343+00:00",
+   "outcome_tag": "n26_h_2026-08-15",
+   "outcome_n": 17862,
+   "outcome_mean": 32.4807,
+   "outcome_fetched_utc": "2026-08-16T08:31:14.632339+00:00"
+  },
+  "2026-08-16": {
+   "date": "2026-08-16",
+   "forecast_done": true,
+   "outcome_done": true,
+   "forecast_tag": "n26_f_2026-08-16",
+   "forecast_lead_h": 9.498,
+   "forecast_n": 17862,
+   "forecast_mean": 30.687,
+   "forecast_issued_utc": "2026-08-16T08:30:43.410194+00:00",
+   "outcome_tag": "n26_h_2026-08-16",
+   "outcome_n": 17862,
+   "outcome_mean": 26.9743,
+   "outcome_fetched_utc": "2026-08-18T09:24:34.977779+00:00"
+  },
+  "2026-08-18": {
+   "date": "2026-08-18",
+   "forecast_done": false,
+   "outcome_done": false,
+   "forecast_error": "ZERO TILES with completed status"
+  },
+  "2026-08-19": {
+   "date": "2026-08-19",
+   "forecast_done": false,
+   "outcome_done": false,
+   "forecast_error": "completed but never populated after 58 polls over 607 s"
   }
  },
- "errors": {},
- "credits_last_before": 180980,
- "credits_last_after": 180980
+ "errors": {
+  "n26_f_2026-08-18": "ZERO TILES with completed status",
+  "n26_f_2026-08-19": "completed but never populated after 58 polls over 607 s"
+ },
+ "credits_last_before": 1970460,
+ "credits_last_after": 1966240,
+ "off_series_observations": {
+  "2026-08-19T19:00": {
+   "why_not_in_days": "target hour 19:00, NOT the fixed 14:00 the series controls for. Hour-of-day dominates forecast error here (Mondrian worst group 0.7314 vs 0.8794 pooled), so mixing hours would contaminate the coverage measurement. Kept as a separate observation.",
+   "forecast_tag": "diag62_forecast_lead9.41",
+   "forecast_lead_h": 9.4127,
+   "window_site": "2026-08-19T19:00:00-04:00",
+   "tiles": 17862,
+   "activity_id": "f333f605-6ef6-4847-9bbf-1d22910ebcb6",
+   "outcome_done": false,
+   "outcome_value_if_fetched": "a FIFTH measured FortyGuard level offset -- strengthens the n=4 level term that backtest.py rotates across 1,826 days, which is the single most-cited weakness in the whole result. NOT a fifth coverage pair.",
+   "outcome_available_after_utc": "2026-08-20T01:00:00+00:00"
+  }
+ }
 }

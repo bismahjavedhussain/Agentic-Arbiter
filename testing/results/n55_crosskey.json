@@ -1,0 +1,15 @@
+{
+ "window": "2026-08-16 14:00-16:00 site-local",
+ "aoi": "8x8 km",
+ "granularity": 60,
+ "old_features": 17862,
+ "new_features": 17862,
+ "matched_tile_ids": 17862,
+ "all_three_temps_identical": 17862,
+ "geometry_identical": 17862,
+ "mean_delta_c": 0.0,
+ "max_abs_delta_c": 0.0,
+ "verdict": "BYTE-FOR-BYTE IDENTICAL",
+ "keys_compared": 2,
+ "note": "plan names removed deliberately; the result is that two independent keys returned byte-identical tiles for the same window"
+}

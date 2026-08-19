@@ -1,0 +1,25 @@
+{
+ "test": "DIAG-61 forecast entitlement vs horizon vs outage",
+ "authorised": "user, 2026-08-19, one paid call",
+ "short_lead_h": 2.292348688888889,
+ "target_window_site_local": "2026-08-19T07:00:00-04:00",
+ "aoi_side_km": 8.0,
+ "granularity": 60,
+ "analytic_type": "tcm",
+ "features_returned": 0,
+ "call_ok": true,
+ "call_error": null,
+ "meter_before": {
+  "total_used": 21100,
+  "remaining": 1978900,
+  "cycle_remaining": 1978900
+ },
+ "meter_after": {
+  "total_used": 25320,
+  "remaining": 1974680,
+  "cycle_remaining": 1974680
+ },
+ "measured_cost_credits": 4220,
+ "verdict": "P2 short lead also empty -- entitlement or outage, not horizon",
+ "comparability_note": "existing 4 pairs are at ~9.4 h lead; a shorter-lead pair is not exchangeable with them and must not be pooled"
+}

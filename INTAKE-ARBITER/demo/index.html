@@ -414,6 +414,52 @@ same group-conditional margins.</p>
   <details><summary>Table view — per-hour coverage</summary><table id="ctable"></table></details>
 </div>
 
+<!-- ============ SESSION F: THE CONFORMAL MACHINERY, MADE VISIBLE ============
+     The panel above shows THAT coverage failed. This one shows WHY, and separates the part that is
+     our sample size from the part that is FortyGuard's. Every quantity here is computed in the
+     browser by functions that mirror src/conformal.py, and verify_browser_conformal.js checks the
+     two agree on 3,000+ generated cases plus the real shipped bounds. -->
+<div class="card" id="cfcard">
+  <h2>How the bound is built — the arithmetic, run in front of you</h2>
+  <p class="note" style="margin-bottom:12px">A split-conformal upper bound is not a fitted
+  parameter. It is an <strong>order statistic</strong>: sort your past errors, take the
+  <em>k</em>-th smallest where <strong>k = ⌈(n+1)(1−α)</strong>⌉, and that is the margin. Which means
+  a bound has a <strong>hard arithmetic ceiling</strong> — with <em>n</em> past errors, no
+  distribution-free method can exceed <strong>n/(n+1)</strong> coverage, no matter how good the
+  forecast is. <strong>That single fact explains most of this project's headline failure.</strong></p>
+
+  <div class="filters" style="margin-bottom:6px">
+    <div class="f"><label for="c_alpha">α — miscoverage allowed</label><select id="c_alpha"></select></div>
+    <div class="f"><label for="c_n">n — calibration points</label><select id="c_n"></select></div>
+  </div>
+  <div class="tiles" id="cftiles"></div>
+  <canvas id="cfceil" width="1100" height="200"></canvas>
+  <p class="note" id="cfceilnote" style="margin-top:8px"></p>
+
+  <h3 style="margin-top:22px">The real bound, from the four real FortyGuard days</h3>
+  <p class="note" style="margin-bottom:8px">These are the actual day-level residuals — outcome minus
+  forecast, averaged over 17,862 tiles each. The browser sorts them and picks the
+  <em>k</em>-th, live, then checks its answer against the one <code>src/conformal.py</code> wrote.</p>
+  <canvas id="cfline" width="1100" height="140"></canvas>
+  <p class="note" id="cflinenote" style="margin-top:8px"></p>
+
+  <h3 style="margin-top:22px">The same machinery at five-year sample sizes — twelve separate bounds</h3>
+  <p class="note" style="margin-bottom:8px">The present-tense controller calibrates
+  <strong>one bound per forecast lead</strong>, because a bound calibrated at one lead is not valid
+  at another. Twelve leads, twelve calibrations, each scored on the hours it actually applies to.</p>
+  <div class="legend">
+    <span><i style="background:var(--series-1)"></i>Margin at that lead (°C, left)</span>
+    <span><i style="background:var(--series-2)"></i>Realised coverage (right)</span>
+    <span><i style="background:var(--axis)"></i>Nominal</span>
+  </div>
+  <canvas id="cflead" width="1100" height="240"></canvas>
+  <p class="note" id="cfleadnote" style="margin-top:8px"></p>
+  <details><summary>Table view — every lead, its n, its k, its arithmetic ceiling</summary>
+    <table id="cftable"></table></details>
+
+  <p class="note warn" style="margin-top:16px" id="cfimposs"></p>
+</div>
+
 <!-- ============ FIVE YEARS ============ -->
 <div class="card">
   <h2>Five years, 43,763 real hours</h2>
@@ -1261,6 +1307,243 @@ function drawTicker(){
     + 'show a number it could not justify: <code>'+(e.message||e)+'</code></div>'; }
 }
 
+/* ---------- SESSION F: the conformal machinery, mirrored from src/conformal.py ----------------
+   Four functions, and they are deliberately the SAME arithmetic in the same order as the Python,
+   because identical IEEE-754 operations give identical results -- so this is one of the few places
+   in the project where two implementations can be expected to agree bit for bit rather than to
+   within a tolerance. demo/verify_browser_conformal.js checks that on generated cases and on every
+   real bound the artefacts ship.
+
+   Vovk/Papadopoulos/Lei: the (1-alpha) guarantee of split conformal is FINITE-SAMPLE and comes from
+   exchangeability alone -- no distributional assumption -- and its price is that k can exceed n. */
+function cfQuantileIndex(n, alpha){
+  const k = Math.ceil((n + 1) * (1 - alpha));
+  return {k: Math.min(k, n), clamped: k > n};
+}
+function cfAttainable(n){ return n > 0 ? n / (n + 1) : 0; }
+function cfMinN(alpha){ return Math.ceil(1 / alpha) - 1; }
+function cfSplit(res, alpha){
+  const r = res.filter(x => x !== null && x !== undefined && !Number.isNaN(+x))
+               .map(Number).sort((a, b) => a - b);
+  const n = r.length;
+  if(!n) return {q: NaN, n: 0, k: 0, clamped: true, ceiling: 0, nominal: 1 - alpha, sorted: []};
+  const ki = cfQuantileIndex(n, alpha);
+  return {q: r[ki.k - 1], n, k: ki.k, clamped: ki.clamped,
+          ceiling: cfAttainable(n), nominal: 1 - alpha, sorted: r};
+}
+/* the four measured day-level residuals, read from the trace -- never typed here */
+function cfDayResiduals(){ return (T.cycle.pairs || []).map(p => p.mean_d); }
+
+function drawConformalTiles(){
+  const alpha = +$('#c_alpha').value, n = +$('#c_n').value;
+  const ki = cfQuantileIndex(n, alpha), ceil = cfAttainable(n), need = cfMinN(alpha);
+  /* The tile LABEL is uppercased by CSS, which turns "α" into a capital alpha that reads as the
+     letter A and mangles the ceiling brackets -- "k = ⌈(n+1)(1−α)⌉" rendered as "K = [(N+1)(1−A)]".
+     Seen in a screenshot. The formulae live in the sub-line, which is not transformed. */
+  $('#cftiles').innerHTML =
+      tile('Order statistic used', ki.k, ki.clamped
+            ? 'CLAMPED to n — the ' + Math.ceil((n+1)*(1-alpha)) + 'th smallest does not exist'
+            : 'k = ⌈(n+1)(1−α)⌉ — the ' + ki.k + 'th smallest of ' + int(n) + ' past errors')
+    + tile('Arithmetic ceiling', fmt(100*ceil,2)+' %',
+            'n/(n+1). ' + (ceil < 1-alpha
+              ? 'BELOW the ' + fmt(100*(1-alpha),0) + ' % nominal — impossible at this n'
+              : 'the nominal is attainable at this n'))
+    + tile('Smallest n that reaches nominal', need,
+            'below this, no distribution-free bound gets to '+fmt(100*(1-alpha),0)+' %')
+    + tile('Coverage the bound can promise', fmt(100*Math.min(ceil, 1-alpha),2)+' %',
+            ki.clamped ? 'the guarantee is degraded, and it says so' : 'guarantee intact');
+}
+function drawConformalCeiling(){
+  const c = $('#cfceil'), g = c.getContext('2d');
+  c.width = c.parentElement.clientWidth; const W = c.width, H = c.height;
+  g.clearRect(0,0,W,H);
+  const alpha = +$('#c_alpha').value, nSel = +$('#c_n').value;
+  const L = 46, R = 14, TP = 14, B = 26, NMAX = 24;
+  const x = i => L + (i-1)*(W-L-R)/(NMAX-1);
+  const lo = 0.4, y = v => TP + (1-(v-lo)/(1-lo))*(H-TP-B);
+  /* the nominal line */
+  g.strokeStyle = cssv('--axis'); g.setLineDash([4,3]); g.lineWidth=1;
+  g.beginPath(); g.moveTo(L, y(1-alpha)); g.lineTo(W-R, y(1-alpha)); g.stroke(); g.setLineDash([]);
+  g.fillStyle = cssv('--text-secondary'); g.font='10px system-ui'; g.textAlign='left';
+  g.fillText('nominal '+fmt(100*(1-alpha),0)+' %', L+4, y(1-alpha)-4);
+  /* n/(n+1) */
+  g.strokeStyle = cssv('--series-1'); g.lineWidth=2; g.beginPath();
+  for(let n=1;n<=NMAX;n++){ const px=x(n), py=y(cfAttainable(n));
+    if(n===1) g.moveTo(px,py); else g.lineTo(px,py); }
+  g.stroke();
+  /* every n whose ceiling is under the nominal is a REGION where the answer is impossible */
+  const need = cfMinN(alpha);
+  if(need >= 1 && need <= NMAX){
+    g.fillStyle = cssv('--critical'); g.globalAlpha=0.10;
+    g.fillRect(L, TP, x(need)-L, H-TP-B); g.globalAlpha=1;
+    g.fillStyle = cssv('--critical'); g.textAlign='center'; g.font='10px system-ui';
+    if(x(need)-L > 90) g.fillText('arithmetically impossible', (L+x(need))/2, TP+14);
+  }
+  /* markers: the selected n, and the four real days -- one marker when they coincide */
+  const nReal = cfDayResiduals().length;
+  const marks = nSel === nReal
+    ? [[nSel, cssv('--warning'), 'n = '+nSel+' — our real FortyGuard days']]
+    : [[nSel, cssv('--series-2'), 'n = '+nSel], [nReal, cssv('--warning'), 'our real days']];
+  marks.forEach(([n,col,lab],i)=>{
+    if(n<1||n>NMAX) return;
+    g.strokeStyle=col; g.lineWidth=1.5; g.beginPath();
+    g.moveTo(x(n), TP); g.lineTo(x(n), H-B); g.stroke();
+    g.fillStyle=col; g.beginPath(); g.arc(x(n), y(cfAttainable(n)), 3.5, 0, 7); g.fill();
+    /* below the nominal line and the shaded-region caption, both of which sit near the top */
+    g.textAlign = x(n) > W-160 ? 'right' : 'left'; g.font='10px system-ui';
+    g.fillText(lab, x(n) + (x(n) > W-160 ? -5 : 5), H-B-10-i*13);
+  });
+  g.strokeStyle=cssv('--grid'); g.lineWidth=1; g.beginPath();
+  g.moveTo(L,H-B); g.lineTo(W-R,H-B); g.stroke();
+  g.fillStyle=cssv('--muted'); g.font='10px system-ui'; g.textAlign='center';
+  for(let n=1;n<=NMAX;n+=(NMAX>12?2:1)) g.fillText(String(n), x(n), H-8);
+  g.textAlign='right';
+  [0.5,0.75,0.9,1.0].forEach(v=>g.fillText(fmt(100*v,0)+'%', L-5, y(v)+3));
+  const need2 = cfMinN(alpha);
+  $('#cfceilnote').innerHTML = 'At α = '+fmt(alpha,2)+' the nominal is '
+    + fmt(100*(1-alpha),0)+' %, so <strong>n must be at least '+need2+'</strong> before that number '
+    + 'is even arithmetically reachable. We hold <strong>'+cfDayResiduals().length+' real FortyGuard '
+    + 'day-pairs</strong>, whose ceiling is <strong>'+fmt(100*cfAttainable(cfDayResiduals().length),1)
+    + ' %</strong>. That is not a modelling shortfall and no code change fixes it — it needs more days.';
+}
+function drawConformalLine(){
+  const c = $('#cfline'), g = c.getContext('2d');
+  c.width = c.parentElement.clientWidth; const W=c.width, H=c.height;
+  g.clearRect(0,0,W,H);
+  const alpha = T.alpha, res = cfDayResiduals();
+  const s = cfSplit(res, alpha);
+  if(!s.n){ $('#cflinenote').textContent='no day-level residuals in the trace'; return; }
+  const L=54, R=54, mid=H/2-6;
+  const lo=Math.min(...s.sorted), hi=Math.max(...s.sorted), pad=(hi-lo)*0.15||1;
+  const x=v=>L+(v-(lo-pad))/((hi+pad)-(lo-pad))*(W-L-R);
+  g.strokeStyle=cssv('--grid'); g.lineWidth=1; g.beginPath();
+  g.moveTo(L,mid); g.lineTo(W-R,mid); g.stroke();
+  const pairs = T.cycle.pairs||[];
+  /* Two of the four measured offsets are 0.028 C apart, so their labels overlapped into unreadable
+     mush ("-0.8396" over "-0.8115" printed as "-0<8965"). Seen in a screenshot. Labels alternate
+     between two rows whenever the previous one on the same row is within its own width. */
+  let lastRowX = [-1e9, -1e9];
+  s.sorted.forEach((v,i)=>{
+    const chosen = (i === s.k-1), px = x(v);
+    const row = (px - lastRowX[0] < 52) ? 1 : 0;
+    lastRowX[row] = px;
+    const dy = row * 13;
+    g.fillStyle = chosen ? cssv('--series-1') : cssv('--series-2');
+    g.beginPath(); g.arc(px, mid, chosen?7:4.5, 0, 7); g.fill();
+    if(row){ g.strokeStyle=cssv('--grid'); g.lineWidth=1; g.beginPath();
+      g.moveTo(px, mid-9); g.lineTo(px, mid-16-dy+4); g.stroke(); }
+    const d=(pairs.find(p=>Math.abs(p.mean_d-v)<1e-12)||{}).date||'';
+    g.fillStyle=cssv('--muted'); g.font='10px system-ui'; g.textAlign='center';
+    g.fillText(fmt(v,4)+(d?'  '+d.slice(5):''), px, mid-16-dy);
+    if(chosen){ g.fillStyle=cssv('--series-1'); g.font='600 10px system-ui';
+      g.fillText('k = '+s.k+' → the margin', px, mid+20); }
+  });
+  g.fillStyle=cssv('--text-secondary'); g.font='10px system-ui'; g.textAlign='left';
+  g.fillText('residual °C (outcome − forecast)', L, H-6);
+  /* THE PANEL CHECKS ITSELF, ON SCREEN. The browser's answer against the one Python wrote. */
+  const py = T.cycle.bound_day_level, d = Math.abs(s.q - py.margin);
+  $('#cflinenote').innerHTML = 'Browser: <strong>k = '+s.k+' of n = '+s.n+'</strong>, margin '
+    + '<strong>'+fmt(s.q,4)+' °C</strong>, ceiling '+fmt(100*s.ceiling,1)+' %'
+    + (s.clamped?', <span class="err">CLAMPED — the guarantee is degraded</span>':'')
+    + '. <code>src/conformal.py</code> wrote k = '+py.k+', margin '+fmt(py.margin,4)
+    + ' °C. <strong>Difference '+d.toExponential(1)+' °C</strong>'
+    + (d===0?' — identical.':'.')
+    + ' <br>With only '+s.n+' residuals, ⌈(n+1)(1−α)⌉ = '+Math.ceil((s.n+1)*(1-alpha))
+    + ' exceeds n, so there is no such order statistic and the largest is used instead. '
+    + 'That is exactly why <strong>90 % is not quotable yet</strong>.';
+}
+function drawConformalLeads(){
+  const c=$('#cflead'), g=c.getContext('2d');
+  c.width=c.parentElement.clientWidth; const W=c.width, H=c.height;
+  g.clearRect(0,0,W,H);
+  if(!RL || !RL.configs || !RL.configs.length){ $('#cfleadnote').textContent =
+    'rolling.json not loaded — run python src/rolling.py'; return; }
+  const m=RL.lead_margins_c_at_hour14, cb=RL.configs[0].coverage_by_lead,
+        nb=RL.configs[0].coverage_n_by_lead, alpha=RL.alpha;
+  const leads=Object.keys(m).map(Number).sort((a,b)=>a-b);
+  const L=48,R=52,TP=16,B=30, bw=(W-L-R)/leads.length;
+  const mmax=Math.max(...leads.map(k=>m[String(k)]))*1.12;
+  const yM=v=>TP+(1-v/mmax)*(H-TP-B);
+  const clo=0.85, chi=0.95, yC=v=>TP+(1-(v-clo)/(chi-clo))*(H-TP-B);
+  leads.forEach((k,i)=>{
+    const x=L+i*bw;
+    g.fillStyle=cssv('--series-1'); g.globalAlpha=0.85;
+    g.fillRect(x+bw*0.18, yM(m[String(k)]), bw*0.64, H-B-yM(m[String(k)])); g.globalAlpha=1;
+  });
+  g.strokeStyle=cssv('--axis'); g.setLineDash([4,3]); g.beginPath();
+  g.moveTo(L,yC(1-alpha)); g.lineTo(W-R,yC(1-alpha)); g.stroke(); g.setLineDash([]);
+  g.strokeStyle=cssv('--series-2'); g.lineWidth=2; g.beginPath();
+  leads.forEach((k,i)=>{ const px=L+i*bw+bw/2, py=yC(cb[String(k)]);
+    if(i===0) g.moveTo(px,py); else g.lineTo(px,py); });
+  g.stroke();
+  leads.forEach((k,i)=>{ g.fillStyle=cssv('--series-2');
+    g.beginPath(); g.arc(L+i*bw+bw/2, yC(cb[String(k)]), 3, 0, 7); g.fill(); });
+  g.strokeStyle=cssv('--grid'); g.lineWidth=1; g.beginPath();
+  g.moveTo(L,H-B); g.lineTo(W-R,H-B); g.stroke();
+  g.fillStyle=cssv('--muted'); g.font='10px system-ui'; g.textAlign='center';
+  leads.forEach((k,i)=>g.fillText(k+' h', L+i*bw+bw/2, H-12));
+  g.fillText('forecast lead', (L+W-R)/2, H-2);
+  g.textAlign='right'; [0,mmax/2,mmax].forEach(v=>g.fillText(fmt(v,1), L-5, yM(v)+3));
+  g.textAlign='left'; [clo,(clo+chi)/2,chi].forEach(v=>g.fillText(fmt(100*v,0)+'%', W-R+5, yC(v)+3));
+
+  const worst=leads.reduce((a,k)=>cb[String(k)]<cb[String(a)]?k:a, leads[0]);
+  const below=leads.filter(k=>cb[String(k)]<1-alpha);
+  const nmin=Math.min(...leads.map(k=>nb[String(k)]));
+  $('#cfleadnote').innerHTML = '<strong>'+leads.length+' separate calibrations.</strong> The margin '
+    + 'grows from <strong>'+fmt(m[String(leads[0])],2)+' °C</strong> at '+leads[0]+' h to '
+    + '<strong>'+fmt(m[String(leads[leads.length-1])],2)+' °C</strong> at '
+    + leads[leads.length-1]+' h — the agent is not equally confident about every hour, and the bound '
+    + 'says so. Realised coverage runs '
+    + fmt(100*Math.min(...leads.map(k=>cb[String(k)])),2)+'–'
+    + fmt(100*Math.max(...leads.map(k=>cb[String(k)])),2)+' %, '
+    + (below.length ? '<span class="err">'+below.length+' lead(s) below the '
+        + fmt(100*(1-alpha),0)+' % nominal, worst at '+worst+' h</span>'
+      : '<strong>none below the '+fmt(100*(1-alpha),0)+' % nominal</strong>')
+    + '. Here n is at least <strong>'+int(nmin)+'</strong> per lead, so the arithmetic ceiling is '
+    + fmt(100*cfAttainable(nmin),3)+' % and <strong>nothing about this shortfall could be '
+    + 'arithmetic</strong> — the opposite regime from the four-day bound above.';
+
+  $('#cftable').innerHTML =
+      '<tr><th>Lead</th><th>Margin °C</th><th>n scored</th><th>k = ⌈(n+1)(1−α)⌉</th>'
+    + '<th>Ceiling n/(n+1)</th><th>Realised</th><th>vs nominal</th></tr>'
+    + leads.map(k=>{ const n=nb[String(k)], ki=cfQuantileIndex(n,alpha),
+        cov=cb[String(k)], d=cov-(1-alpha);
+      return '<tr><td>'+k+' h</td><td>'+fmt(m[String(k)],4)+'</td><td>'+int(n)+'</td><td>'
+        + int(ki.k)+(ki.clamped?' (clamped)':'')+'</td><td>'+fmt(100*cfAttainable(n),4)+' %</td><td>'
+        + fmt(100*cov,2)+' %</td><td'+(d<0?' class="err"':'')+'>'+fmt(100*d,2)+' pp</td></tr>';
+    }).join('');
+
+  const m3=BT&&BT.mondrian&&BT.mondrian['3'];
+  $('#cfimposs').innerHTML = '<strong>What is NOT claimed, and cannot be.</strong> Full '
+    + '<em>conditional</em> coverage — the bound holding for every individual hour rather than on '
+    + 'average — is <strong>provably impossible</strong> for any distribution-free method with '
+    + 'finite data (Barber, Candès, Ramdas &amp; Tibshirani, <em>The limits of distribution-free '
+    + 'conditional predictive inference</em>, Information and Inference 10(2), 2021). '
+    + 'Group-conditional is the ceiling, so this agent ships <strong>Mondrian conformal stratified '
+    + 'by hour of day</strong>'
+    + (m3 ? ', which lifts the worst hour from <strong>'
+        + fmt(100*m3.pooled.worst_group.coverage,2)+' %</strong> pooled to <strong>'
+        + fmt(100*m3.mondrian_hod.worst_group.coverage,2)+' %</strong>, and leaves '
+        + m3.mondrian_hod.groups_below_target+' of '+m3.mondrian_hod.n_groups
+        + ' hours under nominal instead of '+m3.pooled.groups_below_target+'' : '')
+    + '. Adding season on top <em>over</em>-stratifies and makes the worst group worse, so it was '
+    + 'not shipped. The claim is group-conditional by hour of day, and nothing more.';
+}
+function drawConformal(){
+  if(!T){ return; }
+  if(!$('#c_alpha').options.length){
+    /* alpha values: the agent's own, plus the two conventional neighbours -- and the LIST is
+       labelled as a what-if control, because alpha is a definition of the confidence level, not a
+       tuning knob (agent.py says so where ALPHA is declared). */
+    const as=[0.20,0.10,0.05,0.01];
+    opt('#c_alpha', as, as.map(a=>fmt(a,2)+' → '+fmt(100*(1-a),0)+' % nominal'), T.alpha);
+    const ns=[1,2,3,4,5,6,7,8,9,10,12,15,19,20,24];
+    opt('#c_n', ns, ns.map(n=>String(n)), cfDayResiduals().length);
+    $('#c_alpha').onchange = drawConformal; $('#c_n').onchange = drawConformal;
+  }
+  drawConformalTiles(); drawConformalCeiling(); drawConformalLine(); drawConformalLeads();
+}
+
 /* ---------- wind dial ---------- */
 let dialBearing=255;
 function drawDial(){
@@ -1912,7 +2195,7 @@ function drawLimits(){
 }
 
 function drawAll(){ syncOffday(); buildSitePicker(); drawHeadline(); drawPlume(); drawField(); drawAerial(); drawSched(); drawExplain(); drawBound(); drawDial(); drawCov();
-  drawCoverageTiles(); drawLadder(); drawTicker(); drawLimits(); }
+  drawCoverageTiles(); drawConformal(); drawLadder(); drawTicker(); drawLimits(); }
 /* The map is chained off boot's promise and NEVER awaited by it: it is the only networked panel, so
    a slow or dead CDN must not delay or break the physics panels -- but it does need SITES, which boot
    loads. A first version fired it in setTimeout(...,0), which runs BEFORE an async boot() has

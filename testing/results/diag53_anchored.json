@@ -1,0 +1,65 @@
+{
+ "measures": "whether removing each day's spatially-uniform level offset -- i.e. anchoring the level to one in-AOI observation -- restores out-of-sample conformal coverage",
+ "does_not_measure": "the rate itself (3 test days only); and it does not repair FortyGuard's forecast-vs-history level disagreement, it routes around it",
+ "requires": "ONE trustworthy in-AOI observation. This turns the customer's own sensor from an optional examiner into a REQUIRED input -- a real change to the dependency list",
+ "alpha": 0.1,
+ "nominal_coverage": 0.9,
+ "day_offsets": [
+  {
+   "date": "2026-08-12",
+   "n": 17862,
+   "mean_offset_c": -0.8395574067853544,
+   "within_day_sd_c": 0.10564379225123884
+  },
+  {
+   "date": "2026-08-13",
+   "n": 17862,
+   "mean_offset_c": -0.8114965065502183,
+   "within_day_sd_c": 0.06994304542381756
+  },
+  {
+   "date": "2026-08-15",
+   "n": 17862,
+   "mean_offset_c": 0.15202845146120256,
+   "within_day_sd_c": 0.06442946472891353
+  },
+  {
+   "date": "2026-08-16",
+   "n": 17862,
+   "mean_offset_c": -3.7126856119135594,
+   "within_day_sd_c": 0.29033928281345506
+  }
+ ],
+ "rows": [
+  {
+   "test_day": "2026-08-13",
+   "n_cal_days": 1,
+   "halfwidth_unanchored": -0.7126999999999981,
+   "coverage_unanchored": 0.9676967864740791,
+   "halfwidth_anchored": 0.12685740678535629,
+   "coverage_anchored": 0.9744149591311163
+  },
+  {
+   "test_day": "2026-08-15",
+   "n_cal_days": 2,
+   "halfwidth_unanchored": -0.7394000000000034,
+   "coverage_unanchored": 0.0,
+   "halfwidth_anchored": 0.07445740678535406,
+   "coverage_anchored": 0.8989474862837308
+  },
+  {
+   "test_day": "2026-08-16",
+   "n_cal_days": 3,
+   "halfwidth_unanchored": 0.1905000000000001,
+   "coverage_unanchored": 1.0,
+   "halfwidth_anchored": 0.07457154853879513,
+   "coverage_anchored": 0.5282163251595566
+  }
+ ],
+ "pooled_unanchored": 0.655898928824693,
+ "worst_unanchored": 0.0,
+ "pooled_anchored": 0.8005262568581345,
+ "worst_anchored": 0.5282163251595566,
+ "control_reproduces_n26_failure": true,
+ "verdict": "ANCHORING HELPS BUT DOES NOT REACH 90 %: pooled 80.1 % (worst 52.8 %) vs 65.6 % (worst 0.0 %) unanchored. The level offset is the dominant term but not the only one -- a residual spatial-pattern drift remains. Quote the MEASURED rate."
+}

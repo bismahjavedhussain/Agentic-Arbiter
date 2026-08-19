@@ -1,0 +1,82 @@
+{
+ "measures": "additional free-cooling hours per year unlocked by a calibrated hyperlocal intake prediction versus a station reading with one conservative buffer, at EQUAL 90 % safety",
+ "does_not_measure": "energy or money (chiller kW unsourced); one site layout (demo_site, not yet a real mapped campus); a real economizer's humidity/enthalpy limits; and the station divergence is applied as day-varying noise at the measured 0.40 C, which is a LOWER bound since KIAD is ~8 km away",
+ "not_a_forecast_problem": "changeover is a real-time decision on observed conditions, so the 47-72 deg forecast direction error that closed seven decision cores does not apply",
+ "inputs": {
+  "n_hours": 43763,
+  "years": 5,
+  "station": "KIAD",
+  "station_divergence_sd_c": 0.4,
+  "station_divergence_source": "N-49b, 4-5 km bin, n=3,375, median |dT| 0.399-0.420",
+  "fg_obs_err_sd_c": 0.15,
+  "calm_hours_frac": 0.21858647716107213
+ },
+ "calibration": {
+  "incumbent_buffer_c": 0.5663578729875365,
+  "agent_q_c": 0.1668095363240374,
+  "coverage_incumbent": 0.8953934740882917,
+  "coverage_agent": 0.8978612558267068
+ },
+ "by_limit": {
+  "limit_15": {
+   "limit_c": 15.0,
+   "incumbent_h_per_y": 3950.309734027968,
+   "agent_h_per_y": 4097.5063705328575,
+   "gained_h_per_y": 151.9965268257015,
+   "lost_h_per_y": 4.799890320811626,
+   "gain_pct": 3.847711624139328,
+   "unsafe_unlocked_hours": 4,
+   "exceedances_prevented": 4
+  },
+  "limit_18": {
+   "limit_c": 18.0,
+   "incumbent_h_per_y": 4811.890046613655,
+   "agent_h_per_y": 4890.688246046979,
+   "gained_h_per_y": 96.79778813636779,
+   "lost_h_per_y": 17.999588703043596,
+   "gain_pct": 2.0116375727348297,
+   "unsafe_unlocked_hours": 13,
+   "exceedances_prevented": 13
+  },
+  "limit_21": {
+   "limit_c": 21.0,
+   "incumbent_h_per_y": 5655.870761356366,
+   "agent_h_per_y": 5807.4672973219995,
+   "gained_h_per_y": 155.99643542637784,
+   "lost_h_per_y": 4.39989946074399,
+   "gain_pct": 2.7581329561527586,
+   "unsafe_unlocked_hours": 11,
+   "exceedances_prevented": 2
+  },
+  "limit_24": {
+   "limit_c": 24.0,
+   "incumbent_h_per_y": 6789.844849648112,
+   "agent_h_per_y": 6831.043908235079,
+   "gained_h_per_y": 76.79824513298601,
+   "lost_h_per_y": 35.59918654601956,
+   "gain_pct": 1.1310751104565537,
+   "unsafe_unlocked_hours": 6,
+   "exceedances_prevented": 40
+  },
+  "limit_27": {
+   "limit_c": 27.0,
+   "incumbent_h_per_y": 7604.626231605886,
+   "agent_h_per_y": 7683.42443103921,
+   "gained_h_per_y": 93.19787039575907,
+   "lost_h_per_y": 14.399670962434877,
+   "gain_pct": 1.2255417630969916,
+   "unsafe_unlocked_hours": 3,
+   "exceedances_prevented": 7
+  }
+ },
+ "headline": {
+  "limit_c": 21.0,
+  "incumbent_h_per_y": 5655.870761356366,
+  "agent_h_per_y": 5807.4672973219995,
+  "gained_h_per_y": 155.99643542637784,
+  "lost_h_per_y": 4.39989946074399,
+  "gain_pct": 2.7581329561527586,
+  "unsafe_unlocked_hours": 11,
+  "exceedances_prevented": 2
+ }
+}

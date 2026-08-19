@@ -217,8 +217,29 @@ def credits_remaining(key):
     return d["credit_summary"]["cycle_remaining_credits"]
 
 
-def submit_poll(key, endpoint, payload, tag, max_s=420, wait=8):
-    """Submit, poll to completion, save the raw response as a fixture."""
+def submit_poll(key, endpoint, payload, tag, max_s=600, wait=8, require_data=True):
+    """Submit, poll to completion AND to POPULATED DATA, save the raw response as a fixture.
+
+    🔴 BUG FIXED 2026-08-19, AND IT WAS THE CAUSE OF OUR "BLOCKER".
+
+    This function used to return the moment `status == "completed"`, without checking whether
+    `map_data.features` had actually been populated. FortyGuard's own team then documented the
+    behaviour that breaks:
+
+        "map_data / stats_data can return empty on the first Completed poll -- you need to keep
+         polling even after status hits Completed until the data fields are actually populated."
+        -- Qusay Alhasanat, FortyGuard
+
+    So a `completed` response with zero tiles is NOT necessarily an out-of-range request, an empty
+    area, or a missing plan entitlement. It can simply be **too early**. We recorded four such
+    responses as hard failures and spent two days concluding that forecast windows were unavailable
+    on this plan. `assert_non_empty()` existed and was being used -- but DOWNSTREAM, to classify an
+    already-returned empty result as terminal, which is exactly the wrong reading.
+
+    The loop now treats "completed but empty" as a REASON TO KEEP POLLING, and reports how many
+    extra polls were needed so the behaviour is measurable rather than folklore. Set
+    `require_data=False` only when an empty result is genuinely the measurement being taken.
+    """
     t0 = time.time()
     try:
         req = urllib.request.Request(f"{V1}/{endpoint}",
@@ -227,6 +248,8 @@ def submit_poll(key, endpoint, payload, tag, max_s=420, wait=8):
     except Exception as e:
         return {"error": "submit: %s" % str(e)[:200]}
     aid = resp.get("data", {}).get("activity_id")
+    empty_completed_polls = 0
+    last_empty = None
     while time.time() - t0 < max_s:
         try:
             j = urllib.request.urlopen(
@@ -239,12 +262,29 @@ def submit_poll(key, endpoint, payload, tag, max_s=420, wait=8):
         st = str(jd.get("data", {}).get("status") or jd.get("message")).lower()
         if st == "completed":
             res = jd["data"]["result"]
-            with open(os.path.join(FIXTURES, "%s.json" % tag), "w") as f:
-                json.dump(res, f, default=str)
-            return {"ok": True, "aid": aid, "secs": round(time.time() - t0, 1), "result": res}
+            ok, why = assert_non_empty(res)
+            if ok or not require_data:
+                with open(os.path.join(FIXTURES, "%s.json" % tag), "w") as f:
+                    json.dump(res, f, default=str)
+                return {"ok": True, "aid": aid, "secs": round(time.time() - t0, 1),
+                        "result": res, "empty_completed_polls": empty_completed_polls,
+                        "data_note": why}
+            # COMPLETED BUT NOT YET POPULATED -- keep polling, per FortyGuard's guidance
+            empty_completed_polls += 1
+            last_empty = res
+            time.sleep(wait); continue
         if st in ("processing", "pending", "queued", "in progress"):
             time.sleep(wait); continue
         return {"error": st, "aid": aid, "secs": round(time.time() - t0, 1)}
+    # timed out. If it was completed-but-empty throughout, say so precisely -- that is a different
+    # finding from "still processing", and only now may it be called empty.
+    if empty_completed_polls:
+        with open(os.path.join(FIXTURES, "%s.json" % tag), "w") as f:
+            json.dump(last_empty, f, default=str)
+        return {"error": "completed but never populated after %d polls over %.0f s"
+                         % (empty_completed_polls, time.time() - t0),
+                "aid": aid, "secs": round(time.time() - t0, 1),
+                "empty_completed_polls": empty_completed_polls, "result": last_empty}
     return {"error": "timeout", "aid": aid}
 
 

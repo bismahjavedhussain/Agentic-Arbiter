@@ -1,0 +1,79 @@
+{
+ "test": "DIAG-57 FortyGuard forecast error vs lead",
+ "source": "already-paid N-25 fixtures, one target window, five leads + outcome",
+ "n_days": 1,
+ "caveats": [
+  "ONE day. Nothing about day-to-day variability may be claimed here; see section 8e for the four-day spread of day-mean offsets (-0.84, -0.81, +0.15, -3.71 C).",
+  "17,862 tiles are NOT independent -- within-day spatial sd is 0.06-0.29 C, so effective n for the LEVEL is near 1. No CI is placed on the level from tile count."
+ ],
+ "slope_c_per_hour_of_lead": -0.006324979841549982,
+ "error_is_flat_in_lead": true,
+ "anchoring_removes_fraction_of_error": 0.9077951796537355,
+ "rows": [
+  {
+   "lead_h": 1.49,
+   "n_tiles": 17862,
+   "mean_error_c": 1.1950461538461536,
+   "sd_error_c": 0.10802369119607697,
+   "spatial_sd_forecast_c": 0.7590441428330438,
+   "sd_after_anchoring_c": 0.10802369119607695,
+   "rmse_c": 1.1999182365433096,
+   "rmse_after_anchoring_c": 0.10802066731288475,
+   "persistence_sd_c": 1.4052458665360787,
+   "skill_vs_persistence": 0.14611509265556522,
+   "skill_after_anchoring": 0.9231304144810225
+  },
+  {
+   "lead_h": 3.49,
+   "n_tiles": 17862,
+   "mean_error_c": 1.2468497256746165,
+   "sd_error_c": 0.1254188586515678,
+   "spatial_sd_forecast_c": 0.7269370766894756,
+   "sd_after_anchoring_c": 0.1254188586515678,
+   "rmse_c": 1.2531413519176577,
+   "rmse_after_anchoring_c": 0.12541534782931701,
+   "persistence_sd_c": 3.2713947085382005,
+   "skill_vs_persistence": 0.6169397264576444,
+   "skill_after_anchoring": 0.9616630339646914
+  },
+  {
+   "lead_h": 5.49,
+   "n_tiles": 17862,
+   "mean_error_c": 1.0978736759601386,
+   "sd_error_c": 0.09474764229478655,
+   "spatial_sd_forecast_c": 0.7527003227250595,
+   "sd_after_anchoring_c": 0.09474764229478655,
+   "rmse_c": 1.1019542737812993,
+   "rmse_after_anchoring_c": 0.0947449900450822,
+   "persistence_sd_c": 4.78819503959879,
+   "skill_vs_persistence": 0.7698601947773552,
+   "skill_after_anchoring": 0.9802127964167013
+  },
+  {
+   "lead_h": 7.49,
+   "n_tiles": 17862,
+   "mean_error_c": 1.327064242526033,
+   "sd_error_c": 0.10693823071518697,
+   "spatial_sd_forecast_c": 0.7349273701674838,
+   "sd_after_anchoring_c": 0.10693823071518697,
+   "rmse_c": 1.331365708116992,
+   "rmse_after_anchoring_c": 0.10693523721704888,
+   "persistence_sd_c": 5.959271283955289,
+   "skill_vs_persistence": 0.7765891759783525,
+   "skill_after_anchoring": 0.9820556520887108
+  },
+  {
+   "lead_h": 9.41,
+   "n_tiles": 17862,
+   "mean_error_c": 1.0906764863957001,
+   "sd_error_c": 0.11657315121763548,
+   "spatial_sd_forecast_c": 0.7758409869963496,
+   "sd_after_anchoring_c": 0.11657315121763548,
+   "rmse_c": 1.0968882061392762,
+   "rmse_after_anchoring_c": 0.11656988801130798,
+   "persistence_sd_c": 6.770645669076257,
+   "skill_vs_persistence": 0.837993559292414,
+   "skill_after_anchoring": 0.9827830470373423
+  }
+ ]
+}

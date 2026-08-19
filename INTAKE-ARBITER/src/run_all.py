@@ -54,6 +54,8 @@ STEPS = [
      [sys.executable, "ticker.py"], HERE),
     ("browser test fixtures", [sys.executable, "gen_dp_cases.py"], DEMO),
     ("browser test fixtures: stage-event tapes", [sys.executable, "gen_ticker_cases.py"], DEMO),
+    ("browser test fixtures: the conformal arithmetic",
+     [sys.executable, "gen_conformal_cases.py"], DEMO),
     ("AUDIT: everything, mechanically", [sys.executable, "audit.py"], HERE),
 ]
 

@@ -1,0 +1,33 @@
+{
+ "outcome": "non_empty",
+ "n_features": 17862,
+ "n_cells": null,
+ "spent_credits": 4220,
+ "secs": 44.6,
+ "request": {
+  "centre": [
+   39.01,
+   -77.446
+  ],
+  "side_km": 8.0,
+  "granularity": 60,
+  "analytic_type": "tcm",
+  "date_time": {
+   "start_date": "2026-08-16",
+   "start_time": "14:00",
+   "end_time": "16:00",
+   "filter_type": 2
+  }
+ },
+ "meter_before": {
+  "total_used": 12660,
+  "remaining": 1987340,
+  "cycle_remaining": 1987340
+ },
+ "meter_after": {
+  "total_used": 16880,
+  "remaining": 1983120,
+  "cycle_remaining": 1983120
+ },
+ "interpretation": "plan does NOT cap request size; N-26 AOI stands, comparability intact; 08-18 emptiness is an availability matter"
+}

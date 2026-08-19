@@ -1,0 +1,74 @@
+{
+ "test": "DIAG-60 difference-in-differences -- offset claim without cross-source levels",
+ "objection": "FG is 2 m over a data-centre corridor; KIAD is an airport km away. Absolute level differences are urban heat island, not error.",
+ "retracted": "DIAG-58's presentation led with FG-vs-station LEVELS. That framing is withdrawn.",
+ "levels": [
+  {
+   "day": "2026-08-12",
+   "forecast": 31.70453728025977,
+   "history": 30.61386079386407,
+   "station": 29.44
+  },
+  {
+   "day": "2026-08-13",
+   "forecast": 33.52617771246221,
+   "history": 32.72531734408241,
+   "station": 31.11
+  },
+  {
+   "day": "2026-08-15",
+   "forecast": 32.129147665435,
+   "history": 32.32393953084761,
+   "station": 30.0
+  },
+  {
+   "day": "2026-08-16",
+   "forecast": 30.26409131676184,
+   "history": 26.625008610457957,
+   "station": 23.89
+  }
+ ],
+ "internal_forecast_minus_history": [
+  1.0906764863957008,
+  0.8008603683797944,
+  -0.1947918654126113,
+  3.6390827063038813
+ ],
+ "difference_in_differences": [
+  {
+   "from": "2026-08-12",
+   "to": "2026-08-13",
+   "gap_days": 1,
+   "d_station": 1.6699999999999982,
+   "d_history": 2.1114565502183424,
+   "d_forecast": 1.821640432202436,
+   "hist_err": 0.4414565502183443,
+   "fcst_err": 0.15164043220243784
+  },
+  {
+   "from": "2026-08-13",
+   "to": "2026-08-15",
+   "gap_days": 2,
+   "d_station": -1.1099999999999994,
+   "d_history": -0.40137781323480226,
+   "d_forecast": -1.397030047027208,
+   "hist_err": 0.7086221867651972,
+   "fcst_err": -0.28703004702720847
+  },
+  {
+   "from": "2026-08-15",
+   "to": "2026-08-16",
+   "gap_days": 1,
+   "d_station": -6.109999999999999,
+   "d_history": -5.698930920389653,
+   "d_forecast": -1.8650563486731606,
+   "hist_err": 0.4110690796103462,
+   "fcst_err": 4.244943651326839
+  }
+ ],
+ "mean_abs_change_error_history_c": 0.5203826055312959,
+ "mean_abs_change_error_forecast_c": 1.5612047101854951,
+ "ratio_forecast_over_history": 3.00010933031005,
+ "claim_survives": true,
+ "caveat": "n = 3 consecutive-day transitions, one of which spans a 2-day gap. Establishes the mechanism, not the frequency."
+}
