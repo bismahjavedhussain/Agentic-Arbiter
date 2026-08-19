@@ -298,6 +298,37 @@ HOUR_TEMPLATES = [
      "at this notice, split across {n_groups:,} hour-of-day groups."),
 ]
 
+# ============================================================================
+# THE SHORT FORM -- what streams on screen while the agent works
+# ============================================================================
+# The long sentences above belong in the downloadable report. On screen, an agent should read like a
+# status line: a few words and the number that justifies them, appearing as each stage finishes.
+#
+# THE SAME RULE APPLIES, AND THAT IS THE POINT. These are templates, checked for literal digits by
+# the same guard, rendered from the same payloads. A short phrase is where a hand-typed number would
+# be least noticeable and most tempting -- "perceiving 17,862 tiles" reads exactly the same whether
+# the 17,862 was computed or invented -- so the guard has to cover them too.
+SHORT_TEMPLATES = {
+    "perceive.fortyguard": "reading {n_pairs:,} FortyGuard day-pairs, {n_tiles:,} tiles each",
+    "perceive.site_tile": "locating the site inside its tile, {dist_m:.0f} m off centre",
+    "perceive.borrowed_field": "no FortyGuard field of its own at {site}",
+    "perceive.record": "loading {n_hours:,} real station hours",
+    "solve.table": "solving {n_solves:,} plume fields on the {device}",
+    "solve.worst": "worst intake rise {worst_c:.4f} C at {worst_bearing:.0f} deg",
+    "solve.refuse": "refusing {n_refused_long:,} of {n_bearings:,} bearings it cannot stand behind",
+    "bound.level": "bounding from {n:,} day-level residuals",
+    "bound.ceiling": "coverage ceiling {ceiling_pct:.1f} % at this sample size",
+    "bound.mondrian": "calibrating {n_groups:,} hour-of-day groups separately",
+    "decide.sweep": "planning {n_scen:,} scenarios across the plant envelope",
+    "decide.days": "declaring {n_free:,} of {n_dec:,} hours free",
+    "decide.days_vacuous": "declaring {n_free:,} of {n_dec:,} free -- too hot for any controller",
+    "act.commands": "emitting {n_rows:,} command rows, each carrying its bound",
+    "score.sequential": "scoring itself: {cov_pct:.1f} % coverage on held-out days",
+    "score.verdict": "pre-registered verdict: {verdict}",
+    "recalibrate.moved": "widening its own margin by {delta_c:+.4f} C, unprompted",
+    "recalibrate.online": "recalibrating online over {rounds:,} rounds",
+}
+
 ALL_TEMPLATES = {c: (s, t) for c, s, t in SYSTEM_TEMPLATES + HOUR_TEMPLATES}
 
 
@@ -305,10 +336,19 @@ def check_no_literal_digits():
     """V1. Runs at import time -- a template with a hand-written number must not survive to a test
     run, let alone to a screen."""
     bad = {}
-    for code, (_stage, tpl) in ALL_TEMPLATES.items():
+    checked = [(c, t) for c, (_s, t) in ALL_TEMPLATES.items()] + list(SHORT_TEMPLATES.items())
+    for code, tpl in checked:
         d = literal_digits(tpl)
         if d:
             bad[code] = "".join(d)
+    # A short form for an event that does not exist, or an event with no short form, are both
+    # drift -- the first is dead prose, the second is a stage that would stream as a blank.
+    sys_codes = {c for c, _s, _t in SYSTEM_TEMPLATES}
+    orphan = sorted(set(SHORT_TEMPLATES) - sys_codes)
+    missing = sorted(sys_codes - set(SHORT_TEMPLATES))
+    if orphan or missing:
+        raise TickerError("short-form drift: %s have no event, %s have no short form"
+                          % (orphan or "none", missing or "none"))
     if bad:
         raise TickerError(
             "TEMPLATES WITH LITERAL DIGITS -- every number on screen must come from the payload: "
@@ -862,7 +902,9 @@ def main():
                for n in art["trace"]["plant_envelope"]["notice_h"]},
            # SHIPPED SO THE BROWSER OWNS NO PHRASES OF ITS OWN. index.html renders these same
            # strings against its own live payload; verify_browser_ticker.js checks the two agree.
-           "templates": {c: {"stage": s, "template": t} for c, (s, t) in ALL_TEMPLATES.items()},
+           "templates": {c: dict({"stage": s, "template": t},
+                                  **({"short": SHORT_TEMPLATES[c]} if c in SHORT_TEMPLATES else {}))
+                         for c, (s, t) in ALL_TEMPLATES.items()},
            "system": sysev,
            "hour_tape_example": pick,
            "verification": {"system_failures": len(fails), "hour_tapes_checked": n_hours,

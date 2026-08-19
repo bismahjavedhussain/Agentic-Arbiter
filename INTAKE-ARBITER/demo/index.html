@@ -118,6 +118,49 @@ summary{cursor:pointer;font-size:12px;color:var(--text-secondary)}
 .pill{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;
   border:1px solid var(--axis);color:var(--text-secondary);margin-left:6px}
 .err{color:var(--critical)}
+/* THE `hidden` ATTRIBUTE LOSES TO A CLASS RULE, AND THE WHOLE STAGE MACHINE DEPENDS ON IT.
+   The UA stylesheet says `[hidden]{display:none}`, but any class rule that sets `display` -- and
+   `.side` is `display:grid`, `.f` is `display:flex`, `.filters` is a flex row -- has higher
+   specificity and wins. So `el.hidden = true` did nothing to them: the FortyGuard-level-day control
+   stayed visible with the anchor set to a local reading, and every `data-show` section would have
+   leaked into the wrong stage. One rule, declared before the layout, fixes all of it. */
+[hidden]{display:none !important}
+
+/* ---- THE TWO-COLUMN LAYOUT. The controls were a full-width row of ten dropdowns above the
+   results, which reads as a toolbar. As a column they read as the plant they describe.
+   `align-items:start` + `position:sticky` keeps them in view while the reader scrolls the proofs.
+   Below 900 px it collapses to one column and the sidebar stops sticking, because a sticky element
+   taller than the viewport traps the scroll. ---- */
+.side{display:grid;grid-template-columns:268px minmax(0,1fr);gap:22px;align-items:start}
+.sidebar{position:sticky;top:16px;background:var(--surface-1);border:1px solid var(--border);
+  border-radius:12px;padding:16px 15px;max-height:calc(100vh - 32px);overflow-y:auto}
+.sidebar h3{font-size:14px;line-height:1.35}
+.sidebar .thin{font-weight:400;color:var(--text-secondary);font-size:12.5px}
+.mainpane{min-width:0}
+.filters.col{display:flex;flex-direction:column;gap:9px;margin:12px 0 0}
+.filters.col .f{width:100%}
+.filters.col select{width:100%}
+@media (max-width:900px){
+  .side{grid-template-columns:1fr}
+  .sidebar{position:static;max-height:none}
+}
+/* ---- THE STATUS STREAM. One line per stage event, revealed in order. ---- */
+.stream{display:flex;flex-direction:column;gap:0}
+.stream .ev{display:grid;grid-template-columns:auto auto 1fr;gap:0 10px;align-items:baseline;
+  padding:5px 0;border-bottom:1px solid var(--grid);opacity:0;transform:translateY(3px);
+  animation:evin .32s ease forwards}
+@keyframes evin{to{opacity:1;transform:none}}
+.stream .ev .st{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--text-secondary);white-space:nowrap;min-width:78px}
+.stream .ev .dot{width:7px;height:7px;border-radius:99px;background:var(--series-1);
+  align-self:center}
+.stream .ev .ph{font-size:13px;min-width:0}
+.stream .ev.live .dot{background:var(--warning);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.3}}
+.btn-go{background:var(--series-1);border-color:var(--series-1);color:#fff}
+.btn-go:hover{opacity:.9;color:#fff}
+.btn-go:disabled{opacity:.4;cursor:default}
+.btn-sm{font-size:11.5px;padding:5px 10px;font-weight:500}
 .btn{display:inline-block;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:8px;
   border:1px solid var(--axis);color:var(--text-primary);text-decoration:none;cursor:pointer}
 .btn:hover{border-color:var(--series-1);color:var(--series-1)}
@@ -153,13 +196,80 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
 
 <div id="app" hidden>
 
-<!-- ============ THE HEADLINE: what it is worth over five real years ============
-     WHY THIS PANEL EXISTS. Every panel below scopes to ONE DAY, and 43.7 % of the swept
-     configurations declare zero free-cooling hours -- correctly, because you cannot free-cool at
-     35 C. A viewer landing on one of those saw a solid block of MECHANICAL and no annual context
-     whatsoever, and read it as an agent doing nothing. This strip puts the five-year measurement
-     first. Every number is read from the JSON the code wrote; none is typed here. -->
-<div class="card" id="headcard">
+<!-- ============ STAGE 1: PICK A DATA CENTRE ============
+     The reader chooses a real site before seeing a single number. Five were screened, three ship,
+     and the two refusals are on the map with their reasons -- which is the most credible thing in
+     this project, so it is the first thing shown. -->
+<div data-show="pick" class="card" id="pickcard">
+  <h2>Choose a data centre</h2>
+  <p class="note" style="margin-bottom:14px">Five metros were screened on real building footprints,
+  real aerial imagery and five-year weather records. <strong>Three ship. Two were refused</strong> —
+  one is rooftop-cooled, one was never built. Each site below runs on
+  <strong>its own</strong> geometry, its own station record and its own calibrated bound.</p>
+  <div class="filters" style="margin-bottom:10px">
+    <div class="f" style="min-width:320px"><label for="c_site">Data centre</label>
+      <select id="c_site"></select></div>
+  </div>
+  <p class="note" id="pickinfo" style="margin-bottom:14px"></p>
+  <button id="pickgo" class="btn btn-go">Configure the plant &rarr;</button>
+</div>
+
+<div data-show="pick" class="card" id="mapcard">
+  <h2>Five sites screened, three shipped</h2>
+  <p class="note" style="margin-bottom:10px">Real coordinates on a real map. <strong>Green</strong> =
+  running, with its own geometry, its own five-year weather record and an in-scope cooling
+  architecture. <strong>Red</strong> = refused, and the reason is on the marker — one rooftop-cooled,
+  one not yet built. Click a green marker to load it above.</p>
+  <div id="map" style="height:360px;border-radius:10px;overflow:hidden"></div>
+  <p class="note" id="mapnote" style="margin-top:10px"></p>
+</div>
+<!-- ============ STAGE 2: THE PLANT ENVELOPE, AS A COLUMN ============
+     These were a full-width row of ten dropdowns above the results, which read as a toolbar nobody
+     had asked for. As a column beside the page they read as what they are: the customer's plant,
+     which we do not have, so every value is SWEPT rather than chosen. -->
+<div data-show="configure results" class="side">
+  <aside class="sidebar">
+    <h3 style="margin:0 0 4px">The plant<br><span class="thin" id="sitename"></span></h3>
+    <p class="note" style="margin:0 0 12px">Every control is a <strong>scenario parameter</strong>,
+    not a tuned constant. There is no changeover temperature anywhere in the agent's source.</p>
+    <button id="autofill" class="btn btn-sm">Auto-fill a realistic plant</button>
+    <div class="filters col" id="filters"></div>
+    <button id="runagent" class="btn btn-go" style="margin-top:14px">Run the agent &rarr;</button>
+    <p class="note" id="runnote" style="margin-top:10px"></p>
+    <button id="backtopick" class="btn btn-sm" style="margin-top:14px">&larr; Different site</button>
+  </aside>
+
+  <main class="mainpane">
+
+    <!-- ============ STAGE 2b: READY ============ -->
+    <div data-show="configure" class="card">
+      <h2>What this agent decides</h2>
+      <p class="note">A thermometer cannot see three hours into the future, and a cooling plant needs
+      that much notice to change mode. <strong>FortyGuard's forecast is exactly the missing
+      input.</strong></p>
+      <p class="note">The agent decides, hour by hour, whether this data centre can switch its
+      chillers off and cool with outside air — gating on <strong>temperature, humidity and
+      contamination</strong>, the three things LBNL measured operators actually worry about. It then
+      <strong>grades its own accuracy against reality</strong> and widens its safety margin when it
+      is wrong.</p>
+      <div class="tiles" id="readytiles"></div>
+      <p class="note" style="margin-top:12px">Set the plant on the left — or press
+      <strong>Auto-fill</strong> — then <strong>Run the agent</strong>.</p>
+    </div>
+
+    <!-- ============ STAGE 3a: THE AGENT WORKING ============
+         Short phrases from the SAME stage events the long tape used, rendered from the SAME
+         templates in ticker.json. No template may contain a literal digit, so every number that
+         streams past arrived in an event payload from a file the agent wrote. -->
+    <div data-show="results" class="card" id="tapecard">
+      <h2>The agent, working</h2>
+      <p class="note" style="margin-bottom:10px">Seven stages, and every number below arrived in a
+      computed event — <strong>no phrase in <code>src/ticker.py</code> may contain a literal
+      digit</strong>, checked at build time. <span id="tapeguard"></span></p>
+      <div id="tape" class="stream"></div>
+    </div>
+
+<div data-show="results" class="card" id="headcard">
   <h2>What it is worth, measured over five real years</h2>
   <p class="note" style="margin-bottom:12px">913 held-out days the agent never calibrated on.
   The panels below then show <strong>one day at a time</strong> — including the days when the
@@ -174,92 +284,32 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
     <a id="dlreport" class="btn" download>Download the decision report (PDF)</a>
     <span class="note" id="dlnote" style="margin-left:10px"></span></p>
 </div>
-
-<!-- ============ ONE FILTER ROW, scoping every panel below ============ -->
-<div class="filters" id="filters">
-  <div class="f"><label for="c_case">Day</label><select id="c_case"></select></div>
-  <div class="f"><label for="c_limit">Plant limit °C <span class="pill">swept</span></label><select id="c_limit"></select></div>
-  <div class="f"><label for="c_notice">Notice h <span class="pill">swept</span></label><select id="c_notice"></select></div>
-  <div class="f"><label for="c_anchor">Level anchor <span class="pill">swept</span></label><select id="c_anchor"></select></div>
-  <!-- Only meaningful when the anchor is off: it names WHICH of the four measured FortyGuard days
-       supplies the level offset. agent.py sweeps all four as separate scenarios, so this selects a
-       point in that sweep rather than choosing a value. Hidden while anchored, because then the
-       offset is removed by one local reading and the control would imply a choice that is not
-       being made. -->
-  <div class="f" id="f_offday" hidden><label for="c_offday">FortyGuard level day <span class="pill">measured</span></label><select id="c_offday"></select></div>
-  <div class="f"><label for="c_skill">Forecast skill <span class="pill">swept</span></label><select id="c_skill"></select></div>
-  <div class="f"><label for="c_wb">Max dew point °C <span class="pill">ASHRAE</span></label><select id="c_wb"></select></div>
-  <div class="f"><label for="c_aq">Air-quality limit <span class="pill">swept</span></label><select id="c_aq"></select></div>
-  <div class="f"><label for="c_bank">Bank placement <span class="pill">swept</span></label><select id="c_bank"></select></div>
-  <div class="f"><label for="c_budget">Switch budget <span class="pill">swept</span></label><select id="c_budget"></select></div>
-  <div class="f"><label for="c_dwell">Min dwell h <span class="pill">swept</span></label><select id="c_dwell"></select></div>
-</div>
-<p class="note" style="margin:-6px 0 16px">Every control is a <strong>scenario parameter</strong>, not a
-tuned constant. There is no changeover temperature written anywhere in the agent's source — apply the
-project's own “point at the constant” test to <code>src/agent.py</code>. Moving a control makes the
-agent <strong>re-decide in your browser</strong>: the same dynamic program, the same three gates, the
-same group-conditional margins.</p>
-
-<!-- ============ THE REASONING TAPE ============
-     Stage events, and the reason none of this is a scripted animation: NO TEMPLATE IN
-     src/ticker.py MAY CONTAIN A LITERAL DIGIT, checked at import time and again by verify(). The
-     browser owns no phrases of its own -- it renders the SAME templates, shipped in ticker.json,
-     against a payload it computes here. demo/verify_browser_ticker.js compares the two strings. -->
-<div class="card" id="tickercard">
-  <h2>The loop, thinking out loud — and the reason it is not a script</h2>
-  <p class="note" style="margin-bottom:10px">A reasoning ticker is the easiest thing here to fake:
-  seven sentences behind a timer look exactly like an agent. So the guarantee is mechanical rather
-  than asserted — <strong>no template in <code>src/ticker.py</code> may contain a literal
-  digit</strong>. Strip the <code>{…}</code> fields out and any digit left over fails the build, so
-  <strong>every number below arrived in an event payload from a file the agent wrote</strong>. Run
-  the project's own “point at the constant” test on it.</p>
-  <p class="note" id="tkguard" style="margin-bottom:14px"></p>
-  <h3 style="margin-top:4px">The system, once, as it actually ran</h3>
-  <div id="tksys" class="tape"></div>
-  <h3 style="margin-top:20px">One hour, all seven stages — recomputed in your browser</h3>
-  <p class="note" style="margin-bottom:8px">This tape is <strong>not replayed from a file</strong>:
-  it is built here, from the same state the schedule above used, for whatever day, limit and plant
-  configuration is selected. Move any control and it changes. Click the schedule to pick an hour.</p>
-  <div class="f" style="max-width:280px;margin-bottom:12px">
-    <label for="c_hour">Hour</label><select id="c_hour"></select></div>
-  <div id="tkhour" class="tape"></div>
-</div>
-
-<!-- ============ SCREEN ZERO: FortyGuard's own field ============ -->
-<div class="card">
-  <h2>Screen zero — FortyGuard's field, doing the work first</h2>
-  <p class="note" style="margin-bottom:12px">One <code>/v1/heatmap</code> call returns
-  <strong>17,862 tiles</strong> over 8×8 km of the Ashburn data-centre corridor at 2 m. This is the
-  forecast leg and its elapsed outcome for the same window, same tiles, same plane.</p>
-  <div class="row">
-    <div>
-      <canvas id="field" width="470" height="470"></canvas>
-      <div class="scale" style="margin-top:8px">
-        <span id="fmin">–</span>
-        <div class="bar" id="fbar"></div>
-        <span id="fmax">–</span>
-        <span style="margin-left:6px">°C &mdash; each tile's <strong>maximum</strong>, sequential (one hue)</span>
-      </div>
-      <!-- max-width pinned to the canvas: without it this paragraph widens the flex column and
-           pushes the stat cards below the map instead of beside it -->
-      <p class="note" id="latticenote" style="margin-top:8px;max-width:470px">&nbsp;</p>
-    </div>
-    <div class="grow">
-      <div class="f" style="margin-bottom:12px">
-        <label for="c_field">Field</label><select id="c_field"></select>
-      </div>
-      <div class="tiles" id="fieldtiles"></div>
-      <p class="note">The committed site sits inside one of these tiles — OSM ways 744496750 →
-      744496741 (AWS IAD116/IAD117), true facade-to-facade gap
-      <strong id="gap">–</strong> m measured edge-to-edge.</p>
-    </div>
+<div data-show="results" class="card">
+  <h2>The decision — a schedule, not a thermostat</h2>
+  <p class="note" style="margin-bottom:6px">A schedule, not a setpoint: free-cooling hours
+  maximised <em>subject to</em> a hard safety bound, a switch budget and a minimum dwell — so there
+  is no invented exchange rate between risk and hours, and no cost weight to point at.</p>
+  <div class="legend">
+    <span><i style="background:var(--series-1)"></i>Agent — free cooling</span>
+    <span><i style="background:var(--series-2)"></i>Incumbent (rooftop sensor, no forecast) — free cooling</span>
+    <span><i style="background:var(--grid)"></i>Mechanical</span>
+    <span><i style="background:var(--warning)"></i>Refused — solver cannot answer</span>
   </div>
-  <details><summary>Table view — the tile statistics FortyGuard returned</summary>
-    <table id="ftable"></table></details>
+  <canvas id="sched" width="1100" height="132"></canvas>
+  <div class="tiles" id="dtiles" style="margin-top:14px"></div>
+  <p class="note crit" id="zeronote" style="margin-top:14px" hidden></p>
+  <h3 style="margin-top:18px">Why each hour — the bound against the limit</h3>
+  <div class="legend">
+    <span><i style="background:var(--series-1)"></i>Agent's upper bound on intake — <strong>nominal 90 %</strong></span>
+    <span><i style="background:var(--series-2)"></i>What actually happened</span>
+    <span><i style="background:var(--axis)"></i>Plant limit</span>
+  </div>
+  <canvas id="bound" width="1100" height="230"></canvas>
+  <details><summary>Table view — every hour, every component of the bound</summary>
+    <table id="btable"></table></details>
+  <div id="cmdlog" class="note" style="margin-top:12px"></div>
 </div>
-
-<!-- ============ THE SITE, ON REAL AERIAL IMAGERY ============ -->
-<div class="card">
+<div data-show="results" class="card">
   <h2>The site — real imagery, real footprints, drag to pan and scroll to zoom</h2>
   <p class="note" style="margin-bottom:10px">Amazon Web Services <strong>IAD116 → IAD117</strong>,
   Ashburn, Virginia. Footprints are OpenStreetMap ways <strong>744496750</strong> and
@@ -294,75 +344,7 @@ same group-conditional margins.</p>
     </div>
   </div>
 </div>
-
-<!-- ============ THE DECISION ============ -->
-<div class="card">
-  <h2>The decision — a schedule, not a thermostat</h2>
-  <p class="note" style="margin-bottom:6px">The agent maximises free-cooling hours
-  <em>subject to</em> a hard safety bound, a switch budget and a minimum dwell. A constrained form
-  needs no invented exchange rate between risk and chiller-hours, so there is no cost weight to
-  point at either.</p>
-  <div class="legend">
-    <span><i style="background:var(--series-1)"></i>Agent — free cooling</span>
-    <span><i style="background:var(--series-2)"></i>Incumbent (rooftop sensor, no forecast) — free cooling</span>
-    <span><i style="background:var(--grid)"></i>Mechanical</span>
-    <span><i style="background:var(--warning)"></i>Refused — solver cannot answer</span>
-  </div>
-  <canvas id="sched" width="1100" height="132"></canvas>
-  <div class="tiles" id="dtiles" style="margin-top:14px"></div>
-  <p class="note crit" id="zeronote" style="margin-top:14px" hidden></p>
-  <h3 style="margin-top:18px">Why each hour — the bound against the limit</h3>
-  <div class="legend">
-    <span><i style="background:var(--series-1)"></i>Agent's upper bound on intake — <strong>nominal 90 %</strong></span>
-    <span><i style="background:var(--series-2)"></i>What actually happened</span>
-    <span><i style="background:var(--axis)"></i>Plant limit</span>
-  </div>
-  <canvas id="bound" width="1100" height="230"></canvas>
-  <details><summary>Table view — every hour, every component of the bound</summary>
-    <table id="btable"></table></details>
-  <div id="cmdlog" class="note" style="margin-top:12px"></div>
-</div>
-
-
-<!-- ============ STAGE 7: EXPLAIN ============ -->
-<div class="card">
-  <h2>Why — the agent's reasoning, generated live and checkable</h2>
-  <p class="note" style="margin-bottom:10px">Stage 7 of the loop. Generated from the same state the
-  decision used, for <em>whatever</em> configuration is selected above — not a precomputed script.
-  In <code>src/explain.py</code> every claim is <strong>verified by re-running the agent</strong>:
-  1,336 hour-explanations across 7 days x 8 configurations, <strong>0 failures</strong>. If an
-  explanation says an hour would flip when a limit moves by 0.42 °C, the verifier moves it and
-  checks.</p>
-  <p class="note" id="exnarr" style="font-size:13.5px;color:var(--text-primary)"></p>
-  <p class="note" id="extally" style="margin:10px 0"></p>
-  <p class="note warn"><strong>No language model is used, and VRAM is not the reason.</strong>
-  The Warp ensemble peaks at <strong>371 MiB of 6,141</strong>, so one would fit. This stage's job is
-  to report numbers the agent already computed — the one place a language model is most likely to be
-  wrong and least excusable. Deterministic generation plus verification beats generation plus hope.</p>
-  <details open><summary>Every hour, its binding constraint, and why</summary>
-    <table id="extable"></table></details>
-</div>
-
-<!-- ============ WHERE THE SITES ARE ============
-     The ONLY part of this page that touches the network at view time. Everything else replays saved
-     files, and that property is deliberate -- so this panel is built to fail softly: if MapLibre or
-     the tile server is unreachable, it hides itself, says why, and the page is otherwise identical.
-     A judge opening this on a train must not see a broken product. -->
-<div class="card" id="mapcard">
-  <h2>Five sites screened, three shipped</h2>
-  <p class="note" style="margin-bottom:10px">Real coordinates on a real map. <strong>Green</strong> =
-  running, with its own geometry, its own five-year weather record and an in-scope cooling
-  architecture. <strong>Red</strong> = refused, and the reason is on the marker — one rooftop-cooled,
-  one not yet built. Click a green marker to load it above.</p>
-  <div id="map" style="height:360px;border-radius:10px;overflow:hidden"></div>
-  <p class="note" id="mapnote" style="margin-top:10px"></p>
-</div>
-
-<!-- ============ THE 360-DEGREE SITE SIMULATION ============
-     Renders the SOLVED FIELD, not a drawn cone. See src/export_plume_fields.py for why that
-     distinction is load-bearing: our plume spread is the known outlier (N-35, exponent 0.805 vs our
-     sqrt(x)), and a prettier hand-drawn plume would conceal exactly that stated limitation. -->
-<div class="card">
+<div data-show="results" class="card">
   <h2>The plume, solved — turn the wind and watch the exhaust move</h2>
   <p class="note" style="margin-bottom:10px">This is the <strong>field the solver computes</strong>,
   cell by cell, on the rasterised OpenStreetMap footprints — the same <code>solve()</code> behind
@@ -385,9 +367,7 @@ same group-conditional margins.</p>
     </div>
   </div>
 </div>
-
-<!-- ============ WIND DIAL ============ -->
-<div class="card">
+<div data-show="results" class="card">
   <h2>Turn the wind — 72 bearings solved on the real geometry</h2>
   <p class="note" style="margin-bottom:10px">Each bearing is a real solve of the dispersion model on
   the committed building footprints (576 GPU solves per placement, NVIDIA Warp). Drag the dial.
@@ -406,9 +386,57 @@ same group-conditional margins.</p>
   </div>
   <details><summary>Table view — all 72 bearings</summary><table id="dtable"></table></details>
 </div>
-
-<!-- ============ THE BOUND, AND ITS MEASURED FAILURE ============ -->
-<div class="card">
+<div data-show="results" class="card">
+  <h2>Screen zero — FortyGuard's field, doing the work first</h2>
+  <p class="note" style="margin-bottom:12px">One <code>/v1/heatmap</code> call returns
+  <strong>17,862 tiles</strong> over 8×8 km of the Ashburn data-centre corridor at 2 m. This is the
+  forecast leg and its elapsed outcome for the same window, same tiles, same plane.</p>
+  <div class="row">
+    <div>
+      <canvas id="field" width="470" height="470"></canvas>
+      <div class="scale" style="margin-top:8px">
+        <span id="fmin">–</span>
+        <div class="bar" id="fbar"></div>
+        <span id="fmax">–</span>
+        <span style="margin-left:6px">°C &mdash; each tile's <strong>maximum</strong>, sequential (one hue)</span>
+      </div>
+      <!-- max-width pinned to the canvas: without it this paragraph widens the flex column and
+           pushes the stat cards below the map instead of beside it -->
+      <p class="note" id="latticenote" style="margin-top:8px;max-width:470px">&nbsp;</p>
+    </div>
+    <div class="grow">
+      <div class="f" style="margin-bottom:12px">
+        <label for="c_field">Field</label><select id="c_field"></select>
+      </div>
+      <div class="tiles" id="fieldtiles"></div>
+      <p class="note">The committed site sits inside one of these tiles — OSM ways 744496750 →
+      744496741 (AWS IAD116/IAD117), true facade-to-facade gap
+      <strong id="gap">–</strong> m measured edge-to-edge.</p>
+    </div>
+  </div>
+  <details><summary>Table view — the tile statistics FortyGuard returned</summary>
+    <table id="ftable"></table></details>
+</div>
+<div data-show="results" class="card" id="whycard">
+  <h2>Why — the agent's own reasoning, checkable</h2>
+  <p class="note" style="margin-bottom:10px">Generated from the same state the decision used, for
+  <em>whatever</em> configuration is selected — not a script. <strong>Every claim is verified by
+  re-running the agent</strong>: if an explanation says an hour would flip when a limit moves by
+  0.42 °C, the verifier moves it and checks. <span id="exverify"></span></p>
+  <p class="note" id="exnarr" style="font-size:13.5px;color:var(--text-primary)"></p>
+  <p class="note" id="extally" style="margin:10px 0"></p>
+  <p class="note warn"><strong>No language model is used, and VRAM is not the reason.</strong> This
+  stage reports numbers the agent already computed — the one place a model is most likely to be
+  wrong and least excusable. Deterministic generation plus verification beats generation plus hope.</p>
+  <details><summary>One hour, all seven stages of the loop</summary>
+    <div class="f" style="max-width:260px;margin:10px 0"><label for="c_hour">Hour</label>
+      <select id="c_hour"></select></div>
+    <div id="tkhour" class="tape"></div>
+  </details>
+  <details><summary>Every hour, its binding constraint, and why</summary>
+    <table id="extable"></table></details>
+</div>
+<div data-show="results" class="card">
   <h2>The self-scoring loop — including where it failed</h2>
   <p class="note" style="margin-bottom:12px">The safety margin is not chosen. It is the agent's own
   measured track record, and it widens itself when reality proves it wrong.</p>
@@ -424,20 +452,12 @@ same group-conditional margins.</p>
   <p class="note" id="covnote"></p>
   <details><summary>Table view — per-hour coverage</summary><table id="ctable"></table></details>
 </div>
-
-<!-- ============ SESSION F: THE CONFORMAL MACHINERY, MADE VISIBLE ============
-     The panel above shows THAT coverage failed. This one shows WHY, and separates the part that is
-     our sample size from the part that is FortyGuard's. Every quantity here is computed in the
-     browser by functions that mirror src/conformal.py, and verify_browser_conformal.js checks the
-     two agree on 3,000+ generated cases plus the real shipped bounds. -->
-<div class="card" id="cfcard">
+<div data-show="results" class="card" id="cfcard">
   <h2>How the bound is built — the arithmetic, run in front of you</h2>
-  <p class="note" style="margin-bottom:12px">A split-conformal upper bound is not a fitted
-  parameter. It is an <strong>order statistic</strong>: sort your past errors, take the
-  <em>k</em>-th smallest where <strong>k = ⌈(n+1)(1−α)</strong>⌉, and that is the margin. Which means
-  a bound has a <strong>hard arithmetic ceiling</strong> — with <em>n</em> past errors, no
-  distribution-free method can exceed <strong>n/(n+1)</strong> coverage, no matter how good the
-  forecast is. <strong>That single fact explains most of this project's headline failure.</strong></p>
+  <p class="note" style="margin-bottom:12px">The margin is an <strong>order statistic</strong>,
+  not a fitted parameter: sort the past errors, take the <em>k</em>-th smallest. So a bound has a
+  <strong>hard arithmetic ceiling of n/(n+1)</strong> — and <strong>that one fact explains most of
+  this project's headline failure.</strong></p>
 
   <div class="filters" style="margin-bottom:6px">
     <div class="f"><label for="c_alpha">α — miscoverage allowed</label><select id="c_alpha"></select></div>
@@ -448,16 +468,14 @@ same group-conditional margins.</p>
   <p class="note" id="cfceilnote" style="margin-top:8px"></p>
 
   <h3 style="margin-top:22px">The real bound, from the four real FortyGuard days</h3>
-  <p class="note" style="margin-bottom:8px">These are the actual day-level residuals — outcome minus
-  forecast, averaged over 17,862 tiles each. The browser sorts them and picks the
-  <em>k</em>-th, live, then checks its answer against the one <code>src/conformal.py</code> wrote.</p>
+  <p class="note" style="margin-bottom:8px">The actual day-level residuals. The browser sorts them
+  and picks the <em>k</em>-th live, then checks itself against <code>src/conformal.py</code>.</p>
   <canvas id="cfline" width="1100" height="140"></canvas>
   <p class="note" id="cflinenote" style="margin-top:8px"></p>
 
   <h3 style="margin-top:22px">The same machinery at five-year sample sizes — twelve separate bounds</h3>
-  <p class="note" style="margin-bottom:8px">The present-tense controller calibrates
-  <strong>one bound per forecast lead</strong>, because a bound calibrated at one lead is not valid
-  at another. Twelve leads, twelve calibrations, each scored on the hours it actually applies to.</p>
+  <p class="note" style="margin-bottom:8px"><strong>One bound per forecast lead</strong> — a bound
+  calibrated at one lead is not valid at another. Twelve leads, twelve calibrations.</p>
   <div class="legend">
     <span><i style="background:var(--series-1)"></i>Margin at that lead (°C, left)</span>
     <span><i style="background:var(--series-2)"></i>Realised coverage (right)</span>
@@ -470,9 +488,7 @@ same group-conditional margins.</p>
 
   <p class="note warn" style="margin-top:16px" id="cfimposs"></p>
 </div>
-
-<!-- ============ FIVE YEARS ============ -->
-<div class="card">
+<div data-show="results" class="card">
   <h2>Five years, 43,763 real hours</h2>
   <p class="note" style="margin-bottom:10px">Held-out days only; the agent never calibrates on a day
   it is scored on. Gain is hours <em>declared free cooling <strong>and</strong> genuinely safe</em>,
@@ -480,19 +496,11 @@ same group-conditional margins.</p>
   <table id="ladder"></table>
   <p class="note" id="laddernote"></p>
 </div>
-
-<!-- ============ SESSION G: MONEY, SOURCED ============
-     The project refused to print a dollar figure for two weeks, because the conversion could not be
-     sourced from a primary document. It now can, for the COMPRESSOR TERM ONLY, from two documents
-     that were downloaded and parsed in the repository rather than read from a search result. Both
-     conversion factors are SWEPT over their published values -- neither is chosen. -->
-<div class="card" id="moneycard">
+<div data-show="results" class="card" id="moneycard">
   <h2>What it is worth in money — and the three reasons it is an upper bound</h2>
-  <p class="note" style="margin-bottom:10px">Everything here is <strong>per megawatt of IT
-  load</strong>. This project has never measured a data centre's size and will not invent one — a
-  reader who knows their own IT load multiplies once. The agent measures
-  <strong>chiller-hours avoided</strong>; the two factors that turn hours into dollars are
-  <strong>swept over their published values, not chosen</strong>.</p>
+  <p class="note" style="margin-bottom:10px"><strong>Per megawatt of IT load</strong> — this
+  project has never measured a data centre's size and will not invent one. Both factors that turn
+  hours into dollars are <strong>swept over published values, not chosen</strong>.</p>
   <div class="filters" style="margin-bottom:6px">
     <div class="f"><label for="c_chiller">Chiller <span class="pill">ASHRAE 90.1</span></label><select id="c_chiller"></select></div>
     <div class="f"><label for="c_price">Electricity price <span class="pill">EIA</span></label><select id="c_price"></select></div>
@@ -503,11 +511,11 @@ same group-conditional margins.</p>
   <p class="note crit" id="mlimits" style="margin-top:12px"></p>
   <p class="note" id="msources" style="margin-top:10px"></p>
 </div>
-
-<!-- ============ HONEST LIMITS ============ -->
-<div class="card">
+<div data-show="results" class="card">
   <h2>Honest limits — stated before anyone asks</h2>
   <div id="limits"></div>
+</div>
+  </main>
 </div>
 
 </div><!-- /app -->
@@ -537,7 +545,8 @@ function tip(html, ev){ TT.innerHTML=html; TT.style.opacity=1;
   TT.style.top=Math.max(8, ev.clientY-r.height-11)+'px'; }
 function untip(){ TT.style.opacity=0; }
 
-let T=null, BT=null, FIELD=null, ENV=null, RL=null, PF=null, SITES=null, TK=null, MN=null;
+let T=null, BT=null, FIELD=null, ENV=null, RL=null, PF=null, SITES=null, TK=null,
+    MN=null, EX=null, SITE=null;
 
 /* ---------- sequential ramps (one hue each, light -> dark) ---------- */
 const BLUE=['#cde2fb','#9ec5f4','#6da7ec','#3987e5','#256abf','#184f95','#0d366b'];
@@ -550,35 +559,71 @@ function ramp(stops,t){ t=Math.max(0,Math.min(1,t)); const x=t*(stops.length-1);
 function rampCss(stops){ return 'linear-gradient(90deg,'+stops.join(',')+')'; }
 
 /* ---------- load ---------- */
+/* ---------- THE FLOW -------------------------------------------------------------------------
+   Three stages, revealed in order, because a wall of thirteen panels is not a product:
+     pick       choose a data centre. The map and the picker, and nothing else.
+     configure  the plant envelope, in a column beside the page. Auto-fill, then Run.
+     results    the agent thinks out loud, then shows its work.
+   `STAGE` is the single source of truth and `setStage()` is the only thing that changes it, so a
+   panel cannot be visible in a stage that has not loaded its data yet. */
+let STAGE = 'pick';
+function setStage(next){
+  STAGE = next;
+  document.body.dataset.stage = next;
+  for(const el of document.querySelectorAll('[data-show]'))
+    el.hidden = !el.dataset.show.split(' ').includes(next);
+  window.scrollTo({top:0, behavior: next==='pick' ? 'auto' : 'smooth'});
+}
+
 async function boot(){
   try{
-    T  = await (await fetch('trace.json')).json();
-    BT = await (await fetch('backtest.json')).json().catch(()=>null);
-    RL = await (await fetch('rolling.json')).json().catch(()=>null);
+    SITES = await (await fetch('sites.json')).json();
   }catch(e){
-    $('#loading').innerHTML = '<span class="err">Could not load <code>trace.json</code>. '
-      + 'Run <code>python src/agent.py run</code> and serve this folder over HTTP '
+    $('#loading').innerHTML = '<span class="err">Could not load <code>sites.json</code>. '
+      + 'Run <code>python src/run_all.py</code> and serve this folder over HTTP '
       + '(<code>python -m http.server</code>) — <code>file://</code> blocks fetch.'
       + '<br><br><b>Error:</b> <code>' + (e && (e.stack || e.message) || e) + '</code></span>';
     return;
   }
-  try{ BT = BT || await (await fetch('backtest.json')).json(); }catch(e){ BT=null; }
-  try{ RL = RL || await (await fetch('rolling.json')).json(); }catch(e){ RL=null; }
-  /* The site manifest decides what may be offered -- see metros.export_manifest(). The demo does
-     NOT get to decide for itself which sites are real: a site is offerable only with its own
-     geometry, its own >= 95 % station record, a data-centre-to-data-centre pair, an IN-SCOPE
-     architecture verdict for the pair it committed, and an exported solved field. */
-  try{ SITES = await (await fetch('sites.json')).json(); }catch(e){ SITES=null; }
-  /* ticker.json carries the TEMPLATES the tape renders. Optional the same way backtest.json is: if
-     it is absent the panel hides itself rather than the page failing, because the tape is a view of
-     numbers that all exist elsewhere. */
-  try{ TK = await (await fetch('ticker.json')).json(); }catch(e){ TK=null; }
-  /* money.json is optional in the same way: the panel hides itself rather than the page
-     failing, because the hours it prices are all published elsewhere without it. */
-  try{ MN = await (await fetch('money.json')).json(); }catch(e){ MN=null; }
-  await loadSite((SITES && (SITES.sites.find(x=>x.offerable)||{}).key) || 'ashburn');
-  buildControls(); await loadField(); wire(); wireAerial(); $('#loading').hidden=true; $('#app').hidden=false;
-  drawAll();
+  buildSitePicker();
+  $('#loading').hidden = true;
+  $('#app').hidden = false;
+  setStage('pick');
+  drawMap().catch(()=>{});
+  $('#c_site').onchange = () => { $('#pickgo').disabled = !$('#c_site').value; describeSite(); };
+  $('#pickgo').onclick = chooseSite;
+  describeSite();
+}
+
+/* What the reader is choosing, before they choose it -- read from the manifest. */
+function describeSite(){
+  const s = SITES.sites.find(x=>x.key===$('#c_site').value);
+  const el = $('#pickinfo'); if(!s){ el.innerHTML=''; return; }
+  const c = s.committed || {};
+  el.innerHTML = '<strong>' + s.label + '</strong> — ' + int(s.n_tagged_dc)
+    + ' OSM-tagged data centres, ' + int(s.weather_hours) + ' hourly records from ' + s.station
+    + ' at ' + fmt(100*s.weather_coverage,2) + ' % coverage.<br>Committed pair: <strong>'
+    + (c.source_name||'?') + '</strong> → <strong>' + (c.receptor_name||'?')
+    + '</strong>, facades ' + fmt(c.facade_gap_m,1) + ' m apart.<br>'
+    + (s.has_own_fortyguard_field
+        ? '<span class="ok">FortyGuard field purchased for this site.</span>'
+        : '<span class="warn">No FortyGuard field purchased here — its weather, geometry and hours '
+          + "are its own, but the measured level offset is Ashburn&rsquo;s.</span>");
+}
+
+async function chooseSite(){
+  const key = $('#c_site').value;
+  $('#pickgo').disabled = true; $('#pickgo').textContent = 'Loading ' + key + '…';
+  const ok = await loadSite(key);
+  $('#pickgo').textContent = 'Configure the plant →'; $('#pickgo').disabled = false;
+  if(!ok){ $('#pickinfo').innerHTML = '<span class="err">This site has no built artefacts. '
+    + 'Run <code>python src/build_sites.py ' + key + '</code>.</span>'; return; }
+  buildControls();
+  await loadField();
+  wire();
+  wireAerial();
+  $('#sitename').textContent = SITE.label;
+  setStage('configure');
 }
 
 const PE = () => T.plant_envelope;
@@ -588,49 +633,162 @@ function opt(sel, vals, labels, def){
     o.value=String(v); o.textContent=labels?labels[i]:String(v); s.appendChild(o); });
   if(def!==undefined) s.value=String(def);
 }
+/* The plant envelope, built from the trace rather than typed into the HTML -- so the controls are
+   exactly the axes agent.py swept, and an axis added there appears here without an edit. */
+const CONTROLS = [
+  ['c_case',   'Day',                 'measured'],
+  ['c_limit',  'Plant limit °C', 'swept'],
+  ['c_notice', 'Notice needed, h',    'swept'],
+  ['c_anchor', 'Level anchor',        'swept'],
+  ['c_skill',  'Forecast skill',      'swept'],
+  ['c_offday', 'FortyGuard level day','measured'],
+  ['c_wb',     'Max dew point °C','ASHRAE'],
+  ['c_aq',     'Air-quality limit',   'swept'],
+  ['c_bank',   'Condenser bank',      'swept'],
+  ['c_budget', 'Switch budget',       'swept'],
+  ['c_dwell',  'Min dwell, h',        'swept'],
+  ['c_field',  'FortyGuard field',    'saved'],
+];
 function buildControls(){
+  $('#filters').innerHTML = CONTROLS.map(([id,label,pill])=>
+    '<div class="f" id="f_'+id+'"><label for="'+id+'">'+label
+    + ' <span class="pill">'+pill+'</span></label><select id="'+id+'"></select></div>').join('');
+
   const cases = T.cases.cases.filter(c=>c.day);
-  opt('#c_case', cases.map(c=>c.name), cases.map(c=>c.name.replace(/_/g,' ')+' — '+c.day), 'crossing');
-  // Default to 18 C, not 24: on the crossing day (2025-03-11, -1.1 to 22.8 C) a 24 C limit is
-  // never reached, so the schedule renders as a solid block of free cooling and the panel shows
-  // the agent doing nothing. Seen in a screenshot. 18 C puts 8 hours over the limit, so the
-  // changeover, the switch budget and the dwell constraint are all visible on arrival.
+  opt('#c_case', cases.map(c=>c.name), cases.map(c=>c.name.replace(/_/g,' ')+' — '+c.day),
+      cases.some(c=>c.name==='crossing') ? 'crossing' : cases[0].name);
   opt('#c_limit', PE().limit_c, PE().limit_c.map(v=>v+' °C'), 18);
   opt('#c_notice', PE().notice_h, PE().notice_h.map(v=>v+' h'), 3);
   opt('#c_anchor', PE().anchor, PE().anchor.map(v=>v==='sensor'?'one local reading':'none — believe FortyGuard'), 'sensor');
   const fo = T.cases.fg_offsets||[];
-  opt('#c_offday', fo.map(o=>o.date),
-      fo.map(o=>o.date+' · offset '+fmt(o.mean_d,4)+' °C'), fo.length?fo[0].date:'');
+  opt('#c_offday', fo.map(o=>o.date), fo.map(o=>o.date+' · '+fmt(o.mean_d,4)+' °C'),
+      fo.length?fo[0].date:'');
   const sk = T.cases.summary && T.cases.summary.forecast_skill
     ? T.cases.summary.forecast_skill.filter(r=>r.value!==null).map(r=>r.value) : [0,0.5,0.9];
   opt('#c_skill', sk, sk.map(v=>fmt(v,2)+' vs persistence'), 0.5);
   const wb = PE().dewpoint_limit_c || [null];
   opt('#c_wb', wb.map(v=>v===null?'off':v),
-      wb.map(v=>v===null?'gate off':v+' °C'+(v===15?' (ASHRAE rec. max)':'')),
+      wb.map(v=>v===null?'gate off':v+' °C'+(v===15?' (ASHRAE max)':'')),
       wb.indexOf(15)>=0?15:(wb.length>1?wb[1]:'off'));
   const aq = PE().aq_limit_idx || [null];
   opt('#c_aq', aq.map(v=>v===null?'off':v), aq.map(v=>v===null?'gate off':'index ≤ '+fmt(v,1)), 'off');
-  opt('#c_bank', PE().bank_mode, PE().bank_mode.map(v=>v==='longest'?'longest facade (realistic)':'facing end wall (sensitivity)'), 'longest');
+  opt('#c_bank', PE().bank_mode, PE().bank_mode.map(v=>v==='longest'?'longest facade (real)':'end wall (sensitivity)'), 'longest');
   opt('#c_budget', PE().switch_budget, PE().switch_budget.map(v=>v+' /day'), 2);
   opt('#c_dwell', PE().min_dwell_h, PE().min_dwell_h.map(v=>v+' h'), 3);
   const fields = Object.keys(T.fields||{});
-  opt('#c_field', fields, fields.map(f=>f.replace('_',' · ')), fields.find(f=>f.includes('16_forecast'))||fields[0]);
-  $('#gap').textContent = fmt(T.site.facade_gap_m,1);
-  $('#apicalls').textContent = T.api_calls_made;
+  opt('#c_field', fields, fields.map(f=>f.replace('_',' · ')),
+      fields.find(f=>f.includes('16_forecast'))||fields[0]);
+  const gapEl=$('#gap'); if(gapEl) gapEl.textContent = fmt(T.site.facade_gap_m,1);
+  const ac=$('#apicalls'); if(ac) ac.textContent = T.api_calls_made;
+  syncOffday();
+  drawReadyTiles();
 }
+
+/* AUTO-FILL. It restores the SHIPPED reference point -- the one the five-year backtest is scored at
+   and the one HANDOFF quotes -- so a reader who has moved eight controls can get back to a
+   comparable configuration in one click. It is a NAVIGATION aid, not a recommendation: every value
+   it sets is one of the swept options, and the note beside it says which point it is. */
+const AUTOFILL = {c_limit:'18', c_notice:'3', c_anchor:'sensor', c_skill:'0.5',
+                  c_bank:'longest', c_budget:'2', c_dwell:'3', c_wb:'15', c_aq:'off'};
+function autofill(){
+  for(const [id,v] of Object.entries(AUTOFILL)){
+    const el=$('#'+id); if(!el) continue;
+    if([...el.options].some(o=>o.value===v)) el.value=v;
+  }
+  syncOffday();
+  $('#runnote').innerHTML = 'Set to the <strong>shipped reference point</strong> — the configuration '
+    + 'the five-year backtest is scored at. Every value is one of the swept options.';
+  if(STAGE==='results') drawAll();
+  drawReadyTiles();
+}
+
+/* What the reader gets for pressing Run, before they press it -- this site's own figures. */
+function drawReadyTiles(){
+  const el=$('#readytiles'); if(!el||!T) return;
+  const rt=T.cycle.rise_tables.longest;
+  el.innerHTML =
+      tile('This site', SITE.label.split(',')[0],
+           SITE.committed.source_name+' → '+SITE.committed.receptor_name)
+    + tile('Its own weather', int(T.weather.n_hours)+' h',
+           'real hourly records from '+T.weather.station)
+    + tile('Its own physics', int(rt.n_solves)+' solves',
+           'worst intake rise '+fmt(rt.max_rise_c,4)+' °C at '+fmt(rt.max_rise_bearing,0)+'°')
+    + tile('FortyGuard calls at view time', T.api_calls_made,
+           'everything replays saved responses');
+}
+
 function wire(){
   document.querySelectorAll('#filters select').forEach(s=>s.onchange=async e=>{
     if(e.target.id==='c_field'){ await loadField(); }
-    drawAll();
+    syncOffday();
+    if(STAGE==='results') drawAll(); else drawReadyTiles();
   });
-  addEventListener('resize', drawAll);
-  /* The hour selector sits in the tape panel, not in #filters, and only the tape depends on it --
-     so it repaints just the tape rather than the whole page. */
-  $('#c_hour').onchange = drawTicker;
+  addEventListener('resize', ()=>{ if(STAGE==='results') drawAll(); });
+  $('#autofill').onclick = autofill;
+  $('#runagent').onclick = runAgent;
+  $('#backtopick').onclick = ()=>setStage('pick');
 }
+
+/* ---- THE AGENT, WORKING ------------------------------------------------------------------------
+   The short phrases come from ticker.json's own templates, rendered against the payloads the build
+   computed -- the same guarantee as the long form: no template may hold a literal digit, so every
+   number that streams past was computed. What is presentational here, and labelled as such, is only
+   the CADENCE: how long each line waits before the next appears. It is not a measurement and it is
+   not pretending to be one. */
+const STREAM_MS = 260;            // presentation only -- the pace of the reveal, nothing else
+let streaming = false;
+async function runAgent(){
+  if(streaming) return;
+  setStage('results');
+  drawAll();
+  await streamTape();
+}
+function shortPhrase(e){
+  const d = TK && TK.templates && TK.templates[e.code];
+  if(!d || !d.short) return null;
+  try{ return tkRender(d.short, e.numbers); }catch(err){ return null; }
+}
+async function streamTape(){
+  const el=$('#tape'); if(!el) return;
+  if(!TK){ el.innerHTML='<p class="note err">ticker.json did not load for this site.</p>'; return; }
+  $('#tapeguard').innerHTML = '<strong>'+TK.n_templates+' templates, '
+    + TK.templates_with_literal_digits+' with a digit.</strong> '
+    + int(TK.verification.hour_tapes_checked)+' per-hour tapes verified with '
+    + TK.verification.hour_failures+' failures.';
+  streaming = true;
+  el.innerHTML='';
+  const evs = TK.system;
+  for(let i=0;i<evs.length;i++){
+    const e=evs[i], ph=shortPhrase(e);
+    if(!ph) continue;
+    const row=document.createElement('div');
+    row.className='ev live';
+    row.innerHTML='<span class="dot"></span><span class="st">'+e.stage_name+'</span>'
+                + '<span class="ph">'+ph+'</span>';
+    el.appendChild(row);
+    /* the previous line stops pulsing once this one arrives */
+    const prev=el.children[el.children.length-2]; if(prev) prev.classList.remove('live');
+    await new Promise(r=>setTimeout(r, STREAM_MS));
+  }
+  const last=el.lastElementChild; if(last) last.classList.remove('live');
+  const done=document.createElement('p');
+  done.className='note';
+  done.innerHTML='Done. The panels below are that decision, with its working — and the long form of '
+    + 'every line above is in the <strong>downloadable report</strong>.';
+  el.appendChild(done);
+  streaming = false;
+}
+
 /* The level-day control is only meaningful with the anchor off. Driven from the value rather than
    toggled by the handler, so it is correct on first paint too. */
-function syncOffday(){ $('#f_offday').hidden = $('#c_anchor').value !== 'none'; }
+function syncOffday(){
+  /* The control ids are generated by buildControls() as `f_<select id>`, so this is `#f_c_offday`.
+     It was `#f_offday`, left over from the hand-written filter row, and setting .hidden on null
+     threw inside an async handler -- which surfaced as the page sitting on the pick screen with no
+     visible error at all. */
+  const el = $('#f_c_offday'); if(!el) return;
+  el.hidden = $('#c_anchor').value !== 'none';
+}
 
 /* ---------- Screen zero: the 17,862-tile field ---------- */
 async function loadField(){
@@ -937,8 +1095,8 @@ function drawSched(){
   c.onclick=ev=>{
     const r=c.getBoundingClientRect(), h=Math.floor((ev.clientX-r.left-L)/cw);
     if(h<0||h>=R.H) return;
-    $('#c_hour').value=String(h); drawTicker();
-    $('#tickercard').scrollIntoView({behavior:'smooth', block:'center'});
+    const hs=$('#c_hour'); if(hs){ hs.value=String(h); drawTicker();
+      $('#whycard').scrollIntoView({behavior:'smooth', block:'center'}); }
   };
   c.style.cursor='pointer';
   const gain=R.aFree-R.iFree;
@@ -1129,6 +1287,15 @@ function explainHour(R, h) {
 }
 
 function drawExplain() {
+  /* The verification tally, READ from explanations.json. It used to be the literal "1,336
+     hour-explanations across 7 days x 8 configurations, 0 failures" -- correct for Ashburn and
+     wrong for every other site, which is gotcha #67 again. */
+  const v = EX && EX.verification;
+  const ev = $('#exverify');
+  if(ev) ev.innerHTML = v
+    ? '<strong>' + int(v.hour_explanations) + '</strong> hour-explanations verified for this site, '
+      + '<strong>' + v.failures + '</strong> failures.'
+    : '';
   const R = decide();
   if (!R) return;
   const rows = R.ds.hours.map((_, h) => explainHour(R, h));
@@ -1313,35 +1480,28 @@ function tapeHTML(events){
          + `<div class="t${cls}">${e.text.replace(/ -- /g, ' — ')}</div>`;
   }).join('');
 }
+/* The per-hour tape, now inside the "Why" card as a disclosure rather than its own panel.
+   The long SYSTEM tape it used to sit beside is gone from the page -- it streams as short phrases in
+   "The agent, working", and its long form lives in the downloadable report. `tickerFor` is kept
+   because it is the tested half: verify_browser_ticker.js compares 2,037 of its sentences against
+   Python character for character, and it is the only place a reader can see all seven stages
+   resolved for ONE hour. */
 function drawTicker(){
-  if(!TK){ $('#tickercard').hidden = true; return; }
-  $('#tickercard').hidden = false;
-  $('#tkguard').innerHTML = '<strong>' + TK.n_templates + ' templates, '
-    + TK.templates_with_literal_digits + ' of them containing a literal digit.</strong> '
-    + TK.verification.hour_tapes_checked.toLocaleString('en-US')
-    + ' per-hour tapes verified in Python with ' + TK.verification.hour_failures
-    + ' failures, and ' + TK.verification.rederived_numbers + ' of '
-    + (TK.verification.rederived_numbers + TK.verification.read_back_only_numbers)
-    + ' numbers on the system tape re-derived from a different field of the artefacts, written by '
-    + 'different code. The other ' + TK.verification.read_back_only_numbers + ' are read back from '
-    + 'the field they were built from — a weaker check, said out loud rather than left implied.';
-  $('#tksys').innerHTML = tapeHTML(TK.system);
-
+  const host = $('#tkhour'); if(!host) return;
+  if(!TK){ host.innerHTML = '<p class="note">ticker.json did not load for this site.</p>'; return; }
   const R = decide(); if(!R) return;
-  /* Populate the hour selector, keeping the selection if it still exists on this day. The DEFAULT is
-     COMPUTED, not chosen: the tightest hour, i.e. the one whose bound sits closest to the limit.
-     That is the hour where the decision is actually difficult, and picking hour 0 by habit showed a
-     March midnight at 3 C where every gate passes by 14 C and the tape reads as trivial. */
-  const sel = $('#c_hour'), prev = sel.value;
+  /* the tightest hour: bound closest to the limit, i.e. where the decision is actually hard.
+     COMPUTED, because defaulting to index 0 showed a March midnight passing every gate by 14 °C. */
+  const sel = $('#c_hour'), prev = sel ? sel.value : '';
   let tight = 0, best = Infinity;
   for(let h=0; h<R.H; h++){ const d = Math.abs(R.k.limit - R.ubD[h]);
     if(d < best){ best = d; tight = h; } }
   opt('#c_hour', R.ds.hours.map((_,h)=>h), R.ds.hours.map((x,h)=>x+':00'
       + (h===tight ? ' — tightest hour' : '')), (prev!=='' && +prev < R.H) ? prev : tight);
-  const h = Math.min(+sel.value || 0, R.H-1);
-  try{ $('#tkhour').innerHTML = tapeHTML(tickerFor(R, h)); }
-  catch(e){ $('#tkhour').innerHTML = '<div class="t err">The tape refused to render rather than '
-    + 'show a number it could not justify: <code>'+(e.message||e)+'</code></div>'; }
+  const h = Math.min(+$('#c_hour').value || 0, R.H-1);
+  try{ host.innerHTML = tapeHTML(tickerFor(R, h)); }
+  catch(e){ host.innerHTML = '<div class="t err">The tape refused to render rather than show a '
+    + 'number it could not justify: <code>'+(e.message||e)+'</code></div>'; }
 }
 
 /* ---------- SESSION F: the conformal machinery, mirrored from src/conformal.py ----------------
@@ -2023,10 +2183,23 @@ async function drawMap(){
    credible thing this project can put in front of a judge, and hiding the refusals would throw it
    away. A rejected site is shown as rejected, not omitted. */
 async function loadSite(key){
+  /* EVERY artefact for this site, not just the plume field.
+     This function used to fetch ONE file -- plume_field_<key>_longest.json -- so picking a site
+     changed one panel out of thirteen while the headline, schedule, decision, explanation, wind
+     dial, coverage, ladder and money all stayed Ashburn's, wearing whichever label the picker was
+     set to. Every filename comes from sites.json's `artefacts` map and none is constructed here:
+     a guessed name produces a 404 that looks exactly like a missing feature. */
   const s = SITES && SITES.sites.find(x=>x.key===key);
-  const f = (s && s.plume_field_file) || ('plume_field_'+key+'_longest.json');
-  try{ PF = await (await fetch(f)).json(); }catch(e){ PF=null; }
-  return PF;
+  if(!s) return false;
+  const a = s.artefacts || {};
+  const j = async (f) => { if(!f) return null;
+    try{ const r = await fetch(f); return r.ok ? await r.json() : null; }catch(e){ return null; } };
+  const [t, bt, rl, mn, tk, ex, pf] = await Promise.all([
+    j(a.trace), j(a.backtest), j(a.rolling), j(a.money), j(a.ticker), j(a.explanations),
+    j(s.plume_field_file)]);
+  if(!t) return false;
+  T=t; BT=bt; RL=rl; MN=mn; TK=tk; EX=ex; PF=pf; SITE=s;
+  return true;
 }
 function buildSitePicker(){
   const sel=$('#c_site'); if(!sel) return;
@@ -2195,8 +2368,14 @@ function drawHeadline(){
   }
   /* 4. THE FAILURE, on the front page and not buried. */
   const cy=T.cycle;
+  /* THE COVERAGE IS ASHBURN'S WHENEVER A SITE HAS NO FORTYGUARD FIELD OF ITS OWN, and the tile has
+     to say so. Chicago holds one past-window field and Dulles none, so there is nothing to score a
+     forecast against there -- their HOURS are their own, their COVERAGE is borrowed. Read from
+     trace.fortyguard_provenance, not decided here. */
+  const own = !T.fortyguard_provenance || T.fortyguard_provenance.own_measured_day_pairs;
   out.push(tile('Bound coverage, measured', fmt(cy.pooled_coverage*100,1)+' %',
-    'against a 90 % promise — it FAILED its pre-registration'));
+    own ? 'against a 90 % promise — it FAILED its pre-registration'
+        : 'measured at Ashburn and applied here — this site has no FortyGuard field of its own'));
   el.innerHTML=out.join('');
 
   const am=T.cases.all_mechanical;
@@ -2316,7 +2495,7 @@ function drawLimits(){
     `<p class="note ${c}" style="margin-bottom:11px"><strong>${h}.</strong> ${b}</p>`).join('');
 }
 
-function drawAll(){ syncOffday(); buildSitePicker(); drawHeadline(); drawPlume(); drawField(); drawAerial(); drawSched(); drawExplain(); drawBound(); drawDial(); drawCov();
+function drawAll(){ syncOffday(); drawReportLink(); drawHeadline(); drawPlume(); drawField(); drawAerial(); drawSched(); drawExplain(); drawBound(); drawDial(); drawCov();
   drawCoverageTiles(); drawConformal(); drawLadder(); drawTicker(); drawMoney(); drawLimits(); }
 /* The map is chained off boot's promise and NEVER awaited by it: it is the only networked panel, so
    a slow or dead CDN must not delay or break the physics panels -- but it does need SITES, which boot

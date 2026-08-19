@@ -281,6 +281,38 @@ def _selftest_retired_detector():
               if not bad else "cases %s wrong" % bad)
 
 
+def check_page_javascript_parses():
+    """index.html's ONE inline script must actually parse.
+
+    THE BUG THIS EXISTS FOR. A broken apostrophe escape -- `'...Ashburn's.'` -- was a SyntaxError,
+    and a SyntaxError in the only script block means NOTHING runs: the page sat on "Loading saved
+    data..." forever with no error in the console, no unhandled rejection, and every JSON file
+    serving HTTP 200. Three probes found nothing because there was nothing running to probe.
+
+    Exactly the same shape as `check_css_comments`, which exists because unbalanced CSS comment
+    delimiters fed two paragraphs of English to the stylesheet and every screenshot still passed.
+    The browser tests extract individual FUNCTIONS, so they cannot see a break between them.
+    """
+    print("\n2d. THE PAGE'S JAVASCRIPT PARSES")
+    p = os.path.join(DEMO, "index.html")
+    src = open(p, encoding="utf-8").read()
+    i, j = src.rfind("<script>"), src.rfind("</script>")
+    if i < 0 or j < i:
+        ck("index.html has an inline script block", False, "none found")
+        return
+    tmp = os.path.join(DEMO, "_audit_syntax_check.js")
+    open(tmp, "w", encoding="utf-8").write(src[i + 8:j])
+    try:
+        r = subprocess.run(["node", "--check", tmp], capture_output=True, text=True, timeout=120)
+        detail = ""
+        if r.returncode != 0:
+            detail = " ".join((r.stderr or "").split())[:110]
+        ck("index.html's inline script parses (%s chars)" % format(j - i - 8, ","),
+           r.returncode == 0, detail)
+    finally:
+        os.remove(tmp)
+
+
 def check_css_comments():
     """Balanced /* */ inside every <style> block, and no stray text between rules.
 
@@ -832,6 +864,7 @@ def main():
     print("=" * 78)
     check_dead_code()
     check_nan_writers()
+    check_page_javascript_parses()
     check_css_comments()
     check_plume_fields()
     check_decision_precision()
