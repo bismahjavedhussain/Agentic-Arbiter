@@ -47,6 +47,10 @@ STEPS = [
     # imagery scope gate had refused.
     ("site manifest: what the interface may offer, and why",
      [sys.executable, "metros.py", "--manifest"], HERE),
+    # After the backtest, whose ladder and sensitivity rows are the hours it prices. Reads no new
+    # data and calls nothing -- every source is a document already downloaded and quoted.
+    ("money: chiller-hours priced, both conversion factors swept",
+     [sys.executable, "money.py"], HERE),
     ("stage 7 explain, with verification", [sys.executable, "explain.py"], HERE),
     # After explain, because the per-hour tape is built on `explain.state_from_trace`; before the
     # fixtures, which are generated from the tape it writes.

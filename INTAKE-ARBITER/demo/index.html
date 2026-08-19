@@ -470,6 +470,29 @@ same group-conditional margins.</p>
   <p class="note" id="laddernote"></p>
 </div>
 
+<!-- ============ SESSION G: MONEY, SOURCED ============
+     The project refused to print a dollar figure for two weeks, because the conversion could not be
+     sourced from a primary document. It now can, for the COMPRESSOR TERM ONLY, from two documents
+     that were downloaded and parsed in the repository rather than read from a search result. Both
+     conversion factors are SWEPT over their published values -- neither is chosen. -->
+<div class="card" id="moneycard">
+  <h2>What it is worth in money — and the three reasons it is an upper bound</h2>
+  <p class="note" style="margin-bottom:10px">Everything here is <strong>per megawatt of IT
+  load</strong>. This project has never measured a data centre's size and will not invent one — a
+  reader who knows their own IT load multiplies once. The agent measures
+  <strong>chiller-hours avoided</strong>; the two factors that turn hours into dollars are
+  <strong>swept over their published values, not chosen</strong>.</p>
+  <div class="filters" style="margin-bottom:6px">
+    <div class="f"><label for="c_chiller">Chiller <span class="pill">ASHRAE 90.1</span></label><select id="c_chiller"></select></div>
+    <div class="f"><label for="c_price">Electricity price <span class="pill">EIA</span></label><select id="c_price"></select></div>
+  </div>
+  <div class="tiles" id="mtiles"></div>
+  <table id="mtable" style="margin-top:14px"></table>
+  <p class="note" id="mnote" style="margin-top:10px"></p>
+  <p class="note crit" id="mlimits" style="margin-top:12px"></p>
+  <p class="note" id="msources" style="margin-top:10px"></p>
+</div>
+
 <!-- ============ HONEST LIMITS ============ -->
 <div class="card">
   <h2>Honest limits — stated before anyone asks</h2>
@@ -503,7 +526,7 @@ function tip(html, ev){ TT.innerHTML=html; TT.style.opacity=1;
   TT.style.top=Math.max(8, ev.clientY-r.height-11)+'px'; }
 function untip(){ TT.style.opacity=0; }
 
-let T=null, BT=null, FIELD=null, ENV=null, RL=null, PF=null, SITES=null, TK=null;
+let T=null, BT=null, FIELD=null, ENV=null, RL=null, PF=null, SITES=null, TK=null, MN=null;
 
 /* ---------- sequential ramps (one hue each, light -> dark) ---------- */
 const BLUE=['#cde2fb','#9ec5f4','#6da7ec','#3987e5','#256abf','#184f95','#0d366b'];
@@ -539,6 +562,9 @@ async function boot(){
      it is absent the panel hides itself rather than the page failing, because the tape is a view of
      numbers that all exist elsewhere. */
   try{ TK = await (await fetch('ticker.json')).json(); }catch(e){ TK=null; }
+  /* money.json is optional in the same way: the panel hides itself rather than the page
+     failing, because the hours it prices are all published elsewhere without it. */
+  try{ MN = await (await fetch('money.json')).json(); }catch(e){ MN=null; }
   await loadSite((SITES && (SITES.sites.find(x=>x.offerable)||{}).key) || 'ashburn');
   buildControls(); await loadField(); wire(); wireAerial(); $('#loading').hidden=true; $('#app').hidden=false;
   drawAll();
@@ -1529,6 +1555,74 @@ function drawConformalLeads(){
     + '. Adding season on top <em>over</em>-stratifies and makes the worst group worse, so it was '
     + 'not shipped. The claim is group-conditional by hour of day, and nothing more.';
 }
+/* ---------- SESSION G: money, sourced ---------------------------------------------------------
+   Nothing here is typed. The chiller efficiencies come from PNNL-29674 Table 82 and the prices from
+   two EIA publications, both shipped inside money.json along with the list of what is NOT claimed --
+   which is rendered from that list rather than written here, so a limit cannot be dropped from the
+   page while staying in the file (gotcha #56: a retraction must propagate to every surface). */
+function drawMoney(){
+  if(!MN){ $('#moneycard').hidden = true; return; }
+  $('#moneycard').hidden = false;
+  if(!$('#c_chiller').options.length){
+    const ch = MN.chiller_efficiencies_swept, pr = MN.electricity_prices_swept;
+    opt('#c_chiller', ch.map(c=>c.kw_per_ton),
+        ch.map(c=>c.label+' — '+fmt(c.kw_per_ton,3)+' kW/ton'), ch[1].kw_per_ton);
+    opt('#c_price', pr.map(p=>p.cents), pr.map(p=>p.label+' — '+fmt(p.cents,2)+' ¢/kWh'),
+        pr[0].cents);
+    $('#c_chiller').onchange = drawMoney; $('#c_price').onchange = drawMoney;
+  }
+  const kpt = +$('#c_chiller').value, cents = +$('#c_price').value;
+  const cells = MN.cells.filter(c => c.kw_per_ton === kpt && c.cents_per_kwh === cents);
+  const lad = cells.filter(c => c.family === 'five-year ladder');
+  const base = MN.hours_rows.find(r => r.is_base);
+  const bcell = cells.find(c => c.hours_label === (base && base.label));
+  const kw = MN.chiller_kw_per_mw_it[
+    MN.chiller_efficiencies_swept.find(c => c.kw_per_ton === kpt).label];
+
+  $('#mtiles').innerHTML =
+      tile('Chiller power per MW of IT', fmt(kw,1)+' kW',
+           fmt(kpt,3)+' kW/ton × '+fmt(1000/MN.kw_per_ton_of_refrigeration,1)+' tons')
+    + (bcell ? tile('At the shipped configuration',
+           '$'+int(Math.round(bcell.usd_per_mw_it_per_year)),
+           'per MW of IT load per year, from '+fmt(bcell.hours_per_year,1)+' chiller-hours') : '')
+    + (bcell ? tile('Energy avoided', int(Math.round(bcell.kwh_per_mw_it_per_year))+' kWh',
+           'per MW of IT load per year — compressor only') : '')
+    + tile('Range across the whole ladder',
+           '$'+int(Math.round(Math.min(...lad.map(c=>c.usd_per_mw_it_per_year))))+' to $'
+           + int(Math.round(Math.max(...lad.map(c=>c.usd_per_mw_it_per_year)))),
+           'including the negative row, sign intact');
+
+  $('#mtable').innerHTML =
+      '<tr><th>Five-year ladder step</th><th>Chiller-hours avoided /yr</th>'
+    + '<th>kWh /MW-IT /yr</th><th>$ /MW-IT /yr</th></tr>'
+    + lad.map(c=>'<tr><td style="text-align:left">'+c.hours_label+'</td><td>'
+        + fmt(c.hours_per_year,1)+'</td><td>'+int(Math.round(c.kwh_per_mw_it_per_year))+'</td>'
+        + '<td'+(c.usd_per_mw_it_per_year<0?' class="err"':'')+'>'
+        + (c.usd_per_mw_it_per_year<0?'−$':'$')
+        + int(Math.abs(Math.round(c.usd_per_mw_it_per_year)))+'</td></tr>').join('');
+
+  const worst = MN.cells.filter(c=>c.family==='12-axis sensitivity')
+    .reduce((a,c)=>c.usd_per_mw_it_per_year<a.usd_per_mw_it_per_year?c:a,
+            {usd_per_mw_it_per_year:Infinity});
+  $('#mnote').innerHTML = '<strong>'+int(MN.cells.length)+' cells</strong> — every ladder and '
+    + 'sensitivity row × '+MN.chiller_efficiencies_swept.length+' published chiller efficiencies × '
+    + MN.electricity_prices_swept.length+' published prices, <strong>and no row is collapsed</strong>. '
+    + 'The worst cell anywhere in the sweep is <strong>−$'
+    + int(Math.abs(Math.round(worst.usd_per_mw_it_per_year)))+'</strong> per MW of IT per year, at '
+    + '<em>'+worst.hours_label+'</em> — the refusal guard firing. A money panel that could not show '
+    + 'that number would not be worth reading.';
+
+  $('#mlimits').innerHTML = '<strong>What this is NOT — every item read from '
+    + '<code>money.json</code>, not written here:</strong><br>'
+    + MN.not_claimed.map(x=>'• '+x).join('<br>');
+
+  const src = [].concat(MN.sources.electricity_price, MN.sources.chiller_efficiency,
+                        MN.sources.context_only);
+  $('#msources').innerHTML = '<strong>Sources, each downloaded and parsed in the repository:</strong>'
+    + '<br>' + src.map(s=>'• <a href="'+s.url+'" target="_blank" rel="noopener">'+s.title+'</a> — '
+        + s.publisher + '. <em>' + s.how_read + '.</em>').join('<br>');
+}
+
 function drawConformal(){
   if(!T){ return; }
   if(!$('#c_alpha').options.length){
@@ -2195,7 +2289,7 @@ function drawLimits(){
 }
 
 function drawAll(){ syncOffday(); buildSitePicker(); drawHeadline(); drawPlume(); drawField(); drawAerial(); drawSched(); drawExplain(); drawBound(); drawDial(); drawCov();
-  drawCoverageTiles(); drawConformal(); drawLadder(); drawTicker(); drawLimits(); }
+  drawCoverageTiles(); drawConformal(); drawLadder(); drawTicker(); drawMoney(); drawLimits(); }
 /* The map is chained off boot's promise and NEVER awaited by it: it is the only networked panel, so
    a slow or dead CDN must not delay or break the physics panels -- but it does need SITES, which boot
    loads. A first version fired it in setTimeout(...,0), which runs BEFORE an async boot() has

@@ -12,7 +12,7 @@
 >    (Stream→Equinix CH3), Dulles (AWS IAD81→IAD62). Santa Clara rooftop-cooled, Phoenix not built.
 >    **"Five screened, two refused" is the single most credible thing in this project. §6.5**
 > 3. **`python run_all.py` rebuilds and audits everything in ~96 s with ZERO API calls**, exits
->    non-zero on any failure. **11 steps, 38 checks, 62 published numbers re-read from the files the
+>    non-zero on any failure. **12 steps, 39 checks, 68 published numbers re-read from the files the
 >    code wrote.** If it is not green, quote nothing.
 >    **⚠ `INTAKE-ARBITER/` IS NOW COMMITTED — `d57b3b7`, 186 files, key-scanned clean.**
 > 4. **SESSION H IS THE RISK.** Public repo, `fortyguard` as collaborator, live demo link, 2–5 min
@@ -84,9 +84,10 @@ perceive (FortyGuard heatmap + env_params + real wind + own accuracy record)
 boundary**, **not** a stopping rule. Seven pre-registered "when to act" cores all failed — §6.1.
 **Since Session A it also runs in the PRESENT TENSE** — any start hour, any plant state — §6.4b.
 
-**Headline metric: chiller-hours avoided.** No dollar or kWh figure is claimed anywhere; the
-°C→kWh conversion could not be sourced from a primary document. **Session G is where that changes,
-and only with citations opened and read.**
+**Headline metric: chiller-hours avoided.** Session G now also prices it — **but only the chiller
+COMPRESSOR term**, from two documents downloaded and parsed in this repository. §6.12 and
+`money-sources.md`. **The °C→kWh conversion for fans, pumps and towers is still NOT sourced and
+still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 
 ## 2.3 ⚠ CLAIMS THAT ARE RETRACTED — never reuse them
 
@@ -121,8 +122,9 @@ and only with citations opened and read.**
 | **Stage 7 explain** | `src/explain.py` — **1,336 explanations, 0 verification failures** |
 | **The reasoning tape** | `src/ticker.py` — seven-stage events, **29 templates and not one literal digit**, 1,002 hour-tapes verified. §6.9 |
 | **Conformal made visible** | The browser DERIVES the quantile: `cfQuantileIndex` / `cfSplit` mirror `conformal.py` and agree **exactly on 789 assertions**. §6.11 |
-| **Full-tree audit** | `src/audit.py` — **38 checks, 0 failures**, **62 published numbers** re-read from emitted files |
-| **One command** | `src/run_all.py` — plume → agent → backtest → rolling → manifest → explain → **ticker** → fixtures → audit. **11 steps, ~99 s, zero API calls** |
+| **Full-tree audit** | `src/audit.py` — **39 checks, 0 failures**, **68 published numbers** re-read from emitted files |
+| **Money, sourced** | `src/money.py` — **$/kWh and kW/ton BOTH SWEPT over published values**, 608 cells, nothing collapsed. §6.12 |
+| **One command** | `src/run_all.py` — plume → agent → backtest → rolling → manifest → explain → **money** → **ticker** → fixtures → audit. **12 steps, ~97 s, zero API calls** |
 | **The interface** | `demo/index.html` (~100 KB, light+dark). Headline strip, MapLibre site map, **site picker**, solved-plume panel, screen-zero field, aerial, schedule, bound chart, wind dial, live explanations, coverage, ladder, honest limits |
 | **Cross-language proofs** | browser == Python on **scheduling (500 cases)**, **decisions (20,160 configs — was 2,016, see §6.10)**, **reasons (1,336 hours)**, **stage-event sentences (2,037, character for character)** |
 | **Validated physics** | vs analytic plume **0.00 %**, heat conserved **0.00 %**, **67** Prairie Grass experiments, 6 instrumented condensers **r=0.798**, GPU **81.6×** at **0.00012 °C** agreement |
@@ -144,7 +146,6 @@ and only with citations opened and read.**
 | Missing | Notes |
 |---|---|
 | **Session F** — conformal panel | `rolling.json` already ships the per-lead margins and coverage it needs — verified, both are in `configs[0]`. **Cut this first if time compresses** |
-| **Session G** — money | Needs EIA $/kWh + an IT-load/PUE-derived chiller kW, **every step opened and read** |
 | **Session H** — submission | **Downloadable report, README, API-usage doc, 2–5 min video, public repo, `fortyguard` collaborator.** All hard requirements. **Highest risk** |
 | Local LLM narrator | Deliberate: VRAM measured at 371 MiB of 6,141 so it would fit, but no inference stack exists. `PLAN.md` §8l.1 |
 | Same-day anchoring test | ~2 paid calls/day. **Unblocked** by §4 — if it worked, the customer-sensor requirement disappears |
@@ -520,6 +521,62 @@ inference*, Information and Inference **10**(2), 2021). The panel states that, n
 **Mondrian by hour of day** as what shipped, and quotes the lift it buys — worst hour
 **73.14 % → 87.94 %**, hours under nominal **6 → 5 of 24**.
 
+## 6.12 Session G — money, and the three qualifications that all point the same way
+
+`src/money.py`, `demo/money.json`, the panel *"What it is worth in money"*, and
+**`money-sources.md`** in the root, which holds the verbatim quotes and the fetch method for every
+document. **Read that file before quoting any dollar figure.**
+
+**THE UNIT IS PER MEGAWATT OF IT LOAD.** This project has never measured a data centre's size, and
+inventing one would be a hard-coded constant that multiplies the headline. A reader who knows their
+own IT load multiplies once. **Never say "saves $X million" — there is nothing here to multiply by.**
+
+**Both conversion factors are SWEPT over published values, neither is chosen.** 4 prices × 4 chiller
+efficiencies × 38 hours rows = **608 cells, nothing collapsed.**
+
+| the sources, each DOWNLOADED AND PARSED HERE | what it gave |
+|---|---|
+| EIA, *2024 Total Electric Industry — Average Retail Price*, forms EIA-861 (PDF, read with `pypdf`) | **VA commercial 8.72**, VA industrial 8.99, **IL commercial 11.81** ¢/kWh |
+| EIA **Table 5.6.A**, May 2026 (`.xlsx` **parsed as a zip of XML** — no spreadsheet library, no summarising model) | **VA commercial 10.84**, VA industrial 10.53, IL commercial 15.36 ¢/kWh |
+| **PNNL-29674** p. 221, Table 82 = ASHRAE 90.1-2019 Table G3.5.3 (**PDF page 236 printed in full and read in place**) | water-cooled **> 300 tons: centrifugal 0.576 kW/ton FL, 0.549 IPLV**; screw/scroll 0.639 FL, 0.572 IPLV, at ARI 550/590 |
+| **LBNL 2024 US Data Center Energy Usage Report** (all 79 pages extracted and grepped) | **PUE 1.4 in 2023, 1.15–1.35 by 2028 — CONTEXT ONLY.** It states PUE and **never states a chiller kW/ton, COP or IPLV**, verified by grepping every page |
+
+**Why PNNL and not ASHRAE directly:** 90.1 is paywalled; PNNL-29674 is a **free DOE
+national-laboratory publication reproducing the requirement tables**. The standard's values at one
+remove, **and the remove is stated**.
+
+**The arithmetic, per MW of IT load:** 1 ton = 12,000 Btu/h = **3.5168528 kW** (a definition, the one
+step with no PDF to open), so 1 MW = **284.345 tons**, and the chiller draws **156.1–181.7 kW**.
+
+| five-year ladder step | h/yr | kWh/MW-IT | $ /MW-IT/yr at VA 8.72 ¢ + 0.576 kW/ton |
+|---|---|---|---|
+| N-56-like: notice 0, no constraints | +65.6 | 10,746 | **$937** |
+| + switch budget 2, min dwell 3 h | +85.6 | 14,022 | **$1,223** |
+| + dew-point gate 15 °C | +118.8 | 19,460 | **$1,697** |
+| **+ notice 3 h, skill 0.50 — the shipped configuration** | **+405.7** | **66,439** | **$5,794** |
+| + unanchored, 4 measured offsets rotated | **−156.0** | −25,554 | **−$2,228** |
+
+**The worst cell anywhere in the sweep is −$67,045/MW-IT/yr** at `bank_mode = facing` — the refusal
+guard firing. **It is on screen.** `money.py:selftest` has a case asserting a negative hours row
+produces a negative saving, because a dropped sign there would turn the agent's worst result into a
+win.
+
+🔴 **THREE QUALIFICATIONS, AND ALL THREE MAKE THE REAL NUMBER SMALLER:**
+1. **COMPRESSOR ENERGY ONLY.** Fans, chilled-water pumps, condenser pumps and tower fans keep
+   running, and an airside economizer moves **more** air — **fan power can RISE.** The unmeasured
+   term has the **opposite sign**, so this is an upper bound.
+2. **CODE MINIMUM IS THE OPTIMISTIC END.** 90.1 is a *floor*; hyperscale plants beat it, and a better
+   chiller saves less per hour switched off.
+3. **STATE-AVERAGE TARIFFS, not the site's.** A Loudoun County campus buys on a large-general-service
+   contract that is not public.
+
+**All seven limits are rendered on the page FROM `money.json`'s `not_claimed` list**, not written in
+the HTML — so a limit cannot be dropped from the screen while staying in the file (#56).
+
+**A self-test caught my own arithmetic, not the code's:** three hand-computed expectations were wrong
+because they were derived from a *rounded* intermediate. The expectations are now produced with
+`decimal` at 30 digits in a separate process. **#78's tally: checks wrong 11, product wrong 13.**
+
 ## 6.8 Other standing results
 
 **N-49 fault detection PASSED** — removing weather: 79.7 → 0.03 d (+75.6 σ); sequential vs threshold
@@ -687,7 +744,7 @@ Clicking `#sched` drives the tape's hour.
 # 8. HOW TO PROVE IT STILL WORKS
 
 ```bash
-cd INTAKE-ARBITER/src && python run_all.py      # 11 steps, ~99 s, zero API calls, non-zero on failure
+cd INTAKE-ARBITER/src && python run_all.py      # 12 steps, ~97 s, zero API calls, non-zero on failure
 cd INTAKE-ARBITER/src && python ticker.py       # prints the whole tape -- READ IT, see #76
 cd ../demo && python -m http.server 8000       # then open http://localhost:8000
 cd ../../testing && python test_n26_coverage.py dryrun   # free: what the collector would do now
@@ -730,14 +787,14 @@ higher the limit would need to be, that it is one of the 43.7 %, and the annual 
 **DONE:** Sessions 1–3 (plume uncertainty, explain, audit) · **4** (UI pass + the invented-constant
 fix) · **0** (collector hardening) · **A** (present tense + churn) · **C** (annual headline + the
 "no" days) · **B** (multi-site) · **E** (plume simulation, site picker, map) · **D** (the reasoning
-tape + three defects, §6.9/§6.10) · **F** (conformal made visible, §6.11).
+tape + three defects, §6.9/§6.10) · **F** (conformal made visible, §6.11) · **G** (money,
+sourced, §6.12).
 
 **Order confirmed by the user 2026-08-20: D → F → G → H as written.**
 
 | # | Session | First action | Exit criterion |
 |---|---|---|---|
 
-| **G** | Money, sourced | EIA state $/kWh, then chiller kW from a sourced IT-load + PUE range | **Every step opened and read.** The user chose the PUE-derived route over a user-entered kW |
 | **H** | **Submission — HIGHEST RISK** | Downloadable free-cooling report (CSV/PDF), README, API-usage doc, video, public repo | **Public GitHub repo + `fortyguard` collaborator + live demo link + 2–5 min video.** Full-tree key scan clean; branch renamed `main`; fixture-publication decision made |
 
 **Also outstanding, cheap, and worth doing:**

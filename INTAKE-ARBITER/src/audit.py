@@ -506,8 +506,34 @@ def check_published_numbers():
     srow = {(r["axis"], str(r["value"])): r for r in sen["rows"]}
     sbase = [r for r in sen["rows"] if r["is_base"]]
 
+    # SESSION G. The money figure is a PRODUCT of a measured hours row and two SOURCED conversion
+    # factors, so the registry pins the factors -- which come from documents -- and one worked cell.
+    # A drifted kW/ton would otherwise change every dollar on the page silently.
+    mn = jload(os.path.join(DEMO, "money.json"))
+    mcell = [c for c in mn["cells"]
+             if c["family"] == "five-year ladder"
+             and c["hours_label"].startswith("+ notice 3 h")
+             and c["kw_per_ton"] == 0.576 and c["cents_per_kwh"] == 8.72]
+
     reg = [
         ("N-26 pooled coverage 65.6 %", t["cycle"]["pooled_coverage"], 0.6559, 1e-3),
+        # PNNL-29674 Table 82, water cooled > 300 tons -- read off PDF page 236
+        ("ASHRAE 90.1-2019 centrifugal > 300 tons, full load 0.576 kW/ton",
+         [c["kw_per_ton"] for c in mn["chiller_efficiencies_swept"]
+          if c["label"] == "centrifugal, full load"][0], 0.576, 0),
+        ("ASHRAE 90.1-2019 centrifugal > 300 tons, IPLV 0.549 kW/ton",
+         [c["kw_per_ton"] for c in mn["chiller_efficiencies_swept"]
+          if c["label"] == "centrifugal, IPLV.IP"][0], 0.549, 0),
+        # EIA table_4.pdf, 2024 Total Electric Industry
+        ("EIA 2024 Virginia commercial 8.72 cents/kWh",
+         [p_["cents"] for p_ in mn["electricity_prices_swept"]
+          if p_["label"] == "Virginia commercial, 2024 annual"][0], 8.72, 0),
+        ("1 ton of refrigeration = 3.5168528 kW", mn["kw_per_ton_of_refrigeration"],
+         3.5168528420666, 1e-9),
+        ("chiller draws 163.78 kW per MW of IT at 0.576 kW/ton",
+         mn["chiller_kw_per_mw_it"]["centrifugal, full load"], 163.782798, 1e-5),
+        ("the priced headline is about $5,794 per MW of IT per year",
+         mcell[0]["usd_per_mw_it_per_year"] if mcell else -1, 5794.0, 2.0),
         ("FortyGuard tiles per call 17,862", t["fields"]["2026-08-16_forecast"]["n_tiles"],
          17862, 0),
         ("facade-to-facade gap 60.3 m", t["site"]["facade_gap_m"], 60.3, 1e-9),
@@ -708,6 +734,7 @@ def check_self_tests():
     for f in ("conformal.py", "environment.py", "plume_uncertainty.py", "explain.py"):
         run([sys.executable, f], HERE, "%-22s self-test" % f)
     run([sys.executable, "ticker.py", "selftest"], HERE, "%-22s self-test" % "ticker.py")
+    run([sys.executable, "money.py", "selftest"], HERE, "%-22s self-test" % "money.py")
 
 
 def check_cross_language():
