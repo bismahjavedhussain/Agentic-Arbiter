@@ -82,6 +82,7 @@ DEMO = os.path.join(IA, "demo")
 sys.path.insert(0, HERE)
 import conformal as C                                                     # noqa: E402
 import environment as E                                                   # noqa: E402
+import metros as M                                                        # noqa: E402
 from agent import (BEARINGS, CALM_KT, FORECAST_SKILL, MODE_FREE, MODE_MECH,  # noqa: E402
                    PLANT_ENVELOPE, SPEED_GRID_MS,
                    STEP_DEG, debiased_persistence_residuals, load_hours,
@@ -1024,7 +1025,7 @@ def main(which="all"):
 
     out["runtime_seconds"] = round(time.time() - t0, 1)
     os.makedirs(DEMO, exist_ok=True)
-    p = os.path.join(DEMO, "backtest.json")
+    p = M.demo_path("backtest.json")
     json.dump(json_safe(out), open(p, "w", encoding="utf-8"), default=_j, allow_nan=False)
     say("\n   wrote %s (%.1f KB) in %.1f s" % (p, os.path.getsize(p) / 1024.0,
                                                out["runtime_seconds"]))

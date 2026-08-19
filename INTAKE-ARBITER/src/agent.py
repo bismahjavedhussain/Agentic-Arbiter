@@ -124,6 +124,7 @@ from physics.solver import CALIBRATED                               # noqa: E402
 from build_site import rasterise                                    # noqa: E402
 import conformal as C                                               # noqa: E402
 import environment as E                                             # noqa: E402
+import metros as M                                                  # noqa: E402
 
 # ============================================================================
 # PLANT ENVELOPE -- every entry is a SCENARIO PARAMETER, never a single value.
@@ -198,7 +199,11 @@ BEARINGS = np.arange(0.0, 360.0, STEP_DEG)
 AMB_REF = 30.0                     # reference ambient the rise table is solved at
 STEPS = 800
 CALM_KT = 3.0                      # ASOS reports drct = 0 when calm; bearing is undefined there
-SITE_CENTRE = (39.024017, -77.419691)
+# READ from the committed geometry, not typed. This was the literal (39.024017, -77.419691), which
+# is correct for exactly one site -- and the site picker offers three, so a literal here would put
+# Chicago's agent at Ashburn's coordinates. `metros.site_centre()` is the midpoint of the committed
+# pair's own centre_latlon, the same fields the map marker uses, so the two cannot disagree.
+SITE_CENTRE = M.site_centre()
 MODE_MECH, MODE_FREE = 0, 1
 MODE_NAME = {MODE_MECH: "MECHANICAL", MODE_FREE: "FREE-COOLING"}
 
@@ -288,7 +293,10 @@ def load_hours(with_dewpoint=False):
     is present for 100.0 % of hours (verified in environment.py's self-test). Kept in ONE loader
     so no other module re-reads the file and risks disagreeing about a field index.
     """
-    d = json.load(open(os.path.join(WEATHER, "kiad_hourly_2021_2025.json"), encoding="utf-8"))
+    # PER-METRO. This was `kiad_hourly_2021_2025.json` as a literal, which is correct for exactly
+    # one site. `metros.weather_path()` derives the filename from the metro's STATION ID, so a
+    # station change cannot leave a filename asserting the old one (see that function's docstring).
+    d = json.load(open(M.weather_path(), encoding="utf-8"))
     f = d["meta"]["fields"]
     it, idr, isk = f.index("tmpc"), f.index("drct"), f.index("sknt")
     keys = sorted(d["hours"])
@@ -304,7 +312,7 @@ def load_hours(with_dewpoint=False):
 # ============================================================================
 def load_site(mode):
     """Rebuild the verified solver.Site from committed JSON, asserting the rebuild matches."""
-    p = os.path.join(GEOM, "solver_site_%s.json" % mode)
+    p = M.geom_path("solver_site_%s.json" % mode)
     d = json.load(open(p, encoding="utf-8"))
     n, dx = d["domain"]["n"], d["domain"]["dx_m"]
     s = solver.Site(d["domain"]["size_m"], dx)
@@ -346,7 +354,7 @@ def rise_table(mode, cache=True):
     reported and lands in the trace, because "93x faster" is only honest if we say on what.
     Cached to demo/ so a re-run of the demo is instant.
     """
-    cp = os.path.join(DEMO, "rise_table_%s.json" % mode)
+    cp = M.demo_path("rise_table_%s.json" % mode)
     if cache and os.path.exists(cp):
         c = json.load(open(cp, encoding="utf-8"))
         say("      rise table for %-8s loaded from cache (%s, %.1f s when computed)"
@@ -728,15 +736,28 @@ def run_cycle():
     say("      (d = outcome - forecast. Positive means the forecast ran COOL.)")
 
     # the tile the site actually sits in -- FortyGuard's spatial dimension doing real work
+    # THE TILE LOOKUP IS ONLY MEANINGFUL WHERE THE FIELD WAS BOUGHT.
+    # The saved heatmaps cover an 8x8 km box over Ashburn. Running this for Chicago found the
+    # nearest Ashburn tile and reported it 926,064 m away -- an arithmetically correct answer to a
+    # question nobody asked, and one that reads as a bug. Non-Ashburn metros get the honest
+    # sentence instead, and `site_tiles` stays empty rather than holding a 926 km "nearest" tile.
+    own_field = M.metro_key() == M.DEFAULT_METRO
     site_tiles = {}
-    for p in pairs:
-        r = load_fixture(p["forecast_tag"])
-        (la, lo, v), dist = nearest_tile(r, *SITE_CENTRE)
-        site_tiles[p["date"]] = {"lat": round(la, 6), "lon": round(lo, 6),
-                                 "forecast_c": v, "dist_m": round(dist, 1)}
-    say("      committed site %.6f, %.6f sits in tile %.6f, %.6f (%.0f m away)"
-        % (SITE_CENTRE[0], SITE_CENTRE[1], site_tiles[pairs[0]["date"]]["lat"],
-           site_tiles[pairs[0]["date"]]["lon"], site_tiles[pairs[0]["date"]]["dist_m"]))
+    if own_field:
+        for p in pairs:
+            r = load_fixture(p["forecast_tag"])
+            (la, lo, v), dist = nearest_tile(r, *SITE_CENTRE)
+            site_tiles[p["date"]] = {"lat": round(la, 6), "lon": round(lo, 6),
+                                     "forecast_c": v, "dist_m": round(dist, 1)}
+        say("      committed site %.6f, %.6f sits in tile %.6f, %.6f (%.0f m away)"
+            % (SITE_CENTRE[0], SITE_CENTRE[1], site_tiles[pairs[0]["date"]]["lat"],
+               site_tiles[pairs[0]["date"]]["lon"], site_tiles[pairs[0]["date"]]["dist_m"]))
+    else:
+        say("      *** these day-pairs are ASHBURN's. %s has no forecast/outcome pair of its own,"
+            % M.metro()["label"])
+        say("      so the LEVEL TERM below is borrowed and the coverage record is Ashburn's. This")
+        say("      site's WEATHER and GEOMETRY are its own; its hours are its own. Its coverage is")
+        say("      not. Recorded in trace.fortyguard_provenance and shown on the page.")
 
     say("\n   2. SOLVE      recirculation on the committed geometry, both bank placements")
     tabs = {}
@@ -1740,8 +1761,14 @@ def check_physics_not_drifted():
 def run_all():
     t0 = time.time()
     banner("INTAKE-ARBITER   the agent loop, end to end, on saved data.  ZERO API CALLS.")
-    say("   committed site : OSM 744496750 -> 744496741, AWS IAD116/IAD117, %.6f %.6f"
-        % SITE_CENTRE)
+    # COMPUTED, not typed. These four literals described Ashburn and were printed for whatever
+    # metro was running -- the same defect as the "595 h/year" literal in the view (gotcha #67).
+    _sel = json.load(open(M.geom_path("selected_site.json"), encoding="utf-8"))["selected"]
+    say("   metro          : %s  (station K%s)" % (M.metro()["label"], M.metro()["station"]))
+    say("   committed site : OSM %s -> %s, %s / %s, %.6f %.6f"
+        % (_sel["source_osm_id"], _sel["receptor_osm_id"],
+           _sel.get("source_name") or "?", _sel.get("receptor_name") or "?",
+           SITE_CENTRE[0], SITE_CENTRE[1]))
     say("   plant envelope : every decision-changing number is swept, none is chosen --")
     for k, v in PLANT_ENVELOPE.items():
         say("                    %-14s %s" % (k, v))
@@ -1764,13 +1791,39 @@ def run_all():
                                                            "field_%s_forecast.json" % p["date"])
             fields[p["date"] + "_outcome"] = export_field(p["outcome_tag"],
                                                           "field_%s_outcome.json" % p["date"])
-    dtab = json.load(open(os.path.join(GEOM, "direction_table.json"), encoding="utf-8"))
-    site_geom = {m: json.load(open(os.path.join(GEOM, "solver_site_%s.json" % m), encoding="utf-8"))
+    dtab = json.load(open(M.geom_path("direction_table.json"), encoding="utf-8"))
+    site_geom = {m: json.load(open(M.geom_path("solver_site_%s.json" % m), encoding="utf-8"))
                  for m in PLANT_ENVELOPE["bank_mode"]}
 
     trace = {
         "generated_by": "INTAKE-ARBITER/src/agent.py",
         "api_calls_made": 0,
+        # WHICH SITE THIS IS, and what is genuinely its own versus borrowed. Without this block a
+        # reader cannot tell a Chicago trace from an Ashburn one, and the site picker would imply
+        # more independence than the data has.
+        "metro": {
+            "key": M.metro_key(), "label": M.metro()["label"],
+            "station": "K" + M.metro()["station"], "tz": M.metro()["tz"],
+            "climate_note": M.metro().get("climate_note"),
+        },
+        "weather": {"file": os.path.basename(M.weather_path()),
+                    "station": "K" + M.metro()["station"],
+                    "n_hours": len(load_hours()[0])},
+        # 🔴 THE HONEST LIMIT OF A NON-ASHBURN RUN. Weather and geometry are this site's own. The
+        # four MEASURED FortyGuard level offsets are not: only Ashburn has forecast/outcome day
+        # pairs (Chicago holds one past-window field, Dulles none), so the level term and the N-26
+        # coverage record are Ashburn's, applied here. That is an approximation, it is stated, and
+        # it is the reason `run_cycle`'s coverage numbers must not be quoted as this site's.
+        "fortyguard_provenance": {
+            "own_measured_day_pairs": M.metro_key() == M.DEFAULT_METRO,
+            "level_offsets_measured_at": M.DEFAULT_METRO,
+            "note": ("weather and geometry are this site's own; the four measured FortyGuard level "
+                     "offsets and the N-26 coverage record are Ashburn's, because only Ashburn has "
+                     "forecast/outcome day pairs. Quote the hours for this site; quote the "
+                     "coverage for Ashburn."
+                     if M.metro_key() != M.DEFAULT_METRO else
+                     "this site's own measured FortyGuard forecast/outcome day pairs"),
+        },
         "site": {"centre": list(SITE_CENTRE),
                  "osm_source": 744496750, "osm_receptor": 744496741,
                  "operator": "Amazon Web Services IAD116 / IAD117",
@@ -1829,7 +1882,7 @@ def run_all():
     # arrives -- but it is SHIPPED IN FULL, because "we swept it" is only checkable if you can
     # read every row.
     if cas and cas.get("scenarios"):
-        sp = os.path.join(DEMO, "scenarios.json")
+        sp = M.demo_path("scenarios.json")
         # COLUMNAR, not a list of objects. Repeating 24 key names 40,320 times costs ~18 MB of
         # nothing. Same rows, same fidelity, ~4x smaller: `columns` names the fields and `rows`
         # holds one array per scenario in that order.
@@ -1841,21 +1894,23 @@ def run_all():
                    "columns": cols,
                    "rows": [[r[c] for c in cols] for r in cas["scenarios"]]},
                   open(sp, "w", encoding="utf-8"), default=_jsonable, allow_nan=False)
-        say("      %-28s %s rows x %d cols -> scenarios.json (%.1f KB)"
+        say("      %-28s %s rows x %d cols -> %s (%.1f KB)"
             % ("the full plant-envelope sweep", format(len(cas["scenarios"]), ","), len(cols),
-               os.path.getsize(sp) / 1024.0))
+               os.path.basename(sp), os.path.getsize(sp) / 1024.0))
         trace["cases"] = dict(cas)
         trace["cases"]["scenarios"] = {"in_file": "scenarios.json", "n": len(cas["scenarios"])}
         trace["cases"]["summary"] = _summarise(cas["scenarios"])
 
     trace["runtime_seconds"] = round(time.time() - t0, 2)
 
-    p = os.path.join(DEMO, "trace.json")
+    p = M.demo_path("trace.json")
     json.dump(json_safe(trace), open(p, "w", encoding="utf-8"), default=_jsonable, allow_nan=False)
-    say("      %-28s -> trace.json (%.1f KB)" % ("the whole loop", os.path.getsize(p) / 1024.0))
+    say("      %-28s -> %s (%.1f KB)"
+        % ("the whole loop", os.path.basename(p), os.path.getsize(p) / 1024.0))
     say("\n   DONE in %.1f s. Zero API calls. Every number above traces to a saved response,"
         % trace["runtime_seconds"])
-    say("   a committed geometry file, or 43,763 real weather records.")
+    say("   a committed geometry file, or %s real weather records from K%s."
+        % (format(trace["weather"]["n_hours"], ","), M.metro()["station"]))
     return 0
 
 

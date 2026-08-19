@@ -56,6 +56,7 @@ IA = os.path.dirname(HERE)
 DEMO = os.path.join(IA, "demo")
 
 sys.path.insert(0, HERE)
+import metros as M                                                  # noqa: E402
 from agent import MODE_FREE, MODE_MECH, banner, plan, reactive_incumbent, say   # noqa: E402
 
 GATE_DRY, GATE_DEW, GATE_AQ, GATE_REFUSED = "dry-bulb", "dew point", "air quality", "refusal"
@@ -375,7 +376,7 @@ BASE_CFG = {"limit_c": 18.0, "notice_h": 3, "anchor": "sensor", "skill": 0.5,
 
 def main():
     banner("EXPLAIN   stage 7 of the loop: say WHY, and CHECK it.  [no API calls]")
-    tp = os.path.join(DEMO, "trace.json")
+    tp = M.demo_path("trace.json")
     if not os.path.exists(tp):
         say("   trace.json missing -- run `python agent.py run` first.")
         return 2
@@ -438,7 +439,7 @@ def main():
             say("      %s" % blk["summary"]["narrative"])
             break
 
-    p = os.path.join(DEMO, "explanations.json")
+    p = M.demo_path("explanations.json")
     json.dump({"generated_by": "INTAKE-ARBITER/src/explain.py", "api_calls_made": 0,
                "warp_peak_vram_mib": 371, "gpu_total_mib": 6141,
                "local_model_used": False,

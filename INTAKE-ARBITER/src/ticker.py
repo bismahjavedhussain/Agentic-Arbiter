@@ -70,6 +70,7 @@ IA = os.path.dirname(HERE)
 DEMO = os.path.join(IA, "demo")
 
 sys.path.insert(0, HERE)
+import metros as M                                                  # noqa: E402
 
 
 class TickerError(RuntimeError):
@@ -172,6 +173,14 @@ SYSTEM_TEMPLATES = [
     ("perceive.site_tile", 1,
      "The committed site falls inside a tile whose centre lies {dist_m:.0f} m away; on {tile_date} "
      "that tile read {tile_c:.2f} C."),
+    # The variant for a site with no FortyGuard field of its own. `site_tiles` is deliberately empty
+    # there -- running the tile lookup against Ashburn's 8x8 km box for a Chicago site returned a
+    # "nearest" tile 926,064 m away, which is an arithmetically correct answer to a question nobody
+    # asked. This sentence says what IS borrowed and what is not, on screen, per site.
+    ("perceive.borrowed_field", 1,
+     "No FortyGuard field was purchased for {site}, so the level term is {donor}'s measured offset "
+     "and the coverage record is {donor}'s. This site's weather, geometry, plume solves and hours "
+     "are entirely its own."),
     ("perceive.record", 1,
      "Loaded {n_hours:,} real station hours over {n_days:,} days -- the record every margin below "
      "is fitted on, and none of it is synthetic."),
@@ -411,7 +420,9 @@ def system_stream(trace, backtest, rolling):
     aci = backtest["aci"]["3"]
     nominal_pct = 100.0 * (1.0 - trace["alpha"])
     leads = [p["lead_h"] for p in pairs if p.get("lead_h")]
-    first_tile = cyc["site_tiles"][pairs[0]["date"]]
+    # Empty for a site with no field of its own -- see `perceive.borrowed_field`.
+    own_field = bool(cyc.get("site_tiles"))
+    first_tile = cyc["site_tiles"][pairs[0]["date"]] if own_field else None
     cmds = [c for b in cas["act_log"].values() for c in b["commands"]]
     decs = cyc["decisions"]
     n_free_dec = sum(1 for d in decs if d["declared_free"])
@@ -437,8 +448,12 @@ def system_stream(trace, backtest, rolling):
     ev = [
         event("perceive.fortyguard", n_pairs=len(pairs), n_tiles=pairs[0]["n_tiles"],
               lead_min=min(leads), lead_max=max(leads)),
-        event("perceive.site_tile", dist_m=first_tile["dist_m"], tile_date=pairs[0]["date"],
-              tile_c=first_tile["forecast_c"]),
+        (event("perceive.site_tile", dist_m=first_tile["dist_m"], tile_date=pairs[0]["date"],
+               tile_c=first_tile["forecast_c"]) if own_field else
+         event("perceive.borrowed_field",
+               site=trace.get("metro", {}).get("label", M.metro()["label"]),
+               donor=(trace.get("fortyguard_provenance", {})
+                      .get("level_offsets_measured_at", M.DEFAULT_METRO).title()))),
         event("perceive.record", n_hours=backtest["hours"], n_days=backtest["days"]),
         event("solve.table", n_solves=rt["n_solves"], n_bearings=len(rt["bearings"]),
               n_speeds=len(rt["speeds"]), solve_s=rt["solve_seconds"], device=rt["device"]),
@@ -761,7 +776,7 @@ def main():
     banner("TICKER   stage events, and a mechanical proof that no phrase was typed.  [no API calls]")
     art = {}
     for name in ("trace", "backtest", "rolling"):
-        p = os.path.join(DEMO, "%s.json" % name)
+        p = M.demo_path("%s.json" % name)
         if not os.path.exists(p):
             say("   %s.json missing -- run `python run_all.py` first." % name)
             return 2
@@ -855,7 +870,7 @@ def main():
                             "rederived_numbers": counts["rederived"],
                             "read_back_only_numbers": counts["read_back_only"]},
            }
-    p = os.path.join(DEMO, "ticker.json")
+    p = M.demo_path("ticker.json")
     json.dump(out, open(p, "w", encoding="utf-8"), allow_nan=False)
     say("\n   wrote %s (%.1f KB)" % (p, os.path.getsize(p) / 1024.0))
     return 1 if allf else 0

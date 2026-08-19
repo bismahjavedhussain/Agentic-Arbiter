@@ -41,9 +41,20 @@
      39.023464,
      -77.419049
     ],
-    "facade_gap_m": 165.5
+    "facade_gap_m": 60.3,
+    "centroid_separation_m": 165.5
    },
    "plume_field_file": "plume_field_ashburn_longest.json",
+   "artefacts": {
+    "trace": "trace.json",
+    "backtest": "backtest.json",
+    "rolling": "rolling.json",
+    "money": "money.json",
+    "explanations": "explanations.json",
+    "ticker": "ticker.json",
+    "scenarios": "scenarios.json"
+   },
+   "has_own_fortyguard_field": true,
    "verdicts": [
     {
      "pair": [
@@ -104,9 +115,20 @@
      42.001173,
      -87.955194
     ],
-    "facade_gap_m": 319.4
+    "facade_gap_m": 118.4,
+    "centroid_separation_m": 319.4
    },
    "plume_field_file": "plume_field_chicago_longest.json",
+   "artefacts": {
+    "trace": "chicago_trace.json",
+    "backtest": "chicago_backtest.json",
+    "rolling": "chicago_rolling.json",
+    "money": "chicago_money.json",
+    "explanations": "chicago_explanations.json",
+    "ticker": "chicago_ticker.json",
+    "scenarios": "chicago_scenarios.json"
+   },
+   "has_own_fortyguard_field": false,
    "verdicts": [
     {
      "pair": [
@@ -157,9 +179,20 @@
      38.949104,
      -77.519826
     ],
-    "facade_gap_m": 187.9
+    "facade_gap_m": 137.7,
+    "centroid_separation_m": 187.9
    },
    "plume_field_file": "plume_field_dulles_longest.json",
+   "artefacts": {
+    "trace": "dulles_trace.json",
+    "backtest": "dulles_backtest.json",
+    "rolling": "dulles_rolling.json",
+    "money": "dulles_money.json",
+    "explanations": "dulles_explanations.json",
+    "ticker": "dulles_ticker.json",
+    "scenarios": "dulles_scenarios.json"
+   },
+   "has_own_fortyguard_field": false,
    "verdicts": [
     {
      "pair": [
@@ -230,9 +263,12 @@
      33.347321,
      -111.625804
     ],
-    "facade_gap_m": 626.3
+    "facade_gap_m": 448.1,
+    "centroid_separation_m": 626.3
    },
    "plume_field_file": null,
+   "artefacts": {},
+   "has_own_fortyguard_field": false,
    "verdicts": [
     {
      "pair": [
@@ -283,9 +319,12 @@
      37.361105,
      -121.94218
     ],
-    "facade_gap_m": 502.9
+    "facade_gap_m": 350.4,
+    "centroid_separation_m": 502.9
    },
    "plume_field_file": null,
+   "artefacts": {},
+   "has_own_fortyguard_field": false,
    "verdicts": [
     {
      "pair": [

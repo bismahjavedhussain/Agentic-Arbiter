@@ -60,6 +60,14 @@ STEPS = [
     ("browser test fixtures: stage-event tapes", [sys.executable, "gen_ticker_cases.py"], DEMO),
     ("browser test fixtures: the conformal arithmetic",
      [sys.executable, "gen_conformal_cases.py"], DEMO),
+    # THE OTHER SITES. Ashburn is built by the steps above (its artefacts keep the unsuffixed
+    # names the audited chain reads); this step builds every other offerable site on its own
+    # weather, geometry and bound. Without it the site picker offers three sites and only one of
+    # them has any data, which is how it shipped for two sessions.
+    ("every other offerable site, on its own data",
+     [sys.executable, "build_sites.py", "chicago", "dulles"], HERE),
+    ("site manifest again: now with per-site artefact filenames",
+     [sys.executable, "metros.py", "--manifest"], HERE),
     ("AUDIT: everything, mechanically", [sys.executable, "audit.py"], HERE),
 ]
 

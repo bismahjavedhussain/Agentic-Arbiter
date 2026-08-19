@@ -80,6 +80,7 @@ IA = os.path.dirname(HERE)
 DEMO = os.path.join(IA, "demo")
 
 sys.path.insert(0, HERE)
+import metros as M                                                  # noqa: E402
 
 # ============================================================================
 # THE SOURCED CONSTANTS. Every one carries its document, and every one is swept.
@@ -110,8 +111,16 @@ ELECTRICITY_CENTS_PER_KWH = [
      "sector": "industrial", "vintage": "2024 annual", "source": "EIA table_4.pdf"},
     {"label": "Virginia commercial, May 2026", "cents": 10.84, "state": "VA",
      "sector": "commercial", "vintage": "May 2026", "source": "EIA Table 5.6.A"},
+    {"label": "Virginia industrial, May 2026", "cents": 10.53, "state": "VA",
+     "sector": "industrial", "vintage": "May 2026", "source": "EIA Table 5.6.A"},
     {"label": "Illinois commercial, 2024 annual", "cents": 11.81, "state": "IL",
      "sector": "commercial", "vintage": "2024 annual", "source": "EIA table_4.pdf"},
+    {"label": "Illinois industrial, 2024 annual", "cents": 8.83, "state": "IL",
+     "sector": "industrial", "vintage": "2024 annual", "source": "EIA table_4.pdf"},
+    {"label": "Illinois commercial, May 2026", "cents": 15.36, "state": "IL",
+     "sector": "commercial", "vintage": "May 2026", "source": "EIA Table 5.6.A"},
+    {"label": "Illinois industrial, May 2026", "cents": 10.20, "state": "IL",
+     "sector": "industrial", "vintage": "May 2026", "source": "EIA Table 5.6.A"},
 ]
 
 # LBNL 2024, page 47, read directly. CONTEXT ONLY -- never used as a multiplier, because attributing
@@ -222,12 +231,26 @@ def hours_rows(backtest):
     return rows
 
 
-def build(backtest):
+def prices_for_metro(k=None):
+    """The EIA rows for THIS site's state. Chicago is Illinois; Ashburn and Dulles are Virginia.
+
+    Sweeping Virginia's tariff over a Chicago site would price Illinois electricity at a Virginia
+    rate -- and Illinois commercial is 11.81 against Virginia's 8.72, a 35 % difference, so it is
+    not a rounding matter. If a state has no row here the sweep falls back to ALL of them and the
+    fallback is reported, rather than silently pricing the wrong grid.
+    """
+    st = M.metro(k)["state"]
+    own = [p for p in ELECTRICITY_CENTS_PER_KWH if p["state"] == st]
+    return (own, st) if own else (ELECTRICITY_CENTS_PER_KWH, None)
+
+
+def build(backtest, prices=None):
+    prices = prices or ELECTRICITY_CENTS_PER_KWH
     rows = hours_rows(backtest)
     cells = []
     for h in rows:
         for ch in CHILLER_KW_PER_TON:
-            for pr in ELECTRICITY_CENTS_PER_KWH:
+            for pr in prices:
                 p = price_row(h["hours_per_year"], ch["kw_per_ton"], pr["cents"])
                 cells.append({"hours_label": h["label"], "family": h["family"],
                               "hours_per_year": h["hours_per_year"],
@@ -288,29 +311,33 @@ def selftest():
 def main():
     from agent import banner, say
     banner("MONEY   chiller-hours priced, every input opened and read.  [no API calls]")
-    bp = os.path.join(DEMO, "backtest.json")
+    bp = M.demo_path("backtest.json")
     if not os.path.exists(bp):
         say("   backtest.json missing -- run `python run_all.py` first.")
         return 2
     backtest = json.load(open(bp, encoding="utf-8"))
+    prices, own_state = prices_for_metro()
+    say("\n   site           : %s  (%s)" % (M.metro()["label"], M.metro()["state"]))
 
     say("\n   THE TWO CONVERSION FACTORS, BOTH SWEPT, NEITHER CHOSEN")
     say("      chiller power per MW of IT load, from PNNL-29674 Table 82 (ASHRAE 90.1-2019):")
     for ch in CHILLER_KW_PER_TON:
         say("         %-26s %.3f kW/ton  ->  %7.2f kW per MW of IT"
             % (ch["label"], ch["kw_per_ton"], chiller_kw_per_mw_it(ch["kw_per_ton"])))
-    say("      electricity price, from EIA:")
-    for pr in ELECTRICITY_CENTS_PER_KWH:
+    say("      electricity price, from EIA -- %s:"
+        % ("the %s rows, this site's own state" % own_state if own_state
+           else "ALL rows, because this site's state has none"))
+    for pr in prices:
         say("         %-34s %5.2f cents/kWh" % (pr["label"], pr["cents"]))
     say("      1 ton of refrigeration = 12,000 Btu/h = %.7f kW  (a definition, not a measurement)"
         % KW_PER_TON)
 
-    rows, cells = build(backtest)
+    rows, cells = build(backtest, prices)
     say("\n   %d hours rows x %d chiller efficiencies x %d prices = %d cells, none collapsed"
-        % (len(rows), len(CHILLER_KW_PER_TON), len(ELECTRICITY_CENTS_PER_KWH), len(cells)))
+        % (len(rows), len(CHILLER_KW_PER_TON), len(prices), len(cells)))
 
     say("\n   THE FIVE-YEAR LADDER, PRICED. Range is across all %d price x chiller combinations."
-        % (len(CHILLER_KW_PER_TON) * len(ELECTRICITY_CENTS_PER_KWH)))
+        % (len(CHILLER_KW_PER_TON) * len(prices)))
     say("      %-46s %10s %12s %s" % ("step", "h/yr", "kWh/MW-IT", "USD per MW of IT per year"))
     for h in rows:
         if h["family"] != "five-year ladder":
@@ -349,14 +376,17 @@ def main():
                    "centre's size and will not invent one",
            "kw_per_ton_of_refrigeration": KW_PER_TON,
            "chiller_efficiencies_swept": CHILLER_KW_PER_TON,
-           "electricity_prices_swept": ELECTRICITY_CENTS_PER_KWH,
+           "metro": {"key": M.metro_key(), "label": M.metro()["label"],
+                     "state": M.metro()["state"]},
+           "electricity_prices_swept": prices,
+           "electricity_prices_are_this_states_own": bool(own_state),
            "chiller_kw_per_mw_it": {ch["label"]: chiller_kw_per_mw_it(ch["kw_per_ton"])
                                     for ch in CHILLER_KW_PER_TON},
            "lbnl_pue_context_only": LBNL_PUE,
            "sources": SOURCES,
            "not_claimed": NOT_CLAIMED,
            "hours_rows": rows, "cells": cells}
-    p = os.path.join(DEMO, "money.json")
+    p = M.demo_path("money.json")
     json.dump(out, open(p, "w", encoding="utf-8"), allow_nan=False)
     say("\n   wrote %s (%.1f KB)" % (p, os.path.getsize(p) / 1024.0))
     return 0

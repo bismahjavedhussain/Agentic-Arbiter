@@ -46,6 +46,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 GEOM = os.path.join(ROOT, "data", "geometry")
 WEATHER = os.path.join(ROOT, "data", "weather")
+DEMO = os.path.join(ROOT, "demo")
 
 # ---------------------------------------------------------------------------------------------
 # Each bbox is ~7-12 km on a side, the scale at which two hyperscale halls a few hundred metres
@@ -65,6 +66,9 @@ WEATHER = os.path.join(ROOT, "data", "weather")
 # ---------------------------------------------------------------------------------------------
 METROS = {
     "ashburn": {
+        # US state, for the EIA electricity tariff money.py sweeps. Explicit rather
+        # than parsed out of `label`, because a prose field is not a data field.
+        "state": "VA",
         "label": "Ashburn, Virginia",
         "bbox": (39.000, -77.500, 39.060, -77.410),
         "station": "IAD",
@@ -76,6 +80,9 @@ METROS = {
         "climate_note": "mixed-humid: the dew-point gate and the dry-bulb limit both bind",
     },
     "phoenix": {
+        # US state, for the EIA electricity tariff money.py sweeps. Explicit rather
+        # than parsed out of `label`, because a prose field is not a data field.
+        "state": "AZ",
         "label": "Mesa, Arizona",
         # DISCOVERED, not guessed. src/discover_dc_clusters.py found 10 OSM-tagged data centres
         # here (Apple Inc., EdgeConneX). The bbox this replaced was picked from memory and its ten
@@ -107,6 +114,9 @@ METROS = {
                         "rarely bind -- the opposite balance to Ashburn. TO BE MEASURED, not assumed",
     },
     "chicago": {
+        # US state, for the EIA electricity tariff money.py sweeps. Explicit rather
+        # than parsed out of `label`, because a prose field is not a data field.
+        "state": "IL",
         "label": "Elk Grove Village, Illinois",
         # DISCOVERED: 11 tagged data centres (Aligned, Centersquare, Digital Realty).
         "bbox": (41.9010, -87.9885, 42.0111, -87.9025),      # suggested_bbox, verbatim
@@ -120,6 +130,9 @@ METROS = {
                         "shift toward the switch budget. TO BE MEASURED",
     },
     "dulles": {
+        # US state, for the EIA electricity tariff money.py sweeps. Explicit rather
+        # than parsed out of `label`, because a prose field is not a data field.
+        "state": "VA",
         "label": "Dulles corridor, Virginia",
         # DISCOVERED cluster VA_38.94_-77.56: 19 OSM-tagged data centres operated by AMAZON WEB
         # SERVICES, GOOGLE, MICROSOFT and CyrusOne in one box -- sample names Amazon IAD124, IAD125,
@@ -142,6 +155,9 @@ METROS = {
                         "different climate",
     },
     "santaclara": {
+        # US state, for the EIA electricity tariff money.py sweeps. Explicit rather
+        # than parsed out of `label`, because a prose field is not a data field.
+        "state": "CA",
         "label": "Santa Clara, California",
         # DISCOVERED: 53 tagged data centres -- the second-densest cluster in the whole search,
         # after Ashburn's 106. Operators include AWS, Cologix and CoreSite.
@@ -218,6 +234,35 @@ def geom_path(name, k=None):
 # hour: audit.py's dead-code check failed the build because nothing referenced it yet. That is the
 # check doing its job -- speculative helpers are how a tree accumulates functions no caller wants.
 # It goes back in when screen_architecture.py is actually made metro-aware.
+
+
+def demo_path(name, k=None):
+    """Path for a per-site artefact in demo/, e.g. demo_path("trace.json").
+
+    SAME CONVENTION AS `geom_path`, for the same reason: ashburn keeps the unsuffixed name because
+    `audit.py` re-reads 68 published numbers out of `trace.json`, `backtest.json`, `rolling.json`
+    and `money.json`, and renaming them would invalidate the audited chain for no benefit. Every
+    other metro gets a prefix, so three sites coexist with no conditional downstream.
+    """
+    kk = k or metro_key()
+    return os.path.join(DEMO, name if kk == DEFAULT_METRO else "%s_%s" % (kk, name))
+
+
+def site_centre(k=None):
+    """(lat, lon) midpoint of the committed pair, READ from the committed geometry.
+
+    `agent.py` used to carry `SITE_CENTRE = (39.024017, -77.419691)` as a literal, which is fine
+    while there is one site and wrong the moment there are three. Derived from the same
+    `centre_latlon` fields `export_manifest` publishes, so the map marker and the agent cannot
+    disagree about where a site is.
+    """
+    p = geom_path("selected_site.json", k)
+    sel = json.load(open(p, encoding="utf-8"))
+    a = sel.get("source_building", {}).get("centre_latlon")
+    b = sel.get("receptor_building", {}).get("centre_latlon")
+    if not a or not b:
+        raise KeyError("%s has no centre_latlon for its committed pair" % p)
+    return ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
 
 
 def readiness(k):
@@ -320,11 +365,28 @@ def export_manifest():
                     "receptor_name": rb.get("name") or rb.get("operator"),
                     "source_latlon": sb.get("centre_latlon"),
                     "receptor_latlon": rb.get("centre_latlon"),
-                    "facade_gap_m": (sel.get("refusal_measurement") or {}).get("true_gap_m")
-                                    or sel["selected"].get("separation_m")}
+                    # A FIELD NAME MUST NOT ASSERT A QUANTITY IT DOES NOT HOLD (gotcha #62/#67).
+                    # This read `refusal_measurement.true_gap_m or selected.separation_m` -- and
+                    # `refusal_measurement` has no `true_gap_m`, so the fallback always fired and
+                    # `facade_gap_m` shipped the CENTROID SEPARATION: 165.5 m for Ashburn, whose
+                    # real facade-to-facade gap is 60.3 m and clears the 60 m floor by 0.3 m. The
+                    # two are now separate fields, and the gap is read from where it is measured.
+                    "facade_gap_m": sel["selected"].get("true_gap_m"),
+                    "centroid_separation_m": sel["selected"].get("separation_m")}
             except Exception:
                 committed = None
         pf = "plume_field_%s_longest.json" % k
+        # EVERY per-site artefact, named here so the browser never has to guess a filename.
+        # `demo_path` keeps ashburn unsuffixed (the audited chain reads those names), so the
+        # convention is invisible to the page: it just loads whatever this manifest tells it to.
+        # Only files that EXIST are listed -- a name for a file that is not there is how the page
+        # would report "not loaded" for a site the picker had already offered.
+        artefacts = {}
+        for nm in ("trace.json", "backtest.json", "rolling.json", "money.json",
+                   "explanations.json", "ticker.json", "scenarios.json"):
+            fp = demo_path(nm, k)
+            if os.path.exists(fp):
+                artefacts[nm.replace(".json", "")] = os.path.basename(fp)
         # 🔴 SCOPE IS A SEPARATE GATE FROM DATA, AND THE MANIFEST CAUGHT ME CONFLATING THEM.
         # `readiness().offerable` asks only whether the DATA exists: own geometry, a
         # data-centre-to-data-centre pair, a >= 95 % station record. Phoenix and Santa Clara pass all
@@ -357,6 +419,10 @@ def export_manifest():
             "climate_note": m["climate_note"], "basis": m["basis"],
             "committed": committed,
             "plume_field_file": pf if os.path.exists(os.path.join(demo, pf)) else None,
+            # The per-site artefact filenames. Without these the page could only ever load
+            # `trace.json`, which is why picking a site changed one panel out of thirteen.
+            "artefacts": artefacts,
+            "has_own_fortyguard_field": bool(m.get("fortyguard_field")),
             "verdicts": [{"pair": v["pair"], "name": v["name"], "verdict": v["verdict"],
                           "in_scope": v["in_scope"],
                           "consequence": v.get("consequence", "")[:240]} for v in verdicts],

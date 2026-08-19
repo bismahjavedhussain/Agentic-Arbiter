@@ -483,6 +483,80 @@ def check_act_stage():
        "" if not drift else "%d drift(s), first %s" % (len(drift), drift[0]))
 
 
+def check_sites_actually_differ():
+    """EVERY OFFERABLE SITE MUST HAVE ITS OWN NUMBERS, and this check exists because they did not.
+
+    The interface offered a three-entry site picker and `loadSite()` swapped exactly one file: the
+    solved plume field. `backtest.py` and `rolling.py` had no idea a second metro existed, so the
+    headline, the schedule, the decision, the explanation, the wind dial, the coverage record, the
+    ladder and the money were all Ashburn's, wearing whichever label the picker was set to. Nothing
+    caught it: every number was internally consistent and every test passed.
+
+    So the check is comparison, not existence. A site whose artefacts merely EXIST proves nothing --
+    they have to hold DIFFERENT VALUES, because different geometry on different weather cannot
+    produce the same worst bearing and the same annual gain. Dulles is the exception that proves the
+    rule: it shares KIAD with Ashburn, so its WEATHER figures are identical by construction and only
+    its GEOMETRY may differ. That is asserted here too.
+    """
+    print("\n6c. EVERY OFFERABLE SITE HAS ITS OWN NUMBERS")
+    sites = jload(os.path.join(DEMO, "sites.json"))["sites"]
+    keys = [s["key"] for s in sites if s.get("offerable")]
+    ck("sites.json offers more than one site", len(keys) > 1, "offerable: %s" % ", ".join(keys))
+
+    got = {}
+    for s in sites:
+        if not s.get("offerable"):
+            continue
+        art = s.get("artefacts") or {}
+        missing = [n for n in ("trace", "backtest", "rolling", "money", "ticker", "explanations")
+                   if n not in art]
+        if missing:
+            ck("%s: manifest names every artefact" % s["key"], False, "missing %s" % missing)
+            continue
+        t = jload(os.path.join(DEMO, art["trace"]))
+        b = jload(os.path.join(DEMO, art["backtest"]))
+        rt = t["cycle"]["rise_tables"]["longest"]
+        base = [r for r in b["sensitivity"]["rows"] if r["is_base"]][0]
+        got[s["key"]] = {
+            "station": t["weather"]["station"], "hours": t["weather"]["n_hours"],
+            "facade_gap_m": t["site"]["facade_gap_m"],
+            "worst_bearing": rt["max_rise_bearing"], "worst_rise": rt["max_rise_c"],
+            "all_mech": t["cases"]["all_mechanical"]["fraction"],
+            "gain": base["gain_h_per_year"],
+            "state": jload(os.path.join(DEMO, art["money"]))["metro"]["state"],
+        }
+    ck("every offerable site's artefacts load", len(got) == len(keys),
+       "%d of %d" % (len(got), len(keys)))
+    if len(got) < 2:
+        return
+
+    # GEOMETRY must differ between every pair -- two sites cannot share a facade gap and a worst
+    # bearing unless one of them is the other one relabelled.
+    for field in ("facade_gap_m", "worst_rise", "gain", "all_mech"):
+        vals = {k: v[field] for k, v in got.items()}
+        ck("%s differs across all %d sites" % (field, len(got)),
+           len(set(round(float(x), 6) for x in vals.values())) == len(vals),
+           " ".join("%s=%s" % (k, round(float(v), 4)) for k, v in vals.items()))
+
+    # DULLES SHARES KIAD WITH ASHBURN, so its weather figures MUST match and its geometry must not.
+    if {"ashburn", "dulles"} <= set(got):
+        a, d = got["ashburn"], got["dulles"]
+        ck("dulles shares Ashburn's station and hour count, by design",
+           a["station"] == d["station"] and a["hours"] == d["hours"],
+           "%s/%s vs %s/%s" % (a["station"], a["hours"], d["station"], d["hours"]))
+        ck("dulles differs from Ashburn on GEOMETRY, which is what it isolates",
+           a["facade_gap_m"] != d["facade_gap_m"] and a["worst_bearing"] != d["worst_bearing"],
+           "gap %.1f vs %.1f m, worst bearing %.0f vs %.0f deg"
+           % (a["facade_gap_m"], d["facade_gap_m"], a["worst_bearing"], d["worst_bearing"]))
+    if "chicago" in got:
+        ck("chicago is priced on ILLINOIS electricity, not Virginia's",
+           got["chicago"]["state"] == "IL", "state=%s" % got["chicago"]["state"])
+        ck("chicago runs on its OWN station record",
+           got["chicago"]["station"] != got.get("ashburn", {}).get("station"),
+           "%s vs ashburn %s" % (got["chicago"]["station"],
+                                 got.get("ashburn", {}).get("station")))
+
+
 def check_published_numbers():
     print("\n6. PUBLISHED NUMBERS vs WHAT THE CODE NOW WRITES")
     t = jload(os.path.join(DEMO, "trace.json"))
@@ -764,6 +838,7 @@ def main():
     check_retired_constants()
     check_act_stage()
     check_stage_events()
+    check_sites_actually_differ()
     check_published_numbers()
     check_self_tests()
     check_cross_language()

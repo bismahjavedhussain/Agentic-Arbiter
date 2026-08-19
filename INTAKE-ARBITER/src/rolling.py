@@ -66,6 +66,7 @@ sys.path.insert(0, HERE)
 import conformal as C                                                        # noqa: E402
 from agent import (MODE_FREE, MODE_MECH, debiased_persistence_residuals,      # noqa: E402
                    plan, say, banner)
+import metros as M                                                            # noqa: E402
 from backtest import ALPHA, BASE, build_state, split_days, persistence_shift  # noqa: E402
 
 HORIZON_H = 12          # the schedule the UI publishes and the report downloads
@@ -470,7 +471,7 @@ def main(mode="full"):
 
     out["runtime_seconds"] = round(time.time() - t0, 1)
     os.makedirs(DEMO, exist_ok=True)
-    p = os.path.join(DEMO, "rolling.json")
+    p = M.demo_path("rolling.json")
     json.dump(_safe(out), open(p, "w", encoding="utf-8"), allow_nan=False, default=str)
     say("\n   wrote %s (%.1f KB) in %.1f s"
         % (p, os.path.getsize(p) / 1024.0, out["runtime_seconds"]))
