@@ -161,6 +161,8 @@ summary{cursor:pointer;font-size:12px;color:var(--text-secondary)}
 .btn-go:hover{opacity:.9;color:#fff}
 .btn-go:disabled{opacity:.4;cursor:default}
 .btn-sm{font-size:11.5px;padding:5px 10px;font-weight:500}
+.btn-wide{display:block;width:100%;text-align:center;box-sizing:border-box}
+.actions{display:flex;flex-direction:column;gap:7px;margin-top:4px}
 .btn{display:inline-block;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:8px;
   border:1px solid var(--axis);color:var(--text-primary);text-decoration:none;cursor:pointer}
 .btn:hover{border-color:var(--series-1);color:var(--series-1)}
@@ -232,11 +234,16 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
     <h3 style="margin:0 0 4px">The plant<br><span class="thin" id="sitename"></span></h3>
     <p class="note" style="margin:0 0 12px">Every control is a <strong>scenario parameter</strong>,
     not a tuned constant. There is no changeover temperature anywhere in the agent's source.</p>
-    <button id="autofill" class="btn btn-sm">Auto-fill a realistic plant</button>
+    <!-- THE ACTIONS SIT ABOVE THE CONTROLS. They were below all eleven dropdowns, which put
+         "Run the agent" off the bottom of a 900 px screen -- so the instruction "then Run the
+         agent" pointed at a button nobody could see. Actions first, settings after. -->
+    <div class="actions">
+      <button id="runagent" class="btn btn-go btn-wide">Run the agent &rarr;</button>
+      <button id="autofill" class="btn btn-sm btn-wide">Auto-fill a realistic plant</button>
+    </div>
+    <p class="note" id="runnote" style="margin:10px 0 0"></p>
     <div class="filters col" id="filters"></div>
-    <button id="runagent" class="btn btn-go" style="margin-top:14px">Run the agent &rarr;</button>
-    <p class="note" id="runnote" style="margin-top:10px"></p>
-    <button id="backtopick" class="btn btn-sm" style="margin-top:14px">&larr; Different site</button>
+    <button id="backtopick" class="btn btn-sm btn-wide" style="margin-top:14px">&larr; Choose a different site</button>
   </aside>
 
   <main class="mainpane">
@@ -253,8 +260,11 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
       <strong>grades its own accuracy against reality</strong> and widens its safety margin when it
       is wrong.</p>
       <div class="tiles" id="readytiles"></div>
-      <p class="note" style="margin-top:12px">Set the plant on the left — or press
-      <strong>Auto-fill</strong> — then <strong>Run the agent</strong>.</p>
+      <p class="note" style="margin-top:14px;margin-bottom:12px">The plant on the left describes
+      the customer's equipment, which we do not have — so every value there is
+      <strong>swept</strong>, and you can move any of it. Or leave it and press the button.</p>
+      <button id="runagent2" class="btn btn-go" style="font-size:14px;padding:11px 18px">
+        Run the agent on this site &rarr;</button>
     </div>
 
     <!-- ============ STAGE 3a: THE AGENT WORKING ============
@@ -725,7 +735,9 @@ function wire(){
   });
   addEventListener('resize', ()=>{ if(STAGE==='results') drawAll(); });
   $('#autofill').onclick = autofill;
-  $('#runagent').onclick = runAgent;
+  /* TWO buttons, ONE handler -- the sidebar's and the main pane's. Same function, so they cannot
+     drift, and `runAgent` already guards against a second press while a stream is playing. */
+  for(const id of ['#runagent', '#runagent2']){ const b=$(id); if(b) b.onclick = runAgent; }
   $('#backtopick').onclick = ()=>setStage('pick');
 }
 
