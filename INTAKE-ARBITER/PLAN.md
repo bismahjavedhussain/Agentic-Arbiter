@@ -158,8 +158,16 @@ ONCE PER CYCLE, unattended:
 
   ACT          write the schedule to a BMS/SCADA-shaped interface, with the reason
 
-  EXPLAIN      local NVIDIA Nemotron renders the reasoning trace in prose.
-               The LLM NEVER sets the bound or the schedule. It narrates them.
+  EXPLAIN      DETERMINISTIC. The reason for every hour is generated from the decision
+               itself, and EVERY CLAIM IS VERIFIED BY RE-RUNNING THE AGENT: if a
+               reason says "this hour flips if the limit rises 0.42 C", verify()
+               moves the limit and checks that it does -- and that 0.42 minus a
+               hair does not. 1,336 explanations, 0 verification failures.
+               NO LANGUAGE MODEL. A local Nemotron narrator was planned, the VRAM
+               headroom was measured (371 MiB peak of 6,141 -- it would have fit),
+               and it was declined anyway: this stage's whole job is to report
+               numbers the agent already computed, which is the worst place to put
+               a generator. See section 8l.1.
 
   SCORE        compare against what actually happened -> residual
   RECALIBRATE  coverage above target -> the bound is too fat -> TIGHTEN -> more
@@ -1959,17 +1967,33 @@ pre-three-stage layout. `querySelector` returns the first match, so that dropdow
 
 ## 10. Build order
 
-1. ✅ Project skeleton, no credential anywhere, `.env.example` only
-2. 🔄 **Real Ashburn campus geometry from OpenStreetMap** (free, keyless) → re-run the hour count on real
-   footprints and quote the real-site number
-3. ☐ The loop, end to end, as one program
-4. ☐ Hosted demo: Screen Zero + wind dial + the eight cases
-5. ☐ Local Nemotron reasoning traces (measure ensemble VRAM headroom first — 6 GB total)
-6. ☐ Public repo with `fortyguard` as collaborator, and the 2–5 minute video
+⚠ **This list was written before the key arrived and went stale in the worst direction — it marked
+finished work as pending.** Items 3 and 4 shipped; item 5 was **declined on measurement**, not left
+undone. Corrected 2026-08-20, because a build order that understates the build is a submission
+defect: a reader who stops here concludes the loop was never finished.
 
-**The API key arrives 2026-08-18.** Until then every module that needs it must fail with a clear message
-rather than silently returning nothing. Weather and geometry need no key at all, which is why steps 2–4
-can proceed now.
+1. ✅ Project skeleton, no credential anywhere, `.env.example` only
+2. ✅ **Real geometry from OpenStreetMap** (free, keyless) — three committed sites on their own
+   footprints, hour counts re-run on each (§8b, §8o)
+3. ✅ **The loop, end to end, as one program** — `src/agent.py`, all seven stages, 120,960 swept
+   scenarios (§8g)
+4. ✅ **The demo** — `demo/index.html`, three-stage flow, per-site panels (§8i, §8p.2)
+5. ❌ **Local Nemotron reasoning traces — DECLINED, not pending.** The VRAM headroom *was* measured
+   first as this item required: **371 MiB peak of 6,141, so it would have fitted.** It was declined
+   anyway, because this stage's whole job is to report numbers the agent already computed and that is
+   the worst place to put a generator. Deterministic + verified instead: **1,336 explanations,
+   0 verification failures** (§8l.1). **The item is closed, and closed for a reason that is
+   published.**
+6. ✅ **The live agent** — `src/live.py` + `src/serve_live.py`: perceive now, decide the next hours,
+   and refuse to publish a schedule over any hour it did not actually perceive (§8q onward, and
+   HANDOFF §9.2b–c). *Not in the original list, because it did not exist as an idea until the
+   demo's "0 live API calls" line was rightly challenged.*
+7. ☐ **Public repo with `fortyguard` as collaborator, and the 2–5 minute video.** The only item still
+   open, and the only one this project cannot finish for itself — see HANDOFF §9.1.
+
+**The API key arrived 2026-08-18**, on schedule. Until then every module that needed it failed with a
+clear message rather than silently returning nothing, and weather and geometry needed no key at all —
+which is why steps 2–4 could and did proceed first.
 
 ---
 
