@@ -140,25 +140,36 @@ def live_run_windows():
         doc = json.load(open(path, encoding="utf-8"))
     except (ValueError, OSError):
         return 0, 0, 0, []
-    data = empty = other = 0
+    # 🔴 ONLY SOME OUTCOMES ARE BILLED, AND THE PARTITION CHECK CAUGHT ME CONFLATING THEM.
+    # Established behaviour, from the meter rather than from the docs:
+    #   ok                    -> BILLED 4,220
+    #   completed_but_empty   -> BILLED 4,220  (the vendor charges for a complete-but-empty field)
+    #   terminal_failed       -> free
+    #   stalled_in_processing -> free
+    #   submit_rejected       -> free (no job was ever created)
+    # Counting the free ones against a BILLED-call total over-counted by one per rejection and
+    # broke `audit.py` check 9. They are reported separately as attempted-but-unbilled, which is
+    # information worth having: a rejection is a vendor signal even though it costs nothing.
+    BILLED = {"ok", "completed_but_empty"}
+    data = empty = unbilled = 0
     detail = []
     for run in doc.get("runs", []):
-        d = e = o = 0
+        d = e = u = 0
         for w in run.get("windows", []):
             c = w.get("class")
             if c == "ok":
                 d += 1
             elif c == "completed_but_empty":
                 e += 1
-            else:
-                o += 1
+            elif c not in BILLED:
+                u += 1
         data += d
         empty += e
-        other += o
+        unbilled += u
         detail.append("%s h+%s: %d returned a field, %d `completed` with no data%s"
                       % (run.get("metro"), run.get("horizon_h"), d, e,
-                         ", %d other" % o if o else ""))
-    return data, empty, other, detail
+                         ", %d attempted but unbilled" % u if u else ""))
+    return data, empty, unbilled, detail
 
 
 def collector_zero_tile_days():
@@ -200,7 +211,7 @@ def main():
     # as either a success or a failure here -- the collector's own per-day record classifies it.
     tile_stamped = [o for o in billed if isinstance(o["tiles"], int)]
     collector_failures, collector_zero = collector_zero_tile_days()
-    live_data, live_empty, live_other, live_detail = live_run_windows()
+    live_data, live_empty, live_unbilled, live_detail = live_run_windows()
 
     print("=" * 90)
     print("FORTYGUARD API SPEND -- reconstructed from saved meter readings. Zero API calls.")
@@ -286,12 +297,17 @@ def main():
     # side by side and never summed.
     # Live-run windows are attributed per CALL, not per run, so they leave the unattributable
     # bucket entirely. They are not ADDED to the total: the meter already counted them.
-    identified = len(got_data) + len(got_zero) + live_data + live_empty + live_other
+    # live_unbilled is deliberately NOT added: those attempts never moved the meter, so they are
+    # not among the billed calls this partition covers.
+    identified = len(got_data) + len(got_zero) + live_data + live_empty
     unknown = n_calls - identified
     if live_detail:
         print("   from live.py runs, attributed per call:")
         for d in live_detail:
             print("      %s" % d)
+        if live_unbilled:
+            print("      (%d attempt(s) were rejected or never completed -- FREE, so they are "
+                  "not billed calls)" % live_unbilled)
     print("   NOT individually attributable to an artefact:            %d call%s (%s credits)"
           % (unknown, "" if unknown == 1 else "s", format(unknown * HEATMAP_CREDITS, ",")))
     print("      -- gaps between meter readings. The collector's 08-18 and 08-19 attempts predate")
@@ -347,6 +363,7 @@ def main():
             "calls_returning_zero_tiles_meter_stamped": len(got_zero) + live_empty,
             "live_run_calls_with_data": live_data,
             "live_run_calls_completed_but_empty": live_empty,
+            "live_run_attempts_unbilled": live_unbilled,
             "collector_recorded_failed_attempts": collector_zero,
             "collector_attempts_are_not_all_billed": True,
             "calls_not_individually_identified": unknown,

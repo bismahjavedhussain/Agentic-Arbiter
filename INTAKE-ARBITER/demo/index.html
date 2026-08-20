@@ -2236,6 +2236,21 @@ function drawLiveCost(){
       + 'expect up to a few minutes rather than a few minutes per hour.'
     : 'This will return a <strong>costed dry run</strong>: what it would fetch, and for how much. '
       + 'Nothing is called.';
+  /* THE RECENT VENDOR RECORD, next to the button that spends. Not a block -- FortyGuard recovered
+     once today after three days of failure, so refusing outright would be as wrong as spending
+     blind. But a click that can cost 50,640 credits should be made with the measured success rate
+     in front of the reader. */
+  const vr = HEALTH.vendor_recent;
+  if(vr && vr.windows_seen){
+    const bad = vr.returned_a_field * 4 < vr.windows_seen;
+    el.innerHTML += '<br><span class="' + (bad ? 'err' : 'ok') + '"><strong>Vendor, last '
+      + fmt(vr.window_hours,0) + ' h: ' + int(vr.returned_a_field) + ' of '
+      + int(vr.windows_seen) + ' windows returned a field.</strong> ' + vr.advice
+      + (vr.credits_spent_for_nothing
+          ? ' <strong>' + int(vr.credits_spent_for_nothing) + '</strong> credits already spent on '
+            + 'windows that carried no data.'
+          : '') + '</span>';
+  }
 }
 
 /* One line per stage event, in the same visual language as the seven-stage tape -- because it is

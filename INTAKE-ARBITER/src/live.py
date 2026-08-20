@@ -126,6 +126,9 @@ ANALYTIC = "tcm"
 HEATMAP_CREDITS = 4_220
 POLL_MAX_S = 300
 POLL_WAIT_S = 8
+# Between submits in a batch, and before retrying one the vendor rejected.
+SUBMIT_STAGGER_S = 0.4
+SUBMIT_RETRY_WAIT_S = 3.0
 DAILY_HEATMAP_CAP = 30
 # A live AOI is built around the site's own centre, so its nearest tile is tens of metres away.
 # Anything past this means the field belongs to a different place.
@@ -355,6 +358,60 @@ def read_status(key, aid):
     return st, ((jd.get("data") or {}).get("result") or None)
 
 
+def recent_vendor_record(hours_back=6.0):
+    """How the vendor has actually behaved lately, from `live_spend.json`. Zero network calls.
+
+    WHY THE PRODUCT NEEDS THIS. A 12-hour horizon costs up to 50,640 credits, and on a day when
+    FortyGuard returns `completed` with an empty field for every window that is 50,640 credits for
+    nothing -- which is exactly what happened: 11 of 12 windows empty in one batch, then 4 of 4 in
+    the next. Inviting a click that spends real money on a service with a measured 0 % success rate
+    over the last hour is not a neutral default.
+
+    So the recent record is surfaced and the user decides with it in front of them. It is NOT a
+    block: the vendor recovered once today after three days of failure, so refusing outright would
+    be as wrong as spending blindly.
+    """
+    path = os.path.join(TESTING, "results", "live_spend.json")
+    try:
+        doc = json.load(open(path, encoding="utf-8"))
+    except (ValueError, OSError):
+        return None
+    cut = time.time() - hours_back * 3600
+    ok = empty = other = 0
+    latest = None
+    for run in doc.get("runs", []):
+        try:
+            t = datetime.fromisoformat(str(run.get("utc"))).timestamp()
+        except (ValueError, TypeError):
+            continue
+        if t < cut:
+            continue
+        latest = max(latest or t, t)
+        for w in run.get("windows", []):
+            c = w.get("class")
+            if c == "ok":
+                ok += 1
+            elif c == "completed_but_empty":
+                empty += 1
+            else:
+                other += 1
+    n = ok + empty + other
+    if not n:
+        return None
+    return {"window_hours": hours_back, "windows_seen": n, "returned_a_field": ok,
+            "completed_but_empty": empty, "other_failures": other,
+            "success_rate": round(ok / float(n), 4),
+            "last_run_utc": (datetime.fromtimestamp(latest, timezone.utc).isoformat()
+                             if latest else None),
+            "credits_spent_for_nothing": (empty + other) * HEATMAP_CREDITS,
+            "advice": ("The vendor has returned a field for %d of the last %d windows. A full "
+                       "12-hour horizon would cost up to %s credits and, at that rate, would very "
+                       "likely buy nothing. `completed`-with-no-data IS billed."
+                       % (ok, n, format(12 * HEATMAP_CREDITS, ",")))
+                      if ok * 4 < n else
+                      ("The vendor has answered %d of the last %d windows." % (ok, n))}
+
+
 def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, max_calls,
                      on_progress):
     """Every window's ambient value: free ones first, then submit the rest and POLL THEM TOGETHER.
@@ -407,15 +464,31 @@ def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, m
                                                                        "" if len(pending) == 1
                                                                        else "s")})
     outstanding = {}
-    for i, pw in pending.items():
+    for k, (i, pw) in enumerate(pending.items()):
+        # STAGGERED, AND A REJECTION IS RETRIED ONCE.
+        # A 12-window batch submitted back-to-back had one window come back `submit_rejected`
+        # while the other eleven were accepted -- the signature of a rate limit rather than a bad
+        # request, since the twelve differ only in `start_time`. A fraction of a second between
+        # submits costs ~5 s against a 300 s poll and is free insurance; losing an hour of the
+        # horizon to a transient 429 is not.
+        if k:
+            time.sleep(SUBMIT_STAGGER_S)
         rec = submit_window(key, aoi, pw["window"])
+        if not rec.get("activity_id") and rec.get("submit_http") not in (None, 200):
+            time.sleep(SUBMIT_RETRY_WAIT_S)
+            retry = submit_window(key, aoi, pw["window"])
+            retry["submit_retried_after"] = rec.get("submit_http")
+            retry["first_attempt_body"] = (rec.get("submit_error_body") or "")[:200]
+            rec = retry
         recs[i] = rec
         if rec.get("activity_id"):
             rec.update({"polls": 0, "statuses_seen": []})
             outstanding[i] = rec
         elif on_progress:
             on_progress({"stage": "perceive", "hour_index": i, "of_hours": n,
-                         "value_c": None, "class": rec.get("class"), "source": "live"})
+                         "value_c": None, "class": rec.get("class"), "source": "live",
+                         "detail": "HTTP %s %s" % (rec.get("submit_http"),
+                                                   (rec.get("submit_error_body") or "")[:120])})
 
     # ---- 3. one poll loop over everything outstanding.
     t0 = time.time()
@@ -1007,8 +1080,20 @@ def _append_spend_ledger(out, recs):
         "api_calls_made": sp["calls_attempted"],
         "cache_hits": sp["cache_hits"],
         # What each call BOUGHT, so the ledger can classify without guessing.
-        "windows": [{"class": r.get("class"), "tiles": r.get("tiles"),
-                     "activity_id": r.get("activity_id")}
+        # KEEP THE FAILURE DETAIL. The first version stored only class/tiles/activity_id, so when
+        # a window came back `submit_rejected` the HTTP status and body -- the only fields that
+        # explain WHY -- were already gone by the time anyone asked. A record of a failure that
+        # omits the reason is barely a record.
+        "windows": [{k: v for k, v in
+                     {"class": r.get("class"), "tiles": r.get("tiles"),
+                      "activity_id": r.get("activity_id"),
+                      "submit_http": r.get("submit_http"),
+                      "submit_error_body": (r.get("submit_error_body") or None),
+                      "submit_exception": r.get("submit_exception"),
+                      "submit_retried_after": r.get("submit_retried_after"),
+                      "statuses_seen": r.get("statuses_seen"),
+                      "polls": r.get("polls"),
+                      "elapsed_s": r.get("elapsed_s")}.items() if v is not None}
                     for r in recs if r.get("source") == "live"],
     })
     json.dump(doc, open(path, "w", encoding="utf-8"), indent=1, default=str, allow_nan=False)
@@ -1146,30 +1231,42 @@ def verify_live_offline():
     # ---- A BUDGET SHORTENS THE HORIZON RATHER THAN LEAVING HOLES IN IT. Regression test for the
     # blunt refusal: with a budget smaller than the horizon needs, the run must still produce a
     # COMPLETE decision over fewer hours, with no `not_attempted` window inside it.
+    # A ZERO BUDGET EITHER TRUNCATES TO THE CACHED PREFIX OR REPORTS THAT IT CANNOT COVER AN HOUR.
+    # 🔴 BOTH BRANCHES ARE ASSERTED, because which one fires depends on whether the FIRST window of
+    # the horizon happens to be in the cache -- and the horizon SLIDES with the clock. The first
+    # version of this test assumed a cached first hour and started failing an hour later. A test
+    # whose result depends on the time of day is worse than no test: it trains you to ignore it.
     out2 = live_run(metro=M.DEFAULT_METRO, hours=6, allow_paid=False, verbose=False,
                     cfg={"limit_c": 27.0}, max_calls=0)
-    tr = out2.get("horizon_truncated")
-    ck("a zero budget truncates the horizon to the cached prefix",
-       tr is not None and tr["requested_hours"] == 6 and tr["covered_hours"] <= 6,
-       "covered %s of %s" % ((tr or {}).get("covered_hours"), (tr or {}).get("requested_hours")))
-    # THE SUMMARY MUST PARTITION THE HORIZON. A negative count is what exposed the broadcasting
-    # bug -- length-1 ambient against a length-6 rise produced `hours_with_NO_forecast: -5` while
-    # every individual figure still looked plausible. Counts are checked for sign and for closure.
-    s2 = out2.get("summary") or {}
-    ck("summary counts are non-negative and partition the horizon",
-       all(v >= 0 for k, v in s2.items() if isinstance(v, int))
-       and s2.get("hours_with_a_forecast", 0) + s2.get("hours_with_NO_forecast", 0)
-           == s2.get("of_hours"),
-       "%s with + %s without = %s" % (s2.get("hours_with_a_forecast"),
-                                      s2.get("hours_with_NO_forecast"), s2.get("of_hours")))
-    ck("every per-hour array matched the horizon length (no broadcasting)",
-       len(out2.get("hours") or []) == s2.get("of_hours"),
-       "%d rows for %s hours" % (len(out2.get("hours") or []), s2.get("of_hours")))
-    ck("...and no window inside the shortened horizon is unlooked-at",
-       out2.get("status") != "incomplete_not_attempted"
-       or not any(h.get("no_data_reason", "").startswith("this run was not permitted")
-                  for h in (out2.get("hours") or [])),
-       "status=%s" % out2.get("status"))
+    st2 = out2.get("status")
+    if st2 == "no_call_budget":
+        ck("a zero budget with nothing cached emits NO schedule and says why",
+           "hours" not in out2 and "commands" not in out2
+           and "NO SCHEDULE" in (out2.get("operator_message") or ""),
+           "status=%s" % st2)
+    else:
+        tr = out2.get("horizon_truncated")
+        ck("a zero budget truncates the horizon to the cached prefix",
+           tr is not None and tr["requested_hours"] == 6 and 0 < tr["covered_hours"] <= 6,
+           "covered %s of %s" % ((tr or {}).get("covered_hours"),
+                                 (tr or {}).get("requested_hours")))
+        # THE SUMMARY MUST PARTITION THE HORIZON. A negative count is what exposed the broadcasting
+        # bug -- a length-1 ambient against a length-6 rise gave `hours_with_NO_forecast: -5` while
+        # every individual figure still looked plausible. Checked for sign AND for closure.
+        s2 = out2.get("summary") or {}
+        ck("summary counts are non-negative and partition the horizon",
+           all(v >= 0 for k, v in s2.items() if isinstance(v, int))
+           and s2.get("hours_with_a_forecast", 0) + s2.get("hours_with_NO_forecast", 0)
+               == s2.get("of_hours"),
+           "%s with + %s without = %s" % (s2.get("hours_with_a_forecast"),
+                                          s2.get("hours_with_NO_forecast"), s2.get("of_hours")))
+        ck("every per-hour array matched the horizon length (no broadcasting)",
+           len(out2.get("hours") or []) == s2.get("of_hours"),
+           "%d rows for %s hours" % (len(out2.get("hours") or []), s2.get("of_hours")))
+        ck("...and no window inside the shortened horizon is unlooked-at",
+           not any((h.get("no_data_reason") or "").startswith("this run was not permitted")
+                   for h in (out2.get("hours") or [])),
+           "status=%s" % st2)
 
     print("   %s" % ("ALL PASS" if not fails else "%d FAILURE(S): %s" % (len(fails), fails)))
     return 1 if fails else 0

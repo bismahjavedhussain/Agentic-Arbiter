@@ -1905,6 +1905,33 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
     reading was *"the fix did not work"* — it had; the process was 48 minutes stale.
     `/api/health` now reports `code_loaded_utc`, `code_on_disk_utc` and `code_is_stale`, and the
     page shows a red banner instead of leaving anyone to compare timestamps by hand.
+123. 🔴 **THE VENDOR'S FORECAST PATH IS EFFECTIVELY DOWN: 4 OF 46 WINDOWS IN SIX HOURS.**
+    Measured, not impressionistic — a 12-window batch returned **11 `completed_but_empty` + 1
+    `submit_rejected`**, then a staggered 4-window batch returned **4 of 4 empty**. Success rate
+    **8.7 %**, and **177,240 credits already spent on windows that carried no data** (empty-but-
+    complete IS billed; `failed` and stalled are not). The agent behaved correctly throughout: it
+    perceived nothing and published nothing.
+    **`recent_vendor_record()` now surfaces this next to the button that spends**, from
+    `live_spend.json`, zero network calls. **Not a block** — FortyGuard recovered once today after
+    three days of failure, so refusing outright would be as wrong as spending blind. But a click
+    that can cost 50,640 credits should be made with the measured success rate in front of the
+    reader. **A product that lets a user spend real money on a service with a measured 0 % success
+    rate is not being neutral.**
+124. **ONE `submit_rejected` OUT OF TWELVE IDENTICAL SUBMITS IS A RATE LIMIT, NOT A BAD REQUEST.**
+    The twelve differed only in `start_time`, so a single rejection points at pacing. Submits are now
+    **staggered 0.4 s** and a rejection is **retried once** after 3 s — ~5 s against a 300 s poll,
+    and losing an hour of the horizon to a transient 429 is the expensive alternative. A staggered
+    4-window batch was accepted cleanly. ⚠ **n=1 on each side, so this is a hypothesis with a cheap
+    mitigation, not an established cause.**
+    Related: the ledger stored only `class`/`tiles`/`activity_id`, so the **HTTP status and body of
+    the rejection — the only fields that explain WHY — were gone by the time anyone asked.**
+    A record of a failure that omits the reason is barely a record. Now kept.
+125. **A TEST WHOSE RESULT DEPENDS ON THE TIME OF DAY IS WORSE THAN NO TEST.** The truncation
+    assertions assumed the first horizon window was cached — true when written, false an hour later
+    once the horizon slid, and the self-test began failing on correct code. **It trains you to
+    ignore it.** Both branches are asserted now: truncate-to-cached-prefix, or `no_call_budget` with
+    no schedule, whichever the cache state produces.
+
 120. 🔴 **A SAFETY CAP THAT ONLY EVER COUNTS UP MAKES THE PRODUCT UNRUNNABLE.** The
     per-process call counter never decreased, so once spent the agent could not be run at all —
     *"already made 3 of its 3 permitted live calls"*. But the constraint being modelled is the
@@ -2055,8 +2082,8 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **194,120 = 46 calls = 9.71 %.** Remaining **1,805,880**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
-| **⚠ Of that, 113,940 PROVABLY bought nothing** | **58.7 %** of spend. Ceiling **164,580 = 84.8 %**. §10 #93 |
+| **Spent to date** | 🔴 **257,420 = 61 calls = 12.87 %.** Remaining **1,742,580**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
+| **⚠ Of that, 177,240 PROVABLY bought nothing** | **68.9 %** of spend. Ceiling **227,880 = 88.5 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |

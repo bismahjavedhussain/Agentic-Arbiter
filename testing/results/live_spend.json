@@ -249,6 +249,138 @@
    "api_calls_made": 0,
    "cache_hits": 1,
    "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-20T13:00:00-04:00",
+   "utc": "2026-08-20T16:05:16.011501+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1805880,
+   "credits_after": 1759460,
+   "api_calls_made": 12,
+   "cache_hits": 0,
+   "windows": [
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "ab0b0df9-0d00-42e3-bed7-7946af49aab8"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "33c49882-89a0-4010-b83f-788cec8388e3"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "b6feb9c3-7d57-4d8b-97f0-1b83bf2f51df"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "aa6d08c3-2e77-40c1-9e34-46fbe8155ac5"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "10251e21-4705-494e-b7e8-8eeedb98de3e"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "4c92cd7a-5ecd-4b22-8a9c-5af7fc4287cd"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "ce2c1a65-ffa1-4be5-ae5e-8215842817cd"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "84ee68ae-2835-41b0-935f-b5a009b558ce"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "71091754-837e-4c72-a35e-ddcff82b15f8"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "181ed6ae-6ec0-43a8-a999-c0b1cf70b329"
+    },
+    {
+     "class": "submit_rejected",
+     "tiles": null,
+     "activity_id": null
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "a9c7e228-a8d5-458b-9912-775354fd0b9d"
+    }
+   ]
+  },
+  {
+   "test": "live.py ashburn 2026-08-20T13:00:00-04:00",
+   "utc": "2026-08-20T16:33:55.182924+00:00",
+   "metro": "ashburn",
+   "horizon_h": 4,
+   "credits_before": 1759460,
+   "credits_after": 1742580,
+   "api_calls_made": 4,
+   "cache_hits": 0,
+   "windows": [
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "860b75b3-5bc1-4a5d-ad5a-eb6df4264622",
+     "submit_http": 200,
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "polls": 20,
+     "elapsed_s": 312.2
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "fce295b4-7d95-40a9-88be-c85432ce7d39",
+     "submit_http": 200,
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "polls": 20,
+     "elapsed_s": 312.2
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "05de2f20-48be-4b3d-b484-78199b331516",
+     "submit_http": 200,
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "polls": 20,
+     "elapsed_s": 312.2
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "e9a581ab-2b71-4e99-8855-bc511641e6dc",
+     "submit_http": 200,
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "polls": 20,
+     "elapsed_s": 312.2
+    }
+   ]
   }
  ]
 }

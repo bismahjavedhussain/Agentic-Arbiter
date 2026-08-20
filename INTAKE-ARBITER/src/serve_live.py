@@ -231,6 +231,9 @@ def health():
             "no API key on this machine" if not key_present else
             "server started without --allow-paid, so every request is served as a costed dry run"),
         "note": "the API key never leaves the server process. The browser receives numbers only.",
+        # What the vendor has actually done lately, so a click that could spend 50,640
+        # credits is made with the recent success rate visible rather than blind.
+        "vendor_recent": LV.recent_vendor_record(),
         "code_loaded_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(LOADED_MTIME)),
         "code_on_disk_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ",
                                           time.gmtime(os.path.getmtime(LIVE_PY))),
