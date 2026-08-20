@@ -1,46 +1,46 @@
 # HANDOFF — FortyGuard Hackathon'26 · INTAKE-ARBITER
 
-**Rewritten from scratch 2026-08-20; updated through the UI restructure the same day.**
+**Rewritten from scratch 2026-08-20. Current through the live agent and the judging-criteria pass,
+same day.**
 **Submission deadline Aug 30 23:59 GST = 00:59 PKT Aug 31. 10 days left.**
 
-> **THE SIX THINGS THAT MATTER MOST, in order:**
+> **THE EIGHT THINGS THAT MATTER MOST, in order. Read 1, 2 and 8 before touching anything.**
 >
-> 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **15 steps, ~273 s, ZERO API
+> 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **16 steps, ~295 s, ZERO API
 >    calls, 62 audit checks, 70 published numbers re-read from the files the code wrote.** Exits
->    non-zero on any failure. **If it is not green, quote nothing.** Then
->    `cd ../demo && python -m http.server 8000` and open `http://localhost:8000`.
->    **`file://` will NOT work** — browsers block `fetch()`.
-> 2. **THE WHOLE TREE IS COMMITTED.** Branch `master`, head **`9a9b657`**. `INTAKE-ARBITER/` was
->    untracked for the entire project before 2026-08-20; it is not now. **`.gitattributes` exists and
->    is load-bearing — without it a fresh clone on Windows corrupts every PDF (§10 #82).**
-> 3. **THE SITE PICKER IS NOW REAL.** It swapped ONE file for two sessions while twelve panels of
->    thirteen stayed Ashburn's. `agent.py` / `backtest.py` / `rolling.py` / `money.py` / `explain.py`
->    / `ticker.py` / `report.py` are all metro-aware; `src/build_sites.py` runs the chain per site;
->    **audit check 6c FAILS if any two sites agree. §6.13**
-> 4. **THE UI IS A THREE-STAGE FLOW** — pick a site, configure a plant, watch it work — rebuilt
->    2026-08-20 to the user's spec. **§6.14, and read §9.0 first: there is one open UI item.**
-> 5. **THREE REAL SITES SHIP, TWO WERE REFUSED ON EVIDENCE.** Ashburn (AWS IAD116→117), Chicago
->    (Stream→Equinix CH3), Dulles (AWS IAD81→IAD62). Santa Clara rooftop-cooled, Phoenix not built.
->    **"Five screened, two refused" is the single most credible thing in this project. §6.5**
-> 6. **SESSION H IS THE ONLY SESSION LEFT AND IT CAN DISQUALIFY THE ENTRY.** Public repo,
->    `fortyguard` as collaborator, live demo link, 2–5 min video — **none exist**. §9.1
->    **TWO THINGS ONLY THE USER CAN DO:** lift rule 11 to go public, and record the video.
-> 7. 🔴 **FORTYGUARD IS ACCEPTING HEATMAP JOBS AND NOT COMPLETING THEM — service-wide, not
->    forecast-specific.** DIAG-63 (2026-08-20 10:57 UTC) sent a forecast leg **and a past-window
->    control**; both returned HTTP 200 with an `activity_id`, then sat at `status: Processing` for
->    **45 polls / 425 s** and never reached a terminal state. A past window is a shape that worked
->    reliably through 08-19, so this is not the forecast path, the key, the plan, the quota, the AOI
->    or the granularity. **Neither call was billed.** Read **§4.0**, then `testing/results/
->    diag63_forecast_failed_status.json`.
-> 8. **SPEND IS 13 CALLS / 54,860 / 2.74 %**, not the 10 / 42,200 / 2.11 % §12.2 carried. Re-derived
->    by `audit.py` check 9 from the meter, so it cannot drift again — **and it already caught my own
->    ledger regressing (§10 #100).** ⚠ **Attempts ≠ billed calls since 08-20**: `status: failed` and
->    a `Processing` stall are both **free**, so *attempts × 4,220* is no longer a spend figure
->    (§10 #101).
-> 9. **THE PER-SITE REWORK IS UNDERWAY — Session 1 of 4 is done.** The aerial panel held three
->    Ashburn coordinates as constants and drew **Chicago's halls on Ashburn's photograph** (§10 #98).
->    **All 15 result panels now differ across all three sites**, verified by rendering each site and
->    diffing panel by panel. **Sessions 2–4 build the LIVE agent** — see §9.2.
+>    non-zero on any failure. **If it is not green, quote nothing.** Then either
+>    `cd ../demo && python -m http.server 8000` (REPLAY, offline, no key) **or**
+>    `python serve_live.py --allow-paid` (adds the LIVE agent). **`file://` will NOT work** —
+>    browsers block `fetch()`.
+> 2. **THE WHOLE TREE IS COMMITTED.** Branch `master`, head **`b9e3fff`**. **`.gitattributes` is
+>    load-bearing — without it a fresh clone on Windows corrupts every PDF (§10 #82).**
+>    ⚠ **`testing/scan_secrets.py` must exit 0 before the repo goes public. It exits 1 today**, on
+>    two history blobs holding FortyGuard's own expired AWS key id — §9.1b.
+> 3. **THE AGENT NOW PERCEIVES *NOW*.** `src/live.py` asks FortyGuard what the next hours look like
+>    at the selected site, bounds it with the margin measured from FortyGuard's OWN past errors, and
+>    emits a schedule for hours that have not happened. `src/serve_live.py` keeps the API key
+>    server-side. **It has run for real** — §4.0a. **§9.2b–c.**
+> 4. **IT REFUSES TO INVENT.** Four honest outcomes, all proved against the live vendor:
+>    `ok` / `ok_partial` / `incomplete_not_attempted` / `vendor_unavailable`. **A schedule is only
+>    published over hours the agent actually perceived** — §10 #107 is the bug that rule exists for,
+>    and it is the worst output this project has produced.
+> 5. **THREE REAL SITES SHIP, TWO WERE REFUSED ON EVIDENCE**, and **all 15 result panels differ
+>    across all three** — verified by rendering each site and diffing panel by panel (§8q). Ashburn
+>    (AWS IAD116→117), Chicago (Stream→Equinix CH3), Dulles (AWS IAD81→IAD62). **"Five screened, two
+>    refused" is the single most credible thing in this project. §6.5**
+> 6. 🔴 **FORTYGUARD'S FORECAST PATH IS EFFECTIVELY DOWN: 4 of the last 46 windows returned a
+>    field.** Three different failure shapes in one day — `completed` + empty (**billed**),
+>    `status: failed` (free), and an indefinite `Processing` stall (free). **The agent behaved
+>    correctly throughout.** §4.0, §10 #123. Two emails are drafted and unsent — §4.3.
+> 7. **SPEND IS 61 CALLS / 257,420 / 12.87 %.** Never quote from memory: **`python
+>    testing/api_usage_ledger.py`** re-derives it from the meter, `bump_spend_docs.py` writes it into
+>    the docs, and `audit.py` check 9 fails if they disagree. ⚠ **Attempts ≠ billed calls**: only
+>    `ok` and `completed_but_empty` are charged (§10 #101, #124).
+> 8. 🔴 **THE SUBMISSION IS THE WHOLE REMAINING RISK.** Public repo, `fortyguard` as collaborator,
+>    live demo link, 2–5 min video — **none exist**, and the deadline is 10 days out. **§9.1.**
+>    **THREE THINGS ONLY THE USER CAN DO:** lift rule 11 to go public, record the video, and send
+>    the FortyGuard emails. **One thing no amount of engineering can fix: there has been no operator
+>    interview** — §9.2c-bis.
 
 ---
 
@@ -149,7 +149,9 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 | **Per-site engine** | `src/build_sites.py` — every offerable site on **its own** weather, geometry, bound and tariff. §6.13 |
 | **Downloadable PDF** | `src/report.py` — a real 4-page PDF per site, **written without a PDF library** and verified by being read back. §6.15 |
 | **The interface** | `demo/index.html` (~118 KB of one inline script, light+dark, no build step). **Three-stage flow**: pick → configure → results. §6.14 |
-| **One command** | `src/run_all.py` — plume → agent → backtest → rolling → manifest → explain → **money** → **ticker** → fixtures → audit. **15 steps, ~273 s, zero API calls** |
+| 🟢 **THE LIVE AGENT** | `src/live.py` — perceives **now**, decides the next hours for the selected site, and **refuses to publish a schedule over any hour it did not perceive**. Four honest statuses. **34-assertion self-test, zero network.** §9.2b |
+| 🟢 **Live, in the browser** | `src/serve_live.py` — serves `demo/` **and** `/api/live/<site>`, with the API key never leaving the process. Async jobs, loopback-only, daily call cap, self-reloading. §9.2c |
+| **One command** | `src/run_all.py` — plume → agent → backtest → rolling → manifest → explain → **money** → **ticker** → fixtures → report → per-site → **live self-test** → audit. **16 steps, ~295 s, zero API calls** |
 
 | **Cross-language proofs** | browser == Python on **scheduling (500 cases)**, **decisions (20,160 configs — was 2,016, see §6.10)**, **reasons (1,336 hours)**, **stage-event sentences (2,037, character for character)** |
 | **Validated physics** | vs analytic plume **0.00 %**, heat conserved **0.00 %**, **67** Prairie Grass experiments, 6 instrumented condensers **r=0.798**, GPU **81.6×** at **0.00012 °C** agreement |
@@ -170,10 +172,12 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 
 | Missing | Notes |
 |---|---|
-| **Session F** — conformal panel | `rolling.json` already ships the per-lead margins and coverage it needs — verified, both are in `configs[0]`. **Cut this first if time compresses** |
-| **Session H** — submission | **Downloadable report, README, API-usage doc, 2–5 min video, public repo, `fortyguard` collaborator.** All hard requirements. **Highest risk** |
-| Local LLM narrator | Deliberate: VRAM measured at 371 MiB of 6,141 so it would fit, but no inference stack exists. `PLAN.md` §8l.1 |
-| Same-day anchoring test | ~2 paid calls/day. **Unblocked** by §4 — if it worked, the customer-sensor requirement disappears |
+| 🔴 **THE SUBMISSION ITSELF** | Public repo, `fortyguard` as collaborator, live demo link, **2–5 min video**. **None exist. This is the whole remaining risk.** §9.1 |
+| 🔴 **Session 4 of the rework** | Collector hardening for all three vendor failure modes, a recovery watcher, the cross-site panel diff made a permanent check, PLAN currency. **§9.2d** |
+| **An operator interview** | Zero conversations with a real facility engineer. The pain is evidenced from LBNL's instrumented study, not from a customer. **The one gap no engineering can close** — §9.2c-bis |
+| Local LLM narrator | ❌ **DECLINED, not pending.** VRAM measured at 371 MiB of 6,141 so it WOULD have fitted; declined because this stage reports numbers the agent already computed. `PLAN.md` §8l.1 and §10 |
+| Same-day anchoring test | ~2 paid calls/day. Would remove the customer-sensor requirement if it worked. **Blocked by the vendor, not by us** — 4 of 46 windows currently return a field |
+| Session F conformal panel | ✅ **Actually built** — §6.11. This row was stale |
 
 ---
 
@@ -286,7 +290,7 @@ change rather than only listing complaints, because that change was the right ca
 
 ## 4.3a ⚠ SUPERSEDED — the older message must NOT be sent
 
-`fortyguard-message-forecast-zero-tiles.md` is flagged **DO NOT SEND AS DRAFTED**. Its central
+`fortyguard-message-forecast-zero-tiles.md` carries a **SUPERSEDED banner — do not send it**. Its central
 question — *"does the Hackathon plan include forecast windows?"* — **is now answered: yes.**
 
 **The report still worth sending**, and useful to them: for ~30 hours, forecast requests returned
@@ -936,6 +940,71 @@ emits **`artefacts`** (every per-site filename, extension-stripped keys) and
 **`has_own_fortyguard_field`**, and reports **`facade_gap_m` and `centroid_separation_m` as separate
 fields** (§10 #80).
 
+## 7.4f `src/live.py` — THE LIVE AGENT (1,340 lines, the newest and least-worn module)
+
+```bash
+python live.py selftest                    # 34 assertions, ZERO network. In run_all + audit check 11
+python live.py dryrun --hours 12            # what it would fetch and what it would cost. Free
+python live.py run --paid --hours 12        # the real thing. --paid is mandatory
+python live.py run --replay <fixture.json>  # verify the decide path from a SAVED response
+METRO=chicago python live.py run --paid     # per-site, and the metro is ASSERTED not assumed
+```
+
+**It writes NO new decision logic.** `A.rise_table` / `A.lookup_rise` / `A.plan` /
+`A.bms_commands` are imported from `agent.py` unchanged — the live path is *the same agent on
+different input*, which is why the whole chain is verifiable offline.
+
+| Function | What it does, and the trap it encodes |
+|---|---|
+| `first_window_start(now_local)` | The next **whole hour**. Was `(now + 1h)` floored, which at 09:55 called a window five minutes away *"lead +1 h"* — §10 #109 |
+| `lead_hours_for(now, start)` | The lead is **measured**, never the loop index |
+| `horizon_windows(metro, hours, now)` | The windows **and which are already cached**, so a caller can cost a run before committing. §10 #108 |
+| `classify_vendor(rec)` | `ok` / `completed_but_empty` / `terminal_<status>` / `stalled_in_processing` / `submit_rejected`. **A stall is not a failure and neither is a rejection** |
+| `vendor_sentence(cls, rec)` | One line an operator could act on, with activity id and elapsed |
+| `resolve_without_network(...)` | Replay, cache, or refuse. Returns `(None, None)` to mean *"caller must submit"* |
+| `submit_window(key, aoi, dt)` | One POST. Fast — it is the POLLING that costs minutes |
+| `read_status(key, aid)` | One free status poll |
+| `perceive_ambient(...)` | 🔴 **The batch.** Settles free windows, **submits all outstanding together**, polls them in ONE loop, heartbeats while waiting. §10 #114–115 |
+| `nws_hourly(lat, lon, start, hours)` | Wind + dew point from `api.weather.gov`. **Gridpoint endpoint, not `forecast/hourly`** — the latter gives 16-point compass strings against a 5° rise table. Fields are **run-length encoded** over ISO intervals |
+| `_parse_duration_h(s)` | Expands `PT1H` / `PT6H` / `P1DT6H` |
+| `measured_margin(trace, site, horizon_h)` | 🔴 The bound. Reads `cycle.bound_day_level` — FortyGuard's **own** measured residuals — and **never** `rolling.py`'s persistence margins. Carries n=4, the 80 % ceiling, 65.6 %, the FAIL verdict and an `EXTRAPOLATION_WARNING` |
+| `recent_vendor_record(hours_back)` | The vendor's measured success rate from `live_spend.json`, zero network. Surfaced beside the button that spends |
+| `_append_spend_ledger(out, recs)` | **Appends** one entry per paid run to `testing/results/live_spend.json`, so live spend is visible to the ledger. §10 #103 |
+| `live_run(...)` | The orchestrator. Truncates the horizon to the budget, asserts array lengths, emits the schedule |
+| `verify_live_offline()` | The self-test |
+
+⚠ **`live_run` sets `os.environ["METRO"]` and then ASSERTS it took.** `A.rise_table()` has no metro
+argument — it resolves through `metros.metro_key()` from the environment, so without this a Chicago
+run silently loads Ashburn's rise table.
+
+⚠ **Settle the horizon BEFORE building any per-hour array.** Truncating after the NWS fetch made
+numpy broadcast a length-1 ambient across a length-6 rise. §10 #117.
+
+## 7.4g `src/serve_live.py` — the local server (423 lines)
+
+```bash
+python serve_live.py                                    # replay + dryrun only. Spends NOTHING
+python serve_live.py --allow-paid --max-live-calls 40    # permits live calls from the browser
+```
+
+**Why it exists:** a static page cannot make a live FortyGuard call, because the request needs the
+API key and anything the page can read every visitor can read. The browser POSTs here; this process
+reads the key via `testing/common.py:load_key()` and returns **only numbers**.
+
+| Endpoint / function | Notes |
+|---|---|
+| `GET /api/health` | Is a live agent reachable, may it spend, what would it cost, **the vendor's recent record**, and staleness. **Deliberately does NOT read the credit meter** — a health check that hits the vendor fails when the vendor does |
+| `POST /api/live/<site>` | Returns `{job_id}` immediately |
+| `GET /api/live/job/<id>` | `running` / `done` / `error` + the progress events the page streams |
+| `reload_if_stale()` | Reloads `live.py` when it changes on disk |
+| `restart_if_self_stale()` | **Re-execs the process** when `serve_live.py` itself changes — a module cannot reload its own `__main__`. Only when no job is running; carries the call log forward. §10 #118–119 |
+| `calls_today()` / `record_calls(n)` | The cap is a **rolling window since 00:00 UTC**, mirroring the vendor's 30/day, so it clears itself. §10 #120 |
+| `start_job(...)` | Costs the run against **calls needed**, not horizon length, and passes the allowance in as `max_calls`. ⚠ **`0` means "cached only", `None` means "unbounded"** — §10 #121 |
+
+**Three safety decisions:** binds **127.0.0.1** (this process spends money); refuses to spend unless
+**both** `--allow-paid` **and** the request ask; hard daily call cap whose refusal is explicit, never
+a silent switch to cached data.
+
 ## 7.5 `src/explain.py` — stage 7
 
 `gates_for_hour` · `flip_distance` · `explain_hour` · `explain_schedule` · **`verify()` — re-runs the
@@ -993,7 +1062,8 @@ rows and **two cross-path invariants** (the ladder's rows 4 and 5 must equal the
 base and `anchor=none` rows **to full precision**) · `check_self_tests` · `check_cross_language`.
 **`python run_all.py`** = plume → agent → backtest → rolling → manifest → **money** → explain →
 **ticker** → fixtures ×3 → **report** → **build_sites (chicago, dulles)** → manifest again → audit.
-**15 steps, ~273 s.** Most of that is the two extra sites: Ashburn alone is ~100 s.
+**16 steps, ~295 s.** Most of that is the two extra sites: Ashburn alone is ~100 s. Step 15 is
+`live.py selftest` — 34 assertions, zero network.
 
 ### 7.7a THE 51 AUDIT CHECKS, by section — `python audit.py`
 
@@ -1071,7 +1141,7 @@ extract functions by counting braces, and a literal brace inside a regex cuts th
 # 8. HOW TO PROVE IT STILL WORKS
 
 ```bash
-cd INTAKE-ARBITER/src && python run_all.py      # 15 steps, ~273 s, zero API calls, non-zero on failure
+cd INTAKE-ARBITER/src && python run_all.py      # 16 steps, ~295 s, zero API calls, non-zero on failure
 cd INTAKE-ARBITER/src && python build_sites.py # just the per-site chain (agent..report) for each site
 cd INTAKE-ARBITER/src && python report.py      # just the PDFs, verified by being read back
 cd INTAKE-ARBITER/src && python ticker.py       # prints the whole tape -- READ IT, see #76
@@ -1156,7 +1226,48 @@ higher the limit would need to be, that it is one of the 43.7 %, and the annual 
 
 ---
 
-# 9. NEXT STEPS — ONE SESSION REMAINS, and it is the one that can disqualify the entry
+# 9. NEXT STEPS — read §9.-1 first, it is the whole orientation
+
+## 9.-1 🔴 IF YOU READ NOTHING ELSE: where this stands, and what to do next
+
+**The product is built and verified. The SUBMISSION is not, and that is the only thing that can
+lose this.** 10 days left as of 2026-08-20.
+
+**Do these, in this order:**
+
+| # | Do | Blocked on | Effort |
+|---|---|---|---|
+| 1 | **Run `run_all.py` and confirm 62 green.** Never quote a number until it is | — | 5 min |
+| 2 | **Send the two FortyGuard emails** (`fortyguard-email-draft.md`, `fortyguard-email-2-empty-completed.md`) | 🔴 **USER** — nothing here can mail | 10 min |
+| 3 | **Purge the AWS key id from git history** (§9.1b). Costs nothing today, more once a remote exists | 🔴 **USER** — it rewrites every SHA | 15 min |
+| 4 | **Go public**: rename `master`→`main`, push, add `fortyguard` as collaborator, enable Pages on `demo/` | 🔴 **USER** — rule 11 | 30 min |
+| 5 | **Record the 2–5 min video** | 🔴 **USER** | 1 h |
+| 6 | **Session 4** — collector hardening, recovery watcher, the panel diff made permanent (§9.2d) | not blocked | 2–3 h |
+| 7 | **One conversation with one facility engineer** | 🔴 **USER** | the highest value per minute left |
+
+**⚠ Items 2–5 and 7 cannot be done by a coding session.** If you are an agent picking this up, item
+6 is your work; items 1 and 3 you can prepare but not authorise.
+
+### What to say if you are asked "is it finished?"
+
+**The agent is.** Seven stages, three sites, a live path, 62 mechanical checks, 70 published numbers
+re-read from the files that produced them, and every failure published rather than buried. **The
+paperwork is not**, and the paperwork is worth marks.
+
+### The three things most likely to trip a fresh session
+
+1. **`serve_live.py` and `live.py` reload themselves now** (§10 #113, #118) — but if you edit
+   `metros.py`, `agent.py` or anything else the server imported, **restart it**. Only those two
+   files self-heal.
+2. **Every paid live run moves the spend figure**, and `audit.py` check 9 fails until the docs
+   catch up. The fix is one command: `python testing/api_usage_ledger.py --json && python
+   testing/bump_spend_docs.py`.
+3. **The vendor is mostly down.** 4 of the last 46 windows returned a field. A 12-hour live run will
+   probably return `ok_partial` with most hours empty, and **that is the agent being honest, not a
+   bug**. Check `recent_vendor_record()` before spending.
+
+---
+
 
 **DONE:** Sessions 1–3 (plume uncertainty, explain, audit) · **4** (UI pass + the invented-constant
 fix) · **0** (collector hardening) · **A** (present tense + churn) · **C** (annual headline + the
@@ -2102,7 +2213,15 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
 
 # 13. FILES — created and modified
 
-## 13.1 `INTAKE-ARBITER/src/` — 24 modules, **UNTRACKED in git**
+## 13.1 `INTAKE-ARBITER/src/` — 30 modules, **ALL COMMITTED**
+
+**Added 2026-08-20 (the live-agent rework), in order:**
+- **`live.py`** (1,340 lines) — the live agent. §7.4f
+- **`serve_live.py`** (423 lines) — the local server that holds the key. §7.4g
+- `metros.py` gained **`imagery_dir()`** and **`committed_imagery()`** — per-site aerial frames
+- `audit.py` gained checks **2f** (duplicate element ids), **9** (the spend ledger vs the docs),
+  **10** (every README figure vs the emitted JSON), **11** (the live chain, offline)
+- `run_all.py` gained step 15, the live self-test — **16 steps now**
 
 **Added 2026-08-20, in order:** **`ticker.py`** (+ `demo/gen_ticker_cases.py`,
 `demo/verify_browser_ticker.js`) · **`money.py`** · **`report.py`** · **`build_sites.py`** ·
@@ -2130,8 +2249,16 @@ points.
 `trace.json` · `scenarios.json` (30 MB, 120,960 rows, columnar) · `backtest.json` ·
 `explanations.json` · `plume_uncertainty.json` · `field_<date>_{forecast,outcome}.json` × 8 ·
 `rise_table_{longest,facing}.json` · `spread_table_<mode>_sd{47,72}.json` × 4 ·
-`site_aerial.png`, `site_aerial_usgs.png` · `dp_cases.json` · `gen_dp_cases.py` ·
-`verify_browser_{agent,decision,explanation}.js`.
+`dp_cases.json` · `gen_dp_cases.py` · `verify_browser_{agent,decision,explanation}.js`.
+
+**Per-site aerial frames, added 2026-08-20** — `site_aerial.png`, `site_aerial_usgs.png`
+(ashburn, the only site with a second source) plus **`chicago_`**, **`dulles_`**, **`phoenix_`**,
+**`santaclara_site_aerial.png`**. 6 PNGs, 14 MB. They are COPIES of
+`data/imagery/screen/**`, and the duplication is necessary: the demo is served with `demo/` as
+the document root, so `../data/...` is unreachable by `fetch()`.
+
+**`live.json`** — the CLI live agent's last output. A snapshot; the browser gets live results
+from `/api/live/<site>` and never reads this file.
 
 ## 13.3 `INTAKE-ARBITER/data/`
 
@@ -2142,17 +2269,36 @@ santaclara}_candidates.json` · per-metro `*_selected_site.json`, `*_refusal_ran
 confidence, including the two refusals and the two Dulles rejections**).
 `weather/` — `kiad_hourly_2021_2025.json` (43,763) · **`kord_`** (43,775) · **`ksjc_`** (43,747) ·
 **`kffz_`** (41,919) · `kiad_wind_summers.json`.
-`imagery/` — `screen/` plus per-metro subfolders with `annotated_*.png` frames.
+`imagery/` — `screen/` plus per-metro subfolders with `annotated_*.png` frames, and each
+metro's own `screen_manifest.json` carrying the **bbox and both OSM building centres** that
+`committed_imagery()` reads.
+`live_cache/<metro>/` — **GITIGNORED.** `live.py` caches each fetched forecast window here
+(~2.5 MB per hour-window). A runtime cache, not an artefact: superseded within the hour, and
+N-55 makes a refetch byte-identical anyway.
 
 ## 13.4 Root
 
-**`HANDOFF.md`** (this file) · **`fortyguard-api-findings.md`** (§10.7 records the outage resolution) ·
-**`fortyguard-message-forecast-zero-tiles.md`** (**flagged DO NOT SEND AS DRAFTED**) ·
-`INTAKE-ARBITER/PLAN.md` (**not yet updated for Sessions A, B, E**) · `n56-freecooling-PREREG.md` ·
-`n50-timing-PREREG.md`.
+**`HANDOFF.md`** (this file) · `INTAKE-ARBITER/PLAN.md` (**current** — §8n/§8o/§8p/§8q/§1a/§12.8a
+added 2026-08-20, and §7/§9/§10 CORRECTED where they still asserted retracted claims) ·
+`fortyguard-api-findings.md` · `n56-freecooling-PREREG.md` · `n50-timing-PREREG.md`.
+
+**Created 2026-08-20:**
+- **`README.md`** — the repo had no front door at all. A judge landed in 30 loose working notes.
+  `audit.py` check 10 re-reads **24** of its figures
+- **`API-USAGE.md`** — the H6 submission requirement, every figure derived from the meter
+- **`fortyguard-report-2026-08-20-jobs-not-completing.md`** — the full vendor report, sendable
+- **`fortyguard-email-draft.md`** — short email 1: jobs accepted and never completed
+- **`fortyguard-email-2-empty-completed.md`** — short email 2: `completed` + empty, **with all
+  eleven activity ids**. Credit figures deliberately omitted at the user's request
+- `fortyguard-message-forecast-zero-tiles.md` — **banner-marked SUPERSEDED, do not send**
 
 ## 13.5 `testing/` — this sprint
 
+**`scan_secrets.py`** (working tree **and every blob in git history**; never puts the key in an
+argv; ⚠ **exits 1 today** — §9.1b) · **`api_usage_ledger.py`** (spend re-derived from saved meter
+readings) · **`bump_spend_docs.py`** (writes those figures into the two documents, so the check
+and the update stay separate) · **`diag63_forecast_failed_status.py`** (the two-leg control that
+diagnosed the stall) · `results/live_spend.json` (one entry per paid live run) ·
 **`diag62_forecast_recheck.py`** (the call that overturned the blocker) ·
 **`fetch_chicago_field.py`** (explicit-timezone paid call) · `diag61_forecast_entitlement.py` ·
 `test_n26_coverage.py` (**+`dryrun` mode, retry budget, per-year reporting**) ·
@@ -2172,6 +2318,22 @@ Branch **`master`** (rename to `main` before any push). No remote configured; `g
 | `fd90358` | Session F — the conformal arithmetic, derived in-browser, proved exact |
 | `ee1cd1f` | Session G — money, sourced |
 | `15dd952` | HANDOFF: Session H split into blocked / not-blocked |
+| `1c997a2` | Session 2 of 4: src/live.py -- the agent perceives NOW, and refuses to invent |
+| `48260f4` | The FortyGuard report, rewritten and sendable |
+| `3d65c18` | Session 3 of 4: serve_live.py + the LIVE/REPLAY UI -- and the vendor recovered |
+| `b456f02` | The live agent's own spend was invisible to the spend ledger |
+| `baaa7cb` | Answer the judging criteria in the judge's own vocabulary |
+| `6722fc7` | Fix the live agent publishing a schedule for hours it never looked at |
+| `d85378a` | The server reloads its own code instead of asking to be restarted |
+| `735c0e9` | Submit all windows together: 50 minutes of sequential waits becomes one |
+| `7ac9c76` | Truncate the horizon instead of refusing, and reload the OTHER file too |
+| `e2b4319` | The call cap becomes a daily window, and an exhausted budget truncates too |
+| `39a520c` | Show the vendor's recent record next to the button that spends |
+| `fc8aea9` | Second FortyGuard email: billed empty results, with activity IDs |
+| `3aac39e` | Drop the credit figures from the FortyGuard email |
+| `b9e3fff` | PLAN.md claimed a language model we deliberately never built |
+
+**Head is the last row.** Every commit message states the defect it fixed rather than the file it touched, which is why they are long.
 | `403d916` | **every site genuinely its own** — §6.13 |
 | `9d10a29` | **the PDF report**, written without a PDF library — §6.15 |
 | `e2c832f` | **`.gitattributes`** — a fresh clone would have corrupted every PDF (§10 #82) |
@@ -2198,7 +2360,7 @@ committing (**0 hits**; only the two gitignored `.env` files hold it, and the co
 - Timings: rise table **5–9 s GPU** · `agent.py run` ~37 s · `backtest.py all` ~27 s ·
   `rolling.py` ~10 s · `export_plume_fields.py --all` **~2.3 min** (deliberately NOT in `run_all`,
   since fields change only when geometry does; `audit.py` check 2d `check_plume_fields` verifies the shipped ones) ·
-  `run_all.py` **~273 s** (15 steps; ~100 s of it is Ashburn, the rest the two other sites) ·
+  `run_all.py` **~295 s** (16 steps; ~100 s of it is Ashburn, the rest the two other sites) ·
   `build_sites.py` **~237 s** for three sites · `report.py` ~2 s for all three.
 - **⚠ `d:\FGHackathon\CLAUDE.md` DOES NOT EXIST** and never has. The rules it would carry are §1.
 
