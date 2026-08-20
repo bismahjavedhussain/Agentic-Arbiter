@@ -2,20 +2,24 @@
 
 **Short on purpose.** Full detail in
 [`fortyguard-report-2026-08-20-jobs-not-completing.md`](fortyguard-report-2026-08-20-jobs-not-completing.md).
-This one leads with billed empty results, because that is the part with a number attached.
+
+⚠ **Credit figures deliberately omitted at the user's request.** Our own consumption is not their
+problem and quoting it invites a conversation about our usage rather than about the defect. The
+billing ask stays, phrased qualitatively — an empty result being charged is a behaviour question, and
+it stands without disclosing what we have spent.
 
 ---
 
-**Subject:** 11 of 12 heatmap jobs returned `completed` with an empty field — all billed (activity IDs inside)
+**Subject:** 11 of 12 heatmap jobs returned `completed` with an empty field (activity IDs inside)
 
 Hi,
 
-Following up on my earlier note about jobs not completing — the behaviour has changed and this
-version costs money, so I wanted to flag it quickly.
+Following up on my earlier note about jobs not completing — the behaviour has changed, so I wanted to
+flag the new shape of it quickly.
 
 **Today at 16:05 UTC I submitted 12 `/v1/heatmap` jobs, one per hour of a 12-hour forecast horizon.
-Eleven returned `status: completed` with an empty `map_data.features` array. All eleven were
-billed 4,220 — 46,420 credits for no data.**
+Eleven returned `status: completed` with an empty `map_data.features` array**, and were charged as
+successful calls.
 
 The eleven:
 
@@ -35,17 +39,15 @@ a9c7e228-a8d5-458b-9912-775354fd0b9d
 
 A second batch at 16:33 UTC, submitted more slowly, behaved identically —
 `860b75b3-5bc1-4a5d-ad5a-eb6df4264622`, `fce295b4-7d95-40a9-88be-c85432ce7d39`,
-`05de2f20-48be-4b3d-b484-78199b331516`, `e9a581ab-2b71-4e99-8855-bc511641e6dc`. Four more empty,
-four more billed.
+`05de2f20-48be-4b3d-b484-78199b331516`, `e9a581ab-2b71-4e99-8855-bc511641e6dc`. Four more empty.
 
-**Across the last six hours: 4 of 46 windows returned a field. 177,240 credits spent on windows
-that carried no data.**
+**Across the last six hours, 4 of 46 windows returned a field.**
 
 Two asks, in order:
 
-1. **Please don't bill a `completed` job whose `features` array is empty.** You already don't bill
-   `failed` jobs or jobs that never finish — I checked the meter, and I'm grateful for that. This is
-   the same fault presenting a third way, and it's the only one that charges.
+1. **A `completed` job whose `features` array is empty shouldn't be charged as a successful call.**
+   Jobs that report `failed`, and jobs that never finish, already aren't — so this is the same
+   underlying fault presenting a third way, and the only one that bills.
 2. **A different status, or a `reason` field, when a job completes with no data.** Right now an
    out-of-range area, an unavailable window and a service problem are indistinguishable: all three
    are `200` + `completed` + `features: []`. Two words in the payload would remove a whole class of
@@ -56,7 +58,7 @@ eleven were accepted. The twelve requests differed only in `start_time`, so I as
 concurrent submits — I've added a small delay between them and haven't seen it again. **If there is
 a documented submit rate, I'd rather code to it than guess.**
 
-Request shape for all of the above: 8 × 8 km AOI centred on 39.0100, −77.4460, `granularity: 60`,
+Request shape throughout: 8 × 8 km AOI centred on 39.0100, −77.4460, `granularity: 60`,
 `analytic_type: "tcm"`, `filter_type: 2`, 1-hour windows.
 
 Thanks,
