@@ -31,6 +31,12 @@ WHAT IT CHECKS, AND WHICH REAL BUG EACH ONE EXISTS FOR
   7. SELF-TESTS         every module's own suite still passes.
   8. CROSS-LANGUAGE     the browser agrees with Python on decisions, reasons, stage-event sentences
                         and the conformal quantile.
+  9. API SPEND          the credit ledger is re-derived from saved meter readings, and the
+                        submission documents are checked against it -- current figure present,
+                        superseded figure absent.
+ 10. FRONT DOOR        every figure in the root README.md is re-derived from the emitted JSON and
+                        matched as the FORMATTED STRING a reader sees. The failure figures are
+                        registered next to the flattering ones so they cannot quietly rot away.
 """
 import ast
 import json
@@ -45,6 +51,7 @@ ROOT = os.path.dirname(IA)
 DEMO = os.path.join(IA, "demo")
 
 FAILS, WARNS, PASSES = [], [], []
+PUBLISHED_COUNT = [0]      # set by check_published_numbers, read by check_front_door_figures
 
 
 def ck(name, ok, detail="", warn=False):
@@ -668,8 +675,17 @@ def check_published_numbers():
          0.8943, 1e-3),
         ("ACI rounds 43,260", bt["aci"]["3"]["ACI"]["rounds"], 43260, 0),
         ("N-56 reproduction +65.6 h/yr at sensor 0.3", a03["gain_h_per_year"], 65.6, 0.5),
-        ("plume awareness costs 22.8 h/yr",
+        # 🔴 THIS ENTRY USED TO READ "plume awareness costs 22.8 h/yr" AND IT PASSED FOR TWO
+        # DAYS WHILE THE CLAIM WAS BACKWARDS (gotcha #97). The magnitude was registered; the
+        # DIRECTION was not, and the direction was the claim. A registry entry's label is part of
+        # what it asserts -- so the three checks below pin the sign, the raw hours and the breach
+        # counts, and no relabelling can pass them.
+        ("plume awareness WINS 22.8 safe h/yr (sign included)",
          bw["gain_h_per_year"] - bo["gain_h_per_year"], 22.8, 0.5),
+        ("...and MORE raw free hours: 17,511 with the term vs 17,462 without",
+         bw["agent_free_h"] - bo["agent_free_h"], 49, 0),
+        ("...and FEWER breaches: 3 with the term vs 11 without",
+         bo["agent_breach_h"] - bw["agent_breach_h"], 8, 0),
         ("plume awareness cuts breaches 0.63 -> 0.17 per 1000",
          bo["agent_breach_per_1000_free_h"], 0.63, 0.02),
         ("fixed plume margin 0.08658 C", p47["fixed_margin_c"], 0.08658, 1e-4),
@@ -779,6 +795,10 @@ def check_published_numbers():
         if not ok:
             bad.append("%s: doc says %s, code says %s" % (label, want, got))
         print("      [%s] %-52s %s" % ("ok" if ok else "STALE", label, got))
+    # The SIZE of this registry is itself a published figure -- README.md and HANDOFF.md both
+    # promise a reader how many numbers get re-read -- so check 10 reads it from here rather than
+    # from a human's memory of it. It has already drifted once, 68 -> 70.
+    PUBLISHED_COUNT[0] = len(reg)
     ck("every published headline number still matches the code", not bad,
        "%d checked" % len(reg) if not bad else "; ".join(bad))
 
@@ -860,6 +880,140 @@ def check_cross_language():
         run(["node", js], DEMO, "%-38s" % label)
 
 
+def check_api_spend():
+    """THE SUBMISSION'S API-USAGE FIGURES, RE-DERIVED FROM THE METER.
+
+    This check exists because the number DID drift. HANDOFF 12.2 said "42,200 = 10 calls = 2.11 %"
+    while `testing/results/n26_manifest.json` recorded a meter of 1,945,140 -- the collector had
+    fired three more attempts and no test re-read the figure. That is methodology rule 10 exactly:
+    a number in a document that nothing re-reads is a number that will drift.
+
+    So the ledger is regenerated from saved usage-endpoint readings (zero API calls, no key read)
+    and the documents are checked against it BOTH WAYS: the current figure must appear, and the
+    superseded one must NOT. Requiring the new string alone would pass a document that quoted both.
+    """
+    print("\n9. API SPEND -- the ledger, and the documents that quote it")
+    led = os.path.join(ROOT, "testing", "api_usage_ledger.py")
+    if not os.path.exists(led):
+        ck("api spend ledger present", False, "testing/api_usage_ledger.py is missing")
+        return
+    run([sys.executable, led, "--json"], ROOT, "regenerate the spend ledger from meter readings")
+    u = jload(os.path.join(ROOT, "testing", "results", "api_usage.json"))
+
+    # The reconciliation itself. `issued - remaining` must be a whole number of heatmap calls at
+    # the measured price; a remainder means a differently-priced endpoint was billed or a reading
+    # is wrong, and either way no call count may be published.
+    ck("spend is a whole number of calls at the measured price",
+       u["whole_call_remainder"] == 0,
+       "%s credits / %s = %d calls exactly" % (format(u["spent"], ","),
+                                               format(u["heatmap_credits"], ","), u["paid_calls"]))
+    ck("the ledger's own arithmetic closes",
+       u["issued"] - u["remaining"] == u["spent"]
+       and u["attributed_credits"] + u["unattributed_credits"] == u["spent"],
+       "%s issued - %s remaining = %s spent" % (format(u["issued"], ","),
+                                               format(u["remaining"], ","),
+                                               format(u["spent"], ",")))
+    # Classification must stay a partition: evidenced-with-data + evidenced-zero + unidentified
+    # has to equal the call count, or the floor/ceiling either side of it means nothing.
+    ck("the call classification partitions the calls",
+       u["calls_returning_data"] + u["calls_returning_zero_tiles_evidenced"]
+       + u["calls_not_individually_identified"] == u["paid_calls"],
+       "%d with data + %d evidenced zero + %d unidentified = %d"
+       % (u["calls_returning_data"], u["calls_returning_zero_tiles_evidenced"],
+          u["calls_not_individually_identified"], u["paid_calls"]))
+
+    # Now the documents. Every figure a reader can quote from API-USAGE.md is registered here.
+    current = [format(u["spent"], ","), format(u["remaining"], ","),
+               "%.2f %%" % u["pct_of_plan"], str(u["paid_calls"])]
+    # Superseded TOTALS, listed explicitly. Add to this list whenever spend changes -- that is the
+    # point: the stale figure has to be named to be caught.
+    #
+    # Two numbers are deliberately NOT banned bare, because each has a legitimate current use and
+    # `check_nan_writers`' own lesson applies -- a check that cries wolf is worse than no check:
+    #   * `1,957,800` was the stale "remaining" total, but it is ALSO the true meter reading after
+    #     the Chicago call, and it appears as such in the itemised ledger.
+    #   * `42,200` was the stale "spent" total, but it is ALSO the ledger's honest upper bound on
+    #     credits that bought no data.
+    # So the ban is on the stale CLAIM, not on the digits: the phrasing that asserts them as
+    # totals. `2.11 %` has no legitimate current use at all and is banned outright.
+    superseded = ["2.11 %", "42,200 = 10", "10 calls = 2.11", "42,200 credits", "Remaining **1,957,800**"]
+    for doc in ("API-USAGE.md", "HANDOFF.md"):
+        path = os.path.join(ROOT, doc)
+        if not os.path.exists(path):
+            ck("%s exists" % doc, False, "missing")
+            continue
+        txt = open(path, encoding="utf-8").read()
+        missing = [s for s in current if s not in txt]
+        ck("%-22s quotes the current spend" % doc, not missing,
+           "all of %s present" % ", ".join(current) if not missing
+           else "MISSING %s" % ", ".join(missing))
+        # HANDOFF.md is allowed to name a superseded figure, because it documents the drift as a
+        # gotcha and naming it is the whole lesson. API-USAGE.md is judge-facing and may not.
+        if doc == "API-USAGE.md":
+            stale = [s for s in superseded if s in txt]
+            ck("%-22s carries no superseded figure" % doc, not stale,
+               "none of %s present" % ", ".join(superseded) if not stale
+               else "STALE %s still quoted" % ", ".join(stale))
+
+
+def check_front_door_figures():
+    """THE ROOT README IS THE FIRST THING A JUDGE READS, so its numbers get the same treatment.
+
+    Every figure quoted there is re-derived from the emitted JSON and matched as the FORMATTED
+    STRING the reader sees -- not the float behind it. That is deliberate: `+406 h/yr` and
+    `405.6555` are the same measurement but only one of them is on the page, and it is the one on
+    the page that can be wrong.
+
+    The failure figures are registered alongside the flattering ones ON PURPOSE. If the coverage
+    number ever drifts upward, or the "-156 h/yr, the agent LOSES" row quietly disappears, this
+    check fails -- so the honest rows cannot rot away while the headline rows stay fresh.
+    """
+    print("\n10. THE FRONT DOOR -- README.md figures vs the emitted JSON")
+    path = os.path.join(ROOT, "README.md")
+    if not os.path.exists(path):
+        ck("README.md exists", False, "the repository has no root README")
+        return
+    # WHITESPACE-INSENSITIVE, because markdown wraps. "70 published figures" is written in the
+    # README as "70 published" + a line break + "figures", and an exact-substring check reported
+    # a correct document
+    # as stale -- the same cry-wolf failure `check_nan_writers` was rewritten to avoid.
+    txt = re.sub(r"\s+", " ", open(path, encoding="utf-8").read())
+    t = jload(os.path.join(DEMO, "trace.json"))
+    bt = jload(os.path.join(DEMO, "backtest.json"))
+    rl = jload(os.path.join(DEMO, "rolling.json"))
+    ex = jload(os.path.join(DEMO, "explanations.json"))
+    tk = jload(os.path.join(DEMO, "ticker.json"))
+    rb = rl["configs"][0]
+    C = [r for r in bt["n56_audit"] if r["step"].startswith("C ")]
+
+    want = [
+        ("free cooling delivered",  "%s h/yr" % format(round(rb["executed_free_h_per_day"]
+                                                             * 365.25), ",")),
+        ("held-out days",           "%s held-out days" % format(rl["held_out_days_simulated"], ",")),
+        ("chiller-hours avoided",   "+%d h/yr" % round(C[-2]["gain_h_per_year"])),
+        ("the unanchored LOSS",     "−%d h/yr" % round(abs(C[-1]["gain_h_per_year"]))),
+        ("plan stability",          "%.1f %%" % (100 * rb["replans_with_zero_change"])),
+        ("re-plan count",           "%s re-plans" % format(rb["replans"], ",")),
+        ("coverage, and its FAILURE", "%.1f %%" % (100 * t["cycle"]["pooled_coverage"])),
+        ("hours of real weather",   "%s hours" % format(bt["hours"], ",")),
+        ("swept scenarios",         "%s swept scenarios" % format(t["cases"]["all_mechanical"]
+                                                                 ["n_total"], ",")),
+        ("explanations verified",   "%s explanations with 0 verification failures"
+                                    % format(ex["verification"]["hour_explanations"], ",")),
+        ("tape templates",          "%d templates contain not one literal digit" % tk["n_templates"]),
+        # SELF-REFERENTIAL BY DESIGN, and it has to run LAST for that to work: this function adds
+        # exactly one check of its own, so the total a reader is promised is what has been counted
+        # so far plus one. Anything cleverer (writing the count to a file and reading it back next
+        # run) reports yesterday's number as today's.
+        ("audit check count",       "%d audit checks" % (len(PASSES) + len(WARNS) + len(FAILS) + 1)),
+        ("published-number count",  "%d published figures" % PUBLISHED_COUNT[0]),
+    ]
+    missing = [(lbl, s) for lbl, s in want if re.sub(r"\s+", " ", s) not in txt]
+    ck("every README figure matches the emitted JSON", not missing,
+       "%d figures checked" % len(want) if not missing
+       else "; ".join("%s: expected \"%s\"" % (l, s) for l, s in missing))
+
+
 def main():
     print("=" * 78)
     print("AUDIT -- INTAKE-ARBITER, whole tree")
@@ -878,6 +1032,8 @@ def main():
     check_published_numbers()
     check_self_tests()
     check_cross_language()
+    check_api_spend()
+    check_front_door_figures()          # LAST: it counts every check above it, including its own
     print("\n" + "=" * 78)
     print("AUDIT: %d passed, %d warnings, %d FAILURES" % (len(PASSES), len(WARNS), len(FAILS)))
     for n, d in FAILS:

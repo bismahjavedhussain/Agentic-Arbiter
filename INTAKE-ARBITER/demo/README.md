@@ -1,17 +1,23 @@
-# The demo
-
-**Zero API calls at view time.** Everything on screen replays saved FortyGuard responses.
-
-## Run it
+# The demo — `python -m http.server 8000`, then open <http://localhost:8000>
 
 ```bash
-cd INTAKE-ARBITER/demo
-python -m http.server 8000
-# open http://localhost:8000
+cd INTAKE-ARBITER/demo && python -m http.server 8000
 ```
 
-`file://` will not work — browsers block `fetch()` from it. Any static host serves this as-is
-(GitHub Pages, Netlify), because there is no server side and no build step.
+🔴 **DO NOT open `index.html` by double-clicking it.** Browsers block `fetch()` from `file://`, so
+the page loads and then shows nothing but a red error — it looks like a broken submission and it is
+not. **It needs any HTTP server, and that is the only requirement.** No build step, no npm, no
+dependencies, no server-side code: GitHub Pages or Netlify serve this folder exactly as it is.
+
+**Zero API calls at view time.** Everything on screen replays saved FortyGuard responses, and the
+page says so in its own header. That is a correctness property, not a convenience — N-55 established
+that re-requesting the same window returns **17,862 of 17,862 tiles byte-for-byte identical, max |Δ|
+= 0.00000000 °C**, so a replayed field is not an approximation of the live API, it is the same
+values.
+
+**What you are looking at:** pick one of three data centres → configure a plant from swept options
+→ watch the agent work through its seven stages → read the proof panels underneath, including the
+five-year worth, the downloadable PDF, and the panel where the bound **fails** its 90 % promise.
 
 ## Regenerate the data
 

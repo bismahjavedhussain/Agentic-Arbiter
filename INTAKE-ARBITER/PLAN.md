@@ -291,7 +291,8 @@ leak removed the DP **loses by 15–22 σ** at every penalty across four decades
 | **Conformal bound, LIVE FortyGuard forecasts** | 🔴 **65.6 % pooled, worst day 0.0 %** over 3 test days; **80.1 %** with the level anchored to one local observation. **Quote these, not 90 %** (§8e) |
 | Live unattended self-scoring | Daily scheduled task, **4 complete pairs, 3 test days, verdict FAIL** — see §8e. Aug 14 and Aug 17 are permanent gaps (machine off) |
 | Fault detection (supporting result) | removing weather cuts detection delay **79.7 → 0.03 days** (+75.6 σ); sequential evidence beats a threshold **57.5 → 2.67 days** (+52.6 σ) at matched false-alarm rate |
-| **Free-cooling hours gained** | **≈67 h/year from RECIRCULATION AWARENESS ALONE, no forecast required** — paired per-day +0.1827 h, SE 0.0196, 95 % CI [+0.1443, +0.2211], n = 914 days. Rising to **≈770 h/year at 3 h notice IF forecast skill is half-way between persistence and perfect**, which is **unmeasured**. Equal safety verified: held-out coverage 90 % ± 2 pp for **both** policies, 612/612. **⚠ Requires the customer's sensor to anchor the level — unanchored the zero-notice case LOSES 645 h/year.** N-56, supersedes N-51's withdrawn ≈150 h/year. See `n56-freecooling-PREREG.md` |
+| **Free-cooling hours gained** | 🔴 **SUPERSEDED — read §8n.1 for the five-year ladder, which is what `audit.py` re-reads.** The current rows on **43,763 h / 1,826 days / 913 held out**: base **+65.6 h/yr** → **+85.6** with a switch budget and dwell limit → **+118.8** with the sourced dew-point gate → **+405.7** at 3 h notice and skill 0.50 → **−156.0 unanchored, where the agent LOSES.** The two claims retracted from the old wording: *"≈67 h/yr from RECIRCULATION AWARENESS ALONE"* (it is an **uncertainty asymmetry** — the same row reads 18.4 / 65.6 / 158.4 as sensor error goes 0.1 / 0.3 / 0.5 °C) and *"≈770 h/year"* (the ladder's own figure is **+405.7**, and **skill 0.50 remains an ASSUMPTION, not a measurement**). See `n56-freecooling-PREREG.md` |
+| **What the plume model is worth** | **+22.8 safe h/yr AND 3.7× fewer breaches** — with the rise term: 17,511 free hours, 3 breaches, 0.17 per 1,000; without it: 17,462 and 11, 0.63 per 1,000. **Not a safety-for-hours trade.** The truth is always `T + rise`, so with the term the plume **cancels out of the conformal residual** (`(T+rise) − (fc+rise) = T − fc`); without it the 90th-percentile quantile must absorb the plume's whole spread, which charges every hour a worst case instead of its actual value. **Dropping the physics buys a WIDER bound, not a cheaper one.** ⚠ **The sign on this was inverted in the source until 2026-08-20 — HANDOFF §10 #97** |
 | FortyGuard API characterisation | **16 defects**, including a **severe credential leak**: the caller's API key is embedded in a `download_link` URL path |
 
 ---
@@ -1608,14 +1609,213 @@ wrote.** Interface re-rendered and inspected afterwards.
 
 ---
 
+## 8n. ✅ SESSIONS 4, 0, A, C, D, F, G — the ladder, the present tense, the tape, the visible bound, and money (2026-08-19 → 2026-08-20)
+
+Seven sessions, written up together because they share one theme: **each one took a claim that was
+being asserted and made a program re-derive it.**
+
+### 8n.1 The five-year ladder — what each layer of realism COSTS
+
+`src/backtest.py`, **43,763 hours / 1,826 days, 913 held out.** The point of a ladder rather than a
+single figure is that a reader can see which assumption is carrying the headline:
+
+| Step | Gain vs the tuned incumbent |
+|---|---|
+| N-56-like: notice 0, skill 1.00, no constraints | **+65.6 h/yr** |
+| + switch budget 2, minimum dwell 3 h | **+85.6** |
+| + the sourced 15 °C dew-point gate *(Green Grid WP#46 p.6)* | **+118.8** |
+| + notice 3 h, forecast skill 0.50 *(no perfect forecast)* | **+405.7** |
+| 🔴 **+ unanchored — four measured FortyGuard offsets rotated** | **−156.0 — THE AGENT LOSES** |
+
+**The last row is the honest headline.** Without one local reading to anchor the level, the agent is
+worse than the incumbent, and every published figure says so beside it. **`skill = 0.50` is an
+ASSUMPTION** — FortyGuard's H-hour skill at this site is still unmeasured (§8e), and it is swept as
+an axis rather than asserted.
+
+**The sensitivity sweep is 12 axes, one at a time, and three of them reverse the sign.** An axis
+whose interval crosses zero is an axis the headline is conditional on, and `backtest.py` prints
+those explicitly rather than leaving them in a table for a reader to find.
+
+### 8n.2 Session A — the agent runs in the PRESENT TENSE
+
+`src/rolling.py`. Until this session the agent scored whole days from midnight, which is not how a
+plant is operated. It now starts from **any hour in any plant state**, re-plans on a 12-hour rolling
+horizon, and **only ever acts on the first slot of each plan** — so what is measured is what a
+controller would actually have executed.
+
+| | |
+|---|---|
+| Re-plans compared | **21,879** |
+| **Re-plans that change nothing at all** | **94.08 %** |
+| Churn | **1.128 %** of slot-decisions revised |
+| Free cooling actually EXECUTED | **14.715 h/day = 5,375 h/yr** over 913 held-out days |
+| Per-lead conformal bounds | **12, one per lead hour, every one covering ≥ 90 %** |
+
+**Why churn matters commercially:** an operator will not accept a published 12-hour schedule that
+rewrites itself hourly. **94 % of re-plans changing nothing is the answer to the first question a
+plant engineer asks**, and it is measured rather than promised.
+
+### 8n.3 Session D — the reasoning tape, and why it cannot be a script
+
+`src/ticker.py` emits a seven-stage event tape. The obvious objection to any "watch it think" display
+is that the words are hand-written, so the guard is mechanical — and it is the strongest single
+anti-theatre check in the project:
+
+- **30 templates, and not one of them may contain a literal digit** — `check_no_literal_digits()`
+  fails the build otherwise. Every number a reader sees is interpolated from a payload value.
+- **18 short forms** for the streamed status line, under the **same** guard. This matters *more* for
+  the short forms: *"reading 17,862 tiles"* reads identically whether the number was computed or
+  invented, so a terse phrase is exactly where a fake would hide. The check also fails if **any
+  event lacks a short form or any short form lacks an event.**
+- **1,002 per-hour tapes verified, 0 failures.** Of the numbers in them, **23 are re-derived from
+  first principles** and **48 are read back** from the emitting file — reported separately, because
+  "re-read the file that wrote it" is a weaker check than "compute it again", and conflating the two
+  would overstate the verification.
+- The browser renders the same sentences **character for character**, checked by
+  `demo/verify_browser_ticker.js`.
+
+### 8n.4 Session F — the conformal quantile, DERIVED IN THE BROWSER
+
+The bound is the part a reader is least able to check, so the demo does not display a number from a
+file — **`cfQuantileIndex` / `cfSplit` mirror `src/conformal.py` and are verified to agree exactly**
+against `demo/conformal_cases.json`: **476 (n, α) grid points, 300 residual arrays, and 13 cases
+taken from the real run.** The ⌈(n+1)(1−α)⌉ index rule is the whole game in split conformal, and an
+off-by-one there is invisible in the output and fatal to the guarantee.
+
+### 8n.5 Sessions 4 and 0 — an invented constant, and a collector that slept through two days
+
+**Session 4 removed an invented constant.** The humidity gate was *"wet-bulb ≤ dry-bulb limit − 3 °C"*
+and the **3.0 had no source** — it was derived from our own other knob, which is exactly what the
+point-at-the-constant test exists to catch. It is now a **published 15 °C dew-point maximum** with a
+citation, and `audit.py` has a **retired-constants check** so the invented one cannot return. It had
+already survived a full day in `backtest.py` after being removed from `agent.py`, which meant the
+five-year headline was briefly produced by a number every document had already condemned.
+
+**Session 0 hardened the collector.** Two day-pairs were lost to the machine being **asleep** — no
+error, no manifest entry, nothing to notice. Fixed with `WakeToRun` + `StartWhenAvailable` +
+run-on-battery on all three tasks, a **retry budget that costs nothing when the first attempt
+succeeds**, the attempt written to the manifest *before* the call so a crash still counts, and a
+**free `dryrun` mode** that reports what the collector would do without reading the key at all.
+
+### 8n.6 Session G — money, with the qualification attached to the number
+
+`src/money.py`. The old limit in §9 — *"no dollar or energy figure"* — is lifted, but narrowly:
+
+- **Both conversion factors are SWEPT, not chosen.** 4 published electricity prices × 4 published
+  chiller efficiencies × the hours rows = **608 cells**, and **nothing is collapsed to a single
+  number**. A single dollar figure would have hidden which published value produced it.
+- **Priced in each site's own state** — Virginia prices for Ashburn, Illinois for Chicago — because
+  a national average would have been a fifth unsourced assumption.
+- **The chiller COMPRESSOR only.** Fans, chilled-water pumps, condenser pumps and tower fans keep
+  running, and **an airside economizer moves MORE air, so fan power RISES.** The unmeasured term has
+  the **opposite sign**, which makes the compressor-only figure an **upper bound on the saving, not
+  an estimate of it.**
+- Every source in **`money-sources.md`**.
+
+---
+
+## 8o. ✅ SESSIONS B + E — three sites on their own data, and two refused on evidence (2026-08-19 → 20)
+
+**Five metros screened from real aerial imagery. Three ship. Two were REFUSED.**
+
+| | **ashburn** (default) | **chicago** | **dulles** |
+|---|---|---|---|
+| Committed pair | AWS **IAD116 → IAD117** | **Stream Chicago II → Equinix CH3** | AWS **IAD81 → IAD62** |
+| OSM ways | 744496750 → 744496741 | 863162820 → 377032061 | 693381107 → 545396372 |
+| Facade gap | **60.3 m** *(clears the 60 m floor by 0.3 m)* | 118.4 m | 137.7 m |
+| Critical rise | **0.3550 °C @ 255°** | **0.4116 °C @ 240°** | **0.3593 °C @ 265°** |
+| Station | KIAD 8.9 km, 43,763 h, 99.92 % | KORD 4.4 km, 43,775 h, 99.94 % | KIAD 6.7 km *(shared)* |
+| FortyGuard field | 9 calls, 8 saved fields | 1 call, 17,797 tiles | **none purchased** |
+
+**The refusals are the most credible thing here, so they ship rather than being quietly dropped:**
+**Santa Clara is rooftop-cooled** — there is no facade-to-facade intake path to reason about — and
+**Phoenix is not built yet.** Both are exported and drawn on the map in red with the reason attached.
+⚠ Neither refusal is proof: 5 Santa Clara frames and two Arizona clusters remain unscreened, so they
+are recorded as a **"strong indication"** rather than a finding.
+
+**Dulles cost ZERO credits and ZERO weather work**, because it shares KIAD with Ashburn — which is
+the point. It **isolates geometry and operator from climate**, so a difference between Ashburn and
+Dulles cannot be a weather difference.
+
+⚠ **Dulles's imagery verdict is WEAKER than Ashburn's** and is recorded as such: no USGS
+cross-check, so the two-source rule is **not met**, and chillers cannot be distinguished from
+generators at 0.3–0.5 m resolution. ⚠ **Chicago's single past-window field buys the spatial
+statistics and the screen-zero visual, NOT a level offset** — that needs a forecast leg *and* its
+elapsed outcome, i.e. two calls.
+
+**Session E rendered the solved plume.** `src/export_plume_fields.py` writes **72 real solved fields
+per site**, audit-verified against the published critical rise to **≤ 1.1 %**. The demo draws the
+field the solver actually produced, flaws included: at these distances the √x spread model is **too
+wide, so it under-predicts rise by 5–25 %** — the unsafe direction — and the panel says so on screen.
+
+---
+
+## 8p. ✅ THE PER-SITE ENGINE, THE INTERFACE, AND A REAL PDF (2026-08-20)
+
+### 8p.1 A site picker that swapped ONE file
+
+**The picker offered three sites and only one of them had data.** Twelve of thirteen panels stayed
+Ashburn's while the dropdown said Chicago, because only the plume field was per-site.
+`agent.py` / `backtest.py` / `rolling.py` / `money.py` / `explain.py` / `ticker.py` / `report.py` are
+now all metro-aware via a `METRO` environment variable — **unset resolves to `ashburn` with
+byte-identical paths, so every previously audited number is untouched** — and `src/build_sites.py`
+runs the whole chain per site.
+
+🔴 **The generalisable lesson, and it is now a check:** when an interface offers a choice, **test
+that the choice CHANGES something.** `audit.check_sites_actually_differ()` compares values across
+sites and **fails on agreement.** Existence proves nothing.
+
+### 8p.2 The interface is a three-stage flow
+
+`STAGE` + `setStage()` in `demo/index.html`. **pick** a site → **configure** a plant → **watch it
+work**. Every card carries `data-show` and `setStage()` is the only thing that sets `.hidden`. The
+reasoning streams one line per stage at 260 ms — **presentation only, and labelled as such: it is the
+reveal cadence, not a measurement.**
+
+`buildControls()` **builds** the control markup from `CONTROLS` + `PLANT_ENVELOPE`, so an axis added
+to the envelope appears without an HTML edit. **`autofill()` is labelled a navigation aid, not a
+recommendation**, and every value it sets is one of the swept options.
+
+### 8p.3 A real PDF, written without a PDF library
+
+`src/report.py` emits **PDF 1.4 by hand** — catalogue, page tree, one content stream per page, xref
+table — because this machine has a PDF *reader* and no writer, and making a judge `pip install`
+something before a deliberately dependency-free demo was the worse option. **Courier throughout**,
+so every glyph is exactly 600/1000 em and wrapping is arithmetic rather than an approximation
+needing an embedded metric table.
+
+**`verify()` REOPENS THE FILE IT JUST WROTE** and asserts every scheduled hour, the headline counts
+and the site's own name are present, **plus a layout-bounds check on every placed string** — because
+Chrome will not render a PDF headlessly, so it cannot be screenshotted. **That bounds check caught a
+line 20.1 pt off the right edge of all three reports on its first run.**
+
+**Which configuration the report shows is a DISPLAY SELECTION BY SEARCH**, not a default:
+`pick_block()` scores *informativeness* — mixed modes first, then distinct binding constraints, then
+agent-vs-incumbent divergence. The first scoring rule picked a day where the agent free-cooled 24 of
+24 hours **and so did the incumbent** — a four-page report demonstrating no advantage. **Page 1 says
+it is a snapshot** and tells the reader to compare it against the live page before concluding
+anything.
+
+---
+
 ## 9. Honest limits — stated before anyone asks
 
-- **No dollar or energy figure.** The °C → kWh conversion needs a chiller-efficiency number that could
-  not be found in any primary document available to us. **Results stay in chiller-hours.**
+- **The dollar figure covers the CHILLER COMPRESSOR ONLY** *(was: "no dollar or energy figure" — that
+  limit was lifted on 2026-08-20, see §8n.6)*. `src/money.py` prices the hours using **kW/ton and
+  ¢/kWh both SWEPT over published values** — 608 cells, nothing collapsed to a single number, priced
+  in each site's own state. **The fan, pump and cooling-tower term is still NOT sourced and NOT
+  claimed, and it has the OPPOSITE SIGN** (free cooling moves more air), so the compressor-only
+  figure is an upper bound on the saving, not an estimate of it. Every source in
+  `money-sources.md`.
 - **No real intake sensor.** The bound is calibrated against FortyGuard's own forecast-vs-outcome pairs;
   end-to-end validation needs a customer's sensor, which closes the loop within a fortnight of deployment.
-- **One reference layout so far** — real Ashburn geometry is being brought in from OpenStreetMap, and
-  conclusions are known to be layout-sensitive.
+- **Three real layouts now, and conclusions remain layout-sensitive** *(was: "one reference layout so
+  far")*. Ashburn (AWS IAD116→117, 60.3 m facade gap), Chicago (Stream→Equinix CH3, 118.4 m) and
+  Dulles (AWS IAD81→IAD62, 137.7 m) each run on **their own** OSM geometry, station record, bound
+  and tariff — `audit.py` **fails if any two sites agree on a value**. Two further metros were
+  **REFUSED on aerial evidence** (Santa Clara rooftop-cooled, Phoenix not built), and the refusals
+  ship. **Dulles shares KIAD with Ashburn deliberately**, which isolates geometry and operator from
+  climate. See §8o.
 - **21.9 % of hours are calm or lack a bearing** and use an all-bearing mean rise. Recirculation is
   physically *worse* in calm air, so this likely **understates** the effect on a fifth of all hours.
 - **The incumbent baseline is given the same conformal calibration machinery**, which is generous to it.
@@ -1628,8 +1828,17 @@ wrote.** Interface re-rendered and inspected afterwards.
 - **🔴 FortyGuard's H-hour forecast skill at this site is UNMEASURED**, so every free-cooling figure except
   the ≈67 h floor is conditional on it. **That one measurement would settle the headline.** At 1 h notice
   with no forecast skill at all, the agent **loses 28 h/year** — recorded, not hidden.
-- **No humidity/enthalpy gate yet.** Real economizers also limit on wet-bulb, which would reduce
-  available hours for both policies.
+- **The humidity gate exists and it COSTS hours, as it should** *(was: "no humidity/enthalpy gate
+  yet")*. `src/environment.py` computes dew point and wet-bulb against PsychroLib at **0.2681 °C
+  MAE**, and the gate is a **sourced 15 °C dew-point maximum (The Green Grid WP#46 p.6, which gives
+  the ASHRAE recommended maxima as 27 °C dry-bulb AND 15 °C dew point)** — replacing an invented
+  *"wet-bulb ≤ dry-bulb limit − 3 °C"* whose 3.0 was derived from our own other knob and so failed
+  the point-at-the-constant test. **BOTH policies face the gate**, each testing it with a bound from
+  its own residuals, and the ladder step is **+85.6 → +118.8 h/yr**. That a gate *raises* the gain
+  is not a paradox: the incumbent's humidity bound is fitted on **persistence** residuals and is
+  therefore wider, so gating costs it more hours than it costs the agent. **An enthalpy changeover
+  proper is still not implemented, and the air-quality gate cannot be backtested at all — no
+  five-year air-quality record exists.**
 - **Physics validated to ~0.9 K.** Large-recirculation layouts are extrapolation and are labelled so.
 - **Wind is not FortyGuard's.** Their API contains no wind field — confirmed from their OpenAPI spec.
   Bearing and speed come from free public data. FortyGuard supplies ambient, which is the dominant term
@@ -1812,6 +2021,33 @@ Recorded in `damper-agent-plan.md`.
 |---|---|---|
 | 12-hour horizon, hourly resolution, ML-downscaling description. **Refresh cadence is absent from both pages** and we do not assume one | FortyGuard — [Our Technology](https://www.fortyguard.com/our-technology) · [Introducing 12-Hour Forecasting](https://www.fortyguard.com/post/introducing-12-hour-forecasting-local-temperature-intelligence-for-real-world-operations) | 📘 |
 | The 12-hour horizon is **confirmed by our own measurement**: 9.25 h and 11.25 h return data; 13.25 h and 17.25 h return zero tiles; a 9.41 h lead returned 17,862 tiles | our own probes, `fortyguard-api-findings.md` | 📘 |
+
+---
+
+### 12.8a The money conversion — every factor sourced, and both of them swept
+
+Rule 5 attaches to this section, and Session G's citations are held in full in **`money-sources.md`**
+(standalone, complete) rather than being restated here. What matters at this level:
+
+| Factor | Value(s) SWEPT | Source, opened and read |
+|---|---|---|
+| Chiller efficiency, water-cooled packages | centrifugal **0.576** full load / **0.549** IPLV.IP; screw-scroll **0.639** / **0.572** kW/ton | ASHRAE 90.1-2019 minimum path, via **PNNL-29674 p. 221, Table 82** *(reproducing Standard 90.1-2019 Table G3.5.3)* — **PDF page 236, printed in full and read in place** |
+| Electricity price — **each site in its OWN state, 4 prices per site** | Ashburn/Dulles (VA): **8.72** commercial and **8.99** industrial 2024 annual, **10.84** / **10.53** May 2026. Chicago (IL): **11.81** / **8.83** / **15.36** / **10.20** | **EIA `table_4.pdf`** (2024 Total Electric Industry, text-extracted with `pypdf`) and **EIA Table 5.6.A** (`.xlsx` parsed as a zip of XML with `zipfile` + `xml.etree` — **no spreadsheet library and no summarising model**) |
+| 1 ton of refrigeration | **3.5168528420666667 kW** | definition, not an estimate |
+
+**Both axes are swept rather than chosen — 4 prices × 4 efficiencies × 38 hours rows = 608 cells per
+site, and nothing is collapsed to a single number.** Note the sweep is **within** a state: a site is
+never priced at another state's tariff, and Illinois commercial (11.81 ¢) is **35 % above** Virginia's
+(8.72 ¢), which is exactly why a national average would have been a fifth unsourced assumption.
+`audit.py` registers the published factors and one worked cell, so a drifted kW/ton cannot silently
+change every dollar figure in the project.
+
+🔴 **What is NOT claimed, and it has the opposite sign.** The figure covers the **chiller compressor
+only**. Fans, chilled-water pumps, condenser pumps and cooling-tower fans keep running, and **an
+airside economizer moves MORE air, so fan power RISES.** No primary document available to us gave a
+defensible °C → fan-kWh conversion for this plant, so the term is left out and labelled — which makes
+the published figure an **upper bound on the saving, not an estimate of it.** LBNL PUE material is
+carried as context only and is not used in any arithmetic.
 
 ---
 

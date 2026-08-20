@@ -1,0 +1,65 @@
+{
+ "plan": "Hackathon",
+ "issued": 2000000,
+ "heatmap_credits": 4220,
+ "remaining": 1945140,
+ "spent": 54860,
+ "paid_calls": 13,
+ "pct_of_plan": 2.743,
+ "whole_call_remainder": 0,
+ "attributed_credits": 21100,
+ "unattributed_credits": 33760,
+ "calls_returning_data": 3,
+ "calls_returning_zero_tiles_evidenced": 6,
+ "calls_not_individually_identified": 4,
+ "credits_that_bought_no_data_floor": 25320,
+ "credits_that_bought_no_data_ceiling": 42200,
+ "unbilled_frozen_cycle_readings": 8,
+ "attributable": [
+  {
+   "source": "testing/results/n55_keysize.json",
+   "before": 1987340,
+   "after": 1983120,
+   "spent": 4220,
+   "tiles": 17862,
+   "activity_id": null,
+   "test": ""
+  },
+  {
+   "source": "testing/results/diag61_forecast_entitlement.json",
+   "before": 1978900,
+   "after": 1974680,
+   "spent": 4220,
+   "tiles": 0,
+   "activity_id": null,
+   "test": "DIAG-61 forecast entitlement vs horizon vs outage"
+  },
+  {
+   "source": "testing/results/diag62_forecast_recheck.json",
+   "before": 1966240,
+   "after": 1962020,
+   "spent": 4220,
+   "tiles": 17862,
+   "activity_id": "f333f605-6ef6-4847-9bbf-1d22910ebcb6",
+   "test": "DIAG-62 forecast recheck"
+  },
+  {
+   "source": "testing/results/chicago_field.json",
+   "before": 1962020,
+   "after": 1957800,
+   "spent": 4220,
+   "tiles": 17797,
+   "activity_id": "9a47a9f3-23bc-414e-ae04-334a0a08a2a9",
+   "test": "chicago field, one paid call"
+  },
+  {
+   "source": "testing/results/n26_manifest.json",
+   "before": 1949360,
+   "after": 1945140,
+   "spent": 4220,
+   "tiles": null,
+   "activity_id": null,
+   "test": ""
+  }
+ ]
+}

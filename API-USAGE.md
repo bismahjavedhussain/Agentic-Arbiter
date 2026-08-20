@@ -1,0 +1,174 @@
+# FortyGuard API usage — INTAKE-ARBITER
+
+**A submission requirement, answered with the meter rather than with recollection.**
+Every figure below is re-derived by one command that makes **zero API calls**:
+
+```bash
+python testing/api_usage_ledger.py
+```
+
+It reads the usage-endpoint readings that each paid script saved beside its own results, reconciles
+them against the plan's issued total, and refuses to report a call count that is not a whole
+multiple of the measured price. Its output is written to `testing/results/api_usage.json`, which
+`INTAKE-ARBITER/src/audit.py` re-reads — so a number in this document cannot drift away from the
+evidence without a test failing.
+
+---
+
+## 1. The headline
+
+| | |
+|---|---|
+| Plan | **`Hackathon`**, issued **2,000,000** credits, active 2026-08-18 → 2026-09-22 |
+| **Paid calls made** | **13** |
+| **Credits spent** | **54,860** |
+| **Share of the plan used** | **2.74 %** |
+| Credits remaining | **1,945,140** |
+| Calls at demo view time | **0** — the interface replays saved responses (§6) |
+
+Thirteen calls is a deliberately small number, and it is small for two reasons that pull in
+opposite directions. The good one: **the daily cap of 30 heatmaps binds long before credits do**, so
+the design question was never "how many calls can we afford" but "which single call earns its
+place". The bad one: **the forecast endpoint spent most of this plan's active life returning
+`completed` with zero tiles**, and a request that returns nothing is still billed 4,220 (§5).
+
+**Most of the research behind this project was not paid for at all.** About **125 calls** were made
+on 2026-08-11…17 against a key whose billing cycle had closed on 2026-07-19 and whose meter was
+**frozen** — every reading before and after those calls is identical at `cycle_remaining = 180,980`.
+Those calls returned real data, and the four calibration day-pairs the conformal layer is built on
+came from them. They are reported separately here because counting them as spend would be wrong and
+pretending they never happened would be worse.
+
+---
+
+## 2. Endpoints used, and what each cost
+
+Prices were **measured**, not read off a price list: the usage endpoint is free, so every paid
+script calls it immediately before and immediately after its one paid request and saves both
+readings.
+
+| Endpoint | Credits | Measured how | Used for |
+|---|---|---|---|
+| **`POST /v1/heatmap`** | **4,220** | differencing the meter, repeatedly | Every paid call in this project. 8×8 km AOI, granularity 60, `analytic_type: tcm`, 2-hour window |
+| `POST /v1/env_params` | **2,900** | the `activity_breakdown` field | Humidity, dew point and six air-quality indices — the gates the agent needs beyond temperature |
+| `POST /v1/satellite` | 14,400 | `activity_breakdown` | Probed once for site screening; not used in the shipped pipeline |
+| `POST /v1/heat_intelligence` | 8,600 | `activity_breakdown` | Probed; **returns the caller's API key inside the `download_link` path**, so its raw responses are gitignored |
+| `POST /v1/streetview` | — | never completed (240 s timeout) | Probed; abandoned |
+| `GET /v1/status/{activity_id}` | **free** | unchanged meter across 59 polls | Polling a submitted activity to completion |
+| `POST /v1/system/fetch-api-key-usage` | **free** | unchanged meter | The meter itself — which is what makes this ledger possible |
+
+**All 13 paid calls on this plan were `/v1/heatmap`.** That is not an assumption: 54,860 ÷ 4,220 =
+**13 exactly**, with no remainder, and a single `env_params` call at 2,900 would have made the
+division impossible.
+
+---
+
+## 3. The 13 calls, itemised
+
+Five calls saved a before/after meter pair and so are individually named. The rest are visible as
+gaps between readings and are counted, not named — the distinction is kept because *"11 of 13 calls
+returned zero tiles"* is only worth saying if the number is arithmetic rather than memory.
+
+| Meter before → after | Call | Returned |
+|---|---|---|
+| 1,987,340 → 1,983,120 | `n55_keysize` — is a large AOI capped? | **17,862 tiles** |
+| 1,978,900 → 1,974,680 | `diag61` — is the forecast blocked by horizon, entitlement or outage? | **0 features** |
+| 1,966,240 → 1,962,020 | `diag62` — forecast recheck, 9.41 h lead | **17,862 tiles** |
+| 1,962,020 → 1,957,800 | `chicago_field` — a second metro's own field | **17,797 tiles** |
+| 1,949,360 → 1,945,140 | N-26 collector, third attempt of 2026-08-20 | **0 features** |
+
+Classified by what the artefacts record:
+
+| | Calls | Credits |
+|---|---|---|
+| Returned a populated field, tile count saved | **3** | 12,660 |
+| Returned `completed` with **zero** features, recorded as such | **6** | 25,320 |
+| Not individually identified — a gap between two readings | **4** | 16,880 |
+
+So **at least 46.2 %** of everything spent on this plan bought no data, and **at most 76.9 %** did,
+the gap being the four unnamed calls. The collector's 2026-08-18 and 2026-08-19 attempts predate
+the per-day attempt counter it gained on 2026-08-19, which is exactly why their count is not
+recoverable and is not claimed.
+
+---
+
+## 4. Spending discipline
+
+The rules were fixed before the plan was issued and are visible in the code, not just asserted here:
+
+- **Every diagnostic call was individually authorised by a human before it was made**, and the
+  authorisation is recorded inside the result file it produced (`"authorised_by_user":
+  "2026-08-19"`, `"api_calls_made": 1`). The N-26 collector is the one exception and is not claimed
+  otherwise: it fires from a scheduled task, so it runs under a **standing** authorisation bounded
+  by the daily cap below rather than a per-call one. That is the whole reason the cap exists.
+- **`MAX_FORECAST_ATTEMPTS_PER_DAY = 3`** in `testing/test_n26_coverage.py` caps the daily collector
+  so a multi-day vendor fault cannot drain the plan. The attempt is written to the manifest
+  **before** the call, so a crash mid-call still counts against the budget.
+- **The collector refuses to spend when the data would not be comparable.** If the lead to the
+  target window falls outside 6.0–11.5 h, it skips the day rather than buying a forecast whose
+  accuracy is not exchangeable with the ones already collected. A short-lead forecast is much more
+  accurate, so recording one would have *flattered* the coverage figure.
+- **A free dry-run verifier exists**: `python testing/test_n26_coverage.py dryrun` reports what the
+  collector would do — window, true lead, in-band firing window, outcome debt, pair arithmetic —
+  with **zero API calls and without reading the key at all.**
+- **The key is never printed, logged or committed.** It is read only through
+  `testing/common.py:load_key()`. `python testing/scan_secrets.py` scans every tracked file **and
+  every blob in git history** for it, reporting matches as `len=… sha256=…` redactions so the scan
+  report can never become the leak.
+
+---
+
+## 5. What we reported back to FortyGuard
+
+Two findings were written up for the engineering team. Both are in
+**[`fortyguard-api-findings.md`](fortyguard-api-findings.md)** (1,105 lines, 10 sections, with exact
+reproduction payloads).
+
+**A. `completed` with zero tiles has at least four different causes, and all of them are billed.**
+An out-of-range area, an unavailable window, a permission problem and a service incident are
+**indistinguishable** on the status endpoint: all four return `HTTP 200`, `status: completed`, and an
+empty `features` array. A client cannot tell "you asked for the impossible" from "we are broken",
+and is charged 4,220 either way. Requested: an incident signal, a non-`completed` status on
+failure, and no billing for an empty result.
+
+**B. A ~30-hour forecast outage, which we first misread as a plan limitation.**
+Between 2026-08-18 and 2026-08-19 08:30 UTC, forecast-window requests returned zero tiles
+repeatedly. We initially concluded the Hackathon plan did not include forecast windows — and that
+conclusion was **wrong**, retracted after `diag62` returned 17,862 tiles at a 9.41 h lead on
+2026-08-19 13:35 UTC. The evidence that pins it to an outage rather than an entitlement: the same
+automated request **failed at 08:30 UTC and succeeded at 13:35 UTC the same day.** An entitlement
+does not appear during a day.
+
+**⚠ Still open as of 2026-08-20.** The N-26 collector's forecast request has now returned
+`completed` with zero features on **three consecutive days** — 08-18, 08-19 and 08-20, the last with
+three attempts at 08:30, 08:50 and 09:15 UTC. Every forecast failure was a call made **before
+12:00 UTC**; the one forecast success was made at **13:35 UTC**. Past-window requests worked
+throughout. We are not claiming a cause — the target hour and the call clock time are locked
+together by the lead constraint and cannot be varied independently — but **the forecast path is not
+reliably available**, and no figure in this project depends on assuming otherwise.
+
+---
+
+## 6. Zero API calls at demo time
+
+The interface (`INTAKE-ARBITER/demo/index.html`) makes **no FortyGuard calls at all**. It replays
+saved responses from `demo/field_*.json`, and it says so on screen: *"Everything below runs from
+saved FortyGuard responses: 0 live API calls."*
+
+That is a correctness requirement, not a convenience. **N-55 established that re-requesting the same
+window returns 17,862 of 17,862 tiles byte-for-byte identical, max |Δ| = 0.00000000 °C** — so a
+replayed field is not an approximation of the live API, it is the same values. It also means a judge
+can run the whole demo offline, and that the numbers on screen cannot silently change under a
+reader's feet.
+
+---
+
+## 7. Where to look next
+
+| Document | What is in it |
+|---|---|
+| [`fortyguard-api-findings.md`](fortyguard-api-findings.md) | 1,105 lines of field findings written for the FortyGuard team: confirmed defects with reproduction payloads, documentation gaps, **and a §4 listing the suspicions that failed retest and were withdrawn rather than deleted** |
+| [`testing/api_usage_ledger.py`](testing/api_usage_ledger.py) | The ledger that produces every number above, from saved meter readings. Zero API calls |
+| [`testing/scan_secrets.py`](testing/scan_secrets.py) | Full-tree **and full-history** secret scan, run before publication |
+| [`testing/test_n26_coverage.py`](testing/test_n26_coverage.py) | The collector: retry budget, comparability guard, and a free `dryrun` mode |
+| [`INTAKE-ARBITER/PLAN.md`](INTAKE-ARBITER/PLAN.md) | The design record, with a citation and a link for every claim |

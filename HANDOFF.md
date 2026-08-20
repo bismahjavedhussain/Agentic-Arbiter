@@ -6,7 +6,7 @@
 > **THE SIX THINGS THAT MATTER MOST, in order:**
 >
 > 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **15 steps, ~273 s, ZERO API
->    calls, 51 audit checks, 68 published numbers re-read from the files the code wrote.** Exits
+>    calls, 59 audit checks, 70 published numbers re-read from the files the code wrote.** Exits
 >    non-zero on any failure. **If it is not green, quote nothing.** Then
 >    `cd ../demo && python -m http.server 8000` and open `http://localhost:8000`.
 >    **`file://` will NOT work** — browsers block `fetch()`.
@@ -25,6 +25,10 @@
 > 6. **SESSION H IS THE ONLY SESSION LEFT AND IT CAN DISQUALIFY THE ENTRY.** Public repo,
 >    `fortyguard` as collaborator, live demo link, 2–5 min video — **none exist**. §9.1
 >    **TWO THINGS ONLY THE USER CAN DO:** lift rule 11 to go public, and record the video.
+> 7. 🔴 **THE FORECAST PATH IS NOT WORKING AND SPEND IS 30 % HIGHER THAN THIS FILE SAID.** The
+>    collector has bought zero tiles three days running; real spend is **13 calls / 54,860 / 2.74 %**,
+>    not the 10 / 42,200 / 2.11 % §12.2 carried. **§4.0 first, then §10 #93.** Both figures are now
+>    re-derived by `audit.py` check 9, so neither can drift again.
 
 ---
 
@@ -101,7 +105,7 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 |---|---|
 | *"Operators read a weather station kilometres away"* | **FALSE.** On-site rooftop stations. `PLAN.md` §12.3 |
 | *"Spatial resolution is the value proposition"* | Worth **+0.036 °C**. FortyGuard's value is the TIME dimension |
-| *"+67 h/yr from recirculation alone"* | **MISATTRIBUTED — §6.3.** An uncertainty asymmetry; recirculation *costs* hours |
+| *"+67 h/yr from recirculation alone"* | **MISATTRIBUTED — §6.3.** The headline is an uncertainty asymmetry. ⚠ **But the old rider "recirculation *costs* hours" is ITSELF now retracted (§10 #97): plume awareness buys +22.8 safe h/yr AND 3.7× fewer breaches** |
 | *"Nobody sells forecast-aware switching"* | **Overstated.** Corrected in `PLAN.md` §12.9 |
 | *"Buildings absorb 99.7 % of plume heat"* | **STALE — fixed 2026-08-12.** Obstacles are TRANSPARENT. §10 #26 |
 | *"The solver absorbs heat into buildings"* (in the demo's own limits panel) | **Was live in the UI for a week after retraction.** §10 #56 |
@@ -126,9 +130,9 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 | **Environmental gates** | `src/environment.py` — dew point / wet-bulb vs PsychroLib **0.2681 °C MAE**; air quality; cloud→Pasquill |
 | **Plume uncertainty** | `src/plume_uncertainty.py` — ensemble spread IS the bound's width. **34.6× variation** across bearings |
 | **Stage 7 explain** | `src/explain.py` — **1,336 explanations, 0 verification failures** |
-| **The reasoning tape** | `src/ticker.py` — seven-stage events, **29 templates and not one literal digit**, 1,002 hour-tapes verified. §6.9 |
+| **The reasoning tape** | `src/ticker.py` — seven-stage events, **30 templates and not one literal digit**, 1,002 hour-tapes verified. §6.9 |
 | **Conformal made visible** | The browser DERIVES the quantile: `cfQuantileIndex` / `cfSplit` mirror `conformal.py` and agree **exactly on 789 assertions**. §6.11 |
-| **Full-tree audit** | `src/audit.py` — **51 checks, 0 failures**, **68 published numbers** re-read from emitted files |
+| **Full-tree audit** | `src/audit.py` — **59 checks, 0 failures**, **70 published numbers** re-read from emitted files. Checks 9 and 10 re-read the SUBMISSION documents: the API spend ledger and every figure in the root `README.md` |
 | **Money, sourced** | `src/money.py` — **$/kWh and kW/ton BOTH SWEPT over published values**, 608 cells, nothing collapsed, **priced in each site's own state**. §6.12 |
 | **Per-site engine** | `src/build_sites.py` — every offerable site on **its own** weather, geometry, bound and tariff. §6.13 |
 | **Downloadable PDF** | `src/report.py` — a real 4-page PDF per site, **written without a PDF library** and verified by being read back. §6.15 |
@@ -142,12 +146,12 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 
 | Item | State |
 |---|---|
-| **N-26 coverage is 4 pairs, needs 10** | Collector hardened (§4.2). **~1 pair/day if the machine is awake 11:30–17:00 PKT.** ~Aug 25 if nothing fails |
+| **N-26 coverage is 4 pairs, needs 10** | 🔴 **STALLED, not progressing.** The collector has returned zero tiles on 08-18, 08-19 and 08-20 — **§4.0**. It cannot start until the vendor's forecast path works. **Treat 65.6 % on 3 test days as final** |
 | Five-year full factorial | 12-axis **one-at-a-time** sweep only. `agent.py`'s 120,960-scenario factorial covers 4 FortyGuard days, not the 5-year record |
 | Dulles imagery verdict | **WEAKER than Ashburn's** — no USGS cross-check, so the two-source rule is NOT met. Chillers vs generators indistinguishable at 0.3–0.5 m. Recorded as such |
 | Chicago FortyGuard field | **One past-window field.** Buys the spatial statistics + screen-zero visual, **NOT** a level offset (needs forecast + elapsed outcome = 2 calls) |
 | Santa Clara / Phoenix | Refused on **screened pairs**; 5 Santa Clara frames and both other Arizona clusters remain unscreened. "Strong indication", not proof |
-| `PLAN.md` | Updated for the gate fix and the 12-axis sweep. **NOT yet updated for Sessions A, B, E, D** |
+| `PLAN.md` | ✅ **BROUGHT CURRENT 2026-08-20.** New **§8n** (Sessions 4/0/A/C/D/F/G — the ladder, the present tense, the tape, the visible bound, money), **§8o** (B+E: three sites, two refusals), **§8p** (per-site engine, the three-stage UI, the hand-written PDF), **§12.8a** (the money citations). 🔴 **§7 and §9 were CORRECTED, not just extended** — §7 was still asserting the retracted *"+67 h/yr from recirculation alone"* and *"≈770 h/year"*, and §9 still claimed *"no dollar figure"*, *"one reference layout"* and *"no humidity gate"*. **2,047 lines** |
 | Repo size | The committed tree is **194 MB**, mostly screening imagery (`data/imagery/` is 22 PNGs at 2–4 MB) plus `scenarios.json` at 28.8 MB. Under every GitHub limit, but **Session H must decide what a public repo publishes** |
 
 ## 3.3 NOT BUILT
@@ -161,9 +165,38 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 
 ---
 
-# 4. ✅ THE FORECAST BLOCKER IS GONE — it was an outage
+# 4. ⚠ THE FORECAST BLOCKER — diagnosed as an outage, and NOT CLEARED
 
-**DIAG-62, `testing/diag62_forecast_recheck.py`, one paid call authorised by the user:**
+## 4.0 🔴 READ THIS BEFORE §4.1 OR §4.2 — the collector has failed every day since
+
+**Found 2026-08-20 by reconciling the credit meter (§10 #93). `diag62` succeeded once. The
+collector has returned `completed` with ZERO features on THREE CONSECUTIVE DAYS since, including
+three attempts today.**
+
+| | |
+|---|---|
+| Evidence | `testing/results/n26_manifest.json` — `2026-08-18`, `2026-08-19`, `2026-08-20` all `forecast_done: false`. Today: **`forecast_attempts: 3`**, error *"completed but never populated after 59 polls over 608 s"* |
+| Scheduled tasks | `FG-N26-Coverage` / `-Retry1` / `-Retry2` all report `LastTaskResult 0` at **13:30 / 13:50 / 14:15 PKT** today = **08:30 / 08:50 / 09:15 UTC**. They ran. They were billed. They returned nothing |
+| Cost | **3 × 4,220 = 12,660 credits today alone**, and the same again every day the fault persists |
+| **The pattern that survives** | **Every forecast FAILURE was a call made before 12:00 UTC** (08:30–11:30). **The one forecast SUCCESS was made at 13:35 UTC.** Past-window requests worked throughout, at every hour |
+| **Why that cannot be tested cheaply** | Target hour and call clock time are **LOCKED TOGETHER** by the 6.0–11.5 h lead band. A 14:00 site-local window at a 9.4 h lead *forces* a call at ≈08:35 UTC. Calling at 13:35 UTC for that window gives a 4.4 h lead (below the floor); targeting tomorrow's 14:00 gives 28 h (beyond the 12 h horizon). **There is no request that varies one and holds the other** |
+
+**What this changes:**
+
+1. **§3.2's "~Aug 25 if nothing fails" is dead.** 6 more pairs at 1/day cannot start until the
+   collector succeeds ONCE, and it has now failed on 08-18, 08-19 and 08-20. Today's budget is
+   already spent.
+2. **65.6 % provisional, 3 test days, is very likely FINAL.** Build the submission on it. That is
+   what §4.1 already says — what was over-optimistic was the schedule, not the claim.
+3. **§4's old title, "✅ THE FORECAST BLOCKER IS GONE", was wrong** — or rather, it was true of the
+   entitlement question and false of the availability question, and it read as clearance of both.
+   The entitlement question IS settled: forecast windows are included in the plan, proved by 17,862
+   real tiles. **Availability is not settled and is currently negative.**
+4. **The collector will fire again tomorrow at 13:30 PKT and spend up to 12,660 more.** Whether to
+   let it is a USER decision — there is no free probe for "does the forecast work right now".
+
+**DIAG-62, `testing/diag62_forecast_recheck.py`, one paid call authorised by the user — this part
+stands and settles the ENTITLEMENT question:**
 
 | | |
 |---|---|
@@ -298,12 +331,35 @@ N-56's own rows at notice 0 / anchored / 24 °C: sensor error 0.1 → +10.4, **0
 asymmetry** (FortyGuard 0.15 °C vs customer sensor 0.3 °C), **not recirculation.** Isolated by
 rerunning with the plume term removed from the agent's bound but left in the truth:
 
-| | gain | breaches / 1,000 free-cooling hours |
-|---|---|---|
-| agent KNOWS about the plume | **+65.6 h/yr** | **0.17** |
-| agent IGNORES the plume | +42.8 h/yr | 0.63 |
+| | safe-hour gain | raw free hours | breaches | breaches / 1,000 free h |
+|---|---|---|---|---|
+| agent KNOWS about the plume | **+65.6 h/yr** | **17,511** | **3** | **0.17** |
+| agent IGNORES the plume | +42.8 h/yr | 17,462 | 11 | 0.63 |
 
-**Plume awareness COSTS 22.8 h/yr and cuts the breach rate 3.7×. It buys SAFETY, not HOURS.**
+🔴 **THE SIGN ON THIS WAS BACKWARDS UNTIL 2026-08-20 — see §10 #97. Plume awareness buys BOTH:
++22.8 safe h/yr AND 3.7× fewer breaches.** It is not a safety-for-hours trade, and the old line
+*"it buys SAFETY, not HOURS"* understated the project's own result.
+
+**WHY, from `score_config` in eight lines of arithmetic.** The truth is always
+`truth_intake = T + rise`, and each policy's margin is the conformal quantile of **its own**
+residuals:
+
+| | the agent's residual | its bound |
+|---|---|---|
+| rise term IN | `(T + rise) − (fc + rise)` = **`T − fc`**, pure forecast error — **the plume cancels** | `fc + rise + q(forecast error)` |
+| rise term OUT | `(T + rise) − fc` = forecast error **+ the whole plume** | `fc + q(forecast error + rise)` |
+
+`q` is a 90th percentile per hour-of-day. **Adding the actual rise is exact; making the quantile
+absorb the rise charges the hour a worst case instead.** So dropping the physics does not buy a
+cheaper bound — it buys a *wider* one, and the self-calibrating margin is what makes that happen.
+**This is the clearest evidence in the project that the conformal layer and the solver are load
+bearing together rather than decoratively stacked.**
+
+⚠ **The §2.3 retraction of "+67 h/yr from recirculation alone" still STANDS and is a different
+claim.** The A-rows (18.4 / 65.6 / 158.4 h/yr as sensor error goes 0.1 / 0.3 / 0.5 °C) prove the
+**headline** is driven by the uncertainty asymmetry. What was wrong was the further inference that
+recirculation therefore *costs* hours. It contributes **+22.8 of the 65.6**, and nearly all of the
+safety.
 
 ## 6.4 The five-year ladder — 913 held-out days, sensor 0.3 °C
 
@@ -612,7 +668,7 @@ their data through `agent.load_hours()`, `agent.rise_table()` and `agent.perceiv
 | outputs | `trace.json`, `scenarios.json` | `M.demo_path(...)` — **ashburn stays unsuffixed** |
 
 **`metros.demo_path(name, k)` follows `geom_path`'s convention exactly: ashburn keeps the unsuffixed
-name because `audit.py` re-reads 68 published numbers out of `trace.json` / `backtest.json` /
+name because `audit.py` re-reads 70 published numbers out of `trace.json` / `backtest.json` /
 `rolling.json` / `money.json`, and renaming them would invalidate the audited chain for nothing.**
 
 **MEASURED, and `audit.check_sites_actually_differ()` (check 6c) fails if any two agree:**
@@ -992,6 +1048,42 @@ and just crops the image. Serve a wrapper holding `<iframe src="index.html" widt
 the iframe document's `scrollWidth` against its `clientWidth` and **ignore elements inside a scroll
 container**. Last verified: **zero overflow at 390, 768 and 1280 px, both themes.**
 
+## 8.1a 🔴 A PLAIN SCREENSHOT ONLY EVER SEES THE PICK STAGE — drive it
+
+Since the three-stage rebuild (§6.14), `boot()` lands on **pick**. The worth box, the download
+button, the tape and every proof panel are `hidden` until two clicks happen, so the §8.1 command
+photographs a site picker and a map and nothing else. **Both button bugs lived in the results
+stage.** Drive it:
+
+```python
+# copy index.html to demo/_shot_results.html with this appended before </body>
+(async () => {
+  const sel = () => document.querySelector('#c_site');
+  for(let i=0;i<300;i++){ if(sel() && sel().options.length>1) break;
+                          await new Promise(r=>setTimeout(r,50)); }
+  const want = new URLSearchParams(location.search).get('site');   // ?site=chicago
+  if(want){ sel().value = want; }
+  sel().dispatchEvent(new Event('change'));
+  await window.chooseSite();
+  await window.runAgent();
+  document.title = 'DRIVER-OK stage=' + document.body.dataset.stage;   // read with --dump-dom
+})();
+```
+
+**Three things that each cost a wasted run:**
+
+1. 🔴 **`window.SITES` IS UNDEFINED.** Top-level `let`/`const` in a classic script are NOT window
+   properties, so polling `window.SITES` waits forever. **Poll the DOM** (`#c_site.options.length`).
+   Top-level `function` declarations *are* on window, which is why `window.chooseSite()` works.
+2. **`--virtual-time-budget` must cover the stream.** `streamTape()` is ~18 events at
+   `STREAM_MS = 260`; 60,000 is comfortable.
+3. **`--dump-dom` and `--screenshot` are separate runs.** Put measurements in `document.title` and
+   read them from the dump — there is no console to read. That is how "247 px below the heading" was
+   measured instead of guessed:
+   `document.querySelector('#dlreport').getBoundingClientRect().top - h2.getBoundingClientRect().top`.
+
+**Delete `_shot*.html` and `_shot*.png` afterwards.** They are in `demo/`, which is what ships.
+
 ## 8.2 Where the numbers live
 
 Every published figure is in `audit.py:check_published_numbers`. **A number in a document that no
@@ -1016,7 +1108,7 @@ sourced, §6.12).
 
 **Order confirmed by the user 2026-08-20: D → F → G → H as written.**
 
-## 9.0 🔴 IN PROGRESS — pick this up first, it is one edit
+## 9.0 ✅ CLOSED 2026-08-20 — the download button is findable
 
 **THE DOWNLOAD-PDF BUTTON IS BURIED, AND THE USER COULD NOT FIND IT.** Their exact words:
 *"where is the download pdf option?"*
@@ -1029,16 +1121,19 @@ two long paragraphs* — `#headnote`'s "Read the 'no' days as a feature…" and 
 different numbers" block — styled as a plain outline `.btn`. Confirmed by screenshot: at
 1280×2600 the button lands ~560 px below the card's heading.
 
-**This is the same class of mistake as the Run button (§10 #85), which I had just fixed.** The fix
-is the same shape:
-- move the `<p>` holding `#dlreport` to **immediately after `<div class="tiles" id="headline">`**,
-  before `#headnote`;
-- give it `class="btn btn-go"` so it reads as an action rather than a caption;
-- keep `#dlnote` beside it (it carries the honest "this is a snapshot" wording).
+**This was the same class of mistake as the Run button (§10 #85), which had just been fixed.**
 
-**Do NOT restyle it into the sidebar** without checking: the user asked for the download to sit with
-the five-year worth box specifically. There is a screenshot workflow in §8.1; use it, because both
-button bugs this session were invisible to every automated check and obvious in a picture.
+✅ **FIXED, and measured in the browser rather than eyeballed:** the `<p>` holding `#dlreport` now
+sits immediately after `<div class="tiles" id="headline">`, before `#headnote`, styled
+`class="btn btn-go"` so it reads as an action, with `#dlnote` beside it carrying the honest
+"this is a snapshot" wording. **247 px below the card heading, down from ~560; 14 px below the
+tiles.** Verified per-site (`report.pdf` / `chicago_report.pdf` / `dulles_report.pdf` all HTTP 200,
+correct href per site) and in **both themes**.
+
+**Do NOT restyle it into the sidebar:** the user asked for the download to sit with the five-year
+worth box specifically. Both button bugs were invisible to every automated check and obvious in a
+picture — **use the §8.1 screenshot workflow, including the results-stage driver, which is what
+§8.1a now documents.**
 
 ## 9.1 SESSION H — the whole remaining risk, broken into what is blocked and what is not
 
@@ -1058,15 +1153,44 @@ partly recorded); **the public repo, the collaborator, the live link and the vid
 
 **H5, H6 and H7 can be done without lifting rule 11, so do those first.** H1–H4 are the user's.
 
+### 9.1a DONE 2026-08-20 (second half) — and the DECISIONS the user made
+
+| | |
+|---|---|
+| **H5 downloadable report** | ✅ Done earlier (§6.15), and its button is now findable (§9.0 closed) |
+| **H6 API-usage document** | ✅ **`API-USAGE.md`**, and it is DERIVED: `testing/api_usage_ledger.py` reconstructs spend from saved meter readings, `audit.py` check 9 re-reads it. **This is what caught §10 #93** |
+| **The front door** | ✅ **root `README.md`** — the repo had none, so a judge landed in 30 loose working notes. `audit.py` check 10 re-reads all 12 of its figures, failure rows included |
+| **Pre-publication key scan** | ✅ **`testing/scan_secrets.py`** — §12.1 promised "the exact script is in §12.1" and no script existed. It scans the working tree **and every blob in history**, reports hits as `len=… sha256=…` redactions, and **never puts the key in an argv** |
+| **H7 repo-size / scope** | ✅ **DECIDED BY THE USER: publish everything, with a routing README.** The imagery ships — it is the evidence behind "five screened, two refused". 194 MB is under every GitHub limit |
+| **The collector** | ✅ **DECIDED BY THE USER: leave all three tasks running.** ≤12,660/day. With 1,945,140 left that is ~150 days of runway, and the binding constraint is the deadline, not credits. **A lost day is unrecoverable; a spent 4,220 is not** |
+
+### 9.1b 🔴 H1 HAS A NEW BLOCKER, FOUND BY THE SCAN — and it is NOT the FortyGuard key
+
+**The FortyGuard key is clean: 0 hits across 623 tracked files and 743 history blobs.** What the
+scan found instead was **FortyGuard's OWN AWS access key id (`AKIA…`)** inside the presigned S3
+`download_link` in `testing/results/fixtures/probe_heatintel.json`.
+
+| | |
+|---|---|
+| Severity | **Low but real.** `X-Amz-Expires=600` from `20260815T212329Z`, so the signature died five days ago and grants nothing. An AWS key **id** is an identifier, not a secret |
+| Why it still matters | It is **a third party's** credential material, it is the exact shape **GitHub's secret scanner** matches (which can notify AWS), and that third party is the one judging this entry |
+| **Working tree** | ✅ **FIXED.** `X-Amz-Credential` and `X-Amz-Signature` redacted, matching the three redactions the file already carried. **The defect it evidences is untouched** — that defect is the caller credential in the URL *path* (`api_key%3D…`), not the standard S3 query parameters |
+| **History** | 🔴 **STILL PRESENT in 2 blobs.** `git filter-branch --index-filter "git rm --cached --ignore-unmatch testing/results/fixtures/probe_heatintel.json" --prune-empty -- --all` purges it surgically without a full tree checkout. **Every commit SHA changes**, including the ones this file cites |
+| **NOT DONE, deliberately** | The user was asked and answered with a question about rule 11 rather than picking an option. **A history rewrite is a local operation that does not touch rule 11** — but it is destructive and it is their repo, so it waits for an explicit instruction. **It costs nothing today and gets more expensive the moment a remote exists.** |
+
+⚠ **`python testing/scan_secrets.py` MUST exit 0 before H1.** It exits 1 today, on those two history
+blobs and nothing else.
+
 ⚠ **A judge will open the demo before reading anything.** `demo/README.md` must say
 `python -m http.server` in its first line, because **`file://` blocks `fetch()` and the page will
 show nothing but a red error.**
 
 **Also outstanding, cheap, and worth doing:**
-- 🔴 **`PLAN.md` is not updated for Sessions A, B, E, D, F or G.** It is the **citation-bearing
-  design record** and rule 5 attaches to it, so this is the largest documentation debt in the
-  project. Session G's citations are in **`money-sources.md`** instead, which is complete and
-  standalone — but PLAN.md does not yet reference it.
+- ✅ **`PLAN.md` IS NOW CURRENT — done 2026-08-20.** §8n / §8o / §8p / §12.8a added, and **§7 and §9
+  corrected where they still asserted retracted or superseded claims.** `money-sources.md` is now
+  referenced from §12.8a. **What that exposed is worth remembering: the citation-bearing design
+  record was the LAST document to be corrected, so it carried a retracted claim longer than
+  anything else in the project.**
 - The **diag62 outcome leg** (one call, ~4,220) would give a **5th measured level offset** —
   strengthening the n=4 level term `backtest.py` rotates across 1,826 days. **NOT** a 5th coverage
   pair: its window is 19:00 and the series fixes 14:00 (§10 #70).
@@ -1373,6 +1497,54 @@ show nothing but a red error.**
     correct code. Expectations are now produced with `decimal` at 30 digits **in a separate
     process**. **Running tally: checks wrong 13, product wrong 13.**
 
+## New 2026-08-20, second half
+
+93. 🔴 **A SPEND FIGURE IN A DOCUMENT NOBODY RE-READ WAS WRONG BY THREE CALLS — AND IT HID A
+    LIVE VENDOR FAULT.** §12.2 said *"42,200 = 10 calls = 2.11 %, remaining 1,957,800"*. The
+    collector's own manifest said `credits_last_after = 1945140`. The gap is **12,660 = exactly
+    three calls**, which is `MAX_FORECAST_ATTEMPTS_PER_DAY` — today's three failed attempts.
+    **The stale number was not the damage.** The damage is that the three calls it failed to
+    account for were three *zero-tile* calls, so the document that would have revealed the forecast
+    path is still broken was the one document nobody re-read. **§8.2 says it in one line: a number
+    in a document that no test re-reads is a number that will drift — this is the FIFTH instance,
+    and the first where the drift concealed a fault rather than merely being untidy.**
+    Fixed three ways: `testing/api_usage_ledger.py` derives spend from saved meter readings;
+    `audit.py` check 9 re-reads it and **fails on the superseded string as well as on a missing
+    current one** (requiring only the new figure would pass a document quoting both); and
+    `API-USAGE.md` is generated against the ledger.
+94. **THE METER IS A BETTER WITNESS THAN THE ARTEFACTS, AND ITS ARITHMETIC IS A PROOF.** Only 5 of
+    13 calls saved a before/after pair, so 8 were invisible to any per-call record. But a credit
+    meter only decreases, the heatmap price is exactly 4,220, and `(2,000,000 − 1,945,140) / 4,220
+    = 13.0000` **with no remainder** — so the call count is arithmetic, not recollection, and a
+    single differently-priced `env_params` call at 2,900 would have made the division fail.
+    **Ordering the readings by `before` descending recovers the timeline without trusting a single
+    timestamp.** That is what made "at least 46.2 % of spend bought no data" statable.
+95. **DO NOT LET A CLASSIFICATION ASSUME ITS OWN CONCLUSION.** The ledger's first version counted
+    every call it could not name as a zero-tile failure and reported *"84.6 % of spend bought
+    nothing"*. Nothing established that. It now reports a **floor from evidence (46.2 %) and a
+    ceiling from possibility (76.9 %)**, with the four unidentified calls named as the gap between
+    them. **A range you can defend beats a point estimate you cannot.**
+96. **A GREEN SCHEDULED TASK MEANS THE PROCESS EXITED 0, NOT THAT THE WORK HAPPENED.** All three
+    `FG-N26-*` tasks report `LastTaskResult 0` for today. All three bought zero tiles. The collector
+    catches the vendor's empty response, records it and exits cleanly — which is correct behaviour
+    and completely invisible from Task Scheduler. **`LastTaskResult` answers "did python run",
+    never "did it get data".**
+
+97. 🔴 **A `%+.1f` PRINTED NEXT TO THE WORD "COSTS" INVERTED A LOAD-BEARING CLAIM FOR TWO DAYS.**
+    `backtest.py` computed `dh = r_with − r_without = +22.8` and printed
+    *"knowing about the plume COSTS +22.8 h/yr"*. **The line contradicts itself on its face** — a
+    positive difference in a gain is a benefit — and nobody read it that way because the narrative
+    beneath it ("buys SAFETY, not HOURS") was confident and plausible. It propagated into HANDOFF
+    §6.3 and §2.3 and stood until the meter reconciliation sent me back through the ladder.
+    **The truth is better than the claim:** with the plume term the agent free-cools **17,511** hours
+    with **3** breaches; without it, **17,462** with **11**. Both hours and safety, not a trade.
+    **Three lessons.** (1) **A sign convention is a claim and must be tested like one** — `audit.py`
+    now registers the B-rows with their ORDER asserted, so a future inversion fails a check.
+    (2) **A confident sentence under a number is what stops the number being read** — the prose was
+    doing the work the arithmetic should have done. (3) **Being wrong in your own favour is still
+    being wrong**, and this project has now been wrong in both directions.
+    **Running tally: checks wrong 13, product wrong 14.**
+
 ## Carried forward, continued
 
 72. **A CSS COMMENT CAN BE UNBALANCED AND SILENT.** Successive edits left **three `*/` against one
@@ -1425,9 +1597,10 @@ show nothing but a red error.**
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | **42,200 = 10 calls = 2.11 %.** Remaining **1,957,800** |
-| **⚠ Of that, ≈29,540 bought nothing** | seven zero-tile forecast responses during the vendor outage — §4. Not our error |
-| Forecast (future) windows | ✅ **WORK** — 17,862 tiles at 9.41 h lead, verified 2026-08-19 13:35 UTC |
+| **Spent to date** | 🔴 **54,860 = 13 calls = 2.74 %.** Remaining **1,945,140**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
+| **⚠ Of that, at least 25,320 bought nothing** | 46.2 % of spend. **Upper bound 42,200 = 76.9 %** if all four unidentified calls also failed. §10 #93 |
+| **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
+| Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |
 | History (past) windows | ✅ work: 17,862 tiles at 8×8 km / granularity 60 |
 
 ## 12.3 Credential incidents — three, all contained, none ever committed

@@ -5,6 +5,21 @@ off and cool with outside air — built on the one thing no on-site sensor can e
 
 FortyGuard Hackathon'26 · Track 3 (Industrial & Enterprise) + Track 6 (Agentic AI)
 
+> **New here? Start at the [repository README](../README.md)** — it routes you through the whole
+> project in one page. This file is the product's own write-up.
+
+---
+
+## Run it — two commands, zero API calls
+
+```bash
+cd src  && python run_all.py        # rebuild + verify: 15 steps, ~5 min, 59 checks, exits non-zero on failure
+cd demo && python -m http.server 8000    # then open http://localhost:8000
+```
+
+🔴 **`file://` will not work** — browsers block `fetch()` from it and the page shows only a red
+error. **If `run_all.py` is not green, do not quote a number from the page.**
+
 ---
 
 ## The case, in one paragraph

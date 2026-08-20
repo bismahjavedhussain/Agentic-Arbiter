@@ -866,14 +866,25 @@ def run_n56_audit(st, fg_offsets):
         % ("agent IGNORES the plume", r_without["gain_safe_h_per_day"],
            1.96 * r_without["gain_safe_h_per_day_se"], r_without["gain_h_per_year"],
            r_without["agent_breach_per_1000_free_h"]))
+    # 🔴 THE SIGN HERE WAS INVERTED FOR TWO DAYS -- HANDOFF gotcha #97. This block printed
+    # "knowing about the plume COSTS +22.8 h/yr", which contradicts itself: dh is
+    # (with - without), so a POSITIVE dh means the plume term WINS hours. The confident sentence
+    # underneath ("buys SAFETY, not HOURS") is what stopped anyone reading the number, and the
+    # claim propagated into two documents. State the direction from the sign, not from a story.
     dh = r_with["gain_h_per_year"] - r_without["gain_h_per_year"]
     db = (r_without["agent_breach_per_1000_free_h"]
           - r_with["agent_breach_per_1000_free_h"])
-    say("   -> knowing about the plume COSTS %+.1f h/yr and REMOVES %.2f breaches per 1000"
-        % (dh, db))
-    say("      free-cooling hours. Recirculation awareness buys SAFETY, not HOURS, against an")
-    say("      incumbent that carries no plume allowance of its own. The hours come from the")
-    say("      forecast -- which is what the pitch already leads with.")
+    verb = "WINS" if dh > 0 else "COSTS"
+    say("   -> knowing about the plume %s %+.1f h/yr and REMOVES %.2f breaches per 1000"
+        % (verb, dh, db))
+    say("      free-cooling hours -- %s free h vs %s, %d breaches vs %d. BOTH, not a trade."
+        % (format(r_with["agent_free_h"], ","), format(r_without["agent_free_h"], ","),
+           r_with["agent_breach_h"], r_without["agent_breach_h"]))
+    say("      WHY: the truth is always T + rise, so with the term the plume CANCELS out of the")
+    say("      residual ((T+rise) - (fc+rise) = T - fc) and the margin is pure forecast error.")
+    say("      Drop the term and the 90th-percentile quantile has to absorb the plume's whole")
+    say("      spread, charging every hour a worst case instead of its actual value. Dropping the")
+    say("      physics buys a WIDER bound, not a cheaper one.")
 
     say("\n   C. WHAT OUR EXTRA REALISM COSTS (sensor 0.3 C, cumulative)")
     steps = [("N-56-like: notice 0, skill 1.00, no constraints",
