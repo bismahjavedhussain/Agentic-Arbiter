@@ -293,7 +293,9 @@ def check_page_javascript_parses():
     delimiters fed two paragraphs of English to the stylesheet and every screenshot still passed.
     The browser tests extract individual FUNCTIONS, so they cannot see a break between them.
     """
-    print("\n2d. THE PAGE'S JAVASCRIPT PARSES")
+    # 2e, NOT 2d: `check_plume_fields` already prints 2d. Two sections sharing a label in one audit
+    # report is precisely the small wrongness this file exists to refuse.
+    print("\n2e. THE PAGE'S JAVASCRIPT PARSES")
     p = os.path.join(DEMO, "index.html")
     src = open(p, encoding="utf-8").read()
     i, j = src.rfind("<script>"), src.rfind("</script>")
@@ -864,9 +866,9 @@ def main():
     print("=" * 78)
     check_dead_code()
     check_nan_writers()
-    check_page_javascript_parses()
     check_css_comments()
     check_plume_fields()
+    check_page_javascript_parses()
     check_decision_precision()
     check_duplicate_constants()
     check_retired_constants()

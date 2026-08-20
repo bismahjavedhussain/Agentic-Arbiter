@@ -1,24 +1,30 @@
 # HANDOFF — FortyGuard Hackathon'26 · INTAKE-ARBITER
 
-**Rewritten from scratch 2026-08-20. Supersedes all earlier versions.**
+**Rewritten from scratch 2026-08-20; updated through the UI restructure the same day.**
 **Submission deadline Aug 30 23:59 GST = 00:59 PKT Aug 31. 10 days left.**
 
-> **THE FIVE THINGS THAT MATTER MOST, in order:**
+> **THE SIX THINGS THAT MATTER MOST, in order:**
 >
-> 1. **THE FORECAST BLOCKER IS GONE.** It was a ~30-hour FortyGuard outage, not a plan limit —
->    proven 2026-08-19 by one paid call returning **17,862 tiles at a 9.41 h lead** five hours after
->    the automated task had failed. **N-26 can grow again: 4 pairs now, 10 needed, ~1/day. §4**
-> 2. **THREE REAL SITES SHIP, TWO WERE REFUSED ON EVIDENCE.** Ashburn (AWS IAD116→117), Chicago
+> 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **15 steps, ~273 s, ZERO API
+>    calls, 51 audit checks, 68 published numbers re-read from the files the code wrote.** Exits
+>    non-zero on any failure. **If it is not green, quote nothing.** Then
+>    `cd ../demo && python -m http.server 8000` and open `http://localhost:8000`.
+>    **`file://` will NOT work** — browsers block `fetch()`.
+> 2. **THE WHOLE TREE IS COMMITTED.** Branch `master`, head **`872b488`**. `INTAKE-ARBITER/` was
+>    untracked for the entire project before 2026-08-20; it is not now. **`.gitattributes` exists and
+>    is load-bearing — without it a fresh clone on Windows corrupts every PDF (§10 #82).**
+> 3. **THE SITE PICKER IS NOW REAL.** It swapped ONE file for two sessions while twelve panels of
+>    thirteen stayed Ashburn's. `agent.py` / `backtest.py` / `rolling.py` / `money.py` / `explain.py`
+>    / `ticker.py` / `report.py` are all metro-aware; `src/build_sites.py` runs the chain per site;
+>    **audit check 6c FAILS if any two sites agree. §6.13**
+> 4. **THE UI IS A THREE-STAGE FLOW** — pick a site, configure a plant, watch it work — rebuilt
+>    2026-08-20 to the user's spec. **§6.14, and read §9.0 first: there is one open UI item.**
+> 5. **THREE REAL SITES SHIP, TWO WERE REFUSED ON EVIDENCE.** Ashburn (AWS IAD116→117), Chicago
 >    (Stream→Equinix CH3), Dulles (AWS IAD81→IAD62). Santa Clara rooftop-cooled, Phoenix not built.
 >    **"Five screened, two refused" is the single most credible thing in this project. §6.5**
-> 3. **`python run_all.py` rebuilds and audits everything in ~96 s with ZERO API calls**, exits
->    non-zero on any failure. **12 steps, 39 checks, 68 published numbers re-read from the files the
->    code wrote.** If it is not green, quote nothing.
->    **⚠ `INTAKE-ARBITER/` IS NOW COMMITTED — `d57b3b7`, 186 files, key-scanned clean.**
-> 4. **SESSION H IS THE RISK.** Public repo, `fortyguard` as collaborator, live demo link, 2–5 min
->    video, API-usage doc — **none of it exists**, and all are hard submission requirements. §9
-> 5. **TWO THINGS ONLY THE USER CAN DO:** send the (rewritten) FortyGuard message, and lift rule 11
->    to go public. §9
+> 6. **SESSION H IS THE ONLY SESSION LEFT AND IT CAN DISQUALIFY THE ENTRY.** Public repo,
+>    `fortyguard` as collaborator, live demo link, 2–5 min video — **none exist**. §9.1
+>    **TWO THINGS ONLY THE USER CAN DO:** lift rule 11 to go public, and record the video.
 
 ---
 
@@ -122,10 +128,13 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 | **Stage 7 explain** | `src/explain.py` — **1,336 explanations, 0 verification failures** |
 | **The reasoning tape** | `src/ticker.py` — seven-stage events, **29 templates and not one literal digit**, 1,002 hour-tapes verified. §6.9 |
 | **Conformal made visible** | The browser DERIVES the quantile: `cfQuantileIndex` / `cfSplit` mirror `conformal.py` and agree **exactly on 789 assertions**. §6.11 |
-| **Full-tree audit** | `src/audit.py` — **39 checks, 0 failures**, **68 published numbers** re-read from emitted files |
-| **Money, sourced** | `src/money.py` — **$/kWh and kW/ton BOTH SWEPT over published values**, 608 cells, nothing collapsed. §6.12 |
-| **One command** | `src/run_all.py` — plume → agent → backtest → rolling → manifest → explain → **money** → **ticker** → fixtures → audit. **12 steps, ~97 s, zero API calls** |
-| **The interface** | `demo/index.html` (~100 KB, light+dark). Headline strip, MapLibre site map, **site picker**, solved-plume panel, screen-zero field, aerial, schedule, bound chart, wind dial, live explanations, coverage, ladder, honest limits |
+| **Full-tree audit** | `src/audit.py` — **51 checks, 0 failures**, **68 published numbers** re-read from emitted files |
+| **Money, sourced** | `src/money.py` — **$/kWh and kW/ton BOTH SWEPT over published values**, 608 cells, nothing collapsed, **priced in each site's own state**. §6.12 |
+| **Per-site engine** | `src/build_sites.py` — every offerable site on **its own** weather, geometry, bound and tariff. §6.13 |
+| **Downloadable PDF** | `src/report.py` — a real 4-page PDF per site, **written without a PDF library** and verified by being read back. §6.15 |
+| **The interface** | `demo/index.html` (~118 KB of one inline script, light+dark, no build step). **Three-stage flow**: pick → configure → results. §6.14 |
+| **One command** | `src/run_all.py` — plume → agent → backtest → rolling → manifest → explain → **money** → **ticker** → fixtures → audit. **15 steps, ~273 s, zero API calls** |
+
 | **Cross-language proofs** | browser == Python on **scheduling (500 cases)**, **decisions (20,160 configs — was 2,016, see §6.10)**, **reasons (1,336 hours)**, **stage-event sentences (2,037, character for character)** |
 | **Validated physics** | vs analytic plume **0.00 %**, heat conserved **0.00 %**, **67** Prairie Grass experiments, 6 instrumented condensers **r=0.798**, GPU **81.6×** at **0.00012 °C** agreement |
 
@@ -577,6 +586,129 @@ the HTML — so a limit cannot be dropped from the screen while staying in the f
 because they were derived from a *rounded* intermediate. The expectations are now produced with
 `decimal` at 30 digits in a separate process. **#78's tally: checks wrong 11, product wrong 13.**
 
+## 6.13 🔴 THE PER-SITE ENGINE — the picker offered three sites and only one had data
+
+**FOUND BY THE USER, 2026-08-20:** *"the box of 'What it is worth, measured over five real years' is
+the same values for all sites?"* It was, and it was worse than the headline.
+
+`demo/index.html:loadSite()` fetched **one** file — `plume_field_<key>_longest.json`. Nothing else
+changed. And `backtest.py` / `rolling.py` had **zero** mentions of `METRO`. So picking Chicago changed
+**1 panel out of 13**; the headline, schedule, decision, explanation, wind dial, coverage, ladder and
+money were all Ashburn's, wearing whichever label the picker was set to. **Nothing caught it** —
+every number was internally consistent and every test passed. `agent.py` even carried
+`SITE_CENTRE = (39.024017, -77.419691)` as a literal, so Chicago's agent stood in Virginia.
+
+**THE FIX WAS SMALL BECAUSE OF AN EXISTING PROPERTY.** `backtest.py` and `rolling.py` take *all*
+their data through `agent.load_hours()`, `agent.rise_table()` and `agent.perceive_fortyguard()`, so
+**making `agent.py` metro-aware made all three.** Six path sites and one coordinate:
+
+| what | was | now |
+|---|---|---|
+| weather | `kiad_hourly_2021_2025.json` literal | `M.weather_path()` — derived from the station id |
+| solver site | `os.path.join(GEOM, "solver_site_%s.json")` | `M.geom_path(...)` |
+| rise-table cache | `os.path.join(DEMO, "rise_table_%s.json")` | `M.demo_path(...)` |
+| direction table | `os.path.join(GEOM, "direction_table.json")` | `M.geom_path(...)` |
+| site centre | a hard-coded lat/lon | **`M.site_centre()`** — midpoint of the committed pair |
+| outputs | `trace.json`, `scenarios.json` | `M.demo_path(...)` — **ashburn stays unsuffixed** |
+
+**`metros.demo_path(name, k)` follows `geom_path`'s convention exactly: ashburn keeps the unsuffixed
+name because `audit.py` re-reads 68 published numbers out of `trace.json` / `backtest.json` /
+`rolling.json` / `money.json`, and renaming them would invalidate the audited chain for nothing.**
+
+**MEASURED, and `audit.check_sites_actually_differ()` (check 6c) fails if any two agree:**
+
+| site | station | hours | facade gap | worst rise | all-mech | gain h/yr | free h/day | state | $/MW-IT |
+|---|---|---|---|---|---|---|---|---|---|
+| **ashburn** | KIAD | 43,763 | 60.3 m | 0.3550 @255° | 43.7 % | +405.7 | 14.72 | VA | 7,990 |
+| **chicago** | KORD | 43,775 | 118.4 m | 0.4108 @240° | 22.1 % | +326.8 | 16.48 | IL | 9,122 |
+| **dulles** | KIAD | 43,763 | 137.7 m | 0.3593 @265° | 31.6 % | +401.7 | 14.72 | VA | 7,911 |
+
+**Chicago being cooler shows up honestly:** only 22 % of scenarios are all-mechanical against
+Ashburn's 44 %, but the *gain* is LOWER, because a reactive incumbent also does well in a cool
+climate. **Dulles is the control §5 promised:** it shares KIAD, so its weather figures are identical
+by construction and only its geometry differs — the audit asserts **both halves** of that.
+**Chicago is priced on Illinois electricity (11.81 ¢) not Virginia's (8.72 ¢), a 35 % difference** —
+`money.prices_for_metro()` selects on `METROS[k]["state"]`, a field added for exactly this.
+
+🔴 **THE ONE LIMIT THAT SURVIVES, and it is on screen and in every trace.** Only Ashburn has
+FortyGuard forecast/outcome day pairs; Chicago holds one past-window field and Dulles none. So each
+site's **hours are its own** and its **coverage is Ashburn's, borrowed**.
+`trace["fortyguard_provenance"]` records it, `ticker`'s `perceive.borrowed_field` event says it while
+the agent runs, and `drawHeadline()` labels the coverage tile. **Quote a site's hours as its own;
+quote the coverage as Ashburn's.** Running the tile lookup for Chicago against Ashburn's 8×8 km box
+returned a "nearest" tile **926,064 m away** — arithmetically correct, useless — so `run_cycle()`
+now guards it on `own_field`.
+
+## 6.14 SESSION UI — the three-stage flow, rebuilt to the user's spec
+
+**The user's complaints, verbatim in effect:** too much text; the worth box identical across sites;
+the controls sitting below the results instead of in a column; and the reasoning tape far too
+verbose — *"By loop, I meant to show that when we give claude something some task it shows different
+words like 'perceiving, woobling'"*.
+
+**`STAGE` + `setStage()` in `demo/index.html` are the whole mechanism.** Every card carries
+`data-show="pick"` / `"configure results"` / `"results"`, and `setStage()` is the only thing that
+sets `.hidden`. Three stages:
+
+| stage | what is on screen | entry point |
+|---|---|---|
+| **pick** | `#pickcard` — site `<select>`, `describeSite()`, `#pickgo`; plus the screened-sites map. **Nothing else.** | `boot()` |
+| **configure** | `.side` grid: `.sidebar` (actions **then** 12 controls) + `.mainpane` "What this agent decides" with that site's own tiles | `chooseSite()` |
+| **results** | the streamed tape, then worth + download, then the proofs, then conformal, then money, then limits | `runAgent()` |
+
+**The reasoning now reads like a status line.** `ticker.SHORT_TEMPLATES` — 18 entries, e.g.
+`"solving {n_solves:,} plume fields on the {device}"`, `"refusing {n_refused_long:,} of
+{n_bearings:,} bearings it cannot stand behind"`, `"widening its own margin by {delta_c:+.4f} C,
+unprompted"` — streamed one line per stage by `streamTape()` at `STREAM_MS = 260`
+(**presentation only, labelled as such; it is the reveal cadence, not a measurement**).
+🔴 **THE SAME NO-LITERAL-DIGIT GUARD COVERS THE SHORT FORMS, and that matters more here:**
+*"reading 17,862 tiles"* reads identically whether the number was computed or invented, so a short
+phrase is exactly where a fake would hide. `check_no_literal_digits()` also fails if **any event
+lacks a short form or any short form lacks an event.**
+
+**Panel order, as specified:** worth + download → decision/schedule → aerial → plume → wind dial →
+FortyGuard's own field → Why → self-scoring loop → how the bound is built → five years → money →
+limits. **The long system tape is gone from the page**; its long form is in the PDF. The per-hour
+7-stage tape survives inside `#whycard` as a `<details>`, because `tickerFor()` is the half that
+`verify_browser_ticker.js` proves against Python and it is the only place all seven stages resolve
+for one hour.
+
+**`buildControls()` now BUILDS the control markup** from `CONTROLS` + `PE()` rather than reading a
+hand-written filter row, so an axis added to `PLANT_ENVELOPE` appears without an HTML edit.
+**`autofill()`** restores `AUTOFILL` — the shipped reference point the five-year backtest is scored
+at — and is labelled a **navigation aid, not a recommendation**; every value it sets is one of the
+swept options.
+
+## 6.15 The downloadable PDF — written without a PDF library
+
+`src/report.py`, `demo/report.pdf` + `chicago_report.pdf` + `dulles_report.pdf`. **4 pages each.**
+
+**The user chose a real file over a print dialogue.** This machine has `pypdf` (which *reads* PDFs)
+and **no writer** — no reportlab, no fpdf, no weasyprint. Making a judge `pip install` something
+before a deliberately dependency-free demo works was the worse option, so `report.py` emits **PDF
+1.4 by hand**: a catalogue, a page tree, one content stream per page, an xref table. The fourteen
+standard Type1 fonts need no embedding.
+
+**Two decisions that keep that from being reckless:**
+1. **Courier throughout.** Every glyph is exactly **600/1000 em**, so `cols_at()` wrapping is
+   arithmetic rather than an approximation needing an embedded metric table.
+2. **`verify()` REOPENS THE FILE IT JUST WROTE** with `pypdf` and asserts every hour of the
+   schedule, the headline counts and the site's own name are present — plus a **layout-bounds check
+   on every placed string**, because Chrome will not render a PDF headlessly so it cannot be
+   screenshotted. **That bounds check caught a line 20.1 pt off the right edge of all three reports
+   on its first run**, which is why `Pdf.field()` (hanging-indent wrapping) exists.
+
+**Which configuration the PDF reports is a DISPLAY SELECTION BY SEARCH** — `pick_block()` scores
+*informativeness*: mixed modes first, then distinct binding constraints, then agent-vs-incumbent
+divergence. **The first scoring rule was wrong in an instructive way:** "most free hours with a
+switch" picked a day where the agent free-cooled 24 of 24 hours **and so did the incumbent** — a
+report demonstrating no advantage. It is also **restricted to `bank_mode == "longest"`**, because
+`facing` scores highest on distinct constraints precisely *because* refusal fires there, and
+headlining the sensitivity placement would misrepresent the product.
+
+**It is a snapshot and page 1 says so**, listing the configuration in full and telling the reader to
+compare it against the live page before concluding anything.
+
 ## 6.8 Other standing results
 
 **N-49 fault detection PASSED** — removing weather: 79.7 → 0.03 d (+75.6 σ); sequential vs threshold
@@ -656,6 +788,49 @@ must pass before the module is allowed to judge anything.**
 JavaScript mirror big enough to have its own bugs defeats the purpose. **A number passed with no
 spec is an error, not a default.**
 
+## 7.4b `src/money.py` — chiller-hours priced (Session G)
+
+`python money.py | selftest`. Writes `M.demo_path("money.json")`.
+
+`KW_PER_TON` (12,000 Btu/h ÷ 3600 ÷ 1000 = **3.5168528 kW**, the one step with no PDF to open) ·
+`CHILLER_KW_PER_TON` (4 values, PNNL-29674 Table 82) · `ELECTRICITY_CENTS_PER_KWH` (8 values, 2
+states × 2 sectors × 2 vintages, EIA) · **`prices_for_metro()`** — selects on
+`METROS[k]["state"]`, falls back to ALL rows and *reports* the fallback ·
+`chiller_kw_per_mw_it()` · `price_row()` (**signs preserved — a negative hours row must yield a
+negative saving**) · `hours_rows()` (read from `backtest.json`, never restated) · `build()` ·
+`SOURCES` / `NOT_CLAIMED` (**rendered on the page FROM the JSON**, so a limit cannot be dropped from
+the screen while staying in the file) · **`selftest()` — 10 cases, expectations produced with
+`decimal` at 30 digits in a separate process.**
+
+## 7.4c `src/report.py` — the downloadable PDF (Session H5)
+
+`python report.py [site …] | selftest`. Writes `M.demo_path("report.pdf")`.
+
+`PAGE_W/PAGE_H` (A4 pt) · `COURIER_EM = 0.600` · `char_width()` / `cols_at()` · `esc()`
+(escapes `\ ( )`, transliterates non-ASCII) · `wrap()` (breaks an over-long word rather than
+overflowing) · **`class Pdf`**: `line()` (**does NOT wrap**), `para()`, **`field()`** (hanging
+indent — use this for any value that is not a short fixed field), `rule()`, `heading()`,
+`bytes()` · `pick_block()` (informativeness search, `longest` bank only) · `build()` ·
+**`verify()`** (reopens with `pypdf`; text presence + **layout bounds** + standalone-token check for
+`nan`/`None`/`null`/`undefined`) · `selftest()` — 15 cases including a pypdf round trip.
+
+## 7.4d `src/build_sites.py` — the per-site driver (§6.13)
+
+`python build_sites.py [site …]`. `CHAIN` = agent → backtest → rolling → money → explain → ticker →
+report, run per site with `METRO` set in the subprocess env. `offerable_sites()` reads
+`demo/sites.json` — **the manifest is the only thing allowed to decide what may be offered**
+(gotcha #69). Its docstring is the authoritative statement of what is per-site and what is borrowed.
+
+## 7.4e `src/metros.py` — additions this session
+
+**`demo_path(name, k)`** — same ashburn-unsuffixed convention as `geom_path` ·
+**`site_centre(k)`** — (lat, lon) midpoint of the committed pair, read from `selected_site.json`'s
+`centre_latlon` fields, the same ones the map marker uses · **`METROS[k]["state"]`** — added for
+`money.prices_for_metro()`, explicit rather than parsed out of `label` · `export_manifest()` now
+emits **`artefacts`** (every per-site filename, extension-stripped keys) and
+**`has_own_fortyguard_field`**, and reports **`facade_gap_m` and `centroid_separation_m` as separate
+fields** (§10 #80).
+
 ## 7.5 `src/explain.py` — stage 7
 
 `gates_for_hour` · `flip_distance` · `explain_hour` · `explain_schedule` · **`verify()` — re-runs the
@@ -711,8 +886,29 @@ prose documenting a retirement is not a false positive; **the detector passes it
 · **`check_published_numbers`** — **62 figures re-read from emitted JSON**, including all five ladder
 rows and **two cross-path invariants** (the ladder's rows 4 and 5 must equal the sensitivity sweep's
 base and `anchor=none` rows **to full precision**) · `check_self_tests` · `check_cross_language`.
-**`python run_all.py`** = plume → agent → backtest → rolling → manifest → explain → fixtures →
-audit, **~97 s**.
+**`python run_all.py`** = plume → agent → backtest → rolling → manifest → **money** → explain →
+**ticker** → fixtures ×3 → **report** → **build_sites (chicago, dulles)** → manifest again → audit.
+**15 steps, ~273 s.** Most of that is the two extra sites: Ashburn alone is ~100 s.
+
+### 7.7a THE 51 AUDIT CHECKS, by section — `python audit.py`
+
+| § | function | exists because |
+|---|---|---|
+| 1 | `check_dead_code` | three superseded helpers survived a rewrite. **Add every new `demo/*.js` and `gen_*.py` to its file list or a function used only there reads as dead** |
+| 2 | `check_nan_writers` | `json.load` accepts `NaN`; `JSON.parse` rejects it |
+| 2b | (in `check_nan_writers`) | every emitted JSON must be strict-valid |
+| 2c | `check_css_comments` | three `*/` against one `/*` fed English to the stylesheet, silently |
+| 2d | `check_plume_fields` | re-derives the intake average from the SHIPPED field |
+| **2e** | **`check_page_javascript_parses`** | **`node --check` on the extracted inline script — §10 #83** |
+| 3 | `check_decision_precision` | rounding flipped decisions at exact gate boundaries |
+| 4 | `check_duplicate_constants` | asserts AGREEMENT, not absence |
+| 5 | `check_retired_constants` | AST-based, so prose documenting a retirement is not a false positive |
+| **6a** | **`check_act_stage`** | all 37 command rows shipped `bound_c: null` — §6.10 |
+| **6b** | **`check_stage_events`** | the tape's digit scan, re-run against the SHIPPED file |
+| **6c** | **`check_sites_actually_differ`** | the picker changed one panel of thirteen — §6.13 |
+| 6 | `check_published_numbers` | **68 figures** re-read from emitted JSON |
+| 7 | `check_self_tests` | `conformal`, `environment`, `plume_uncertainty`, `explain`, `ticker`, `money`, `report` |
+| 8 | `check_cross_language` | **five** browser-vs-Python tests |
 
 ## 7.8 `demo/` — the interface
 
@@ -736,6 +932,32 @@ fixtures.
 `tkEvent` / `tkRender` / `tkFormat` / **`tkFixed`** (mirrors Python's tie-to-even rounding).
 Clicking `#sched` drives the tape's hour.
 
+### 7.8a NAVIGATING `demo/index.html` — one inline script, ~118,000 chars
+
+There is **one** `<script>` block and no build step. `audit` check 2d `node --check`s it, because a
+single syntax error silences the whole page (§10 #83). Grep for these:
+
+| concern | functions |
+|---|---|
+| **the flow** | `STAGE`, `setStage()`, `boot()`, `describeSite()`, `chooseSite()`, `runAgent()` |
+| **data** | `loadSite()` (**loads ALL of a site's artefacts**), `loadField()` |
+| **controls** | `CONTROLS`, `buildControls()`, `AUTOFILL`, `autofill()`, `cfg()`, `wire()`, `syncOffday()` |
+| **the decision** | `decide()` (the agent, re-run in-browser), `plan()`, `reactive()` |
+| **the tape** | `SHORT_TEMPLATES` (Python side), `streamTape()`, `shortPhrase()`, `STREAM_MS` |
+| **the hour tape** | `tkFormat()`, **`tkFixed()`** (mirrors Python's tie-to-even rounding), `tkRender()`, `tkEvent()`, `tickerFor()`, `tapeHTML()`, `drawTicker()` |
+| **conformal** | `cfQuantileIndex()`, `cfAttainable()`, `cfMinN()`, `cfSplit()`, `drawConformal*()` |
+| **money** | `drawMoney()` |
+| **the PDF link** | `drawReportLink()` — **href comes from the manifest, never constructed** |
+| **panels** | `drawHeadline`, `drawSched`, `drawBound`, `drawExplain`, `drawPlume`, `drawField`, `drawAerial`, `drawDial`, `drawCov`, `drawCoverageTiles`, `drawLadder`, `drawLimits`, `drawMap`, `drawAll` |
+
+**Globals:** `T` trace · `BT` backtest · `RL` rolling · `MN` money · `TK` ticker · `EX`
+explanations · `PF` plume field · `SITES` manifest · `SITE` the chosen site's manifest entry ·
+`FIELD` the loaded FortyGuard field.
+
+⚠ **`tkRender` uses `{` / `}` instead of `{` / `}` deliberately** — the cross-language tests
+extract functions by counting braces, and a literal brace inside a regex cuts the function in half
+(§10 #77). **Do not "clean it up".**
+
 **Run it:** `cd INTAKE-ARBITER/demo && python -m http.server 8000` → `http://localhost:8000`.
 **`file://` will NOT work** — browsers block `fetch()`, and the page says so in red.
 
@@ -744,7 +966,9 @@ Clicking `#sched` drives the tape's hour.
 # 8. HOW TO PROVE IT STILL WORKS
 
 ```bash
-cd INTAKE-ARBITER/src && python run_all.py      # 12 steps, ~97 s, zero API calls, non-zero on failure
+cd INTAKE-ARBITER/src && python run_all.py      # 15 steps, ~273 s, zero API calls, non-zero on failure
+cd INTAKE-ARBITER/src && python build_sites.py # just the per-site chain (agent..report) for each site
+cd INTAKE-ARBITER/src && python report.py      # just the PDFs, verified by being read back
 cd INTAKE-ARBITER/src && python ticker.py       # prints the whole tape -- READ IT, see #76
 cd ../demo && python -m http.server 8000       # then open http://localhost:8000
 cd ../../testing && python test_n26_coverage.py dryrun   # free: what the collector would do now
@@ -791,6 +1015,30 @@ tape + three defects, §6.9/§6.10) · **F** (conformal made visible, §6.11) ·
 sourced, §6.12).
 
 **Order confirmed by the user 2026-08-20: D → F → G → H as written.**
+
+## 9.0 🔴 IN PROGRESS — pick this up first, it is one edit
+
+**THE DOWNLOAD-PDF BUTTON IS BURIED, AND THE USER COULD NOT FIND IT.** Their exact words:
+*"where is the download pdf option?"*
+
+It **exists and works** — `#dlreport` in `demo/index.html`, href set by `drawReportLink()` from
+`sites.json`'s `artefacts.report`, verified serving HTTP 200 at 26,568 bytes and correctly
+per-site (`chicago_report.pdf` when Chicago is loaded). **The problem is purely placement:** it sits
+inside `#headcard` ("What it is worth, measured over five real years") *below the tiles AND below
+two long paragraphs* — `#headnote`'s "Read the 'no' days as a feature…" and the "Why these are two
+different numbers" block — styled as a plain outline `.btn`. Confirmed by screenshot: at
+1280×2600 the button lands ~560 px below the card's heading.
+
+**This is the same class of mistake as the Run button (§10 #85), which I had just fixed.** The fix
+is the same shape:
+- move the `<p>` holding `#dlreport` to **immediately after `<div class="tiles" id="headline">`**,
+  before `#headnote`;
+- give it `class="btn btn-go"` so it reads as an action rather than a caption;
+- keep `#dlnote` beside it (it carries the honest "this is a snapshot" wording).
+
+**Do NOT restyle it into the sidebar** without checking: the user asked for the download to sit with
+the five-year worth box specifically. There is a screenshot workflow in §8.1; use it, because both
+button bugs this session were invisible to every automated check and obvious in a picture.
 
 ## 9.1 SESSION H — the whole remaining risk, broken into what is blocked and what is not
 
@@ -1057,6 +1305,74 @@ show nothing but a red error.**
     picks the hour whose bound sits **closest to the limit**, found by search. Same class as the
     18 °C default two panels up.
 
+## New across the per-site, money, report and UI work (2026-08-20)
+
+80. 🔴 **A FIELD NAME THAT ASSERTS A QUANTITY IT DOES NOT HOLD.** `sites.json` reported
+    `committed.facade_gap_m = 165.5` for Ashburn, whose real facade-to-facade gap is **60.3 m and
+    clears the 60 m floor by 0.3 m**. The code read
+    `refusal_measurement.true_gap_m or selected.separation_m`, and `refusal_measurement` has no
+    `true_gap_m` — so **the fallback always fired** and the field shipped the CENTROID SEPARATION.
+    Now two separate fields, and the gap is read from where it is measured. **A fallback that always
+    fires is not a fallback, it is the implementation.**
+81. 🔴 **A SITE PICKER THAT SWAPS ONE FILE. §6.13.** The generalisable lesson: **when an interface
+    offers a choice, test that the choice CHANGES something.** `audit.check_sites_actually_differ()`
+    compares values across sites and fails on agreement — existence proves nothing.
+82. 🔴 **A FRESH CLONE ON WINDOWS CORRUPTS EVERY PDF WITHOUT `.gitattributes`.** Committing
+    `report.pdf` warned *"LF will be replaced by CRLF the next time Git touches it"*. The blob that
+    went in was byte-identical, so **nothing looked wrong** — but the warning is about the next
+    CHECKOUT. A PDF's xref table is a list of byte offsets; rewriting `0x0A` → `0x0D 0x0A` invalidates
+    every one. **Perfect in this working tree, broken for a judge who clones the repo.** Same exposure
+    for the screening imagery. Fixed and **verified by actually cloning the repository and opening
+    the PDF from the clone**: byte-identical, 4 pages, zero CRLF.
+83. 🔴 **ONE BROKEN ESCAPE IN A SINGLE INLINE SCRIPT MEANS *NOTHING* RUNS.** A stray `'` inside a
+    single-quoted JS string made `index.html`'s only `<script>` a SyntaxError. The page sat on
+    *"Loading saved data…"* forever with **no console error, no unhandled rejection, and every JSON
+    file serving HTTP 200.** Three probes found nothing because there was nothing running to probe.
+    **`audit.check_page_javascript_parses()` (check 2d) now runs `node --check` on the extracted
+    script.** Same shape as `check_css_comments`, and for the same reason: **the browser tests
+    extract individual FUNCTIONS, so they cannot see a break between them.**
+84. 🔴 **`[hidden]` LOSES TO ANY CLASS RULE THAT SETS `display`.** The UA sheet says
+    `[hidden]{display:none}`, but `.side{display:grid}` and `.f{display:flex}` have higher
+    specificity and win — so `el.hidden = true` did **nothing** to them. The stage machine leaked and
+    the FortyGuard-level-day control stayed visible with the anchor set to a local reading. One rule,
+    declared before the layout: **`[hidden]{display:none !important}`**.
+85. 🔴 **A PRIMARY ACTION BELOW ELEVEN DROPDOWNS IS NOT A PRIMARY ACTION.** "Run the agent" sat at
+    the BOTTOM of the sidebar, so on a 900 px screen it was off the bottom — while the copy said
+    *"then Run the agent"*, pointing at a control nobody could see. **The user had to ask how to run
+    it.** Actions now sit ABOVE the settings, and the main pane carries a second button wired to the
+    same handler. **§9.0 is the identical mistake, still open, on the download button.**
+86. **A HANDLER BOUND TO AN ELEMENT ID THAT NO LONGER EXISTS, INSIDE AN ASYNC FUNCTION, IS SILENT.**
+    `syncOffday()` still targeted `#f_offday` from the retired hand-written filter row;
+    `buildControls()` generates `#f_c_offday`. Setting `.hidden` on `null` threw inside an `async`
+    handler, which surfaced as the page stranded on the pick screen with a clean console. **An
+    unhandled rejection in an event handler is invisible unless you listen for it.**
+87. **A DERIVED ARTEFACT BUILT BEFORE ITS SOURCE GAINED A FIELD IS SILENTLY EMPTY.** The per-site
+    `*_ticker.json` files were generated before `SHORT_TEMPLATES` existed, so `shortPhrase()` returned
+    `null` for every event and the stream rendered **zero lines with no error** — the `if(!ph) continue`
+    swallowed it. **Rebuild every per-site artefact after changing anything the build emits;
+    `build_sites.py` exists so that is one command.**
+88. 🔴 **`.get(key)` WITH A KEY THAT STRIPS THE WRONG EXTENSION.** `export_manifest` built artefact
+    keys with `nm.replace(".json","")`, so `"report.pdf"` became the key `"report.pdf"` while the page
+    looked up `artefacts["report"]` and got `undefined` — a disabled button that looked like a missing
+    feature. `os.path.splitext(nm)[0]`.
+89. **A SUBSTRING CHECK FOR `"nan"` FIRES ON `"maintenance"`.** `report.verify()` reported three
+    failures on three perfectly good PDFs. Match the **standalone token**:
+    `(?<![A-Za-z0-9])nan(?![A-Za-z0-9])`.
+90. 🔴 **THE DAY A REPORT CHOOSES DECIDES WHETHER IT TEACHES ANYTHING.** `pick_block()` scored "most
+    free hours with at least one switch" and picked a day where the agent free-cooled **24 of 24
+    hours and so did the incumbent** — a four-page report demonstrating no advantage. Score
+    *informativeness*, and exclude the sensitivity bank placement, which scores highest on "distinct
+    binding constraints" precisely because refusal fires there. **Same class as the ticker's
+    tightest-hour default and the demo's 18 °C default: a DISPLAY SELECTION must still be searched
+    for, not taken.**
+91. **`%`-FORMATTING HAS NO THOUSANDS FLAG.** `"%+,.0f" % x` raises `ValueError: unsupported format
+    character ','`. Use `format(round(x), ",")`.
+92. 🔴 **MY VERIFICATION CODE WAS WRONG THREE MORE TIMES.** #89 above; the manifest key in #88; and
+    three `money.py` self-test expectations hand-derived from a **rounded** intermediate
+    (`163.782798` instead of full precision), which the test caught as three failures against
+    correct code. Expectations are now produced with `decimal` at 30 digits **in a separate
+    process**. **Running tally: checks wrong 13, product wrong 13.**
+
 ## Carried forward, continued
 
 72. **A CSS COMMENT CAN BE UNBALANCED AND SILENT.** Successive edits left **three `*/` against one
@@ -1129,7 +1445,14 @@ show nothing but a red error.**
 
 ## 13.1 `INTAKE-ARBITER/src/` — 24 modules, **UNTRACKED in git**
 
-**Session D added:** **`ticker.py`** (+ `demo/gen_ticker_cases.py`, `demo/verify_browser_ticker.js`).
+**Added 2026-08-20, in order:** **`ticker.py`** (+ `demo/gen_ticker_cases.py`,
+`demo/verify_browser_ticker.js`) · **`money.py`** · **`report.py`** · **`build_sites.py`** ·
+`demo/gen_conformal_cases.py` · `demo/verify_browser_conformal.js` · root `money-sources.md` ·
+root **`.gitattributes`**.
+**Made metro-aware 2026-08-20:** `agent.py` (6 paths + `SITE_CENTRE`) · `backtest.py` ·
+`rolling.py` · `money.py` · `explain.py` · `ticker.py` · `report.py`. `metros.py` gained
+`demo_path()`, `site_centre()` and `METROS[k]["state"]`.
+**`demo/index.html` was RESTRUCTURED** into the three-stage flow — §6.14.
 **Sessions A/B/E added:** `rolling.py` · `metros.py` · `discover_dc_clusters.py` ·
 `fetch_weather.py` · `annotate_screen.py` · `export_plume_fields.py`.
 **Made metro-aware:** `fetch_geometry.py` · `select_site.py` · `refusal_rank.py` ·
@@ -1180,8 +1503,21 @@ confidence, including the two refusals and the two Dulles rejections**).
 
 ## 13.6 Git
 
-Branch **`master`** (rename to `main` before any push). `5289a5d` initial · `fea3166` endpoint
-probes · **`d57b3b7` Session D + the whole `INTAKE-ARBITER/` tree, 186 files, 194 MB.**
+Branch **`master`** (rename to `main` before any push). No remote configured; `gh` not installed.
+
+| commit | what |
+|---|---|
+| `5289a5d` | initial — the research sprint |
+| `fea3166` | endpoint probes, the credential-leak finding |
+| **`d57b3b7`** | **Session D** + the whole `INTAKE-ARBITER/` tree, 186 files, 194 MB — it had been untracked |
+| `fd90358` | Session F — the conformal arithmetic, derived in-browser, proved exact |
+| `ee1cd1f` | Session G — money, sourced |
+| `15dd952` | HANDOFF: Session H split into blocked / not-blocked |
+| `403d916` | **every site genuinely its own** — §6.13 |
+| `9d10a29` | **the PDF report**, written without a PDF library — §6.15 |
+| `e2c832f` | **`.gitattributes`** — a fresh clone would have corrupted every PDF (§10 #82) |
+| `e54a1af` | **the UI restructure** — §6.14 |
+| **`872b488`** | **HEAD — surface the Run button (§10 #85)** |
 **The tree is COMMITTED as of 2026-08-20** — every file scanned against the live key before
 committing (**0 hits**; only the two gitignored `.env` files hold it, and the committed
 `.env.example` has an empty value). No remote configured; `gh` not installed.
@@ -1202,8 +1538,9 @@ committing (**0 hits**; only the two gitignored `.env` files hold it, and the co
   bogus `PST` label — **trust `common.site_now()` / Python's timezone-aware values, never the shell.**
 - Timings: rise table **5–9 s GPU** · `agent.py run` ~37 s · `backtest.py all` ~27 s ·
   `rolling.py` ~10 s · `export_plume_fields.py --all` **~2.3 min** (deliberately NOT in `run_all`,
-  since fields change only when geometry does; `audit.py` check 2d verifies the shipped ones) ·
-  `run_all.py` **~97 s**.
+  since fields change only when geometry does; `audit.py` check 2d `check_plume_fields` verifies the shipped ones) ·
+  `run_all.py` **~273 s** (15 steps; ~100 s of it is Ashburn, the rest the two other sites) ·
+  `build_sites.py` **~237 s** for three sites · `report.py` ~2 s for all three.
 - **⚠ `d:\FGHackathon\CLAUDE.md` DOES NOT EXIST** and never has. The rules it would carry are §1.
 
 ---

@@ -75,14 +75,22 @@
    "forecast_done": false,
    "outcome_done": false,
    "forecast_error": "completed but never populated after 58 polls over 607 s"
+  },
+  "2026-08-20": {
+   "date": "2026-08-20",
+   "forecast_done": false,
+   "outcome_done": false,
+   "forecast_attempts": 3,
+   "forecast_error": "completed but never populated after 59 polls over 608 s"
   }
  },
  "errors": {
   "n26_f_2026-08-18": "ZERO TILES with completed status",
-  "n26_f_2026-08-19": "completed but never populated after 58 polls over 607 s"
+  "n26_f_2026-08-19": "completed but never populated after 58 polls over 607 s",
+  "n26_f_2026-08-20": "completed but never populated after 59 polls over 608 s"
  },
- "credits_last_before": 1970460,
- "credits_last_after": 1966240,
+ "credits_last_before": 1949360,
+ "credits_last_after": 1945140,
  "off_series_observations": {
   "2026-08-19T19:00": {
    "why_not_in_days": "target hour 19:00, NOT the fixed 14:00 the series controls for. Hour-of-day dominates forecast error here (Mondrian worst group 0.7314 vs 0.8794 pooled), so mixing hours would contaminate the coverage measurement. Kept as a separate observation.",
