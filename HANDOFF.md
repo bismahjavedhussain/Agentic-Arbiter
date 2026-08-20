@@ -6,7 +6,7 @@
 > **THE SIX THINGS THAT MATTER MOST, in order:**
 >
 > 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **15 steps, ~273 s, ZERO API
->    calls, 61 audit checks, 70 published numbers re-read from the files the code wrote.** Exits
+>    calls, 62 audit checks, 70 published numbers re-read from the files the code wrote.** Exits
 >    non-zero on any failure. **If it is not green, quote nothing.** Then
 >    `cd ../demo && python -m http.server 8000` and open `http://localhost:8000`.
 >    **`file://` will NOT work** — browsers block `fetch()`.
@@ -144,7 +144,7 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 | **Stage 7 explain** | `src/explain.py` — **1,336 explanations, 0 verification failures** |
 | **The reasoning tape** | `src/ticker.py` — seven-stage events, **30 templates and not one literal digit**, 1,002 hour-tapes verified. §6.9 |
 | **Conformal made visible** | The browser DERIVES the quantile: `cfQuantileIndex` / `cfSplit` mirror `conformal.py` and agree **exactly on 789 assertions**. §6.11 |
-| **Full-tree audit** | `src/audit.py` — **61 checks, 0 failures**, **70 published numbers** re-read from emitted files. Checks 9 and 10 re-read the SUBMISSION documents: the API spend ledger and every figure in the root `README.md` |
+| **Full-tree audit** | `src/audit.py` — **62 checks, 0 failures**, **70 published numbers** re-read from emitted files. Checks 9 and 10 re-read the SUBMISSION documents: the API spend ledger and every figure in the root `README.md` |
 | **Money, sourced** | `src/money.py` — **$/kWh and kW/ton BOTH SWEPT over published values**, 608 cells, nothing collapsed, **priced in each site's own state**. §6.12 |
 | **Per-site engine** | `src/build_sites.py` — every offerable site on **its own** weather, geometry, bound and tariff. §6.13 |
 | **Downloadable PDF** | `src/report.py` — a real 4-page PDF per site, **written without a PDF library** and verified by being read back. §6.15 |
@@ -1242,30 +1242,73 @@ from `SITE`/`T`; a duplicate `id="c_site"` that made one dropdown permanently em
 `audit.check_duplicate_element_ids()` (check 2f) guards it. **All 15 result panels differ across all
 three sites.**
 
-### 9.2b ☐ SESSION 2 — the live agent, server side
+### 9.2b ✅ SESSION 2 — DONE. `src/live.py`, the live agent
 
-`src/live.py`: for the SELECTED site, perceive **now → +12 h** and decide.
+```bash
+python live.py selftest                 # 22 checks, ZERO network calls. In run_all + audit check 11
+python live.py dryrun --hours 12         # what it would fetch and what it would cost. Free.
+python live.py run --paid --hours 12     # the real thing. Requires --paid.
+python live.py run --replay <fixture>    # verify the decide path from a SAVED response
+METRO=chicago python live.py run --paid  # per-site, and the metro is ASSERTED not assumed
+```
 
-| Input | Source | Note |
-|---|---|---|
-| Ambient forecast trajectory | **FortyGuard `/v1/heatmap`, live**, this site's own AOI | The site's own tile, not a metro average |
-| Wind bearing + speed | **NWS `api.weather.gov`, live, free, keyless** | FortyGuard has no wind field — confirmed from their OpenAPI spec. This is already the project's approach for the five-year record |
-| Rise per bearing/speed | **this site's own solved rise table** | The physics is precomputed per bearing; a lookup is the same solve, not an approximation |
-| Margin | **per-lead conformal quantile from measured residuals** | 12 leads exist in `rolling.json`. ⚠ Coverage is Ashburn's for any site without its own day-pairs, and the panel must say so |
-| Schedule | the same DP under switch budget + dwell | so the live path and the backtest cannot disagree by construction |
+**It writes no new decision logic.** `A.rise_table` / `A.lookup_rise` / `A.plan` /
+`A.bms_commands` are imported from `agent.py` unchanged, so the live path is *the same agent on
+different input* — which is also why the whole chain is verifiable offline. A parallel live-only
+core would have drifted from the verified one within a day.
 
-**Emit the same JSON shape as `trace.json`** so the UI needs no second renderer — that is the single
-most important design decision here, because a parallel live-only renderer would drift from the
-verified one within a day.
+**Three sources, and only one of them is FortyGuard's:**
 
-🔴 **HONEST DEGRADATION IS A HARD REQUIREMENT, and today is the test case.** The vendor is currently
-accepting jobs and never completing them (§4.0). The live path must surface *"the vendor accepted the
-job and has not answered in N s, activity_id X"* and **must never fabricate, interpolate or silently
-fall back to a saved field while presenting it as live.** Reuse DIAG-63's classifier: `ok` /
-`completed_but_empty` / `terminal_failed` / `stalled_in_processing` are four different messages.
+| Quantity | Source |
+|---|---|
+| Dry-bulb ambient per hour, at this site's OWN tile | **FortyGuard `/v1/heatmap`** — this IS the product |
+| Wind bearing + speed per hour | **NWS `api.weather.gov` gridpoint**, free, keyless. FortyGuard has no wind field |
+| Dew point per hour | **NWS**, same response. `env_params` returns no dry-bulb and `heatmap` returns no environmentals (findings §9.4) |
 
-**Verified with ZERO API calls** by replaying the saved fixtures through the same chain, so
-`run_all.py` stays offline and deterministic.
+⚠ **The gridpoint endpoint, not `forecast/hourly`:** the hourly one gives `windDirection` as a
+16-point compass string (22.5° resolution) against a rise table computed on a **5° grid**. The
+gridpoint endpoint gives numeric degrees. Its fields are **run-length encoded** over ISO intervals
+(`…/PT6H`), so a 12-hour horizon can arrive as three entries and must be expanded.
+
+🔴 **THE BOUND COMES FROM `cycle.bound_day_level`, NOT FROM `rolling.py`.** rolling's per-lead
+margins are calibrated on de-biased **persistence** error — a different forecaster — and using them
+on a live FortyGuard forecast would be the category error §8e exists to prevent. So the live margin
+is **0.15203 °C** from **n=4 measured day-pairs**, and `margin_provenance` carries: clamped to an
+attainable ceiling of **0.80** against a nominal 0.90, measured coverage **65.6 %**, verdict
+**FAIL**, and an **EXTRAPOLATION_WARNING** — every pair was measured at a ~9.4 h lead against a
+14:00 window, and a live run bounds leads 1..12 at whatever hour it is now.
+
+🔴 **IT NEVER INVENTS A FORECAST, AND THIS WAS PROVED AGAINST THE REAL VENDOR.** One paid call at
+2026-08-20 11:0x UTC: activity `a89fef3f`, **33 polls over 307 s**, classified
+`stalled_in_processing`, → `status: vendor_unavailable`, **no `hours` key and no `commands` key in
+the emitted JSON**, and **0 credits** (stalls are unbilled). Four statuses, all distinct:
+`ok` / `dryrun` / `vendor_unavailable` / `fixture_mismatch`.
+
+**Cost shape.** A heatmap response is a per-tile aggregate **over the requested window**, not a time
+series, so hourly resolution costs one call per hour: 12 h = 50,640 credits. Pricing is flat in hour
+count, so the price is per CALL. Windows are **cached** under `data/live_cache/<metro>/` — N-55 makes
+a cache hit byte-identical, not an approximation — and because the horizon SLIDES, an hourly re-run
+needs only the one new far-end window, so **~1 call/hour** after the first run, inside the 30/day cap.
+
+**Three bugs in my own code, all caught by a check rather than by reading:**
+1. `A.rise_table()` takes no metro argument — it resolves through `metro_key()` from the
+   environment. `live_run(metro="chicago")` would have loaded **Ashburn's** rise table. Now the env
+   is set and then **asserted**.
+2. `A.plan()` returns `(modes, free_h, switches)`; binding the tuple to `modes` surfaced two stages
+   later as `TypeError: cannot use 'list' as a dict key`. Now unpacked, and the reported free-hour
+   count is **cross-checked against a recount**.
+3. A `json.dump` without `allow_nan=False` — audit check 2 caught it. NaN is legal Python JSON and
+   illegal standard JSON, so it would have killed the browser silently.
+
+🔴 **A REPLAY FIXTURE FROM ANOTHER METRO IS REFUSED.** `nearest_tile` returns the closest tile it
+*has*, so replaying Ashburn's field for Chicago silently reports an Ashburn edge tile **926 km** from
+the plant. **Dulles is the case that matters: 4 km.** A 926 km miss announces itself; a 4 km one does
+not. Guarded at `MAX_TILE_DIST_M = 2000` and asserted in the self-test.
+
+⚠ **Every saved FortyGuard field is an August afternoon in Virginia at 27–31 °C**, so every replay
+verification correctly returns **zero** free-cooling hours — 43.7 % of all swept configurations do.
+The DP's ability to grant hours is verified elsewhere, on 43,763 real hours and 20,160 cross-language
+configurations.
 
 ### 9.2c ☐ SESSION 3 — the live agent, browser side
 

@@ -25,7 +25,7 @@ cd INTAKE-ARBITER/demo && python -m http.server 8000
 error. Any static host serves the demo as-is — there is no build step and no server side.
 
 **If `run_all.py` is not green, do not believe a number on the page.** It re-reads **70 published
-figures** from the files the code actually wrote and runs **61 audit checks**, including five that
+figures** from the files the code actually wrote and runs **62 audit checks**, including five that
 re-derive the browser's own arithmetic against Python.
 
 ---
@@ -112,7 +112,7 @@ aerial evidence.**
 python testing/api_usage_ledger.py           # the API spend ledger, from saved meter readings
 python testing/scan_secrets.py               # full tree AND full git history, for leaked keys
 python testing/test_n26_coverage.py dryrun    # what the collector would do now; no key is read
-cd INTAKE-ARBITER/src && python audit.py      # 61 checks, 70 published numbers re-read
+cd INTAKE-ARBITER/src && python audit.py      # 62 checks, 70 published numbers re-read
 cd INTAKE-ARBITER/src && python report.py     # the per-site PDF, verified by being reopened
 ```
 

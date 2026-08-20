@@ -69,6 +69,12 @@ STEPS = [
      [sys.executable, "build_sites.py", "chicago", "dulles"], HERE),
     ("site manifest again: now with per-site artefact filenames",
      [sys.executable, "metros.py", "--manifest"], HERE),
+    # THE LIVE PATH, VERIFIED OFFLINE. `live.py selftest` makes ZERO network calls -- it proves the
+    # RLE expansion, the four-way vendor classifier, the gate logic and the margin provenance, all
+    # of which are live-INDEPENDENT. What no offline check can prove is that FortyGuard answers, and
+    # it does not pretend to: that is `live.py dryrun` (free) and `live.py run --paid`.
+    ("live agent: offline self-test of the live chain", [sys.executable, "live.py", "selftest"],
+     HERE),
     ("AUDIT: everything, mechanically", [sys.executable, "audit.py"], HERE),
 ]
 

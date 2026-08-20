@@ -1,0 +1,96 @@
+{
+ "generated_by": "INTAKE-ARBITER/src/live.py",
+ "mode": "replay-verification",
+ "metro": "chicago",
+ "site_label": "Elk Grove Village, Illinois",
+ "committed_pair": {
+  "source_osm_id": 863162820,
+  "receptor_osm_id": 377032061,
+  "source_name": "Stream Chicago II",
+  "receptor_name": "Equinix Chicago CH3",
+  "source_latlon": [
+   41.999209,
+   -87.958012
+  ],
+  "receptor_latlon": [
+   42.001173,
+   -87.955194
+  ],
+  "facade_gap_m": 118.4,
+  "centroid_separation_m": 319.4
+ },
+ "utc_now": "2026-08-20T12:13:06.015987+00:00",
+ "site_local_now": "2026-08-20T07:13:06.003085-05:00",
+ "site_tz": "America/Chicago",
+ "horizon_h": 2,
+ "first_hour_site_local": "2026-08-20T08:00:00-05:00",
+ "config": {
+  "limit_c": 27.0,
+  "switch_budget": 2,
+  "min_dwell_h": 3,
+  "dewpoint_limit_c": 15.0,
+  "bank_mode": "longest"
+ },
+ "aoi": {
+  "centre": [
+   42.000191,
+   -87.956603
+  ],
+  "side_km": 8.0,
+  "granularity": 60,
+  "analytic_type": "tcm"
+ },
+ "sources": {
+  "ambient_dry_bulb": "FortyGuard /v1/heatmap, one call per hour, this site's own tile",
+  "wind_and_dewpoint": "NWS api.weather.gov gridpoint forecast (free, keyless). FortyGuard's API carries no wind field, and env_params returns no dry-bulb -- findings section 9.4",
+  "rise": "this site's own 576-solve rise table on its real OSM geometry"
+ },
+ "nws": {
+  "source": "api.weather.gov gridpoint forecast",
+  "ok": true,
+  "grid": "LOT 64,78",
+  "missing": [],
+  "uom_note": "windSpeed converted km/h -> m/s; dewpoint already C"
+ },
+ "spend": {
+  "credits_before": null,
+  "credits_after": null,
+  "credits_spent": 0,
+  "calls_attempted": 0,
+  "cache_hits": 0,
+  "note": "cache hits are byte-identical to fresh calls -- N-55"
+ },
+ "windows": [
+  {
+   "window": {
+    "start_date": "2026-08-20",
+    "start_time": "08:00",
+    "end_time": "09:00",
+    "filter_type": 2
+   },
+   "source": "replay-fixture",
+   "class": "fixture_wrong_metro",
+   "fixture": "n26_f_2026-08-16.json",
+   "tile_dist_m": 926063.5,
+   "error": "the nearest tile in n26_f_2026-08-16.json is 926 km from this site's centre, so this fixture is another metro's field. Refusing to report a temperature for it."
+  },
+  {
+   "window": {
+    "start_date": "2026-08-20",
+    "start_time": "09:00",
+    "end_time": "10:00",
+    "filter_type": 2
+   },
+   "source": "replay-fixture",
+   "class": "fixture_wrong_metro",
+   "fixture": "n26_f_2026-08-16.json",
+   "tile_dist_m": 926063.5,
+   "error": "the nearest tile in n26_f_2026-08-16.json is 926 km from this site's centre, so this fixture is another metro's field. Refusing to report a temperature for it."
+  }
+ ],
+ "vendor_classes": [
+  "fixture_wrong_metro"
+ ],
+ "status": "fixture_mismatch",
+ "operator_message": "the nearest tile in n26_f_2026-08-16.json is 926 km from this site's centre, so this fixture is another metro's field. Refusing to report a temperature for it."
+}

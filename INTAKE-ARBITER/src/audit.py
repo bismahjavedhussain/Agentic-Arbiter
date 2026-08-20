@@ -884,6 +884,24 @@ def check_stage_events():
        "file says %d, scan finds %d" % (tj["templates_with_literal_digits"], len(bad)))
 
 
+def check_live_chain():
+    """THE LIVE PATH MUST BE VERIFIABLE WITHOUT THE NETWORK, or it cannot be in the audit at all.
+
+    `live.py selftest` covers the parts that are live-INDEPENDENT: ISO8601 run-length expansion of
+    the NWS grid series, the four-way vendor classifier (`ok` / `completed_but_empty` /
+    `terminal_<status>` / `stalled_in_processing`), the local-time window construction, and the
+    margin provenance -- including that the margin is read from FortyGuard's OWN measured residuals
+    and NOT from rolling.py's persistence-calibrated per-lead margins, and that a site with no
+    day-pairs of its own reports a borrowed bound.
+
+    It cannot prove that FortyGuard answers. Nothing offline can, and on the day this was written
+    the vendor was accepting jobs and never completing them.
+    """
+    print("\n11. THE LIVE PATH, verified offline")
+    run([sys.executable, os.path.join(HERE, "live.py"), "selftest"], HERE,
+        "live chain self-test (zero network calls)")
+
+
 def check_self_tests():
     print("\n7. MODULE SELF-TESTS")
     for f in ("conformal.py", "environment.py", "plume_uncertainty.py", "explain.py"):
@@ -1071,6 +1089,7 @@ def main():
     check_self_tests()
     check_cross_language()
     check_api_spend()
+    check_live_chain()
     check_front_door_figures()          # LAST: it counts every check above it, including its own
     print("\n" + "=" * 78)
     print("AUDIT: %d passed, %d warnings, %d FAILURES" % (len(PASSES), len(WARNS), len(FAILS)))
