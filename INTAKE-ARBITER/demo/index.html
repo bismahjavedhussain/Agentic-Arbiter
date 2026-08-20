@@ -2202,19 +2202,22 @@ function drawModeBanner(){
       + '<code>python src/serve_live.py --allow-paid</code> instead of <code>http.server</code>.</span>';
     return;
   }
-  if(HEALTH.code_is_stale){
-    el.innerHTML = '<span class="err"><strong>The live server is running STALE CODE.</strong> '
-      + HEALTH.stale_note + ' Loaded ' + HEALTH.code_loaded_utc + ', on disk '
-      + HEALTH.code_on_disk_utc + '.</span>';
-    return;
-  }
+  /* The server RELOADS live.py by itself now, so this is a fallback for the case where the reload
+     could not happen (a syntax error in the new file, say). It PREPENDS rather than replacing, so
+     the reader still learns which mode they are in -- the first version returned early and swallowed
+     that, trading one missing piece of information for another. */
+  const stale = HEALTH.code_is_stale
+    ? '<span class="err"><strong>The live server could not reload its own code.</strong> '
+      + (HEALTH.stale_note || '') + ' Loaded ' + HEALTH.code_loaded_utc + ', on disk '
+      + HEALTH.code_on_disk_utc + '. Restart it.</span><br>'
+    : '';
   if(HEALTH.live_available){
-    el.innerHTML = '<span class="ok"><strong>LIVE agent attached.</strong></span> The panels below '
+    el.innerHTML = stale + '<span class="ok"><strong>LIVE agent attached.</strong></span> The panels below '
       + 'are the measured record from saved responses (<strong>' + int(nCalls) + '</strong> live '
       + 'calls); the card at the top of the results decides the <strong>next hours</strong> from a '
       + 'forecast fetched now. Key stays server-side.';
   } else {
-    el.innerHTML = '<span class="warn"><strong>Live path present but not spending.</strong></span> '
+    el.innerHTML = stale + '<span class="warn"><strong>Live path present but not spending.</strong></span> '
       + (HEALTH.why_not_live || '') + ' The panels below are the measured record from saved '
       + 'responses (<strong>' + int(nCalls) + '</strong> live calls).';
   }

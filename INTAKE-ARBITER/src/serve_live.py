@@ -50,6 +50,7 @@ The progress list is what the page streams, so "the agent is working" is a real 
 real stage events -- not a spinner with a timer behind it.
 """
 import argparse
+import importlib
 import json
 import os
 import sys
@@ -73,6 +74,38 @@ DEMO = os.path.join(M.ROOT, "demo")
 # instead of leaving a reader to compare timestamps by hand.
 LIVE_PY = os.path.join(HERE, "live.py")
 LOADED_MTIME = os.path.getmtime(LIVE_PY)
+RELOADS = 0
+
+
+def reload_if_stale():
+    """Re-import live.py when it changes on disk. Returns True if a reload happened.
+
+    A STALENESS WARNING IS A WORKAROUND; THIS IS THE FIX. Reporting `code_is_stale` was correct but
+    it put the work on the operator: every edit meant noticing a red banner and restarting by hand,
+    and the one time that was missed it cost a whole diagnostic cycle -- a screenshot showed pre-fix
+    wording 48 minutes after the fix, which reads exactly like "the fix did not work".
+
+    `importlib.reload` refreshes the module object IN PLACE, so:
+      * every later `LV.<name>` lookup gets the new code, and
+      * a job thread already holding a reference to the old `live_run` function keeps running it to
+        completion rather than being torn out mid-flight.
+    Both of those are what we want. `live.py` holds no mutable module state -- only constants and
+    functions -- so there is nothing to migrate across a reload.
+    """
+    global LOADED_MTIME, RELOADS
+    try:
+        m = os.path.getmtime(LIVE_PY)
+    except OSError:
+        return False
+    if m <= LOADED_MTIME + 1:
+        return False
+    with LOCK:
+        if m <= LOADED_MTIME + 1:          # another thread got there first
+            return False
+        LOADED_MTIME, RELOADS = m, RELOADS + 1
+    importlib.reload(LV)
+    sys.stderr.write("   live.py changed on disk -- reloaded (reload #%d)\n" % RELOADS)
+    return True
 
 # ---- process state. Guarded by a lock because ThreadingHTTPServer serves concurrently and the
 # call counter is the thing standing between a browser loop and the daily cap.
@@ -102,6 +135,7 @@ def offerable_sites():
 
 
 def health():
+    reload_if_stale()
     """What the page needs to decide whether to offer a LIVE button at all.
 
     Deliberately does NOT report the credit balance: reading it is a network call to FortyGuard, and
@@ -133,6 +167,7 @@ def health():
         "code_on_disk_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ",
                                           time.gmtime(os.path.getmtime(LIVE_PY))),
         "code_is_stale": os.path.getmtime(LIVE_PY) > LOADED_MTIME + 1,
+        "code_reloads": RELOADS,
         "stale_note": ("live.py has changed on disk since this server started -- RESTART IT. "
                        "Python caches imported modules, so this process is still running the old "
                        "code.") if os.path.getmtime(LIVE_PY) > LOADED_MTIME + 1 else None,
@@ -141,6 +176,7 @@ def health():
 
 def start_job(site, hours, limit_c, want_paid, replay):
     """Kick off a live run on a worker thread and return its id immediately."""
+    reload_if_stale()          # a run must never execute code older than the request that asked for it
     jid = uuid.uuid4().hex[:12]
 
     paid = bool(want_paid and CONF["allow_paid"])

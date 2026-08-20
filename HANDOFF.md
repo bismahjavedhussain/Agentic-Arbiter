@@ -1905,6 +1905,20 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
     reading was *"the fix did not work"* — it had; the process was 48 minutes stale.
     `/api/health` now reports `code_loaded_utc`, `code_on_disk_utc` and `code_is_stale`, and the
     page shows a red banner instead of leaving anyone to compare timestamps by hand.
+113. **A WARNING ABOUT A PROBLEM THE MACHINE COULD FIX ITSELF IS A WORKAROUND, NOT A FIX.** #111
+    added `code_is_stale` to `/api/health` and a red banner, which was correct as far as it went --
+    and it put the work on the operator: every edit meant noticing the banner and restarting by
+    hand. `serve_live.py` now calls `reload_if_stale()` before answering `/api/health` and before
+    starting any job, so **a run can never execute code older than the request that asked for it.**
+    `importlib.reload` refreshes the module object in place, so later `LV.<name>` lookups get the new
+    code while a job thread already holding the old `live_run` runs to completion rather than being
+    torn out mid-flight — and `live.py` holds only constants and functions, so there is no mutable
+    state to migrate. Verified by touching the file and watching `code_reloads` go 0 → 1 with no
+    restart. **The banner survives as a fallback for the case a reload cannot happen** (a syntax
+    error in the new file), and it now PREPENDS rather than replacing the mode line: the first
+    version returned early and swallowed which mode the page was in, trading one missing piece of
+    information for another.
+
 112. **MY OWN TEST HARNESS LOST THE SAME RACE TWICE.** Chrome's `--virtual-time-budget` compresses
     `setTimeout` while the network stays real, so a poll loop of 40 × 400 ms elapses before an
     async job can answer — and the probe reported `hasresult=false`, which looks exactly like a
