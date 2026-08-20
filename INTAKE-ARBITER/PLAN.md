@@ -1798,6 +1798,70 @@ anything.
 
 ---
 
+## 8q. ✅ SESSION 1 OF THE PER-SITE REWORK — the picker was still lying, in the one place nobody checked (2026-08-20)
+
+Section 8p.1 recorded that the site picker had been made real: seven modules metro-aware, an audit
+check that fails if any two sites agree on a value. **It was not enough, and the reason is worth
+keeping.**
+
+### 8q.1 A panel is per-site only if EVERY input is per-site
+
+The aerial panel held three coordinates as source-level constants:
+
+```js
+const SITE_BBOX = [-77.421534, 39.022564, -77.417849, 39.025469];   // Ashburn
+const OSM_SRC   = [39.024569, -77.420334];                          // Ashburn
+const OSM_REC   = [39.023464, -77.419049];                          // Ashburn
+```
+
+The footprint rings drawn on top come from `T.site.geometry`, which **is** per-site. So selecting
+Chicago georeferenced **Chicago's halls onto Ashburn's photograph, through Ashburn's anchor.** The
+result was a picture that looked entirely plausible and meant nothing — and it survived the session
+that fixed twelve other panels precisely because half of its inputs were already correct.
+
+**Fixed by `metros.committed_imagery()`**, which matches each site's committed OSM pair against its
+own `data/imagery/screen/<metro>/screen_manifest.json` and exports `imagery.bbox`,
+`imagery.source_latlon`, `imagery.receptor_latlon` and the frame filenames. Two properties make this
+a safe change rather than a rewrite:
+
+1. **The frames already existed on disk for all three committed pairs** — `01_863162820_377032061.png`
+   for Chicago, `04_693381107_545396372.png` for Dulles — and Ashburn's two `demo/*.png` files are
+   **byte-identical** to its screening candidate. This was plumbing, not new data.
+2. **Ashburn's manifest values are the constants they replace**, verified field by field, so the
+   change is provably a no-op for every audited Ashburn number.
+
+⚠ **The imagery dropdown is now built from what exists.** Ashburn has ESRI **and** USGS; Chicago and
+Dulles have ESRI only. That absence is load-bearing — §8o records that Dulles's imagery verdict
+fails the two-source rule — so offering a USGS option there would 404 and imply a cross-check nobody
+made. The panel now *says* "no second source, so the two-source cross-check is NOT met here."
+
+### 8q.2 The prose was Ashburn's on every site, which is worse than a wrong number
+
+Four sentences named Ashburn regardless of selection: the operator pair and OSM way ids in the
+aerial note, *"17,862 tiles over 8×8 km of the Ashburn data-centre corridor"* in the screen-zero
+header, the OSM ways again in the FortyGuard-field note, and *"real KIAD hours"* in the wind dial —
+which credited **Chicago's** wind statistics to a Virginia station. The ladder heading hardcoded
+*"43,763 real hours"*, Ashburn's sample size, on a site whose own record is 43,775 h.
+
+All are written by `drawSiteNotes()` from `SITE` and `T` now. **The screen-zero header does more than
+substitute a name**: a site with no FortyGuard field of its own no longer quotes Ashburn's tile count
+at all, it says so — *"This site has no FortyGuard field of its own … the field shown below is
+Ashburn's … it is NOT this site's measurement, and no number on this page is derived from it."*
+
+### 8q.3 What the verification actually was
+
+**Every result panel was rendered for all three sites and diffed panel by panel.** 15 panels, and
+**all 15 differ across all three sites** — the check that matters, because a panel existing per-site
+proves nothing (§8p.1). This is what found both defects, and both were invisible to every
+Python-side and cross-language test in the tree.
+
+It also found a **duplicate `id="c_site"`**: the plume panel carried a second one, left over from the
+pre-three-stage layout. `querySelector` returns the first match, so that dropdown was
+**permanently empty on every site** — a labelled "Data centre" select with no options.
+`audit.check_duplicate_element_ids()` (check 2f) now fails the build on any repeated id.
+
+---
+
 ## 9. Honest limits — stated before anyone asks
 
 - **The dollar figure covers the CHILLER COMPRESSOR ONLY** *(was: "no dollar or energy figure" — that

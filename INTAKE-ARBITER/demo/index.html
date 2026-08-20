@@ -326,11 +326,9 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
 </div>
 <div data-show="results" class="card">
   <h2>The site — real imagery, real footprints, drag to pan and scroll to zoom</h2>
-  <p class="note" style="margin-bottom:10px">Amazon Web Services <strong>IAD116 → IAD117</strong>,
-  Ashburn, Virginia. Footprints are OpenStreetMap ways <strong>744496750</strong> and
-  <strong>744496741</strong>, drawn as the rotated minimum-area rectangles the solver actually
-  rasterises — not axis-aligned boxes, which misdescribe these halls badly enough to make them
-  overlap by 28 m. Imagery: ESRI World Imagery / USGS The National Map.</p>
+  <!-- WAS HARDCODED to "Amazon Web Services IAD116 -> IAD117, Ashburn, Virginia" and OSM ways
+       744496750 / 744496741, on every site. Written by drawAerialNote() from SITE. -->
+  <p class="note" id="aerialnote" style="margin-bottom:10px">&nbsp;</p>
   <div class="row">
     <div>
       <canvas id="aerial" width="560" height="440" style="cursor:grab;border-radius:8px"></canvas>
@@ -344,10 +342,9 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
     <div class="grow">
       <div class="f" style="margin-bottom:10px">
         <label for="c_img">Imagery source</label>
-        <select id="c_img">
-          <option value="site_aerial.png">ESRI World Imagery</option>
-          <option value="site_aerial_usgs.png">USGS The National Map</option>
-        </select>
+        <!-- BUILT per site by buildImageryOptions() from SITE.imagery.sources. It held two
+             hardcoded Ashburn filenames, so Chicago and Dulles loaded Ashburn's photograph. -->
+        <select id="c_img"></select>
       </div>
       <div class="tiles" id="aerialtiles"></div>
       <p class="note">Drag to pan, scroll to zoom, double-click to reset. The wind arrow follows the
@@ -366,9 +363,14 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
   every rise figure on this page, at 72 bearings. Buildings are drawn from the solver's own obstacle
   mask, so the picture and the physics cannot disagree. <strong>Drag the dial below</strong> to turn
   the wind.</p>
-  <div class="f" style="margin-bottom:12px">
-    <label for="c_site">Data centre</label><select id="c_site"></select>
-  </div>
+  <!-- 🔴 THIS WAS A SECOND <select id="c_site"> -- A DUPLICATE ID, and therefore dead UI.
+       `$('#c_site')` returns the FIRST match, which is the stage-1 picker, so `buildSitePicker()`
+       populated that one and this one stayed permanently EMPTY: a data-centre dropdown with no
+       options, sitting under a heading, on every site. It is a leftover from the pre-restructure
+       layout where this panel chose its own site; since the three-stage rebuild the site is chosen
+       once in stage 1. Replaced with a read-only label, so the panel still says which site it is
+       drawing without pretending to offer a choice. -->
+  <p class="note" id="plumesite" style="margin-bottom:12px">&nbsp;</p>
   <div class="row">
     <div><canvas id="plume" width="470" height="470"></canvas>
       <div class="scale" style="margin-top:8px">
@@ -403,9 +405,9 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
 </div>
 <div data-show="results" class="card">
   <h2>Screen zero — FortyGuard's field, doing the work first</h2>
-  <p class="note" style="margin-bottom:12px">One <code>/v1/heatmap</code> call returns
-  <strong>17,862 tiles</strong> over 8×8 km of the Ashburn data-centre corridor at 2 m. This is the
-  forecast leg and its elapsed outcome for the same window, same tiles, same plane.</p>
+  <!-- WAS: a hardcoded "17,862 tiles ... Ashburn data-centre corridor" on all three sites, which
+       for Chicago and Dulles asserted a measurement neither of them has. drawSiteNotes(). -->
+  <p class="note" id="screenzeronote" style="margin-bottom:12px">&nbsp;</p>
   <div class="row">
     <div>
       <canvas id="field" width="470" height="470"></canvas>
@@ -424,9 +426,8 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
         <label for="c_field">Field</label><select id="c_field"></select>
       </div>
       <div class="tiles" id="fieldtiles"></div>
-      <p class="note">The committed site sits inside one of these tiles — OSM ways 744496750 →
-      744496741 (AWS IAD116/IAD117), true facade-to-facade gap
-      <strong id="gap">–</strong> m measured edge-to-edge.</p>
+      <!-- The OSM ways and operator names were hardcoded Ashburn's here too. -->
+      <p class="note" id="fieldpairnote">The committed site sits inside one of these tiles.</p>
     </div>
   </div>
   <details><summary>Table view — the tile statistics FortyGuard returned</summary>
@@ -504,7 +505,9 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
   <p class="note warn" style="margin-top:16px" id="cfimposs"></p>
 </div>
 <div data-show="results" class="card">
-  <h2>Five years, 43,763 real hours</h2>
+  <!-- The hour count was hardcoded 43,763 -- Ashburn's. Chicago's record is 43,775 h and Dulles
+       shares KIAD, so two of three sites were headlined with another site's sample size. -->
+  <h2 id="ladderhead">Five years of real hours</h2>
   <p class="note" style="margin-bottom:10px">Held-out days only; the agent never calibrates on a day
   it is scored on. Gain is hours <em>declared free cooling <strong>and</strong> genuinely safe</em>,
   paired per day against the incumbent.</p>
@@ -693,7 +696,8 @@ function buildControls(){
   const fields = Object.keys(T.fields||{});
   opt('#c_field', fields, fields.map(f=>f.replace('_',' · ')),
       fields.find(f=>f.includes('16_forecast'))||fields[0]);
-  const gapEl=$('#gap'); if(gapEl) gapEl.textContent = fmt(T.site.facade_gap_m,1);
+  buildImageryOptions();
+  drawSiteNotes();
   const ac=$('#apicalls'); if(ac) ac.textContent = T.api_calls_made;
   syncOffday();
   drawReadyTiles();
@@ -1874,7 +1878,10 @@ function drawDial(){
      tile('Selected bearing', dialBearing+'°', sel.refused?'REFUSED — no number returned':'intake rise '+fmt(sel.rise_c,4)+' °C')
    + tile('Worst bearing', md.worst.bearing+'°', 'rise '+fmt(md.worst.rise_c,4)+' °C')
    + tile('Bearings refused', md.n_refused+' of 72', md.n_downwind_refused+' of '+md.n_downwind+' downwind')
-   + tile('Wind-weighted refusal', fmt(100*(ww.frac_refused||0),1)+' %', int(ww.n_hours)+' real KIAD hours');
+   /* 'real KIAD hours' was hardcoded, so Chicago's dial credited its wind statistics to
+      Virginia's station. The station is per-site in both trace.json and sites.json. */
+   + tile('Wind-weighted refusal', fmt(100*(ww.frac_refused||0),1)+' %',
+          int(ww.n_hours)+' real '+stationName()+' hours');
   $('#dialnote').innerHTML = k.bank==='facing'
     ? '<span class="warn">This is the <strong>sensitivity</strong> placement — a 50 m end wall, '
       +'which no condenser bank actually occupies. The solver refuses <strong>36 of 36 downwind '
@@ -1905,13 +1912,62 @@ function drawDial(){
    fine for showing WHERE things are and is NOT used for any computation.
 */
 const AER = {img:null, src:null, zoom:1, ox:0, oy:0, drag:null};
-const SITE_BBOX = [-77.421534, 39.022564, -77.417849, 39.025469];   // screen_manifest, candidate 02
-const OSM_SRC = [39.024569, -77.420334];
-const OSM_REC = [39.023464, -77.419049];
+
+/* 🔴 THESE THREE WERE SOURCE-LEVEL CONSTANTS AND THEY WERE ASHBURN'S.
+     const SITE_BBOX = [-77.421534, 39.022564, -77.417849, 39.025469];
+     const OSM_SRC   = [39.024569, -77.420334];
+     const OSM_REC   = [39.023464, -77.419049];
+   The rings drawn on top come from `T.site.geometry`, which IS per-site -- so selecting Chicago
+   georeferenced CHICAGO'S halls onto ASHBURN'S photograph through Ashburn's anchor, and the
+   overlay meant nothing. The values were verified to have been hand-copied out of Ashburn's own
+   data/imagery/screen/screen_manifest.json, so reading them per-site from that manifest is
+   provably identical for Ashburn and correct for every other site.
+   `metros.committed_imagery()` exports them; the page now holds no coordinate of its own. */
+function aerialImagery(){
+  return (SITE && SITE.imagery) || null;
+}
+
+/* The imagery dropdown is BUILT from what exists for this site, never from a fixed list. Dulles
+   has no USGS frame and that absence is load-bearing: PLAN section 8o records that its imagery
+   verdict fails the two-source rule, so offering a USGS option here would 404 and imply a
+   cross-check nobody made. */
+const IMAGERY_LABELS = {esri:'ESRI World Imagery', usgs:'USGS The National Map'};
+function buildImageryOptions(){
+  const sel = $('#c_img'); if(!sel) return;
+  const im = aerialImagery();
+  sel.innerHTML = '';
+  const srcs = (im && im.sources) || {};
+  for(const k of ['esri','usgs']){
+    if(!srcs[k]) continue;
+    const o = document.createElement('option');
+    o.value = srcs[k]; o.textContent = IMAGERY_LABELS[k] || k;
+    sel.appendChild(o);
+  }
+  if(!sel.options.length){
+    const o = document.createElement('option');
+    o.value = ''; o.textContent = 'no screening frame for this pair';
+    sel.appendChild(o); sel.disabled = true;
+  } else {
+    sel.disabled = sel.options.length < 2;   /* one source = nothing to switch between */
+  }
+  /* A new site means a new image and a new anchor: drop the cached bitmap and the pan/zoom, or the
+     first paint shows the PREVIOUS site's photograph under this site's footprints. */
+  AER.img = null; AER.src = null; AER.zoom = 1; AER.ox = 0; AER.oy = 0;
+}
 
 function drawAerial(){
   const c = $('#aerial'), g = c.getContext('2d');
+  const im = aerialImagery();
+  if(!im || !im.bbox || !im.source_latlon || !im.receptor_latlon){
+    g.clearRect(0,0,c.width,c.height);
+    g.fillStyle = cssv('--muted'); g.font = '13px system-ui';
+    g.fillText('No georeferenced screening frame for this site’s committed pair.', 12, 24);
+    g.fillText('Nothing is drawn rather than drawing another site’s imagery.', 12, 44);
+    $('#aerialtiles').innerHTML = '';
+    return;
+  }
   const want = $('#c_img').value;
+  if(!want){ return; }
   if (AER.src !== want){
     AER.src = want;
     AER.img = new Image();
@@ -1932,13 +1988,17 @@ function drawAerial(){
   g.save(); g.beginPath(); g.rect(0,0,W,H); g.clip();
   g.drawImage(AER.img, x0, y0, iw, ih);
 
-  const lo0 = SITE_BBOX[0], la0 = SITE_BBOX[1], lo1 = SITE_BBOX[2], la1 = SITE_BBOX[3];
+  /* bbox order is the ArcGIS export order the manifest stores: lon_min, lat_min, lon_max, lat_max.
+     NOTE `SITE.bbox` is a DIFFERENT field -- the metro cluster extent, in lat/lon order. Two
+     bboxes, two orders; this one is `SITE.imagery.bbox` and it is the only one used here. */
+  const lo0 = im.bbox[0], la0 = im.bbox[1], lo1 = im.bbox[2], la1 = im.bbox[3];
   const PX = (lo,la) => [x0 + iw*(lo-lo0)/(lo1-lo0), y0 + ih*(la1-la)/(la1-la0)];
   const geo = T.site.geometry[cfg().bank];
   const ctr = T.site.centre;
   const mLat = 111320, mLon = 111320*Math.cos(ctr[0]*Math.PI/180);
   const sC = geo.source_centre_m, rC = geo.receptor_centre_m;
   const midM = [(sC[0]+rC[0])/2, (sC[1]+rC[1])/2];
+  const OSM_SRC = im.source_latlon, OSM_REC = im.receptor_latlon;
   const midL = [(OSM_SRC[0]+OSM_REC[0])/2, (OSM_SRC[1]+OSM_REC[1])/2];
   const M2LL = (xm,ym) => [ midL[0] + (ym-midM[1])/mLat, midL[1] + (xm-midM[0])/mLon ];
   const ringPx = r => r.map(pt => { const ll = M2LL(pt[0], pt[1]); return PX(ll[1], ll[0]); });
@@ -1990,6 +2050,74 @@ function drawAerial(){
            'a fixed physical region, not a single point')
     + tile('Bearings refused here', md.n_refused+' of 72',
            md.n_downwind_refused+' of '+md.n_downwind+' downwind');
+}
+
+/* THE PROSE THAT NAMES THE SITE. Every one of these sentences was hardcoded to Ashburn's
+   operator, OSM way ids, station and tile count, so all three sites described Ashburn in words
+   while drawing (some of) their own numbers. Written from SITE and T; nothing here is a literal.
+   Kept as one function so a new panel needing the site's name has an obvious place to go. */
+/* The weather station this site's five-year record actually comes from. trace.json carries it
+   under weather.station; sites.json carries it too, and they must agree -- audit check 6c compares
+   values across sites, so a station that silently fell back to KIAD would surface there. */
+function stationName(){
+  return (T && T.weather && T.weather.station)
+      || (SITE && SITE.station) || 'the local station';
+}
+
+function drawSiteNotes(){
+  const c  = (SITE && SITE.committed) || {};
+  const im = aerialImagery();
+  const pair = (c.source_name || c.source_osm_id || '?') + ' → '
+             + (c.receptor_name || c.receptor_osm_id || '?');
+  const ways = (c.source_osm_id && c.receptor_osm_id)
+    ? 'OpenStreetMap ways <strong>' + c.source_osm_id + '</strong> and <strong>'
+      + c.receptor_osm_id + '</strong>'
+    : 'the committed footprints';
+  const srcs = (im && im.sources) || {};
+  const nsrc = Object.keys(srcs).length;
+  const imgline = nsrc === 0 ? 'No screening frame for this pair.'
+    : nsrc === 1
+      ? 'Imagery: ' + (IMAGERY_LABELS[Object.keys(srcs)[0]] || Object.keys(srcs)[0])
+        + ' only — <strong>no second source</strong>, so the two-source cross-check is NOT met here.'
+      : 'Imagery: ESRI World Imagery <strong>and</strong> USGS The National Map — two independent sources.';
+  const an = $('#aerialnote');
+  if(an) an.innerHTML = '<strong>' + pair + '</strong>, ' + (SITE ? SITE.label : '') + '. '
+    + 'Footprints are ' + ways + ', drawn as the rotated minimum-area rectangles the solver '
+    + 'actually rasterises — not axis-aligned boxes, which misdescribe these halls badly '
+    + 'enough to make them overlap by 28 m. ' + imgline;
+
+  const fp = $('#fieldpairnote');
+  if(fp) fp.innerHTML = 'The committed site sits inside one of these tiles — ' + ways.replace(
+      'OpenStreetMap ways', 'OSM ways') + ' (' + pair + '), true facade-to-facade gap <strong>'
+    + fmt(T.site.facade_gap_m, 1) + '</strong> m measured edge-to-edge.';
+
+  const lh = $('#ladderhead');
+  if(lh && T.weather && T.weather.n_hours)
+    lh.textContent = 'Five years, ' + int(T.weather.n_hours) + ' real hours at ' + stationName();
+
+  const ps = $('#plumesite');
+  if(ps) ps.innerHTML = 'Solved for <strong>' + pair + '</strong> — '
+    + (SITE ? SITE.label : '') + ', on its own OpenStreetMap footprints.';
+
+  /* The screen-zero header: tile count and the corridor's own name, both were Ashburn's. The tile
+     count is read from the field this site actually has -- and a site with no field of its own
+     must say so instead of quoting Ashburn's 17,862. */
+  const fn = $('#screenzeronote');
+  if(fn){
+    const own = SITE && SITE.has_own_fortyguard_field;
+    const f = T.fields || {};
+    const k0 = Object.keys(f)[0];
+    const nt = k0 && f[k0] ? Object.keys(f[k0].tiles || f[k0] || {}).length : 0;
+    fn.innerHTML = own
+      ? 'One <code>/v1/heatmap</code> call returns <strong>' + int(nt) + ' tiles</strong> over '
+        + '8×8 km of the ' + (SITE.label || '') + ' data-centre corridor at 2 m. This is the '
+        + 'forecast leg and its elapsed outcome for the same window, same tiles, same plane.'
+      : '<span class="warn"><strong>This site has no FortyGuard field of its own.</strong> '
+        + (SITE ? SITE.label : '') + ' was committed on geometry and its own five-year station '
+        + 'record; no <code>/v1/heatmap</code> call was purchased for it. The field shown below is '
+        + '<strong>Ashburn’s</strong>, displayed so the method is visible — it is NOT '
+        + 'this site’s measurement, and no number on this page is derived from it.</span>';
+  }
 }
 
 function wireAerial(){

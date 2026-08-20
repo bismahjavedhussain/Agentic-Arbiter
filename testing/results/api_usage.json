@@ -7,12 +7,14 @@
  "paid_calls": 13,
  "pct_of_plan": 2.743,
  "whole_call_remainder": 0,
- "attributed_credits": 21100,
- "unattributed_credits": 33760,
+ "attributed_credits": 16880,
+ "unattributed_credits": 37980,
  "calls_returning_data": 3,
- "calls_returning_zero_tiles_evidenced": 6,
- "calls_not_individually_identified": 4,
- "credits_that_bought_no_data_floor": 25320,
+ "calls_returning_zero_tiles_meter_stamped": 1,
+ "collector_recorded_failed_attempts": 6,
+ "collector_attempts_are_not_all_billed": true,
+ "calls_not_individually_identified": 9,
+ "credits_that_bought_no_data_floor": 4220,
  "credits_that_bought_no_data_ceiling": 42200,
  "unbilled_frozen_cycle_readings": 8,
  "attributable": [
@@ -51,15 +53,6 @@
    "tiles": 17797,
    "activity_id": "9a47a9f3-23bc-414e-ae04-334a0a08a2a9",
    "test": "chicago field, one paid call"
-  },
-  {
-   "source": "testing/results/n26_manifest.json",
-   "before": 1949360,
-   "after": 1945140,
-   "spent": 4220,
-   "tiles": null,
-   "activity_id": null,
-   "test": ""
   }
  ]
 }

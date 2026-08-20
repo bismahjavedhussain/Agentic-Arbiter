@@ -30,7 +30,10 @@ Thirteen calls is a deliberately small number, and it is small for two reasons t
 opposite directions. The good one: **the daily cap of 30 heatmaps binds long before credits do**, so
 the design question was never "how many calls can we afford" but "which single call earns its
 place". The bad one: **the forecast endpoint spent most of this plan's active life returning
-`completed` with zero tiles**, and a request that returns nothing is still billed 4,220 (§5).
+`completed` with zero tiles**, and through 2026-08-20 a request that returned nothing was **still
+billed 4,220** (§5). That changed on 08-20 itself: the vendor began returning `status: failed` and
+stalling in `Processing`, and **both of those are unbilled** — so the same fault now costs credits
+or not depending on which way it presents.
 
 **Most of the research behind this project was not paid for at all.** About **125 calls** were made
 on 2026-08-11…17 against a key whose billing cycle had closed on 2026-07-19 and whose meter was
@@ -82,13 +85,20 @@ Classified by what the artefacts record:
 | | Calls | Credits |
 |---|---|---|
 | Returned a populated field, tile count saved | **3** | 12,660 |
-| Returned `completed` with **zero** features, recorded as such | **6** | 25,320 |
-| Not individually identified — a gap between two readings | **4** | 16,880 |
+| Returned `completed` with **zero** features, meter-stamped | **1** | 4,220 |
+| Not individually attributable — a gap between two readings | **9** | 37,980 |
 
-So **at least 46.2 %** of everything spent on this plan bought no data, and **at most 76.9 %** did,
-the gap being the four unnamed calls. The collector's 2026-08-18 and 2026-08-19 attempts predate
-the per-day attempt counter it gained on 2026-08-19, which is exactly why their count is not
-recoverable and is not claimed.
+So **7.7 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
+call also failed — is **76.9 %**. The vendor record makes the ceiling far likelier than the floor:
+across 08-18…08-20 the forecast leg failed **every single time it was tried.** The collector's
+08-18 and 08-19 attempts predate the per-day attempt counter it gained on 08-19, which is why their
+individual count is not recoverable and is not claimed.
+
+⚠ **Attempts are not billed calls, and since 2026-08-20 they are not even close.** The collector
+records **6** failed attempts across three days; at least one of those cost **0** credits, because
+the vendor began returning `status: failed` and stalling in `Processing` — both unbilled. Any figure
+computed as *attempts × 4,220* is therefore not a spend figure, and the ledger reports the two
+quantities side by side rather than summing them.
 
 ---
 
@@ -103,7 +113,10 @@ The rules were fixed before the plan was issued and are visible in the code, not
   by the daily cap below rather than a per-call one. That is the whole reason the cap exists.
 - **`MAX_FORECAST_ATTEMPTS_PER_DAY = 3`** in `testing/test_n26_coverage.py` caps the daily collector
   so a multi-day vendor fault cannot drain the plan. The attempt is written to the manifest
-  **before** the call, so a crash mid-call still counts against the budget.
+  **before** the call, so a crash mid-call still counts against the budget. It is overridable with
+  `N26_MAX_ATTEMPTS` for a deliberate, attended retry — because the cap exists to bound a runaway
+  loop, not to ration credits, and **a lost day-pair is unrecoverable while 4,220 credits is 0.2 %
+  of the plan.**
 - **The collector refuses to spend when the data would not be comparable.** If the lead to the
   target window falls outside 6.0–11.5 h, it skips the day rather than buying a forecast whose
   accuracy is not exchangeable with the ones already collected. A short-lead forecast is much more

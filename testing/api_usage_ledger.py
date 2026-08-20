@@ -175,7 +175,16 @@ def main():
         print("NO BILLED OBSERVATIONS FOUND -- nothing to reconcile.")
         return 1
 
-    lowest = min(o["after"] for o in billed)
+    # 🔴 THE AUTHORITY IS THE LOWEST READING EVER RECORDED IN THIS CYCLE, BILLED OR NOT.
+    # This said `min(o["after"] for o in billed)` and it silently lost three calls the same day it
+    # was written. `n26_manifest.json` keeps only the LAST meter pair it saw, so when a later
+    # UNBILLED call (the 2026-08-20 stall, which cost 0) overwrote that slot, the manifest's
+    # observation stopped satisfying `spent > 0`, dropped out of `billed`, and the reported total
+    # fell from 54,860 back to 42,200 -- the exact stale figure this script exists to prevent.
+    # A meter reading is evidence of cumulative spend whether or not the call that took it was
+    # itself billed. Never derive a running total from a mutable single-slot field.
+    cycle = [o for o in obs if o["after"] != FROZEN_CYCLE_REMAINING and o["after"] < PLAN_ISSUED]
+    lowest = min(o["after"] for o in cycle) if cycle else min(o["after"] for o in billed)
     used = PLAN_ISSUED - lowest
     n_calls, remainder = divmod(used, HEATMAP_CREDITS)
 
@@ -225,24 +234,42 @@ def main():
           % (len(got_data), "" if len(got_data) == 1 else "s"))
     for o in got_data:
         print("      %-42s %s tiles" % (os.path.basename(o["source"]), format(o["tiles"], ",")))
-    print("   returned `completed` with ZERO features:        %d call%s"
-          % (len(got_zero) + collector_zero, "" if len(got_zero) + collector_zero == 1 else "s"))
+    print("   returned `completed` with ZERO features, METER-STAMPED:  %d call%s"
+          % (len(got_zero), "" if len(got_zero) == 1 else "s"))
     for o in got_zero:
         print("      %-42s 0 tiles" % os.path.basename(o["source"]))
-    for dk, note in sorted(collector_failures.items()):
-        print("      %-42s %s" % ("n26 collector %s" % dk, note))
-    identified = len(got_data) + len(got_zero) + collector_zero
+
+    # 🔴 ATTEMPTS ARE NOT BILLED CALLS, AND AS OF 2026-08-20 THEY ARE NOT EVEN CLOSE.
+    # Until that day every failed request was billed 4,220, so folding the collector's recorded
+    # attempt count into the billed-call partition was harmless. Then the vendor started returning
+    # `status: failed` and stalling in `Processing`, and BOTH cost nothing -- so the collector now
+    # records attempts that never moved the meter. Multiplying attempts by 4,220 over-counted spend
+    # by exactly one call the first time this ran after the change. The two quantities are reported
+    # side by side and never summed.
+    identified = len(got_data) + len(got_zero)
     unknown = n_calls - identified
-    zero_floor = (len(got_zero) + collector_zero) * HEATMAP_CREDITS
-    zero_ceiling = zero_floor + unknown * HEATMAP_CREDITS
-    print("   not individually identified:                    %d call%s (%s credits)"
+    print("   NOT individually attributable to an artefact:            %d call%s (%s credits)"
           % (unknown, "" if unknown == 1 else "s", format(unknown * HEATMAP_CREDITS, ",")))
-    print("      -- these sit in gaps between meter readings. The collector's Aug 18 and Aug 19")
-    print("         attempts predate its per-day attempt counter, so their count is not recorded.")
-    print("   credits that demonstrably bought no data:      %s of %s  (%.1f %%)"
+    print("      -- gaps between meter readings. The collector's 08-18 and 08-19 attempts predate")
+    print("         its per-day attempt counter, so their individual count is not recoverable.")
+    print()
+    print("   THE COLLECTOR'S OWN FAILURE RECORD -- attempts, which are NOT all billed:")
+    for dk, note in sorted(collector_failures.items()):
+        print("      %-24s %s" % (dk, note))
+    print("      %d recorded attempt(s) across %d day(s). At least one was UNBILLED: the"
+          % (collector_zero, len(collector_failures)))
+    print("      2026-08-20 stall cost 0 credits, so attempts x 4,220 is NOT a spend figure.")
+    print()
+    # The floor is what the meter can prove bought nothing; the ceiling assumes every
+    # unattributable call also failed. The truth is between, and the gap is named.
+    zero_floor = len(got_zero) * HEATMAP_CREDITS
+    zero_ceiling = zero_floor + unknown * HEATMAP_CREDITS
+    print("   credits PROVEN to have bought no data:        %s of %s  (%.1f %%)"
           % (format(zero_floor, ","), format(used, ","), 100.0 * zero_floor / used))
-    print("   upper bound if every unidentified call failed: %s of %s  (%.1f %%)"
+    print("   upper bound if every unattributable call failed: %s of %s  (%.1f %%)"
           % (format(zero_ceiling, ","), format(used, ","), 100.0 * zero_ceiling / used))
+    print("      The vendor record makes the ceiling far likelier than the floor: 08-18..08-20 the")
+    print("      forecast leg failed every single time it was tried.")
     print()
 
     print("4. THE UNBILLED CYCLE -- real calls, real data, meter frozen, not chargeable")
@@ -273,7 +300,9 @@ def main():
             "attributed_credits": attributed,
             "unattributed_credits": unattributed,
             "calls_returning_data": len(got_data),
-            "calls_returning_zero_tiles_evidenced": len(got_zero) + collector_zero,
+            "calls_returning_zero_tiles_meter_stamped": len(got_zero),
+            "collector_recorded_failed_attempts": collector_zero,
+            "collector_attempts_are_not_all_billed": True,
             "calls_not_individually_identified": unknown,
             "credits_that_bought_no_data_floor": zero_floor,
             "credits_that_bought_no_data_ceiling": zero_ceiling,

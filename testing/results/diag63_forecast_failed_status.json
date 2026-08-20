@@ -1,0 +1,115 @@
+{
+ "test": "DIAG-63 forecast failure status, with past-window control",
+ "authorised_by_user": "2026-08-20 (credits explicitly not a constraint)",
+ "api_calls_made": 2,
+ "site_tz": "America/New_York",
+ "site_now": "2026-08-20T07:11:56.242896-04:00",
+ "utc_now": "2026-08-20T11:11:56.247923+00:00",
+ "leg_a_forecast": {
+  "label": "LEG A  FORECAST (future window)",
+  "request_date_time": {
+   "start_date": "2026-08-20",
+   "start_time": "14:00",
+   "end_time": "16:00",
+   "filter_type": 2
+  },
+  "granularity": 60,
+  "analytic_type": "tcm",
+  "aoi_centre": [
+   39.01,
+   -77.446
+  ],
+  "side_km": 8.0,
+  "submit_http": 200,
+  "submit_response": {
+   "error": false,
+   "status_code": 200,
+   "message": "Heatmap Submitted Successfully",
+   "data": {
+    "activity_id": "f010f6e2-a311-48f7-990d-c6c554bb9686"
+   }
+  },
+  "activity_id": "f010f6e2-a311-48f7-990d-c6c554bb9686",
+  "polls": 45,
+  "elapsed_s": 425.0,
+  "distinct_statuses": [
+   "processing"
+  ],
+  "transitions": [
+   {
+    "at_s": 3.7,
+    "http": 200,
+    "status": "processing",
+    "payload": {
+     "error": false,
+     "status_code": 200,
+     "message": "Processing",
+     "data": {
+      "activity_id": "f010f6e2-a311-48f7-990d-c6c554bb9686",
+      "status": "Processing"
+     }
+    }
+   }
+  ],
+  "terminal": null
+ },
+ "leg_b_past_control": {
+  "label": "LEG B  CONTROL (past window)",
+  "request_date_time": {
+   "start_date": "2026-08-19",
+   "start_time": "14:00",
+   "end_time": "16:00",
+   "filter_type": 2
+  },
+  "granularity": 60,
+  "analytic_type": "tcm",
+  "aoi_centre": [
+   39.01,
+   -77.446
+  ],
+  "side_km": 8.0,
+  "submit_http": 200,
+  "submit_response": {
+   "error": false,
+   "status_code": 200,
+   "message": "Heatmap Submitted Successfully",
+   "data": {
+    "activity_id": "58ef42ba-10a9-46a8-8032-253b4b84cfa0"
+   }
+  },
+  "activity_id": "58ef42ba-10a9-46a8-8032-253b4b84cfa0",
+  "polls": 45,
+  "elapsed_s": 424.8,
+  "distinct_statuses": [
+   "processing"
+  ],
+  "transitions": [
+   {
+    "at_s": 3.3,
+    "http": 200,
+    "status": "processing",
+    "payload": {
+     "error": false,
+     "status_code": 200,
+     "message": "Processing",
+     "data": {
+      "activity_id": "58ef42ba-10a9-46a8-8032-253b4b84cfa0",
+      "status": "Processing"
+     }
+    }
+   }
+  ],
+  "terminal": null
+ },
+ "credits_before": 1945140,
+ "credits_after_leg_a": 1945140,
+ "credits_after": 1945140,
+ "leg_a_cost": 0,
+ "leg_b_cost": 0,
+ "forecast_ok": false,
+ "control_ok": false,
+ "verdict": "VENDOR-SIDE PROCESSING STALL, NOT A REJECTION AND NOT FORECAST-SPECIFIC. Both legs were ACCEPTED (HTTP 200 + activity_id), the status endpoint answered every poll, and both sat at `Processing` for the whole budget without ever reaching a terminal state. A PAST window -- which worked reliably through 08-19 -- stalls identically, so this is not the forecast path, the key, the plan, the quota, the AOI or the granularity. FortyGuard is accepting heatmap jobs and not completing them. Neither call was billed.",
+ "leg_a_classification": "stalled_in_processing",
+ "leg_b_classification": "stalled_in_processing",
+ "reclassified_note": "verdict recomputed 2026-08-20 from the SAVED record with the corrected classifier -- no additional API calls were made. The original run's verdict string said 'BOTH LEGS FAIL', which reads as a rejection; nothing was rejected."
+}

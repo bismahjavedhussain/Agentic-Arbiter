@@ -40,6 +40,7 @@ bound and must not be offered as if it did.
 """
 import json
 import os
+import shutil
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -230,10 +231,95 @@ def geom_path(name, k=None):
     return os.path.join(GEOM, name if kk == DEFAULT_METRO else "%s_%s" % (kk, name))
 
 
-# NOTE an `imagery_dir()` helper was written here for the screening step and removed again the same
-# hour: audit.py's dead-code check failed the build because nothing referenced it yet. That is the
-# check doing its job -- speculative helpers are how a tree accumulates functions no caller wants.
-# It goes back in when screen_architecture.py is actually made metro-aware.
+def imagery_dir(k=None):
+    """The screening-imagery directory for a metro.
+
+    Ashburn's frames sit at the ROOT of `data/imagery/screen` because it was screened before the
+    tree was metro-aware; every metro screened afterwards has a subdirectory. Same asymmetry as
+    `geom_path` and `demo_path`, and for the same reason -- the audited chain reads the unsuffixed
+    Ashburn names.
+
+    (A helper of this name was written and deleted on 2026-08-19 because nothing referenced it and
+    `audit.check_dead_code` correctly failed the build. It has a caller now: `committed_imagery`.)
+    """
+    kk = k or metro_key()
+    base = os.path.join(ROOT, "data", "imagery", "screen")
+    return base if kk == DEFAULT_METRO else os.path.join(base, kk)
+
+
+def committed_imagery(k, committed):
+    """The aerial frame for THIS site's committed pair, copied into demo/ and georeferenced.
+
+    WHY THIS EXISTS
+    ---------------
+    The demo's aerial panel carried three hardcoded Ashburn constants -- the image bbox and the two
+    OSM building centres -- so selecting Chicago or Dulles redrew ASHBURN'S imagery with ASHBURN'S
+    georeferencing, and the overlay for the other two sites was meaningless. The values were
+    verified to have been copied by hand out of Ashburn's own `screen_manifest.json`, so reading
+    them per-site from that manifest is provably identical for Ashburn and correct for the others.
+
+    WHAT IT RETURNS, AND THE BBOX ORDER TRAP
+    ----------------------------------------
+    `imagery.bbox` is **[lon_min, lat_min, lon_max, lat_max]** -- the ArcGIS export order, kept
+    verbatim from the screening manifest so it is never re-ordered in flight. NOTE that a site's
+    OTHER bbox field, `sites[].bbox`, is the metro CLUSTER extent in **[lat_min, lon_min, lat_max,
+    lon_max]**. Two bboxes, two orders, one letter of difference in the name; the field is called
+    `imagery.bbox` and documented here precisely because that is a trap.
+
+    `sources` lists only frames that EXIST. Dulles has no USGS frame, and that absence is
+    load-bearing: PLAN section 8o records that its imagery verdict fails the two-source rule, so the
+    picker must not offer a USGS option that would 404 and imply a cross-check nobody made.
+    """
+    if not committed:
+        return None
+    d = imagery_dir(k)
+    mp = os.path.join(d, "screen_manifest.json")
+    if not os.path.exists(mp):
+        return None
+    try:
+        man = json.load(open(mp, encoding="utf-8"))
+    except (ValueError, OSError):
+        return None
+
+    want = (committed.get("source_osm_id"), committed.get("receptor_osm_id"))
+    cand = next((c for c in man.get("candidates", [])
+                 if (c.get("source_osm_id"), c.get("receptor_osm_id")) == want), None)
+    if not cand or not cand.get("file"):
+        # The pair was committed but never screened as a FRAME -- possible, because the refusal
+        # ranking and the imagery screen are separate steps. Report the absence rather than
+        # falling back to another site's frame, which is the bug this function exists to kill.
+        return {"bbox": None, "sources": {}, "note":
+                "no screening frame matches the committed pair %s -> %s" % want}
+
+    out = {"candidate_file": cand["file"],
+           "bbox": cand.get("bbox"),
+           "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+           "source_latlon": cand.get("source_latlon"),
+           "receptor_latlon": cand.get("receptor_latlon"),
+           "resolution_note": man.get("caveat"),
+           "sources": {}}
+
+    # ESRI is the frame itself; USGS is the same pair re-exported from The National Map and is
+    # prefixed `usgs_`. Copy each into demo/ under a stable per-site name so the page loads a
+    # filename the manifest gave it rather than one it constructed.
+    for label, src_name in (("esri", cand["file"]), ("usgs", "usgs_" + cand["file"])):
+        src = os.path.join(d, src_name)
+        if not os.path.exists(src):
+            continue
+        dst_name = ("site_aerial.png" if label == "esri" else "site_aerial_usgs.png")
+        dst = demo_path(dst_name, k)
+        # Copy only when the bytes differ, so a rebuild does not rewrite 2.5 MB per site per run
+        # and git does not see a spurious change. `.gitattributes` marks *.png binary, so a
+        # rewritten-but-identical PNG would still be a no-op diff -- this is about build time.
+        need = True
+        if os.path.exists(dst) and os.path.getsize(dst) == os.path.getsize(src):
+            need = open(dst, "rb").read() != open(src, "rb").read()
+        if need:
+            shutil.copyfile(src, dst)
+        out["sources"][label] = os.path.basename(dst)
+
+    out["two_source_cross_check"] = len(out["sources"]) >= 2
+    return out
 
 
 def demo_path(name, k=None):
@@ -420,6 +506,11 @@ def export_manifest():
             "fortyguard_field": m["fortyguard_field"],
             "climate_note": m["climate_note"], "basis": m["basis"],
             "committed": committed,
+            # THE AERIAL FRAME FOR *THIS* SITE. The demo carried Ashburn's image bbox and both of
+            # Ashburn's OSM building centres as source-level constants, so every site drew
+            # Ashburn's imagery under its own name. Exported per site now; the page reads it and
+            # holds no coordinate of its own.
+            "imagery": committed_imagery(k, committed),
             "plume_field_file": pf if os.path.exists(os.path.join(demo, pf)) else None,
             # The per-site artefact filenames. Without these the page could only ever load
             # `trace.json`, which is why picking a site changed one panel out of thirteen.

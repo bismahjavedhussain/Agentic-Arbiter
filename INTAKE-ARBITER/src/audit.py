@@ -288,6 +288,33 @@ def _selftest_retired_detector():
               if not bad else "cases %s wrong" % bad)
 
 
+def check_duplicate_element_ids():
+    """NO id MAY APPEAR TWICE IN index.html, and this check exists because one did.
+
+    The plume panel carried a second `<select id="c_site">`, left over from the layout that
+    preceded the three-stage rebuild. Duplicate ids are not a validation nicety: `querySelector`
+    returns the FIRST match, so `buildSitePicker()` filled the stage-1 picker and this one sat
+    permanently EMPTY -- a "Data centre" dropdown with no options, under a heading, on every site.
+    Nothing threw, nothing 404'd, every cross-language test passed, and it was visible only by
+    looking at the page.
+
+    Ids inside HTML comments are excluded, because the fix for the real one left an explanatory
+    comment quoting the markup it removed.
+    """
+    print("\n2f. DUPLICATE ELEMENT IDS")
+    src = open(os.path.join(DEMO, "index.html"), encoding="utf-8").read()
+    # Strip comments first, or the commented-out markup that documents a removal re-triggers it.
+    stripped = re.sub(r"<!--.*?-->", "", src, flags=re.S)
+    ids = re.findall(r"""\sid=["']([^"']+)["']""", stripped)
+    seen, dupes = set(), []
+    for i in ids:
+        if i in seen and i not in dupes:
+            dupes.append(i)
+        seen.add(i)
+    ck("no element id is used twice", not dupes,
+       "%d ids, all unique" % len(ids) if not dupes else "DUPLICATED: " + ", ".join(dupes))
+
+
 def check_page_javascript_parses():
     """index.html's ONE inline script must actually parse.
 
@@ -915,12 +942,22 @@ def check_api_spend():
                                                format(u["spent"], ",")))
     # Classification must stay a partition: evidenced-with-data + evidenced-zero + unidentified
     # has to equal the call count, or the floor/ceiling either side of it means nothing.
-    ck("the call classification partitions the calls",
-       u["calls_returning_data"] + u["calls_returning_zero_tiles_evidenced"]
+    # The partition must be over METER-STAMPED calls only. It used to include the collector's
+    # recorded ATTEMPT count, which held while every failure was billed 4,220 -- and broke on
+    # 2026-08-20 when the vendor started failing for free, because an unbilled attempt was being
+    # counted against a billed-call total. It passed anyway: the unattributable bucket absorbed the
+    # error. A partition check that a miscount can satisfy is not checking the partition.
+    ck("the call classification partitions the BILLED calls",
+       u["calls_returning_data"] + u["calls_returning_zero_tiles_meter_stamped"]
        + u["calls_not_individually_identified"] == u["paid_calls"],
-       "%d with data + %d evidenced zero + %d unidentified = %d"
-       % (u["calls_returning_data"], u["calls_returning_zero_tiles_evidenced"],
+       "%d with data + %d meter-stamped zero + %d unattributable = %d"
+       % (u["calls_returning_data"], u["calls_returning_zero_tiles_meter_stamped"],
           u["calls_not_individually_identified"], u["paid_calls"]))
+    ck("collector attempts are reported apart from billed calls",
+       u.get("collector_attempts_are_not_all_billed") is True
+       and isinstance(u.get("collector_recorded_failed_attempts"), int),
+       "%d recorded attempts, not summed into the %d billed calls"
+       % (u.get("collector_recorded_failed_attempts", -1), u["paid_calls"]))
 
     # Now the documents. Every figure a reader can quote from API-USAGE.md is registered here.
     current = [format(u["spent"], ","), format(u["remaining"], ","),
@@ -1021,6 +1058,7 @@ def main():
     check_dead_code()
     check_nan_writers()
     check_css_comments()
+    check_duplicate_element_ids()
     check_plume_fields()
     check_page_javascript_parses()
     check_decision_precision()

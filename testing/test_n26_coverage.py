@@ -91,7 +91,14 @@ LEAD_SPREAD_WARN_H = 3.0
 # short-circuit before any call. They only spend after a failure, which is exactly when we want them.
 # This cap bounds the downside: during a multi-day outage the retries would otherwise burn
 # 3 x 4,220 per day forever. Three attempts is enough to clear a glitch and cheap enough to ignore.
-MAX_FORECAST_ATTEMPTS_PER_DAY = 3
+#
+# OVERRIDABLE FROM THE ENVIRONMENT, added 2026-08-20. The cap exists to bound a runaway loop, not
+# to ration credits -- and the two get confused. On a day when the vendor is faulty for hours, three
+# attempts inside a 5.5 h in-band window can all land inside the fault while the window is still
+# open, and the cap then throws away a recoverable pair to save 4,220 credits. A lost day-pair is
+# UNRECOVERABLE; 4,220 credits is 0.2 % of the plan. Set N26_MAX_ATTEMPTS to raise it deliberately;
+# the default stays conservative for the unattended scheduled runs.
+MAX_FORECAST_ATTEMPTS_PER_DAY = int(os.environ.get("N26_MAX_ATTEMPTS", "3"))
 MANIFEST = os.path.join(RESULTS, "n26_manifest.json")
 
 MIN_COVERAGE = 0.85            # P1

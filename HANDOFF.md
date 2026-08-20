@@ -6,7 +6,7 @@
 > **THE SIX THINGS THAT MATTER MOST, in order:**
 >
 > 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **15 steps, ~273 s, ZERO API
->    calls, 59 audit checks, 70 published numbers re-read from the files the code wrote.** Exits
+>    calls, 61 audit checks, 70 published numbers re-read from the files the code wrote.** Exits
 >    non-zero on any failure. **If it is not green, quote nothing.** Then
 >    `cd ../demo && python -m http.server 8000` and open `http://localhost:8000`.
 >    **`file://` will NOT work** — browsers block `fetch()`.
@@ -25,10 +25,22 @@
 > 6. **SESSION H IS THE ONLY SESSION LEFT AND IT CAN DISQUALIFY THE ENTRY.** Public repo,
 >    `fortyguard` as collaborator, live demo link, 2–5 min video — **none exist**. §9.1
 >    **TWO THINGS ONLY THE USER CAN DO:** lift rule 11 to go public, and record the video.
-> 7. 🔴 **THE FORECAST PATH IS NOT WORKING AND SPEND IS 30 % HIGHER THAN THIS FILE SAID.** The
->    collector has bought zero tiles three days running; real spend is **13 calls / 54,860 / 2.74 %**,
->    not the 10 / 42,200 / 2.11 % §12.2 carried. **§4.0 first, then §10 #93.** Both figures are now
->    re-derived by `audit.py` check 9, so neither can drift again.
+> 7. 🔴 **FORTYGUARD IS ACCEPTING HEATMAP JOBS AND NOT COMPLETING THEM — service-wide, not
+>    forecast-specific.** DIAG-63 (2026-08-20 10:57 UTC) sent a forecast leg **and a past-window
+>    control**; both returned HTTP 200 with an `activity_id`, then sat at `status: Processing` for
+>    **45 polls / 425 s** and never reached a terminal state. A past window is a shape that worked
+>    reliably through 08-19, so this is not the forecast path, the key, the plan, the quota, the AOI
+>    or the granularity. **Neither call was billed.** Read **§4.0**, then `testing/results/
+>    diag63_forecast_failed_status.json`.
+> 8. **SPEND IS 13 CALLS / 54,860 / 2.74 %**, not the 10 / 42,200 / 2.11 % §12.2 carried. Re-derived
+>    by `audit.py` check 9 from the meter, so it cannot drift again — **and it already caught my own
+>    ledger regressing (§10 #100).** ⚠ **Attempts ≠ billed calls since 08-20**: `status: failed` and
+>    a `Processing` stall are both **free**, so *attempts × 4,220* is no longer a spend figure
+>    (§10 #101).
+> 9. **THE PER-SITE REWORK IS UNDERWAY — Session 1 of 4 is done.** The aerial panel held three
+>    Ashburn coordinates as constants and drew **Chicago's halls on Ashburn's photograph** (§10 #98).
+>    **All 15 result panels now differ across all three sites**, verified by rendering each site and
+>    diffing panel by panel. **Sessions 2–4 build the LIVE agent** — see §9.2.
 
 ---
 
@@ -132,7 +144,7 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 | **Stage 7 explain** | `src/explain.py` — **1,336 explanations, 0 verification failures** |
 | **The reasoning tape** | `src/ticker.py` — seven-stage events, **30 templates and not one literal digit**, 1,002 hour-tapes verified. §6.9 |
 | **Conformal made visible** | The browser DERIVES the quantile: `cfQuantileIndex` / `cfSplit` mirror `conformal.py` and agree **exactly on 789 assertions**. §6.11 |
-| **Full-tree audit** | `src/audit.py` — **59 checks, 0 failures**, **70 published numbers** re-read from emitted files. Checks 9 and 10 re-read the SUBMISSION documents: the API spend ledger and every figure in the root `README.md` |
+| **Full-tree audit** | `src/audit.py` — **61 checks, 0 failures**, **70 published numbers** re-read from emitted files. Checks 9 and 10 re-read the SUBMISSION documents: the API spend ledger and every figure in the root `README.md` |
 | **Money, sourced** | `src/money.py` — **$/kWh and kW/ton BOTH SWEPT over published values**, 608 cells, nothing collapsed, **priced in each site's own state**. §6.12 |
 | **Per-site engine** | `src/build_sites.py` — every offerable site on **its own** weather, geometry, bound and tariff. §6.13 |
 | **Downloadable PDF** | `src/report.py` — a real 4-page PDF per site, **written without a PDF library** and verified by being read back. §6.15 |
@@ -152,7 +164,7 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 | Chicago FortyGuard field | **One past-window field.** Buys the spatial statistics + screen-zero visual, **NOT** a level offset (needs forecast + elapsed outcome = 2 calls) |
 | Santa Clara / Phoenix | Refused on **screened pairs**; 5 Santa Clara frames and both other Arizona clusters remain unscreened. "Strong indication", not proof |
 | `PLAN.md` | ✅ **BROUGHT CURRENT 2026-08-20.** New **§8n** (Sessions 4/0/A/C/D/F/G — the ladder, the present tense, the tape, the visible bound, money), **§8o** (B+E: three sites, two refusals), **§8p** (per-site engine, the three-stage UI, the hand-written PDF), **§12.8a** (the money citations). 🔴 **§7 and §9 were CORRECTED, not just extended** — §7 was still asserting the retracted *"+67 h/yr from recirculation alone"* and *"≈770 h/year"*, and §9 still claimed *"no dollar figure"*, *"one reference layout"* and *"no humidity gate"*. **2,047 lines** |
-| Repo size | The committed tree is **194 MB**, mostly screening imagery (`data/imagery/` is 22 PNGs at 2–4 MB) plus `scenarios.json` at 28.8 MB. Under every GitHub limit, but **Session H must decide what a public repo publishes** |
+| Repo size | ✅ **DECIDED: publish everything with a routing README (§9.1a).** Now **~204 MB** — `metros.py --manifest` copies each site's committed aerial frame into `demo/` (6 PNGs, **14 MB**), which is duplication of `data/imagery/screen/` **and is necessary**: the demo is served with `demo/` as the document root, so `../data/...` is unreachable by `fetch()`. Only the committed pairs' frames are copied, not all 22 candidates. Under every GitHub limit |
 
 ## 3.3 NOT BUILT
 
@@ -1050,6 +1062,15 @@ container**. Last verified: **zero overflow at 390, 768 and 1280 px, both themes
 
 ## 8.1a 🔴 A PLAIN SCREENSHOT ONLY EVER SEES THE PICK STAGE — drive it
 
+⚠ **REGENERATE `_shot_results.html` IN THE SAME COMMAND THAT SHOOTS IT (§10 #102).** It is a COPY of
+`index.html`, so it goes stale the moment the page is edited — twice it reported a newly added
+element as `MISSING` when the element was fine and the driver was old.
+
+⚠ **`?site=chicago` is how you check the per-site work.** Comparing the three sites' rendered
+panels is what found the aerial-imagery bug (§10 #98) and the empty dropdown (§10 #99); all 15
+result panels now differ across all three sites, verified by dumping each and diffing panel by
+panel.
+
 Since the three-stage rebuild (§6.14), `boot()` lands on **pick**. The worth box, the download
 button, the tape and every proof panel are `hidden` until two clicks happen, so the §8.1 command
 photographs a site picker and a map and nothing else. **Both button bugs lived in the results
@@ -1200,6 +1221,72 @@ show nothing but a red error.**
 **Two things only the user can do:**
 1. **Send the REWRITTEN FortyGuard message** — §4.3. The drafted one is superseded.
 2. **Lift rule 11** so the repo can go public. **This is a hard submission requirement.**
+
+---
+
+## 9.2 🔴 THE PER-SITE / LIVE-AGENT REWORK — four sessions, requested by the user 2026-08-20
+
+**The user's three faults, verbatim in effect:** (1) the aerial panel showed Ashburn for every site,
+and *"when the agent is run, it generates all the results specific to that particular data centre"*;
+(2) *"it says that there are 0 live API calls, how is it an agent if it doesnt make any live API
+calls?"* — they want a prediction from **now**, live, with the conformal bound applied to it;
+(3) *"every number, value should be for that specific site. Dont give the same output for all sites
+and dont use hardcoded values."* **Credits are explicitly NOT a constraint** — *"we can get them as
+much as we can"*.
+
+### 9.2a ✅ SESSION 1 — DONE. Per-site truth at the render level
+
+See PLAN §8q and §10 #98–#102. `metros.committed_imagery()` exports per-site imagery; the aerial
+panel, the four Ashburn-named sentences, the wind-dial station and the ladder heading are all written
+from `SITE`/`T`; a duplicate `id="c_site"` that made one dropdown permanently empty is gone;
+`audit.check_duplicate_element_ids()` (check 2f) guards it. **All 15 result panels differ across all
+three sites.**
+
+### 9.2b ☐ SESSION 2 — the live agent, server side
+
+`src/live.py`: for the SELECTED site, perceive **now → +12 h** and decide.
+
+| Input | Source | Note |
+|---|---|---|
+| Ambient forecast trajectory | **FortyGuard `/v1/heatmap`, live**, this site's own AOI | The site's own tile, not a metro average |
+| Wind bearing + speed | **NWS `api.weather.gov`, live, free, keyless** | FortyGuard has no wind field — confirmed from their OpenAPI spec. This is already the project's approach for the five-year record |
+| Rise per bearing/speed | **this site's own solved rise table** | The physics is precomputed per bearing; a lookup is the same solve, not an approximation |
+| Margin | **per-lead conformal quantile from measured residuals** | 12 leads exist in `rolling.json`. ⚠ Coverage is Ashburn's for any site without its own day-pairs, and the panel must say so |
+| Schedule | the same DP under switch budget + dwell | so the live path and the backtest cannot disagree by construction |
+
+**Emit the same JSON shape as `trace.json`** so the UI needs no second renderer — that is the single
+most important design decision here, because a parallel live-only renderer would drift from the
+verified one within a day.
+
+🔴 **HONEST DEGRADATION IS A HARD REQUIREMENT, and today is the test case.** The vendor is currently
+accepting jobs and never completing them (§4.0). The live path must surface *"the vendor accepted the
+job and has not answered in N s, activity_id X"* and **must never fabricate, interpolate or silently
+fall back to a saved field while presenting it as live.** Reuse DIAG-63's classifier: `ok` /
+`completed_but_empty` / `terminal_failed` / `stalled_in_processing` are four different messages.
+
+**Verified with ZERO API calls** by replaying the saved fixtures through the same chain, so
+`run_all.py` stays offline and deterministic.
+
+### 9.2c ☐ SESSION 3 — the live agent, browser side
+
+`src/serve_live.py` serves `demo/` **and** `POST /api/live/<site>`. **The key stays server-side and
+never reaches the browser** — a static page cannot hold an API key, and that is the one hard
+architectural constraint in this task. GitHub Pages keeps working as the REPLAY-only deployment.
+
+UI: an explicit **LIVE / REPLAY** mode with an "as of HH:MM" stamp and a live call counter. **Replace
+the blanket "0 live API calls" line** with a precise two-mode statement — the current wording is what
+prompted the user's question, and it undersells the design rather than describing it.
+
+### 9.2d ☐ SESSION 4 — autonomy, recovery, verification, docs
+
+Collector hardened for all three failure modes (`empty` / `failed` / `stall`); a health watcher that
+detects vendor recovery and banks the pair automatically; the **render-level cross-site panel diff
+made a permanent check** rather than the one-off script that found #98 and #99; `run_all`/`audit`
+extended; PLAN/HANDOFF/README/API-USAGE brought current.
+
+⚠ **`N26_MAX_ATTEMPTS` now overrides the daily cap** (default still 3). The cap exists to bound a
+runaway loop, not to ration credits, and on 08-20 it threw away a still-recoverable pair to save
+4,220 — a lost day-pair is unrecoverable, 4,220 credits is 0.2 % of the plan.
 
 ---
 
@@ -1544,6 +1631,46 @@ show nothing but a red error.**
     doing the work the arithmetic should have done. (3) **Being wrong in your own favour is still
     being wrong**, and this project has now been wrong in both directions.
     **Running tally: checks wrong 13, product wrong 14.**
+
+## New 2026-08-20, Session 1 of the per-site/live rework
+
+98. 🔴 **THE AERIAL PANEL HELD THREE ASHBURN COORDINATES AS SOURCE-LEVEL CONSTANTS, AND THE
+    OVERLAY IT DREW FOR THE OTHER TWO SITES WAS MEANINGLESS.** `SITE_BBOX`, `OSM_SRC`, `OSM_REC`.
+    The footprint rings on top came from `T.site.geometry`, which IS per-site -- so selecting Chicago
+    georeferenced **Chicago's halls onto Ashburn's photograph** through Ashburn's anchor. The panel
+    looked entirely plausible, which is why it survived the per-site session that fixed twelve other
+    panels. **The generalisable form: a panel is only per-site if EVERY input is per-site. Mixing
+    one site's data with another's frame of reference produces a picture that is wrong in a way no
+    reader can detect.** Fixed by `metros.committed_imagery()`, which reads the values from each
+    metro's own `screen_manifest.json` -- and the frames for all three committed pairs were already
+    on disk, so this was plumbing, not new data. Ashburn's manifest values are byte-identical to the
+    constants they replace, so the change is provably a no-op there.
+99. **A `<select id="c_site">` EXISTED TWICE, SO ONE OF THEM WAS PERMANENTLY EMPTY.**
+    `querySelector` returns the FIRST match, so `buildSitePicker()` filled the stage-1 picker and
+    the plume panel's copy -- a leftover from the layout before the three-stage rebuild -- rendered
+    as a **"Data centre" dropdown with no options, on every site.** Nothing threw, nothing 404'd,
+    every cross-language test passed. **`audit.check_duplicate_element_ids()` (check 2f) now fails
+    the build on any repeated id**; the page has 96 and they are unique. Same family as #83 and #86:
+    a defect that is invisible to every automated check and obvious in a screenshot.
+100. 🔴 **MY OWN SPEND LEDGER LOST THREE CALLS THE SAME DAY I WROTE IT, BECAUSE IT TRUSTED A
+    MUTABLE SINGLE-SLOT FIELD.** `api_usage_ledger.py` took the lowest meter reading among
+    observations with `spent > 0`. `n26_manifest.json` keeps only the LAST meter pair it saw; when
+    an **unbilled** call overwrote that slot (the 08-20 stall cost 0), the observation stopped
+    satisfying `spent > 0`, dropped out, and the reported total fell **54,860 -> 42,200 -- the exact
+    stale figure the script was written to prevent.** `audit.py` check 9 caught it within minutes.
+    **A meter reading is evidence of cumulative spend whether or not the call that took it was
+    billed. Never derive a running total from a field that gets overwritten.**
+101. 🔴 **"ATTEMPTS" AND "BILLED CALLS" WERE INTERCHANGEABLE UNTIL 2026-08-20, AND THEN THEY
+    WERE NOT.** Every failed request used to cost 4,220, so folding the collector's attempt counter
+    into the billed-call partition was harmless. The vendor then started returning `status: failed`
+    and stalling in `Processing` -- **both unbilled** -- so attempts x 4,220 stopped being a spend
+    figure and over-counted by exactly one call. **The partition check PASSED anyway**, because the
+    unattributable bucket absorbed the error: *a partition check that a miscount can satisfy is not
+    checking the partition.* Now reported side by side and never summed.
+102. **A `_shot_results.html` DRIVER COPY GOES STALE THE MOMENT `index.html` IS EDITED.** Two
+    verification runs reported a newly added element as `MISSING` because the driver was a snapshot
+    taken before the edit. **Regenerate the driver in the same command that shoots it** -- see
+    section 8.1a.
 
 ## Carried forward, continued
 

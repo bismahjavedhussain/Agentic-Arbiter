@@ -44,6 +44,30 @@
     "facade_gap_m": 60.3,
     "centroid_separation_m": 165.5
    },
+   "imagery": {
+    "candidate_file": "02_744496750_744496741.png",
+    "bbox": [
+     -77.421534,
+     39.022563999999996,
+     -77.417849,
+     39.025469
+    ],
+    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+    "source_latlon": [
+     39.024569,
+     -77.420334
+    ],
+    "receptor_latlon": [
+     39.023464,
+     -77.419049
+    ],
+    "resolution_note": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+    "sources": {
+     "esri": "site_aerial.png",
+     "usgs": "site_aerial_usgs.png"
+    },
+    "two_source_cross_check": true
+   },
    "plume_field_file": "plume_field_ashburn_longest.json",
    "artefacts": {
     "trace": "trace.json",
@@ -119,6 +143,29 @@
     "facade_gap_m": 118.4,
     "centroid_separation_m": 319.4
    },
+   "imagery": {
+    "candidate_file": "01_863162820_377032061.png",
+    "bbox": [
+     -87.959212,
+     41.998309,
+     -87.95399400000001,
+     42.002073
+    ],
+    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+    "source_latlon": [
+     41.999209,
+     -87.958012
+    ],
+    "receptor_latlon": [
+     42.001173,
+     -87.955194
+    ],
+    "resolution_note": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+    "sources": {
+     "esri": "chicago_site_aerial.png"
+    },
+    "two_source_cross_check": false
+   },
    "plume_field_file": "plume_field_chicago_longest.json",
    "artefacts": {
     "trace": "chicago_trace.json",
@@ -183,6 +230,29 @@
     ],
     "facade_gap_m": 137.7,
     "centroid_separation_m": 187.9
+   },
+   "imagery": {
+    "candidate_file": "04_693381107_545396372.png",
+    "bbox": [
+     -77.522835,
+     38.947268,
+     -77.518626,
+     38.950004
+    ],
+    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+    "source_latlon": [
+     38.948168,
+     -77.521635
+    ],
+    "receptor_latlon": [
+     38.949104,
+     -77.519826
+    ],
+    "resolution_note": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+    "sources": {
+     "esri": "dulles_site_aerial.png"
+    },
+    "two_source_cross_check": false
    },
    "plume_field_file": "plume_field_dulles_longest.json",
    "artefacts": {
@@ -269,6 +339,29 @@
     "facade_gap_m": 448.1,
     "centroid_separation_m": 626.3
    },
+   "imagery": {
+    "candidate_file": "01_1456975947_1456975949.png",
+    "bbox": [
+     -111.63374499999999,
+     33.346399,
+     -111.624604,
+     33.348221
+    ],
+    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+    "source_latlon": [
+     33.347299,
+     -111.632545
+    ],
+    "receptor_latlon": [
+     33.347321,
+     -111.625804
+    ],
+    "resolution_note": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+    "sources": {
+     "esri": "phoenix_site_aerial.png"
+    },
+    "two_source_cross_check": false
+   },
    "plume_field_file": null,
    "artefacts": {},
    "has_own_fortyguard_field": false,
@@ -324,6 +417,29 @@
     ],
     "facade_gap_m": 350.4,
     "centroid_separation_m": 502.9
+   },
+   "imagery": {
+    "candidate_file": "01_1314010354_1075445245.png",
+    "bbox": [
+     -121.94777599999999,
+     37.360205,
+     -121.94098,
+     37.364876
+    ],
+    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+    "source_latlon": [
+     37.363976,
+     -121.946576
+    ],
+    "receptor_latlon": [
+     37.361105,
+     -121.94218
+    ],
+    "resolution_note": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+    "sources": {
+     "esri": "santaclara_site_aerial.png"
+    },
+    "two_source_cross_check": false
    },
    "plume_field_file": null,
    "artefacts": {},
