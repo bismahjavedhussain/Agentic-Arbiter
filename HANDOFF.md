@@ -1905,6 +1905,25 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
     reading was *"the fix did not work"* — it had; the process was 48 minutes stale.
     `/api/health` now reports `code_loaded_utc`, `code_on_disk_utc` and `code_is_stale`, and the
     page shows a red banner instead of leaving anyone to compare timestamps by hand.
+114. 🔴 **TWELVE SEQUENTIAL WAITS WHEN THE VENDOR'S API IS SUBMIT-THEN-POLL.** The user
+    screenshotted a live run apparently frozen after *"hour 2 of 12 … [cached]"*. It was not frozen:
+    hours 1–2 came from cache in 3.3 s and hour 3 was polling, alone, for up to **POLL_MAX_S = 300 s**
+    — with **ten uncached windows that is a 50-minute worst case**, one window at a time.
+    FortyGuard's heatmap API is **asynchronous by design**: submit returns an `activity_id` in about
+    a second and polling is free. Fetching windows one at a time throws that away.
+    `perceive_ambient()` now settles every free window first, **submits all outstanding windows
+    together**, and polls them in **one loop**, so a run is bounded by ONE poll window instead of
+    twelve. Measured: 3 uncached windows resolved in a **single 297.7 s wait** where sequentially
+    they would have taken 900 s; a 12-hour horizon drops from ~50 min to ~5.
+115. 🔴 **THE PROGRESS HOOK ONLY FIRED WHEN A WINDOW RESOLVED, SO A 300 s WAIT WAS TOTAL
+    SILENCE.** `live.py` carried a comment saying the hook existed because *"a browser showing a
+    dead spinner for ten minutes is indistinguishable from a broken page"* — and then placed the
+    hook where it could not prevent exactly that. **A comment describing an intention is not the
+    same as code that implements it.** The poll loop now heartbeats every cycle with elapsed seconds
+    and the outstanding count (25 heartbeats over that 297.7 s wait), and the UI collapses them into
+    **one row that updates in place** rather than stacking dozens of identical lines and burying the
+    real stage events.
+
 113. **A WARNING ABOUT A PROBLEM THE MACHINE COULD FIX ITSELF IS A WORKAROUND, NOT A FIX.** #111
     added `code_is_stale` to `/api/health` and a red banner, which was correct as far as it went --
     and it put the work on the operator: every edit meant noticing the banner and restarting by
@@ -1978,8 +1997,8 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **109,720 = 26 calls = 5.49 %.** Remaining **1,890,280**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
-| **⚠ Of that, 42,200 PROVABLY bought nothing** | **38.5 %** of spend. Ceiling **84,400 = 76.9 %**. §10 #93 |
+| **Spent to date** | 🔴 **130,820 = 31 calls = 6.54 %.** Remaining **1,869,180**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
+| **⚠ Of that, 54,860 PROVABLY bought nothing** | **41.9 %** of spend. Ceiling **105,500 = 80.6 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |

@@ -2227,10 +2227,13 @@ function drawLiveCost(){
   const el = $('#livecost'); if(!el || !HEALTH) return;
   const h = 12;
   el.innerHTML = HEALTH.live_available
-    ? h + ' hourly windows &times; ' + int(HEALTH.credits_per_call) + ' credits = <strong>'
-      + int(h * HEALTH.credits_per_call) + '</strong>. The vendor caps '
-      + int(HEALTH.daily_vendor_cap) + ' heatmaps/day, so that is the binding limit, not credits. '
-      + 'Cached windows cost nothing.'
+    ? 'Up to ' + h + ' hourly windows &times; ' + int(HEALTH.credits_per_call) + ' credits = '
+      + '<strong>' + int(h * HEALTH.credits_per_call) + '</strong> if none are cached. '
+      + int(HEALTH.live_calls_made) + ' of ' + int(HEALTH.max_live_calls) + ' calls used by this '
+      + 'server so far; the vendor caps ' + int(HEALTH.daily_vendor_cap) + ' heatmaps/day, so that '
+      + 'is the binding limit rather than credits. <strong>Cached windows cost nothing and are '
+      + 'byte-identical</strong> (N-55). Windows are submitted together and polled in one wait, so '
+      + 'expect up to a few minutes rather than a few minutes per hour.'
     : 'This will return a <strong>costed dry run</strong>: what it would fetch, and for how much. '
       + 'Nothing is called.';
 }
@@ -2239,6 +2242,24 @@ function drawLiveCost(){
    the same seven stages, just perceiving hours that have not happened yet. */
 function liveStreamRow(ev){
   const el = $('#livestream'); if(!el) return;
+  /* A HEARTBEAT REPLACES ITSELF INSTEAD OF STACKING. While the vendor is thinking, one row updates
+     in place with the elapsed time and how many windows are still outstanding -- so a long wait
+     reads as WAITING rather than as a hung page. Appending would produce dozens of identical rows
+     and bury the real stage events. */
+  if(ev.waiting){
+    let hb = $('#livehb');
+    if(!hb){
+      hb = document.createElement('div');
+      hb.id = 'livehb'; hb.className = 'ev live';
+      el.appendChild(hb);
+    }
+    hb.innerHTML = '<span class="dot"></span><span class="st">WAITING</span>'
+      + '<span class="ph">' + ev.note + ' &mdash; <strong>' + fmt(ev.elapsed_s,0) + ' s</strong>'
+      + ' of a ' + int(ev.budget_s) + ' s budget. FortyGuard accepts a job and answers when it is '
+      + 'ready; this is the wait, not a hang.</span>';
+    return;
+  }
+  const hb = $('#livehb'); if(hb) hb.remove();   /* a real event supersedes the heartbeat */
   const d = document.createElement('div');
   d.className = 'ev live';
   let txt = ev.note || '';

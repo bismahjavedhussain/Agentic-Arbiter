@@ -20,10 +20,10 @@ evidence without a test failing.
 | | |
 |---|---|
 | Plan | **`Hackathon`**, issued **2,000,000** credits, active 2026-08-18 → 2026-09-22 |
-| **Paid calls made** | **26** |
-| **Credits spent** | **109,720** |
-| **Share of the plan used** | **5.49 %** |
-| Credits remaining | **1,890,280** |
+| **Paid calls made** | **31** |
+| **Credits spent** | **130,820** |
+| **Share of the plan used** | **6.54 %** |
+| Credits remaining | **1,869,180** |
 | Calls at demo view time | **0 in REPLAY** (the default, and what a static host serves). **LIVE mode calls one heatmap per forecast hour** — see §6 |
 
 Thirteen calls is a deliberately small number, and it is small for two reasons that pull in
@@ -60,13 +60,13 @@ readings.
 | `GET /v1/status/{activity_id}` | **free** | unchanged meter across 59 polls | Polling a submitted activity to completion |
 | `POST /v1/system/fetch-api-key-usage` | **free** | unchanged meter | The meter itself — which is what makes this ledger possible |
 
-**All 26 paid calls on this plan were `/v1/heatmap`.** That is not an assumption: 109,720 ÷ 4,220 =
-**26 exactly**, with no remainder, and a single `env_params` call at 2,900 would have made the
+**All 31 paid calls on this plan were `/v1/heatmap`.** That is not an assumption: 130,820 ÷ 4,220 =
+**31 exactly**, with no remainder, and a single `env_params` call at 2,900 would have made the
 division impossible.
 
 ---
 
-## 3. The 26 calls, itemised
+## 3. The 31 calls, itemised
 
 Five calls saved a before/after meter pair and so are individually named. The rest are visible as
 gaps between readings and are counted, not named — the distinction is kept because *"11 of 13 calls
@@ -85,11 +85,11 @@ Classified by what the artefacts record:
 | | Calls | Credits |
 |---|---|---|
 | Returned a populated field, tile count saved | **6** | 25,320 |
-| Returned `completed` with **zero** features, individually attributed | **10** | 42,200 |
-| Not individually attributable — a gap between two readings | **10** | 42,200 |
+| Returned `completed` with **zero** features, individually attributed | **13** | 54,860 |
+| Not individually attributable — a gap between two readings | **12** | 50,640 |
 
-So **38.5 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
-call also failed — is **76.9 %**. The vendor record makes the ceiling far likelier than the floor:
+So **41.9 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
+call also failed — is **80.6 %**. The vendor record makes the ceiling far likelier than the floor:
 across 08-18…08-20 the forecast leg failed **every single time it was tried.** The collector's
 08-18 and 08-19 attempts predate the per-day attempt counter it gained on 08-19, which is why their
 individual count is not recoverable and is not claimed.

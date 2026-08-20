@@ -111,6 +111,34 @@
    "api_calls_made": 0,
    "cache_hits": 2,
    "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-20T11:00:00-04:00",
+   "utc": "2026-08-20T14:54:04.068855+00:00",
+   "metro": "ashburn",
+   "horizon_h": 5,
+   "status": null,
+   "credits_before": 1881840,
+   "credits_after": 1869180,
+   "api_calls_made": 3,
+   "cache_hits": 2,
+   "windows": [
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "0c66bdc5-9d14-48cd-bd9e-f27b82c40e66"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "84daa10d-0f2c-4cdd-ba77-dc07614e9650"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "f9226317-5c5e-4d47-8089-5880e8f61b36"
+    }
+   ]
   }
  ]
 }

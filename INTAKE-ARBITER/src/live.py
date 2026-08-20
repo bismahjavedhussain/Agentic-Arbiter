@@ -258,28 +258,25 @@ def cache_path(metro, dt_fields):
     return os.path.join(d, nm)
 
 
-def fetch_window(key, aoi, dt_fields, metro, allow_paid, want_latlon, replay=None):
-    """One heatmap window -> the value at the site's own tile, or a vendor-state record.
+def resolve_without_network(dt_fields, metro, want_latlon, replay, allow_paid):
+    """Replay, cache, or refuse -- everything that needs no network.
 
-    Returns (value_c, record). `value_c is None` means no data, and `record["class"]` says why.
-    A cache hit costs nothing and is byte-identical to a fresh call (N-55).
+    Returns `(value, rec)` when the window is settled here, or `(None, None)` meaning **the caller
+    must submit it**. Split out of `fetch_window` so the batch path can settle every free window
+    first and then submit only what is genuinely outstanding.
     """
     # ---- REPLAY: a saved REAL FortyGuard response, used to verify the decide path offline.
     # 🔴 THIS IS NOT A FALLBACK AND MUST NEVER BECOME ONE. It is reachable only when a caller
     # passes `replay=` explicitly, it never fires because a live call failed, and every output it
-    # produces is stamped `mode: replay-verification` plus a `NOT_LIVE` banner. The reason to be
-    # this careful: the difference between a test harness and a lie is whether the artefact can be
-    # mistaken for the real thing, and a silent cache-seed would have been exactly that.
+    # produces is stamped `mode: replay-verification` plus a `NOT_LIVE` banner. The difference
+    # between a test harness and a lie is whether the artefact can be mistaken for the real thing.
     if replay:
         res = json.load(open(replay, encoding="utf-8"))
         res = res.get("result", res)
         tile, dist = A.nearest_tile(res, want_latlon[0], want_latlon[1])
-        # 🔴 A FIXTURE FROM ANOTHER METRO IS NOT A VALID REPLAY, and `nearest_tile` will not
-        # tell you: it returns the closest tile it has, so replaying Ashburn's field for Chicago
-        # silently picks an Ashburn EDGE tile ~900 km from the plant and reports a temperature for
-        # it. That is precisely the "one site's data wearing another site's label" fault this whole
-        # rework exists to remove, so the distance is checked rather than assumed. A real live call
-        # builds the AOI around the site's own centre, so its distance is always tens of metres.
+        # 🔴 A FIXTURE FROM ANOTHER METRO IS NOT A VALID REPLAY, and `nearest_tile` will not tell
+        # you: it returns the closest tile it HAS, so replaying Ashburn's field for Chicago picks an
+        # Ashburn edge tile ~900 km from the plant. Dulles is the dangerous case at 4 km.
         if dist > MAX_TILE_DIST_M:
             return None, {"source": "replay-fixture", "class": "fixture_wrong_metro",
                           "fixture": os.path.basename(replay),
@@ -308,20 +305,24 @@ def fetch_window(key, aoi, dt_fields, metro, allow_paid, want_latlon, replay=Non
             pass          # a corrupt cache entry is not a reason to fail; re-fetch it
 
     if not allow_paid:
-        # 🔴 "NOT ATTEMPTED" IS OUR DECISION, NOT THE VENDOR'S FAILURE, and conflating the two
-        # produced the worst output this project has emitted. A run with 3 cached hours and 9
-        # never-requested ones was reported as a live decision -- "Decided at 09:55 ... 0 live
-        # calls" -- with all nine unrequested hours scheduled MECHANICAL, as though the agent had
-        # looked and found nothing. It had not looked. `no_data_reason` travels with the record so
-        # no downstream summary can lose the distinction.
+        # 🔴 "NOT ATTEMPTED" IS OUR DECISION, NOT THE VENDOR'S FAILURE. Conflating the two produced
+        # the worst output this project has emitted -- nine never-requested hours published as a
+        # live decision. `no_data_reason` travels with the record so no summary can lose it.
         return None, {"source": "would-call", "class": "not_attempted",
                       "no_data_reason": "this run was not permitted to spend",
                       "credits_if_called": HEATMAP_CREDITS}
+    return None, None                      # caller must submit this one
 
+
+def submit_window(key, aoi, dt_fields):
+    """POST one heatmap request. Returns a record carrying `activity_id`, or a failure class.
+
+    Submitting is fast (about a second); it is the POLLING that takes minutes. Separating the two is
+    what lets a 12-hour horizon be one wait instead of twelve.
+    """
     payload = {"polygon_aoi": aoi, "granularity": GRAN, "analytic_type": ANALYTIC,
                "date_time": dt_fields}
-    rec = {"source": "live", "window": dt_fields}
-    t0 = time.time()
+    rec = {"source": "live", "window": dt_fields, "submitted_at": time.time()}
     try:
         req = urllib.request.Request("%s/heatmap" % V1, data=json.dumps(payload).encode(),
                                      headers={"api-key": key, "Content-Type": "application/json"})
@@ -331,62 +332,160 @@ def fetch_window(key, aoi, dt_fields, metro, allow_paid, want_latlon, replay=Non
         rec.update({"submit_http": e.code,
                     "submit_error_body": e.read().decode("utf-8", "replace")[:400]})
         rec["class"] = classify_vendor(rec)
-        return None, rec
+        return rec
     except Exception as e:
         rec.update({"submit_http": None, "submit_exception": str(e)[:300]})
         rec["class"] = classify_vendor(rec)
-        return None, rec
-
-    aid = (resp.get("data") or {}).get("activity_id")
-    rec["activity_id"] = aid
-    if not aid:
+        return rec
+    rec["activity_id"] = (resp.get("data") or {}).get("activity_id")
+    if not rec["activity_id"]:
         rec["class"] = classify_vendor(rec)
-        return None, rec
+    return rec
 
-    seen, polls, terminal, result = set(), 0, None, None
-    while time.time() - t0 < POLL_MAX_S:
-        polls += 1
-        try:
-            r = urllib.request.urlopen(urllib.request.Request(
-                "%s/status/%s" % (V1, aid), headers={"api-key": key}), timeout=90)
-            jd = json.loads(r.read())
-        except Exception:
-            time.sleep(POLL_WAIT_S)
+
+def read_status(key, aid):
+    """One free status poll. Returns (status_string, result_dict_or_None), or (None, None)."""
+    try:
+        r = urllib.request.urlopen(urllib.request.Request(
+            "%s/status/%s" % (V1, aid), headers={"api-key": key}), timeout=90)
+        jd = json.loads(r.read())
+    except Exception:
+        return None, None
+    st = str((jd.get("data") or {}).get("status") or jd.get("message") or "?").lower()
+    return st, ((jd.get("data") or {}).get("result") or None)
+
+
+def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, max_calls,
+                     on_progress):
+    """Every window's ambient value: free ones first, then submit the rest and POLL THEM TOGETHER.
+
+    🔴 WHY THIS IS A BATCH AND NOT A LOOP. It used to fetch windows one at a time, each waiting up
+    to POLL_MAX_S for the vendor. With 10 uncached windows that is a worst case of **50 minutes**,
+    and the user watched it apparently hang after hour 2. FortyGuard's own API is submit-then-poll,
+    which is inherently parallel: submitting all outstanding windows first and then polling them in
+    one loop makes the whole run bounded by ONE poll window rather than twelve.
+
+    🔴 AND IT REPORTS WHILE IT WAITS. The progress hook used to fire only when a window RESOLVED, so
+    a 300 s wait produced total silence -- the exact "dead spinner indistinguishable from a broken
+    page" this module's comments claimed the hook prevented. It now emits a heartbeat every poll
+    cycle carrying elapsed seconds and how many windows are still outstanding.
+    """
+    n = len(plan_w)
+    temps = [None] * n
+    recs = [None] * n
+    pending = {}
+    budget = max_calls if max_calls is not None else 10 ** 6
+
+    # ---- 1. everything that costs nothing, first. A cached window must never consume a budget.
+    for i, pw in enumerate(plan_w):
+        v, rec = resolve_without_network(pw["window"], metro, want_latlon, replay, allow_paid)
+        if rec is not None:
+            temps[i], recs[i] = v, rec
+            if on_progress:
+                on_progress({"stage": "perceive", "hour_index": i, "of_hours": n,
+                             "window": pw["window"], "value_c": v,
+                             "class": rec.get("class"), "source": rec.get("source")})
             continue
-        st = str((jd.get("data") or {}).get("status") or jd.get("message") or "?").lower()
-        seen.add(st)
-        if st == "completed":
-            res = (jd.get("data") or {}).get("result") or {}
-            feats = (res.get("map_data") or {}).get("features")
-            if feats:
-                terminal, result = "completed", res
-                break
-            terminal = "completed"          # complete-but-empty: keep polling, per FortyGuard
-            time.sleep(POLL_WAIT_S)
+        if budget <= 0:
+            recs[i] = {"source": "would-call", "class": "not_attempted",
+                       "no_data_reason": "this run's %d-call budget was spent" % max_calls}
+            if on_progress:
+                on_progress({"stage": "perceive", "hour_index": i, "of_hours": n,
+                             "window": pw["window"], "value_c": None,
+                             "class": "not_attempted", "source": "would-call"})
             continue
-        if st in ("failed", "error", "cancelled", "canceled", "expired"):
-            terminal = st
-            break
-        time.sleep(POLL_WAIT_S)
+        pending[i] = pw
+        budget -= 1
 
-    rec.update({"polls": polls, "elapsed_s": round(time.time() - t0, 1),
-                "statuses_seen": sorted(seen), "terminal_status": terminal,
-                "tiles": len((result or {}).get("map_data", {}).get("features") or [])
-                if result else 0})
-    rec["class"] = classify_vendor(rec)
-    if rec["class"] != "ok":
-        return None, rec
+    if not pending:
+        return temps, recs
 
-    # allow_nan=False, and not as a formality: `NaN` is legal Python JSON and ILLEGAL standard
-    # JSON, so a cached field carrying one would load fine here and kill the browser silently
-    # (audit check 2). If FortyGuard ever returns a non-finite value, this raises at write time --
-    # which is where a bad value should stop, not three stages downstream.
-    json.dump({"result": result, "window": dt_fields, "granularity": GRAN,
-               "analytic_type": ANALYTIC, "fetched_utc": _utcnow().isoformat()},
-              open(cp, "w", encoding="utf-8"), default=str, allow_nan=False)
-    tile, dist = A.nearest_tile(result, want_latlon[0], want_latlon[1])
-    rec["tile_dist_m"] = round(dist, 1)
-    return tile[2], rec
+    # ---- 2. submit them all. Fast, and it is what makes the wait shared.
+    if on_progress:
+        on_progress({"stage": "perceive",
+                     "note": "submitting %d window%s to FortyGuard" % (len(pending),
+                                                                       "" if len(pending) == 1
+                                                                       else "s")})
+    outstanding = {}
+    for i, pw in pending.items():
+        rec = submit_window(key, aoi, pw["window"])
+        recs[i] = rec
+        if rec.get("activity_id"):
+            rec.update({"polls": 0, "statuses_seen": []})
+            outstanding[i] = rec
+        elif on_progress:
+            on_progress({"stage": "perceive", "hour_index": i, "of_hours": n,
+                         "value_c": None, "class": rec.get("class"), "source": "live"})
+
+    # ---- 3. one poll loop over everything outstanding.
+    t0 = time.time()
+    while outstanding and time.time() - t0 < POLL_MAX_S:
+        for i in list(outstanding):
+            rec = outstanding[i]
+            st, res = read_status(key, rec["activity_id"])
+            if st is None:
+                continue                          # transport hiccup; try again next cycle
+            rec["polls"] += 1
+            if st not in rec["statuses_seen"]:
+                rec["statuses_seen"].append(st)
+            if st == "completed":
+                feats = ((res or {}).get("map_data") or {}).get("features")
+                if feats:
+                    rec.update({"terminal_status": "completed", "tiles": len(feats),
+                                "elapsed_s": round(time.time() - t0, 1)})
+                    rec["class"] = classify_vendor(rec)
+                    tile, dist = A.nearest_tile(res, want_latlon[0], want_latlon[1])
+                    rec["tile_dist_m"] = round(dist, 1)
+                    temps[i] = tile[2]
+                    # allow_nan=False: NaN is legal Python JSON and ILLEGAL standard JSON, so a
+                    # cached field carrying one would load here and kill the browser silently.
+                    json.dump({"result": res, "window": rec["window"], "granularity": GRAN,
+                               "analytic_type": ANALYTIC, "fetched_utc": _utcnow().isoformat()},
+                              open(cache_path(metro, rec["window"]), "w", encoding="utf-8"),
+                              default=str, allow_nan=False)
+                    del outstanding[i]
+                    if on_progress:
+                        on_progress({"stage": "perceive", "hour_index": i, "of_hours": n,
+                                     "value_c": temps[i], "class": "ok", "source": "live"})
+                    continue
+                rec["terminal_status"] = "completed"   # complete-but-empty: keep polling
+            elif st in ("failed", "error", "cancelled", "canceled", "expired"):
+                rec.update({"terminal_status": st, "tiles": 0,
+                            "elapsed_s": round(time.time() - t0, 1)})
+                rec["class"] = classify_vendor(rec)
+                del outstanding[i]
+                if on_progress:
+                    on_progress({"stage": "perceive", "hour_index": i, "of_hours": n,
+                                 "value_c": None, "class": rec["class"], "source": "live"})
+        if outstanding:
+            if on_progress:
+                on_progress({"stage": "perceive", "waiting": True,
+                             "outstanding": len(outstanding),
+                             "elapsed_s": round(time.time() - t0, 1),
+                             "budget_s": POLL_MAX_S,
+                             "note": "waiting on FortyGuard: %d of %d window(s) still processing"
+                                     % (len(outstanding), n)})
+            time.sleep(POLL_WAIT_S)
+
+    # ---- 4. whatever never finished. Classified, never guessed at.
+    for i, rec in outstanding.items():
+        rec.update({"tiles": 0, "elapsed_s": round(time.time() - t0, 1)})
+        rec["class"] = classify_vendor(rec)
+        if on_progress:
+            on_progress({"stage": "perceive", "hour_index": i, "of_hours": n,
+                         "value_c": None, "class": rec["class"], "source": "live"})
+    return temps, recs
+
+
+def fetch_window(key, aoi, dt_fields, metro, allow_paid, want_latlon, replay=None):
+    """One window. A thin wrapper over the batch path, so there is only one implementation."""
+    v, rec = resolve_without_network(dt_fields, metro, want_latlon, replay, allow_paid)
+    if rec is not None:
+        return v, rec
+    temps, recs = perceive_ambient(key, aoi, metro, want_latlon,
+                                   [{"window": dt_fields, "cached": False, "lead_h": None}],
+                                   allow_paid, replay, None, None)
+    return temps[0], recs[0]
 
 
 # ============================================================================
@@ -609,31 +708,19 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     # A PER-RUN CALL BUDGET, enforced where the calls actually happen. Cached windows never consume
     # it, because they cost nothing. Once it is spent the remaining windows are marked
     # `not_attempted` with the reason -- never silently dropped.
-    budget = max_calls if max_calls is not None else 10 ** 6
-    windows, temps, recs = [], [], []
+    # ONE BATCH, ONE WAIT. `perceive_ambient` settles every free window first, submits the rest
+    # together, and polls them in a single loop -- so the run is bounded by one poll window rather
+    # than one per hour, and it heartbeats while it waits.
+    windows = [pw["window"] for pw in plan_w]
+    temps, recs = perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay,
+                                   max_calls, on_progress)
     for i, pw in enumerate(plan_w):
-        w = pw["window"]
-        windows.append(w)
-        may_pay = allow_paid and (pw["cached"] or budget > 0)
-        v, rec = fetch_window(key, aoi, w, metro, may_pay, want_latlon, replay=replay)
-        if rec.get("source") == "live":
-            budget -= 1
-        if not may_pay and allow_paid and not pw["cached"]:
-            rec = dict(rec, no_data_reason="this run's %d-call budget was spent" % max_calls)
-        rec["lead_h"] = pw["lead_h"]
-        temps.append(v)
-        recs.append(rec)
+        recs[i]["lead_h"] = pw["lead_h"]
         if verbose:
+            v = temps[i]
             say("      h+%-2d  %s %s  ->  %s  [%s]"
-                % (i + 1, w["start_date"], w["start_time"],
-                   ("%.4f C" % v) if v is not None else "no data", rec.get("class")))
-        # A live run can sit for 300 s on ONE window while the vendor decides whether to answer.
-        # Without a progress hook the caller has no way to distinguish "working" from "hung", and a
-        # browser showing a dead spinner for ten minutes is indistinguishable from a broken page.
-        if on_progress:
-            on_progress({"stage": "perceive", "hour_index": i, "of_hours": hours,
-                         "window": w, "value_c": v, "class": rec.get("class"),
-                         "source": rec.get("source")})
+                % (i + 1, pw["window"]["start_date"], pw["window"]["start_time"],
+                   ("%.4f C" % v) if v is not None else "no data", recs[i].get("class")))
     after = credits_remaining(key) if allow_paid else None
     out["spend"] = {"credits_before": before, "credits_after": after,
                     "credits_spent": (before - after) if (before and after) else 0,
@@ -857,7 +944,16 @@ def _append_spend_ledger(out, recs):
         "utc": out.get("utc_now"),
         "metro": out.get("metro"),
         "horizon_h": out.get("horizon_h"),
-        "status": out.get("status"),
+        # NO `status` FIELD. This append happens as soon as the SPEND is known -- deliberately, so
+        # it runs whatever early return follows -- and at that moment the status does not exist yet.
+        # The first version recorded it anyway and wrote `null` on every run: a field that is always
+        # null is worse than an absent one, because a reader assumes it means something.
+        #
+        # ⚠ KILLING THE SERVER MID-RUN LOSES THAT RUN'S PER-CALL RECORD. The process dies before
+        # this append. The TOTAL is still exact, because the meter is the authority and the ledger
+        # derives spend from `issued - lowest reading ever seen` rather than from summing these
+        # entries -- which is the whole reason it was built that way. Only the per-call attribution
+        # is lost, and it degrades into the "unattributable" bucket where it belongs.
         "credits_before": sp["credits_before"],
         "credits_after": sp["credits_after"],
         "api_calls_made": sp["calls_attempted"],
