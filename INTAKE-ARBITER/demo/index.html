@@ -285,14 +285,19 @@ accuracy against reality. Everything below runs from <strong>saved FortyGuard re
   The panels below then show <strong>one day at a time</strong> — including the days when the
   honest answer is “no”.</p>
   <div class="tiles" id="headline"></div>
-  <p class="note" id="headnote" style="margin-top:12px"></p>
   <!-- A REAL FILE, not a print dialogue. src/report.py writes one PDF per site at build time and
        verifies it by reopening it, so this is a plain download of a static asset -- which also means
        it is a SNAPSHOT of one named configuration, and the button says so rather than implying it
-       tracks the controls. -->
-  <p style="margin-top:14px">
-    <a id="dlreport" class="btn" download>Download the decision report (PDF)</a>
+       tracks the controls.
+       PLACEMENT IS LOAD-BEARING (gotcha #86): this sat BELOW #headnote and the two-numbers block,
+       ~560 px under the heading at 1280 wide, and the user could not find it. It goes directly
+       under the tiles, styled btn-go, because it is an action and not a caption. Same mistake as
+       the Run button (#85); both were invisible to every automated check and obvious in a
+       screenshot. -->
+  <p style="margin-top:14px;margin-bottom:4px">
+    <a id="dlreport" class="btn btn-go" download>Download the decision report (PDF)</a>
     <span class="note" id="dlnote" style="margin-left:10px"></span></p>
+  <p class="note" id="headnote" style="margin-top:12px"></p>
 </div>
 <div data-show="results" class="card">
   <h2>The decision — a schedule, not a thermostat</h2>
