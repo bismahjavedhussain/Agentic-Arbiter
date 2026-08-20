@@ -247,7 +247,18 @@ stopped us one short at 8/9 = 88.9 %.)*
 | Sleep | **`WakeToRun` + `StartWhenAvailable` + run-on-battery** on all three tasks (`FG-N26-Coverage`, `-Retry1`, `-Retry2`). **Sleep is what lost 2026-08-14 and 08-17** — absent from the manifest, no error, machine asleep |
 | Free verifier | **`python test_n26_coverage.py dryrun`** — window, true lead, in-band firing window, outcome debt, pair arithmetic. **Zero API calls, no key read** |
 
-## 4.3 ⚠ The FortyGuard message must be REWRITTEN before sending
+## 4.3 ✅ THE REWRITTEN FORTYGUARD REPORT EXISTS — `fortyguard-report-2026-08-20-jobs-not-completing.md`
+
+**Written 2026-08-20 and ready to send.** It supersedes the draft below entirely. What it contains:
+the exact request, **three distinct failure modes inside three hours** with `activity_id`s for each,
+the **past-window control leg** that rules out six candidate causes before they can be asked about,
+the billing change (stalls and `failed` are now free; `completed`-with-no-data was billed), the three
+things a client provably cannot do today, and five prioritised asks. It credits them for the billing
+change rather than only listing complaints, because that change was the right call.
+
+**Still the user's to send.** Nothing here can mail it.
+
+## 4.3a ⚠ SUPERSEDED — the older message must NOT be sent
 
 `fortyguard-message-forecast-zero-tiles.md` is flagged **DO NOT SEND AS DRAFTED**. Its central
 question — *"does the Hackathon plan include forecast windows?"* — **is now answered: yes.**

@@ -1,3 +1,15 @@
+> # 🔴 SUPERSEDED — DO NOT SEND THIS FILE
+>
+> **Replaced 2026-08-20 by [`fortyguard-report-2026-08-20-jobs-not-completing.md`](fortyguard-report-2026-08-20-jobs-not-completing.md).**
+>
+> Two reasons this one is obsolete, not merely old:
+> 1. Its central question — *"does the Hackathon plan include forecast windows?"* — **was answered
+>    YES** on 2026-08-19, by one paid call that returned 17,862 tiles at a 9.41 h lead.
+> 2. The failure it describes (`completed` + zero tiles, **billed**) is no longer the only mode, and
+>    is no longer the current one. As of 2026-08-20 jobs stall in `Processing` and are **not** billed.
+>
+> Kept because a report that was drafted and then withdrawn on evidence is part of the record.
+
 # Message to FortyGuard — ⚠ DO NOT SEND AS DRAFTED, REWRITE FIRST
 
 > **🔴 SUPERSEDED 2026-08-19 13:35 UTC. The forecast path RECOVERED.** One paid call at identical
