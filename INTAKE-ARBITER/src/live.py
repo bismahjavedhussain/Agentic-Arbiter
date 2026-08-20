@@ -207,6 +207,47 @@ def window_fields(start_local, hours=1):
             "filter_type": 2}
 
 
+def first_window_start(now_local):
+    """The first hour of the horizon: the next whole hour boundary.
+
+    🔴 THIS USED TO BE `(now + 1h)` FLOORED TO THE HOUR, WHICH IS NOT THE SAME THING and produced a
+    misdescribed lead. At 09:55 it gave 10:00 -- a window starting in FIVE MINUTES while the record
+    labelled it "lead +1 h". On a product whose entire thesis is *a thermometer cannot see three
+    hours ahead*, mislabelling the lead by up to an hour is not a cosmetic slip: `lead_h` is what
+    the margin's calibration domain is expressed in.
+
+    Now it is simply the next whole hour, and the LEAD IS MEASURED rather than assumed -- see
+    `lead_hours_for` below. A window can therefore be as little as a minute away, which is honest:
+    that is genuinely how far ahead it is.
+    """
+    nxt = now_local.replace(minute=0, second=0, microsecond=0)
+    return nxt + timedelta(hours=1) if nxt <= now_local else nxt
+
+
+def lead_hours_for(now_local, window_start_local):
+    """Real hours from the decision to the window's start. Never an index."""
+    return (window_start_local - now_local).total_seconds() / 3600.0
+
+
+def horizon_windows(metro, hours, now_local):
+    """The windows this run needs, and which are ALREADY CACHED.
+
+    Extracted so the caller can cost a run before committing to it. `serve_live.py` needs exactly
+    this: its per-process call cap was checked against the HORIZON LENGTH, so a 12-hour request was
+    counted as 12 calls even when 11 windows were already cached -- refusing runs that needed one
+    call, and over-incrementing the counter when it did allow them.
+    """
+    start_local = first_window_start(now_local)
+    out = []
+    for i in range(hours):
+        ws = start_local + timedelta(hours=i)
+        w = window_fields(ws, 1)
+        out.append({"window": w, "start_local": ws,
+                    "lead_h": round(lead_hours_for(now_local, ws), 3),
+                    "cached": os.path.exists(cache_path(metro, w))})
+    return start_local, out
+
+
 def cache_path(metro, dt_fields):
     d = os.path.join(CACHE, metro)
     os.makedirs(d, exist_ok=True)
@@ -267,7 +308,14 @@ def fetch_window(key, aoi, dt_fields, metro, allow_paid, want_latlon, replay=Non
             pass          # a corrupt cache entry is not a reason to fail; re-fetch it
 
     if not allow_paid:
+        # 🔴 "NOT ATTEMPTED" IS OUR DECISION, NOT THE VENDOR'S FAILURE, and conflating the two
+        # produced the worst output this project has emitted. A run with 3 cached hours and 9
+        # never-requested ones was reported as a live decision -- "Decided at 09:55 ... 0 live
+        # calls" -- with all nine unrequested hours scheduled MECHANICAL, as though the agent had
+        # looked and found nothing. It had not looked. `no_data_reason` travels with the record so
+        # no downstream summary can lose the distinction.
         return None, {"source": "would-call", "class": "not_attempted",
+                      "no_data_reason": "this run was not permitted to spend",
                       "credits_if_called": HEATMAP_CREDITS}
 
     payload = {"polygon_aoi": aoi, "granularity": GRAN, "analytic_type": ANALYTIC,
@@ -480,7 +528,7 @@ def site_local_now(tz_name):
 
 
 def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=True,
-             replay=None, on_progress=None):
+             replay=None, on_progress=None, max_calls=None):
     """Perceive now, decide the next `hours`, for one site. Returns the emitted dict."""
     metro = metro or M.metro_key()
     # 🔴 SET THE METRO IN THE ENVIRONMENT BEFORE ANY A.* CALL THAT RESOLVES A PATH.
@@ -506,7 +554,7 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
 
     tz = (site or {}).get("tz") or "America/New_York"
     now_local = site_local_now(tz)
-    start_local = (now_local + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+    start_local = first_window_start(now_local)
     start_utc = start_local.astimezone(timezone.utc)
 
     centre = trace["site"]["centre"]
@@ -555,11 +603,24 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     # ---- AMBIENT, ONE CALL PER HOUR ---------------------------------------------
     key = load_key() if allow_paid else None
     before = credits_remaining(key) if allow_paid else None
+    _, plan_w = horizon_windows(metro, hours, now_local)
+    out["horizon_plan"] = [{"window": p["window"], "lead_h": p["lead_h"],
+                            "already_cached": p["cached"]} for p in plan_w]
+    # A PER-RUN CALL BUDGET, enforced where the calls actually happen. Cached windows never consume
+    # it, because they cost nothing. Once it is spent the remaining windows are marked
+    # `not_attempted` with the reason -- never silently dropped.
+    budget = max_calls if max_calls is not None else 10 ** 6
     windows, temps, recs = [], [], []
-    for i in range(hours):
-        w = window_fields(start_local + timedelta(hours=i), 1)
+    for i, pw in enumerate(plan_w):
+        w = pw["window"]
         windows.append(w)
-        v, rec = fetch_window(key, aoi, w, metro, allow_paid, want_latlon, replay=replay)
+        may_pay = allow_paid and (pw["cached"] or budget > 0)
+        v, rec = fetch_window(key, aoi, w, metro, may_pay, want_latlon, replay=replay)
+        if rec.get("source") == "live":
+            budget -= 1
+        if not may_pay and allow_paid and not pw["cached"]:
+            rec = dict(rec, no_data_reason="this run's %d-call budget was spent" % max_calls)
+        rec["lead_h"] = pw["lead_h"]
         temps.append(v)
         recs.append(rec)
         if verbose:
@@ -584,10 +645,18 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
                       for w, r in zip(windows, recs)]
 
     got = [i for i, t in enumerate(temps) if t is not None]
-    if not got:
-        # WHY there is no data decides what to TELL the operator, and the three reasons are not
+    n_not_attempted = sum(1 for r in recs if r.get("class") == "not_attempted")
+    if not got or n_not_attempted:
+        # WHY there is no data decides what to TELL the operator, and the reasons are not
         # interchangeable. An earlier version reported every one of them as "dryrun" whenever
         # --paid was absent, so a fixture-mismatch refusal was announced as a costing estimate.
+        #
+        # 🔴 AND `n_not_attempted` NOW SHORT-CIRCUITS EVEN WHEN SOME HOURS DID RETURN DATA. That is
+        # the fix for the worst output this project has produced: 3 cached hours plus 9 windows
+        # that were never requested were published as "Decided at 09:55 ... 0 live calls" with all
+        # nine unrequested hours scheduled MECHANICAL. The agent had not looked at those hours. A
+        # schedule may only be published over hours the agent actually perceived, so a run that
+        # skipped any window is reported as INCOMPLETE and emits no schedule at all.
         cls = sorted({r.get("class") for r in recs})
         out["vendor_classes"] = cls
         if cls == ["not_attempted"]:
@@ -600,6 +669,23 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
                    hours - out["spend"]["cache_hits"], format(HEATMAP_CREDITS, ","),
                    format((hours - out["spend"]["cache_hits"]) * HEATMAP_CREDITS, ","),
                    DAILY_HEATMAP_CAP))
+        elif n_not_attempted:
+            n_have = len(got)
+            reasons = sorted({r.get("no_data_reason") for r in recs
+                              if r.get("class") == "not_attempted" and r.get("no_data_reason")})
+            out["status"] = "incomplete_not_attempted"
+            out["operator_message"] = (
+                "NO SCHEDULE. %d of %d hours were NEVER REQUESTED -- %s. %s A schedule is only "
+                "published over hours the agent actually perceived: presenting one here would mean "
+                "scheduling hours it never looked at, and the mechanical fallback would read as a "
+                "decision rather than an absence. Re-run with the budget those %d calls need."
+                % (n_not_attempted, hours,
+                   "; ".join(reasons) or "this run was not permitted to spend",
+                   ("%d hour(s) were available from cache and are listed below, unscheduled."
+                    % n_have) if n_have else "",
+                   n_not_attempted))
+            out["hours_available_from_cache"] = n_have
+            return out
         elif cls == ["fixture_wrong_metro"]:
             out["status"] = "fixture_mismatch"
             out["operator_message"] = recs[0].get("error", "the replay fixture is another "
@@ -680,7 +766,14 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
         "device": tmeta.get("device"),
         "hours": [{
             "hour_site_local": hour_labels[i],
-            "lead_h": i + 1,
+            # MEASURED, not the loop index. `i + 1` claimed a 1-hour lead for a window that could
+            # be five minutes away, on a product whose thesis is about lead time and whose margin's
+            # calibration domain is expressed in it.
+            "lead_h": recs[i].get("lead_h"),
+            "hour_index": i + 1,
+            "no_data_reason": recs[i].get("no_data_reason") or (
+                None if temps[i] is not None else
+                "vendor returned no field (%s)" % recs[i].get("class")),
             "ambient_c": None if np.isnan(amb[i]) else round(float(amb[i]), 4),
             "bearing_deg": None if np.isnan(brg[i]) else float(brg[i]),
             "speed_ms": None if np.isnan(spd[i]) else round(float(spd[i]), 3),
@@ -868,6 +961,43 @@ def verify_live_offline():
             ck("replay REFUSES another metro's fixture (%s)" % other,
                v2 is None and rec2["class"] == "fixture_wrong_metro",
                "%.0f km away" % (rec2.get("tile_dist_m", 0) / 1000.0))
+
+    # ---- THE LEAD MUST BE MEASURED, NOT INDEXED. This is the check for the bug that labelled a
+    # window five minutes away as "lead +1 h".
+    from datetime import datetime as _dt
+    n0 = _dt(2026, 8, 20, 9, 55)
+    ck("first window is the next whole hour", first_window_start(n0) == _dt(2026, 8, 20, 10, 0),
+       str(first_window_start(n0)))
+    ck("a window 5 minutes away reports a 0.08 h lead, not 1 h",
+       abs(lead_hours_for(n0, first_window_start(n0)) - 5 / 60.0) < 1e-9,
+       "%.4f h" % lead_hours_for(n0, first_window_start(n0)))
+    n1 = _dt(2026, 8, 20, 10, 0)
+    ck("on the hour, the first window is the NEXT hour (never zero lead)",
+       first_window_start(n1) == _dt(2026, 8, 20, 11, 0)
+       and abs(lead_hours_for(n1, first_window_start(n1)) - 1.0) < 1e-9)
+    _, pw = horizon_windows(M.DEFAULT_METRO, 4, n0)
+    ck("horizon leads are strictly increasing and start below 1 h",
+       [p["lead_h"] for p in pw] == sorted(p["lead_h"] for p in pw) and pw[0]["lead_h"] < 1.0,
+       str([p["lead_h"] for p in pw]))
+    ck("horizon_windows reports cache state per window",
+       all("cached" in p for p in pw))
+
+    # ---- A NEVER-REQUESTED WINDOW MUST NOT BECOME A SCHEDULED HOUR. The regression test for the
+    # worst output this project has produced: 3 cached hours + 9 unrequested ones published as a
+    # live decision, with the 9 scheduled MECHANICAL as though the agent had looked.
+    rec_na = {"source": "would-call", "class": "not_attempted"}
+    ck("an unrequested window classifies as not_attempted, never as vendor failure",
+       classify_vendor(rec_na) != "ok" and rec_na["class"] == "not_attempted")
+    out = live_run(metro=M.DEFAULT_METRO, hours=6, allow_paid=False, verbose=False,
+                   cfg={"limit_c": 27.0})
+    ck("a run with unrequested windows emits NO schedule",
+       out.get("status") in ("dryrun", "incomplete_not_attempted")
+       and "hours" not in out and "commands" not in out,
+       "status=%s" % out.get("status"))
+    ck("...and says how many hours it never looked at",
+       "NEVER REQUESTED" in (out.get("operator_message") or "")
+       or "DRY RUN" in (out.get("operator_message") or ""),
+       (out.get("operator_message") or "")[:60])
 
     print("   %s" % ("ALL PASS" if not fails else "%d FAILURE(S): %s" % (len(fails), fails)))
     return 1 if fails else 0

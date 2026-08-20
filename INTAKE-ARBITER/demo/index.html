@@ -302,6 +302,10 @@ accuracy against reality. <span id="modebanner">Checking for a live agent…</sp
     <button id="livego" class="btn btn-go">Run the agent on live data →</button>
     <span class="note" id="livecost" style="margin-left:10px"></span>
   </div>
+  <!-- TWO SEPARATE LINES ON PURPOSE. The server's refusal used to be written into #livemsg and
+       then OVERWRITTEN by drawLive()'s "Decided at ..." summary, so a run the server had explicitly
+       refused to pay for was reported as a live decision with the refusal nowhere on screen. -->
+  <p class="note warn" id="liverefusal" style="margin-bottom:10px"></p>
   <div id="livestream" class="stream" style="margin-bottom:10px"></div>
   <p class="note" id="livemsg" style="margin-bottom:10px"></p>
   <div class="tiles" id="livetiles"></div>
@@ -2198,6 +2202,12 @@ function drawModeBanner(){
       + '<code>python src/serve_live.py --allow-paid</code> instead of <code>http.server</code>.</span>';
     return;
   }
+  if(HEALTH.code_is_stale){
+    el.innerHTML = '<span class="err"><strong>The live server is running STALE CODE.</strong> '
+      + HEALTH.stale_note + ' Loaded ' + HEALTH.code_loaded_utc + ', on disk '
+      + HEALTH.code_on_disk_utc + '.</span>';
+    return;
+  }
   if(HEALTH.live_available){
     el.innerHTML = '<span class="ok"><strong>LIVE agent attached.</strong></span> The panels below '
       + 'are the measured record from saved responses (<strong>' + int(nCalls) + '</strong> live '
@@ -2247,6 +2257,7 @@ async function runLive(){
   btn.disabled = true; btn.textContent = 'Working…';
   $('#livestream').innerHTML = '';
   $('#livemsg').innerHTML = '';
+  $('#liverefusal').innerHTML = '';
   $('#livetiles').innerHTML = '';
   $('#livetable').innerHTML = '';
   $('#livebound').innerHTML = '';
@@ -2264,9 +2275,8 @@ async function runLive(){
       await new Promise(res=>setTimeout(res, 1500));
       const j = await (await fetch('api/live/job/' + job_id, {cache:'no-store'})).json();
       while(seen < (j.progress||[]).length){ liveStreamRow(j.progress[seen++]); }
-      if(j.refusal && !$('#livemsg').innerHTML){
-        $('#livemsg').innerHTML = '<span class="warn">' + j.refusal + '</span>';
-      }
+      if(j.refusal){ $('#liverefusal').innerHTML = '<strong>The server refused to spend.</strong> '
+                                                   + j.refusal; }
       if(j.state === 'done'){ drawLive(j.result); break; }
       if(j.state === 'error'){
         $('#livemsg').innerHTML = '<span class="err">The live run failed: ' + j.error + '</span>';
@@ -2287,6 +2297,9 @@ function drawLive(L){
   /* THE VENDOR DID NOT ANSWER. Say exactly that, show nothing else, and offer no schedule. There
      is no interpolation and no carry-forward: an agent that invents its perception is worse than
      one that stops. */
+  /* `incomplete_not_attempted` is NOT a schedule. It means windows were never requested, so
+     there is nothing to draw but the reason -- rendering the table would show hours the agent
+     never looked at, with a mechanical fallback reading as a decision. */
   if(L.status !== 'ok' && L.status !== 'ok_replay' && L.status !== 'ok_partial'){
     $('#livemsg').innerHTML = '<span class="' + (L.status==='dryrun' ? 'warn' : 'err') + '">'
       + '<strong>' + L.status.replace(/_/g,' ').toUpperCase() + '.</strong> '
@@ -2332,7 +2345,7 @@ function drawLive(L){
   const rows = ['<tr><th>hour</th><th>lead</th><th>ambient</th><th>wind</th><th>rise</th>'
               + '<th>bound</th><th>dew pt</th><th>mode</th></tr>'];
   for(const h of L.hours){
-    rows.push('<tr><td>' + h.hour_site_local.slice(11) + '</td><td>+' + h.lead_h + ' h</td>'
+    rows.push('<tr><td>' + h.hour_site_local.slice(11) + '</td><td>+' + fmt(h.lead_h,1) + ' h</td>'
       + '<td>' + (h.ambient_c==null?'–':fmt(h.ambient_c,2)+' °C') + '</td>'
       + '<td>' + (h.bearing_deg==null?'–':Math.round(h.bearing_deg)+'° @ '+fmt(h.speed_ms,1)+' m/s') + '</td>'
       + '<td>' + fmt(h.rise_c,4) + '</td>'
@@ -2340,6 +2353,7 @@ function drawLive(L){
       + '<td>' + (h.dewpoint_c==null?'–':fmt(h.dewpoint_c,1)) + '</td>'
       + '<td>' + (h.free_cooling
           ? '<span class="ok">FREE COOLING</span>'
+          : h.no_data_reason ? '<span class="warn">no data — ' + h.no_data_reason + '</span>'
           : (h.bearing_refused ? '<span class="warn">refused</span>' : 'mechanical')) + '</td></tr>');
   }
   $('#livetable').innerHTML = rows.join('');

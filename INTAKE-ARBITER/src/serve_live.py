@@ -65,6 +65,15 @@ import metros as M                    # noqa: E402
 
 DEMO = os.path.join(M.ROOT, "demo")
 
+# 🔴 THE MTIME OF live.py AS THIS PROCESS LOADED IT.
+# Python caches imported modules, so a long-running server keeps executing the code it started
+# with. That cost real diagnostic time: a screenshot showed the OLD partial-horizon wording hours
+# after the fix had been written, and the natural conclusion was that the fix had not worked. It had;
+# the server was stale. `/api/health` now reports both mtimes so the page can say so out loud
+# instead of leaving a reader to compare timestamps by hand.
+LIVE_PY = os.path.join(HERE, "live.py")
+LOADED_MTIME = os.path.getmtime(LIVE_PY)
+
 # ---- process state. Guarded by a lock because ThreadingHTTPServer serves concurrently and the
 # call counter is the thing standing between a browser loop and the daily cap.
 JOBS = {}
@@ -120,12 +129,18 @@ def health():
             "no API key on this machine" if not key_present else
             "server started without --allow-paid, so every request is served as a costed dry run"),
         "note": "the API key never leaves the server process. The browser receives numbers only.",
+        "code_loaded_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(LOADED_MTIME)),
+        "code_on_disk_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ",
+                                          time.gmtime(os.path.getmtime(LIVE_PY))),
+        "code_is_stale": os.path.getmtime(LIVE_PY) > LOADED_MTIME + 1,
+        "stale_note": ("live.py has changed on disk since this server started -- RESTART IT. "
+                       "Python caches imported modules, so this process is still running the old "
+                       "code.") if os.path.getmtime(LIVE_PY) > LOADED_MTIME + 1 else None,
     }
 
 
 def start_job(site, hours, limit_c, want_paid, replay):
     """Kick off a live run on a worker thread and return its id immediately."""
-    global LIVE_CALLS_MADE
     jid = uuid.uuid4().hex[:12]
 
     paid = bool(want_paid and CONF["allow_paid"])
@@ -133,18 +148,42 @@ def start_job(site, hours, limit_c, want_paid, replay):
     if want_paid and not CONF["allow_paid"]:
         refusal = ("This server was started without --allow-paid, so it will not spend credits. "
                    "Serving a costed dry run instead -- the numbers below are what it WOULD fetch.")
+    # 🔴 THE CAP MUST COUNT CALLS, NOT HOURS. It checked `LIVE_CALLS_MADE + hours`, so a 12-hour
+    # request was costed as 12 calls even when 11 windows were already cached -- which refused runs
+    # that needed a single call, and over-incremented the counter on the runs it allowed. A cached
+    # window costs nothing and must not consume a budget.
+    #
+    # The remaining allowance is passed INTO the run as `max_calls`, so the budget is enforced where
+    # the calls happen rather than guessed at up front, and the counter is reconciled afterwards
+    # against the number actually made.
+    needed = 0
     if paid:
+        try:
+            _, plan_w = LV.horizon_windows(site, hours, LV.site_local_now(
+                next((x["tz"] for x in json.load(open(os.path.join(DEMO, "sites.json"),
+                                                          encoding="utf-8"))["sites"]
+                      if x["key"] == site), "America/New_York")))
+            needed = sum(1 for p in plan_w if not p["cached"])
+        except Exception:
+            needed = hours          # cannot cost it: assume the worst rather than under-refuse
         with LOCK:
-            if LIVE_CALLS_MADE + hours > CONF["max_live_calls"]:
-                paid = False
-                refusal = ("Refusing: this would be call %d of a %d-call per-process cap. The "
-                           "plan's real limit is %d heatmaps/day. Restart with a higher "
-                           "--max-live-calls if that is genuinely what you want -- nothing here "
-                           "falls back to cached data and calls it live."
-                           % (LIVE_CALLS_MADE + hours, CONF["max_live_calls"],
-                              LV.DAILY_HEATMAP_CAP))
-            else:
-                LIVE_CALLS_MADE += hours
+            allowance = CONF["max_live_calls"] - LIVE_CALLS_MADE
+        if allowance <= 0:
+            paid = False
+            refusal = ("Refusing: this process has already made %d of its %d permitted live calls. "
+                       "The plan's real limit is %d heatmaps/day. Restart with a higher "
+                       "--max-live-calls if that is genuinely what you want -- nothing here falls "
+                       "back to cached data and calls it live."
+                       % (LIVE_CALLS_MADE, CONF["max_live_calls"], LV.DAILY_HEATMAP_CAP))
+        elif needed > allowance:
+            # PARTIAL BUDGETS ARE NOT SILENTLY ALLOWED. Letting the run fetch `allowance` windows
+            # and skip the rest is exactly the "3 cached, 9 never asked" output that had to be
+            # fixed, so the run is refused whole and the shortfall is named.
+            paid = False
+            refusal = ("Refusing: this run needs %d live call(s) (%d of %d windows are already "
+                       "cached) but only %d remain of this process's %d-call cap. Refusing the "
+                       "whole run rather than fetching some hours and leaving the rest unlooked-at."
+                       % (needed, hours - needed, hours, allowance, CONF["max_live_calls"]))
 
     with LOCK:
         JOBS[jid] = {"state": "running", "site": site, "hours": hours, "paid": paid,
@@ -152,6 +191,7 @@ def start_job(site, hours, limit_c, want_paid, replay):
                      "refusal": refusal}
 
     def work():
+        global LIVE_CALLS_MADE          # hoisted: `global` belongs at the top of its scope
         def prog(ev):
             with LOCK:
                 j = JOBS.get(jid)
@@ -159,9 +199,16 @@ def start_job(site, hours, limit_c, want_paid, replay):
                     j["progress"].append(dict(ev, at_s=round(time.time() - j["started"], 1)))
         try:
             out = LV.live_run(metro=site, hours=hours, allow_paid=paid, verbose=False,
-                              cfg={"limit_c": limit_c}, replay=replay, on_progress=prog)
+                              cfg={"limit_c": limit_c}, replay=replay, on_progress=prog,
+                              max_calls=(allowance if paid else None))
+            # RECONCILE against what actually happened, rather than trusting the estimate. The
+            # counter now moves by the calls the run really made.
+            made = int((out.get("spend") or {}).get("calls_attempted") or 0)
+            if made:
+                with LOCK:
+                    LIVE_CALLS_MADE += made
             with LOCK:
-                JOBS[jid].update({"state": "done", "result": out})
+                JOBS[jid].update({"state": "done", "result": out, "live_calls_made": made})
         except SystemExit as e:
             with LOCK:
                 JOBS[jid].update({"state": "error", "error": str(e)})

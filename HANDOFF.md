@@ -1862,6 +1862,56 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
     separately, excluded from both gate counts, and a partial horizon is its own status
     (`ok_partial`). With an intermittent vendor **partial is the NORMAL case**, not an edge one.
 
+107. 🔴 **THE WORST OUTPUT THIS PROJECT HAS PRODUCED: A SCHEDULE FOR HOURS THE AGENT NEVER
+    LOOKED AT.** The user screenshotted a live run reading *"Decided at 2026-08-20 09:55 site-local
+    for Ashburn ... horizon 12 h ... **0 live call(s), 3 cached, 0 credits**"* — with hours 1–3 from
+    cache and **hours 4–12 marked `not_attempted` and scheduled MECHANICAL.** The agent had not
+    asked about those nine hours. It had been refused the budget to ask. And the page presented the
+    result as a live decision.
+    **Root cause:** `not_attempted` (OUR budget/permission decision) was flowing into the same
+    bucket as `completed_but_empty` (THE VENDOR'S failure). The `if not got:` guard only fired when
+    **no** hour had data, so three cached hours were enough to carry nine unlooked-at hours into a
+    published schedule, where the mechanical fallback read as a decision instead of an absence.
+    **Fix:** `n_not_attempted` now short-circuits **even when some hours did return data**. A run
+    that skipped any window reports `incomplete_not_attempted` and emits **no `hours` and no
+    `commands` at all**. Every hour record carries a `no_data_reason` so the distinction cannot be
+    lost downstream. **The rule, stated once: a schedule may only be published over hours the agent
+    actually perceived.**
+108. **A CALL CAP THAT COUNTED HOURS INSTEAD OF CALLS.** `serve_live.py` checked
+    `LIVE_CALLS_MADE + hours > max`, so a 12-hour request was costed as 12 calls **even when 11
+    windows were already cached** — refusing runs that needed one call, and incrementing the counter
+    by 12 when it allowed them. A cached window costs nothing and must not consume a budget. Now
+    `horizon_windows()` reports cache state per window, the cap is checked against **calls actually
+    needed**, the remaining allowance is passed into the run and enforced where the calls happen,
+    and the counter is **reconciled afterwards against the number really made**. Verified: 4 hours
+    with 2 cached and an allowance of 1 refuses the **whole** run — *"needs 2 live call(s), 2 of 4
+    windows already cached, only 1 remain"* — rather than fetching one hour and leaving three
+    unlooked-at, which would have recreated #107.
+109. 🔴 **`lead_h` WAS THE LOOP INDEX, NOT A LEAD.** The first window was
+    `(now + 1h)` floored to the hour, so at **09:55** it was **10:00 — five minutes away — and
+    labelled "lead +1 h"**. On a product whose entire thesis is *a thermometer cannot see three
+    hours ahead*, and whose margin's calibration domain is expressed in lead hours, a lead
+    mislabelled by up to an hour is a correctness bug rather than a cosmetic one. Now the first
+    window is simply the next whole hour and **the lead is measured**:
+    `lead_hours_for(now, window_start)`. The self-test pins it — a window 5 minutes out reports
+    **0.083 h**, not 1.
+110. **THE SERVER'S REFUSAL WAS OVERWRITTEN BY ITS OWN SUMMARY.** The UI wrote the refusal into
+    `#livemsg`, then `drawLive()` overwrote that element with *"Decided at …"*. So a run the server
+    had **explicitly refused to pay for** displayed as a completed live decision with the refusal
+    nowhere on screen. Two separate elements now; `#liverefusal` is never touched by `drawLive`.
+111. **A LONG-RUNNING SERVER SILENTLY SERVES STALE CODE, AND IT COST REAL DIAGNOSTIC TIME.** Python
+    caches imported modules, so `serve_live.py` kept executing the `live.py` it started with. The
+    screenshot above showed pre-fix wording **hours after the fix was written**, and the natural
+    reading was *"the fix did not work"* — it had; the process was 48 minutes stale.
+    `/api/health` now reports `code_loaded_utc`, `code_on_disk_utc` and `code_is_stale`, and the
+    page shows a red banner instead of leaving anyone to compare timestamps by hand.
+112. **MY OWN TEST HARNESS LOST THE SAME RACE TWICE.** Chrome's `--virtual-time-budget` compresses
+    `setTimeout` while the network stays real, so a poll loop of 40 × 400 ms elapses before an
+    async job can answer — and the probe reported `hasresult=false`, which looks exactly like a
+    broken UI. **Pre-run the job with `curl`, then point the driver at the completed job id.** Both
+    times the code was correct and the harness was wrong. **Running tally: checks wrong 17,
+    product wrong 18.**
+
 ## Carried forward, continued
 
 72. **A CSS COMMENT CAN BE UNBALANCED AND SILENT.** Successive edits left **three `*/` against one

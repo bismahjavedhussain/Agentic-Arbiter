@@ -87,6 +87,30 @@
      "activity_id": "f8b84db4-10e4-4700-82fd-c07584d255f7"
     }
    ]
+  },
+  {
+   "test": "live.py ashburn 2026-08-20T11:00:00-04:00",
+   "utc": "2026-08-20T14:27:07.682572+00:00",
+   "metro": "ashburn",
+   "horizon_h": 2,
+   "status": null,
+   "credits_before": 1890280,
+   "credits_after": 1890280,
+   "api_calls_made": 0,
+   "cache_hits": 2,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-20T11:00:00-04:00",
+   "utc": "2026-08-20T14:28:15.606022+00:00",
+   "metro": "ashburn",
+   "horizon_h": 2,
+   "status": null,
+   "credits_before": 1890280,
+   "credits_after": 1890280,
+   "api_calls_made": 0,
+   "cache_hits": 2,
+   "windows": []
   }
  ]
 }
