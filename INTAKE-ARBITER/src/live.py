@@ -685,6 +685,51 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
         },
     }
 
+    # 🔴 THE HORIZON MUST BE SETTLED BEFORE ANY PER-HOUR ARRAY IS BUILT.
+    # This block used to sit below the NWS fetch, so truncating the horizon left the wind and
+    # dew-point arrays at the ORIGINAL length. `bound = amb + rise + margin` then BROADCAST a
+    # length-1 ambient across a length-6 rise, silently producing six bounds from one measurement --
+    # and `hours_with_NO_forecast` came out as **-5**, a negative count, which is what gave it away.
+    # Truncate first, fetch second, and assert the lengths agree afterwards.
+    _, plan_w = horizon_windows(metro, hours, now_local)
+
+    # 🔴 A SHORTER COMPLETE HORIZON BEATS NO HORIZON. When the call budget cannot cover every
+    # window, the first version refused the whole run -- correct in that it never scheduled an hour
+    # it had not looked at, but far too blunt: with 9 calls left and 11 needed the user simply could
+    # not run the agent, and the screen said so at length. TRUNCATE instead. The horizon shrinks to
+    # the longest PREFIX the budget can cover, so there are no unlooked-at hours inside it and the
+    # result is a genuine complete decision over fewer hours.
+    #
+    # A prefix specifically, not a subset: the DP schedules contiguous hours, and the near hours are
+    # the ones an operator can still act on. Holes in the middle would be useless even if cheaper.
+    if max_calls is not None and max_calls >= 0:
+        spend_needed, keep = 0, 0
+        for pw in plan_w:
+            nxt = spend_needed + (0 if pw["cached"] else 1)
+            if nxt > max_calls:
+                break
+            spend_needed, keep = nxt, keep + 1
+        if keep < len(plan_w):
+            out["horizon_truncated"] = {
+                "requested_hours": hours, "covered_hours": keep,
+                "call_budget": max_calls, "calls_needed_for_full_horizon":
+                    sum(1 for pw in plan_w if not pw["cached"]),
+                "why": "the call budget covers %d of the %d requested hours. The horizon was "
+                       "SHORTENED rather than leaving hours inside it unlooked-at -- every hour "
+                       "reported below was actually perceived." % (keep, hours)}
+            plan_w = plan_w[:keep]
+            hours = keep
+            if not hours:
+                out["status"] = "no_call_budget"
+                out["operator_message"] = (
+                    "NO SCHEDULE. The first hour of the horizon is not cached and there is no call "
+                    "budget left to fetch it, so there is nothing the agent has perceived. Restart "
+                    "the server with a higher --max-live-calls, or wait for the cache to catch up.")
+                return out
+
+    out["horizon_plan"] = [{"window": p["window"], "lead_h": p["lead_h"],
+                            "already_cached": p["cached"]} for p in plan_w]
+
     # ---- WIND + DEW POINT (free) -------------------------------------------------
     if on_progress:
         on_progress({"stage": "perceive", "note": "reading live wind and dew point from NWS"})
@@ -702,9 +747,6 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     # ---- AMBIENT, ONE CALL PER HOUR ---------------------------------------------
     key = load_key() if allow_paid else None
     before = credits_remaining(key) if allow_paid else None
-    _, plan_w = horizon_windows(metro, hours, now_local)
-    out["horizon_plan"] = [{"window": p["window"], "lead_h": p["lead_h"],
-                            "already_cached": p["cached"]} for p in plan_w]
     # A PER-RUN CALL BUDGET, enforced where the calls actually happen. Cached windows never consume
     # it, because they cost nothing. Once it is spent the remaining windows are marked
     # `not_attempted` with the reason -- never silently dropped.
@@ -804,6 +846,12 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
                                    "bound can be published and no schedule is emitted.")
         return out
 
+    # EVERY PER-HOUR ARRAY MUST BE THE SAME LENGTH AS THE HORIZON. numpy broadcasting will happily
+    # turn a length mismatch into plausible-looking numbers rather than an error, so it is checked
+    # rather than assumed -- see the note above the horizon block.
+    if not (len(temps) == len(recs) == len(nws["hours"]) == hours):
+        raise SystemExit("horizon length mismatch: %d hours, %d temps, %d recs, %d nws rows"
+                         % (hours, len(temps), len(recs), len(nws["hours"])))
     amb = np.array([t if t is not None else np.nan for t in temps], dtype=float)
     bound = amb + rise + float(margin)
     dewp = np.array([h["dewpoint_c"] if h["dewpoint_c"] is not None else np.nan
@@ -1094,6 +1142,34 @@ def verify_live_offline():
        "NEVER REQUESTED" in (out.get("operator_message") or "")
        or "DRY RUN" in (out.get("operator_message") or ""),
        (out.get("operator_message") or "")[:60])
+
+    # ---- A BUDGET SHORTENS THE HORIZON RATHER THAN LEAVING HOLES IN IT. Regression test for the
+    # blunt refusal: with a budget smaller than the horizon needs, the run must still produce a
+    # COMPLETE decision over fewer hours, with no `not_attempted` window inside it.
+    out2 = live_run(metro=M.DEFAULT_METRO, hours=6, allow_paid=False, verbose=False,
+                    cfg={"limit_c": 27.0}, max_calls=0)
+    tr = out2.get("horizon_truncated")
+    ck("a zero budget truncates the horizon to the cached prefix",
+       tr is not None and tr["requested_hours"] == 6 and tr["covered_hours"] <= 6,
+       "covered %s of %s" % ((tr or {}).get("covered_hours"), (tr or {}).get("requested_hours")))
+    # THE SUMMARY MUST PARTITION THE HORIZON. A negative count is what exposed the broadcasting
+    # bug -- length-1 ambient against a length-6 rise produced `hours_with_NO_forecast: -5` while
+    # every individual figure still looked plausible. Counts are checked for sign and for closure.
+    s2 = out2.get("summary") or {}
+    ck("summary counts are non-negative and partition the horizon",
+       all(v >= 0 for k, v in s2.items() if isinstance(v, int))
+       and s2.get("hours_with_a_forecast", 0) + s2.get("hours_with_NO_forecast", 0)
+           == s2.get("of_hours"),
+       "%s with + %s without = %s" % (s2.get("hours_with_a_forecast"),
+                                      s2.get("hours_with_NO_forecast"), s2.get("of_hours")))
+    ck("every per-hour array matched the horizon length (no broadcasting)",
+       len(out2.get("hours") or []) == s2.get("of_hours"),
+       "%d rows for %s hours" % (len(out2.get("hours") or []), s2.get("of_hours")))
+    ck("...and no window inside the shortened horizon is unlooked-at",
+       out2.get("status") != "incomplete_not_attempted"
+       or not any(h.get("no_data_reason", "").startswith("this run was not permitted")
+                  for h in (out2.get("hours") or [])),
+       "status=%s" % out2.get("status"))
 
     print("   %s" % ("ALL PASS" if not fails else "%d FAILURE(S): %s" % (len(fails), fails)))
     return 1 if fails else 0

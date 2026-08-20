@@ -2346,6 +2346,20 @@ function drawLive(L){
   }
   /* A PARTIAL HORIZON GETS ITS OWN TILE AND ITS OWN SENTENCE. The vendor is intermittent, so
      "4 of 12 hours answered" is the normal case and the reader must not have to count the table. */
+  /* A SHORTENED HORIZON IS A RESULT, NOT AN ERROR -- but the reader must know the agent was asked
+     for 12 hours and answered over fewer, and why. */
+  if(L.horizon_truncated){
+    const t = L.horizon_truncated;
+    $('#liverefusal').innerHTML = '<strong>Horizon shortened to ' + int(t.covered_hours)
+      + ' h of the ' + int(t.requested_hours) + ' requested.</strong> ' + t.why
+      + ' Full horizon would need ' + int(t.calls_needed_for_full_horizon)
+      + ' live call(s); the budget allowed ' + int(t.call_budget) + '.';
+  }
+  if(L.status === 'no_call_budget'){
+    $('#livemsg').innerHTML = '<span class="err"><strong>NO CALL BUDGET.</strong> '
+      + (L.operator_message||'') + '</span>';
+    return;
+  }
   if(L.status === 'ok_partial'){
     $('#livemsg').innerHTML = '<span class="warn"><strong>PARTIAL HORIZON.</strong> '
       + (L.operator_message||'') + '</span>';

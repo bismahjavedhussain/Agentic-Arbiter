@@ -1905,6 +1905,44 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
     reading was *"the fix did not work"* — it had; the process was 48 minutes stale.
     `/api/health` now reports `code_loaded_utc`, `code_on_disk_utc` and `code_is_stale`, and the
     page shows a red banner instead of leaving anyone to compare timestamps by hand.
+118. 🔴 **I BUILT AUTO-RELOAD FOR ONE FILE, REPORTED THE PROBLEM FIXED, AND THE USER HIT IT
+    AGAIN IMMEDIATELY.** `reload_if_stale()` reloads `live.py` — but **a module cannot meaningfully
+    reload its own `__main__`**, so every edit to `serve_live.py` was still being ignored. The
+    symptom was indistinguishable from the bug it was meant to have fixed: the truncation branch
+    lives in `serve_live.py`, so `live.py`'s truncation code sat **loaded and unreachable** because
+    the old code here still set `paid = False` before calling it. The user reported *"it's still
+    giving the same output"* and was right.
+    **Fix:** `restart_if_self_stale()` **re-execs** the process — only when no job is running (a
+    re-exec would abandon an in-flight run), and **carrying `LIVE_CALLS_MADE` forward in the
+    environment**, because *a safety counter that resets on every code edit is not a cap.*
+    **The lesson is about the claim, not the code: "I fixed the staleness problem" was true of one
+    file and false of the system, and I did not check the other one before saying so.**
+119. **A SELF-HEALING RESTART THAT LOOKS LIKE A NETWORK FAILURE IS NOT AN IMPROVEMENT.** The first
+    version called `os.execv` inline, which replaced the process **mid-response** — so the request
+    that triggered the restart got a dead socket, and a browser would show a network error rather
+    than a recovery. The exec is now deferred half a second on a daemon thread so the triggering
+    response flushes first. Verified: the request survives, and the counter is intact on the other
+    side.
+
+116. 🔴 **"REFUSE THE WHOLE RUN" WAS SAFE AND UNUSABLE.** With 9 calls left of a 24-call cap
+    and 11 needed, the agent refused entirely and explained at length why — so the user could not run
+    it at all. The refusal was *correct* (it never scheduled an hour it had not looked at) and far too
+    blunt. **TRUNCATE INSTEAD:** the horizon shrinks to the longest **prefix** the budget covers, so
+    no hour inside it is unlooked-at and the result is a genuine complete decision over fewer hours.
+    A prefix specifically, not a subset — the DP schedules contiguous hours, and the near hours are
+    the ones an operator can still act on. **A complete 10-hour decision beats no decision.**
+117. 🔴 **AND THE FIX I JUST WROTE BROADCAST ONE MEASUREMENT ACROSS SIX HOURS.** The
+    truncation block sat BELOW the NWS fetch, so shortening the horizon left the wind and dew-point
+    arrays at their original length. `bound = amb + rise + margin` then relied on numpy broadcasting:
+    **a length-1 ambient against a length-6 rise produced six bounds from one measurement.** Every
+    individual number still looked plausible — `peak_bound_c` was 32.6679 instead of 32.3872, which
+    nobody would query — and the tell was a **negative count**, `hours_with_NO_forecast: -5`.
+    **Two lessons.** Settle the horizon BEFORE building any per-hour array, and **check array
+    lengths rather than trusting them**: numpy will silently turn a length mismatch into
+    plausible-looking numbers instead of an error. `live_run` now raises on a mismatch, and the
+    self-test asserts the summary counts are non-negative and partition the horizon — because
+    **the negative was the only visible symptom of a wrong answer.**
+
 114. 🔴 **TWELVE SEQUENTIAL WAITS WHEN THE VENDOR'S API IS SUBMIT-THEN-POLL.** The user
     screenshotted a live run apparently frozen after *"hour 2 of 12 … [cached]"*. It was not frozen:
     hours 1–2 came from cache in 3.3 s and hour 3 was polling, alone, for up to **POLL_MAX_S = 300 s**
@@ -1997,8 +2035,8 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **130,820 = 31 calls = 6.54 %.** Remaining **1,869,180**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
-| **⚠ Of that, 54,860 PROVABLY bought nothing** | **41.9 %** of spend. Ceiling **105,500 = 80.6 %**. §10 #93 |
+| **Spent to date** | 🔴 **194,120 = 46 calls = 9.71 %.** Remaining **1,805,880**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
+| **⚠ Of that, 113,940 PROVABLY bought nothing** | **58.7 %** of spend. Ceiling **164,580 = 84.8 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |

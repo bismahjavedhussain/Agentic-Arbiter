@@ -2,22 +2,22 @@
  "plan": "Hackathon",
  "issued": 2000000,
  "heatmap_credits": 4220,
- "remaining": 1869180,
- "spent": 130820,
- "paid_calls": 31,
- "pct_of_plan": 6.541,
+ "remaining": 1805880,
+ "spent": 194120,
+ "paid_calls": 46,
+ "pct_of_plan": 9.706,
  "whole_call_remainder": 0,
- "attributed_credits": 80180,
+ "attributed_credits": 143480,
  "unattributed_credits": 50640,
- "calls_returning_data": 6,
- "calls_returning_zero_tiles_meter_stamped": 13,
- "live_run_calls_with_data": 3,
- "live_run_calls_completed_but_empty": 12,
+ "calls_returning_data": 7,
+ "calls_returning_zero_tiles_meter_stamped": 27,
+ "live_run_calls_with_data": 4,
+ "live_run_calls_completed_but_empty": 26,
  "collector_recorded_failed_attempts": 6,
  "collector_attempts_are_not_all_billed": true,
  "calls_not_individually_identified": 12,
- "credits_that_bought_no_data_floor": 54860,
- "credits_that_bought_no_data_ceiling": 105500,
+ "credits_that_bought_no_data_floor": 113940,
+ "credits_that_bought_no_data_ceiling": 164580,
  "unbilled_frozen_cycle_readings": 8,
  "attributable": [
   {
@@ -82,6 +82,24 @@
    "tiles": null,
    "activity_id": null,
    "test": "live.py ashburn 2026-08-20T11:00:00-04:00"
+  },
+  {
+   "source": "testing/results/live_spend.json",
+   "before": 1869180,
+   "after": 1818540,
+   "spent": 50640,
+   "tiles": null,
+   "activity_id": null,
+   "test": "live.py chicago 2026-08-20T11:00:00-05:00"
+  },
+  {
+   "source": "testing/results/live_spend.json",
+   "before": 1818540,
+   "after": 1805880,
+   "spent": 12660,
+   "tiles": null,
+   "activity_id": null,
+   "test": "live.py ashburn 2026-08-20T12:00:00-04:00"
   }
  ]
 }

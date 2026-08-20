@@ -73,8 +73,52 @@ DEMO = os.path.join(M.ROOT, "demo")
 # the server was stale. `/api/health` now reports both mtimes so the page can say so out loud
 # instead of leaving a reader to compare timestamps by hand.
 LIVE_PY = os.path.join(HERE, "live.py")
+SELF_PY = os.path.abspath(__file__)
 LOADED_MTIME = os.path.getmtime(LIVE_PY)
+SELF_MTIME = os.path.getmtime(SELF_PY)
 RELOADS = 0
+
+
+def restart_if_self_stale():
+    """Re-exec this process when serve_live.py itself changes. Returns True if a job blocks it.
+
+    🔴 THE AUTO-RELOAD FIXED HALF THE PROBLEM AND I REPORTED IT AS FIXED. `reload_if_stale` reloads
+    `live.py`, but **a module cannot meaningfully reload its own `__main__`** -- so an edit to THIS
+    file kept being ignored, and the symptom was indistinguishable from the bug it was supposed to
+    have fixed: a truncation branch that lived here never ran, while `live.py`'s truncation code sat
+    loaded and unreachable because the old code here still set `paid = False` first.
+
+    So this file re-execs instead of reloading:
+      * **only when no job is running**, because re-execing would abandon an in-flight run;
+      * **carrying `LIVE_CALLS_MADE` forward in the environment**, so restarting does not silently
+        reset the spend cap -- a safety counter that resets on every code edit is not a cap.
+    """
+    try:
+        m = os.path.getmtime(SELF_PY)
+    except OSError:
+        return False
+    if m <= SELF_MTIME + 1:
+        return False
+    with LOCK:
+        busy = any(j.get("state") == "running" for j in JOBS.values())
+        used = LIVE_CALLS_MADE
+    if busy:
+        return True                      # caller reports "restart pending"
+    sys.stderr.write("   serve_live.py changed on disk -- re-executing (carrying %d calls "
+                     "used)\n" % used)
+    os.environ["SERVE_LIVE_CALLS_MADE"] = str(used)
+
+    # DEFERRED BY HALF A SECOND, so the request that TRIGGERED the restart still gets an answer.
+    # Calling execv inline replaced the process mid-response: the browser saw a dead socket, and a
+    # self-healing restart that looks like a network failure is not an improvement on a stale banner.
+    def _exec():
+        time.sleep(0.5)
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+
+    threading.Thread(target=_exec, daemon=True).start()
+    return False
 
 
 def reload_if_stale():
@@ -111,7 +155,8 @@ def reload_if_stale():
 # call counter is the thing standing between a browser loop and the daily cap.
 JOBS = {}
 LOCK = threading.Lock()
-LIVE_CALLS_MADE = 0
+# Carried across a self-restart so a code edit cannot silently reset the spend cap.
+LIVE_CALLS_MADE = int(os.environ.get("SERVE_LIVE_CALLS_MADE") or 0)
 CONF = {"allow_paid": False, "max_live_calls": 24}
 
 
@@ -135,12 +180,13 @@ def offerable_sites():
 
 
 def health():
-    reload_if_stale()
     """What the page needs to decide whether to offer a LIVE button at all.
 
     Deliberately does NOT report the credit balance: reading it is a network call to FortyGuard, and
     a health check that hits the vendor is a health check that fails when the vendor does.
     """
+    reload_if_stale()       # the docstring must stay FIRST or it is not a docstring at all
+    restart_pending = restart_if_self_stale()
     with LOCK:
         used = LIVE_CALLS_MADE
     key_present = False
@@ -168,6 +214,10 @@ def health():
                                           time.gmtime(os.path.getmtime(LIVE_PY))),
         "code_is_stale": os.path.getmtime(LIVE_PY) > LOADED_MTIME + 1,
         "code_reloads": RELOADS,
+        "server_code_restart_pending": bool(restart_pending),
+        "server_code_note": ("serve_live.py changed on disk and a job is in flight, so the restart "
+                             "is deferred. It will re-exec once the job finishes."
+                             if restart_pending else None),
         "stale_note": ("live.py has changed on disk since this server started -- RESTART IT. "
                        "Python caches imported modules, so this process is still running the old "
                        "code.") if os.path.getmtime(LIVE_PY) > LOADED_MTIME + 1 else None,
@@ -176,7 +226,9 @@ def health():
 
 def start_job(site, hours, limit_c, want_paid, replay):
     """Kick off a live run on a worker thread and return its id immediately."""
-    reload_if_stale()          # a run must never execute code older than the request that asked for it
+    # A run must never execute code older than the request that asked for it -- both files.
+    reload_if_stale()
+    restart_if_self_stale()
     jid = uuid.uuid4().hex[:12]
 
     paid = bool(want_paid and CONF["allow_paid"])
@@ -212,14 +264,16 @@ def start_job(site, hours, limit_c, want_paid, replay):
                        "back to cached data and calls it live."
                        % (LIVE_CALLS_MADE, CONF["max_live_calls"], LV.DAILY_HEATMAP_CAP))
         elif needed > allowance:
-            # PARTIAL BUDGETS ARE NOT SILENTLY ALLOWED. Letting the run fetch `allowance` windows
-            # and skip the rest is exactly the "3 cached, 9 never asked" output that had to be
-            # fixed, so the run is refused whole and the shortfall is named.
-            paid = False
-            refusal = ("Refusing: this run needs %d live call(s) (%d of %d windows are already "
-                       "cached) but only %d remain of this process's %d-call cap. Refusing the "
-                       "whole run rather than fetching some hours and leaving the rest unlooked-at."
-                       % (needed, hours - needed, hours, allowance, CONF["max_live_calls"]))
+            # NOT A REFUSAL ANY MORE -- A SHORTER HORIZON. Refusing the whole run was safe but
+            # unusable: with 9 calls left and 11 needed the agent simply could not be run. live_run
+            # now truncates the horizon to the longest prefix the budget covers, so no hour inside
+            # it is unlooked-at. This message explains the shortening rather than announcing a
+            # failure, because a complete 10-hour decision is a better answer than none.
+            refusal = ("Budget note: the full %d-hour horizon needs %d live call(s) (%d already "
+                       "cached) and %d remain of this process's %d-call cap, so the horizon has "
+                       "been SHORTENED to what the budget covers. Every hour reported was actually "
+                       "perceived -- none are left unlooked-at."
+                       % (hours, needed, hours - needed, allowance, CONF["max_live_calls"]))
 
     with LOCK:
         JOBS[jid] = {"state": "running", "site": site, "hours": hours, "paid": paid,

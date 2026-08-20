@@ -139,6 +139,105 @@
      "activity_id": "f9226317-5c5e-4d47-8089-5880e8f61b36"
     }
    ]
+  },
+  {
+   "test": "live.py chicago 2026-08-20T11:00:00-05:00",
+   "utc": "2026-08-20T15:03:02.423612+00:00",
+   "metro": "chicago",
+   "horizon_h": 12,
+   "credits_before": 1869180,
+   "credits_after": 1818540,
+   "api_calls_made": 12,
+   "cache_hits": 0,
+   "windows": [
+    {
+     "class": "ok",
+     "tiles": 17797,
+     "activity_id": "fb57bebc-3bc9-43a5-95e4-a66fff191b9e"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "22e8179b-4464-48c1-bd9d-996a4add3024"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "dedd15df-d976-45ed-9bb4-13f6a83961cd"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "714d04e7-63dc-4221-bebe-96bbf0f157e7"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "d8b9aaf2-ed9e-4ffa-a46b-ebc486835a6a"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "6aa19062-cdfe-4488-96b4-bebe2af787a0"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "86f8e559-5699-4d11-a9e5-4609be5a0a3d"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "ae44d8b6-c8c8-47d1-acad-9fc477e7847c"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "2299d240-a3ac-4f25-9de7-efa25e9d5314"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "729cc7a8-ac67-49e7-869c-103d9f80fbac"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "9bd451b9-3a5a-4bf7-a610-7296285070fb"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "c6e8b7ec-e047-408a-8c2c-e60c4b880dfa"
+    }
+   ]
+  },
+  {
+   "test": "live.py ashburn 2026-08-20T12:00:00-04:00",
+   "utc": "2026-08-20T15:33:09.311183+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1818540,
+   "credits_after": 1805880,
+   "api_calls_made": 3,
+   "cache_hits": 1,
+   "windows": [
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "6c09799f-57c7-47ff-9c68-fcd3a0c691d5"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "ed474def-2e51-469a-8a2a-eb882fedfe50"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "da759479-84b5-4681-aca6-7336d3545997"
+    }
+   ]
   }
  ]
 }
