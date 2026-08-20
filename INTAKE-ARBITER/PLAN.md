@@ -65,6 +65,53 @@ therefore **require the customer's sensor to anchor the forecast level**: unanch
 
 ---
 
+## 1a. The problem, stated as a contract — and the commercial case
+
+**Added 2026-08-20 after reviewing the judging criteria presented by Ahmed Abdelkhalek**, who is a
+hackathon judge. His pressure-test formula, and the guardrail attached to it — *"if you cannot fill
+out every variable cleanly, you are not ready to write a single line of code"* — is worth answering
+directly rather than leaving a reader to assemble it from §1 and §7:
+
+> **Data-centre cooling-plant operators** struggle to **decide, each hour, whether to switch the
+> mechanical chillers off and cool with outside air** because **a rooftop thermometer cannot see
+> three hours ahead and a plant needs that much notice to change mode**, which results in
+> **406 chiller-hours per year left on the table — $5,522–$7,990 per MW of IT load** over
+> **43,763 hours** of real weather.
+
+Every variable resolves to an audited number: the hours to `backtest.py`'s N-56 ladder (§8n.1), the
+dollars to `money.py`'s 16 swept cells (§12.8a), the hour count to the KIAD record (§8b). **The
+guardrail is met — but note that it was met retrospectively.** This project did not start from a
+filled-in formula; it started from the LBNL finding (§12.2) and arrived here after seven decision
+cores failed (§6). The formula is a good test of whether a problem is real. It is not a claim that
+the route to it was straight.
+
+### 1a.1 The hero, and the wedge
+
+**The hero is a role, not a market:** the critical-environments or facility engineer at a
+colocation operator, who owns the PUE number *and* personally absorbs the risk if a hall runs hot.
+Those two things sit in the same person, which is why the trade this agent makes is theirs to make.
+
+**The first sellable unit is not control — it is a 30-day shadow trial.** The agent publishes a
+12-hour schedule each hour; the operator ignores it; after 30 days the two are compared hour by
+hour with a reason attached to each. No BMS write access, no procurement, no risk. The per-site PDF
+this repository already generates (§8p.3) is precisely the artefact such a trial produces.
+
+🔴 **The wedge and the missing science are the same activity, and that is the strongest structural
+argument this project has.** The bound needs **9 measured forecast/outcome day-pairs and has 4**
+(§8e). A 30-day shadow trial generates them as a by-product. **The trial that earns the first
+customer is the trial that finishes the calibration** — so the commercial path and the scientific
+path do not compete for time.
+
+### 1a.2 What the commercial case does NOT have
+
+No signed pilot, no letter of intent, **and no operator interview.** The pain is evidenced from
+published sources — LBNL instrumented eight real data centres and documented *why* operators avoid
+free cooling — not from a customer conversation. **That is the largest hole in the commercial case**
+and it is recorded here rather than left for a reader to notice. It is also the one gap that could
+not be closed by more engineering.
+
+---
+
 ## 2. The problem — in FortyGuard's own words
 
 From their Track 3 brief:

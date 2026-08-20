@@ -1399,6 +1399,36 @@ second condition. Verified on both hosts: card **hidden** under `http.server`, *
 dispatches by name — a false positive, so an explicit `FRAMEWORK_DISPATCHED` set was added rather
 than excluding the file, because excluding a file hides everything else in it.
 
+### 9.2c-bis ✅ THE JUDGING-CRITERIA PASS — done 2026-08-20, before Session 4
+
+**A judge (Ahmed Abdelkhalek) presented a "Builder's Trap" framework in the hackathon webinar.** The
+user supplied the slides and asked for a critical self-assessment. Verdict: **the substance aligned
+well; the FRAMING did not**, and three of the gaps were things we could already prove but had never
+written down. Five changes, all writing rather than building, all numbers audit-registered:
+
+| His criterion | Where we stood | What was added |
+|---|---|---|
+| *"API of the problem"* — a fill-in-the-blanks formula, with the guardrail *"if you cannot fill out every variable cleanly you are not ready to write a single line of code"* | We COULD fill it. We never had. | The contract sentence, README §1 and **PLAN §1a**, every variable an audited number |
+| *"Engineering for the first buying customer"*, *"GTM fit"* | 🔴 **The real gap.** Value quantified, but no hero, no price, no wedge, no route to revenue | README *"Who buys this"* + PLAN §1a.1: the hero as a **role**, **$5,522–$7,990/MW-IT/yr** (16 swept cells), and the **30-day shadow trial** |
+| *"Useful AI"* / *"Regex vs LLMs"* / *"Agentic scope"* | We use **zero LLMs** deliberately — his framework endorses exactly that, but **unstated, we read as a physics project that wandered into an AI hackathon** | README *"Useful AI — and where we deliberately did not use one"*: the job-by-job table, `local_model_used: false` quoted from the emitted artefact, **371 MiB of 6,141** proving it was declined on merit not capacity, and the five execution-scope constraints |
+| *"MLP not MVP"*, validate before you scale | True of us, never said | The verification-surface paragraph: **62 checks and a gotcha log to #106 are headstones, not architecture**; no Kubernetes, no vector DB, no queue, no build step |
+| — | 🔴 **65.6 % read to a skimmer as "their bound fails"** | Split into **method validated** (20/20 self-tests, 12 per-lead bounds ≥ 90 %) vs **calibration under-sampled** (9 pairs needed, 4 held, 80 % ceiling at n=4 — *arithmetically* unreachable, not refuted) |
+
+🔴 **THE STRUCTURAL ARGUMENT THAT CAME OUT OF THIS, AND IT IS THE BEST ONE IN THE PROJECT:** the
+30-day shadow trial is simultaneously the **sales motion** and the **missing calibration set**. The
+bound needs 5 more day-pairs; a shadow trial produces them as a by-product. **The trial that earns
+the first customer is the trial that finishes the science**, so the commercial path and the
+scientific path do not compete for time. Lead with this.
+
+⚠ **The one gap that writing could NOT close: no operator interview, no pilot, no LOI.** The pain is
+evidenced from LBNL's instrumented study, not from a customer conversation. Stated plainly in both
+README and PLAN §1a.2 rather than papered over. **If any time frees up before Aug 30, one
+conversation with one facility engineer is worth more than any further engineering.**
+
+`audit.py` check 10 now re-reads **22** README figures, including the money floor/ceiling, the cell
+count, the VRAM pair, the solve count and time, and the 9-pairs/4-held/80 % trio — so none of the
+new commercial or AI claims can drift.
+
 ### 9.2d ☐ SESSION 4 — autonomy, recovery, verification, docs
 
 Collector hardened for all three failure modes (`empty` / `failed` / `stall`); a health watcher that
