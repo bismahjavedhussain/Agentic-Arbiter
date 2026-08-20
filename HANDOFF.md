@@ -1905,6 +1905,26 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
     reading was *"the fix did not work"* — it had; the process was 48 minutes stale.
     `/api/health` now reports `code_loaded_utc`, `code_on_disk_utc` and `code_is_stale`, and the
     page shows a red banner instead of leaving anyone to compare timestamps by hand.
+120. 🔴 **A SAFETY CAP THAT ONLY EVER COUNTS UP MAKES THE PRODUCT UNRUNNABLE.** The
+    per-process call counter never decreased, so once spent the agent could not be run at all —
+    *"already made 3 of its 3 permitted live calls"*. But the constraint being modelled is the
+    **vendor's, and that is 30 heatmaps PER DAY.** The cap is now a **rolling window since 00:00
+    UTC**, so it clears by itself the way the real quota does, and the log is carried across a
+    self-restart so a code edit cannot reset it. **Model the real constraint, not a proxy for it.**
+121. 🔴 **AND THE EXHAUSTED BRANCH BYPASSED THE TRUNCATION I HAD JUST WRITTEN.** With
+    `allowance <= 0` it set `paid = False`, which passed `max_calls=None` — meaning *unbounded* —
+    so `live_run` never truncated and produced the **exact "NO SCHEDULE, 11 of 12 hours NEVER
+    REQUESTED" wall of text the truncation existed to remove.** A zero budget still permits every
+    CACHED window, so it now truncates to the cached prefix: verified at cap 0, a 12-hour request
+    returns `status: ok` with a real **1-hour** schedule and 0 credits.
+    **The trap in one line: `0` and `None` meant "no budget" and "no limit" and were one keystroke
+    apart on the same parameter.**
+122. **AN OPERATIONAL MISTAKE OF MINE, AND IT COST THE USER A CYCLE.** I restarted the server with
+    `--max-live-calls 3` for a truncation test, never restored it, and then told the user *"the
+    server is live on the fixed code with a 24-call budget"*. It was not. **Test configuration left
+    running is indistinguishable, from the outside, from a product defect** — and the user reported
+    a bug that was really my leftover flag.
+
 118. 🔴 **I BUILT AUTO-RELOAD FOR ONE FILE, REPORTED THE PROBLEM FIXED, AND THE USER HIT IT
     AGAIN IMMEDIATELY.** `reload_if_stale()` reloads `live.py` — but **a module cannot meaningfully
     reload its own `__main__`**, so every edit to `serve_live.py` was still being ignored. The

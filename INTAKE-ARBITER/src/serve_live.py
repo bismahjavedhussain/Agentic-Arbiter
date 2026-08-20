@@ -90,8 +90,8 @@ def restart_if_self_stale():
 
     So this file re-execs instead of reloading:
       * **only when no job is running**, because re-execing would abandon an in-flight run;
-      * **carrying `LIVE_CALLS_MADE` forward in the environment**, so restarting does not silently
-        reset the spend cap -- a safety counter that resets on every code edit is not a cap.
+      * **carrying the call log forward in the environment**, so restarting does not silently reset
+        the spend cap -- a safety counter that resets on every code edit is not a cap.
     """
     try:
         m = os.path.getmtime(SELF_PY)
@@ -101,12 +101,12 @@ def restart_if_self_stale():
         return False
     with LOCK:
         busy = any(j.get("state") == "running" for j in JOBS.values())
-        used = LIVE_CALLS_MADE
+        log = ",".join("%.0f" % t for t in CALL_LOG)
     if busy:
         return True                      # caller reports "restart pending"
     sys.stderr.write("   serve_live.py changed on disk -- re-executing (carrying %d calls "
-                     "used)\n" % used)
-    os.environ["SERVE_LIVE_CALLS_MADE"] = str(used)
+                     "used today)\n" % calls_today())
+    os.environ["SERVE_LIVE_CALL_LOG"] = log
 
     # DEFERRED BY HALF A SECOND, so the request that TRIGGERED the restart still gets an answer.
     # Calling execv inline replaced the process mid-response: the browser saw a dead socket, and a
@@ -155,9 +155,31 @@ def reload_if_stale():
 # call counter is the thing standing between a browser loop and the daily cap.
 JOBS = {}
 LOCK = threading.Lock()
-# Carried across a self-restart so a code edit cannot silently reset the spend cap.
-LIVE_CALLS_MADE = int(os.environ.get("SERVE_LIVE_CALLS_MADE") or 0)
+# THE CAP IS A ROLLING DAILY WINDOW, NOT A PER-PROCESS TOTAL.
+# A per-process counter that only ever increases made the agent permanently unrunnable once it was
+# spent -- the user hit exactly that: "already made 3 of its 3 permitted live calls". But the
+# constraint being modelled is the VENDOR'S, and that is 30 heatmaps PER DAY. So calls are logged
+# with timestamps and only those since UTC midnight count, so the budget clears by itself the way
+# the real quota does. Carried across a self-restart so a code edit cannot silently reset it.
+CALL_LOG = [float(t) for t in (os.environ.get("SERVE_LIVE_CALL_LOG") or "").split(",") if t]
 CONF = {"allow_paid": False, "max_live_calls": 24}
+
+
+def _utc_midnight():
+    n = time.gmtime()
+    return time.time() - (n.tm_hour * 3600 + n.tm_min * 60 + n.tm_sec)
+
+
+def calls_today():
+    cut = _utc_midnight()
+    return sum(1 for t in CALL_LOG if t >= cut)
+
+
+def record_calls(n):
+    now = time.time()
+    with LOCK:
+        CALL_LOG.extend([now] * n)
+        CALL_LOG[:] = [t for t in CALL_LOG if t >= _utc_midnight()]
 
 
 def _json(handler, obj, code=200):
@@ -187,8 +209,7 @@ def health():
     """
     reload_if_stale()       # the docstring must stay FIRST or it is not a docstring at all
     restart_pending = restart_if_self_stale()
-    with LOCK:
-        used = LIVE_CALLS_MADE
+    used = calls_today()
     key_present = False
     try:
         # Existence only. The value is never read into a variable that leaves this function, never
@@ -201,6 +222,7 @@ def health():
         "paid_enabled": bool(CONF["allow_paid"]),
         "key_present": key_present,
         "live_calls_made": used,
+        "live_calls_window": "since 00:00 UTC -- this budget clears daily, like the vendor's own",
         "max_live_calls": CONF["max_live_calls"],
         "credits_per_call": LV.HEATMAP_CREDITS,
         "daily_vendor_cap": LV.DAILY_HEATMAP_CAP,
@@ -254,15 +276,18 @@ def start_job(site, hours, limit_c, want_paid, replay):
             needed = sum(1 for p in plan_w if not p["cached"])
         except Exception:
             needed = hours          # cannot cost it: assume the worst rather than under-refuse
-        with LOCK:
-            allowance = CONF["max_live_calls"] - LIVE_CALLS_MADE
+        allowance = max(0, CONF["max_live_calls"] - calls_today())
         if allowance <= 0:
-            paid = False
-            refusal = ("Refusing: this process has already made %d of its %d permitted live calls. "
-                       "The plan's real limit is %d heatmaps/day. Restart with a higher "
-                       "--max-live-calls if that is genuinely what you want -- nothing here falls "
-                       "back to cached data and calls it live."
-                       % (LIVE_CALLS_MADE, CONF["max_live_calls"], LV.DAILY_HEATMAP_CAP))
+            # EXHAUSTED IS NOT A REASON TO REFUSE EITHER. This branch used to set paid=False,
+            # which passed max_calls=None and so BYPASSED the truncation entirely -- producing the
+            # exact "NO SCHEDULE, 11 of 12 hours NEVER REQUESTED" wall of text the truncation was
+            # written to remove. A zero budget still permits every CACHED window, so the horizon
+            # truncates to the cached prefix and a short honest schedule comes back instead.
+            refusal = ("Budget note: %d of %d live calls already used today; this budget clears at "
+                       "00:00 UTC, mirroring the vendor's %d heatmaps/day. No new calls are "
+                       "available, so the horizon covers only what is already cached -- and every "
+                       "hour reported was genuinely perceived."
+                       % (calls_today(), CONF["max_live_calls"], LV.DAILY_HEATMAP_CAP))
         elif needed > allowance:
             # NOT A REFUSAL ANY MORE -- A SHORTER HORIZON. Refusing the whole run was safe but
             # unusable: with 9 calls left and 11 needed the agent simply could not be run. live_run
@@ -281,7 +306,6 @@ def start_job(site, hours, limit_c, want_paid, replay):
                      "refusal": refusal}
 
     def work():
-        global LIVE_CALLS_MADE          # hoisted: `global` belongs at the top of its scope
         def prog(ev):
             with LOCK:
                 j = JOBS.get(jid)
@@ -295,8 +319,7 @@ def start_job(site, hours, limit_c, want_paid, replay):
             # counter now moves by the calls the run really made.
             made = int((out.get("spend") or {}).get("calls_attempted") or 0)
             if made:
-                with LOCK:
-                    LIVE_CALLS_MADE += made
+                record_calls(made)
             with LOCK:
                 JOBS[jid].update({"state": "done", "result": out, "live_calls_made": made})
         except SystemExit as e:

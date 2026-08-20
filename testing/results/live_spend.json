@@ -238,6 +238,17 @@
      "activity_id": "da759479-84b5-4681-aca6-7336d3545997"
     }
    ]
+  },
+  {
+   "test": "live.py ashburn 2026-08-20T12:00:00-04:00",
+   "utc": "2026-08-20T15:52:40.419287+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1805880,
+   "credits_after": 1805880,
+   "api_calls_made": 0,
+   "cache_hits": 1,
+   "windows": []
   }
  ]
 }
