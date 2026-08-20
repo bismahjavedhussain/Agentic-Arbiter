@@ -579,6 +579,7 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
                     "calls_attempted": sum(1 for r in recs if r.get("source") == "live"),
                     "cache_hits": sum(1 for r in recs if r.get("source") == "cache"),
                     "note": "cache hits are byte-identical to fresh calls -- N-55"}
+    _append_spend_ledger(out, recs)
     out["windows"] = [{"window": w, **{k: v for k, v in r.items() if k != "window"}}
                       for w, r in zip(windows, recs)]
 
@@ -731,6 +732,49 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
             "dew point ARE live. Nothing in the demo may present this as a live run."
             % os.path.basename(replay))
     return out
+
+
+def _append_spend_ledger(out, recs):
+    """Record this run's meter readings where `testing/api_usage_ledger.py` will find them.
+
+    🔴 WITHOUT THIS, LIVE SPEND IS INVISIBLE TO THE PROJECT'S OWN SPEND LEDGER. The ledger
+    walks `testing/results/` for saved `credits_before`/`credits_after` pairs, and `live.py` writes
+    to `demo/`, so the first 12-hour run spent **46,420 credits that no audited figure knew about**.
+    API-USAGE.md would have understated usage by 85 % while `audit.py` check 9 reported it green,
+    because the check verifies that the documents match the ledger -- not that the ledger sees
+    everything. A ledger with a blind spot is worse than no ledger, because it is trusted.
+
+    APPEND, never overwrite: gotcha #100 was caused by a single-slot meter field being overwritten
+    by a later unbilled call, which silently dropped three calls from the total. Each run is its own
+    entry here.
+    """
+    if not out.get("spend") or not out["spend"].get("credits_before"):
+        return                                    # a dry run or a replay: nothing was billed
+    path = os.path.join(TESTING, "results", "live_spend.json")
+    try:
+        doc = json.load(open(path, encoding="utf-8"))
+        if not isinstance(doc, dict) or "runs" not in doc:
+            raise ValueError("unexpected shape")
+    except (OSError, ValueError):
+        doc = {"purpose": "every paid live.py run, so testing/api_usage_ledger.py sees live spend",
+               "runs": []}
+    sp = out["spend"]
+    doc["runs"].append({
+        "test": "live.py %s %s" % (out.get("metro"), out.get("first_hour_site_local")),
+        "utc": out.get("utc_now"),
+        "metro": out.get("metro"),
+        "horizon_h": out.get("horizon_h"),
+        "status": out.get("status"),
+        "credits_before": sp["credits_before"],
+        "credits_after": sp["credits_after"],
+        "api_calls_made": sp["calls_attempted"],
+        "cache_hits": sp["cache_hits"],
+        # What each call BOUGHT, so the ledger can classify without guessing.
+        "windows": [{"class": r.get("class"), "tiles": r.get("tiles"),
+                     "activity_id": r.get("activity_id")}
+                    for r in recs if r.get("source") == "live"],
+    })
+    json.dump(doc, open(path, "w", encoding="utf-8"), indent=1, default=str, allow_nan=False)
 
 
 # ============================================================================

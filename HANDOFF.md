@@ -1794,6 +1794,44 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
     taken before the edit. **Regenerate the driver in the same command that shoots it** -- see
     section 8.1a.
 
+103. 🔴 **MY SPEND LEDGER HAD A BLIND SPOT WORTH 46,420 CREDITS, AND `audit.py` REPORTED GREEN
+    THROUGHOUT.** `api_usage_ledger.py` walks `testing/results/` for meter readings; `live.py` writes
+    its output to `demo/`. So the first full 12-hour live run spent **46,420 credits — 44 % of
+    everything this plan had ever spent — that no audited figure knew about**, and check 9 still
+    passed, because it verifies that the DOCUMENTS match the LEDGER and never that the ledger sees
+    everything. **A ledger with a blind spot is worse than no ledger, because it is trusted.** Fixed
+    with `_append_spend_ledger()` writing one entry per run to `testing/results/live_spend.json`,
+    **appending, never overwriting** (gotcha #100 was caused by exactly that). Second lesson, and the
+    sharper one: **a check that compares two of your own artefacts proves they agree, not that either
+    is complete.** Coverage of the SOURCE has to be checked separately from consistency.
+104. **`completed` WITH AN EMPTY `features` ARRAY IS STILL BILLED, AND IT COST 33,760 IN ONE RUN.**
+    The 12-hour run: 11 calls, 3 returned a field, **8 reported the job COMPLETE and carried no
+    data, all 8 charged 4,220.** Meanwhile a `failed` job and a stalled job cost **nothing**. So the
+    same vendor fault is free or expensive depending only on which way it presents — which is why
+    the report to FortyGuard asks for the empty-completed case to be unbilled too, and thanks them
+    for the two that already are.
+106. 🔴 **A TOOL THAT WRITES DOCUMENTS WROTE `\g<1>26\g<2>` INTO ONE.**
+    `bump_spend_docs.py` did `repl.replace("\\", "\\\\")` on its replacement templates, meaning
+    to guard against a stray backslash in the data. What it actually escaped were the **`\g<1>`
+    group references**, so `re.subn` inserted the literal text into **seven table rows of
+    API-USAGE.md** -- visible garbage in a submission document, put there by the tool whose whole
+    job was keeping that document correct. Fixed by making the replacement a **callable**, which
+    `re` never interprets for escapes, removing the class of error rather than the instance.
+    **Two smaller lessons from the same ten minutes:** the failure path printed a red-circle emoji
+    and `UnicodeEncodeError`'d on the cp1252 console, so **the diagnostic crashed while reporting
+    the problem it existed to report** -- a failure path is the last place to spend a character the
+    terminal may not have. And the first version matched on the *current values* it was replacing,
+    which made it a **one-shot**: it worked once and then silently matched nothing. It now matches
+    on row LABELS and **reports every pattern that fails** instead of exiting 0. **Running tally:
+    checks wrong 15, product wrong 14.**
+
+105. **AN HOUR WITH NO FORECAST IS NOT AN HOUR "BLOCKED BY TEMPERATURE".** `bound` is NaN for a
+    missing hour and `NaN <= limit` is False, so 8 no-data hours fell into the temperature bucket
+    and the run reported *"blocked by temperature 11 h"* when only **3** hours were genuinely over
+    the limit. **The artefact demonstrates its own bug: 3 + 8 = 11.** Missing hours are now counted
+    separately, excluded from both gate counts, and a partial horizon is its own status
+    (`ok_partial`). With an intermittent vendor **partial is the NORMAL case**, not an edge one.
+
 ## Carried forward, continued
 
 72. **A CSS COMMENT CAN BE UNBALANCED AND SILENT.** Successive edits left **three `*/` against one
@@ -1846,8 +1884,9 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **54,860 = 13 calls = 2.74 %.** Remaining **1,945,140**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
-| **⚠ Of that, at least 25,320 bought nothing** | 46.2 % of spend. **Upper bound 42,200 = 76.9 %** if all four unidentified calls also failed. §10 #93 |
+| **Spent to date** | 🔴 **109,720 = 26 calls = 5.49 %.** Remaining **1,890,280**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
+| **⚠ Of that, 42,200 PROVABLY bought nothing** | **38.5 %** of spend. Ceiling **84,400 = 76.9 %**. §10 #93 |
+| **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |
 | History (past) windows | ✅ work: 17,862 tiles at 8×8 km / granularity 60 |

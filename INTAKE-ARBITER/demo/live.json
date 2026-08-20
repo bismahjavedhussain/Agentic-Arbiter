@@ -19,13 +19,13 @@
   "facade_gap_m": 60.3,
   "centroid_separation_m": 165.5
  },
- "utc_now": "2026-08-20T12:13:14.122877+00:00",
- "site_local_now": "2026-08-20T08:13:14.109310-04:00",
+ "utc_now": "2026-08-20T13:40:33.355066+00:00",
+ "site_local_now": "2026-08-20T09:40:33.322420-04:00",
  "site_tz": "America/New_York",
- "horizon_h": 3,
- "first_hour_site_local": "2026-08-20T09:00:00-04:00",
+ "horizon_h": 4,
+ "first_hour_site_local": "2026-08-20T10:00:00-04:00",
  "config": {
-  "limit_c": 24.0,
+  "limit_c": 27.0,
   "switch_budget": 2,
   "min_dwell_h": 3,
   "dewpoint_limit_c": 15.0,
@@ -53,25 +53,14 @@
   "uom_note": "windSpeed converted km/h -> m/s; dewpoint already C"
  },
  "spend": {
-  "credits_before": null,
-  "credits_after": null,
-  "credits_spent": 0,
-  "calls_attempted": 0,
-  "cache_hits": 0,
+  "credits_before": 1894500,
+  "credits_after": 1890280,
+  "credits_spent": 4220,
+  "calls_attempted": 1,
+  "cache_hits": 3,
   "note": "cache hits are byte-identical to fresh calls -- N-55"
  },
  "windows": [
-  {
-   "window": {
-    "start_date": "2026-08-20",
-    "start_time": "09:00",
-    "end_time": "10:00",
-    "filter_type": 2
-   },
-   "source": "would-call",
-   "class": "not_attempted",
-   "credits_if_called": 4220
-  },
   {
    "window": {
     "start_date": "2026-08-20",
@@ -79,9 +68,12 @@
     "end_time": "11:00",
     "filter_type": 2
    },
-   "source": "would-call",
-   "class": "not_attempted",
-   "credits_if_called": 4220
+   "source": "cache",
+   "class": "ok",
+   "path": "2026-08-20_1000-1100_g60_tcm.json",
+   "tiles": 17785,
+   "tile_dist_m": 26.3,
+   "fetched_utc": "2026-08-20T12:53:46.374719+00:00"
   },
   {
    "window": {
@@ -90,14 +82,157 @@
     "end_time": "12:00",
     "filter_type": 2
    },
-   "source": "would-call",
-   "class": "not_attempted",
-   "credits_if_called": 4220
+   "source": "cache",
+   "class": "ok",
+   "path": "2026-08-20_1100-1200_g60_tcm.json",
+   "tiles": 17785,
+   "tile_dist_m": 26.3,
+   "fetched_utc": "2026-08-20T12:54:28.343761+00:00"
+  },
+  {
+   "window": {
+    "start_date": "2026-08-20",
+    "start_time": "12:00",
+    "end_time": "13:00",
+    "filter_type": 2
+   },
+   "source": "cache",
+   "class": "ok",
+   "path": "2026-08-20_1200-1300_g60_tcm.json",
+   "tiles": 17785,
+   "tile_dist_m": 26.3,
+   "fetched_utc": "2026-08-20T12:55:16.527313+00:00"
+  },
+  {
+   "window": {
+    "start_date": "2026-08-20",
+    "start_time": "13:00",
+    "end_time": "14:00",
+    "filter_type": 2
+   },
+   "source": "live",
+   "submit_http": 200,
+   "activity_id": "f8b84db4-10e4-4700-82fd-c07584d255f7",
+   "polls": 32,
+   "elapsed_s": 309.7,
+   "statuses_seen": [
+    "completed",
+    "processing"
+   ],
+   "terminal_status": "completed",
+   "tiles": 0,
+   "class": "completed_but_empty"
   }
  ],
- "vendor_classes": [
-  "not_attempted"
+ "margin_provenance": {
+  "margin_c": 0.15202845146120256,
+  "source": "cycle.bound_day_level -- the quantile of FortyGuard's OWN measured forecast-vs-outcome day-level residuals",
+  "not_used": "rolling.py's per-lead margins are calibrated on de-biased PERSISTENCE error, which describes a different forecaster. Using them here would be the category error PLAN section 8e exists to prevent.",
+  "n_calibration_pairs": 4,
+  "clamped_to_attainable": true,
+  "attainable_coverage_ceiling": 0.8,
+  "nominal_coverage": 0.9,
+  "pairs_needed_for_nominal": 9,
+  "measured_pooled_coverage": 0.655898928824693,
+  "prereg_verdict": "FAIL -- 65.6 % measured against a 90 % promise, worst day 0.0 %",
+  "calibration_leads_h": [
+   9.41,
+   9.498,
+   9.265,
+   9.498
+  ],
+  "calibration_target_hour_site": 14,
+  "EXTRAPOLATION_WARNING": "Every calibration pair was measured at a ~9.4 h lead against a 14:00 site-local window. This run bounds leads of 1..4 h at whatever hour it is now, so the margin is being applied OUTSIDE its calibration domain. Marginal coverage measured in one (lead, hour-of-day) cell is not a guarantee in another.",
+  "site_owns_this_calibration": true,
+  "borrowed_from": null,
+  "borrowed_note": null
+ },
+ "status": "ok_partial",
+ "device": "GPU (NVIDIA Warp)",
+ "hours": [
+  {
+   "hour_site_local": "2026-08-20 10:00",
+   "lead_h": 1,
+   "ambient_c": 28.8416,
+   "bearing_deg": 150.0,
+   "speed_ms": 1.029,
+   "rise_c": 0.0004,
+   "margin_c": 0.152,
+   "bound_c": 28.994,
+   "dewpoint_c": 21.11,
+   "bearing_refused": false,
+   "gate_dry_ok": false,
+   "gate_dewpoint_ok": false,
+   "free_cooling": false
+  },
+  {
+   "hour_site_local": "2026-08-20 11:00",
+   "lead_h": 2,
+   "ambient_c": 30.7076,
+   "bearing_deg": 160.0,
+   "speed_ms": 1.543,
+   "rise_c": 0.0009,
+   "margin_c": 0.152,
+   "bound_c": 30.8605,
+   "dewpoint_c": 21.11,
+   "bearing_refused": false,
+   "gate_dry_ok": false,
+   "gate_dewpoint_ok": false,
+   "free_cooling": false
+  },
+  {
+   "hour_site_local": "2026-08-20 12:00",
+   "lead_h": 3,
+   "ambient_c": 32.2338,
+   "bearing_deg": 180.0,
+   "speed_ms": 2.058,
+   "rise_c": 0.0014,
+   "margin_c": 0.152,
+   "bound_c": 32.3872,
+   "dewpoint_c": 21.67,
+   "bearing_refused": false,
+   "gate_dry_ok": false,
+   "gate_dewpoint_ok": false,
+   "free_cooling": false
+  },
+  {
+   "hour_site_local": "2026-08-20 13:00",
+   "lead_h": 4,
+   "ambient_c": null,
+   "bearing_deg": 200.0,
+   "speed_ms": 2.058,
+   "rise_c": 0.0482,
+   "margin_c": 0.152,
+   "bound_c": null,
+   "dewpoint_c": 22.22,
+   "bearing_refused": false,
+   "gate_dry_ok": false,
+   "gate_dewpoint_ok": false,
+   "free_cooling": false
+  }
  ],
- "status": "dryrun",
- "operator_message": "DRY RUN -- no call was made. 3 hourly windows would be fetched, 0 already cached, so 3 paid calls at 4,220 credits = 12,660 credits. The plan's binding limit is 30 heatmaps/day, not credits."
+ "summary": {
+  "free_cooling_hours": 0,
+  "of_hours": 4,
+  "hours_with_a_forecast": 3,
+  "hours_with_NO_forecast": 1,
+  "mode_changes": 0,
+  "plan_reported_switches": 0,
+  "hours_refused_by_solver": 0,
+  "hours_blocked_by_dewpoint": 3,
+  "hours_blocked_by_temperature": 3,
+  "peak_bound_c": 32.3872
+ },
+ "commands": [
+  {
+   "hour": "2026-08-20 10:00",
+   "index": 0,
+   "command": "MECHANICAL",
+   "reason": "upper bound on intake 28.994 C is NOT under the 27.0 C plant limit (recirculation contributes +0.000 C).",
+   "bound_c": 28.9940484514612,
+   "rise_c": 0.0004,
+   "refused": false
+  }
+ ],
+ "operator_message": "PARTIAL HORIZON: 3 of 4 hours returned a field, 1 did not (completed_but_empty). The hours with no forecast are scheduled MECHANICAL -- chillers on is the safe default -- and are NOT counted as blocked by temperature or humidity, because nothing was measured about them. Only the 3 answered hours carry a bound."
 }

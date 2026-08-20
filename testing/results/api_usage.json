@@ -2,20 +2,22 @@
  "plan": "Hackathon",
  "issued": 2000000,
  "heatmap_credits": 4220,
- "remaining": 1945140,
- "spent": 54860,
- "paid_calls": 13,
- "pct_of_plan": 2.743,
+ "remaining": 1890280,
+ "spent": 109720,
+ "paid_calls": 26,
+ "pct_of_plan": 5.486,
  "whole_call_remainder": 0,
- "attributed_credits": 16880,
- "unattributed_credits": 37980,
- "calls_returning_data": 3,
- "calls_returning_zero_tiles_meter_stamped": 1,
+ "attributed_credits": 67520,
+ "unattributed_credits": 42200,
+ "calls_returning_data": 6,
+ "calls_returning_zero_tiles_meter_stamped": 10,
+ "live_run_calls_with_data": 3,
+ "live_run_calls_completed_but_empty": 9,
  "collector_recorded_failed_attempts": 6,
  "collector_attempts_are_not_all_billed": true,
- "calls_not_individually_identified": 9,
- "credits_that_bought_no_data_floor": 4220,
- "credits_that_bought_no_data_ceiling": 42200,
+ "calls_not_individually_identified": 10,
+ "credits_that_bought_no_data_floor": 42200,
+ "credits_that_bought_no_data_ceiling": 84400,
  "unbilled_frozen_cycle_readings": 8,
  "attributable": [
   {
@@ -53,6 +55,24 @@
    "tiles": 17797,
    "activity_id": "9a47a9f3-23bc-414e-ae04-334a0a08a2a9",
    "test": "chicago field, one paid call"
+  },
+  {
+   "source": "testing/results/live_spend.json",
+   "before": 1940920,
+   "after": 1894500,
+   "spent": 46420,
+   "tiles": null,
+   "activity_id": null,
+   "test": "live.py ashburn 2026-08-20T09:00:00-04:00"
+  },
+  {
+   "source": "testing/results/live_spend.json",
+   "before": 1894500,
+   "after": 1890280,
+   "spent": 4220,
+   "tiles": null,
+   "activity_id": null,
+   "test": "live.py ashburn 2026-08-20T10:00:00-04:00"
   }
  ]
 }

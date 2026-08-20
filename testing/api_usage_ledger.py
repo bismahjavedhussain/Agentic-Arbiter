@@ -124,6 +124,43 @@ def observations():
     return out
 
 
+def live_run_windows():
+    """Per-CALL evidence from `live.py` runs: what each window actually returned.
+
+    `live_spend.json` records one entry per paid live run, and inside it one record per live call
+    with its `class` (`ok` / `completed_but_empty` / ...) and tile count. That is individual
+    attribution for calls the top-level meter pair would otherwise lump into "unattributable" --
+    the first 12-hour run made 11 calls of which 3 returned a field and 8 returned `completed` with
+    no data, and all 8 were BILLED. Reading it turns 11 unnamed calls into 11 named ones.
+
+    Returns (n_with_data, n_empty, n_other, detail).
+    """
+    path = os.path.join(HERE, "results", "live_spend.json")
+    try:
+        doc = json.load(open(path, encoding="utf-8"))
+    except (ValueError, OSError):
+        return 0, 0, 0, []
+    data = empty = other = 0
+    detail = []
+    for run in doc.get("runs", []):
+        d = e = o = 0
+        for w in run.get("windows", []):
+            c = w.get("class")
+            if c == "ok":
+                d += 1
+            elif c == "completed_but_empty":
+                e += 1
+            else:
+                o += 1
+        data += d
+        empty += e
+        other += o
+        detail.append("%s h+%s: %d returned a field, %d `completed` with no data%s"
+                      % (run.get("metro"), run.get("horizon_h"), d, e,
+                         ", %d other" % o if o else ""))
+    return data, empty, other, detail
+
+
 def collector_zero_tile_days():
     """The N-26 collector's own record of which days returned `completed` with no features.
 
@@ -163,6 +200,7 @@ def main():
     # as either a success or a failure here -- the collector's own per-day record classifies it.
     tile_stamped = [o for o in billed if isinstance(o["tiles"], int)]
     collector_failures, collector_zero = collector_zero_tile_days()
+    live_data, live_empty, live_other, live_detail = live_run_windows()
 
     print("=" * 90)
     print("FORTYGUARD API SPEND -- reconstructed from saved meter readings. Zero API calls.")
@@ -246,8 +284,14 @@ def main():
     # records attempts that never moved the meter. Multiplying attempts by 4,220 over-counted spend
     # by exactly one call the first time this ran after the change. The two quantities are reported
     # side by side and never summed.
-    identified = len(got_data) + len(got_zero)
+    # Live-run windows are attributed per CALL, not per run, so they leave the unattributable
+    # bucket entirely. They are not ADDED to the total: the meter already counted them.
+    identified = len(got_data) + len(got_zero) + live_data + live_empty + live_other
     unknown = n_calls - identified
+    if live_detail:
+        print("   from live.py runs, attributed per call:")
+        for d in live_detail:
+            print("      %s" % d)
     print("   NOT individually attributable to an artefact:            %d call%s (%s credits)"
           % (unknown, "" if unknown == 1 else "s", format(unknown * HEATMAP_CREDITS, ",")))
     print("      -- gaps between meter readings. The collector's 08-18 and 08-19 attempts predate")
@@ -262,7 +306,7 @@ def main():
     print()
     # The floor is what the meter can prove bought nothing; the ceiling assumes every
     # unattributable call also failed. The truth is between, and the gap is named.
-    zero_floor = len(got_zero) * HEATMAP_CREDITS
+    zero_floor = (len(got_zero) + live_empty) * HEATMAP_CREDITS
     zero_ceiling = zero_floor + unknown * HEATMAP_CREDITS
     print("   credits PROVEN to have bought no data:        %s of %s  (%.1f %%)"
           % (format(zero_floor, ","), format(used, ","), 100.0 * zero_floor / used))
@@ -299,8 +343,10 @@ def main():
             "whole_call_remainder": remainder,
             "attributed_credits": attributed,
             "unattributed_credits": unattributed,
-            "calls_returning_data": len(got_data),
-            "calls_returning_zero_tiles_meter_stamped": len(got_zero),
+            "calls_returning_data": len(got_data) + live_data,
+            "calls_returning_zero_tiles_meter_stamped": len(got_zero) + live_empty,
+            "live_run_calls_with_data": live_data,
+            "live_run_calls_completed_but_empty": live_empty,
             "collector_recorded_failed_attempts": collector_zero,
             "collector_attempts_are_not_all_billed": True,
             "calls_not_individually_identified": unknown,

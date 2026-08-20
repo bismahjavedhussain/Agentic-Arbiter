@@ -1,0 +1,92 @@
+{
+ "purpose": "every paid live.py run, so testing/api_usage_ledger.py sees live spend",
+ "runs": [
+  {
+   "test": "live.py ashburn 2026-08-20T09:00:00-04:00",
+   "utc": "2026-08-20T12:52:51.403396+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "status": "ok",
+   "credits_before": 1940920,
+   "credits_after": 1894500,
+   "api_calls_made": 11,
+   "cache_hits": 1,
+   "windows": [
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "481e3512-3ee9-41f5-9d7b-45be68b6e5be"
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "82746eda-d112-4669-b772-b1b153cf9d00"
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "b9ca5e79-7737-4382-9724-e4de698934d6"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "530a4ea1-f635-42db-8473-d72fdd7d9440"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "45f4a3bf-46a0-437c-9d10-e15fe50239d2"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "4a5d0f4b-9d94-4804-a49c-ad299db23af4"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "59aef4c7-79ab-42d7-bca9-db91609fb72b"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "37d31333-e262-4583-8b41-e07cae67ab0d"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "e121929b-0817-4f44-a24a-345bf46a79a7"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "5c9d3274-3468-431e-ba19-818e4f11525b"
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "13e9d7d2-7bbb-4d5e-82a3-1736aedaf245"
+    }
+   ],
+   "backfilled": "this run predates _append_spend_ledger(); reconstructed from demo/live.json, whose meter readings are the same two numbers the hook would have written"
+  },
+  {
+   "test": "live.py ashburn 2026-08-20T10:00:00-04:00",
+   "utc": "2026-08-20T13:40:33.355066+00:00",
+   "metro": "ashburn",
+   "horizon_h": 4,
+   "status": null,
+   "credits_before": 1894500,
+   "credits_after": 1890280,
+   "api_calls_made": 1,
+   "cache_hits": 3,
+   "windows": [
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "f8b84db4-10e4-4700-82fd-c07584d255f7"
+    }
+   ]
+  }
+ ]
+}

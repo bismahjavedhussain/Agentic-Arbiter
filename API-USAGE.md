@@ -20,11 +20,11 @@ evidence without a test failing.
 | | |
 |---|---|
 | Plan | **`Hackathon`**, issued **2,000,000** credits, active 2026-08-18 → 2026-09-22 |
-| **Paid calls made** | **13** |
-| **Credits spent** | **54,860** |
-| **Share of the plan used** | **2.74 %** |
-| Credits remaining | **1,945,140** |
-| Calls at demo view time | **0** — the interface replays saved responses (§6) |
+| **Paid calls made** | **26** |
+| **Credits spent** | **109,720** |
+| **Share of the plan used** | **5.49 %** |
+| Credits remaining | **1,890,280** |
+| Calls at demo view time | **0 in REPLAY** (the default, and what a static host serves). **LIVE mode calls one heatmap per forecast hour** — see §6 |
 
 Thirteen calls is a deliberately small number, and it is small for two reasons that pull in
 opposite directions. The good one: **the daily cap of 30 heatmaps binds long before credits do**, so
@@ -60,13 +60,13 @@ readings.
 | `GET /v1/status/{activity_id}` | **free** | unchanged meter across 59 polls | Polling a submitted activity to completion |
 | `POST /v1/system/fetch-api-key-usage` | **free** | unchanged meter | The meter itself — which is what makes this ledger possible |
 
-**All 13 paid calls on this plan were `/v1/heatmap`.** That is not an assumption: 54,860 ÷ 4,220 =
-**13 exactly**, with no remainder, and a single `env_params` call at 2,900 would have made the
+**All 26 paid calls on this plan were `/v1/heatmap`.** That is not an assumption: 109,720 ÷ 4,220 =
+**26 exactly**, with no remainder, and a single `env_params` call at 2,900 would have made the
 division impossible.
 
 ---
 
-## 3. The 13 calls, itemised
+## 3. The 26 calls, itemised
 
 Five calls saved a before/after meter pair and so are individually named. The rest are visible as
 gaps between readings and are counted, not named — the distinction is kept because *"11 of 13 calls
@@ -84,11 +84,11 @@ Classified by what the artefacts record:
 
 | | Calls | Credits |
 |---|---|---|
-| Returned a populated field, tile count saved | **3** | 12,660 |
-| Returned `completed` with **zero** features, meter-stamped | **1** | 4,220 |
-| Not individually attributable — a gap between two readings | **9** | 37,980 |
+| Returned a populated field, tile count saved | **6** | 25,320 |
+| Returned `completed` with **zero** features, individually attributed | **10** | 42,200 |
+| Not individually attributable — a gap between two readings | **10** | 42,200 |
 
-So **7.7 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
+So **38.5 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
 call also failed — is **76.9 %**. The vendor record makes the ceiling far likelier than the floor:
 across 08-18…08-20 the forecast leg failed **every single time it was tried.** The collector's
 08-18 and 08-19 attempts predate the per-day attempt counter it gained on 08-19, which is why their
@@ -101,6 +101,30 @@ computed as *attempts × 4,220* is therefore not a spend figure, and the ledger 
 quantities side by side rather than summing them.
 
 ---
+
+### 3a. The live agent is now the dominant spender, and one run shows why
+
+`src/live.py` fetches **one heatmap window per forecast hour**, because a heatmap response is a
+per-tile aggregate **over the window** rather than a time series. The first full 12-hour run
+(2026-08-20) is the clearest single record of what this endpoint costs when it half-works:
+
+| | |
+|---|---|
+| Calls | **11** live (one window was already cached, so it cost nothing) |
+| Spent | **46,420 credits** — 44 % of everything this plan has ever spent, in one run |
+| Returned a field | **3** — a real rising morning trajectory, 25.66 → 28.84 → 30.71 → 32.23 °C |
+| Returned `completed` with **no data** | **8**, and **all 8 were billed** — **33,760 credits for nothing** |
+
+That is the billing asymmetry in §5 stated in money: a `failed` job and a stalled job cost nothing,
+but a job that reports itself **complete** while carrying an empty `features` array is charged in
+full. In this run that distinction was worth 33,760 credits.
+
+**Live spend is recorded in `testing/results/live_spend.json`, one entry per run with one record per
+call.** That file exists because it had to: `live.py` writes its output to `demo/` and the ledger
+walks `testing/results/`, so the first 12-hour run spent 46,420 credits that **no audited figure
+knew about** — while `audit.py` check 9 still reported green, because it verifies that the documents
+match the ledger and not that the ledger sees everything. **A ledger with a blind spot is worse than
+no ledger, because it is trusted.**
 
 ## 4. Spending discipline
 
