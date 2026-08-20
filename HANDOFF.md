@@ -10,7 +10,7 @@
 >    non-zero on any failure. **If it is not green, quote nothing.** Then
 >    `cd ../demo && python -m http.server 8000` and open `http://localhost:8000`.
 >    **`file://` will NOT work** — browsers block `fetch()`.
-> 2. **THE WHOLE TREE IS COMMITTED.** Branch `master`, head **`872b488`**. `INTAKE-ARBITER/` was
+> 2. **THE WHOLE TREE IS COMMITTED.** Branch `master`, head **`9a9b657`**. `INTAKE-ARBITER/` was
 >    untracked for the entire project before 2026-08-20; it is not now. **`.gitattributes` exists and
 >    is load-bearing — without it a fresh clone on Windows corrupts every PDF (§10 #82).**
 > 3. **THE SITE PICKER IS NOW REAL.** It swapped ONE file for two sessions while twelve panels of
