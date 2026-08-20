@@ -30,3 +30,10 @@ venv/
 *.npz
 demo/build/
 docs/_build/
+
+# ---------------------------------------------------------------- THE LIVE CACHE
+# `src/live.py` caches each fetched forecast window here. It is a RUNTIME CACHE, not an artefact:
+# every entry is ~2.5 MB of one hour's field, it is superseded within the hour, and N-55 makes a
+# refetch byte-identical anyway, so nothing is lost by not shipping it. The saved fixtures in
+# `testing/results/fixtures/` are the evidence copies that DO ship.
+data/live_cache/

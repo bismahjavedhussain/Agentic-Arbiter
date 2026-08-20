@@ -14,12 +14,24 @@ FortyGuard Hackathon'26 · Track 3 (Industrial & Enterprise) + Track 6 (Agentic 
 ## Start here — two commands
 
 ```bash
-# 1. Prove it. 15 steps, ~4.5 minutes, ZERO API calls. Exits non-zero on any failure.
+# 1. Prove it. 16 steps, ~5 minutes, ZERO API calls. Exits non-zero on any failure.
 cd INTAKE-ARBITER/src && python run_all.py
 
-# 2. See it. Then open http://localhost:8000
-cd INTAKE-ARBITER/demo && python -m http.server 8000
+# 2. See it — REPLAY mode, no API key needed, works offline.
+cd INTAKE-ARBITER/demo && python -m http.server 8000        # then open http://localhost:8000
 ```
+
+**To see it decide the next hours from a LIVE forecast**, serve it with the live agent attached
+instead. This needs a FortyGuard key in `.env`:
+
+```bash
+cd INTAKE-ARBITER/src && python serve_live.py --allow-paid   # then open http://127.0.0.1:8000
+```
+
+**Why two commands and not one:** a static page cannot make a live API call, because the request
+needs a key and anything the page can read, every visitor can read. `serve_live.py` holds the key in
+its own process and returns only numbers. The page detects which mode it is in and says so — it does
+not offer a live button that cannot work.
 
 **`file://` will not work.** Browsers block `fetch()` from it and the page will show only a red
 error. Any static host serves the demo as-is — there is no build step and no server side.

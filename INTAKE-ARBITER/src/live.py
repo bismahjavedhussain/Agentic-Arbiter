@@ -415,7 +415,7 @@ def nws_hourly(lat, lon, start_utc, hours):
 # ============================================================================
 # 4. THE MARGIN -- measured on FortyGuard's own errors, with every caveat attached
 # ============================================================================
-def measured_margin(trace, site):
+def measured_margin(trace, site, horizon_h=HORIZON_H):
     """The conformal margin to apply to a LIVE FortyGuard forecast, plus its provenance.
 
     Read from `cycle.bound_day_level`, which is the quantile of FortyGuard's own measured
@@ -444,12 +444,15 @@ def measured_margin(trace, site):
         "prereg_verdict": "FAIL -- 65.6 % measured against a 90 % promise, worst day 0.0 %",
         "calibration_leads_h": leads,
         "calibration_target_hour_site": 14,
+        # The horizon is passed in so the sentence names the ACTUAL leads. It read "1..N h" with a
+        # literal N, which shipped to the screen -- a placeholder in published prose reads as
+        # carelessness and invites the reader to distrust the numbers beside it.
         "EXTRAPOLATION_WARNING": (
             "Every calibration pair was measured at a ~%s h lead against a 14:00 site-local "
-            "window. This run bounds leads of 1..N h at whatever hour it is now, so the margin is "
+            "window. This run bounds leads of 1..%d h at whatever hour it is now, so the margin is "
             "being applied OUTSIDE its calibration domain. Marginal coverage measured in one "
             "(lead, hour-of-day) cell is not a guarantee in another."
-            % (("%.1f" % leads[0]) if leads else "9.4")),
+            % ((("%.1f" % leads[0]) if leads else "9.4"), horizon_h)),
         "site_owns_this_calibration": own,
         "borrowed_from": None if own else "ashburn",
         # NOTE the trailing comma here once made this a 1-TUPLE, which serialises as a
@@ -477,7 +480,7 @@ def site_local_now(tz_name):
 
 
 def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=True,
-             replay=None):
+             replay=None, on_progress=None):
     """Perceive now, decide the next `hours`, for one site. Returns the emitted dict."""
     metro = metro or M.metro_key()
     # 🔴 SET THE METRO IN THE ENVIRONMENT BEFORE ANY A.* CALL THAT RESOLVES A PATH.
@@ -536,6 +539,8 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     }
 
     # ---- WIND + DEW POINT (free) -------------------------------------------------
+    if on_progress:
+        on_progress({"stage": "perceive", "note": "reading live wind and dew point from NWS"})
     nws = nws_hourly(centre[0], centre[1], start_utc, hours)
     out["nws"] = {k: v for k, v in nws.items() if k != "hours"}
     if not nws.get("ok"):
@@ -561,6 +566,13 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
             say("      h+%-2d  %s %s  ->  %s  [%s]"
                 % (i + 1, w["start_date"], w["start_time"],
                    ("%.4f C" % v) if v is not None else "no data", rec.get("class")))
+        # A live run can sit for 300 s on ONE window while the vendor decides whether to answer.
+        # Without a progress hook the caller has no way to distinguish "working" from "hung", and a
+        # browser showing a dead spinner for ten minutes is indistinguishable from a broken page.
+        if on_progress:
+            on_progress({"stage": "perceive", "hour_index": i, "of_hours": hours,
+                         "window": w, "value_c": v, "class": rec.get("class"),
+                         "source": rec.get("source")})
     after = credits_remaining(key) if allow_paid else None
     out["spend"] = {"credits_before": before, "credits_after": after,
                     "credits_spent": (before - after) if (before and after) else 0,
@@ -602,13 +614,15 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
         return out
 
     # ---- SOLVE + BOUND + DECIDE -------------------------------------------------
+    if on_progress:
+        on_progress({"stage": "solve", "note": "loading this site's 576-solve rise table"})
     tab, refused, tmeta = A.rise_table(cfg["bank_mode"])
     brg = np.array([h["bearing_deg"] for h in nws["hours"]], dtype=float)
     spd = np.array([h["speed_ms"] for h in nws["hours"]], dtype=float)
     rise = A.lookup_rise(tab, brg, spd)
     refused_flags = [int(round(b / A.STEP_DEG)) % len(A.BEARINGS) in refused for b in brg]
 
-    margin, mprov = measured_margin(trace, site)
+    margin, mprov = measured_margin(trace, site, horizon_h=hours)
     out["margin_provenance"] = mprov
     if margin is None:
         out["status"] = "no_calibration"
@@ -643,6 +657,8 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     # counts against a recount is free, and it is the kind of check that catches a DP change
     # silently altering what it reports: the first version of this line bound the whole tuple to
     # `modes`, which surfaced as `TypeError: cannot use 'list' as a dict key` two stages later.
+    if on_progress:
+        on_progress({"stage": "decide", "note": "scheduling under the switch budget and dwell limit"})
     modes, plan_free_h, plan_switches = A.plan(
         [bool(x) for x in safe], cfg["switch_budget"], cfg["min_dwell_h"], start_mode=A.MODE_MECH)
     recount_free = int(sum(1 for m in modes if m == A.MODE_FREE))
@@ -654,8 +670,12 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     cmds = A.bms_commands(modes, hour_labels, list(bound), cfg["limit_c"], list(rise),
                           refused_flags, mprov)
 
+    n_missing = int(hours - np.count_nonzero(bound_known))
     out.update({
-        "status": "ok_replay" if replay else "ok",
+        # PARTIAL IS ITS OWN STATUS. "ok" over 12 hours when 8 of them have no forecast would be a
+        # claim the run cannot support, and the reader has to be told without reading the table.
+        "status": ("ok_replay" if replay else
+                   ("ok_partial" if n_missing else "ok")),
         "device": tmeta.get("device"),
         "hours": [{
             "hour_site_local": hour_labels[i],
@@ -672,18 +692,37 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
             "gate_dewpoint_ok": bool(gate_dp[i]),
             "free_cooling": bool(modes[i] == A.MODE_FREE),
         } for i in range(hours)],
+        # 🔴 AN HOUR WITH NO FORECAST WAS NOT "BLOCKED BY TEMPERATURE", AND SAYING SO IS A
+        # LIE ABOUT WHY THE AGENT REFUSED. `bound` is NaN for a missing hour, and `NaN <= limit` is
+        # False, so it fell into the temperature bucket and inflated it. The vendor is intermittent
+        # -- a 12-hour run today returned four hours and then went empty -- so partial data is the
+        # NORMAL case, not an edge one. Missing hours are counted separately, and excluded from
+        # both gate counts, which are now reported only over hours that HAVE a forecast.
         "summary": {
             "free_cooling_hours": recount_free,
             "of_hours": hours,
+            "hours_with_a_forecast": int(np.count_nonzero(bound_known)),
+            "hours_with_NO_forecast": int(hours - np.count_nonzero(bound_known)),
             "mode_changes": recount_switch,
             "plan_reported_switches": plan_switches,
             "hours_refused_by_solver": int(sum(refused_flags)),
-            "hours_blocked_by_dewpoint": int(sum(1 for i in range(hours) if not gate_dp[i])),
-            "hours_blocked_by_temperature": int(sum(1 for i in range(hours) if not gate_dry[i])),
+            "hours_blocked_by_dewpoint": int(sum(1 for i in range(hours)
+                                                 if bound_known[i] and not gate_dp[i])),
+            "hours_blocked_by_temperature": int(sum(1 for i in range(hours)
+                                                    if bound_known[i] and not gate_dry[i])),
             "peak_bound_c": None if np.all(np.isnan(bound)) else round(float(np.nanmax(bound)), 4),
         },
         "commands": cmds,
     })
+    if n_missing and not replay:
+        out["operator_message"] = (
+            "PARTIAL HORIZON: %d of %d hours returned a field, %d did not (%s). The hours with no "
+            "forecast are scheduled MECHANICAL -- chillers on is the safe default -- and are NOT "
+            "counted as blocked by temperature or humidity, because nothing was measured about "
+            "them. Only the %d answered hours carry a bound."
+            % (hours - n_missing, hours, n_missing,
+               ", ".join(sorted({r.get("class") for r in recs if r.get("class") != "ok"})),
+               hours - n_missing))
     if replay:
         out["NOT_LIVE"] = (
             "REPLAY VERIFICATION. The ambient trajectory came from a SAVED FortyGuard response "

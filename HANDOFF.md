@@ -179,7 +179,33 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 
 # 4. ⚠ THE FORECAST BLOCKER — diagnosed as an outage, and NOT CLEARED
 
-## 4.0 🔴 READ THIS BEFORE §4.1 OR §4.2 — the collector has failed every day since
+## 4.0a ✅ 2026-08-20 ~12:5x UTC — THE VENDOR RECOVERED, AND THE LIVE AGENT RAN
+
+**`live.py run --paid` returned `status: ok`.** FortyGuard answered a forecast window in **39.8 s
+over 4 polls with 17,785 tiles**, activity `9995dfd7`, billed the normal 4,220 (meter 1,945,140 →
+1,940,920). The site's own tile sat **26.3 m** from the committed centre.
+
+**The first genuine live decision this project has made**, every input real:
+
+| | |
+|---|---|
+| Window | 2026-08-20 **09:00–10:00 site-local**, decided at 08:51 — an hour that had not happened |
+| Ambient | **25.663 °C**, FortyGuard, this site's own tile |
+| Wind | **100° at 1.03 m/s**, NWS live |
+| Rise | **0.0001 °C** — 100° is nowhere near Ashburn's 255° critical bearing, and the solver says so |
+| Bound | 25.663 + 0.0001 + **0.15203** measured margin = **25.815 °C** |
+| Decision | **MECHANICAL** against a 24.0 °C limit, and separately blocked by dew point 21.1 °C > 15 °C |
+
+⚠ **Today's N-26 pair is still lost.** Recovery came at ~12:5x UTC and the in-band firing window for
+a 14:00 site-local target closed at **12:00 UTC** (lead had fallen to 5.15 h, below the 6.0 h
+comparability floor). **Nothing was gained by the recovery today; tomorrow's 13:30 PKT run should
+now work.** Do not raise the pair count until an outcome leg confirms it.
+
+⚠ **Everything in §4.0 below still stands as the record of the fault**, and the four failure modes
+are still what `live.py` and the collector must handle — a vendor that recovered once can fail again,
+and it failed three different ways in three hours today.
+
+## 4.0 🔴 THE OUTAGE, AS IT STOOD BEFORE THE RECOVERY — the collector failed every day 08-18..08-20
 
 **Found 2026-08-20 by reconciling the credit meter (§10 #93). `diag62` succeeded once. The
 collector has returned `completed` with ZERO features on THREE CONSECUTIVE DAYS since, including
@@ -1321,15 +1347,57 @@ verification correctly returns **zero** free-cooling hours — 43.7 % of all swe
 The DP's ability to grant hours is verified elsewhere, on 43,763 real hours and 20,160 cross-language
 configurations.
 
-### 9.2c ☐ SESSION 3 — the live agent, browser side
+### 9.2c ✅ SESSION 3 — DONE. `src/serve_live.py` + the LIVE/REPLAY UI
 
-`src/serve_live.py` serves `demo/` **and** `POST /api/live/<site>`. **The key stays server-side and
-never reaches the browser** — a static page cannot hold an API key, and that is the one hard
-architectural constraint in this task. GitHub Pages keeps working as the REPLAY-only deployment.
+```bash
+python src/serve_live.py                 # serves demo/ + /api. Dry-run only. Spends NOTHING.
+python src/serve_live.py --allow-paid    # permits live calls from the browser
+```
 
-UI: an explicit **LIVE / REPLAY** mode with an "as of HH:MM" stamp and a live call counter. **Replace
-the blanket "0 live API calls" line** with a precise two-mode statement — the current wording is what
-prompted the user's question, and it undersells the design rather than describing it.
+**Why a server exists at all:** a static page **cannot** make a live FortyGuard call, because the
+request needs the API key and anything the page can read, every visitor can read. There is no clever
+way round it. So the browser POSTs to a local server, the server reads the key in its own process,
+and **only numbers come back**. That keeps both properties: GitHub Pages still serves the
+REPLAY-only demo with every panel intact, and running locally gives the real live agent.
+
+| Endpoint | |
+|---|---|
+| `GET /api/health` | is a live agent reachable, is it permitted to spend, what would it cost. **Does NOT report the credit balance** — reading it is a vendor call, and a health check that hits the vendor fails when the vendor does |
+| `POST /api/live/<site>` | returns `{job_id}` **immediately** |
+| `GET /api/live/job/<id>` | `running` / `done` / `error`, plus the progress events the page streams |
+
+**Asynchronous by necessity:** one window can take 300 s, so a 12-hour horizon is up to an hour of
+wall-clock and no browser `fetch()` survives that. The API mirrors FortyGuard's own shape.
+
+**Three safety decisions:** binds to **127.0.0.1**, because a process that can spend money must not
+be network-reachable by default (`--host` overrides, and the banner shouts when it does); refuses to
+spend unless **both** `--allow-paid` **and** the request ask for it, so a page reload can never cost
+50,640 credits; and a hard per-process call cap (`--max-live-calls`, default 24) whose refusal is
+**explicit** rather than a silent switch to cached data.
+
+**The UI.** The blanket *"0 live API calls"* line is gone — that sentence was true of the panels and
+false of the product, and it is what prompted the user's question. `drawModeBanner()` now states
+which of two modes the page is **actually** in, from a probe of `/api/health`:
+
+- **REPLAY** — every panel from saved responses, and it says *why that is reproducibility rather
+  than a limitation* (N-55: 17,862 of 17,862 tiles byte-identical), plus how to get LIVE.
+- **LIVE** — plus a card that decides the next hours, with the seven stage events streaming as it
+  perceives each hour.
+
+🔴 **The live card carries its own bound's limitations ON SCREEN, next to the schedule they produced**
+— the margin's source, n=4, the 80 % attainable ceiling, 65.6 % measured, the FAIL verdict, and the
+extrapolation warning. **A live number with a hidden calibration story is worse than no live number.**
+
+**A real bug this session, and it is gotcha #84's family again:** `setStage()` unhides every
+`data-show="results"` card, which **overrode** `probeLive()`'s hiding — so a static host displayed a
+"Run the agent on live data" button that could never work. Two pieces of code both owning `.hidden`,
+last writer wins. The stage machine stays the single owner; it now evaluates `data-needs="live"` as a
+second condition. Verified on both hosts: card **hidden** under `http.server`, **shown** under
+`serve_live.py`.
+
+**Also fixed:** the dead-code check flagged `do_POST` and `log_message`, which `http.server`
+dispatches by name — a false positive, so an explicit `FRAMEWORK_DISPATCHED` set was added rather
+than excluding the file, because excluding a file hides everything else in it.
 
 ### 9.2d ☐ SESSION 4 — autonomy, recovery, verification, docs
 

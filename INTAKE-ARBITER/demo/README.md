@@ -4,6 +4,21 @@
 cd INTAKE-ARBITER/demo && python -m http.server 8000
 ```
 
+**Two modes, and the page tells you which one it is in.**
+
+- **REPLAY** (this command) — every panel computed from saved FortyGuard responses. Reproducible,
+  offline, and what any static host serves. That is not a limitation: N-55 measured a re-requested
+  window as **17,862 of 17,862 tiles byte-for-byte identical**, so a replayed field is the same
+  values, not an approximation of them.
+- **LIVE** — `python ../src/serve_live.py --allow-paid` instead of `http.server`. Adds a card that
+  asks FortyGuard what the **next hours** look like at this site's own tile and decides them. Needs a
+  key in `.env`.
+
+**Why LIVE needs a server:** the request needs an API key, and anything this page can read, every
+visitor can read. `serve_live.py` holds the key in its own process and returns only numbers. It binds
+to `127.0.0.1` and refuses to spend unless started with `--allow-paid`, because a page reload must
+never cost credits.
+
 🔴 **DO NOT open `index.html` by double-clicking it.** Browsers block `fetch()` from `file://`, so
 the page loads and then shows nothing but a red error — it looks like a broken submission and it is
 not. **It needs any HTTP server, and that is the only requirement.** No build step, no npm, no

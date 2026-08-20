@@ -95,7 +95,17 @@ def check_dead_code():
                     extra += open(os.path.join(root, f), encoding="utf-8").read()
                 except Exception:
                     pass
-    dead = [(n, w) for n, w in sorted(defs.items()) if refs.get(n, 0) == 0 and n not in extra]
+    # FRAMEWORK-DISPATCHED METHODS ARE NOT DEAD CODE. `http.server` calls `do_GET` / `do_POST` /
+    # `log_message` by name through its own dispatch table, so nothing in this tree references them
+    # and a name-reference check cannot see the caller. Listed explicitly, one entry per contract,
+    # rather than excluding the file: excluding a file hides everything else in it, and this check
+    # has already earned its keep by finding four genuinely orphaned functions. The rule this
+    # follows is check_nan_writers': a verification tool that cries wolf is worse than none.
+    FRAMEWORK_DISPATCHED = {
+        "do_GET", "do_POST", "do_HEAD", "log_message",   # http.server.BaseHTTPRequestHandler
+    }
+    dead = [(n, w) for n, w in sorted(defs.items())
+            if refs.get(n, 0) == 0 and n not in extra and n not in FRAMEWORK_DISPATCHED]
     ck("no function is defined and referenced nowhere", not dead,
        "%d defs" % len(defs) if not dead else "; ".join("%s (%s)" % (n, w[0]) for n, w in dead))
 
