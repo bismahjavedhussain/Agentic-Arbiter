@@ -183,7 +183,32 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 
 # 4. ⚠ THE FORECAST BLOCKER — diagnosed as an outage, and NOT CLEARED
 
-## 4.0a ✅ 2026-08-20 ~12:5x UTC — THE VENDOR RECOVERED, AND THE LIVE AGENT RAN
+## 4.0-DAY4 🔴 2026-08-21 — FOURTH CONSECUTIVE DAY OF FAILURE. NO NEW PAIR.
+
+**Checked 2026-08-21 09:24 UTC. The answer to "is the forecast working?" is NO, and it has now
+failed on 08-18, 08-19, 08-20 and 08-21.**
+
+| | |
+|---|---|
+| Scheduled tasks | All three fired on time — **13:30:01 / 13:50:01 / 14:15:01 PKT**, `LastTaskResult 0` on the first two. **They ran. They were billed. They returned nothing** (§10 #96: a green task means python exited, never that it got data) |
+| Today's manifest | `forecast_done: false`, `forecast_attempts: 3`, error *"completed but never populated after 27 polls over 608 s"* |
+| A 4th attempt, 14:26 PKT | Fired deliberately via `N26_MAX_ATTEMPTS=4` because **the lead was still 8.56 h — inside the 6.0–11.5 h band**, so today's pair was genuinely recoverable. **Same failure: "completed but never populated after 59 polls over 604 s". Billed 4,220** |
+| **Complete day-pairs** | **STILL 4.** Zero progress in four days |
+| Cost of today | **4 attempts × 4,220 = 16,880 credits for nothing** |
+
+**Is 10 pairs still arithmetically possible before the deadline?** Just. If the vendor recovered
+tomorrow and then worked **perfectly**: forecasts Aug 22–27, last outcome lands Aug 28, **2 days of
+slack**. But that needs **six consecutive successes** from a service that has failed four days
+running and whose measured window success rate is **8.7 % (4 of 46)**.
+
+🔴 **PLAN THE SUBMISSION ON 65.6 % BEING FINAL.** That is already the only figure this project
+quotes, so nothing needs rewriting — what dies is the hope in §4.1. If a pair does land, it is a
+bonus, not a dependency.
+
+⚠ **The collector is still worth leaving on** (the user's standing decision, §9.1a): it costs
+≤12,660/day against 1,725,700 remaining, and **a lost day is unrecoverable while credits are not.**
+
+## 4.0a ✅ 2026-08-20 ~12:5x UTC — THE VENDOR RECOVERED BRIEFLY, AND THE LIVE AGENT RAN
 
 **`live.py run --paid` returned `status: ok`.** FortyGuard answered a forecast window in **39.8 s
 over 4 polls with 17,785 tiles**, activity `9995dfd7`, billed the normal 4,220 (meter 1,945,140 →
@@ -2193,8 +2218,8 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **257,420 = 61 calls = 12.87 %.** Remaining **1,742,580**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
-| **⚠ Of that, 177,240 PROVABLY bought nothing** | **68.9 %** of spend. Ceiling **227,880 = 88.5 %**. §10 #93 |
+| **Spent to date** | 🔴 **274,300 = 65 calls = 13.71 %.** Remaining **1,725,700**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
+| **⚠ Of that, 177,240 PROVABLY bought nothing** | **64.6 %** of spend. Ceiling **244,760 = 89.2 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |
