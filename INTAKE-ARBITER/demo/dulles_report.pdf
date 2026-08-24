@@ -9,7 +9,7 @@ endobj
 << /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R] /Count 4 >>
 endobj
 4 0 obj
-<< /Length 7053 >>
+<< /Length 7045 >>
 stream
 BT /FB 11.40 Tf 1 0 0 1 42.00 799.89 Tm (INTAKE-ARBITER  --  FREE-COOLING DECISION REPORT) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 788.69 Tm (An agent that decides, hour by hour, whether outside air can cool a data centre.) Tj ET
@@ -17,8 +17,8 @@ BT /FR 8.20 Tf 1 0 0 1 42.00 777.49 Tm (========================================
 BT /FB 9.60 Tf 1 0 0 1 42.00 760.69 Tm (THE SITE) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 749.49 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 738.29 Tm (Location        Dulles corridor, Virginia -- station KIAD, America/New_York) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 727.09 Tm (Committed pair  OSM 744496750 -> 744496741) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 715.89 Tm (                Amazon Web Services IAD116 / IAD117) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 727.09 Tm (Committed pair  OSM 693381107 -> 545396372) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 715.89 Tm (                Amazon IAD81 / Amazon IAD62) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 704.69 Tm (Facade gap      137.7 m between the two halls) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 693.49 Tm (Weather record  43,763 real hourly records from KIAD) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 682.29 Tm (Plume physics   576 steady-state solves on this site's own footprints; worst intake rise 0.3593 C at) Tj ET
@@ -56,23 +56,23 @@ BT /FR 8.20 Tf 1 0 0 1 42.00 310.45 Tm (           them) Tj ET
 BT /FB 9.60 Tf 1 0 0 1 42.00 293.65 Tm (EVERY HOUR, AND THE REASON FOR IT) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 282.45 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 271.25 Tm (hh  mode        safe binding        bound   limit  actual  margin) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 260.05 Tm (00  mechanical  yes  switch budget    4.288    18.0   4.135   1.008) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 248.85 Tm (01  mechanical  yes  switch budget    4.288    18.0   4.135   0.949) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 237.65 Tm (02  mechanical  yes  switch budget    4.008    18.0   3.025   1.118) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 226.45 Tm (03  mechanical  yes  switch budget    2.898    18.0   1.188   0.998) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 215.25 Tm (04  mechanical  yes  switch budget    2.903    18.0   0.805   0.947) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 204.05 Tm (05  mechanical  yes  switch budget    2.318    18.0   0.245   1.123) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 192.85 Tm (06  mechanical  yes  switch budget    0.958    18.0  -0.865   0.938) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 181.65 Tm (07  mechanical  yes  switch budget    2.623    18.0   0.245   1.591) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 170.45 Tm (08  mechanical  yes  switch budget    6.184    18.0   5.579   1.865) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 159.25 Tm (09  mechanical  yes  switch budget    9.931    18.0  11.443   2.313) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 148.05 Tm (10  mechanical  yes  switch budget   11.886    18.0  14.216   2.209) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 136.85 Tm (11  mechanical  yes  switch budget   15.543    18.0  17.799   1.743) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 125.65 Tm (12  mechanical  no   dry-bulb        18.558    18.0  19.564   1.322) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 114.45 Tm (13  mechanical  no   dry-bulb        19.846    18.0  21.364   1.114) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 103.25 Tm (14  mechanical  no   dry-bulb        22.176    18.0  22.023   1.248) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 92.05 Tm (15  mechanical  no   dry-bulb        22.579    18.0  23.103   1.021) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 80.85 Tm (16  mechanical  no   dry-bulb        23.258    18.0  23.103   1.100) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 260.05 Tm (00  mechanical  yes  switch budget    4.337    18.0   4.135   1.057) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 248.85 Tm (01  mechanical  yes  switch budget    4.337    18.0   4.135   0.998) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 237.65 Tm (02  mechanical  yes  switch budget    4.057    18.0   3.025   1.167) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 226.45 Tm (03  mechanical  yes  switch budget    2.924    18.0   1.188   1.024) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 215.25 Tm (04  mechanical  yes  switch budget    2.952    18.0   0.805   0.996) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 204.05 Tm (05  mechanical  yes  switch budget    2.367    18.0   0.245   1.172) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 192.85 Tm (06  mechanical  yes  switch budget    1.007    18.0  -0.865   0.987) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 181.65 Tm (07  mechanical  yes  switch budget    2.672    18.0   0.245   1.640) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 170.45 Tm (08  mechanical  yes  switch budget    6.232    18.0   5.579   1.913) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 159.25 Tm (09  mechanical  yes  switch budget    9.979    18.0  11.443   2.362) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 148.05 Tm (10  mechanical  yes  switch budget   11.935    18.0  14.216   2.258) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 136.85 Tm (11  mechanical  yes  switch budget   15.601    18.0  17.799   1.801) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 125.65 Tm (12  mechanical  no   dry-bulb        18.607    18.0  19.564   1.371) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 114.45 Tm (13  mechanical  no   dry-bulb        19.909    18.0  21.364   1.176) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 103.25 Tm (14  mechanical  no   dry-bulb        22.224    18.0  22.023   1.297) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 92.05 Tm (15  mechanical  no   dry-bulb        22.631    18.0  23.103   1.073) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 80.85 Tm (16  mechanical  no   dry-bulb        23.306    18.0  23.103   1.147) Tj ET
 endstream
 endobj
 5 0 obj
@@ -81,68 +81,68 @@ endobj
 6 0 obj
 << /Length 7794 >>
 stream
-BT /FR 8.20 Tf 1 0 0 1 42.00 799.89 Tm (17  mechanical  no   dry-bulb        22.827    18.0  22.543   1.369) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 788.69 Tm (18  mechanical  no   dry-bulb        22.437    18.0  21.219   1.286) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 777.49 Tm (19  mechanical  no   dry-bulb        20.892    18.0  19.014   1.363) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 766.29 Tm (20  mechanical  no   dry-bulb        20.139    18.0  17.799   1.517) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 755.09 Tm (21  mechanical  no   dry-bulb        18.791    18.0  15.859   1.652) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 743.89 Tm (22  FREE        yes  -               16.017    18.0  12.473   1.325) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 42.00 732.69 Tm (23  FREE        yes  -               15.761    18.0  13.362   1.083) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 799.89 Tm (17  mechanical  no   dry-bulb        22.878    18.0  22.543   1.420) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 788.69 Tm (18  mechanical  no   dry-bulb        22.483    18.0  21.219   1.333) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 777.49 Tm (19  mechanical  no   dry-bulb        20.949    18.0  19.014   1.421) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 766.29 Tm (20  mechanical  no   dry-bulb        20.185    18.0  17.799   1.563) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 755.09 Tm (21  mechanical  no   dry-bulb        18.833    18.0  15.859   1.694) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 743.89 Tm (22  FREE        yes  -               16.069    18.0  12.473   1.377) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 732.69 Tm (23  FREE        yes  -               15.818    18.0  13.362   1.140) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 714.77 Tm (bound  = the agent's 90 %-nominal upper bound on intake air, forecast plus margin) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 703.57 Tm (actual = what the intake temperature turned out to be, from the station record) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 692.37 Tm (margin = group-conditional forecast error for that hour of day, plus plume spread) Tj ET
 BT /FB 9.60 Tf 1 0 0 1 42.00 675.57 Tm (THE REASONING, HOUR BY HOUR) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 42.00 664.37 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 650.37 Tm (00:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 639.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 4.288 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 639.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 4.337 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 627.97 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 616.77 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 605.57 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 594.37 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 580.37 Tm (01:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 569.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 4.288 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 569.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 4.337 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 557.97 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 546.77 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 535.57 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 524.37 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 510.37 Tm (02:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 499.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 4.008 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 499.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 4.057 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 487.97 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 476.77 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 465.57 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 454.37 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 440.37 Tm (03:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 429.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 2.898 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 429.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 2.924 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 417.97 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 406.77 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 395.57 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 384.37 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 370.37 Tm (04:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 359.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 2.903 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 359.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 2.952 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 347.97 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 336.77 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 325.57 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 314.37 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 300.37 Tm (05:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 289.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 2.318 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 289.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 2.367 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 277.97 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 266.77 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 255.57 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 244.37 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 230.37 Tm (06:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 219.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 0.958 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 219.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 1.007 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 207.97 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 196.77 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 185.57 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 174.37 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 160.37 Tm (07:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 149.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 2.623 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 149.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 2.672 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 137.97 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 126.77 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 115.57 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 104.37 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 90.37 Tm (08:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 79.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 6.184 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 79.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 6.232 C against a 18.0 C) Tj ET
 endstream
 endobj
 7 0 obj
@@ -156,62 +156,62 @@ BT /FR 8.20 Tf 1 0 0 1 56.00 788.69 Tm (  elsewhere. This is the one explanation
 BT /FR 8.20 Tf 1 0 0 1 56.00 777.49 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 766.29 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 752.29 Tm (09:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 741.09 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 9.931 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 741.09 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 9.979 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 729.89 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 718.69 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 707.49 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 696.29 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 682.29 Tm (10:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 671.09 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 11.886 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 671.09 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 11.935 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 659.89 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 648.69 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 637.49 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 626.29 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 612.29 Tm (11:00  MECHANICAL  [switch budget]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 601.09 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 15.543 C against a 18.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 601.09 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 15.601 C against a 18.0 C) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 589.89 Tm (  limit. The schedule is what forbids it: the switch budget of 1 changes per day is already committed) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 578.69 Tm (  elsewhere. This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 567.49 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison: spending a) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 556.29 Tm (  mode change here would cost a better one later.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 542.29 Tm (12:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 531.09 Tm (Mechanical. The upper bound on intake air is 18.558 C against a 18.0 C limit, so it fails by 0.558 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 519.89 Tm (  It would take a limit 0.558 C higher, or a bound 0.558 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 531.09 Tm (Mechanical. The upper bound on intake air is 18.607 C against a 18.0 C limit, so it fails by 0.607 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 519.89 Tm (  It would take a limit 0.607 C higher, or a bound 0.607 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 505.89 Tm (13:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 494.69 Tm (Mechanical. The upper bound on intake air is 19.846 C against a 18.0 C limit, so it fails by 1.846 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 483.49 Tm (  It would take a limit 1.846 C higher, or a bound 1.846 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 494.69 Tm (Mechanical. The upper bound on intake air is 19.909 C against a 18.0 C limit, so it fails by 1.909 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 483.49 Tm (  It would take a limit 1.909 C higher, or a bound 1.909 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 469.49 Tm (14:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 458.29 Tm (Mechanical. The upper bound on intake air is 22.176 C against a 18.0 C limit, so it fails by 4.176 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 447.09 Tm (  It would take a limit 4.176 C higher, or a bound 4.176 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 458.29 Tm (Mechanical. The upper bound on intake air is 22.225 C against a 18.0 C limit, so it fails by 4.225 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 447.09 Tm (  It would take a limit 4.225 C higher, or a bound 4.225 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 433.09 Tm (15:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 421.89 Tm (Mechanical. The upper bound on intake air is 22.579 C against a 18.0 C limit, so it fails by 4.579 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 410.69 Tm (  It would take a limit 4.579 C higher, or a bound 4.579 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 421.89 Tm (Mechanical. The upper bound on intake air is 22.631 C against a 18.0 C limit, so it fails by 4.631 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 410.69 Tm (  It would take a limit 4.631 C higher, or a bound 4.631 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 396.69 Tm (16:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 385.49 Tm (Mechanical. The upper bound on intake air is 23.258 C against a 18.0 C limit, so it fails by 5.258 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 374.29 Tm (  It would take a limit 5.258 C higher, or a bound 5.258 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 385.49 Tm (Mechanical. The upper bound on intake air is 23.306 C against a 18.0 C limit, so it fails by 5.306 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 374.29 Tm (  It would take a limit 5.306 C higher, or a bound 5.306 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 360.29 Tm (17:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 349.09 Tm (Mechanical. The upper bound on intake air is 22.827 C against a 18.0 C limit, so it fails by 4.827 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 337.89 Tm (  It would take a limit 4.827 C higher, or a bound 4.827 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 349.09 Tm (Mechanical. The upper bound on intake air is 22.878 C against a 18.0 C limit, so it fails by 4.878 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 337.89 Tm (  It would take a limit 4.878 C higher, or a bound 4.878 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 323.89 Tm (18:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 312.69 Tm (Mechanical. The upper bound on intake air is 22.437 C against a 18.0 C limit, so it fails by 4.437 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 301.49 Tm (  It would take a limit 4.437 C higher, or a bound 4.437 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 312.69 Tm (Mechanical. The upper bound on intake air is 22.483 C against a 18.0 C limit, so it fails by 4.483 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 301.49 Tm (  It would take a limit 4.483 C higher, or a bound 4.483 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 287.49 Tm (19:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 276.29 Tm (Mechanical. The upper bound on intake air is 20.892 C against a 18.0 C limit, so it fails by 2.892 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 265.09 Tm (  It would take a limit 2.892 C higher, or a bound 2.892 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 276.29 Tm (Mechanical. The upper bound on intake air is 20.949 C against a 18.0 C limit, so it fails by 2.949 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 265.09 Tm (  It would take a limit 2.949 C higher, or a bound 2.949 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 251.09 Tm (20:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 239.89 Tm (Mechanical. The upper bound on intake air is 20.139 C against a 18.0 C limit, so it fails by 2.139 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 228.69 Tm (  It would take a limit 2.139 C higher, or a bound 2.139 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 239.89 Tm (Mechanical. The upper bound on intake air is 20.185 C against a 18.0 C limit, so it fails by 2.185 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 228.69 Tm (  It would take a limit 2.185 C higher, or a bound 2.185 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 214.69 Tm (21:00  MECHANICAL  [dry-bulb]) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 203.49 Tm (Mechanical. The upper bound on intake air is 18.791 C against a 18.0 C limit, so it fails by 0.791 C.) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 192.29 Tm (  It would take a limit 0.791 C higher, or a bound 0.791 C tighter, to change this hour.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 203.49 Tm (Mechanical. The upper bound on intake air is 18.833 C against a 18.0 C limit, so it fails by 0.833 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 192.29 Tm (  It would take a limit 0.833 C higher, or a bound 0.833 C tighter, to change this hour.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 178.29 Tm (22:00  FREE-COOLING) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 167.09 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 16.017 C, which is 1.983 C under the 18.0) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 155.89 Tm (  C plant limit. That bound is the forecast plus a margin of 1.325 C, and the margin is measured, not) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 144.69 Tm (  chosen: 1.189 C of group-conditional forecast error for this hour of day, plus 0.1362 C for how) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 167.09 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 16.069 C, which is 1.931 C under the 18.0) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 155.89 Tm (  C plant limit. That bound is the forecast plus a margin of 1.377 C, and the margin is measured, not) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 144.69 Tm (  chosen: 1.189 C of group-conditional forecast error for this hour of day, plus 0.1882 C for how) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 133.49 Tm (  much the plume could move if the wind direction is off by the amount FortyGuard's forecast is) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 122.29 Tm (  actually off by.) Tj ET
 BT /FB 8.20 Tf 1 0 0 1 42.00 108.29 Tm (23:00  FREE-COOLING) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 97.09 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 15.761 C, which is 2.239 C under the 18.0) Tj ET
-BT /FR 8.20 Tf 1 0 0 1 56.00 85.89 Tm (  C plant limit. That bound is the forecast plus a margin of 1.083 C, and the margin is measured, not) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 97.09 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 15.818 C, which is 2.182 C under the 18.0) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 85.89 Tm (  C plant limit. That bound is the forecast plus a margin of 1.140 C, and the margin is measured, not) Tj ET
 endstream
 endobj
 9 0 obj
@@ -220,7 +220,7 @@ endobj
 10 0 obj
 << /Length 6544 >>
 stream
-BT /FR 8.20 Tf 1 0 0 1 56.00 799.89 Tm (  chosen: 0.953 C of group-conditional forecast error for this hour of day, plus 0.1296 C for how) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 799.89 Tm (  chosen: 0.953 C of group-conditional forecast error for this hour of day, plus 0.1872 C for how) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 788.69 Tm (  much the plume could move if the wind direction is off by the amount FortyGuard's forecast is) Tj ET
 BT /FR 8.20 Tf 1 0 0 1 56.00 777.49 Tm (  actually off by.) Tj ET
 BT /FB 9.60 Tf 1 0 0 1 42.00 760.69 Tm (WHAT IT IS WORTH OVER FIVE REAL YEARS, AT THIS SITE) Tj ET
@@ -289,16 +289,16 @@ xref
 0000000104 00000 n 
 0000000204 00000 n 
 0000000280 00000 n 
-0000007385 00000 n 
-0000007527 00000 n 
-0000015373 00000 n 
-0000015515 00000 n 
-0000023116 00000 n 
-0000023258 00000 n 
-0000029855 00000 n 
-0000029999 00000 n 
+0000007377 00000 n 
+0000007519 00000 n 
+0000015365 00000 n 
+0000015507 00000 n 
+0000023108 00000 n 
+0000023250 00000 n 
+0000029847 00000 n 
+0000029991 00000 n 
 trailer
 << /Size 13 /Root 12 0 R >>
 startxref
-30049
+30041
 %%EOF

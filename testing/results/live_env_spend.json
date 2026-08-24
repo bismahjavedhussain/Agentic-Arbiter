@@ -1,0 +1,77 @@
+{
+ "purpose": "every paid env_params call made by live.py, so the spend ledger sees it",
+ "endpoint": "env_params",
+ "note": "the 2026-08-22 entry was written by hand after the fact: the run that made it predated _append_env_spend by minutes. Its meter pair is the authority.",
+ "runs": [
+  {
+   "requested_day_site_local": "2026-08-22",
+   "class": "ok",
+   "credits": 2900,
+   "activity_id": "885ccf8c-1a16-48fd-b44a-e8e0b7d8e198",
+   "credits_before": 1659500,
+   "credits_after": 1656600,
+   "n_fields": 15,
+   "n_hours": 24
+  },
+  {
+   "requested_day_site_local": "2026-08-20",
+   "metro": "ashburn",
+   "class": "ok",
+   "credits": 2900,
+   "activity_id": "3e40bfc9-f3f8-4ec7-8776-59e489eb26bd",
+   "credits_before": 1656600,
+   "credits_after": 1653700,
+   "n_fields": 15,
+   "n_values": 360,
+   "purpose": "date-matched environmental data so a replay of the 2026-08-20 heatmap is consistent"
+  },
+  {
+   "requested_day_site_local": "2026-08-20",
+   "metro": "chicago",
+   "class": "ok",
+   "credits": 2900,
+   "activity_id": "8eefdd96-91e2-49e5-b3b5-79b1d8b7892d",
+   "credits_before": 1653700,
+   "credits_after": 1650800,
+   "n_fields": 15,
+   "n_values": 360,
+   "purpose": "date-matched environmental data so a replay of the 2026-08-20 heatmap is consistent"
+  },
+  {
+   "requested_day_site_local": "2026-08-22",
+   "metro": "IA_way_1318322780",
+   "class": "ok",
+   "credits": 2900,
+   "activity_id": "c3f0cd34-2f56-4c3b-880c-896b02f8f81b",
+   "credits_before": 1431360,
+   "credits_after": 1428460,
+   "n_fields": 15,
+   "n_values": 360,
+   "purpose": "date-matched environmental data so a replay of the 2026-08-22 heatmap is consistent"
+  },
+  {
+   "requested_day_site_local": "2026-08-25",
+   "metro": "IA_way_1318322780",
+   "class": "terminal_failed",
+   "credits": 0,
+   "activity_id": "6de4baaa-a4a8-4890-99ba-3ff77a0c39e0",
+   "credits_before": 1428460,
+   "credits_after": 1428460,
+   "n_fields": 0,
+   "n_values": 0,
+   "purpose": "date-matched environmental data so a replay of the 2026-08-25 heatmap is consistent"
+  },
+  {
+   "requested_day_site_local": "2026-08-24",
+   "metro": "IA_way_1318322780",
+   "class": "stalled_in_processing",
+   "credits": 0,
+   "activity_id": "7638cd9d-4aab-402a-ad61-720dee0a6504",
+   "credits_before": 1428460,
+   "credits_after": 1428460,
+   "n_fields": 0,
+   "n_values": 0,
+   "purpose": "date-matched environmental data so a replay of the 2026-08-24 heatmap is consistent"
+  }
+ ]
+}

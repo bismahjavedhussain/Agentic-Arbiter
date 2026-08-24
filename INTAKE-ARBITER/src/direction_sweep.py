@@ -208,8 +208,31 @@ def emission_point(site, d, bank):
 
 
 def load_wind():
-    """KIAD hourly. Returns (bearing_deg, speed_ms, tmpc) triples plus a calm count."""
-    d = json.load(open(os.path.join(WEATHER, "kiad_hourly_2021_2025.json"), encoding="utf-8"))
+    """THIS SITE'S OWN hourly record. Returns (bearing_deg, speed_ms, tmpc) triples + a calm count.
+
+    🔴 THIS READ `kiad_hourly_2021_2025.json` AS A LITERAL UNTIL 2026-08-21, ON EVERY SITE.
+    Section 6.13 of HANDOFF lists six paths that were changed from literals to `metros` lookups when
+    the engine was made per-site. This one was not among them, and nothing noticed for two days,
+    because the numbers it produces are internally consistent and plausible for anywhere:
+
+      * every site's per-bearing rise curve was solved at **KIAD's median wind speed**, so Chicago's
+        published plume curve was computed at Virginia's wind;
+      * `export_plume_fields.py` reads that same median speed to solve the **72 rendered fields**, so
+        the plume a reader drags around for Chicago was solved at Virginia's wind too;
+      * the wind statistics shipped in every trace were KIAD's, and the block even hard-coded
+        `"station": "KIAD"` beside them -- a field asserting a station the site does not use.
+
+    The tell was arithmetic and it was sitting in the artefact: Chicago's usable + calm + missing
+    came to **43,763**, which is KIAD's hour count, while Chicago's own record is KORD's **43,775**.
+    `audit.check_wind_is_this_sites_own()` now asserts that identity for every site, because it is
+    exactly the kind of claim a reader cannot check and a computer can.
+
+    THE AGENT'S DECISIONS WERE NOT AFFECTED, and that is worth stating precisely rather than
+    hopefully: `agent.rise_table()` maxes over a fixed 72 x 8 bearing/speed grid (`SPEED_GRID_MS`),
+    which never consults a station record, so the bound and the schedule are untouched. What was
+    wrong is everything DISPLAYED about the wind and the plume shape.
+    """
+    d = json.load(open(_M.weather_path(), encoding="utf-8"))
     fields = d["meta"]["fields"]
     it, idr, isk = fields.index("tmpc"), fields.index("drct"), fields.index("sknt")
     out, calm, missing = [], 0, 0
@@ -455,8 +478,18 @@ def main():
                        "downwash_exponent": CALIBRATED["downwash_exponent"],
                        "intake_operator": "disc=True (fixed physical region)",
                        "changeover_limits_c": CHANGEOVER_C},
-        "wind": {"station": "KIAD", "usable_hours": len(wind), "calm_excluded": calm,
-                 "missing": missing},
+        # THE STATION IS READ, NOT TYPED. It said "KIAD" unconditionally, on every site's file --
+        # a field naming a station the site does not use, which is gotcha #62's lesson ("if a
+        # document field describes a code path, compute it from that path") applied to a station id.
+        # `n_hours_in_record` is emitted so the partition below can be checked by a reader as well
+        # as by audit: usable + calm + missing must equal it exactly.
+        # `"K" + station` because `metros` holds the 3-letter code ("IAD") and every other artefact
+        # in the tree publishes the 4-letter ICAO id ("KIAD") -- `agent.py` does exactly this. Two
+        # spellings of one station across two files is how a reader ends up unable to join them.
+        "wind": {"station": "K" + _M.metro()["station"], "metro": _M.metro_key(),
+                 "weather_file": os.path.basename(_M.weather_path()),
+                 "usable_hours": len(wind), "calm_excluded": calm, "missing": missing,
+                 "n_hours_in_record": len(wind) + calm + missing},
         "verdicts": verdicts, "all_pass": bool(allpass),
         "modes": {m: {k: v for k, v in r.items()} for m, r in results.items()},
     }, open(out, "w", encoding="utf-8"), indent=1,

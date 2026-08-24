@@ -62,7 +62,9 @@ from datetime import datetime, timedelta, timezone
 
 from common import (load_key, credits_remaining, submit_poll, banner, box_aoi, save_result,
                     verdict, RESULTS, FIXTURES, tile_key, site_now, site_window, lead_hours,
-                    utc_now, site_tz, SITE_TZ_NAME)
+                    utc_now, site_tz, SITE_TZ_NAME,
+                    classify_vendor, vendor_sentence, vendor_rec, is_billed, BILLED_CLASSES,
+                    HEATMAP_CREDITS)
 
 CENTRE = (39.0100, -77.4460)
 SIDE_KM = 8.0
@@ -98,7 +100,32 @@ LEAD_SPREAD_WARN_H = 3.0
 # open, and the cap then throws away a recoverable pair to save 4,220 credits. A lost day-pair is
 # UNRECOVERABLE; 4,220 credits is 0.2 % of the plan. Set N26_MAX_ATTEMPTS to raise it deliberately;
 # the default stays conservative for the unattended scheduled runs.
-MAX_FORECAST_ATTEMPTS_PER_DAY = int(os.environ.get("N26_MAX_ATTEMPTS", "3"))
+#
+# ---- SPLIT IN TWO 2026-08-21 (Session 4), AND THE SPLIT IS THE POINT.
+# The single counter above conflated two different things because, until 2026-08-20, they were the
+# same thing: every failed request cost 4,220. Then the vendor started failing for FREE -- `status:
+# failed` and an indefinite `Processing` stall are both unbilled, while `completed` with no data is
+# still charged. From that day a budget written to ration CREDITS was being spent by failures that
+# cost NO credits. That is gotcha #101 (attempts vs billed calls) recurring one layer down: the
+# ledger was taught the difference and the collector was not.
+#
+# So there are now two limits, because there are two risks and they are not the same risk:
+#
+#   MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY  the CREDIT budget. Counts only attempts the vendor
+#                                         actually charged for. Three billed misses in a day is
+#                                         12,660 credits and enough evidence of a vendor-side
+#                                         condition (gotcha #59).
+#   MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY   the RUNAWAY guard. Counts everything, billed or not, so a
+#                                         vendor stalling for free cannot be probed without bound.
+#                                         Higher, because a free attempt costs only wall-clock --
+#                                         and wall-clock inside the in-band window is exactly what
+#                                         the recovery watcher exists to spend.
+#
+# The honest limit of this change: on a day like 2026-08-21, whose four failures were ALL
+# `completed`-with-no-data, every attempt was billed and the new split buys nothing. On a day like
+# 2026-08-20, which stalled twice for free, it buys the whole window.
+MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY = int(os.environ.get("N26_MAX_ATTEMPTS", "3"))
+MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY = int(os.environ.get("N26_MAX_TOTAL_ATTEMPTS", "8"))
 MANIFEST = os.path.join(RESULTS, "n26_manifest.json")
 
 MIN_COVERAGE = 0.85            # P1
@@ -127,15 +154,105 @@ def window_for(date_site):
 
 
 def call_window(key, aoi, dt_fields, tag):
+    """One paid window. Returns (tiles_by_key or None, count or error string, RECORD).
+
+    THE THIRD RETURN VALUE IS THE SESSION-4 ADDITION, and it is what lets the caller decide
+    whether to try again. Before it, a failure was a sentence -- "completed but never populated
+    after 59 polls over 604 s" -- and a sentence cannot be counted, compared or billed. The record
+    carries the vendor's classification (`ok` / `completed_but_empty` / `terminal_<status>` /
+    `stalled_in_processing` / `submit_rejected`), whether that class MOVES THE CREDIT METER, the
+    activity id, the poll count and the elapsed time. Classification is `common.classify_vendor`,
+    the same function the live agent uses -- not a second copy of the same judgement.
+    """
     p = {"polygon_aoi": aoi, "granularity": GRAN, "analytic_type": "tcm",
          "date_time": {k: v for k, v in dt_fields.items() if not k.startswith("_")}}
     r = submit_poll(key, "heatmap", p, tag)
+    d = field_max(r["result"]) if r.get("result") else {}
+    rec = vendor_rec(r, tiles=len(d))
+    rec["class"] = cls = classify_vendor(rec)
+    rec["billed"] = is_billed(cls)
+    rec["credits_if_billed"] = HEATMAP_CREDITS if rec["billed"] else 0
+    rec["sentence"] = vendor_sentence(cls, rec)
+    rec["tag"] = tag
+    rec["at_utc"] = utc_now().isoformat()
     if not r.get("ok"):
-        return None, r.get("error")
-    d = field_max(r["result"])
+        return None, r.get("error"), rec
     if not d:
-        return None, "ZERO TILES with completed status"
-    return d, len(d)
+        # `submit_poll` reported ok, so `assert_non_empty` saw features -- yet field_max found no
+        # usable tile. Different fault from an empty response and it must not wear its label.
+        return None, "tiles present but none parsed into the lattice", rec
+    return d, len(d), rec
+
+
+# ---------------------------------------------------- the per-day attempt log
+# WHY A LOG AND NOT A COUNTER. The manifest used to carry `forecast_attempts` (an integer) and
+# `forecast_error` (the last sentence). Both are lossy in ways that already cost this project real
+# money and real diagnosis time:
+#   * gotcha #100 -- the spend ledger lost three calls because it read a MUTABLE SINGLE-SLOT field
+#     that a later, unbilled call overwrote. A list cannot be overwritten by its successor.
+#   * gotcha #124 -- the only fields that explain a rejection (HTTP status and body) were gone by
+#     the time anyone asked, because the record kept the class and threw the reason away.
+#   * The billing split needs per-attempt truth. "3 attempts" cannot be priced; "2 billed, 1 free"
+#     can, and it is the difference between 8,440 credits and 12,660.
+# So each attempt appends one complete record and nothing is ever rewritten. The old integer is
+# still maintained alongside it, because `api_usage_ledger.py` and this file's own report read it,
+# and a rename that breaks the ledger to tidy a field name is a bad trade.
+
+def attempt_log(day):
+    return day.setdefault("forecast_attempt_log", [])
+
+
+def record_attempt(day, rec):
+    """Append one attempt. The ONLY writer of the log, so the append cannot be forgotten."""
+    log = attempt_log(day)
+    log.append(rec)
+    # Derived, never independently incremented: two counters for one quantity is gotcha #12.
+    day["forecast_billed_attempts"] = sum(1 for r in log
+                                          if r.get("leg") == "forecast" and r.get("billed"))
+    day["forecast_credits_spent"] = day["forecast_billed_attempts"] * HEATMAP_CREDITS
+    return rec
+
+
+def billed_attempts(day):
+    """Attempts on the FORECAST leg that moved the credit meter.
+
+    Falls back to the plain attempt count for days recorded BEFORE the log existed (2026-08-18..21).
+    That fallback is the conservative direction -- it treats every historical attempt as billed,
+    which is what the ledger already assumes and what was true on 08-21.
+    """
+    log = [r for r in attempt_log(day) if r.get("leg") == "forecast"]
+    if not log:
+        return day.get("forecast_attempts", 0)
+    return sum(1 for r in log if r.get("billed"))
+
+
+def total_attempts(day):
+    """Every attempt on the forecast leg, billed or not.
+
+    Same pre-log fallback as `billed_attempts`, and it must have one: without it a day recorded
+    before 2026-08-21 reports "4 billed of 3" beside "0 total of 8", which reads as a bug in the
+    budget rather than a gap in the record. Two counters over one quantity have to agree about what
+    they are counting.
+    """
+    log = [r for r in attempt_log(day) if r.get("leg") == "forecast"]
+    return len(log) if log else day.get("forecast_attempts", 0)
+
+
+def attempt_summary(day):
+    """One line: what was tried today, how it failed, and what it cost."""
+    log = attempt_log(day)
+    if not log:
+        n = day.get("forecast_attempts", 0)
+        return ("%d attempt(s) recorded before per-attempt logging existed, so each is counted as "
+                "billed" % n) if n else "no attempts recorded today"
+    by = {}
+    for r in log:
+        by[r.get("class", "unknown")] = by.get(r.get("class", "unknown"), 0) + 1
+    return ("today: %s  ->  %d billed (%s credits), %d free"
+            % (", ".join("%d x %s" % (v, k) for k, v in sorted(by.items())),
+               sum(1 for r in log if r.get("billed")),
+               format(sum(1 for r in log if r.get("billed")) * HEATMAP_CREDITS, ","),
+               sum(1 for r in log if not r.get("billed"))))
 
 
 def load_manifest():
@@ -202,22 +319,39 @@ def collect():
             print("      flatter the result. Today is skipped deliberately -- run earlier tomorrow.")
             day["forecast_error"] = "lead %.2f h below comparability floor %.1f h" % (lead,
                                                                                       MIN_LEAD_H)
-        elif day.get("forecast_attempts", 0) >= MAX_FORECAST_ATTEMPTS_PER_DAY:
-            print("      SKIP: %d attempts already made today and all failed (%s)."
-                  % (day.get("forecast_attempts"), day.get("forecast_error")))
-            print("      The retry budget is spent. Not burning another 4,220 on the same day --")
-            print("      a repeated zero-tile answer is a vendor-side condition, not something a")
-            print("      fourth identical request will fix. See HANDOFF gotcha #59.")
+        elif billed_attempts(day) >= MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY:
+            print("      SKIP: %d BILLED attempt(s) already made today and all failed (%s)."
+                  % (billed_attempts(day), day.get("forecast_error")))
+            print("      The CREDIT budget is spent -- %s credits on this day already. Not burning"
+                  % format(billed_attempts(day) * HEATMAP_CREDITS, ","))
+            print("      another %s on the same day: a repeated zero-tile answer is a vendor-side"
+                  % format(HEATMAP_CREDITS, ","))
+            print("      condition, not something a fourth identical request will fix (gotcha #59).")
+            print("      %s" % attempt_summary(day))
+        elif total_attempts(day) >= MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY:
+            # The runaway guard, not the credit guard. Reaching this means the vendor has been
+            # failing for FREE all day -- which costs nothing and must still terminate.
+            print("      SKIP: %d attempts today (the runaway ceiling), though only %d were billed."
+                  % (total_attempts(day), billed_attempts(day)))
+            print("      Free failures cost credits nothing and wall-clock something. Stopping.")
+            print("      %s" % attempt_summary(day))
         else:
             tag = "n26_f_%s" % key_today
             day["forecast_attempts"] = day.get("forecast_attempts", 0) + 1
             write_manifest(m)          # record the attempt BEFORE the call, so a crash still counts
-            d, n = call_window(key, aoi, w, tag)
+            d, n, rec = call_window(key, aoi, w, tag)
+            rec["lead_h"] = round(lead, 3)
+            rec["leg"] = "forecast"
+            record_attempt(day, rec)   # APPENDS -- gotcha #100, never a single overwritten slot
             if d is None:
                 day["forecast_error"] = n
                 m["errors"][tag] = n
-                print("      FAILED (attempt %d of %d): %s"
-                      % (day["forecast_attempts"], MAX_FORECAST_ATTEMPTS_PER_DAY, n))
+                print("      FAILED: %s" % rec["sentence"])
+                print("      class=%s  billed=%s  -> billed %d of %d, total %d of %d"
+                      % (rec["class"], "YES %s credits" % format(HEATMAP_CREDITS, ",")
+                         if rec["billed"] else "no, FREE",
+                         billed_attempts(day), MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY,
+                         total_attempts(day), MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY))
             else:
                 day.update({"forecast_tag": tag, "forecast_lead_h": round(lead, 3),
                             "forecast_done": True, "forecast_n": n,
@@ -246,11 +380,14 @@ def collect():
             write_manifest(m)
             continue
         print("\n   OUTCOME for %s  target %s-%s site-local" % (dk, w["start_time"], w["end_time"]))
-        d, n = call_window(key, aoi, w, tag)
+        d, n, rec = call_window(key, aoi, w, tag)
+        rec["leg"] = "outcome"
+        record_attempt(day, rec)
         if d is None:
             day["outcome_error"] = n
             m["errors"][tag] = n
-            print("      FAILED: %s" % n)
+            print("      FAILED: %s" % rec["sentence"])
+            print("      class=%s  billed=%s" % (rec["class"], "yes" if rec["billed"] else "no, FREE"))
         else:
             day.update({"outcome_tag": tag, "outcome_done": True, "outcome_n": n,
                         "outcome_mean": round(statistics.fmean(v[0] for v in d.values()), 4),
@@ -314,9 +451,35 @@ def dryrun():
     elif lead < MIN_LEAD_H:
         act = ("SKIP -- lead is %.2f h below the %.1f h floor. A short-lead forecast is far more "
                "accurate, so recording it would FLATTER coverage" % (MIN_LEAD_H - lead, MIN_LEAD_H))
+    elif billed_attempts(day) >= MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY:
+        act = ("SKIP -- the CREDIT budget is spent: %d billed attempt(s) of %d"
+               % (billed_attempts(day), MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY))
+    elif total_attempts(day) >= MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY:
+        act = ("SKIP -- the runaway ceiling is reached: %d attempts of %d, only %d billed"
+               % (total_attempts(day), MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY,
+                  billed_attempts(day)))
     else:
-        act = "WOULD CALL -- one paid forecast, 4,220 credits, tag n26_f_%s" % today.isoformat()
+        act = ("WOULD CALL -- one paid forecast, %s credits, tag n26_f_%s"
+               % (format(HEATMAP_CREDITS, ","), today.isoformat()))
     print("   ACTION               : %s" % act)
+
+    # ---- the two budgets, reported apart, because they are two different risks --------
+    print("\n   TODAY'S RETRY BUDGETS (split 2026-08-21: a free failure must not spend a credit"
+          " budget)")
+    print("      billed attempts    : %d of %d      %s credits committed today"
+          % (billed_attempts(day), MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY,
+             format(billed_attempts(day) * HEATMAP_CREDITS, ",")))
+    print("      total attempts     : %d of %d      (the runaway guard; free failures land here"
+          " only)" % (total_attempts(day), MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY))
+    print("      %s" % attempt_summary(day))
+    if attempt_log(day):
+        print("      per attempt:")
+        for r in attempt_log(day):
+            print("         %s  %-22s %-6s lead %s  %s"
+                  % (str(r.get("at_utc"))[11:19], r.get("class"),
+                     "BILLED" if r.get("billed") else "free",
+                     ("%.2f h" % r["lead_h"]) if r.get("lead_h") is not None else "   n/a",
+                     (r.get("activity_id") or "-")[:8]))
 
     # ---- the window of firing times that WOULD be in band today ------------
     lo = w["_start_utc"] - timedelta(hours=MAX_LEAD_H)
@@ -514,7 +677,145 @@ def report():
     return 0 if ok else 1
 
 
+# ----------------------------------------------------------------- selftest
+def selftest():
+    """THE COLLECTOR'S OWN LOGIC, WITH ZERO NETWORK AND NO KEY READ.
+
+    WHY THIS EXISTS. The retry budget is the one piece of this program nobody can watch work: it
+    only ever fires unattended, from a scheduled task, on a day the vendor is already failing. Its
+    previous version was wrong for a day and a half -- counting free failures against a credit
+    budget -- and nothing could have caught that, because the only way to exercise it was to spend
+    4,220 credits and wait ten minutes for a failure.
+
+    So the failure shapes are fed in as RECORDS. Each of the three measured vendor faults is
+    replayed against the real `classify_vendor` and the real budget helpers, and the assertions are
+    about credits: how many the day has committed, and whether another attempt is permitted.
+    """
+    banner("N-26 selftest   the retry budget and the vendor classifier.  ZERO API CALLS.")
+    fails = []
+
+    def ck(name, ok, detail=""):
+        (fails.append(name) if not ok else None)
+        print("   [%s] %-58s %s" % ("PASS" if ok else "FAIL", name, detail))
+
+    # ---- 1. the three measured failure shapes, and what each one costs -----------------
+    # Every one of these is a real observation, not an invented case:
+    #   completed_but_empty   2026-08-21, "completed but never populated after 59 polls", BILLED
+    #   terminal_failed       2026-08-20 diag63, `status: failed`,                        FREE
+    #   stalled_in_processing 2026-08-20 activity a89fef3f, 33 polls over 307 s,          FREE
+    #   submit_rejected       2026-08-20, 1 of 12 identical submits rejected (gotcha #124) FREE
+    shapes = [
+        ("ok", {"submit_http": 200, "activity_id": "9995dfd7", "tiles": 17785,
+                "terminal_status": "completed"}, True),
+        ("completed_but_empty", {"submit_http": 200, "activity_id": "aaaaaaaa", "tiles": 0,
+                                 "terminal_status": "completed"}, True),
+        ("terminal_failed", {"submit_http": 200, "activity_id": "bbbbbbbb", "tiles": 0,
+                             "terminal_status": "failed"}, False),
+        ("stalled_in_processing", {"submit_http": 200, "activity_id": "a89fef3f", "tiles": 0,
+                                   "terminal_status": None,
+                                   "statuses_seen": ["processing"]}, False),
+        ("submit_rejected", {"submit_http": 429, "activity_id": None, "tiles": 0}, False),
+    ]
+    for want_cls, rec, want_billed in shapes:
+        got = classify_vendor(rec)
+        ck("classifies %s" % want_cls, got == want_cls, "got %s" % got)
+        ck("  ...and prices it %s" % ("BILLED" if want_billed else "FREE"),
+           is_billed(got) == want_billed,
+           "%s credits" % format(HEATMAP_CREDITS if want_billed else 0, ","))
+
+    # An unrecognised class must be assumed BILLED. Guessing "free" under-reports spend, and a
+    # ledger with a blind spot is worse than no ledger (gotcha #103).
+    ck("an UNKNOWN outcome is assumed billed, never free",
+       is_billed(classify_vendor({"submit_http": 200, "activity_id": "c", "tiles": 0,
+                                  "terminal_status": None, "statuses_seen": ["something new"]})),
+       "unknown -> billed, the conservative direction")
+
+    # ---- 2. THE BUDGET. This is the bug the split exists to prevent. -------------------
+    def day_with(classes):
+        d = {}
+        for i, c in enumerate(classes):
+            record_attempt(d, {"leg": "forecast", "class": c, "billed": is_billed(c),
+                               "at_utc": "2026-08-21T0%d:00:00" % i})
+        return d
+
+    free_day = day_with(["stalled_in_processing"] * 3)
+    ck("three FREE failures leave the credit budget untouched",
+       billed_attempts(free_day) == 0
+       and billed_attempts(free_day) < MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY,
+       "0 of %d billed -- the collector may try again" % MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY)
+    ck("...and cost 0 credits", free_day["forecast_credits_spent"] == 0, "0")
+    ck("...but still count against the runaway ceiling",
+       len(attempt_log(free_day)) == 3, "3 of %d" % MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY)
+
+    billed_day = day_with(["completed_but_empty"] * 3)
+    ck("three BILLED failures exhaust the credit budget",
+       billed_attempts(billed_day) >= MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY,
+       "%d of %d" % (billed_attempts(billed_day), MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY))
+    ck("...and are priced exactly",
+       billed_day["forecast_credits_spent"] == 3 * HEATMAP_CREDITS,
+       "%s credits" % format(billed_day["forecast_credits_spent"], ","))
+
+    mixed = day_with(["stalled_in_processing", "completed_but_empty", "terminal_failed",
+                      "completed_but_empty"])
+    ck("a MIXED day counts only what was charged",
+       billed_attempts(mixed) == 2 and len(attempt_log(mixed)) == 4,
+       "4 attempts, 2 billed, %s credits" % format(mixed["forecast_credits_spent"], ","))
+
+    # THE RUNAWAY GUARD MUST BIND EVEN WHEN NOTHING IS BILLED, or a vendor stalling for free is an
+    # unbounded loop. This is the failure mode the split introduces, so it is the one to pin.
+    runaway = day_with(["stalled_in_processing"] * MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY)
+    ck("a vendor failing FOREVER for free still terminates",
+       len(attempt_log(runaway)) >= MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY
+       and billed_attempts(runaway) == 0,
+       "%d free attempts hits the ceiling with 0 credits spent" % len(attempt_log(runaway)))
+    ck("the runaway ceiling sits ABOVE the credit budget, or it would mask it",
+       MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY > MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY,
+       "%d > %d" % (MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY,
+                    MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY))
+
+    # ---- 3. THE LOG APPENDS. Gotcha #100 was a single overwritten slot losing three calls. ----
+    seq = day_with(["completed_but_empty", "stalled_in_processing"])
+    record_attempt(seq, {"leg": "forecast", "class": "ok", "billed": True, "at_utc": "z"})
+    ck("the attempt log APPENDS and never overwrites",
+       [r["class"] for r in attempt_log(seq)]
+       == ["completed_but_empty", "stalled_in_processing", "ok"],
+       "3 records in submission order")
+    ck("the OUTCOME leg is logged but never charged to the FORECAST budget",
+       billed_attempts(day_with([]) | {"forecast_attempt_log":
+                                       [{"leg": "outcome", "class": "completed_but_empty",
+                                         "billed": True}]}) == 0,
+       "an outcome-leg failure leaves the forecast budget alone")
+
+    # ---- 4. BACK-COMPATIBILITY with the four days recorded before the log existed -------
+    legacy = {"forecast_attempts": 4, "forecast_error": "completed but never populated"}
+    ck("a pre-log day counts every attempt as billed, the safe direction",
+       billed_attempts(legacy) == 4, "4 attempts -> 4 billed (08-18..08-21 are all pre-log)")
+
+    # ---- 5. the evidence a failure must carry -----------------------------------------
+    rec = vendor_rec({"error": "completed but never populated after 59 polls over 604 s",
+                      "submit_http": 200, "aid": "9995dfd7-1111", "terminal_status": "completed",
+                      "statuses_seen": ["processing", "completed"], "secs": 604.0, "polls": 59,
+                      "empty_completed_polls": 59}, tiles=0)
+    cls = classify_vendor(rec)
+    ck("a failure record keeps the activity id, poll count and elapsed time",
+       rec["activity_id"] == "9995dfd7-1111" and rec["polls"] == 59 and rec["elapsed_s"] == 604.0,
+       vendor_sentence(cls, rec)[:78])
+    rej = vendor_rec({"error": "submit: HTTP 429 slow down", "submit_http": 429,
+                      "submit_error_body": "{\"detail\":\"rate limited\"}"}, tiles=0)
+    ck("a REJECTION keeps the body that explains it (gotcha #124)",
+       "rate limited" in vendor_sentence(classify_vendor(rej), rej),
+       "the reason survives into the sentence")
+
+    print()
+    verdict(not fails,
+            "PASS - the retry budget counts CREDITS, the runaway guard counts ATTEMPTS, and all "
+            "three measured vendor failure shapes are classified and priced correctly with no "
+            "network call and no key read.",
+            "FAIL - %s" % ", ".join(fails))
+    return 1 if fails else 0
+
+
 if __name__ == "__main__":
     mode = (sys.argv[1] if len(sys.argv) > 1 else "collect").lower()
     sys.exit({"collect": collect, "report": report, "dryrun": dryrun,
-              "dry": dryrun}.get(mode, collect)())
+              "dry": dryrun, "selftest": selftest}.get(mode, collect)())

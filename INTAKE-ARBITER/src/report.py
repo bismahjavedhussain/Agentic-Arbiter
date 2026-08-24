@@ -284,17 +284,42 @@ def build(metro_key=None):
     d.heading("The site")
     d.field("Location", "%s -- station %s, %s"
             % (mt.get("label", k), t["weather"]["station"], mt.get("tz", "")))
-    d.line("Committed pair  OSM %s -> %s" % (site["osm_source"], site["osm_receptor"]))
-    d.field("", site["operator"])
-    d.line("Facade gap      %.1f m between the two halls" % site["facade_gap_m"])
+    # 🔴 A STANDALONE FACILITY HAS ONE BUILDING, AND THE PDF MUST NOT DESCRIBE A PAIR.
+    # `osm_receptor` and `facade_gap_m` are null for the 360 facilities with no tagged neighbour
+    # inside the solver's validated range. Printing "Committed pair OSM 1318322780 -> None" and
+    # crashing on "%.1f m between the two halls" are both failures of the same kind: the page 1
+    # identity block is what a reader uses to check they are looking at the right building, so it
+    # has to describe the building that is actually there.
+    rt_l = t["cycle"]["rise_tables"]["longest"]
+    standalone = site.get("osm_receptor") is None
+    if standalone:
+        d.line("Building        OSM %s" % site["osm_source"])
+        d.field("", site["operator"])
+        d.line("Facade gap      not applicable -- one building, no second facade")
+    else:
+        d.line("Committed pair  OSM %s -> %s" % (site["osm_source"], site["osm_receptor"]))
+        d.field("", site["operator"])
+        d.line("Facade gap      %.1f m between the two halls" % site["facade_gap_m"])
     d.line("Weather record  %s real hourly records from %s"
            % (format(t["weather"]["n_hours"], ","), t["weather"]["station"]))
-    d.field("Plume physics",
-            "%s steady-state solves on this site's own footprints; worst intake rise %.4f C at "
-            "%.0f deg"
-            % (format(t["cycle"]["rise_tables"]["longest"]["n_solves"], ","),
-               t["cycle"]["rise_tables"]["longest"]["max_rise_c"],
-               t["cycle"]["rise_tables"]["longest"]["max_rise_bearing"]))
+    if standalone:
+        d.field("Plume physics",
+                # ⚠ DO NOT use the words "undefined", "null", "none" or "nan" in this prose. The
+                # read-back verifier below (report.py, the BAD-TOKEN loop) scans the rendered page
+                # for exactly those four strings, because a leaked null is the defect it exists to
+                # catch -- and it correctly flagged an earlier draft of this sentence that used
+                # "undefined" in its ordinary English sense. The guard is right; the wording moved.
+                "NOT MODELLED. No other tagged data centre lies inside the solver's validated "
+                "range, so there is no neighbour intake for a plume to arrive at: the quantity "
+                "does not exist here rather than being unmeasured. This is a statement about the "
+                "model's domain, not a claim that recirculation here is zero. A building's own "
+                "exhaust re-entering its own intake is not modelled at any site in this project.")
+    else:
+        d.field("Plume physics",
+                "%s steady-state solves on this site's own footprints; worst intake rise %.4f C at "
+                "%.0f deg"
+                % (format(rt_l["n_solves"], ","), rt_l["max_rise_c"],
+                   rt_l["max_rise_bearing"]))
     fp = t.get("fortyguard_provenance", {})
     d.space(0.4)
     d.para("FortyGuard data: %s" % fp.get("note", ""))

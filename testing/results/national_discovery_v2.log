@@ -1,0 +1,118 @@
+==============================================================================
+DATA-CENTRE CLUSTER DISCOVERY from OpenStreetMap. Free, keyless, no credential.
+==============================================================================
+   Tag filter: telecom=data_center OR building=data_center
+   These counts are a LOWER BOUND -- an untagged hall is invisible here.
+
+   VA ... 376 tagged ways (376 new)
+   AZ ... 50 tagged ways (50 new)
+   IL ... 52 tagged ways (52 new)
+   CA ... 140 tagged ways (140 new)
+   TX ... 225 tagged ways (225 new)
+   OR ... 127 tagged ways (127 new)
+   OH ... 87 tagged ways (87 new)
+   UT ... 20 tagged ways (20 new)
+   NV ...       overpass-api.de: HTTP Error 504: Gateway Timeout
+      overpass.kumi.systems: [WinError 10054] An existing connection was forcibly closed by the rem
+37 tagged ways (0 new)
+   GA ... 38 tagged ways (38 new)
+   AL ... 16 tagged ways (13 new)
+   AR ... 5 tagged ways (5 new)
+   CO ...       overpass-api.de: HTTP Error 429: Too Many Requests
+      overpass.kumi.systems: HTTP Error 502: Bad Gateway
+24 tagged ways (24 new)
+   CT ... 4 tagged ways (4 new)
+   DC ...       overpass-api.de: HTTP Error 429: Too Many Requests
+      overpass.kumi.systems: HTTP Error 502: Bad Gateway
+2 tagged ways (0 new)
+   DE ...       overpass-api.de: Remote end closed connection without response
+      overpass.kumi.systems: HTTP Error 500: Internal Server Error
+1 tagged ways (1 new)
+   FL ... 11 tagged ways (10 new)
+   IA ...       overpass-api.de: HTTP Error 429: Too Many Requests
+      overpass.kumi.systems: HTTP Error 500: Internal Server Error
+80 tagged ways (78 new)
+   ID ... 6 tagged ways (6 new)
+   IN ...       overpass-api.de: HTTP Error 429: Too Many Requests
+      overpass.kumi.systems: HTTP Error 502: Bad Gateway
+14 tagged ways (12 new)
+   KS ...       overpass-api.de: HTTP Error 504: Gateway Timeout
+      overpass.kumi.systems: HTTP Error 500: Internal Server Error
+15 tagged ways (15 new)
+   KY ... 15 tagged ways (9 new)
+   LA ... 9 tagged ways (9 new)
+   MA ... 6 tagged ways (4 new)
+   MD ... 335 tagged ways (0 new)
+   ME ... 4 tagged ways (4 new)
+   MI ... 69 tagged ways (17 new)
+   MN ... 21 tagged ways (19 new)
+   MO ...       overpass-api.de: HTTP Error 504: Gateway Timeout
+      overpass.kumi.systems: HTTP Error 502: Bad Gateway
+21 tagged ways (3 new)
+   MS ... 12 tagged ways (0 new)
+   MT ... 2 tagged ways (1 new)
+   NC ... 53 tagged ways (20 new)
+   ND ... 11 tagged ways (11 new)
+   NE ...       overpass-api.de: HTTP Error 504: Gateway Timeout
+      overpass.kumi.systems: HTTP Error 500: Internal Server Error
+42 tagged ways (2 new)
+   NH ... 6 tagged ways (1 new)
+   NJ ... 66 tagged ways (65 new)
+   NM ... 17 tagged ways (6 new)
+   NY ... 104 tagged ways (48 new)
+   OK ... 7 tagged ways (0 new)
+   PA ...       overpass-api.de: HTTP Error 504: Gateway Timeout
+      overpass.kumi.systems: HTTP Error 502: Bad Gateway
+47 tagged ways (34 new)
+   RI ... 0 tagged ways (0 new)
+   SC ...       overpass-api.de: HTTP Error 504: Gateway Timeout
+      overpass.kumi.systems: HTTP Error 500: Internal Server Error
+17 tagged ways (11 new)
+   SD ...       overpass-api.de: HTTP Error 504: Gateway Timeout
+      overpass.kumi.systems: HTTP Error 502: Bad Gateway
+2 tagged ways (0 new)
+   TN ... 34 tagged ways (13 new)
+   VT ...       overpass-api.de: HTTP Error 504: Gateway Timeout
+      overpass.kumi.systems: HTTP Error 502: Bad Gateway
+0 tagged ways (0 new)
+   WA ... 180 tagged ways (70 new)
+   WI ... 11 tagged ways (0 new)
+   WV ... 20 tagged ways (0 new)
+   WY ... 23 tagged ways (16 new)
+
+   1646 distinct tagged data-centre ways nationally (deduped by OSM id)
+   433 cells hold >= 1 tagged data centre; resolving each cell's REAL state ONCE from its centroid, not per building (Nominatim, 1 req/s, cached)
+
+   !! 12 cell(s) EXCLUDED, confirmed OUTSIDE the United States (ca, mx): 25 tagged buildings total -- see excluded_non_us in the output, not silently dropped
+   127 clusters (>=3) / 58 pairs (==2) / 236 singles (==1)
+
+   TOP ENTRIES BY TAGGED COUNT (clusters and pairs; singles are the long, flat tail)
+   st   kind     tagged  centre lat,lon      operators                          bbox
+   VA   cluster     111   39.0244, -77.4496  Aligned, Amazon Web Services, Cent 38.988,-77.502,39.061,-77.397
+   VA   cluster      83   38.9519, -77.4543  Aligned, Amazon Web Services, Cent 38.892,-77.513,39.011,-77.395
+   VA   cluster      53   38.7673, -77.5494  Amazon Web Services, Digital Realt 38.723,-77.610,38.812,-77.489
+   CA   cluster      53   37.3799,-121.9655  Amazon Web Services, Cologix, Core 37.349,-122.004,37.411,-121.927
+   TX   cluster      39   29.4625, -98.6688  CHRISTUS Health, CyrusOne, Frost B 29.432,-98.714,29.493,-98.624
+   WA   cluster      33   47.2453,-119.8541  Microsoft, NTT                     47.225,-119.910,47.266,-119.798
+   OR   cluster      32   45.8405,-119.6484  Amazon Web Services                45.807,-119.709,45.874,-119.588
+   PA   cluster      32   41.2717, -79.8132  -                                  41.259,-79.829,41.284,-79.797
+   TX   cluster      30   32.4983, -99.7859  -                                  32.485,-99.811,32.512,-99.761
+   OH   cluster      29   40.0759, -82.7493  Amazon Web Services, Google, Meta, 40.041,-82.787,40.111,-82.712
+   OR   cluster      24   45.5600,-122.9307  Aligned Data Centers, Digital Real 45.536,-122.964,45.584,-122.897
+   VA   cluster      22   38.9503, -77.5316  Amazon Web Services, CyrusOne, Goo 38.930,-77.576,38.971,-77.488
+   VA   cluster      20   39.0619, -77.5500  Google, Microsoft, True North Data 39.030,-77.580,39.094,-77.520
+   VA   cluster      18   36.6853, -78.3759  -                                  36.664,-78.393,36.707,-78.359
+   VA   cluster      17   37.4857, -77.2397  Bank of America, Meta, Quality Tec 37.465,-77.268,37.506,-77.212
+   OH   cluster      17   40.0581, -83.1612  Amazon Web Services, Amazon Web Se 40.004,-83.214,40.112,-83.108
+   OR   cluster      16   45.9172,-119.2481  Amazon Web Services                45.902,-119.285,45.933,-119.211
+   NJ   cluster      16   40.7567, -74.0403  Centersquare, CoreSite, Cyxtera, D 40.705,-74.091,40.809,-73.990
+   IA   cluster      13   41.1750, -95.8039  Google                             41.161,-95.822,41.190,-95.786
+   IA   cluster      12   41.5162, -93.7120  Microsoft                          41.502,-93.736,41.531,-93.688
+   NY   cluster      12   43.0828, -79.0169  US Bitcoin                         43.070,-79.046,43.096,-78.988
+   IL   cluster      11   41.9560, -87.9455  Aligned, Centersquare, Digital Rea 41.901,-87.989,42.011,-87.903
+   NV   cluster      11   39.5680,-119.5419  -                                  39.553,-119.564,39.583,-119.520
+   TX   cluster      11   29.4337, -98.7520  CyrusOne, Vantage Data Centers     29.403,-98.805,29.464,-98.699
+   AZ   cluster      10   33.3293,-111.6411  Apple Inc., EdgeConneX             33.293,-111.693,33.365,-111.589
+   AZ   cluster      10   33.2717,-111.8841  CyrusOne, Digital Realty, H5       33.254,-111.902,33.289,-111.867
+
+   written: D:\FGHackathon\INTAKE-ARBITER\data\geometry\dc_clusters.json  (420 clusters)

@@ -1,0 +1,48 @@
+{
+ "created_utc": "2026-08-21T15:03:35.891352+00:00",
+ "metro": "chicago",
+ "tz": "America/Chicago",
+ "purpose": "one measured FortyGuard level offset for Chicago, to replace the borrowed Ashburn offsets in the unanchored case",
+ "side_km": 8.0,
+ "granularity": 60,
+ "target_hour_site": 14,
+ "lead_band_h": [
+  6.0,
+  11.5
+ ],
+ "days": {
+  "2026-08-21": {
+   "date": "2026-08-21"
+  },
+  "2026-08-22": {
+   "date": "2026-08-22"
+  }
+ },
+ "attempts": [
+  {
+   "submit_http": 200,
+   "activity_id": "d559384b-6218-4455-858e-c31f71bdcbd6",
+   "tiles": 0,
+   "terminal_status": "completed",
+   "statuses_seen": [
+    "processing",
+    "completed"
+   ],
+   "elapsed_s": 604.3,
+   "polls": 61,
+   "empty_completed_polls": 59,
+   "submit_error_body": null,
+   "error": "completed but never populated after 59 polls over 604 s",
+   "class": "completed_but_empty",
+   "billed": true,
+   "leg": "forecast",
+   "date": "2026-08-22",
+   "tag": "n26chi_f_2026-08-22",
+   "at_utc": "2026-08-22T12:39:50.808171+00:00",
+   "lead_h": 6.336,
+   "sentence": "FortyGuard reported the job COMPLETE and returned zero tiles, activity d559384b, after 604 s and 61 status polls."
+  }
+ ],
+ "credits_last_before": 1666620,
+ "credits_last_after": 1662400
+}

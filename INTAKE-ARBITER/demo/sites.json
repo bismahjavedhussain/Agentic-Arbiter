@@ -18,13 +18,18 @@
    "data_ready": true,
    "scope_verdict": "GRADE",
    "scope_ok": true,
+   "offer_tier": "fully_screened",
+   "national": false,
+   "site_kind": null,
+   "plume_modelled": true,
+   "unscreened_caveat": null,
    "offerable": true,
    "not_offerable_because": null,
    "n_buildings": 128,
    "n_tagged_dc": 96,
    "n_dc_to_dc_pairs": 381,
    "weather_hours": 43763,
-   "weather_coverage": 0.9991552511415525,
+   "weather_coverage": 0.9986080686381891,
    "fortyguard_field": "purchased -- 9 heatmap calls, 8 saved fields plus a verified forecast",
    "climate_note": "mixed-humid: the dew-point gate and the dry-bulb limit both bind",
    "basis": "Loudoun County data-centre corridor; brackets the coordinate the earlier FortyGuard work used as its site centre (39.0100, -77.4460)",
@@ -80,6 +85,7 @@
     "report": "report.pdf"
    },
    "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 4,
    "verdicts": [
     {
      "pair": [
@@ -117,14 +123,19 @@
    "data_ready": true,
    "scope_verdict": "GRADE",
    "scope_ok": true,
+   "offer_tier": "fully_screened",
+   "national": false,
+   "site_kind": null,
+   "plume_modelled": true,
+   "unscreened_caveat": null,
    "offerable": true,
    "not_offerable_because": null,
    "n_buildings": 315,
    "n_tagged_dc": 14,
    "n_dc_to_dc_pairs": 15,
    "weather_hours": 43775,
-   "weather_coverage": 0.9994292237442922,
-   "fortyguard_field": null,
+   "weather_coverage": 0.9988818912011683,
+   "fortyguard_field": "purchased -- 1 past-window heatmap call, 17,797 tiles (2026-08-18 14:00 site-local), explicit timezone",
    "climate_note": "cold: free cooling should be abundant and the binding constraint should shift toward the switch budget. TO BE MEASURED",
    "basis": "OSM cluster of 11 tagged data centres (Aligned, Centersquare, Digital Realty) at 41.9560, -87.9455, found by discover_dc_clusters.py; KORD is 4.4 km away",
    "committed": {
@@ -174,10 +185,10 @@
     "money": "chicago_money.json",
     "explanations": "chicago_explanations.json",
     "ticker": "chicago_ticker.json",
-    "scenarios": "chicago_scenarios.json",
     "report": "chicago_report.pdf"
    },
-   "has_own_fortyguard_field": false,
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
    "verdicts": [
     {
      "pair": [
@@ -205,13 +216,18 @@
    "data_ready": true,
    "scope_verdict": "GRADE",
    "scope_ok": true,
+   "offer_tier": "fully_screened",
+   "national": false,
+   "site_kind": null,
+   "plume_modelled": true,
+   "unscreened_caveat": null,
    "offerable": true,
    "not_offerable_because": null,
    "n_buildings": 31,
    "n_tagged_dc": 24,
    "n_dc_to_dc_pairs": 42,
    "weather_hours": 43763,
-   "weather_coverage": 0.9991552511415525,
+   "weather_coverage": 0.9986080686381891,
    "fortyguard_field": null,
    "climate_note": "same station and climate as the committed Ashburn site, so this isolates GEOMETRY and OPERATOR from weather -- a genuinely different site, not a different climate",
    "basis": "OSM cluster of 19 tagged data centres (Amazon Web Services, Google, Microsoft, CyrusOne) at 38.9501, -77.5331, found by discover_dc_clusters.py; 6.7 km from KIAD, whose five-year record is already on disk",
@@ -262,10 +278,10 @@
     "money": "dulles_money.json",
     "explanations": "dulles_explanations.json",
     "ticker": "dulles_ticker.json",
-    "scenarios": "dulles_scenarios.json",
     "report": "dulles_report.pdf"
    },
    "has_own_fortyguard_field": false,
+   "fortyguard_day_pairs": 0,
    "verdicts": [
     {
      "pair": [
@@ -313,13 +329,18 @@
    "data_ready": true,
    "scope_verdict": "NOT BUILT",
    "scope_ok": false,
+   "offer_tier": "fully_screened",
+   "national": false,
+   "site_kind": null,
+   "plume_modelled": true,
+   "unscreened_caveat": null,
    "offerable": false,
    "not_offerable_because": "committed pair is NOT BUILT -- refused by the imagery scope gate",
    "n_buildings": 111,
    "n_tagged_dc": 8,
    "n_dc_to_dc_pairs": 4,
    "weather_hours": 41919,
-   "weather_coverage": 0.957054794520548,
+   "weather_coverage": 0.9565306681270537,
    "fortyguard_field": null,
    "climate_note": "hot-dry: dry-bulb should dominate and the 15 C dew-point gate should rarely bind -- the opposite balance to Ashburn. TO BE MEASURED, not assumed",
    "basis": "OSM cluster of 10 tagged data centres (Apple Data Center, EdgeConneX PHX02) at 33.3293, -111.6411, found by discover_dc_clusters.py. Station KFFZ chosen on measured record completeness, not proximity -- see the comment above",
@@ -365,6 +386,7 @@
    "plume_field_file": null,
    "artefacts": {},
    "has_own_fortyguard_field": false,
+   "fortyguard_day_pairs": 0,
    "verdicts": [
     {
      "pair": [
@@ -392,13 +414,18 @@
    "data_ready": true,
    "scope_verdict": "ROOFTOP",
    "scope_ok": false,
+   "offer_tier": "fully_screened",
+   "national": false,
+   "site_kind": null,
+   "plume_modelled": true,
+   "unscreened_caveat": null,
    "offerable": false,
    "not_offerable_because": "committed pair is ROOFTOP -- refused by the imagery scope gate",
    "n_buildings": 119,
    "n_tagged_dc": 14,
    "n_dc_to_dc_pairs": 15,
    "weather_hours": 43747,
-   "weather_coverage": 0.9987899543378995,
+   "weather_coverage": 0.9982429718875502,
    "fortyguard_field": null,
    "climate_note": "mild marine: a narrow annual range, so the margin should be tight and the hours plentiful. TO BE MEASURED",
    "basis": "OSM cluster of 53 tagged data centres at 37.3799, -121.9655 -- the densest found outside Ashburn -- via discover_dc_clusters.py; KSJC is 4.3 km away. Also the location of the NetApp case ENERGY STAR documents and PLAN.md section 12 already cites, so one claim in the deck ties to this site",
@@ -444,6 +471,7 @@
    "plume_field_file": null,
    "artefacts": {},
    "has_own_fortyguard_field": false,
+   "fortyguard_day_pairs": 0,
    "verdicts": [
     {
      "pair": [
@@ -466,6 +494,82 @@
      "consequence": "Second consecutive santaclara pair excluded. See the metro-level note below."
     }
    ]
+  },
+  {
+   "key": "IA_way_1318322780",
+   "label": "Apple, IA",
+   "station": "KDSM",
+   "tz": "America/Chicago",
+   "bbox": [
+    41.6048519,
+    -93.9363968,
+    41.6288519,
+    -93.9123968
+   ],
+   "data_ready": true,
+   "scope_verdict": "GRADE",
+   "scope_ok": true,
+   "offer_tier": "national_single_source",
+   "national": true,
+   "site_kind": "standalone",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility HAS been screened, from a single aerial frame: Two linear arrays of regularly-spaced units stand at ground level in a dedicated yard along the long south facade.. Verdict GRADE, assessed by model (Claude Sonnet 5), single ESRI frame read 2026-08-24, plus a 6x crop of the equipment yard. Evidence: 1 source (ESRI World Imagery); no USGS cross-check, so the two-source rule is NOT met. The two-source cross-check is NOT met -- the same weaker standing this project records for Dulles -- and at this resolution 'ground-level plant' says where the equipment is, not what it is.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 1,
+   "n_tagged_dc": 1,
+   "n_dc_to_dc_pairs": 0,
+   "weather_hours": 43810,
+   "weather_coverage": 0.999680540343191,
+   "fortyguard_field": null,
+   "climate_note": null,
+   "basis": "national OSM discovery: 1 tagged building(s), way/1318322780. Classified standalone.",
+   "committed": {
+    "source_osm_id": 1318322780,
+    "receptor_osm_id": null,
+    "source_name": "Apple",
+    "receptor_name": null,
+    "source_latlon": [
+     41.61692822,
+     -93.92481032
+    ],
+    "receptor_latlon": null,
+    "facade_gap_m": null,
+    "centroid_separation_m": null
+   },
+   "imagery": {
+    "candidate_file": "00_way_1318322780.jpg",
+    "bbox": [
+     -93.9276601,
+     41.6155675,
+     -93.9211336,
+     41.618136400000004
+    ],
+    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+    "source_latlon": [
+     41.61692822,
+     -93.92481032
+    ],
+    "receptor_latlon": null,
+    "resolution_note": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+    "sources": {
+     "esri": "IA_way_1318322780_site_aerial.jpg"
+    },
+    "two_source_cross_check": false
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "IA_way_1318322780_trace.json",
+    "backtest": "IA_way_1318322780_backtest.json",
+    "rolling": "IA_way_1318322780_rolling.json",
+    "money": "IA_way_1318322780_money.json",
+    "explanations": "IA_way_1318322780_explanations.json",
+    "ticker": "IA_way_1318322780_ticker.json",
+    "report": "IA_way_1318322780_report.pdf"
+   },
+   "has_own_fortyguard_field": false,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
   }
  ]
 }

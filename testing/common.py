@@ -5,7 +5,7 @@ Nothing here spends credits. The API client is used only by the paid tests,
 and every response it returns is written to results/fixtures/ so the rest of
 the suite (and the demo) can run offline.
 """
-import json, math, os, sys, time, urllib.request, statistics
+import json, math, os, sys, time, urllib.request, urllib.error, statistics
 
 # ---------------------------------------------------------------- console encoding
 # The Windows console defaults to cp1252, a 256-character legacy codepage. Any print() containing a
@@ -239,14 +239,45 @@ def submit_poll(key, endpoint, payload, tag, max_s=600, wait=8, require_data=Tru
     The loop now treats "completed but empty" as a REASON TO KEEP POLLING, and reports how many
     extra polls were needed so the behaviour is measurable rather than folklore. Set
     `require_data=False` only when an empty result is genuinely the measurement being taken.
+
+    EVERY RETURN PATH ALSO CARRIES THE EVIDENCE NEEDED TO CLASSIFY THE FAILURE -- added
+    2026-08-21, Session 4. `error` is a sentence; a sentence cannot be counted. The vendor now
+    fails in three distinguishable ways whose BILLING DIFFERS (`completed`-with-no-data is charged
+    4,220; `failed` and an indefinite `Processing` stall are free), so a caller that has to decide
+    whether to retry needs the shape, not the prose. It also keeps the HTTP status and body of a
+    rejected submit, which gotcha #124 lost: "a record of a failure that omits the reason is
+    barely a record." Additive only -- `ok` / `error` / `aid` / `result` are unchanged.
     """
     t0 = time.time()
+    statuses_seen, polls = [], 0
+
+    def _out(d):
+        """Every exit carries the same evidence block, so no path can forget one."""
+        d.setdefault("secs", round(time.time() - t0, 1))
+        d["polls"] = polls
+        d["statuses_seen"] = statuses_seen
+        d["empty_completed_polls"] = d.get("empty_completed_polls", 0)
+        return d
+
     try:
         req = urllib.request.Request(f"{V1}/{endpoint}",
                                      data=json.dumps(payload).encode(), headers=_headers(key))
-        resp = json.loads(urllib.request.urlopen(req, timeout=90).read())
+        http = urllib.request.urlopen(req, timeout=90)
+        submit_http, resp = http.status, json.loads(http.read())
+    except urllib.error.HTTPError as e:
+        # The vendor answered and said no. The BODY is the only field that explains why -- a 429
+        # and a malformed-payload 422 are the same status class to a caller and need opposite
+        # responses, so it is kept rather than collapsed into str(e).
+        try:
+            body = e.read().decode("utf-8", "replace")[:400]
+        except Exception:
+            body = None
+        return _out({"error": "submit: HTTP %d %s" % (e.code, (body or "")[:160]),
+                     "submit_http": e.code, "submit_error_body": body})
     except Exception as e:
-        return {"error": "submit: %s" % str(e)[:200]}
+        # No HTTP status at all: DNS, TLS, timeout. Not the vendor refusing -- the vendor unreached.
+        return _out({"error": "submit: %s" % str(e)[:200], "submit_http": None,
+                     "submit_error_body": None, "submit_exception": type(e).__name__})
     aid = resp.get("data", {}).get("activity_id")
     empty_completed_polls = 0
     last_empty = None
@@ -256,36 +287,266 @@ def submit_poll(key, endpoint, payload, tag, max_s=600, wait=8, require_data=Tru
                 urllib.request.Request(f"{V1}/status/{aid}", headers=_headers(key)), timeout=90)
         except Exception:
             time.sleep(wait); continue
+        polls += 1
         if j.status == 404:                       # documented grace window right after submit
             time.sleep(wait); continue
         jd = json.loads(j.read())
         st = str(jd.get("data", {}).get("status") or jd.get("message")).lower()
+        if st not in statuses_seen:
+            statuses_seen.append(st)
         if st == "completed":
             res = jd["data"]["result"]
             ok, why = assert_non_empty(res)
             if ok or not require_data:
                 with open(os.path.join(FIXTURES, "%s.json" % tag), "w") as f:
                     json.dump(res, f, default=str)
-                return {"ok": True, "aid": aid, "secs": round(time.time() - t0, 1),
-                        "result": res, "empty_completed_polls": empty_completed_polls,
-                        "data_note": why}
+                return _out({"ok": True, "aid": aid, "submit_http": submit_http,
+                             "terminal_status": st, "result": res,
+                             "empty_completed_polls": empty_completed_polls, "data_note": why})
             # COMPLETED BUT NOT YET POPULATED -- keep polling, per FortyGuard's guidance
             empty_completed_polls += 1
             last_empty = res
             time.sleep(wait); continue
         if st in ("processing", "pending", "queued", "in progress"):
             time.sleep(wait); continue
-        return {"error": st, "aid": aid, "secs": round(time.time() - t0, 1)}
+        return _out({"error": st, "aid": aid, "submit_http": submit_http, "terminal_status": st})
     # timed out. If it was completed-but-empty throughout, say so precisely -- that is a different
     # finding from "still processing", and only now may it be called empty.
     if empty_completed_polls:
         with open(os.path.join(FIXTURES, "%s.json" % tag), "w") as f:
             json.dump(last_empty, f, default=str)
-        return {"error": "completed but never populated after %d polls over %.0f s"
-                         % (empty_completed_polls, time.time() - t0),
-                "aid": aid, "secs": round(time.time() - t0, 1),
-                "empty_completed_polls": empty_completed_polls, "result": last_empty}
-    return {"error": "timeout", "aid": aid}
+        return _out({"error": "completed but never populated after %d polls over %.0f s"
+                             % (empty_completed_polls, time.time() - t0),
+                     "aid": aid, "submit_http": submit_http, "terminal_status": "completed",
+                     "empty_completed_polls": empty_completed_polls, "result": last_empty})
+    return _out({"error": "timeout", "aid": aid, "submit_http": submit_http,
+                 "terminal_status": None})
+
+
+# ============================================================================
+# WHAT ACTUALLY HAPPENED TO ONE REQUEST -- the single classifier
+# ============================================================================
+# MOVED HERE FROM src/live.py 2026-08-21 (Session 4). It was written for the live agent, and the
+# collector needed the same judgement -- so the choice was a second copy or a shared one. Rule 12
+# of the gotcha log ("never let two code paths compute one quantity two ways") has been violated
+# three times in this project and cost real time each time, so it is shared. `common.py` is the
+# natural home because both callers ALREADY import it: `live.py` for load_key(), the collector for
+# everything. Importing `live.py` from the collector was the alternative and it is worse -- it
+# would drag numpy and the whole agent into an unattended scheduled task.
+
+# THE BILLING PARTITION, AND IT IS THE WHOLE REASON THIS FUNCTION IS SHARED.
+# Measured against the live vendor on 2026-08-20/21, not inferred from documentation:
+#   completed + zero features   BILLED 4,220   (11 of them in one live run = 46,420 credits)
+#   status: failed              FREE
+#   indefinite Processing stall FREE
+#   submit rejected (4xx/5xx)   FREE
+# Until 2026-08-20 every failure was billed, so "attempts" and "billed calls" were the same number
+# and the collector's retry budget could count either. They are no longer the same number (gotcha
+# #101), and a budget that exists to ration CREDITS must therefore count what is CHARGED.
+BILLED_CLASSES = frozenset(("ok", "completed_but_empty"))
+
+# The price of one heatmap call, MEASURED by differencing the credit meter across single calls,
+# repeatedly. Defined here 2026-08-21 because a second consumer appeared: the collector now costs
+# its own retries, and `api_usage_ledger.py` had held the only copy. Two copies of a measured price
+# is gotcha #12, and `audit.py` check 4 exists because that has happened before -- so the ledger
+# imports this one rather than keeping its own.
+HEATMAP_CREDITS = 4_220
+
+
+def classify_vendor(rec):
+    """What actually happened to one heatmap request.
+
+    A STALL IS NOT A FAILURE and neither is a rejection. DIAG-63's first version collapsed all of
+    them to "fail", which reads as "the vendor said no" -- when in fact the vendor said HTTP 200,
+    issued an activity id, answered 45 status polls, and simply never finished the job. Different
+    fault, different owner, different message to the operator.
+    """
+    if rec.get("submit_http") != 200:
+        return "submit_rejected"
+    if not rec.get("activity_id"):
+        return "no_activity_id"
+    if rec.get("tiles"):
+        return "ok"
+    st = rec.get("terminal_status")
+    if st == "completed":
+        return "completed_but_empty"
+    if st:
+        return "terminal_" + st
+    if set(rec.get("statuses_seen") or []) <= {"processing", "pending", "queued", "in progress"}:
+        return "stalled_in_processing"
+    return "unknown"
+
+
+def is_billed(cls):
+    """Did this outcome move the credit meter?
+
+    Anything not measured as free is assumed BILLED. That asymmetry is deliberate: guessing "free"
+    on an unrecognised class under-reports spend, and this project has already had a ledger with a
+    blind spot it trusted (gotcha #103). Over-reporting is visible in the reconciliation; the meter
+    is the final witness either way.
+    """
+    return cls in BILLED_CLASSES or cls.startswith("unknown")
+
+
+VENDOR_HUMAN = {
+    "ok": "answered",
+    "submit_rejected": "rejected the request outright",
+    "no_activity_id": "accepted the request but issued no activity id",
+    "completed_but_empty": "reported the job COMPLETE and returned zero tiles",
+    "stalled_in_processing": "accepted the job and never finished it",
+}
+
+
+def vendor_sentence(cls, rec):
+    """One line an operator could act on. No jargon, no blame, the numbers that were observed."""
+    base = VENDOR_HUMAN.get(cls) or ("ended the job with status %r" % cls.replace("terminal_", ""))
+    bits = ["FortyGuard " + base]
+    if rec.get("activity_id"):
+        bits.append("activity %s" % rec["activity_id"][:8])
+    if rec.get("elapsed_s") is not None:
+        bits.append("after %.0f s and %d status polls" % (rec["elapsed_s"], rec.get("polls", 0)))
+    if rec.get("submit_error_body"):
+        bits.append("body: %s" % rec["submit_error_body"][:160])
+    return ", ".join(bits) + "."
+
+
+def vendor_rec(r, tiles=None):
+    """Normalise a `submit_poll` return into the record `classify_vendor` reads.
+
+    Two callers build these records from different shapes -- the live agent from its own submit and
+    poll calls, the collector from `submit_poll` -- and the classifier must not learn about either.
+    So the shape conversion lives here, once, next to the thing it feeds.
+
+    `tiles` is passed in rather than counted from `result`, because the caller already counted it
+    and recounting it a second way is how two paths drift.
+    """
+    if tiles is None:
+        res = r.get("result") or {}
+        feats = (res.get("map_data") or {}).get("features") or []
+        tiles = len(feats)
+    return {"submit_http": r.get("submit_http"),
+            "activity_id": r.get("aid"),
+            "tiles": tiles,
+            "terminal_status": r.get("terminal_status"),
+            "statuses_seen": r.get("statuses_seen") or [],
+            "elapsed_s": r.get("secs"),
+            "polls": r.get("polls", 0),
+            "empty_completed_polls": r.get("empty_completed_polls", 0),
+            "submit_error_body": r.get("submit_error_body"),
+            "error": r.get("error")}
+
+
+def recent_vendor_record(hours_back=6.0, results_dir=None):
+    """How the vendor has actually behaved lately. Zero network calls, no key read.
+
+    WHY THE PRODUCT NEEDS THIS. A 12-hour horizon costs up to 50,640 credits, and on a day when
+    FortyGuard returns `completed` with an empty field for every window that is 50,640 credits for
+    nothing -- which is exactly what happened: 11 of 12 windows empty in one batch, then 4 of 4 in
+    the next. Inviting a click that spends real money on a service with a measured 0 % success rate
+    over the last hour is not a neutral default.
+
+    So the recent record is surfaced and the user decides with it in front of them. It is NOT a
+    block: the vendor recovered once today after three days of failure, so refusing outright would
+    be as wrong as spending blindly.
+
+    TWO SOURCES, AND THE SECOND ONE WAS A BLIND SPOT UNTIL 2026-08-21. This read `live_spend.json`
+    alone -- the live agent's own runs. But the COLLECTOR spends against the same vendor on a
+    schedule, and on any day the live agent had not been run this function returned None: no record,
+    from a function whose entire job is to put the record in front of a paying click. Measured that
+    morning: last live run 18 h old, four collector failures the same day, function returns None.
+    Gotcha #103's lesson is that a record with a blind spot is worse than none because it is
+    trusted, so both spenders now report into it and the caller is told which sources it saw.
+    """
+    from datetime import datetime, timezone
+    # `results_dir` is injectable ONLY so this function can be tested. It sits in front of a button
+    # that spends 50,640 credits and its blind spot went unnoticed for a day, so "it is hard to test
+    # without touching the real manifest" is not an acceptable reason to leave it untested.
+    results_dir = results_dir or RESULTS
+    cut = time.time() - hours_back * 3600
+    ok = empty = other = 0
+    billed_no_data = 0          # counted through is_billed(), never by assuming a class is free
+    latest = None
+    sources = []
+
+    def _stamp(v):
+        try:
+            return datetime.fromisoformat(str(v)).timestamp()
+        except (ValueError, TypeError):
+            return None
+
+    def _tally(c, ok, empty, other, billed_no_data):
+        """One place decides what a class means, and BILLING is decided by is_billed().
+
+        The first version of this counted `other * 4,220` as credits spent for nothing -- but
+        `other` is mostly the FREE classes (a stall, a rejection), so it overstated our own spend.
+        Asking is_billed() is the only way that cannot drift from the billing partition itself.
+        """
+        c = c or "unknown"
+        if c == "ok":
+            return ok + 1, empty, other, billed_no_data
+        if is_billed(c):
+            billed_no_data += 1
+        if c == "completed_but_empty":
+            return ok, empty + 1, other, billed_no_data
+        return ok, empty, other + 1, billed_no_data
+
+    # ---- source 1: the live agent's per-run spend ledger -------------------------------
+    try:
+        doc = json.load(open(os.path.join(results_dir, "live_spend.json"), encoding="utf-8"))
+    except (ValueError, OSError):
+        doc = None
+    if doc:
+        seen = 0
+        for run in doc.get("runs", []):
+            t = _stamp(run.get("utc"))
+            if t is None or t < cut:
+                continue
+            latest = max(latest or t, t)
+            for w in run.get("windows", []):
+                seen += 1
+                ok, empty, other, billed_no_data = _tally(
+                    w.get("class"), ok, empty, other, billed_no_data)
+        if seen:
+            sources.append("live runs (%d windows)" % seen)
+
+    # ---- source 2: the N-26 collector's per-attempt log --------------------------------
+    # Only the per-attempt log is read, never the legacy integer counter: the counter carries no
+    # timestamp, so folding it in would report a four-day-old failure as recent.
+    try:
+        man = json.load(open(os.path.join(results_dir, "n26_manifest.json"), encoding="utf-8"))
+    except (ValueError, OSError):
+        man = None
+    if man:
+        seen = 0
+        for day in (man.get("days") or {}).values():
+            for r in (day.get("forecast_attempt_log") or []):
+                t = _stamp(r.get("at_utc"))
+                if t is None or t < cut:
+                    continue
+                latest = max(latest or t, t)
+                seen += 1
+                ok, empty, other, billed_no_data = _tally(
+                    r.get("class"), ok, empty, other, billed_no_data)
+        if seen:
+            sources.append("collector attempts (%d)" % seen)
+
+    n = ok + empty + other
+    if not n:
+        return None
+    return {"window_hours": hours_back, "windows_seen": n, "returned_a_field": ok,
+            "completed_but_empty": empty, "other_failures": other,
+            "success_rate": round(ok / float(n), 4),
+            "sources": sources,
+            "last_run_utc": (datetime.fromtimestamp(latest, timezone.utc).isoformat()
+                             if latest else None),
+            "billed_but_no_data": billed_no_data,
+            "credits_spent_for_nothing": billed_no_data * HEATMAP_CREDITS,
+            "advice": ("The vendor has returned a field for %d of the last %d windows. A full "
+                       "12-hour horizon would cost up to %s credits and, at that rate, would very "
+                       "likely buy nothing. `completed`-with-no-data IS billed."
+                       % (ok, n, format(12 * HEATMAP_CREDITS, ",")))
+                      if ok * 4 < n else
+                      ("The vendor has answered %d of the last %d windows." % (ok, n))}
 
 
 def assert_non_empty(result):

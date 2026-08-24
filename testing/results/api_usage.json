@@ -2,23 +2,54 @@
  "plan": "Hackathon",
  "issued": 2000000,
  "heatmap_credits": 4220,
- "remaining": 1725700,
- "spent": 274300,
- "paid_calls": 65,
- "pct_of_plan": 13.715,
+ "remaining": 1428460,
+ "spent": 571540,
+ "paid_calls": 137,
+ "heatmap_calls": 132,
+ "other_endpoint_calls": 5,
+ "other_endpoint_credits": 14500,
+ "other_endpoint_detail": [
+  {
+   "file": "diag65_env_params_alive.json",
+   "endpoint": "env_params",
+   "credits": 2900
+  },
+  {
+   "file": "live_env_spend.json",
+   "endpoint": "env_params",
+   "credits": 2900
+  },
+  {
+   "file": "live_env_spend.json",
+   "endpoint": "env_params",
+   "credits": 2900
+  },
+  {
+   "file": "live_env_spend.json",
+   "endpoint": "env_params",
+   "credits": 2900
+  },
+  {
+   "file": "live_env_spend.json",
+   "endpoint": "env_params",
+   "credits": 2900
+  }
+ ],
+ "total_calls_all_endpoints": 137,
+ "pct_of_plan": 28.577,
  "whole_call_remainder": 0,
- "attributed_credits": 211000,
- "unattributed_credits": 63300,
- "calls_returning_data": 7,
- "calls_returning_zero_tiles_meter_stamped": 42,
- "live_run_calls_with_data": 4,
- "live_run_calls_completed_but_empty": 41,
+ "attributed_credits": 359220,
+ "unattributed_credits": 212320,
+ "calls_returning_data": 19,
+ "calls_returning_zero_tiles_meter_stamped": 54,
+ "live_run_calls_with_data": 16,
+ "live_run_calls_completed_but_empty": 53,
  "live_run_attempts_unbilled": 1,
  "collector_recorded_failed_attempts": 10,
  "collector_attempts_are_not_all_billed": true,
- "calls_not_individually_identified": 16,
- "credits_that_bought_no_data_floor": 177240,
- "credits_that_bought_no_data_ceiling": 244760,
+ "calls_not_individually_identified": 59,
+ "credits_that_bought_no_data_floor": 227880,
+ "credits_that_bought_no_data_ceiling": 476860,
  "unbilled_frozen_cycle_readings": 8,
  "attributable": [
   {
@@ -127,6 +158,132 @@
    "spent": 4220,
    "tiles": null,
    "activity_id": null,
+   "test": ""
+  },
+  {
+   "source": "testing/results/live_spend.json",
+   "before": 1725700,
+   "after": 1675060,
+   "spent": 50640,
+   "tiles": null,
+   "activity_id": null,
+   "test": "live.py chicago 2026-08-21T11:00:00-05:00"
+  },
+  {
+   "source": "testing/results/diag64_catalog_horizon.json",
+   "before": 1675060,
+   "after": 1666620,
+   "spent": 8440,
+   "tiles": null,
+   "activity_id": null,
+   "test": "DIAG-64 catalog forward limit"
+  },
+  {
+   "source": "testing/results/diag64_catalog_horizon.json",
+   "before": 1675060,
+   "after": 1670840,
+   "spent": 4220,
+   "tiles": null,
+   "activity_id": "14742335-957b-429a-8c12-ee898fb8f889",
+   "test": ""
+  },
+  {
+   "source": "testing/results/diag64_catalog_horizon.json",
+   "before": 1670840,
+   "after": 1666620,
+   "spent": 4220,
+   "tiles": null,
+   "activity_id": "f314239b-a5c3-416c-bd74-dfa51377c914",
+   "test": ""
+  },
+  {
+   "source": "testing/results/n26_chicago_offset.json",
+   "before": 1666620,
+   "after": 1662400,
+   "spent": 4220,
+   "tiles": null,
+   "activity_id": null,
+   "test": ""
+  },
+  {
+   "source": "testing/results/diag65_env_params_alive.json",
+   "before": 1662400,
+   "after": 1659500,
+   "spent": 2900,
+   "tiles": null,
+   "activity_id": null,
+   "test": "DIAG-65 is env_params alive while heatmap is down"
+  },
+  {
+   "source": "testing/results/live_env_spend.json",
+   "before": 1659500,
+   "after": 1656600,
+   "spent": 2900,
+   "tiles": null,
+   "activity_id": "885ccf8c-1a16-48fd-b44a-e8e0b7d8e198",
+   "test": ""
+  },
+  {
+   "source": "testing/results/live_spend.json",
+   "before": 1659500,
+   "after": 1656600,
+   "spent": 2900,
+   "tiles": null,
+   "activity_id": null,
+   "test": "live.py ashburn 2026-08-22T17:00:00-04:00"
+  },
+  {
+   "source": "testing/results/live_env_spend.json",
+   "before": 1656600,
+   "after": 1653700,
+   "spent": 2900,
+   "tiles": null,
+   "activity_id": "3e40bfc9-f3f8-4ec7-8776-59e489eb26bd",
+   "test": ""
+  },
+  {
+   "source": "testing/results/live_env_spend.json",
+   "before": 1653700,
+   "after": 1650800,
+   "spent": 2900,
+   "tiles": null,
+   "activity_id": "8eefdd96-91e2-49e5-b3b5-79b1d8b7892d",
+   "test": ""
+  },
+  {
+   "source": "testing/results/live_spend.json",
+   "before": 1650800,
+   "after": 1600160,
+   "spent": 50640,
+   "tiles": null,
+   "activity_id": null,
+   "test": "live.py ashburn 2026-08-23T08:00:00-04:00"
+  },
+  {
+   "source": "testing/results/diag66_national_control_20260823.json",
+   "before": 1439800,
+   "after": 1435580,
+   "spent": 4220,
+   "tiles": null,
+   "activity_id": "64b7395e-5d2c-4e34-b630-ff2adb725baf",
+   "test": ""
+  },
+  {
+   "source": "testing/results/diag66_national_control.json",
+   "before": 1435580,
+   "after": 1431360,
+   "spent": 4220,
+   "tiles": null,
+   "activity_id": "8f590c22-7a9c-4a87-b7d2-62e07b10b02e",
+   "test": ""
+  },
+  {
+   "source": "testing/results/live_env_spend.json",
+   "before": 1431360,
+   "after": 1428460,
+   "spent": 2900,
+   "tiles": null,
+   "activity_id": "c3f0cd34-2f56-4c3b-880c-896b02f8f81b",
    "test": ""
   }
  ]

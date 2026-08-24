@@ -39,6 +39,7 @@ WHAT IT CHECKS, AND WHICH REAL BUG EACH ONE EXISTS FOR
                         registered next to the flattering ones so they cannot quietly rot away.
 """
 import ast
+import hashlib
 import json
 import os
 import re
@@ -561,6 +562,409 @@ def check_act_stage():
        "" if not drift else "%d drift(s), first %s" % (len(drift), drift[0]))
 
 
+def check_national_registry():
+    """THE NATIONAL BUILD'S OWN FILES, WHICH NOTHING CHECKED AT ALL UNTIL NOW.
+
+    Six files and ~1,600 real buildings were produced across two sessions, they feed the map on the
+    front page, and `audit.py` had ZERO checks touching any of them. Every guard that exists lives
+    inside the generator that wrote the file -- so a generator bug and its own verification failed
+    together, which is the arrangement this whole module exists to replace.
+
+    WHAT IS WORTH ASSERTING, and why each one is an EXACT identity rather than a tolerance:
+
+      1. THE COUNTS PARTITION. Every one of these files publishes a headline count and a body, and
+         each pair must close exactly. This is not decoration: `discover_dc_clusters.py` silently
+         lost one real standalone data centre to a key collision (127+58+236 = 421 counted, 420
+         written) and the arithmetic is what found it. It gained a tripwire in the generator; this
+         is the same arithmetic re-run by something that did not write the file.
+      2. REFERENTIAL INTEGRITY. A group cites registry entries, a verdict cites a group, a group
+         cites buildings. A dangling id means two files disagree about what exists.
+      3. NO FABRICATED SITE. Every point on the map must resolve to a real OSM element id in the
+         registry -- "never claim a data centre that does not exist" expressed mechanically.
+      4. NO NON-US SITE LEAKED THROUGH. 12 cells and 25 tagged ways were confirmed foreign
+         (Toronto, Markham, and one Mexican cell) and excluded WITH their evidence. A national build
+         scoped to the US may not show them, and the sharper form of the same rule is that it may
+         not claim a real foreign data centre is an American one.
+      5. ONE METRO, ONE DOT. Chicago's committed pair straddles two ~11 km discovery cells, so the
+         first version of the exporter emitted "fully_built" twice for one site.
+    """
+    print("\n6g. THE NATIONAL REGISTRY -- counts close, ids resolve, nothing invented")
+    GEOM = os.path.join(IA, "data", "geometry")
+    # Read from the gate file rather than restated, so this cannot drift from the value that
+    # actually produced the verdicts.
+    MIN_GAP_AUDIT = jload(os.path.join(GEOM, "national_gate_verdicts.json"))["min_gap_m"]
+
+    def g(name):
+        p = os.path.join(GEOM, name)
+        return jload(p) if os.path.exists(p) else None
+
+    # LOADED UP HERE, not in section 6 where it used to be: the map-point checks in sections 3-4 now
+    # resolve against FACILITIES rather than discovery-grid entries, so they need it before those
+    # sections run. Python's closure scoping made that an obvious failure -- `NameError: cannot
+    # access free variable 'F'` -- rather than a silent wrong answer, which is the good outcome.
+    nr = g("national_registry.json")
+    F = (nr or {}).get("facilities") or {}
+    reg, grp = g("dc_clusters.json"), g("national_building_groups.json")
+    ver, cen = g("national_gate_verdicts.json"), g("national_building_centres.json")
+    geo = g("national_geometry.json")
+    uni = jload(os.path.join(DEMO, "unified_sites.json")) \
+        if os.path.exists(os.path.join(DEMO, "unified_sites.json")) else None
+    if not all((reg, grp, ver, cen, uni)):
+        missing = [n for n, v in (("dc_clusters", reg), ("building_groups", grp),
+                                  ("gate_verdicts", ver), ("building_centres", cen),
+                                  ("unified_sites", uni)) if not v]
+        ck("the national registry files exist", False, "missing: %s" % ", ".join(missing))
+        return
+
+    # ---- 1. THE COUNTS PARTITION ----------------------------------------------------------
+    cl = reg["clusters"]
+    ck("dc_clusters: cluster + pair + single == the entries actually written",
+       reg["n_clusters"] + reg["n_pairs"] + reg["n_singles"] == len(cl),
+       "%d + %d + %d == %d" % (reg["n_clusters"], reg["n_pairs"], reg["n_singles"], len(cl)))
+    ck("dc_clusters: every entry's n_tagged equals its own osm_ids length",
+       all(e["n_tagged"] == len(e["osm_ids"]) for e in cl.values()),
+       "%d entries, %d tagged buildings"
+       % (len(cl), sum(e["n_tagged"] for e in cl.values())))
+
+    groups = grp["groups"]
+    ck("building_groups: isolated + pairing candidates == the groups written",
+       grp["n_isolated"] + grp["n_pairing_candidates"] == len(groups),
+       "%d + %d == %d" % (grp["n_isolated"], grp["n_pairing_candidates"], len(groups)))
+    ck("building_groups: the members partition the building count exactly",
+       sum(len(v["members"]) for v in groups.values()) == grp["n_buildings"],
+       "%d members == %d buildings"
+       % (sum(len(v["members"]) for v in groups.values()), grp["n_buildings"]))
+
+    vd = ver["verdicts"]
+    nb = ver.get("n_no_building_footprint", 0)
+    ck("gate_verdicts: every outcome accounted for, none double-counted",
+       ver["n_clear"] + ver["n_too_close"] + ver["n_missing_geometry"] + nb
+       == ver["n_groups"] == len(vd),
+       "%d clear + %d too_close + %d missing + %d no-building == %d == %d"
+       % (ver["n_clear"], ver["n_too_close"], ver["n_missing_geometry"], nb,
+          ver["n_groups"], len(vd)))
+    ck("gate_verdicts: every verdict is a declared outcome",
+       set(v["verdict"] for v in vd.values())
+       <= {"clear", "too_close", "geometry_missing", "no_building_footprint"},
+       "verdicts seen: %s" % ", ".join(sorted(set(v["verdict"] for v in vd.values()))))
+    # 🔴 THE GATE MUST NEVER DECIDE A FACADE GAP ON A PROPERTY LINE. `telecom=data_center` is
+    # applied to landuse polygons as well as halls, and before `is_building_footprint` filtered
+    # them out, 18 of 243 verdicts were measured between parcel edges -- EIGHT of them reported
+    # CLEAR, i.e. a fence-line gap read as a safe facade gap. Re-derived here from the geometry's
+    # own tags rather than trusted from the gate's own report.
+    if geo:
+        gr = geo["rings"]
+        parcel_decided = [k for k, v in vd.items() if (v.get("best_pair") or [])
+                          and any("building" not in ((gr.get(m) or {}).get("tags") or {})
+                                  for m in v["best_pair"])]
+        ck("gate_verdicts: no verdict is decided on a land parcel's edge",
+           not parcel_decided,
+           "%d verdict(s) on real building facades, %d parcel way(s) excluded"
+           % (len([v for v in vd.values() if v.get("best_pair")]),
+              ver.get("n_parcel_ways_excluded", 0))
+           if not parcel_decided else "decided on a parcel: %s" % parcel_decided[:3])
+
+    ck("unified_sites: the status counts partition the sites shown",
+       sum(uni["counts"].values()) == uni["n_sites"] == len(uni["sites"]),
+       "%d == %d == %d" % (sum(uni["counts"].values()), uni["n_sites"], len(uni["sites"])))
+
+    ck("building_centres and geometry resolved everything they asked for",
+       cen["n_requested"] == cen["n_resolved"] and not cen["missing_ids"]
+       and (geo is None or (geo["n_requested"] == geo["n_resolved"] and not geo["missing_ids"])),
+       "centres %d/%d, rings %s" % (cen["n_resolved"], cen["n_requested"],
+                                    "%d/%d" % (geo["n_resolved"], geo["n_requested"]) if geo
+                                    else "not fetched"))
+
+    # ---- 2. REFERENTIAL INTEGRITY ---------------------------------------------------------
+    all_osm = set()
+    for e in cl.values():
+        all_osm |= set(e["osm_ids"])
+    ck("every grouped building is a real registry building",
+       all(m in all_osm for v in groups.values() for m in v["members"]),
+       "%d grouped ids all present in the %d-id registry"
+       % (sum(len(v["members"]) for v in groups.values()), len(all_osm)))
+    ck("every grouped building has its own fetched coordinate",
+       all(m in cen["centres"] for v in groups.values() for m in v["members"]),
+       "no building is in a group without a measured position")
+    ck("every gate verdict names a group that exists",
+       all(k in groups for k in vd),
+       "%d verdicts, all resolving" % len(vd))
+    ck("every gated group really is a pairing candidate, not an isolated one",
+       all(groups[k]["kind"] != "isolated" for k in vd if k in groups),
+       "the 60 m facade gate is only ever applied where a real neighbour exists")
+
+    # ---- 3 & 4. NOTHING INVENTED, NOTHING FOREIGN ----------------------------------------
+    entry_keys = set(cl)
+    nonmetro = [s for s in uni["sites"] if not s.get("metro_key")]
+    # 🔴 THE MAP'S UNIT CHANGED, AND THESE TWO CHECKS CAUGHT IT BY FAILING.
+    # `unified_sites.json` used to be keyed by DISCOVERY-GRID ENTRY (`VA_390_-775`); it is now keyed
+    # by FACILITY (`IA_way_1318322780`), so that a dot is one real data centre rather than an ~11 km
+    # cell that could hold 81 buildings. Both assertions below were written against the old unit and
+    # were measuring the wrong thing the moment the exporter changed -- which is the correct
+    # behaviour for a check whose subject moves, and better than silently continuing to pass.
+    ck("every national map point is a real FACILITY in the registry",
+       all(s["key"] in F for s in nonmetro),
+       "%d national points, all resolving to national_registry facility keys" % len(nonmetro))
+    # ⚠ THE FIRST VERSION OF THIS CHECK PASSED VACUOUSLY, and was caught before it shipped.
+    # It intersected `excluded_non_us[*].key` against the map's keys -- but those records carry only
+    # `centre`, `country`, `n_tagged`, `sample_names`, `operators`. There is no `key` field, so the
+    # set was always empty, an empty intersection is always empty, and the check could never fail.
+    # Exactly the "a check that cannot fail is not a check" trap, one section after two negative
+    # controls were added to 6f for the same reason. Rewritten to match on the thing these records
+    # actually carry: the COORDINATE, looked up in the Nominatim country cache that made the
+    # exclusion decision in the first place.
+    sbc = g("state_by_coord.json") or {}
+    ckey = lambda c: "%.4f,%.4f" % (c[0], c[1])                          # noqa: E731
+    # RESOLVED THROUGH THE FACILITY'S OWN SOURCE ENTRIES, not through its centroid.
+    # A facility's centre is the MEAN of its buildings' coordinates; the Nominatim country cache is
+    # keyed by the DISCOVERY CELL centroid that was actually geocoded. Those are different points,
+    # so looking a facility centre up in that cache found only 272 of 633 -- not because 361
+    # facilities are foreign, but because their centroid was never the thing geocoded. Every
+    # facility records the cell(s) it came from, and those ARE in the cache, so the country question
+    # is answered on the coordinate that was really asked about.
+    def _country_of(fac):
+        for ek in fac.get("source_entries") or []:
+            e = cl.get(ek)
+            if e and ckey(e["centre"]) in sbc:
+                return sbc[ckey(e["centre"])].get("country")
+        return None
+    countries = {s["key"]: _country_of(F[s["key"]]) for s in nonmetro if s["key"] in F}
+    resolved = [k for k, c in countries.items() if c]
+    foreign_shown = [k for k, c in countries.items() if c and c != "us"]
+    ck("every national map point geocoded to the UNITED STATES",
+       not foreign_shown and len(resolved) == len(nonmetro),
+       "%d of %d facilities resolved via their own source cell, %d foreign"
+       % (len(resolved), len(nonmetro), len(foreign_shown)))
+    # THE NEGATIVE CONTROL for the line above: the cache must actually hold foreign entries, or
+    # "none of them are on the map" is a statement about an empty set again.
+    n_foreign_cached = sum(1 for v in sbc.values() if v.get("country") != "us")
+    ck("the country cache really does hold foreign locations to exclude",
+       n_foreign_cached > 0 and len(reg.get("excluded_non_us") or []) > 0,
+       "%d foreign coordinates cached, %d cells excluded with their evidence"
+       % (n_foreign_cached, len(reg.get("excluded_non_us") or [])))
+    ck("every map point carries a real coordinate",
+       all(isinstance(s.get("centre"), list) and len(s["centre"]) == 2
+           and -180 <= s["centre"][1] <= -60 and 18 <= s["centre"][0] <= 72
+           for s in uni["sites"]),
+       "all %d centres inside the North American window" % len(uni["sites"]))
+
+    # ---- 5. ONE METRO, ONE DOT -----------------------------------------------------------
+    mk = [s["metro_key"] for s in uni["sites"] if s.get("metro_key")]
+    ck("each hand-built metro appears exactly once on the map",
+       len(mk) == len(set(mk)),
+       "%d metro dots: %s" % (len(mk), ", ".join(sorted(mk))))
+
+    # ---- 6. THE FACILITY REGISTRY -- the unit the agent will actually run on -------------
+    if not nr:
+        ck("national_registry.json exists", False, "run build_national_registry.py")
+        return
+    ck("registry: the kind counts partition the facilities",
+       sum(nr["counts"].values()) == nr["n_facilities"] == len(F),
+       "%s == %d" % (" + ".join("%d" % v for v in nr["counts"].values()), len(F)))
+    ck("registry: the facilities partition every tagged building exactly",
+       sum(f["n_buildings"] for f in F.values()) == nr["n_buildings"] == grp["n_buildings"],
+       "%d buildings across %d facilities"
+       % (sum(f["n_buildings"] for f in F.values()), len(F)))
+
+    # 🔴 THE STRONGEST CHECK IN THIS SECTION. A "standalone" facility is one with no tagged data
+    # centre inside the solver's validated range -- if the union-find that produced the components
+    # were wrong in EITHER direction, this is where it shows, because the distance is re-measured
+    # here from the building coordinates rather than trusted from the grouping step. Gotcha #150
+    # is exactly this failure: two Georgia data centres 280 m apart labelled isolated.
+    rng = nr["solver_validated_range_m"]
+    viol = [(k, f["plume"]["nearest_other_tagged_dc_m"]) for k, f in F.items()
+            if f["kind"] == "standalone"
+            and (f["plume"]["nearest_other_tagged_dc_m"] or 1e9) < rng]
+    ck("registry: no standalone facility has a neighbour inside the validated range",
+       not viol, "%d standalone, closest neighbour %.0f m against a %.0f m range"
+       % (nr["counts"].get("standalone", 0),
+          min((f["plume"]["nearest_other_tagged_dc_m"] for f in F.values()
+               if f["kind"] == "standalone" and f["plume"]["nearest_other_tagged_dc_m"]),
+              default=-1), rng)
+       if not viol else "INSIDE the range: %s" % viol[:3])
+
+    ck("registry: only paired_clear facilities model a plume",
+       all((f["plume"]["modelled"] is True) == (f["kind"] == "paired_clear")
+           for f in F.values()),
+       "%d paired_clear model it, nothing else claims to" % nr["counts"].get("paired_clear", 0))
+    ck("registry: every paired_clear facility really clears the %.0f m floor" % MIN_GAP_AUDIT,
+       all(f["plume"]["facade_gap_m"] is not None
+           and f["plume"]["facade_gap_m"] >= MIN_GAP_AUDIT
+           for f in F.values() if f["kind"] == "paired_clear"),
+       "tightest clear gap %.1f m" % min((f["plume"]["facade_gap_m"] for f in F.values()
+                                          if f["kind"] == "paired_clear"), default=-1))
+    ck("registry: every advisory facility is genuinely inside the floor",
+       all(f["plume"]["facade_gap_m"] is not None
+           and f["plume"]["facade_gap_m"] < MIN_GAP_AUDIT
+           for f in F.values() if f["kind"] == "paired_advisory"),
+       "%d advisory, widest gap %.1f m" % (nr["counts"].get("paired_advisory", 0),
+                                           max((f["plume"]["facade_gap_m"] for f in F.values()
+                                                if f["kind"] == "paired_advisory"), default=-1)))
+
+    # THE WORDING IS PART OF THE CORRECTNESS. NATIONAL-BUILD-PLAN section 0.2 researched and
+    # REJECTED "assume zero past a cutoff" as biased in the unsafe direction -- worse than the #49
+    # invented-constant scar, not milder. The first version of build_national_registry.py shipped
+    # that exact phrasing ("the plume term is zero by geometry"). This is the mechanical guard that
+    # it cannot return, on every facility rather than on a sample.
+    zero_claims = [k for k, f in F.items() if f["kind"] == "standalone"
+                   and "NOT a claim that the effect is zero" not in f["plume"]["reason"]]
+    ck("registry: no standalone facility CLAIMS zero recirculation",
+       not zero_claims,
+       "all %d standalone reasons say NOT MODELLED and disclaim zero"
+       % nr["counts"].get("standalone", 0)
+       if not zero_claims else "%d claim zero: %s" % (len(zero_claims), zero_claims[:3]))
+    ck("registry: every advisory states the bound may be OPTIMISTIC",
+       all("optimistic" in f["plume"]["reason"] for f in F.values()
+           if f["kind"] == "paired_advisory"),
+       "the direction of the risk is named, not just its existence")
+    ck("registry: every standalone reason publishes its measured distance",
+       all(("%.0f m" % f["plume"]["nearest_other_tagged_dc_m"]) in f["plume"]["reason"]
+           for f in F.values()
+           if f["kind"] == "standalone" and f["plume"]["nearest_other_tagged_dc_m"]),
+       "a reader can tell 612 m from 373 km without leaving the sentence")
+
+    ck("registry: every facility has its own measured timezone and state",
+       all(f["tz"] and f["state"] for f in F.values()),
+       "%d timezones, %d states, none guessed from a bbox"
+       % (len({f["tz"] for f in F.values()}), len({f["state"] for f in F.values()})))
+    # BELOW MODEL SCALE. OSM's `telecom=data_center` tag covers a hyperscale hall and a street
+    # cabinet equally; the smallest tagged "data centre" nationally has a 4.7 m longest wall. The
+    # floor is not a chosen number -- it is `build_site.BANK_DEPTH_M`, the depth of the condenser
+    # bank the solver places on a facade, so a shorter wall cannot host the modelled plant at all.
+    # Asserted against build_site's own constant rather than a literal, so the two cannot drift.
+    from build_site import BANK_DEPTH_M                                  # noqa: PLC0415
+    bms = {k: f for k, f in F.items() if f["kind"] == "below_model_scale"}
+    ck("registry: the scale floor IS build_site's own bank depth, not a new constant",
+       all(f["model_scale_floor_m"] == BANK_DEPTH_M for f in F.values()),
+       "floor %.1f m == BANK_DEPTH_M" % BANK_DEPTH_M)
+    ck("registry: every below-scale facility really is under the floor",
+       all(f["longest_facade_m"] is not None and f["longest_facade_m"] < BANK_DEPTH_M
+           for f in bms.values()),
+       "%d below scale, longest wall among them %.1f m"
+       % (len(bms), max((f["longest_facade_m"] for f in bms.values()), default=-1)))
+    ck("registry: every facility ABOVE the floor is classified as something runnable",
+       all(f["kind"] != "below_model_scale" for f in F.values()
+           if f["longest_facade_m"] is not None and f["longest_facade_m"] >= BANK_DEPTH_M),
+       "the floor is applied in one direction only, never as a general exclusion")
+    ck("registry: no below-scale facility claims a modelled plume or hides its measurement",
+       all(f["plume"]["modelled"] is False
+           and ("%.1f m" % f["longest_facade_m"]) in f["plume"]["reason"]
+           and "building is real and is shown" in f["plume"]["reason"]
+           for f in bms.values()),
+       "each publishes its own measured wall and refuses the CLAIM, not the building")
+
+    # ---- 7. THE REGISTRY LOADER, and the one hole in it that would overwrite the reference site --
+    # `metro_key()` resolving a bad value to the DEFAULT metro is not a cosmetic problem: the
+    # default metro owns the UNSUFFIXED artefact filenames, which are exactly the ones the 77
+    # published numbers are read from. A driver looping over 639 facilities with one unset shell
+    # variable would rebuild Ashburn and overwrite them. Unset must default; set-but-empty must not.
+    import metros as _M                                                  # noqa: PLC0415
+    _saved = os.environ.get("METRO")
+    try:
+        cases, bad = [], []
+        for val, want in ((None, _M.DEFAULT_METRO), ("", "RAISE"), ("   ", "RAISE"),
+                          ("ashburn", "ashburn"), ("ASHBURN", "ashburn"), ("ashbrun", "RAISE"),
+                          ("no_such_facility", "RAISE")):
+            if val is None:
+                os.environ.pop("METRO", None)
+            else:
+                os.environ["METRO"] = val
+            try:
+                got = _M.metro_key()
+            except SystemExit:
+                got = "RAISE"
+            cases.append((val, got, want))
+            if got != want:
+                bad.append("%r -> %r, wanted %r" % (val, got, want))
+        ck("metro_key: unset defaults, but a bad or EMPTY value refuses",
+           not bad, "%d cases, incl. METRO='' refusing rather than rebuilding %r"
+           % (len(cases), _M.DEFAULT_METRO) if not bad else "; ".join(bad))
+        # And a real facility key must resolve, or the national path is unreachable.
+        any_key = sorted(F)[0]
+        os.environ["METRO"] = any_key
+        ck("metro_key: a national facility key resolves to itself",
+           _M.metro_key() == any_key, "%s" % any_key)
+        ck("metro: a national facility carries its own measured tz and state, station absent",
+           (lambda m: m.get("national") is True and m["tz"] and m["state"]
+            and m["station"] is None)(_M.metro(any_key)),
+           "station is None until S5 assigns one on measured completeness")
+    finally:
+        if _saved is None:
+            os.environ.pop("METRO", None)
+        else:
+            os.environ["METRO"] = _saved
+
+    # BOUNDARY-ONLY: a real site whose OSM record is a land parcel, with no building outline.
+    bo = {k: f for k, f in F.items() if f["kind"] == "boundary_only"}
+    ck("registry: every boundary-only facility genuinely has no building footprint",
+       all(f["n_building_footprints"] == 0 and f["n_parcel_ways"] >= 1 for f in bo.values()),
+       "%d boundary-only, %d parcel way(s) between them"
+       % (len(bo), sum(f["n_parcel_ways"] for f in bo.values())))
+    ck("registry: no boundary-only facility publishes a facade, a plume or a figure",
+       all(f["plume"]["modelled"] is False
+           and "no hours or dollar figure are published" in f["plume"]["reason"]
+           and "not the data centre" in f["plume"]["reason"] for f in bo.values()),
+       "each says the MAP is missing a building outline, not that the site is absent")
+    ck("registry: a facility with any real building is never boundary-only",
+       all(f["kind"] != "boundary_only" for f in F.values()
+           if f["n_building_footprints"] >= 1),
+       "the parcel test is applied only where there is nothing else to measure")
+    # AND THE ONE THAT CAUGHT THREE BUGS: pairing decisions must count BUILDINGS, not tagged ways.
+    # A facility with one hall and two land parcels has three members and one facade -- it was
+    # classified `paired_advisory` (an advisory about a gap it cannot have) and separately flagged
+    # `merged_into_one_structure` with a null gap.
+    ck("registry: no single-building facility is treated as a pair",
+       all(f["kind"] in ("standalone", "below_model_scale", "boundary_only")
+           for f in F.values() if f["n_building_footprints"] <= 1),
+       "%d facility(ies) with <=1 building, none of them classified as paired"
+       % len([f for f in F.values() if f["n_building_footprints"] <= 1]))
+
+    merged = [f for f in F.values() if f["plume"]["merged_into_one_structure"]]
+    ck("registry: a merged facility is exactly two BUILDINGS inside the merge distance",
+       all(f["n_building_footprints"] == 2 and f["plume"]["facade_gap_m"] is not None
+           and f["plume"]["facade_gap_m"] < nr["merge_gap_m"]
+           for f in merged),
+       "%d merged, widest merged gap %.2f m against a %.1f m rule"
+       % (len(merged), max((f["plume"]["facade_gap_m"] for f in merged), default=-1),
+          nr["merge_gap_m"]))
+
+
+def _unexplained_agreements(rows):
+    """(n_distinct_decisions, [[site keys], ...]) for every group of sites that agree on the
+    numbers WITHOUT agreeing on the station that produced them.
+
+    `rows` is {key: {"gain":…, "all_mech":…, "station":…}}. Two sites sharing a station may share
+    an answer -- that is Dulles/Ashburn by design, and any two standalone facilities on one ASOS
+    record. Two sites on DIFFERENT stations may not: that is one site wearing the other's numbers.
+    """
+    by_decision = {}
+    for k, v in rows.items():
+        key = (round(float(v["gain"]), 6), round(float(v["all_mech"]), 6))
+        by_decision.setdefault(key, []).append(k)
+    bad = [sorted(ks) for ks in by_decision.values()
+           if len(ks) > 1 and len(set(rows[k]["station"] for k in ks)) > 1]
+    return len(by_decision), bad
+
+
+def _selftest_agreement_rule():
+    """The rule must FIRE on the defect it exists for and STAY QUIET on the coincidence that is
+    real. Both cases, every run, because this is the one assertion in 6c permissive enough to pass
+    by accident."""
+    caught, _ = None, None
+    # (1) THE DEFECT: gotcha #132's shape -- two sites, different stations, identical output.
+    n, bad = _unexplained_agreements({
+        "ashburn": {"gain": 65.6, "all_mech": 0.437, "station": "KIAD"},
+        "chicago": {"gain": 65.6, "all_mech": 0.437, "station": "KORD"}})
+    caught = bool(bad)
+    # (2) THE REAL COINCIDENCE: two standalone facilities on ONE station, legitimately identical.
+    n2, bad2 = _unexplained_agreements({
+        "site_a": {"gain": 41.0, "all_mech": 0.500, "station": "KDEN"},
+        "site_b": {"gain": 41.0, "all_mech": 0.500, "station": "KDEN"}})
+    ck("the agreement rule fires on #132's shape and not on a shared station",
+       caught and not bad2,
+       "different stations -> caught; same station -> allowed")
+
+
 def check_sites_actually_differ():
     """EVERY OFFERABLE SITE MUST HAVE ITS OWN NUMBERS, and this check exists because they did not.
 
@@ -571,10 +975,15 @@ def check_sites_actually_differ():
     caught it: every number was internally consistent and every test passed.
 
     So the check is comparison, not existence. A site whose artefacts merely EXIST proves nothing --
-    they have to hold DIFFERENT VALUES, because different geometry on different weather cannot
-    produce the same worst bearing and the same annual gain. Dulles is the exception that proves the
-    rule: it shares KIAD with Ashburn, so its WEATHER figures are identical by construction and only
-    its GEOMETRY may differ. That is asserted here too.
+    they have to be TRACEABLY ITS OWN. Dulles is the exception that proves the rule: it shares KIAD
+    with Ashburn, so its WEATHER figures are identical by construction and only its GEOMETRY may
+    differ. That is asserted here too.
+
+    ⚠ REWRITTEN 2026-08-24. The rule used to be "these four fields all differ across all sites",
+    which was right at three sites and breaks at three hundred -- it crashes on a standalone site's
+    `facade_gap_m: null`, and its premise stops holding once the plume term is zero, because then
+    two facilities on the same station in the same state produce identical numbers legitimately.
+    The three exact statements that replaced it are argued in full at the comment block below.
     """
     print("\n6c. EVERY OFFERABLE SITE HAS ITS OWN NUMBERS")
     sites = jload(os.path.join(DEMO, "sites.json"))["sites"]
@@ -602,19 +1011,78 @@ def check_sites_actually_differ():
             "all_mech": t["cases"]["all_mechanical"]["fraction"],
             "gain": base["gain_h_per_year"],
             "state": jload(os.path.join(DEMO, art["money"]))["metro"]["state"],
+            # PROVENANCE -- who this plant physically is. Unique by construction: OSM element ids
+            # are globally unique, so this is the one tuple that must never repeat at ANY scale.
+            "who": (t["site"].get("osm_source"), t["site"].get("osm_receptor"),
+                    tuple(t["site"]["centre"]) if t["site"].get("centre") else None),
         }
     ck("every offerable site's artefacts load", len(got) == len(keys),
        "%d of %d" % (len(got), len(keys)))
     if len(got) < 2:
         return
 
-    # GEOMETRY must differ between every pair -- two sites cannot share a facade gap and a worst
-    # bearing unless one of them is the other one relabelled.
-    for field in ("facade_gap_m", "worst_rise", "gain", "all_mech"):
-        vals = {k: v[field] for k, v in got.items()}
-        ck("%s differs across all %d sites" % (field, len(got)),
-           len(set(round(float(x), 6) for x in vals.values())) == len(vals),
-           " ".join("%s=%s" % (k, round(float(v), 4)) for k, v in vals.items()))
+    # ---- 🔴 WHY THIS SECTION WAS REWRITTEN 2026-08-24, BEFORE THE SITE COUNT GREW -------------
+    # The original rule was "every one of these four fields differs across every site", rounded to
+    # 6 dp. It was correct at three sites and is wrong at three hundred, in two separate ways:
+    #
+    #  (a) IT CRASHES. `float(None)` raises, and a STANDALONE facility -- no other tagged data
+    #      centre inside the solver's validated 600 m range -- has `facade_gap_m: null` and no worst
+    #      bearing, because there is no receptor to have an intake. 396 of the nationally
+    #      discovered facilities are standalone.
+    #  (b) ITS PREMISE STOPS HOLDING. The docstring's reasoning is "different geometry on different
+    #      weather cannot produce the same worst bearing and the same annual gain". For a standalone
+    #      site the plume term is exactly zero, so the bound reduces to forecast + level + shape
+    #      margin -- all three derived from the WEATHER RECORD alone. Two standalone facilities
+    #      assigned the same ASOS station, in the same state, therefore produce genuinely IDENTICAL
+    #      hours and gain. That is a true consequence of the model, not a defect, and a check that
+    #      called it one would be teaching the next reader to route around a correct guard (#65).
+    #      `all_mech` and `gain` are also a fraction and an hour count: at hundreds of sites they
+    #      will coincide by arithmetic coincidence between unrelated facilities.
+    #
+    # So the rule becomes three EXACT statements with no tolerance and no threshold, each of which
+    # stays true at any N:
+    #   1. PROVENANCE is unique          -- no two sites are the same buildings.
+    #   2. GEOMETRY is unique, among sites that HAVE geometry.
+    #   3. A SHARED DECISION HAS A SHARED CAUSE -- if two sites agree on the numbers, they must
+    #      agree on the station that produced them. This is the scalable form of the original
+    #      intent: it still fails on Chicago-wearing-Ashburn's-numbers (different stations, same
+    #      output) while permitting the one coincidence that is physically real.
+    # `NATIONAL-BUILD-PLAN.md:551` is the principle: sharing a station is physically correct;
+    # sharing geometry, imagery, a tile or a plume is not.
+
+    ck("no two sites are the same buildings (provenance is unique)",
+       len(set(v["who"] for v in got.values())) == len(got),
+       "%d distinct (source, receptor, centre) of %d sites" % (
+           len(set(v["who"] for v in got.values())), len(got)))
+
+    paired = {k: v for k, v in got.items() if v["facade_gap_m"] is not None}
+    standalone = {k: v for k, v in got.items() if v["facade_gap_m"] is None}
+    geo = {k: (round(float(v["facade_gap_m"]), 6), v["worst_bearing"],
+               round(float(v["worst_rise"]), 6)) for k, v in paired.items()}
+    ck("no two PAIRED sites share a geometry measurement",
+       len(set(geo.values())) == len(geo),
+       "%d paired site(s), %d distinct (gap, worst bearing, worst rise)"
+       % (len(geo), len(set(geo.values()))))
+
+    # STANDALONE sites: the plume term must be exactly zero and SAID to be, not merely absent.
+    # Reported even when there are none, so this cannot pass vacuously and unnoticed.
+    ck("standalone sites carry a zero plume term, not a missing one",
+       all(float(v["worst_rise"]) == 0.0 for v in standalone.values()),
+       "%d standalone site(s) in this manifest%s" % (
+           len(standalone), "" if standalone else " -- nothing to check yet, stated not hidden"))
+
+    # A SHARED DECISION MUST HAVE A SHARED CAUSE. Extracted to `_unexplained_agreements` so it can
+    # be exercised against the defect it exists for -- see `_selftest_agreement_rule` below, which
+    # runs first. A rule this permissive (it deliberately allows two sites to agree) has to be shown
+    # to still catch the original #98/#132 shape, or it is just a pass waiting to happen.
+    _selftest_agreement_rule()
+    n_dec, unexplained = _unexplained_agreements(got)
+    ck("any two sites with the same numbers also share the station that produced them",
+       not unexplained,
+       "%d distinct decision(s) across %d sites" % (n_dec, len(got))
+       if not unexplained
+       else "SAME numbers, DIFFERENT stations: %s" % "; ".join(
+           ", ".join(ks) for ks in unexplained[:3]))
 
     # DULLES SHARES KIAD WITH ASHBURN, so its weather figures MUST match and its geometry must not.
     if {"ashburn", "dulles"} <= set(got):
@@ -626,6 +1094,46 @@ def check_sites_actually_differ():
            a["facade_gap_m"] != d["facade_gap_m"] and a["worst_bearing"] != d["worst_bearing"],
            "gap %.1f vs %.1f m, worst bearing %.0f vs %.0f deg"
            % (a["facade_gap_m"], d["facade_gap_m"], a["worst_bearing"], d["worst_bearing"]))
+    # ---- THE PROSE MUST QUOTE THIS SITE'S OWN MEASUREMENT ------------------------------------
+    # `CASE_SPECS`'s knife_edge criterion carried the literal "255 deg" -- Ashburn's worst bearing --
+    # and shipped it on every site: Chicago published it while its own worst bearing was 240, Dulles
+    # while its own was 265. The DAY selected was correct (the code minimises distance to the real
+    # variable), so only the sentence was false, which is the hardest version to catch: nothing
+    # crashed, nothing disagreed with itself numerically, and no existing check compared a criterion
+    # against the number it names. Fifth instance of gotcha #67. Registered per site, so a sixth
+    # hard-coded narrative in this list fails the build.
+    for k, v in sorted(got.items()):
+        art = [s for s in sites if s["key"] == k][0]["artefacts"]["trace"]
+        t = jload(os.path.join(DEMO, art))
+        crit = {c["name"]: c["criterion"] for c in t["cases"]["cases"]}
+        ke = crit.get("knife_edge", "")
+        wb = t["cycle"]["rise_tables"]["longest"]["max_rise_bearing"]
+        # NO BEARING, NO NUMBER -- and the criterion must say so rather than quote one. This check
+        # CRASHED here on the first standalone facility, and the crash is what exposed a real
+        # defect: `select_cases` computed its own worst bearing by argmax, argmax of an all-zero
+        # table returns index 0, and index 0 is due north -- so the trace published "the worst
+        # bearing, 0 deg" for a facility with no plume at all. Both halves are asserted now, because
+        # the absent case is the one that was wrong.
+        if wb is None:
+            ck("%-9s knife_edge states NOT APPLICABLE, and quotes no bearing" % k,
+               "NOT APPLICABLE" in ke and " deg" not in ke.replace("bearing -- NOT", ""),
+               "%r" % ke[-58:])
+        else:
+            want = "%.0f deg" % wb
+            ck("%-9s knife_edge criterion quotes ITS OWN worst bearing" % k,
+               want in ke, "%s -- %r" % (want, ke[-46:]))
+        # AND THE TWO COMPUTATIONS OF THE SAME QUANTITY MUST AGREE. `cases.worst_bearing_deg` and
+        # `rise_tables.longest.max_rise_bearing` are the same measurement derived twice, in
+        # different functions. They disagreed (None vs 0.0) and nothing compared them.
+        ck("%-9s the two worst-bearing derivations agree" % k,
+           t["cases"]["worst_bearing_deg"] == wb,
+           "cases=%r rise_table=%r" % (t["cases"]["worst_bearing_deg"], wb))
+        # And no criterion may still carry an unfilled placeholder: a `{...}` that reached the
+        # artefact means the .format() was skipped and a reader sees template syntax.
+        ck("%-9s no case criterion carries an unfilled placeholder" % k,
+           not any("{" in c or "}" in c for c in crit.values()),
+           "%d criteria, all rendered" % len(crit))
+
     if "chicago" in got:
         ck("chicago is priced on ILLINOIS electricity, not Virginia's",
            got["chicago"]["state"] == "IL", "state=%s" % got["chicago"]["state"])
@@ -633,6 +1141,921 @@ def check_sites_actually_differ():
            got["chicago"]["station"] != got.get("ashburn", {}).get("station"),
            "%s vs ashburn %s" % (got["chicago"]["station"],
                                  got.get("ashburn", {}).get("station")))
+
+
+# ---- 6d: the panels themselves, not just the numbers behind them ---------------------------
+# WHICH GLOBAL CARRIES WHICH SITE'S DATA. `index.html` keeps every artefact in a short global, so
+# "does this panel render anything belonging to the selected site" reduces to "which of these does
+# its function body read". The mapping is the only hand-written part, it is nine lines long, and
+# every entry is checkable by opening `loadSite()`.
+PER_SITE_GLOBALS = {
+    "T":     "trace",            # agent.py    -- geometry, rise table, cases, provenance
+    "BT":    "backtest",         # backtest.py -- the five-year ladder and the sensitivity sweep
+    "RL":    "rolling",          # rolling.py  -- the present-tense controller
+    "MN":    "money",            # money.py    -- priced in this site's own state
+    "TK":    "ticker",           # ticker.py   -- the stage-event tape
+    "EX":    "explanations",     # explain.py  -- stage 7
+    "PF":    "plume_field",      # export_plume_fields.py (not in `artefacts`; named per site)
+    "SITE":  "sites.json entry", # the manifest row: label, station, imagery, committed pair
+    "SITES": "sites.json",       # the whole manifest; drawReportLink selects this site's row from it
+    "FIELD": "FortyGuard field", # only Ashburn and Chicago have one; Dulles has none
+}
+
+# A panel is allowed to render the SAME thing for every site only if the reason is recorded here.
+# This is the one surviving limit from the per-site rework (HANDOFF section 6.13): only Ashburn has
+# forecast/outcome day-pairs, so every site's COVERAGE is Ashburn's, borrowed and labelled. Writing
+# it down as an exception is the point -- a borrowed number that nobody declared is indistinguishable
+# from the bug this check exists to catch.
+SHARED_PANELS = {
+    "drawCoverageTiles": "the N-26 coverage tiles ARE Ashburn's measured day-pairs. No other site "
+                         "has any, so borrowing is the honest presentation and the tile is "
+                         "labelled 'borrowed' by drawHeadline.",
+    # `drawConformal` WAS DECLARED HERE AND IT WAS WRONG. The render-level diff measured it on
+    # 2026-08-21: the panel draws each site's OWN twelve per-lead margins from its own rolling.json
+    # (Ashburn 0.81 -> 7.06 C, Chicago 0.98 -> 6.44 C) and one of its three canvases differs with
+    # them. Only the n=4 day-pair block inside it is borrowed. A wrong exception is worse than no
+    # exception, because it silently excuses the panel from the check -- which is why the two
+    # instruments exist: this one reads the source, testing/verify_site_panels.py renders the page,
+    # and the render caught what the source reading excused.
+}
+
+# Panels that are not per-site by construction, and would be a lie if they were.
+GLOBAL_PANELS = {
+    # RENAMED 2026-08-24: the small 5-metro map and the ~422-site national map were merged into
+    # one, per the user's instruction. `drawUnifiedMap` shows every real site this project has
+    # found, across all sites the picker offers -- more global than `drawMap` ever was, not less;
+    # it is deliberately never filtered to the current selection.
+    "drawUnifiedMap": "the unified map shows every real site this project has identified -- the "
+                      "running ones, the known refusals, and every national candidate -- and is "
+                      "deliberately not filtered to whichever site is currently selected.",
+    "drawModeBanner": "LIVE vs REPLAY is a property of the SERVER, not of the site.",
+}
+
+
+def _js_code_only(src):
+    """Blank out comments and string/template/regex literals, KEEPING LENGTH AND OFFSETS.
+
+    WHY NOT `_COMMENT_RE`. The blunt regex is fine for hunting an identifier -- a truncated line can
+    only lose a hit, which `check_retired_constants` records as a stated limitation. It is NOT fine
+    for counting braces, and this cost a wrong answer on the first run of check 6d: `//` inside a
+    string is not a comment, so `'https://server.arcgisonline.com/...'` had its line eaten from the
+    `//` onward, taking the closing brace with it. `drawMap` -- the one panel full of tile URLs --
+    then had unbalanced braces and reported as "no function body found", which reads as a missing
+    function rather than a broken scanner. Gotcha #47's family: my verification code was buggier
+    than the product.
+
+    Blanking rather than deleting keeps every offset, so a match found here points at the same
+    character in the original text.
+
+    STATED LIMITS. The regex-vs-division `/` ambiguity is resolved by the standard heuristic (a
+    regex may start only where a value may not continue). This file is friendly to it: gotcha #77
+    already forced `tkRender` to write `\\x7B` / `\\x7D` instead of literal braces inside a regex,
+    with a comment telling the next reader not to tidy it up. `_selftest_js_scanner` pins the cases.
+    """
+    n = len(src)
+    out = list(src)
+
+    def blank(k):
+        if 0 <= k < n and out[k] != "\n":     # newlines survive, so line numbers still work
+            out[k] = " "
+
+    i, mode, prev = 0, "code", ""
+    tpl = []                        # brace depth inside each `${ ... }` we are currently within
+    in_class = False                # inside a regex character class, where `/` is literal
+    while i < n:
+        c, two = src[i], src[i:i + 2]
+        if mode == "code":
+            if two == "//":
+                mode = "line"; blank(i); blank(i + 1); i += 2; continue
+            if two == "/*":
+                mode = "block"; blank(i); blank(i + 1); i += 2; continue
+            if src[i:i + 4] == "<!--":
+                mode = "html"
+                for k in range(4):
+                    blank(i + k)
+                i += 4; continue
+            if c in "'\"":
+                mode = "sq" if c == "'" else "dq"; blank(i); i += 1; continue
+            if c == "`":
+                mode = "tpl"; blank(i); i += 1; continue
+            # A `/` starts a regex only where a VALUE cannot continue. After an identifier, a
+            # digit, or a closing bracket, it is division.
+            if c == "/" and not (prev.isalnum() or prev in "_)]}"):
+                mode = "regex"; in_class = False; blank(i); i += 1; continue
+            if tpl:
+                if c == "{":
+                    tpl[-1] += 1
+                elif c == "}":
+                    if tpl[-1] == 0:
+                        blank(i); tpl.pop(); mode = "tpl"; i += 1; continue
+                    tpl[-1] -= 1
+            if not c.isspace():
+                prev = c
+            i += 1; continue
+        if mode == "line":
+            if c == "\n":
+                mode = "code"; i += 1; continue
+            blank(i); i += 1; continue
+        if mode == "block":
+            if two == "*/":
+                blank(i); blank(i + 1); mode = "code"; i += 2; continue
+            blank(i); i += 1; continue
+        if mode == "html":
+            if src[i:i + 3] == "-->":
+                for k in range(3):
+                    blank(i + k)
+                mode = "code"; i += 3; continue
+            blank(i); i += 1; continue
+        if mode in ("sq", "dq"):
+            if c == "\\":
+                blank(i); blank(i + 1); i += 2; continue
+            if c == ("'" if mode == "sq" else '"'):
+                blank(i); mode = "code"; prev = "1"; i += 1; continue
+            if c == "\n":
+                mode = "code"; i += 1; continue        # unterminated: bail rather than eat the file
+            blank(i); i += 1; continue
+        if mode == "tpl":
+            if c == "\\":
+                blank(i); blank(i + 1); i += 2; continue
+            if two == "${":
+                blank(i); blank(i + 1); tpl.append(0); mode = "code"; i += 2; continue
+            if c == "`":
+                blank(i); mode = "code"; prev = "1"; i += 1; continue
+            blank(i); i += 1; continue
+        if mode == "regex":
+            if c == "\\":
+                blank(i); blank(i + 1); i += 2; continue
+            if c == "\n":
+                mode = "code"; i += 1; continue        # not a regex after all
+            if c == "[":
+                in_class = True
+            elif c == "]":
+                in_class = False
+            elif c == "/" and not in_class:
+                blank(i); mode = "code"; prev = "1"; i += 1; continue
+            blank(i); i += 1; continue
+    return "".join(out)
+
+
+def _selftest_js_scanner():
+    """The scanner gets its own test, because it is the thing that decides what check 6d can see.
+
+    Every case here is a shape that actually appears in `index.html`, and the first one is the bug
+    that made the check report a missing function on its first run.
+    """
+    cases = [
+        ("a URL in a string is not a comment",
+         "function f(){ const u='https://x/y'; }", "function f(){ const u=", True),
+        ("a real line comment goes",
+         "function f(){ // }} nonsense\n }", "nonsense", False),
+        ("a block comment goes, braces and all",
+         "function f(){ /* }} SPOILER */ }", "SPOILER", False),
+        ("a brace inside a string does not count",
+         "function f(){ const s='{{{'; }", "{{{", False),
+        ("a template literal's ${} stays code",
+         "function f(){ `a${T.x}b`; }", "T.x", True),
+        ("a regex literal is blanked",
+         "function f(){ s.replace(/[}]/g,''); }", "[}]", False),
+    ]
+    bad = []
+    for name, src, needle, want in cases:
+        got = needle in _js_code_only(src)
+        if got != want:
+            bad.append(name)
+    # And the property that matters: braces must balance on every case.
+    for name, src, _, _ in cases:
+        code = _js_code_only(src)
+        if code.count("{") != code.count("}"):
+            bad.append("%s (braces unbalanced: %d/%d)"
+                       % (name, code.count("{"), code.count("}")))
+    ck("the JS scanner passes its own %d-case test" % len(cases), not bad,
+       "comments and literals blanked, offsets preserved" if not bad else "; ".join(bad))
+
+
+def _js_function_body(src, name):
+    """Extract one `function name(...) { ... }` body by brace counting over code-only text.
+
+    Comments are removed for a second reason beyond brace safety: a retraction note in `index.html`
+    quotes the three Ashburn coordinates that gotcha #98 removed, so a scanner that reads comments
+    would report the documented retraction as the defect it documents -- gotcha #55b, verbatim, for
+    the third time in this project.
+    """
+    code = _js_code_only(src)
+    m = re.search(r"function\s+%s\s*\([^)]*\)\s*\{" % re.escape(name), code)
+    if not m:
+        return None
+    i = m.end() - 1
+    depth = 0
+    for j in range(i, len(code)):
+        if code[j] == "{":
+            depth += 1
+        elif code[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return code[i:j + 1]
+    return None
+
+
+def check_panels_are_per_site():
+    """EVERY RESULT PANEL MUST RENDER THE SELECTED SITE'S OWN DATA -- checked at the panel level.
+
+    Check 6c compares NUMBERS across sites and is the reason the picker cannot go back to swapping
+    one file. But 6c works from a list of values chosen by hand, so it can only ever prove things
+    about the values someone thought to register. The defect it was written for had a second half
+    that a value list cannot see: `drawAerial` read THREE ASHBURN COORDINATES as source-level
+    constants while drawing per-site footprints on top of them, so selecting Chicago georeferenced
+    Chicago's halls onto Ashburn's photograph (gotcha #98). Every number was per-site. The frame of
+    reference was not, and the picture looked entirely plausible.
+
+    So this check works from the PANELS instead, and it derives the panel list from `drawAll()`
+    rather than holding one -- a panel added to the page and not registered here fails the build,
+    which is the only way a registry stays honest (gotcha #74: a test that excludes a code path
+    reports PASS for it).
+
+    Three things are asserted:
+      1. every panel `drawAll()` calls either reads a per-site global, or is declared shared/global
+         WITH A REASON;
+      2. every per-site global's underlying artefact really does differ between the three sites --
+         because a panel reading `BT` proves nothing if all three backtests are the same file;
+      3. no site-identifying literal (a committed OSM id, a hall coordinate, an imagery bbox, a
+         station id) appears anywhere in the page's code. That is #98's signature, and it is the one
+         thing neither 6c nor a screenshot can see.
+    """
+    print("\n6d. EVERY PANEL RENDERS THE SELECTED SITE, NOT ASHBURN WEARING ITS LABEL")
+    # The scanner decides what this whole check is able to see, so it is tested first and its
+    # result is a REGISTERED ASSERTION -- not a comment claiming it was tested once.
+    _selftest_js_scanner()
+    page = open(os.path.join(DEMO, "index.html"), encoding="utf-8").read()
+    sites = jload(os.path.join(DEMO, "sites.json"))["sites"]
+    offer = [s for s in sites if s.get("offerable")]
+
+    # ---- 1. the panel list, DERIVED from drawAll() -------------------------------------
+    body = _js_function_body(page, "drawAll")
+    if body is None:
+        ck("drawAll() is where the panel list comes from", False, "not found in index.html")
+        return
+    panels = [n for n in re.findall(r"\b(draw[A-Za-z]\w*)\s*\(", body)]
+    panels = sorted(set(panels))
+    ck("the panel list is read from drawAll(), not held here", len(panels) >= 12,
+       "%d panels: %s" % (len(panels), ", ".join(p[4:].lower() for p in panels)))
+
+    # ---- 2. each panel reads something that belongs to the selected site --------------
+    # ONE LEVEL OF INDIRECTION IS FOLLOWED, and it has to be: `drawSched` reads nothing itself, it
+    # calls `decide()` -- the agent, re-run in the browser -- and `drawLimits` gets its two priced
+    # entries from `refusalLimits()`. A check that only saw direct reads reported both as rendering
+    # nothing site-specific, which is a false alarm, and a check that cries wolf gets ignored
+    # (gotcha #47). Depth is ONE and stated: deeper would need a call graph, and at that point the
+    # render-level driver in testing/verify_site_panels.py is the better instrument.
+    def reads_of(fn_src):
+        return sorted(g for g in PER_SITE_GLOBALS if re.search(r"\b%s\b" % g, fn_src))
+
+    unregistered, no_input, per_site_ok = [], [], {}
+    for p in panels + sorted(GLOBAL_PANELS):
+        fn = _js_function_body(page, p)
+        if fn is None:
+            unregistered.append("%s (no function body found)" % p)
+            continue
+        direct = reads_of(fn)
+        if direct:
+            per_site_ok[p] = ", ".join(direct)
+            continue
+        via = None
+        for callee in sorted(set(re.findall(r"\b([a-z][A-Za-z0-9_]*)\s*\(", fn))):
+            if callee == p:
+                continue
+            sub = _js_function_body(page, callee)
+            if sub and reads_of(sub):
+                via = "%s() -> %s" % (callee, ", ".join(reads_of(sub)))
+                break
+        if via:
+            per_site_ok[p] = via
+        elif p in SHARED_PANELS or p in GLOBAL_PANELS:
+            pass                                     # declared, with its reason, above
+        else:
+            no_input.append(p)
+    ck("every panel drawAll() calls renders the selected site's own data, or says why not",
+       not no_input and not unregistered,
+       "%d per-site, %d declared shared/global"
+       % (len(per_site_ok), len(SHARED_PANELS) + len(GLOBAL_PANELS))
+       if not (no_input or unregistered)
+       else "UNDECLARED: %s" % ", ".join(no_input + unregistered))
+
+    # ---- 2b. THE DECLARED EXCEPTIONS MUST BE TRUE, NOT JUST DECLARED -----------------
+    # The first version of this asserted that a "shared" panel reads no per-site global, and that
+    # was the wrong test: `drawConformal` reads `T` for `cycle.bound_day_level`, which is BYTE
+    # IDENTICAL across all three sites by design. Reading a per-site file does not make a panel
+    # per-site; rendering a value that differs does. So the exception is checked against the data:
+    # what it claims is borrowed must actually be identical, and the artefact must SAY it is
+    # borrowed. An excuse nobody re-reads is how a retracted claim survives (gotcha #56).
+    if len(offer) > 1:
+        traces = {}
+        for s in offer:
+            nm = (s.get("artefacts") or {}).get("trace")
+            if nm and os.path.exists(os.path.join(DEMO, nm)):
+                traces[s["key"]] = jload(os.path.join(DEMO, nm))
+        covs = set(json.dumps(t["cycle"]["bound_day_level"], sort_keys=True)
+                   for t in traces.values())
+        pooled = set(round(t["cycle"]["pooled_coverage"], 12) for t in traces.values())
+        ck("the borrowed coverage really is identical across sites, as declared",
+           len(covs) == 1 and len(pooled) == 1,
+           "one bound_day_level and one pooled coverage %.4f across %d sites"
+           % (list(pooled)[0], len(traces)) if len(covs) == 1 and len(pooled) == 1
+           else "%d distinct bound_day_level / %d distinct coverage -- the SHARED_PANELS "
+                "declaration is now false and those panels are per-site" % (len(covs), len(pooled)))
+        # And every site that borrows must SAY so in the artefact the page reads, or the borrowing
+        # is invisible to a reader. This is the one limit HANDOFF 6.13 says survives.
+        unlabelled = [k for k, t in traces.items()
+                      if k != "ashburn"
+                      and (t.get("fortyguard_provenance") or {}).get("own_measured_day_pairs")
+                      is not False]
+        ck("every site without its own day-pairs records that its coverage is borrowed",
+           not unlabelled, "%d borrowing site(s) labelled" % (len(traces) - 1) if not unlabelled
+           else "UNLABELLED: %s" % ", ".join(unlabelled))
+
+    # ---- 3. the artefacts behind those globals actually differ -------------------------
+    # Reading `BT` proves a panel asked for the backtest. It does not prove the three backtests are
+    # three different files -- which is exactly what was wrong before the per-site rework.
+    if len(offer) > 1:
+        differing, identical = [], []
+        for g, art in sorted(PER_SITE_GLOBALS.items()):
+            paths = []
+            for s in offer:
+                nm = (s.get("artefacts") or {}).get(art)
+                if nm:
+                    paths.append(os.path.join(DEMO, nm))
+            if len(paths) < 2:
+                continue                             # PF/SITE/FIELD are not `artefacts` entries
+            digests = set()
+            for path in paths:
+                if os.path.exists(path):
+                    with open(path, "rb") as f:
+                        digests.add(hashlib.md5(f.read()).hexdigest())
+            (differing if len(digests) == len(paths) else identical).append(g)
+        ck("every per-site artefact is a DIFFERENT file for every site", not identical,
+           "%s all differ across %d sites" % (", ".join(differing), len(offer)) if not identical
+           else "IDENTICAL across sites: %s" % ", ".join(identical))
+
+    # ---- 4. no site-identifying literal in the page's code ---------------------------
+    # THE ONE THAT WOULD HAVE CAUGHT #98. Comments are stripped first, deliberately: the retraction
+    # note in index.html quotes the three coordinates it removed, and flagging that note would be
+    # gotcha #55b for the third time -- a scanner failing on prose that documents a retirement.
+    code = _COMMENT_RE.sub("", page)
+    i, j = code.rfind("<script>"), code.rfind("</script>")
+    code = code[i:j] if i >= 0 and j > i else code
+    leaked = []
+    for s in sites:                                  # ALL sites, including the two refused
+        c = s.get("committed") or {}
+        im = s.get("imagery") or {}
+        cands = []
+        for key in ("source_osm_id", "receptor_osm_id"):
+            if c.get(key):
+                cands.append((key, str(c[key])))
+        for key in ("source_latlon", "receptor_latlon"):
+            for v in (c.get(key) or []):
+                cands.append((key, "%.6f" % float(v)))
+        for v in (im.get("bbox") or []):
+            cands.append(("imagery bbox", "%.6f" % float(v)))
+        if s.get("station"):
+            cands.append(("station", str(s["station"])))
+        for what, lit in cands:
+            # Trailing-zero forms are what a hand-copied coordinate looks like, so both are checked.
+            forms = {lit, lit.rstrip("0").rstrip(".")} if "." in lit else {lit}
+            for f in forms:
+                if len(f) >= 6 and re.search(r"(?<![\d.])%s(?![\d])" % re.escape(f), code):
+                    leaked.append("%s %s=%s" % (s["key"], what, f))
+    ck("no site's own coordinate, OSM id or station is a literal in the page",
+       not leaked, "checked %d sites' committed pairs and imagery frames" % len(sites)
+       if not leaked else "LEAKED: %s" % "; ".join(sorted(set(leaked))[:4]))
+
+
+def check_wind_is_this_sites_own():
+    """EVERY SITE'S WIND RECORD MUST BE ITS OWN STATION'S, AND THE ARITHMETIC PROVES IT.
+
+    THE DEFECT. `direction_sweep.py:load_wind()` read `kiad_hourly_2021_2025.json` as a LITERAL, on
+    every site, for two days after the engine was made per-site. So Chicago's per-bearing rise curve
+    and its 72 rendered plume fields were solved at **Virginia's** median wind speed (3.60 m/s
+    instead of its own 4.12), its wind statistics were KIAD's, and the block even hard-coded
+    `"station": "KIAD"` beside them.
+
+    WHY NOTHING CAUGHT IT. Check 6c compares values across sites and fails on agreement -- but it
+    compares a registered list, and the wind block was not on it. Check 6d compares panels. Both
+    would have passed forever: every number was internally consistent, and "Chicago is windier than
+    Virginia" is not something a reader can check by looking.
+
+    WHAT CATCHES IT IS AN IDENTITY, and it was sitting in the artefact all along. The three wind
+    counts PARTITION the station's record, so
+
+        usable_hours + calm_excluded + missing == that site's own n_hours
+
+    must hold exactly. Chicago's came to 43,763 -- KIAD's hour count -- against its own 43,775. Two
+    numbers twelve apart in a file nobody was joining. This is the same shape as gotcha #63: an
+    exact identity is worth more than a tolerance, because you can say why it must be zero.
+    """
+    print("\n6e. EVERY SITE'S WIND IS ITS OWN STATION'S RECORD")
+    sites = jload(os.path.join(DEMO, "sites.json"))["sites"]
+    seen = {}
+    for s in sites:
+        if not s.get("offerable"):
+            continue
+        art = (s.get("artefacts") or {}).get("trace")
+        if not art:
+            continue
+        t = jload(os.path.join(DEMO, art))
+        w = t.get("direction_table", {}).get("wind") or {}
+        n_hours = t["weather"]["n_hours"]
+        station = t["weather"]["station"]
+        parts = [w.get("usable_hours"), w.get("calm_excluded"), w.get("missing")]
+        ck("%-9s wind counts partition its OWN record exactly" % s["key"],
+           all(isinstance(x, int) for x in parts) and sum(parts) == n_hours,
+           "%s + %s + %s = %s == %s h at %s"
+           % tuple(list(parts) + [sum(x for x in parts if isinstance(x, int)), n_hours, station])
+           if all(isinstance(x, int) for x in parts)
+           else "wind block is missing a count: %s" % parts)
+        ck("%-9s wind names the station the weather record came from" % s["key"],
+           w.get("station") == station,
+           "%s == %s" % (w.get("station"), station))
+        seen[s["key"]] = (w.get("station"), tuple(parts), t["direction_table"]["modes"]["longest"]
+                          .get("u_median_ms"))
+
+    # AND THE CROSS-SITE HALF: two sites may share a wind record ONLY if they share a station.
+    # Dulles shares KIAD with Ashburn by design and must match; Chicago must not match either.
+    if {"ashburn", "chicago"} <= set(seen):
+        a, c = seen["ashburn"], seen["chicago"]
+        ck("chicago's wind DIFFERS from ashburn's, because KORD is not KIAD",
+           a[1] != c[1] and a[2] != c[2],
+           "calm %d vs %d h, median wind %.4f vs %.4f m/s"
+           % (a[1][1], c[1][1], a[2], c[2]))
+    if {"ashburn", "dulles"} <= set(seen):
+        a, d = seen["ashburn"], seen["dulles"]
+        ck("dulles's wind MATCHES ashburn's, because it is the same station -- the control",
+           a[1] == d[1] and a[2] == d[2],
+           "both %d usable at %.4f m/s, so only geometry differs" % (a[1][0], a[2]))
+
+    # ---- WHO THIS PLANT IS. Three literals, in every site's trace, for two days. ------------
+    # `osm_source`, `osm_receptor` and `operator` were typed into `agent.py`, so Chicago's trace
+    # identified its plant as two AWS halls in Virginia and `report.py` printed that OSM pair onto
+    # page 1 of Chicago's PDF. Found by walking every leaf of the three traces and listing the ones
+    # that AGREED -- which is the general method this check now encodes for the identity fields:
+    # two different buildings cannot share an OSM id, so equality here is proof of a fallback.
+    ident = {}
+    for s in sites:
+        if not s.get("offerable"):
+            continue
+        art = (s.get("artefacts") or {}).get("trace")
+        if not art:
+            continue
+        st = jload(os.path.join(DEMO, art))["site"]
+        ident[s["key"]] = (st.get("osm_source"), st.get("osm_receptor"), st.get("operator"))
+    for i, field in enumerate(("osm_source", "osm_receptor", "operator")):
+        vals = {k: v[i] for k, v in ident.items()}
+        ck("every site names its OWN %s" % field,
+           len(set(vals.values())) == len(vals),
+           " | ".join("%s=%s" % (k, str(v)[:26]) for k, v in vals.items()))
+    # AND IT MUST MATCH THE MANIFEST, which reads the same committed file by a different path. Equal
+    # values from two readers is the check; the trace agreeing with itself would prove nothing.
+    for s in sites:
+        if not s.get("offerable") or s["key"] not in ident:
+            continue
+        c = s.get("committed") or {}
+        got = ident[s["key"]]
+        ck("%-9s trace and manifest agree on the committed pair" % s["key"],
+           got[0] == c.get("source_osm_id") and got[1] == c.get("receptor_osm_id"),
+           "OSM %s -> %s" % (got[0], got[1]))
+
+    # The rendered plume fields are solved AT that median speed, so they must agree with it. This is
+    # the path the defect actually travelled: export_plume_fields.py reads the direction table's u.
+    for s in sites:
+        if not s.get("offerable"):
+            continue
+        pf = os.path.join(DEMO, "plume_field_%s_longest.json" % s["key"])
+        if not os.path.exists(pf):
+            continue
+        u_field = jload(pf).get("wind_speed_ms")
+        u_table = seen.get(s["key"], (None, None, None))[2]
+        ck("%-9s rendered plume was solved at ITS OWN median wind" % s["key"],
+           u_field is not None and u_table is not None
+           and abs(float(u_field) - float(u_table)) < 1e-6,
+           "%.6f m/s in both the field and the direction table" % float(u_field)
+           if u_field is not None else "field carries no wind_speed_ms")
+
+
+def _binding_counts(ex):
+    """Count every hour explanation by which gate decided it, walking the shipped file.
+
+    Walked rather than read from a summary block, because there is no summary block -- and that is
+    precisely why these figures drifted. Counting them here means the documents are checked against
+    the explanations themselves, not against another number someone maintained by hand.
+    """
+    out = {}
+
+    def walk(o):
+        if isinstance(o, dict):
+            if "binding" in o:
+                k = o["binding"] or "none"
+                out[k] = out.get(k, 0) + 1
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    walk(ex)
+    return out
+
+
+def _binding_count(ex, gate):
+    return _binding_counts(ex).get(gate, 0)
+
+
+def _binding_pct(ex, gate):
+    c = _binding_counts(ex)
+    total = sum(c.values())
+    return round(100.0 * c.get(gate, 0) / total, 1) if total else 0.0
+
+
+# ---- 5b: retracted CLAIMS, not retracted constants -----------------------------------------
+# `check_retired_constants` catches a retracted NUMBER coming back. Nothing caught a retracted
+# SENTENCE, and this project has now shipped one three times:
+#   #56  "the solver absorbs heat into buildings" -- live in the demo's own Honest Limits panel a
+#        week after retraction.
+#   #129 "No dollars, no kWh, anywhere" -- live beside a priced money panel, and Ashburn's worst
+#        rise quoted on all three sites.
+#   #97/#137 "Recirculation awareness buys safety, not hours" -- live on the five-year ladder panel
+#        for three days after backtest.py and HANDOFF had both been corrected, printing the word
+#        "costs" in front of a positive gain.
+# Every one was invisible to `check_published_numbers`, because that re-reads FIGURES and all three
+# defects were in the WORDS around correct figures. Hence a phrase registry.
+#
+# WHERE IT SCANS, and why the list is short: the surfaces a reader actually meets. HANDOFF.md and
+# PLAN.md are excluded as WHOLE files because both are required to quote retracted claims in order
+# to record the retraction (methodology rule 6) -- registering a phrase and then banning the
+# document that explains it would be gotcha #55b for the fourth time.
+#
+# ⚠ A RETRACTION IS A CLAIM, NOT A STRING, AND THIS REGISTRY MATCHES STRINGS. Two live defects
+# evaded it BY ONE WORD each, found 2026-08-23:
+#   INTAKE-ARBITER/demo/README.md carried "costs hours and buys safety" against a registry holding
+#   "buys safety, not hours"; and agent.py's say() block carried "+67 h/yr, recirculation alone"
+#   against a registry holding "+67 h/yr FROM recirculation alone" -- a comma for a preposition.
+# So every phrasing of a retracted claim that has ACTUALLY BEEN WRITTEN gets its own entry, and the
+# entries below record which file each one was found in. This cannot be made exhaustive against
+# paraphrase; it can only be kept honest about what has been seen.
+RETRACTED_CLAIMS = [
+    ("buys safety, not hours",
+     "gotcha #97: the plume buys BOTH -- +22.8 h/yr AND 3.7x fewer breaches"),
+    ("costs hours and buys safety",
+     "gotcha #97/#137: it buys BOTH; not a safety-for-hours trade (was in demo/README.md)"),
+    ("buys safety rather than hours",
+     "gotcha #97/#137: it buys BOTH"),
+    ("recirculation awareness costs hours",
+     "gotcha #97/#137: plume awareness GAINS +22.8 h/yr; it does not cost hours"),
+    ("h/yr, recirculation alone",
+     "gotcha #67 / PLAN 12.9: the misattribution again, comma for `from` (was in agent.py's say())"),
+    ("h/year, recirculation alone",
+     "gotcha #67 / PLAN 12.9: same misattribution, spelled-out form"),
+    ("costs 22.8 h/year",
+     "gotcha #97: it is a difference of two GAINS, so it is a benefit"),
+    ("solver absorbs heat into buildings",
+     "gotcha #26/#56: obstacles are TRANSPARENT, 0.0 % absorbed"),
+    ("absorbs heat into buildings",
+     "gotcha #26/#56: obstacles are TRANSPARENT, 0.0 % absorbed"),
+    ("no dollars, no kwh, anywhere",
+     "gotcha #129: the compressor term IS priced and a money panel ships"),
+    ("operators read a weather station kilometres away",
+     "PLAN 12.9: FALSE -- on-site rooftop stations"),
+    ("nobody sells forecast-aware switching",
+     "PLAN 12.9: overstated"),
+    ("+67 h/yr from recirculation alone",
+     "PLAN 12.9: misattributed -- it is an uncertainty asymmetry"),
+    ("forecast windows are unavailable on this plan",
+     "gotcha #59: wrong -- it was an outage, entitlement is proved"),
+]
+
+
+def _retracted_hits(text, is_html):
+    """Which registered retracted phrases survive in `text` once excusable context is removed."""
+    if is_html:
+        text = _js_code_only(text)            # blanks comments AND is string-safe, unlike a regex
+    else:
+        keep = []
+        for ln in text.splitlines():
+            if re.search(r"retract|corrected|superseded|was wrong|no longer|gotcha #|"
+                         r"never reuse|stood here|used to (say|read)", ln, re.I):
+                continue
+            keep.append(ln)
+        text = "\n".join(keep)
+    low = re.sub(r"\s+", " ", text).lower()
+    return [(p, why) for p, why in RETRACTED_CLAIMS if p in low]
+
+
+# A PRINTED STRING IS A READER-FACING SURFACE; A COMMENT IS NOT. `agent.py`'s say() block prints
+# to the console on every `agent.py run` and carried a registered retraction for weeks -- the
+# markdown/HTML scan above never looked at .py files. But `backtest.py` deliberately QUOTES
+# "buys SAFETY, not HOURS" in a comment explaining gotcha #97's correction, and flagging that would
+# be gotcha #55b for the fifth time (the scanner that fires on prose documenting a retirement).
+#
+# The discriminator is therefore SYNTACTIC, not textual: an AST walk over string constants sees the
+# say() and cannot see the comment. That is the same reasoning that forced `check_retired_constants`
+# to be AST-based. Docstrings are excluded on the same ground as comments -- they explain to a
+# maintainer, they do not assert to a user.
+_PY_SCAN_SKIP = {"audit.py"}      # this file HOLDS the registry; scanning it would hit every phrase
+
+
+def _docstring_ids(tree):
+    """id() of every string node that is a docstring, so the scan can skip them."""
+    out = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            body = getattr(node, "body", None)
+            if (body and isinstance(body[0], ast.Expr)
+                    and isinstance(body[0].value, ast.Constant)
+                    and isinstance(body[0].value.value, str)):
+                out.add(id(body[0].value))
+    return out
+
+
+def _retracted_hits_in_python(src, filename="<scan>"):
+    """Registered retractions living in a string this module can PRINT or EMIT.
+
+    Returns [(phrase, why, lineno)]. A SyntaxError is reported rather than swallowed: a source file
+    this audit cannot parse is a file it cannot vouch for, and returning [] would read as clean.
+    """
+    try:
+        tree = ast.parse(src, filename=filename)
+    except SyntaxError as e:
+        return [("<unparseable>", "could not parse: %s" % e, getattr(e, "lineno", 0) or 0)]
+    skip = _docstring_ids(tree)
+    hits = []
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Constant) and isinstance(node.value, str)
+                and id(node) not in skip):
+            low = re.sub(r"\s+", " ", node.value).lower()
+            for phrase, why in RETRACTED_CLAIMS:
+                if phrase in low:
+                    hits.append((phrase, why, getattr(node, "lineno", 0)))
+    return hits
+
+
+def _selftest_python_retraction_scanner():
+    """A NEGATIVE CONTROL whose first case is the exact string that shipped in agent.py.
+
+    Case 3 is the one that matters most: it is `backtest.py`'s real comment, and it MUST NOT hit.
+    A scanner that cannot tell a printed assertion from a comment explaining a correction would be
+    turned off within a day, and then it protects nothing (gotcha #47).
+    """
+    SHIPPED = ('say("        claims to: N-56 puts the zero-notice gain at '
+               '+67 h/yr, recirculation alone.")')
+    cases = [
+        ("the say() that actually shipped in agent.py is caught", SHIPPED, True),
+        ("a retraction in any other printed string is caught",
+         'print("the solver absorbs heat into buildings")', True),
+        ("backtest.py's real COMMENT quoting the retraction is NOT flagged",
+         '# underneath ("buys SAFETY, not HOURS") is what stopped anyone reading the number\n'
+         'dh = a - b', False),
+        ("a DOCSTRING explaining the retraction is NOT flagged",
+         'def f():\n    """This used to say buys safety, not hours, which was wrong."""\n    return 1',
+         False),
+        ("a module docstring explaining it is NOT flagged",
+         '"""Retired: costs hours and buys safety."""\nx = 1', False),
+        ("corrected wording in a printed string is clean",
+         'say("the plume buys BOTH: +22.8 h/yr and 3.7x fewer breaches")', False),
+        ("an f-string carrying the claim is still caught",
+         'say(f"gain {x}: buys safety, not hours")', True),
+        ("a file that does not parse is reported, never treated as clean",
+         'def broken(:\n', True),
+    ]
+    bad = []
+    for name, src, want_hit in cases:
+        if bool(_retracted_hits_in_python(src)) != want_hit:
+            bad.append(name)
+    ck("the python-string retraction scanner passes its own %d-case control" % len(cases), not bad,
+       "including agent.py's shipped say() AND backtest.py's legitimate comment" if not bad
+       else "; ".join(bad))
+
+
+def _selftest_retracted_scanner():
+    """A NEGATIVE CONTROL. The first case is the exact sentence that shipped on the demo page.
+
+    Without this the check is a green light that has never been shown to be capable of turning red,
+    and this file already contains two scars from exactly that (gotcha #78: my verification check was
+    vacuous twice in one session).
+    """
+    LIVE = ("knowing about it <strong>costs 22.8 h/year</strong> ... "
+            "<strong>Recirculation awareness buys safety, not hours.</strong>")
+    cases = [
+        ("the sentence that actually shipped is caught", LIVE, False, True),
+        ("...and is caught in HTML too", "<p>" + LIVE + "</p>", True, True),
+        ("the corrected wording is clean",
+         "knowing about it buys 22.8 h/year and cuts breaches 3.7x", False, False),
+        ("a markdown line documenting the retraction is allowed",
+         "CORRECTED 2026-08-23: this used to say buys safety, not hours, and it was wrong.",
+         False, False),
+        ("an HTML COMMENT documenting the retraction is allowed",
+         "/* it read: Recirculation awareness buys safety, not hours */ const x = 1;", True, False),
+        ("an unrelated retraction is still caught",
+         "the solver absorbs heat into buildings, a known defect", False, True),
+    ]
+    bad = []
+    for name, txt, is_html, want_hit in cases:
+        if bool(_retracted_hits(txt, is_html)) != want_hit:
+            bad.append(name)
+    ck("the retracted-claim scanner passes its own %d-case control" % len(cases), not bad,
+       "including the exact sentence that shipped on the ladder panel" if not bad
+       else "; ".join(bad))
+
+
+def check_retracted_claims():
+    """A RETRACTED SENTENCE MUST NOT SURVIVE ON A SURFACE A READER MEETS.
+
+    The three instances above were all found by a human reading the page, never by a check, and the
+    reason is structural: everything mechanical in this tree re-reads NUMBERS. `audit.py` verifies 77
+    figures against the files that produced them and would have passed all three defects, because in
+    every case the figure was right and the words around it were wrong.
+
+    Comments are stripped from the page before scanning, deliberately: `index.html` now carries the
+    retracted wording inside comments that explain the correction, and flagging those would be the
+    same false positive that forced `check_retired_constants` to become AST-based (gotcha #55b).
+    """
+    print("\n5b. RETRACTED CLAIMS -- must not survive on any surface a reader meets")
+    _selftest_retracted_scanner()
+    _selftest_python_retraction_scanner()
+    targets = [("demo/index.html", os.path.join(DEMO, "index.html")),
+               # ADDED 2026-08-23. This was the gap: demo/README.md carried "costs hours and buys
+               # safety" and a retired "about 595 h/year" while sitting UNSCANNED, and HANDOFF 9.1b
+               # says in as many words that a judge opens the demo before reading anything. The
+               # front door of the thing being judged was the one document nothing read.
+               ("demo/README.md", os.path.join(DEMO, "README.md")),
+               ("README.md", os.path.join(ROOT, "README.md")),
+               ("RECIRCULATION-DEFENCE.md", os.path.join(ROOT, "RECIRCULATION-DEFENCE.md")),
+               ("READING-THE-AGENT.md", os.path.join(ROOT, "READING-THE-AGENT.md"))]
+    scanned, hits, missing = 0, [], []
+    for label, path in targets:
+        if not os.path.exists(path):
+            # A SKIP IS NOT A PASS (gotcha #74). Every target here is a committed file, so an
+            # absent one means it was deleted or this path is wrong -- either way the surface is
+            # unscanned, and silently continuing would report PASS for a file nothing read.
+            missing.append(label)
+            continue
+        scanned += 1
+        # Through the SHARED helper, so the negative control above and the real scan below can
+        # never diverge -- a control that tests different code from the check proves nothing.
+        for phrase, why in _retracted_hits(open(path, encoding="utf-8").read(),
+                                           path.endswith(".html")):
+            hits.append("%s: \"%s\" (%s)" % (label, phrase, why))
+    ck("every registered reader-facing surface exists to be scanned", not missing,
+       "%d surfaces" % scanned if not missing else "MISSING: " + ", ".join(missing))
+    ck("no retracted claim appears on a reader-facing surface", not hits,
+       "%d phrases x %d surfaces checked" % (len(RETRACTED_CLAIMS), scanned) if not hits
+       else "; ".join(hits[:3]))
+
+    # PRINTED PYTHON STRINGS, the surface the four documents above do not cover. agent.py's say()
+    # block asserted a registered retraction to the console on every run for weeks.
+    py_hits, py_files = [], 0
+    for base in (HERE, os.path.join(ROOT, "testing")):
+        if not os.path.isdir(base):
+            continue
+        for nm in sorted(os.listdir(base)):
+            if not nm.endswith(".py") or nm in _PY_SCAN_SKIP:
+                continue
+            py_files += 1
+            path = os.path.join(base, nm)
+            for phrase, why, ln in _retracted_hits_in_python(
+                    open(path, encoding="utf-8").read(), nm):
+                py_hits.append("%s:%d \"%s\" (%s)" % (nm, ln, phrase, why))
+    ck("no retracted claim is PRINTED or EMITTED by any python string", not py_hits,
+       "%d phrases x %d modules, comments and docstrings excluded"
+       % (len(RETRACTED_CLAIMS), py_files) if not py_hits else "; ".join(py_hits[:3]))
+
+
+def check_no_unsuffixed_per_site_artefact():
+    """NO PER-SITE ARTEFACT MAY BE REACHED THROUGH THE RAW `demo/` PATH. THE GENERAL RULE.
+
+    THE DEFECT THIS EXISTS FOR, measured 2026-08-24. `plume_uncertainty.spread_table()` cached to
+    `os.path.join(DEMO, "spread_table_%s_sd%02d.json")` -- no metro prefix -- and `main()` wrote
+    `os.path.join(DEMO, "plume_uncertainty.json")` the same way. Both are derived from
+    `rise_table(mode)` (this site's committed geometry) and `load_hours()` (this site's station
+    record), so both are per-site MEASUREMENTS. The first site built wrote them; every site built
+    afterwards read them back. Measured consequence, from each site's own rebuilt calibration:
+
+        ashburn  own margin 0.10616 C   (it wrote the file, so it was correct by luck)
+        chicago  own margin 0.17034 C   was shipping 0.10616  ->  37.7 % TOO NARROW
+        dulles   own margin 0.14614 C   was shipping 0.10616  ->  27.4 % TOO NARROW
+
+    Both errors are in the UNSAFE direction: the plume half of the safety bound was tighter than
+    those sites' own geometry justifies. Nothing caught it. Check 6c compares a registered list of
+    values; check 6d compares panels; check 6e (`check_wind_is_this_sites_own`) was written for the
+    WIND record specifically, after the same failure shape hit `direction_sweep.load_wind()`.
+
+    SO THIS IS 6e's GENERAL FORM, and it is a SOURCE check rather than a data check on purpose: a
+    data check can only compare the sites that happen to be built, while the rule being enforced is
+    "a per-site artefact is addressed per-site", which is true or false in the source regardless of
+    how many sites exist. That matters at national scale, where nobody will be reading artefacts.
+    """
+    print("\n6f. NO PER-SITE ARTEFACT IS ADDRESSED THROUGH THE RAW demo/ PATH")
+
+    # Basenames (or `%`-template stems) that are DERIVED PER SITE. Kept as an explicit list, not a
+    # pattern, so adding a per-site artefact is a deliberate act that shows up in review.
+    PER_SITE = ("trace.json", "backtest.json", "rolling.json", "money.json", "explanations.json",
+                "ticker.json", "scenarios.json", "report.pdf", "plume_uncertainty.json",
+                "rise_table_", "spread_table_", "selected_site.json", "direction_table.json",
+                "solver_site_", "refusal_rank.json", "candidates.json")
+    # Genuinely GLOBAL files that legitimately live at the raw path: one copy for the whole tree.
+    GLOBAL_OK = ("sites.json", "unified_sites.json", "dp_cases.json", "ticker_cases.json",
+                 "conformal_cases.json", "national_")
+
+    # `os.path.join(DEMO, "<name>"` / `os.path.join(GEOM, "<name>"` with a literal first segment.
+    pat = re.compile(r'os\.path\.join\(\s*(DEMO|GEOM)\s*,\s*(["\'])(.+?)\2')
+
+    # WHICH MODULES THE RULE APPLIES TO, and why this is not a file exclusion.
+    # A module that imports `metros` has declared that it operates on "the current site" -- so for
+    # it, an unsuffixed per-site path is a bug by definition. A module that does not import `metros`
+    # is not claiming to be per-site at all: `audit.py` itself deliberately reads the REFERENCE
+    # site's unsuffixed artefacts, because re-checking Ashburn's published numbers is its whole job.
+    # Excluding audit.py by NAME would hide any future defect in it (the §9.2c lesson -- excluding a
+    # file hides everything else in it); keying on the import means that the moment audit.py becomes
+    # metro-aware, it comes into scope automatically.
+    # TOP-LEVEL ONLY -- column 0, no leading whitespace. This regex was `^\s*import\s+metros\b`,
+    # and the moment THIS FILE gained a function-local `import metros as _M` for a self-test, audit
+    # .py counted itself as metro-aware and its own legitimate reference-site reads failed the
+    # check. That is the right instinct applied at the wrong granularity: a module that is genuinely
+    # metro-aware imports `metros` at MODULE scope, because every function in it needs the current
+    # site. A lazy import inside one function is a test fixture, not a declaration that the whole
+    # file operates per-site.
+    metro_aware = re.compile(r'^import\s+metros\b', re.M)
+    offenders, scanned, skipped = [], [], []
+    for fn in sorted(os.listdir(HERE)):
+        if not fn.endswith(".py"):
+            continue
+        src = open(os.path.join(HERE, fn), encoding="utf-8").read()
+        if not metro_aware.search(src):
+            skipped.append(fn)
+            continue
+        scanned.append(fn)
+        for m in pat.finditer(src):
+            name = m.group(3)
+            if any(g in name for g in GLOBAL_OK):
+                continue
+            if any(name.startswith(p) or name == p for p in PER_SITE):
+                line = src[:m.start()].count("\n") + 1
+                offenders.append("%s:%d %s" % (fn, line, name))
+
+    ck("no metro-aware module joins a per-site artefact onto the raw demo/ path",
+       not offenders,
+       "%d metro-aware modules scanned, all clean (%d non-metro modules out of scope)"
+       % (len(scanned), len(skipped)) if not offenders
+       else "use M.demo_path/M.geom_path instead: " + "; ".join(offenders[:6]))
+
+    # TWO NEGATIVE CONTROLS, because a check that cannot fail is not a check.
+    # (a) the detector must fire on the exact string that shipped -- otherwise an over-eager
+    #     GLOBAL_OK entry silently turns the whole thing into a pass.
+    probe = 'cp = os.path.join(DEMO, "spread_table_%s_sd%02d.json" % (mode, sd))'
+    hit = [m.group(3) for m in pat.finditer(probe)]
+    ck("the detector fires on the real defect string (negative control)",
+       hit and any(h.startswith("spread_table_") for h in hit),
+       "matched %r" % (hit[0] if hit else None))
+    # (b) the scan must actually be looking at the pipeline. A filter bug that skipped everything
+    #     would leave (a) passing and the real check vacuously green.
+    ck("the scan covers the metro-aware pipeline, not an empty set",
+       len(scanned) >= 8 and "agent.py" in scanned and "plume_uncertainty.py" in scanned,
+       "%d modules incl. %s" % (len(scanned), ", ".join(scanned[:4])))
+
+    # AND THE DATA HALF, for the sites that do exist: each must carry its own calibration, and two
+    # sites may not share a plume multiplier -- Dulles shares Ashburn's STATION but not its
+    # geometry, so even the deliberate weather control must differ here.
+    try:
+        sites = [s for s in jload(os.path.join(DEMO, "sites.json"))["sites"] if s.get("offerable")]
+    except Exception as ex:
+        ck("sites.json readable for the per-site plume check", False, str(ex)[:70])
+        return
+    mults = {}
+    for s in sites:
+        k = s["key"]
+        p = os.path.join(DEMO, "plume_uncertainty.json" if k == "ashburn"
+                         else "%s_plume_uncertainty.json" % k)
+        # A STANDALONE FACILITY MUST HAVE **NO** PLUME CALIBRATION, and that is the assertion --
+        # not an exemption from one. The calibration fits a margin to the spread of a plume rise;
+        # with no neighbour intake there is no rise to have a spread, so a file here would mean a
+        # width had been fitted to something that was never computed. `agent`'s own disable path
+        # then reports the plume term as off, which is what the trace has to show.
+        standalone = (s.get("site_kind") == "standalone")
+        if standalone:
+            ck("%-9s standalone: NO plume calibration exists, as it must not" % k[:9],
+               not os.path.exists(p), "%s absent" % os.path.basename(p))
+            t = jload(os.path.join(DEMO, (s.get("artefacts") or {}).get("trace", "")))
+            rt = t["cycle"]["rise_tables"]["longest"]
+            ck("%-9s standalone: its rise table is zero and names no worst bearing" % k[:9],
+               rt["max_rise_c"] == 0.0 and rt["max_rise_bearing"] is None,
+               "max %.4f C, bearing %r" % (rt["max_rise_c"], rt["max_rise_bearing"]))
+            continue
+        if not os.path.exists(p):
+            ck("%-9s has its OWN plume calibration on disk" % k, False, "missing %s"
+               % os.path.basename(p))
+            continue
+        d = jload(p)
+        ck("%-9s plume calibration names itself, not another site" % k, d.get("metro") == k,
+           "metro=%r" % d.get("metro"))
+        mults[k] = round(float(d["calibration"]["shipped"]["multiplier"]), 6)
+    ck("no two PLUME-MODELLING sites share a multiplier (each is its own geometry's)",
+       len(set(mults.values())) == len(mults),
+       ", ".join("%s %.4f" % (k, v) for k, v in sorted(mults.items())))
 
 
 def check_published_numbers():
@@ -736,6 +2159,30 @@ def check_published_numbers():
         ("Warp peak VRAM 371 MiB", ex["warp_peak_vram_mib"], 371, 0),
         ("explanations verified 1,336", ex["verification"]["hour_explanations"], 1336, 0),
         ("explanation verification failures 0", ex["verification"]["failures"], 0, 0),
+        # THE BINDING-CONSTRAINT DISTRIBUTION, registered 2026-08-21 because it had DRIFTED.
+        # HANDOFF §7.5 quoted dry-bulb 46.7 / none 32.6 / dew point 11.1 / switch budget 2.8 while
+        # the shipped file said 46.8 / 32.7 / 10.7 / 3.0. Small, and §8.2 is the standing rule it
+        # breaks: a number in a document that no test re-reads is a number that will drift -- this
+        # is the fifth instance. `READING-THE-AGENT.md` teaches these seven to a beginner, which
+        # makes them exactly the wrong numbers to leave unregistered.
+        ("binding: dry-bulb 46.9 %", _binding_pct(ex, "dry-bulb"), 46.9, 0.05),
+        ("binding: nothing binds 32.7 %", _binding_pct(ex, "none"), 32.7, 0.05),
+        ("binding: dew point 10.8 %", _binding_pct(ex, "dew point"), 10.8, 0.05),
+        ("binding: refusal 6.6 %", _binding_pct(ex, "refusal"), 6.6, 0.05),
+        ("binding: switch budget 3.0 %", _binding_pct(ex, "switch budget"), 3.0, 0.05),
+        # 🔴 THE AIR-QUALITY GATE NOW BINDS ZERO HOURS, and it is registered as a COUNT for the same
+        # reason `minimum dwell` is: "0.1 %" hid that it was two hours, and "0.0 %" would hide that
+        # it is now none at all. It moved 2 -> 0 on 2026-08-23 when DIAG-65's response became the
+        # 30th env_params day in the corpus and shifted the measured PM2.5 diurnal profile. That is
+        # the system behaving correctly -- new measured evidence changing a measured number -- and
+        # this registry is what caught it. Report the gate as VACUOUS in this configuration
+        # (gotcha #37: a condition can be MET AND MEANINGLESS, and must be reported as both).
+        ("binding: air quality, 0 hours of 1,336 -- vacuous here",
+         _binding_count(ex, "air quality"), 0, 0),
+        # THE VACUOUS ONE, PINNED AS A COUNT rather than a percentage. "0.1 %" hides that it is a
+        # single hour, and the honest reading of this row is "one hour in 1,336" (gotcha #37: a
+        # condition can be MET AND MEANINGLESS, and must be reported as both).
+        ("binding: minimum dwell, 1 hour in 1,336", _binding_count(ex, "minimum dwell"), 1, 0),
         ("API calls at view time 0", t["api_calls_made"], 0, 0),
 
         # ---- THE FIVE-YEAR LADDER, all five rows, in the order PLAN.md prints them ----------
@@ -935,6 +2382,85 @@ def check_cross_language():
         run(["node", js], DEMO, "%-38s" % label)
 
 
+# ---- the spend-claim scanner, shared by check 9 and its own negative control ---------------
+_SPEND_MARKER = re.compile(r"stale|supersed|previous|was\b|used to|predat|historical|earlier|"
+                           r"drift|by three calls|no test re-read|said", re.I)
+_SPEND_PCT = re.compile(r"(\d{1,2}\.\d{2})\s*%")
+
+
+def _unmarked_spend_claims(txt, paid_calls, pct_of_plan):
+    """Every total-spend claim in `txt` that is neither current nor marked as history.
+
+    SCANNED BY PARAGRAPH, NOT BY LINE, and that is not a detail. Markdown wraps, so gotcha #93's
+    own entry puts "WAS WRONG BY THREE CALLS" on one line and the figures it is quoting on the next
+    -- and a line scanner therefore reported the gotcha documenting the drift as the drift itself.
+    `check_front_door_figures` had already learned this and collapses whitespace for the same
+    reason. A paragraph is also how a reader meets the number.
+
+    WHAT COUNTS AS A TOTAL-SPEND CLAIM. The first version was greedy and flagged "11 calls, 46,420
+    credits" -- a true statement about ONE live run -- and "13 calls", the meter reconciliation that
+    recovered a historical count. Neither claims a total. A tool that cries wolf trains you to
+    ignore it (gotcha #47), so the rule is the SHAPE OF A TOTAL: a call count is a total-spend claim
+    only when the same paragraph also states a plan percentage to two decimals. That is exactly the
+    form that drifted -- "61 CALLS / 257,420 / 12.87 %" -- and nothing else in these documents uses
+    it.
+    """
+    units = []
+    for para in re.split(r"\n\s*\n", txt):
+        # A markdown table is many independent claims in one paragraph, so its rows are split back
+        # out -- otherwise one marked row would excuse every row beside it.
+        units.extend(para.splitlines() if para.lstrip().startswith("|") else [para])
+    bad = []
+    for ln in units:
+        if _SPEND_MARKER.search(ln):
+            continue
+        pcts = _SPEND_PCT.findall(ln)
+        plan_ctx = re.search(r"of\s+(?:the\s+)?plan|spen[dt]|remaining", ln, re.I)
+        for pc in pcts:
+            if plan_ctx and abs(float(pc) - pct_of_plan) > 0.005:
+                bad.append('"%s %%" (current: %.2f %%)' % (pc, pct_of_plan))
+        if not pcts:
+            continue                       # no percentage in this unit: not a total claim
+        for m in re.finditer(r"(\d{1,4})\s*(?:paid\s+)?calls?\b", ln, re.I):
+            if int(m.group(1)) != paid_calls and int(m.group(1)) > 9:
+                bad.append('"%s" (current: %d calls)' % (m.group(0), paid_calls))
+    return sorted(set(bad))
+
+
+def _selftest_spend_scanner():
+    """A NEGATIVE CONTROL, because a document check that cannot fail is not checking the document.
+
+    The real stale header is the first case: it sat in HANDOFF.md and check 9 passed over it for a
+    day, because the check required a NAMED superseded string and nobody had named this one. If this
+    scanner cannot see it, it has the same hole.
+    """
+    NOW_CALLS, NOW_PCT = 65, 13.71
+    cases = [
+        ("the real stale header is caught",
+         "**SPEND IS 61 CALLS / 257,420 / 12.87 %.** Never quote from memory.", True),
+        ("the current figure is not flagged",
+         "**Spent to date** 274,300 = 65 calls = 13.71 % of the plan.", False),
+        ("a per-run count with no plan percentage is not a total claim",
+         "One 12-hour run = 11 calls, 46,420 credits, and 8 returned nothing.", False),
+        ("a stale figure the text marks as superseded is allowed",
+         "The previous line said 42,200 = 10 calls = 2.11 %, and it was stale by three calls.",
+         False),
+        ("a wrapped paragraph keeps its marker",
+         "A SPEND FIGURE WAS WRONG BY THREE CALLS.\n    Section 12.2 quoted 10 calls = 2.11 %.",
+         False),
+        ("one marked table row does not excuse the row beside it",
+         "| a | superseded: 2.11 % of the plan |\n| b | 12.87 % of the plan, 61 calls |", True),
+    ]
+    bad = []
+    for name, txt, want_hit in cases:
+        got = bool(_unmarked_spend_claims(txt, NOW_CALLS, NOW_PCT))
+        if got != want_hit:
+            bad.append(name)
+    ck("the spend-claim scanner passes its own %d-case control" % len(cases), not bad,
+       "including the exact header it failed to catch on 2026-08-21" if not bad
+       else "; ".join(bad))
+
+
 def check_api_spend():
     """THE SUBMISSION'S API-USAGE FIGURES, RE-DERIVED FROM THE METER.
 
@@ -948,6 +2474,9 @@ def check_api_spend():
     superseded one must NOT. Requiring the new string alone would pass a document that quoted both.
     """
     print("\n9. API SPEND -- the ledger, and the documents that quote it")
+    # The negative control runs FIRST. A document check that cannot fail is not checking the
+    # document, and this one demonstrably could not: it passed over a stale header for a day.
+    _selftest_spend_scanner()
     led = os.path.join(ROOT, "testing", "api_usage_ledger.py")
     if not os.path.exists(led):
         ck("api spend ledger present", False, "testing/api_usage_ledger.py is missing")
@@ -958,10 +2487,20 @@ def check_api_spend():
     # The reconciliation itself. `issued - remaining` must be a whole number of heatmap calls at
     # the measured price; a remainder means a differently-priced endpoint was billed or a reading
     # is wrong, and either way no call count may be published.
-    ck("spend is a whole number of calls at the measured price",
+    # THE PLAN IS MIXED-PRICE SINCE 2026-08-23. Every billed call used to be a 4,220 heatmap and the
+    # exact division WAS the proof; DIAG-65 then spent 2,900 on `env_params` and this check fired,
+    # correctly. The proof is preserved rather than weakened: non-heatmap spend is subtracted at its
+    # own measured price and the heatmap remainder must still be exactly zero.
+    # ⚠ THE DETAIL LINE REPORTS THE REMAINDER, it does not assert it. The first version ended with
+    # the literal ", remainder 0" -- so on the run where the remainder was NOT zero, the failure
+    # message said it was. A check whose own explanation contradicts its verdict is worse than a
+    # check with no explanation.
+    ck("spend reconciles exactly at the measured prices",
        u["whole_call_remainder"] == 0,
-       "%s credits / %s = %d calls exactly" % (format(u["spent"], ","),
-                                               format(u["heatmap_credits"], ","), u["paid_calls"]))
+       "%d heatmap x %s + %d other (%s) = %s spent, remainder %s"
+       % (u["heatmap_calls"], format(u["heatmap_credits"], ","),
+          u["other_endpoint_calls"], format(u["other_endpoint_credits"], ","),
+          format(u["spent"], ","), format(u["whole_call_remainder"], ",")))
     ck("the ledger's own arithmetic closes",
        u["issued"] - u["remaining"] == u["spent"]
        and u["attributed_credits"] + u["unattributed_credits"] == u["spent"],
@@ -975,12 +2514,21 @@ def check_api_spend():
     # 2026-08-20 when the vendor started failing for free, because an unbilled attempt was being
     # counted against a billed-call total. It passed anyway: the unattributable bucket absorbed the
     # error. A partition check that a miscount can satisfy is not checking the partition.
-    ck("the call classification partitions the BILLED calls",
+    # THE PARTITION IS OVER HEATMAP CALLS, not over every billed call, and that is not a loophole.
+    # Its three buckets are "returned tiles" / "returned zero tiles" / "unattributable" -- categories
+    # that only mean something for an endpoint that returns tiles. `env_params` returns hourly
+    # arrays, so folding it in would make the partition close by accident rather than by evidence.
+    # It is checked separately, on its own count, so nothing is left out of the accounting.
+    ck("the call classification partitions the BILLED HEATMAP calls",
        u["calls_returning_data"] + u["calls_returning_zero_tiles_meter_stamped"]
-       + u["calls_not_individually_identified"] == u["paid_calls"],
-       "%d with data + %d meter-stamped zero + %d unattributable = %d"
+       + u["calls_not_individually_identified"] == u["heatmap_calls"],
+       "%d with data + %d meter-stamped zero + %d unattributable = %d heatmap calls"
        % (u["calls_returning_data"], u["calls_returning_zero_tiles_meter_stamped"],
-          u["calls_not_individually_identified"], u["paid_calls"]))
+          u["calls_not_individually_identified"], u["heatmap_calls"]))
+    ck("every billed call is accounted for across all endpoints",
+       u["heatmap_calls"] + u["other_endpoint_calls"] == u["paid_calls"],
+       "%d heatmap + %d other = %d total"
+       % (u["heatmap_calls"], u["other_endpoint_calls"], u["paid_calls"]))
     ck("collector attempts are reported apart from billed calls",
        u.get("collector_attempts_are_not_all_billed") is True
        and isinstance(u.get("collector_recorded_failed_attempts"), int),
@@ -1019,6 +2567,45 @@ def check_api_spend():
             ck("%-22s carries no superseded figure" % doc, not stale,
                "none of %s present" % ", ".join(superseded) if not stale
                else "STALE %s still quoted" % ", ".join(stale))
+
+        # ---- AND THE SAME CHECK WITHOUT A HAND-MAINTAINED LIST -------------------------
+        # THE HAND-MAINTAINED LIST ABOVE HAS THE DEFECT IT WAS BUILT TO CATCH. Found 2026-08-21:
+        # HANDOFF.md's own summary block read "SPEND IS 61 CALLS / 257,420 / 12.87 %" while section
+        # 12.2 read 65 / 274,300 / 13.71 %. Check 9 passed, because it requires the CURRENT strings
+        # to be present (they were, in 12.2) and a NAMED list of superseded ones to be absent -- and
+        # 257,420 had never been added to that list. A stale figure has to be named to be caught, so
+        # the first stale figure of a new generation is never caught. That is gotcha #93's lesson
+        # recurring inside the check written for gotcha #93.
+        #
+        # So the shape of the claim is matched instead of its value: any "<n> calls" or "<x> %" that
+        # reads as a spend claim must be the current one, unless its own line marks it as history.
+        # HANDOFF documents its own drift on purpose, which is why the marker escape exists rather
+        # than a blanket ban.
+        MARK = _SPEND_MARKER
+        # WHAT COUNTS AS A TOTAL-SPEND CLAIM, and the first version of this got it wrong by being
+        # greedy. It flagged "11 calls, 46,420 credits" -- a true statement about ONE live run --
+        # and "13 calls", the meter reconciliation that recovered a historical call count. Neither
+        # claims a total. A tool that cries wolf trains you to ignore it (gotcha #47), so the rule
+        # is the SHAPE OF A TOTAL: a call count is only a total-spend claim when the same line also
+        # states a percentage of the plan to two decimals. That is exactly the form that drifted --
+        # "61 CALLS / 257,420 / 12.87 %" -- and it is the form nothing else in these documents uses.
+        bad = _unmarked_spend_claims(txt, u["paid_calls"], u["pct_of_plan"])
+        ck("%-22s quotes no OTHER call count or plan percentage" % doc, not bad,
+           "shape-matched, not listed: nothing but %d calls / %.2f %% claimed"
+           % (u["paid_calls"], u["pct_of_plan"]) if not bad
+           else "UNMARKED STALE FIGURE: %s" % "; ".join(sorted(set(bad))[:3]))
+
+
+def _run_all_steps():
+    """`run_all.STEPS`, imported lazily so a syntax error there fails the step count rather than the
+    whole audit at import time. Returns an empty list if it cannot be read, which fails the figure
+    check loudly instead of quietly reporting whatever the README happens to say."""
+    try:
+        sys.path.insert(0, HERE)
+        import run_all                                              # noqa: PLC0415
+        return run_all.STEPS
+    except Exception:
+        return []
 
 
 def check_front_door_figures():
@@ -1076,6 +2663,12 @@ def check_front_door_figures():
         # run) reports yesterday's number as today's.
         ("audit check count",       "%d audit checks" % (len(PASSES) + len(WARNS) + len(FAILS) + 1)),
         ("published-number count",  "%d published figures" % PUBLISHED_COUNT[0]),
+        # THE REBUILD'S OWN STEP COUNT, registered because it had drifted into TEN places at once:
+        # README said 20, HANDOFF's header said 22, HANDOFF section 3.1 said 20, and the real
+        # number was 22. Nothing re-read any of them, so each new step made the drift worse. Read
+        # from `run_all.STEPS` itself -- importing it is safe, the module does nothing at import
+        # time and guards main() behind __name__. "Register it or do not write it."
+        ("run_all step count",      "%d steps" % len(_run_all_steps())),
         # THE COMMERCIAL AND "USEFUL AI" FIGURES ADDED FOR THE JUDGING CRITERIA. They are the
         # numbers a reader is most likely to quote back at us, so they get the same treatment as
         # the hours: re-derived from the emitted JSON, matched as the formatted string on the page.
@@ -1115,9 +2708,14 @@ def main():
     check_decision_precision()
     check_duplicate_constants()
     check_retired_constants()
+    check_retracted_claims()
     check_act_stage()
     check_stage_events()
     check_sites_actually_differ()
+    check_panels_are_per_site()
+    check_wind_is_this_sites_own()
+    check_no_unsuffixed_per_site_artefact()
+    check_national_registry()
     check_published_numbers()
     check_self_tests()
     check_cross_language()

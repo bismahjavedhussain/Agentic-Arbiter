@@ -381,6 +381,426 @@
      "elapsed_s": 312.2
     }
    ]
+  },
+  {
+   "test": "live.py chicago 2026-08-21T11:00:00-05:00",
+   "utc": "2026-08-21T15:23:19.670930+00:00",
+   "metro": "chicago",
+   "horizon_h": 12,
+   "credits_before": 1725700,
+   "credits_after": 1675060,
+   "api_calls_made": 12,
+   "cache_hits": 0,
+   "windows": [
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "b0f0d1e3-34f4-4fac-ada1-af798a587b8c",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "752e676c-0871-403a-90ce-3bef48a2d95a",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "689cebc5-ecce-4f47-9423-dece4c926959",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "fa936d38-e92e-4c7d-a1ee-f12b35b2c677",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "2ad4a387-0e93-4397-9b0f-d9a9a47a7b30",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "37222d41-c7e7-4f7a-b93d-958569716ab2",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "7ff4c7c9-f463-4290-93aa-65fd976febfb",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "589e392a-f148-418d-bee9-09a9eab9accc",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "58a2f259-535b-46dc-b36f-8e9d757f973e",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "d8e88ad5-668d-4afa-a6dd-d7ea46542eed",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "78ddc384-b73e-4ef9-99da-8b7aadf1c7ea",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    },
+    {
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "255841c5-15d9-4da9-af6a-4346933393b2",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 10,
+     "elapsed_s": 338.6
+    }
+   ]
+  },
+  {
+   "test": "live.py ashburn 2026-08-22T17:00:00-04:00",
+   "utc": "2026-08-22T20:58:02.977489+00:00",
+   "metro": "ashburn",
+   "horizon_h": 4,
+   "credits_before": 1659500,
+   "credits_after": 1656600,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-22T18:00:00-04:00",
+   "utc": "2026-08-22T21:37:53.615633+00:00",
+   "metro": "ashburn",
+   "horizon_h": 2,
+   "credits_before": 1656600,
+   "credits_after": 1656600,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-23T06:00:00-04:00",
+   "utc": "2026-08-23T09:31:05.302255+00:00",
+   "metro": "ashburn",
+   "horizon_h": 4,
+   "credits_before": 1656600,
+   "credits_after": 1656600,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-23T06:00:00-04:00",
+   "utc": "2026-08-23T09:46:21.354601+00:00",
+   "metro": "ashburn",
+   "horizon_h": 4,
+   "credits_before": 1656600,
+   "credits_after": 1656600,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-23T07:00:00-04:00",
+   "utc": "2026-08-23T10:06:14.227107+00:00",
+   "metro": "ashburn",
+   "horizon_h": 4,
+   "credits_before": 1653700,
+   "credits_after": 1653700,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py chicago 2026-08-23T06:00:00-05:00",
+   "utc": "2026-08-23T10:19:44.084261+00:00",
+   "metro": "chicago",
+   "horizon_h": 2,
+   "credits_before": 1650800,
+   "credits_after": 1650800,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-23T07:00:00-04:00",
+   "utc": "2026-08-23T10:22:34.897591+00:00",
+   "metro": "ashburn",
+   "horizon_h": 2,
+   "credits_before": 1650800,
+   "credits_after": 1650800,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py chicago 2026-08-23T06:00:00-05:00",
+   "utc": "2026-08-23T10:22:53.465874+00:00",
+   "metro": "chicago",
+   "horizon_h": 2,
+   "credits_before": 1650800,
+   "credits_after": 1650800,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-23T07:00:00-04:00",
+   "utc": "2026-08-23T10:36:38.676130+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1650800,
+   "credits_after": 1650800,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-23T07:00:00-04:00",
+   "utc": "2026-08-23T10:37:36.398368+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1650800,
+   "credits_after": 1650800,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-23T07:00:00-04:00",
+   "utc": "2026-08-23T10:39:12.840741+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1650800,
+   "credits_after": 1650800,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-23T07:00:00-04:00",
+   "utc": "2026-08-23T10:40:29.626884+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1650800,
+   "credits_after": 1650800,
+   "api_calls_made": 0,
+   "cache_hits": 0,
+   "windows": []
+  },
+  {
+   "test": "live.py ashburn 2026-08-23T08:00:00-04:00",
+   "utc": "2026-08-23T11:33:47.585104+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1650800,
+   "credits_after": 1600160,
+   "api_calls_made": 12,
+   "cache_hits": 0,
+   "windows": [
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "7ddb571f-31d2-433e-8b92-4edbb9183717",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 100.0
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "7c62b33d-9158-4429-83d2-55c47000d349",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 198.0
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "d9b7c26b-8b64-4413-a09e-cefb1c59d20a",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 439.9
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "8f48e185-318d-40cb-bae4-202cda7104b8",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 689.9
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "6a1baa61-dc5b-453f-bec7-6455f6d4ad0c",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 863.1
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "fa223bd8-9541-4b3b-b901-acc9a0581bcb",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 1206.5
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "8c3b9ad7-3ef3-4e0f-aef9-a4973702f03b",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 1494.0
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "48a7a6bd-0cb5-42ea-811d-b162c6b39342",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 1580.5
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "0a150c60-67b1-4ec9-8872-78aeeffc5cdc",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 1662.0
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "744fce1e-3e81-49c4-aedc-935ad253bdf8",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 1722.9
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "ca2ba6e8-e167-42cb-9ae9-fc5185b770b0",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 1975.3
+    },
+    {
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "9d45a0c1-cab8-4637-a86d-0a165874b184",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 2168.4
+    }
+   ]
   }
  ]
 }

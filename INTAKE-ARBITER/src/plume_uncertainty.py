@@ -58,6 +58,7 @@ DEMO = os.path.join(IA, "demo")
 
 sys.path.insert(0, HERE)
 import conformal as C                                                        # noqa: E402
+import metros as M                                                           # noqa: E402
 from agent import (BEARINGS, CALM_KT, SIGMA_DIR_DEG, SPEED_GRID_MS, STEP_DEG,  # noqa: E402
                    banner, load_hours, lookup_rise, rise_table, say)
 
@@ -73,8 +74,21 @@ def spread_table(mode, sigma_dir, cache=True):
     Costs no PDE solves. The rise table is already a function of (bearing, speed), so the
     ensemble is evaluated by resampling that table at perturbed bearings and speeds -- which is
     exactly what an ensemble over those two inputs means. Deterministic: one fixed seed, stated.
+
+    🔴 THE CACHE PATH IS PER-SITE, AND IT WAS NOT, AND THAT SHIPPED.
+    This table is resampled from `rise_table(mode)`, which is computed on THIS SITE'S OWN committed
+    geometry -- so it is a per-site physical quantity, not a shared methodology constant. Until
+    2026-08-24 the cache key was `os.path.join(DEMO, ...)` with NO metro prefix, so the first site
+    built wrote the file and every site built afterwards silently READ IT BACK. Measured on disk
+    when this was found: four `spread_table_*` files, all stamped 2026-08-19 00:30, against
+    Ashburn's own rise table at 00:47 the same day and Chicago's and Dulles's at 2026-08-20 02:16
+    and 02:24 -- i.e. the plume half of the safety bound was Ashburn's at all three sites.
+    That is gotcha #132's family ("one site's value used for another"), which this project has now
+    committed five times, and it is why `M.demo_path` exists. Nothing caught it because
+    `check_wind_is_this_sites_own` was written for the wind record specifically rather than for the
+    general rule; audit check `check_no_unsuffixed_per_site_artefact` is the general form.
     """
-    cp = os.path.join(DEMO, "spread_table_%s_sd%02d.json" % (mode, int(round(sigma_dir))))
+    cp = M.demo_path("spread_table_%s_sd%02d.json" % (mode, int(round(sigma_dir))))
     if cache and os.path.exists(cp):
         d = json.load(open(cp, encoding="utf-8"))
         return np.array(d["spread"]), d
@@ -101,6 +115,7 @@ def spread_table(mode, sigma_dir, cache=True):
             "ratio_max_over_min": (float(out.max() / out.min()) if out.min() > 1e-9 else None),
             "ratio_degenerate_min_is_zero": bool(out.min() <= 1e-9),
             "spread": [[round(float(v), 6) for v in row] for row in out]}
+    meta["metro"] = M.metro_key()          # so a table can never be mistaken for another site's
     if cache:
         os.makedirs(DEMO, exist_ok=True)
         json.dump(meta, open(cp, "w", encoding="utf-8"), allow_nan=False)
@@ -197,6 +212,7 @@ def calibrate(mode="longest", alpha=ALPHA):
 
 def main():
     banner("PLUME UNCERTAINTY   the dispersion ensemble as the width of the bound.  [no API calls]")
+    say("   metro: %s   (spread tables and calibration are THIS site's own)" % M.metro_key())
     ok_all = True
 
     def check(name, cond, detail=""):
@@ -253,8 +269,13 @@ def main():
     say("\n      SHIPPED: sigma_dir %.0f deg, multiplier %.4f -- %s"
         % (cal["shipped"]["sigma_dir_deg"], cal["shipped"]["multiplier"], cal["shipped"]["why"]))
 
-    p = os.path.join(DEMO, "plume_uncertainty.json")
+    # PER-SITE, for the same reason `spread_table`'s cache is: `calibrate()` -> `build_calibration()`
+    # reads THIS SITE'S weather record via `load_hours()` and THIS SITE'S geometry via
+    # `rise_table()`, so the shipped multiplier and sigma_dir are this site's measurements. A single
+    # shared file meant every site after the first was bounded by the first one's plume statistics.
+    p = M.demo_path("plume_uncertainty.json")
     json.dump({"generated_by": "INTAKE-ARBITER/src/plume_uncertainty.py", "api_calls_made": 0,
+               "metro": M.metro_key(),
                "alpha": ALPHA, "sigma_dir_measured_deg": SIGMA_DIR_DEG,
                "source_of_sigma_dir": "N-40 measured FortyGuard wind-direction forecast error",
                "spread_tables": {k: {kk: vv for kk, vv in v.items() if kk != "spread"}

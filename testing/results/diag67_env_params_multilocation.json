@@ -1,0 +1,65 @@
+{
+ "generated_by": "testing/diag67_env_params_multilocation.py",
+ "question": "does /v1/env_params accept multiple locations in one call",
+ "day_requested": "2026-08-22",
+ "points": [
+  [
+   "ashburn_proven",
+   39.024017,
+   -77.419691
+  ],
+  [
+   "IA_apple_waukee",
+   41.61685,
+   -93.9244
+  ],
+  [
+   "AZ_phoenix_area",
+   33.34731,
+   -111.6291745
+  ]
+ ],
+ "credits_before": 1435580,
+ "credits_after": 1435580,
+ "credits_spent": 0,
+ "attempts": [
+  {
+   "variant": "A_locations_array",
+   "payload_keys": [
+    "date_time",
+    "locations"
+   ],
+   "credits_before": 1435580,
+   "submit_http": 422,
+   "submit_error_body": "{\"error\":true,\"status_code\":422,\"message\":\"Field 'latitude' is required.\",\"field\":\"latitude\",\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"latitude\"],\"msg\":\"Field required\",\"input\":{\"locations\":[{\"latitude\":39.02402,\"longitude\":-77.41969,\"temperature\":25.0},{\"latitude\":41.61685,\"longitude\":-93.9244,\"temperature\":25.0},{\"latitude\":33.34731,\"longitude\":-111.62917,\"temperature\":25.0}],\"date_time\":{\"star",
+   "vendor_error": "submit: HTTP 422 {\"error\":true,\"status_code\":422,\"message\":\"Field 'latitude' is required.\",\"field\":\"latitude\",\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"latitude\"],\"msg\":\"Field ",
+   "activity_id": null,
+   "statuses_seen": [],
+   "http": "rejected",
+   "verdict": "P3_single_only",
+   "credits_after": 1435580,
+   "credits_spent": 0
+  },
+  {
+   "variant": "B_parallel_arrays",
+   "payload_keys": [
+    "date_time",
+    "latitude",
+    "longitude",
+    "temperature"
+   ],
+   "credits_before": 1435580,
+   "submit_http": 422,
+   "submit_error_body": "{\"error\":true,\"status_code\":422,\"message\":\"Field 'latitude' is invalid: Input should be a valid number\",\"field\":\"latitude\",\"detail\":[{\"type\":\"float_type\",\"loc\":[\"body\",\"latitude\"],\"msg\":\"Input should be a valid number\",\"input\":[39.02402,41.61685,33.34731]},{\"type\":\"float_type\",\"loc\":[\"body\",\"longitude\"],\"msg\":\"Input should be a valid number\",\"input\":[-77.41969,-93.9244,-111.62917]}]}",
+   "vendor_error": "submit: HTTP 422 {\"error\":true,\"status_code\":422,\"message\":\"Field 'latitude' is invalid: Input should be a valid number\",\"field\":\"latitude\",\"detail\":[{\"type\":\"float_type\",\"loc\":",
+   "activity_id": null,
+   "statuses_seen": [],
+   "http": "rejected",
+   "verdict": "P3_single_only",
+   "credits_after": 1435580,
+   "credits_spent": 0
+  }
+ ],
+ "conclusion": "SINGLE_POINT_ONLY_or_echoed",
+ "what_this_does_not_test": "whether the returned values are correct; only whether the shape is accepted and the locations are distinct"
+}

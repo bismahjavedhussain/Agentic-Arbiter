@@ -47,7 +47,12 @@ ROOT = os.path.dirname(HERE)
 # issued total is a property of the plan, not of any call we made.
 PLAN_NAME = "Hackathon"
 PLAN_ISSUED = 2_000_000
-HEATMAP_CREDITS = 4_220          # measured by differencing the meter, repeatedly
+# MEASURED by differencing the meter, repeatedly. It used to be defined here, and on 2026-08-21 the
+# collector became a second consumer (it now costs its own retries against the billing partition),
+# so it moved to `common.py` and this module imports it. One measured price, one definition --
+# gotcha #12, and `audit.py` check 4 is the standing scar from the last time that was not true.
+sys.path.insert(0, HERE)
+from common import HEATMAP_CREDITS          # noqa: E402
 FROZEN_CYCLE_REMAINING = 180_980  # the pre-hackathon key, meter closed 2026-07-19
 
 # The fields different scripts used for the same thing. Kept as an explicit list rather than a
@@ -172,12 +177,68 @@ def live_run_windows():
     return data, empty, unbilled, detail
 
 
+# Endpoints on this plan whose price is NOT the heatmap price. Measured, like everything else:
+# `env_params` at 2,900 came from `activity_breakdown` and was confirmed by differencing the meter
+# across DIAG-65 (1,662,400 -> 1,659,500).
+OTHER_PRICES = {"env_params": 2_900}
+
+
+def non_heatmap_spend():
+    """Billed calls to endpoints that are not `/v1/heatmap`, read from their saved result files.
+
+    Read rather than assumed, and named individually, because the whole point of the reconciliation
+    is that the arithmetic closes without anyone having to remember what was called. A call is
+    counted here only if its own result file records a meter pair that actually moved.
+    """
+    total, calls, detail = 0, 0, []
+    here = os.path.join(HERE, "results")
+    for fn in sorted(os.listdir(here)) if os.path.isdir(here) else []:
+        if not fn.endswith(".json"):
+            continue
+        try:
+            d = json.load(open(os.path.join(here, fn), encoding="utf-8"))
+        except (ValueError, OSError):
+            continue
+        if not isinstance(d, dict):
+            continue
+        ep = d.get("endpoint")
+        if ep not in OTHER_PRICES:
+            continue
+        # TWO SHAPES, because two writers produce them: a one-shot diagnostic saves a single
+        # `credits_spent` at the top level, while `live.py` APPENDS one entry per call to a `runs`
+        # list. Reading only the first shape is how the live agent's environmental spend would have
+        # gone unrecorded -- gotcha #103, which is exactly this mismatch one endpoint earlier.
+        if isinstance(d.get("runs"), list):
+            for run in d["runs"]:
+                spent = run.get("credits")
+                if isinstance(spent, int) and spent > 0:
+                    total += spent
+                    calls += 1
+                    detail.append((fn, ep, spent))
+            continue
+        spent = d.get("credits_spent")
+        if not isinstance(spent, int) or spent <= 0:
+            continue
+        total += spent
+        calls += 1
+        detail.append((fn, ep, spent))
+    return total, calls, detail
+
+
 def collector_zero_tile_days():
     """The N-26 collector's own record of which days returned `completed` with no features.
 
     Read rather than assumed. The manifest gained a per-day `forecast_attempts` counter on
     2026-08-19, so days before that record ONE known-failed call each and the true count may be
     higher -- which is why the caller reports these as a floor.
+
+    2026-08-21: the collector now writes a PER-ATTEMPT log carrying each attempt's vendor class and
+    whether it was billed, so from that date the count is exact rather than a floor. Three counting
+    regimes therefore coexist in one manifest, and collapsing them would be the same mistake the
+    ledger was written to fix:
+        pre-08-19   no counter          -> 1 known-failed call, a floor
+        08-19..21   an attempt integer  -> every attempt assumed billed (true on those days)
+        08-21+      a per-attempt log   -> exactly the billed ones, counted
     """
     path = os.path.join(HERE, "results", "n26_manifest.json")
     try:
@@ -192,9 +253,22 @@ def collector_zero_tile_days():
         # A lead-band skip is not a call: the collector refused to spend, so nothing was billed.
         if "comparability floor" in err or "window already started" in err:
             continue
-        n = day.get("forecast_attempts", 1)
+        log = [r for r in (day.get("forecast_attempt_log") or [])
+               if r.get("leg") == "forecast"]
+        if log:
+            # EXACT. Only the billed ones moved the meter, and the free ones are named so the
+            # difference is visible rather than absorbed.
+            n = sum(1 for r in log if r.get("billed"))
+            free = len(log) - n
+            out[dk] = ("%d billed attempt%s%s -- %s"
+                       % (n, "" if n == 1 else "s",
+                          ", %d free (%s)" % (free, ", ".join(sorted(
+                              set(r.get("class", "?") for r in log if not r.get("billed")))))
+                          if free else "", err[:52]))
+        else:
+            n = day.get("forecast_attempts", 1)
+            out[dk] = "%d attempt%s, all zero tiles -- %s" % (n, "" if n == 1 else "s", err[:52])
         total += n
-        out[dk] = "%d attempt%s, all zero tiles -- %s" % (n, "" if n == 1 else "s", err[:52])
     return out, total
 
 
@@ -235,7 +309,19 @@ def main():
     cycle = [o for o in obs if o["after"] != FROZEN_CYCLE_REMAINING and o["after"] < PLAN_ISSUED]
     lowest = min(o["after"] for o in cycle) if cycle else min(o["after"] for o in billed)
     used = PLAN_ISSUED - lowest
-    n_calls, remainder = divmod(used, HEATMAP_CREDITS)
+
+    # 🔴 THE PLAN IS NO LONGER SINGLE-PRICED, AND THE RECONCILIATION HAD TO LEARN THAT.
+    # Until 2026-08-23 every billed call on this plan was a 4,220 heatmap, so `used / 4,220` came
+    # out whole and that exactness WAS the proof: a remainder would have meant a differently-priced
+    # endpoint or a bad reading. The ledger's own comment said so -- "a single differently-priced
+    # env_params call at 2,900 would have made the division fail."
+    # DIAG-65 then made exactly that call, deliberately, and the check fired. It was right to. What
+    # is wrong is only the ASSUMPTION of a single price, so the non-heatmap spend is subtracted at
+    # its own measured price first and the heatmap remainder is still required to be exact. The
+    # proof survives: it now says "340,500 = 80 heatmaps + 1 env_params, with nothing left over".
+    other_spend, other_calls, other_detail = non_heatmap_spend()
+    heatmap_used = used - other_spend
+    n_calls, remainder = divmod(heatmap_used, HEATMAP_CREDITS)
 
     print("1. THE ATTRIBUTABLE CALLS -- a saved before/after pair names the call that made it")
     print("   %-46s %11s %11s %8s %s" % ("source", "before", "after", "spent", "result"))
@@ -343,8 +429,16 @@ def main():
     print()
 
     print("=" * 90)
+    # The headline says the TOTAL, and names the split, because "80 paid calls" while the plan has
+    # been charged for 81 is the kind of quiet discrepancy this whole file exists to prevent.
     print("HEADLINE:  %d paid calls   %s credits   %.2f %% of the plan   %s remaining"
-          % (n_calls, format(used, ","), 100.0 * used / PLAN_ISSUED, format(lowest, ",")))
+          % (n_calls + other_calls, format(used, ","), 100.0 * used / PLAN_ISSUED,
+             format(lowest, ",")))
+    if other_calls:
+        print("           = %d heatmap x %s + %s"
+              % (n_calls, format(HEATMAP_CREDITS, ","),
+                 " + ".join("%d %s x %s" % (1, e, format(c, ","))
+                            for _f, e, c in other_detail)))
     print("=" * 90)
 
     if "--json" in sys.argv:
@@ -354,7 +448,18 @@ def main():
             "heatmap_credits": HEATMAP_CREDITS,
             "remaining": lowest,
             "spent": used,
-            "paid_calls": n_calls,
+            # `paid_calls` IS THE TOTAL ACROSS ALL ENDPOINTS, because that is what a reader means
+            # by the phrase. It was briefly the heatmap-only count, which made the headline say 80
+            # while the plan had actually been charged for 81 calls -- a distinction nobody outside
+            # this file would infer. `heatmap_calls` carries the narrower number for the
+            # reconciliation that needs it.
+            "paid_calls": n_calls + other_calls,
+            "heatmap_calls": n_calls,
+            "other_endpoint_calls": other_calls,
+            "other_endpoint_credits": other_spend,
+            "other_endpoint_detail": [{"file": f, "endpoint": e, "credits": c}
+                                      for f, e, c in other_detail],
+            "total_calls_all_endpoints": n_calls + other_calls,
             "pct_of_plan": round(100.0 * used / PLAN_ISSUED, 4),
             "whole_call_remainder": remainder,
             "attributed_credits": attributed,

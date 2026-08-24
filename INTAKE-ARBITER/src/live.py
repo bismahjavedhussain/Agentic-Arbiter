@@ -117,7 +117,15 @@ import metros as M                      # noqa: E402
 # Rule 8: the key is read ONLY through testing/common.py:load_key(). Nothing here reimplements it.
 TESTING = os.path.join(os.path.dirname(M.ROOT), "testing")
 sys.path.insert(0, TESTING)
-from common import load_key, credits_remaining, box_aoi, V1   # noqa: E402
+from common import (load_key, credits_remaining, box_aoi, V1,          # noqa: E402
+                    classify_vendor, vendor_sentence, VENDOR_HUMAN,     # noqa: E402
+                    BILLED_CLASSES, is_billed, recent_vendor_record,    # noqa: E402
+                    # `submit_poll` is used ONLY for env_params. The heatmap path deliberately keeps
+                    # its own submit/poll, because it batches every window into one poll loop --
+                    # that is what turned a 50-minute sequential run into 5 (gotcha #114). A single
+                    # env_params call needs none of that machinery, and reusing the shared helper
+                    # means it also gets the shared failure classification and fixture saving.
+                    submit_poll, vendor_rec)                            # noqa: E402
 
 HORIZON_H = 12
 SIDE_KM = 8.0
@@ -134,6 +142,11 @@ DAILY_HEATMAP_CAP = 30
 # Anything past this means the field belongs to a different place.
 MAX_TILE_DIST_M = 2_000
 
+# How far ahead `verify_live_offline` looks for an UNCACHED window to test the "never publish a
+# schedule over an hour you did not perceive" guard against. It only has to exceed the number of
+# windows a single live run can leave in the cache, which the daily cap bounds at 30.
+SELFTEST_PROBE_H = 36
+
 NWS_UA = {"User-Agent": "INTAKE-ARBITER/1.0 (FortyGuard Hackathon 2026; free-cooling agent)",
           "Accept": "application/geo+json"}
 
@@ -147,50 +160,13 @@ def say(*a):
 # ============================================================================
 # 1. THE VENDOR, CLASSIFIED -- four outcomes, not "worked / didn't"
 # ============================================================================
-def classify_vendor(rec):
-    """What actually happened to one heatmap request.
-
-    A STALL IS NOT A FAILURE and neither is a rejection. DIAG-63's first version collapsed all of
-    them to "fail", which reads as "the vendor said no" -- when in fact the vendor said HTTP 200,
-    issued an activity id, answered 45 status polls, and simply never finished the job. Different
-    fault, different owner, different message to the operator.
-    """
-    if rec.get("submit_http") != 200:
-        return "submit_rejected"
-    if not rec.get("activity_id"):
-        return "no_activity_id"
-    if rec.get("tiles"):
-        return "ok"
-    st = rec.get("terminal_status")
-    if st == "completed":
-        return "completed_but_empty"
-    if st:
-        return "terminal_" + st
-    if set(rec.get("statuses_seen") or []) <= {"processing", "pending", "queued", "in progress"}:
-        return "stalled_in_processing"
-    return "unknown"
-
-
-VENDOR_HUMAN = {
-    "ok": "answered",
-    "submit_rejected": "rejected the request outright",
-    "no_activity_id": "accepted the request but issued no activity id",
-    "completed_but_empty": "reported the job COMPLETE and returned zero tiles",
-    "stalled_in_processing": "accepted the job and never finished it",
-}
-
-
-def vendor_sentence(cls, rec):
-    """One line an operator could act on. No jargon, no blame, the numbers that were observed."""
-    base = VENDOR_HUMAN.get(cls) or ("ended the job with status %r" % cls.replace("terminal_", ""))
-    bits = ["FortyGuard " + base]
-    if rec.get("activity_id"):
-        bits.append("activity %s" % rec["activity_id"][:8])
-    if rec.get("elapsed_s") is not None:
-        bits.append("after %.0f s and %d status polls" % (rec["elapsed_s"], rec.get("polls", 0)))
-    if rec.get("submit_error_body"):
-        bits.append("body: %s" % rec["submit_error_body"][:160])
-    return ", ".join(bits) + "."
+# MOVED TO testing/common.py 2026-08-21 (Session 4), NOT DELETED. The collector needs the same
+# judgement about the same vendor, and a second copy of it is gotcha #12 -- the one that has bitten
+# this project three times. The names are imported at the top of this file, so every call site
+# below, `verify_live_offline()`'s five classifier assertions, and `serve_live.py` are unchanged;
+# the classifier they exercise now also governs what the unattended collector does with its retry
+# budget. `BILLED_CLASSES` / `is_billed()` came with it: the billing partition is a property of the
+# vendor's behaviour, not of whichever of our programs happens to be asking.
 
 
 # ============================================================================
@@ -358,58 +334,59 @@ def read_status(key, aid):
     return st, ((jd.get("data") or {}).get("result") or None)
 
 
-def recent_vendor_record(hours_back=6.0):
-    """How the vendor has actually behaved lately, from `live_spend.json`. Zero network calls.
+# `recent_vendor_record` MOVED TO testing/common.py 2026-08-21 (Session 4), and it gained a second
+# source in the move. It read `live_spend.json` only -- the live agent's own runs -- so on any day
+# the live agent had not been run it returned None and the UI showed NO vendor record beside the
+# button that can spend 50,640 credits. Measured on 2026-08-21: the last live run was 18 h old, the
+# function returned None, and the COLLECTOR had four same-day billed failures on record. A record
+# with a blind spot is gotcha #103 exactly, and this one sat in front of the spend button. It now
+# reads the collector's per-attempt log as well, so both spenders report into one record -- which is
+# also why the watcher can use it without a second copy. Imported at the top of this file, so
+# `serve_live.py`'s `/api/health` and every call site here are unchanged.
 
-    WHY THE PRODUCT NEEDS THIS. A 12-hour horizon costs up to 50,640 credits, and on a day when
-    FortyGuard returns `completed` with an empty field for every window that is 50,640 credits for
-    nothing -- which is exactly what happened: 11 of 12 windows empty in one batch, then 4 of 4 in
-    the next. Inviting a click that spends real money on a service with a measured 0 % success rate
-    over the last hour is not a neutral default.
 
-    So the recent record is surfaced and the user decides with it in front of them. It is NOT a
-    block: the vendor recovered once today after three days of failure, so refusing outright would
-    be as wrong as spending blindly.
+def replay_sequence(replay, hours):
+    """Expand one replay fixture into the CHRONOLOGICAL RUN of saved windows beside it.
+
+    WHY. A replay used to hand the same saved window to every hour of the horizon, so the ambient
+    trajectory was flat: 30.7076 C, twelve times. That proves the decide chain executes and shows
+    nothing about a day -- no mode change can be forced by a temperature that never moves, and the
+    environmental array beside it WAS varying hourly, so the two halves of the same replay
+    disagreed about how time works.
+
+    The live cache already holds consecutive windows for the same date (Ashburn has 09:00, 10:00,
+    11:00 and 12:00 on 2026-08-20), so a replay can walk them and get a REAL hourly trajectory for
+    nothing. Returns (paths, local_hours, date) with the horizon truncated to what actually exists
+    -- a replay that pretends to more hours than were saved would be inventing exactly the thing
+    this mode exists to avoid.
     """
-    path = os.path.join(TESTING, "results", "live_spend.json")
+    if not replay:
+        return None, None, None
     try:
-        doc = json.load(open(path, encoding="utf-8"))
-    except (ValueError, OSError):
-        return None
-    cut = time.time() - hours_back * 3600
-    ok = empty = other = 0
-    latest = None
-    for run in doc.get("runs", []):
+        here = os.path.dirname(os.path.abspath(replay))
+        base = json.load(open(replay, encoding="utf-8"))
+        day = ((base.get("window") or {}).get("start_date"))
+    except (OSError, ValueError, TypeError, AttributeError):
+        return [replay], None, None
+    if not day:
+        return [replay], None, None
+    found = []
+    for nm in sorted(os.listdir(here)):
+        if not nm.endswith(".json"):
+            continue
         try:
-            t = datetime.fromisoformat(str(run.get("utc"))).timestamp()
-        except (ValueError, TypeError):
+            d = json.load(open(os.path.join(here, nm), encoding="utf-8"))
+        except (OSError, ValueError):
             continue
-        if t < cut:
+        w = d.get("window") or {}
+        if w.get("start_date") != day or not w.get("start_time"):
             continue
-        latest = max(latest or t, t)
-        for w in run.get("windows", []):
-            c = w.get("class")
-            if c == "ok":
-                ok += 1
-            elif c == "completed_but_empty":
-                empty += 1
-            else:
-                other += 1
-    n = ok + empty + other
-    if not n:
-        return None
-    return {"window_hours": hours_back, "windows_seen": n, "returned_a_field": ok,
-            "completed_but_empty": empty, "other_failures": other,
-            "success_rate": round(ok / float(n), 4),
-            "last_run_utc": (datetime.fromtimestamp(latest, timezone.utc).isoformat()
-                             if latest else None),
-            "credits_spent_for_nothing": (empty + other) * HEATMAP_CREDITS,
-            "advice": ("The vendor has returned a field for %d of the last %d windows. A full "
-                       "12-hour horizon would cost up to %s credits and, at that rate, would very "
-                       "likely buy nothing. `completed`-with-no-data IS billed."
-                       % (ok, n, format(12 * HEATMAP_CREDITS, ",")))
-                      if ok * 4 < n else
-                      ("The vendor has answered %d of the last %d windows." % (ok, n))}
+        found.append((w["start_time"], os.path.join(here, nm)))
+    if len(found) < 2:
+        return [replay], None, day
+    found.sort()
+    found = found[:hours]
+    return [p for _t, p in found], [int(t[:2]) for t, _p in found], day
 
 
 def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, max_calls,
@@ -435,7 +412,9 @@ def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, m
 
     # ---- 1. everything that costs nothing, first. A cached window must never consume a budget.
     for i, pw in enumerate(plan_w):
-        v, rec = resolve_without_network(pw["window"], metro, want_latlon, replay, allow_paid)
+        # A LIST means a sequence replay -- one saved window per horizon hour, in order.
+        rp = replay[i] if isinstance(replay, list) else replay
+        v, rec = resolve_without_network(pw["window"], metro, want_latlon, rp, allow_paid)
         if rec is not None:
             temps[i], recs[i] = v, rec
             if on_progress:
@@ -574,6 +553,323 @@ def _parse_duration_h(s):
         return 1
     d, h, mi = (int(x) if x else 0 for x in m.groups())
     return max(1, d * 24 + h + (1 if mi else 0))
+
+
+# ============================================================================
+# E2 -- THE ENVIRONMENTAL GATES, ON FORTYGUARD'S OWN FORECAST
+# ============================================================================
+# WHY THIS EXISTS. Until 2026-08-23 this agent perceived exactly ONE FortyGuard variable: dry-bulb
+# temperature, from `/v1/heatmap`. Its humidity gate ran on NWS and its air-quality gate did not run
+# at all -- which made LBNL's finding, that CONTAMINATION AND HUMIDITY are the documented reasons
+# operators refuse free cooling, an argument the live agent cited and never acted on.
+#
+# DIAG-65 established two things that make this cheap:
+#   1. `env_params` serves the forecast horizon (`n15_ep_future.json`, now + 6 h, full parameter set).
+#   2. It is ALIVE while `heatmap` is down -- 15 fields x 24 hourly values on 2026-08-23, at the same
+#      AOI and day every heatmap window was returning `n_cells: 0` for.
+#
+# ONE CALL COVERS THE WHOLE DAY. `filter_type: 2` over 00:00-23:00 returns 24 hourly values per
+# field, so the entire 12-hour horizon costs 2,900 ONCE -- against 4,220 PER HOUR for the heatmap.
+# The environmental gates are therefore the cheapest part of the perception, not the most expensive.
+ENV_PARAMS_CREDITS = 2_900
+
+
+def fortyguard_env(key, lat, lon, day_site_local, allow_paid, verbose=True):
+    """One `env_params` call: 24 hourly values per field for `day_site_local`, keyed by local hour.
+
+    🔴 THE ALIGNMENT TRAP, AND WHY THIS RETURNS A DICT KEYED BY HOUR RATHER THAN A LIST.
+    `env_params` reports a FIXED `GMT-5` offset and does not apply daylight saving (findings 1.8,
+    severity HIGH). In August our Virginia AOI is UTC-4, so the response stamps `-05:00` on hours we
+    requested as EDT. Indexing that array by position is exactly how the nine-hour bug happened,
+    one order of magnitude smaller and therefore harder to see.
+    So the alignment is taken from the HOUR LABEL the response echoes back -- we asked for 00:00..23:00
+    and it returns 00:00..23:00 -- and the offset it stamps is deliberately NOT trusted. Whether that
+    reading is right is then MEASURED, free, by `env_alignment_lag()` below.
+
+    Returns (by_hour, meta) or (None, meta) -- never raises, because a failed environmental fetch
+    must degrade the agent to the NWS path rather than kill the run.
+    """
+    meta = {"endpoint": "env_params", "requested_day_site_local": day_site_local,
+            "credits": 0, "class": None, "n_fields": 0,
+            "dst_caveat": "env_params reports a fixed GMT-5 offset and does not apply daylight "
+                          "saving (findings 1.8). Hours are aligned by the LOCAL HOUR LABEL the "
+                          "response echoes, not by its stated offset; the residual risk is "
+                          "measured against NWS rather than assumed away."}
+    if not allow_paid:
+        meta["class"] = "not_attempted"
+        meta["why"] = "paid environmental fetch not authorised for this run"
+        return None, meta
+
+    payload = {"latitude": round(lat, 5), "longitude": round(lon, 5),
+               # REQUIRED by the schema and NEVER consumed: the endpoint computes
+               # `heat_index_celsius` from whatever is sent here and echoes it back as
+               # `locations[].temperature` (findings 1.1 and 1.7). Both are on our refused list.
+               "temperature": 25.0,
+               "date_time": {"start_date": day_site_local, "start_time": "00:00",
+                             "end_time": "23:00", "filter_type": 2}}
+    before = credits_remaining(key)
+    r = submit_poll(key, "env_params", payload, "live_env_%s" % day_site_local,
+                    require_data=False)
+    after = credits_remaining(key)
+
+    # 🔴 PARSE BEFORE CLASSIFYING, and pass the REAL payload count. The first version classified with
+    # `tiles=0` -- because env_params returns no tiles -- so `classify_vendor` saw a completed job
+    # carrying nothing and labelled a fully successful call `completed_but_empty`. On the very first
+    # run that mislabelled 15 populated fields over 24 hours as a vendor failure.
+    # It would not have stayed cosmetic: `recent_vendor_record` counts `completed_but_empty` as a
+    # billed failure, so every successful environmental fetch would have degraded the success rate
+    # shown next to the button that spends money.
+    # The lesson is the same one DIAG-65 taught an hour earlier: the shared classifier encodes what
+    # success looks like for a TILE endpoint, and a different endpoint has to hand it its own notion
+    # of "did data come back" rather than inherit one that cannot apply.
+    locs0 = ((r.get("result") or {}).get("locations") or [])
+    params0 = (locs0[0].get("parameters") if locs0 else None) or (
+        {k: v for k, v in locs0[0].items() if isinstance(v, list)} if locs0 else {})
+    n_values = sum(1 for v in (params0 or {}).values() if isinstance(v, list)
+                   for x in v if x is not None)
+    rec = vendor_rec(r, tiles=n_values)      # "tiles" here means "values returned"
+    cls = classify_vendor(rec)
+    meta.update({"class": cls, "credits": max(0, before - after),
+                 "activity_id": rec.get("activity_id"),
+                 "credits_before": before, "credits_after": after})
+    if verbose:
+        say("      env_params: %s (%s credits)" % (cls, format(meta["credits"], ",")))
+
+    # 🔴 RECORD THE SPEND WHERE THE LEDGER LOOKS. `api_usage_ledger.py` walks `testing/results/`;
+    # this module writes to `demo/`. That exact mismatch is gotcha #103 -- the first 12-hour live run
+    # spent 46,420 credits that no audited figure knew about while check 9 reported green -- and it
+    # would have repeated here for every environmental call. APPEND, never overwrite (gotcha #100).
+    if meta["credits"]:
+        _append_env_spend(meta)
+
+    locs = ((r.get("result") or {}).get("locations") or [])
+    if not locs:
+        meta["why"] = "no locations block returned"
+        return None, meta
+    params = locs[0].get("parameters") or {k: v for k, v in locs[0].items()
+                                           if isinstance(v, list)}
+    stamps = ((r.get("result") or {}).get("metadata") or {}).get("timestamps") or []
+    by_hour = {}
+    for i, ts in enumerate(stamps):
+        try:
+            hh = int(str(ts)[11:13])
+        except (ValueError, IndexError):
+            continue
+        row = {}
+        for k, v in (params or {}).items():
+            if isinstance(v, list) and i < len(v) and v[i] is not None:
+                row[k] = v[i]
+        if row:
+            by_hour[hh] = row
+    meta["n_fields"] = len({k for row in by_hour.values() for k in row})
+    meta["n_hours"] = len(by_hour)
+    if not by_hour:
+        meta["why"] = "parameters present but every hourly array was empty"
+        return None, meta
+    return by_hour, meta
+
+
+def saved_fortyguard_env(day_site_local, want_latlon=None, verbose=True):
+    """A SAVED FortyGuard `env_params` response, replayed exactly as a saved heatmap is.
+
+    WHY A REPLAY USES THIS RATHER THAN SKIPPING. The first version of E2 skipped the environmental
+    fetch during a replay so the run stayed free -- which quietly dropped the humidity gate back
+    onto NWS and printed "skipped because this is a replay". Both halves were wrong: a replay of
+    THIS agent should show FortyGuard supplying every gate it supplies live, and the only reason the
+    heatmap can be replayed is that we saved its response. We saved the environmental ones too.
+
+    So a replay is free, reproducible, AND still FortyGuard's data end to end -- the same
+    relationship the heatmap already had. The only input that is not theirs, in replay or live, is
+    wind, because they do not publish a wind field (findings section 6).
+
+    Prefers a response for the requested day; falls back to the most complete one on disk and says
+    which it used, because silently substituting a different day's air would be the borrowed-data
+    mistake this project has already made twice.
+    """
+    meta = {"endpoint": "env_params", "requested_day_site_local": day_site_local,
+            "credits": 0, "class": "saved", "source": "saved FortyGuard response", "n_fields": 0}
+    fixdir = os.path.join(TESTING, "results", "fixtures")
+    best, best_score, best_name = None, -1, None
+    try:
+        names = sorted(os.listdir(fixdir))
+    except OSError:
+        names = []
+    for nm in names:
+        if not nm.endswith(".json"):
+            continue
+        try:
+            d = json.load(open(os.path.join(fixdir, nm), encoding="utf-8"))
+        except (ValueError, OSError):
+            continue
+        if not isinstance(d, dict) or "locations" not in d or "map_data" in d:
+            continue
+        locs = d.get("locations") or []
+        if not locs:
+            continue
+        params = locs[0].get("parameters") or {k: v for k, v in locs[0].items()
+                                               if isinstance(v, list)}
+        stamps = (d.get("metadata") or {}).get("timestamps") or []
+        n_vals = sum(1 for v in (params or {}).values() if isinstance(v, list)
+                     for x in v if x is not None)
+        # 🔴 LOCATION FIRST, THEN DATE, THEN COMPLETENESS -- and location outranks date because
+        # getting it wrong is the worse error. The first version scored on date alone, so the moment
+        # both Ashburn and Chicago had a 2026-08-20 response, CHICAGO'S REPLAY PICKED ASHBURN'S
+        # HUMIDITY and reported `same_day: True` -- correct about the date, silently wrong about the
+        # continent's worth of air between them. That is the same borrowed-data defect as the aerial
+        # panel (gotcha #98) and the wind record (#132), for the third time.
+        # `env_params` is a POINT call and its response echoes the point back as `lat`/`lon`, so the
+        # match is measured rather than inferred from a filename.
+        near = True
+        if want_latlon and locs:
+            la, lo = locs[0].get("lat"), locs[0].get("lon")
+            if isinstance(la, (int, float)) and isinstance(lo, (int, float)):
+                near = (abs(float(la) - want_latlon[0]) < 0.05
+                        and abs(float(lo) - want_latlon[1]) < 0.05)
+            else:
+                near = False          # a response that cannot prove where it is does not qualify
+        if not near:
+            continue
+        score = n_vals + (1_000_000 if any(str(t).startswith(day_site_local) for t in stamps) else 0)
+        if score > best_score and n_vals:
+            best, best_score, best_name = (d, params, stamps), score, nm
+    if not best:
+        meta["why"] = ("no saved env_params response for this SITE%s. Falling back to NWS rather "
+                       "than replaying another site's air -- borrowing it is the defect this match "
+                       "exists to prevent." % ("" if not want_latlon
+                                               else " (%.4f, %.4f)" % want_latlon))
+        return None, meta
+    _d, params, stamps = best
+    by_hour = {}
+    for i, ts in enumerate(stamps):
+        try:
+            hh = int(str(ts)[11:13])
+        except (ValueError, IndexError):
+            continue
+        row = {k: v[i] for k, v in (params or {}).items()
+               if isinstance(v, list) and i < len(v) and v[i] is not None}
+        if row:
+            by_hour[hh] = row
+    meta.update({"fixture": best_name, "n_hours": len(by_hour),
+                 "n_fields": len({k for r in by_hour.values() for k in r}),
+                 "same_day": bool(any(str(t).startswith(day_site_local) for t in stamps))})
+    if not meta["same_day"]:
+        meta["note"] = ("no saved response for %s, so %s is replayed instead. The gates are real "
+                        "FortyGuard values but they are NOT this date's air." % (day_site_local,
+                                                                                 best_name))
+    if verbose:
+        say("      env_params: replayed from %s (%d fields x %d hours, 0 credits)"
+            % (best_name, meta["n_fields"], meta["n_hours"]))
+    return (by_hour or None), meta
+
+
+def _append_env_spend(meta):
+    """One entry per paid `env_params` call, where `api_usage_ledger.py` will find it."""
+    path = os.path.join(TESTING, "results", "live_env_spend.json")
+    try:
+        doc = json.load(open(path, encoding="utf-8"))
+        if not isinstance(doc, dict) or "runs" not in doc:
+            raise ValueError("unexpected shape")
+    except (OSError, ValueError):
+        doc = {"purpose": "every paid env_params call made by live.py, so the spend ledger sees it",
+               "endpoint": "env_params", "runs": []}
+    doc["runs"].append({k: meta.get(k) for k in
+                        ("requested_day_site_local", "class", "credits", "activity_id",
+                         "credits_before", "credits_after", "n_fields", "n_hours")})
+    try:
+        json.dump(doc, open(path, "w", encoding="utf-8"), indent=1, allow_nan=False)
+    except OSError:
+        pass          # a ledger write must never take down a run that already spent the money
+
+
+def dewpoint_from_env(row):
+    """Dew point from FortyGuard's own humidity fields, or None.
+
+    `env_params` returns NO DRY-BULB (findings 1.7 -- `locations[].temperature` is our own input
+    echoed back), so the usual RH+temperature route is unavailable from this endpoint alone. What it
+    does return is `wet_bulb_temperature_celsius`, and for the gate's purpose the wet-bulb IS the
+    more defensible quantity: real economizers limit on wet-bulb rather than dry-bulb alone, which
+    is why `environment.py` was built around it.
+    So the gate compares FortyGuard's wet-bulb against the same limit, and the value is labelled as
+    a wet-bulb rather than silently called a dew point. Conflating the two would be a units error
+    dressed as a measurement.
+    """
+    wb = row.get("wet_bulb_temperature_celsius")
+    return float(wb) if isinstance(wb, (int, float)) else None
+
+
+def env_alignment_lag(fg_by_hour, nws_hours, start_utc, tz_offset_h):
+    """MEASURE the hour alignment between FortyGuard's array and NWS, instead of assuming it.
+
+    This is the free half of the DST problem. `live.py` already fetches NWS dew point for the same
+    hours at no cost, so the two humidity series can be cross-correlated: if FortyGuard's array is
+    aligned, the best fit is at lag 0; if their fixed GMT-5 offset has shifted it, the best fit is
+    at lag +/-1 and we have MEASURED a documented vendor defect rather than guessed about it.
+
+    Returns a dict, always -- an unmeasurable lag is reported as unmeasurable, never as zero.
+    """
+    from datetime import timedelta as _td
+    out = {"method": "cross-correlate FortyGuard wet-bulb against NWS dew point over the horizon",
+           "lag_hours": None, "n_pairs": 0, "note": None}
+    best, best_err, scores = None, None, {}
+    for lag in (-1, 0, 1):
+        errs = []
+        for j, h in enumerate(nws_hours):
+            if h.get("dewpoint_c") is None:
+                continue
+            hh = (start_utc + _td(hours=j + tz_offset_h + lag)).hour
+            row = fg_by_hour.get(hh)
+            if not row:
+                continue
+            wb = dewpoint_from_env(row)
+            if wb is None:
+                continue
+            errs.append(abs(wb - float(h["dewpoint_c"])))
+        if len(errs) >= 3:
+            m = sum(errs) / len(errs)
+            scores[lag] = m
+            if best_err is None or m < best_err:
+                best, best_err = lag, m
+                out["n_pairs"] = len(errs)
+    if best is None:
+        out["note"] = ("too few overlapping hours to measure the lag; FortyGuard's array is used "
+                       "as labelled and the DST caveat stands unresolved")
+        out["applied_lag_hours"] = 0
+        return out
+    out["lag_hours"] = best
+    out["mean_abs_difference_c"] = round(best_err, 3)
+    out["candidates_c"] = {str(k): round(v, 3) for k, v in sorted(scores.items())}
+
+    # 🔴 MEASURING A LAG AND ACTING ON ONE ARE DIFFERENT DECISIONS, and the first version conflated
+    # them. On its first real run this picked lag = -1 from FOUR overlapping hours and the agent
+    # indexed FortyGuard's array by it -- shifting the humidity gate by an hour on the strength of a
+    # four-point comparison whose margin nobody had looked at.
+    # A non-zero shift is now APPLIED only when the evidence is strong enough to carry it:
+    #   * at least MIN_PAIRS overlapping hours, and
+    #   * the winner beats the as-labelled alignment by a clear margin, not by a hair.
+    # Otherwise the array is used AS LABELLED and the disagreement is reported unresolved. Erring
+    # toward the label is the conservative direction: it is what the vendor says the data is, and a
+    # wrong shift is silent while an unresolved flag is visible.
+    MIN_PAIRS, MIN_MARGIN_C = 6, 0.25
+    at_zero = scores.get(0)
+    margin = (at_zero - best_err) if at_zero is not None else None
+    strong = (best == 0) or (out["n_pairs"] >= MIN_PAIRS and margin is not None
+                             and margin >= MIN_MARGIN_C)
+    out["applied_lag_hours"] = best if strong else 0
+    out["evidence"] = {"min_pairs_required": MIN_PAIRS, "min_margin_c": MIN_MARGIN_C,
+                       "margin_vs_as_labelled_c": None if margin is None else round(margin, 3),
+                       "strong_enough_to_apply": bool(strong)}
+    if not strong:
+        out["unresolved"] = (
+            "measured lag %+d h is NOT applied: %d overlapping hour(s) against %d required, margin "
+            "%s C against %.2f required. The array is used AS LABELLED and the daylight-saving "
+            "question (findings 1.8) stands open. Re-run over a longer horizon to settle it."
+            % (best, out["n_pairs"], MIN_PAIRS,
+               "n/a" if margin is None else "%.3f" % margin, MIN_MARGIN_C))
+    out["note"] = ("wet-bulb is BELOW dew point whenever the air is unsaturated, so this difference "
+                   "is expected to be positive and is NOT an error measurement -- it is used only "
+                   "to choose between three candidate alignments, where the correct one should be "
+                   "the smallest and the neighbours should be clearly worse")
+    return out
 
 
 def nws_hourly(lat, lon, start_utc, hours):
@@ -800,6 +1096,30 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
                     "the server with a higher --max-live-calls, or wait for the cache to catch up.")
                 return out
 
+    # ---- A REPLAY WALKS THE SAVED SEQUENCE, one window per hour, instead of repeating one -------
+    # 🔴 THIS SITS BEFORE THE NWS FETCH, and that placement is the whole of gotcha #117.
+    # It was below it, so truncating the horizon from 12 to 4 left a 12-row wind array against
+    # 4 temperatures -- and the length guard caught it, which is the only reason it is not a
+    # silent broadcast producing four plausible bounds from the wrong wind. SETTLE THE HORIZON
+    # BEFORE BUILDING ANY PER-HOUR ARRAY: the comment three screens down says exactly this and
+    # I still put it in the wrong place.
+    # Truncating the horizon to what was actually saved is the point: a replay that ran for twelve
+    # hours off four saved windows would be inventing eight of them.
+    replay_seq, replay_hours, replay_day = replay_sequence(replay, hours)
+    if replay_seq and len(replay_seq) > 1:
+        if len(replay_seq) < hours:
+            plan_w = plan_w[:len(replay_seq)]
+            hours = len(replay_seq)
+        out["replay_sequence"] = {
+            "date": replay_day, "windows": len(replay_seq),
+            "hours_site_local": replay_hours,
+            "note": "the ambient trajectory is %d CONSECUTIVE saved windows from %s, not one window "
+                    "repeated -- so the temperature varies hour to hour exactly as it did on the "
+                    "day. Wind is still live, because no saved wind exists for a past date."
+                    % (len(replay_seq), replay_day)}
+        replay = replay_seq
+
+
     out["horizon_plan"] = [{"window": p["window"], "lead_h": p["lead_h"],
                             "already_cached": p["cached"]} for p in plan_w]
 
@@ -820,6 +1140,64 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     # ---- AMBIENT, ONE CALL PER HOUR ---------------------------------------------
     key = load_key() if allow_paid else None
     before = credits_remaining(key) if allow_paid else None
+
+    # ---- E2: THE ENVIRONMENTAL GATES, ON FORTYGUARD'S OWN FORECAST ----------------
+    # ONE call for the whole day, before the per-hour heatmap loop, because it is cheap and because
+    # it is the only part of the perception that still works while the heatmap path is down. If it
+    # fails the run continues on NWS: an environmental fetch that dies must degrade the agent, not
+    # kill it.
+    if on_progress:
+        on_progress({"stage": "perceive",
+                     "note": "reading humidity and air quality from FortyGuard env_params"})
+    # 🔴 A REPLAY REPLAYS EVERYTHING FORTYGUARD SUPPLIES -- it does not skip half of it.
+    # Two earlier versions of this were wrong. The first let a replay make a LIVE PAID env call, so
+    # something stamped "REPLAY VERIFICATION" charged 2,900 and stopped being reproducible. The
+    # second skipped the fetch to keep it free, which silently dropped the humidity gate back onto
+    # NWS and printed "skipped because this is a replay" -- turning a replay of THIS agent into a
+    # replay of a lesser one.
+    # The right answer was already sitting on disk: we save environmental responses exactly as we
+    # save heatmap responses, so a replay uses a saved one. Free, reproducible, and still
+    # FortyGuard's data on every gate they supply. Wind is NWS in both modes because they publish
+    # no wind field -- that is the only exception, in replay and live alike.
+    env_live = allow_paid and (replay is None or bool(cfg.get("env_live_during_replay")))
+    if env_live:
+        fg_env, fg_env_meta = fortyguard_env(key, centre[0], centre[1],
+                                             start_local.strftime("%Y-%m-%d"), True, verbose)
+        fg_env_meta["mode"] = "live"
+    else:
+        # 🔴 MATCH THE REPLAYED HEATMAP'S DATE, NOT TODAY'S.
+        # The first version asked for today's date even in a replay, so it paired a 2026-08-20
+        # temperature field with 2026-08-22 humidity -- two days apart -- and then reported
+        # `same_day: True`, because it had compared the humidity against TODAY rather than against
+        # the field it was standing beside. The flag was answering a question nobody asked.
+        # A replay is supposed to be one site, one date, one set of saved responses. Where the
+        # date is knowable it is used; the live-cache wrapper records the window it fetched.
+        # ⚠ This branch also runs on a DRY RUN, where `replay` is None -- so the file read is
+        # guarded on the path existing rather than on the exception type. The first version caught
+        # OSError/ValueError and let a `TypeError: expected str, not NoneType` through, which took
+        # the self-test down. Catching the exceptions you thought of is not the same as handling
+        # the inputs you actually get.
+        want_day = start_local.strftime("%Y-%m-%d")
+        if replay:
+            try:
+                _rj = json.load(open(replay, encoding="utf-8"))
+                want_day = ((_rj.get("window") or {}).get("start_date")) or want_day
+            except (OSError, ValueError, TypeError, AttributeError):
+                pass
+        fg_env, fg_env_meta = saved_fortyguard_env(want_day, (centre[0], centre[1]), verbose)
+        fg_env_meta["mode"] = "saved"
+        fg_env_meta["matched_against"] = want_day
+        fg_env_meta["matched_against_note"] = (
+            "the replayed heatmap's own window date, so the temperature and the humidity describe "
+            "the same day when a response for it exists")
+    out["fortyguard_env"] = fg_env_meta
+    if fg_env:
+        # MEASURE the alignment against the NWS series we already hold, free. See the DST note on
+        # `fortyguard_env`: their fixed GMT-5 offset means "hour 14" may or may not be 14:00 local,
+        # and this is the only way to find out without a second paid call.
+        tz_off = int(round((start_local.utcoffset().total_seconds() if start_local.utcoffset()
+                            else 0) / 3600.0))
+        fg_env_meta["alignment"] = env_alignment_lag(fg_env, nws["hours"], start_utc, tz_off)
     # A PER-RUN CALL BUDGET, enforced where the calls actually happen. Cached windows never consume
     # it, because they cost nothing. Once it is spent the remaining windows are marked
     # `not_attempted` with the reason -- never silently dropped.
@@ -935,6 +1313,76 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     # BOTH GATES, and three separate reasons an hour is NOT free-cooling. Kept as named arrays
     # rather than one expression, because each one is reported to the operator separately and a
     # reader has to be able to see which gate bit.
+    # ---- E2: PREFER FORTYGUARD'S OWN HUMIDITY, AND SAY WHOSE NUMBER DECIDED EACH HOUR ----------
+    # The humidity gate ran on NWS because `env_params` returns no dry-bulb and `heatmap` returns no
+    # environmentals, so one place and time needed two endpoints. That is a cost argument, not a
+    # capability one -- and it left the vendor whose data this product is built on supplying exactly
+    # one variable. FortyGuard's wet-bulb is used where it exists, NWS remains the fallback, and the
+    # SOURCE IS RECORDED PER HOUR so a reader can never be misled about whose measurement gated an
+    # hour. Falling back silently would be worse than not falling back at all.
+    #
+    # ⚠ WET-BULB IS COMPARED AGAINST THE SAME LIMIT AS DEW POINT, and that is deliberate but not
+    # free of consequence: for unsaturated air wet-bulb sits ABOVE dew point, so this gate is
+    # STRICTER than the NWS one, never looser. Erring strict is the safe direction for a gate whose
+    # job is to keep moist air out, and it is stated rather than buried.
+    tz_off = int(round((start_local.utcoffset().total_seconds() if start_local.utcoffset()
+                        else 0) / 3600.0))
+    env_src = ["nws"] * hours
+    if fg_env:
+        # the APPLIED lag, not the measured one -- see `env_alignment_lag`: a shift is only
+        # acted on when the evidence carries it, and is otherwise reported unresolved.
+        lag = ((fg_env_meta.get("alignment") or {}).get("applied_lag_hours")) or 0
+        for i in range(hours):
+            # 🔴 IN A SEQUENCE REPLAY, INDEX BY THE HOUR THAT WAS REPLAYED, not by today's clock.
+            # The temperature for hour i came from a saved 09:00 / 10:00 / 11:00 window, so its
+            # humidity must come from the same hour of the same day. Using today's hour here is
+            # what made the two halves of a replay disagree about what time it was.
+            hh = (replay_hours[i] if replay_hours and i < len(replay_hours)
+                  else (start_utc + timedelta(hours=i + tz_off + lag)).hour)
+            wb = dewpoint_from_env(fg_env.get(hh) or {})
+            if wb is not None:
+                dewp[i] = wb
+                # "fortyguard-saved" vs "fortyguard-live" -- both are their measurement, and a
+                # reader is entitled to know which one gated the hour in front of them.
+                env_src[i] = "fortyguard-" + (fg_env_meta.get("mode") or "live")
+    out["humidity_source_per_hour"] = env_src
+    out["humidity_source_summary"] = {
+        "fortyguard_hours": sum(1 for x in env_src if x.startswith("fortyguard")),
+        "fortyguard_mode": fg_env_meta.get("mode"),
+        "nws_hours": sum(1 for x in env_src if x == "nws"),
+        "gate_quantity": "wet-bulb where FortyGuard supplied it, dew point where NWS did",
+        "note": "wet-bulb >= dew point in unsaturated air, so a FortyGuard-gated hour is held to a "
+                "STRICTER test than an NWS-gated one, never a looser one"}
+
+    # ---- E2: THE CONTAMINATION GATE, on FortyGuard's own air-quality indices -------------------
+    # LBNL put particle counters in eight real data centres and found contamination is a documented
+    # reason operators refuse free cooling -- it is this project's commercial thesis. FortyGuard
+    # sells six air-quality indices and the live agent ignored every one of them, so the argument
+    # was cited and never acted on. It is acted on now.
+    # ⚠ The index carries NO DOCUMENTED UNITS (findings 9.3), which is why the limit is swept in the
+    # five-year model rather than claimed. Here it is applied only if the caller sets one.
+    aq_lim = cfg.get("aq_limit_idx")
+    aq_vals = np.full(hours, np.nan)
+    if fg_env:
+        # the APPLIED lag, not the measured one -- see `env_alignment_lag`: a shift is only
+        # acted on when the evidence carries it, and is otherwise reported unresolved.
+        lag = ((fg_env_meta.get("alignment") or {}).get("applied_lag_hours")) or 0
+        for i in range(hours):
+            hh = (replay_hours[i] if replay_hours and i < len(replay_hours)
+                  else (start_utc + timedelta(hours=i + tz_off + lag)).hour)
+            v = (fg_env.get(hh) or {}).get("air_quality_pm2p5:idx")
+            if isinstance(v, (int, float)):
+                aq_vals[i] = float(v)
+    gate_aq = (np.ones(hours, dtype=bool) if aq_lim is None
+               else (aq_vals <= float(aq_lim)) & ~np.isnan(aq_vals))
+    out["air_quality"] = {
+        "limit_idx": aq_lim,
+        "source": "FortyGuard env_params air_quality_pm2p5:idx" if fg_env else "not available",
+        "hours_with_a_value": int(np.sum(~np.isnan(aq_vals))),
+        "hours_blocked": int(np.sum(~gate_aq)) if aq_lim is not None else 0,
+        "units_note": "the :idx fields carry no documented units or scale (findings 9.3), so a "
+                      "limit is only applied when the caller sets one and is never assumed"}
+
     dp_lim = cfg.get("dewpoint_limit_c")
     gate_dry = bound <= cfg["limit_c"]
     # NaN <= 15.0 is already False, so a missing dew point closes the gate on its own. The explicit
@@ -946,7 +1394,9 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     bound_known = ~np.isnan(bound)
     # A REFUSED BEARING IS NOT PERMISSION. The solver declining to answer is not a yes, and a
     # missing hour is not a yes either.
-    safe = gate_dry & gate_dp & dp_known & bound_known & ~refused_arr
+    # `gate_aq` joins the conjunction: any gate saying no means no, which is how a real
+    # economizer works and why they are kept as named arrays rather than one expression.
+    safe = gate_dry & gate_dp & dp_known & gate_aq & bound_known & ~refused_arr
 
     # A.plan returns (modes, free_hours, switches). Unpacking all three and CHECKING the two
     # counts against a recount is free, and it is the kind of check that catches a DP change
@@ -1026,12 +1476,27 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
                ", ".join(sorted({r.get("class") for r in recs if r.get("class") != "ok"})),
                hours - n_missing))
     if replay:
-        out["NOT_LIVE"] = (
-            "REPLAY VERIFICATION. The ambient trajectory came from a SAVED FortyGuard response "
-            "(%s), reused for every hour of the horizon, so the schedule below proves the "
-            "solve/bound/decide/act chain and is NOT a forecast of the hours it names. Wind and "
-            "dew point ARE live. Nothing in the demo may present this as a live run."
-            % os.path.basename(replay))
+        # The banner has to describe which of the two replay shapes actually ran, and it used to
+        # assert the flat one unconditionally -- "reused for every hour of the horizon" -- which
+        # became false the moment a sequence replay existed. It also crashed on the list.
+        seq = out.get("replay_sequence") or {}
+        if seq.get("windows", 0) > 1:
+            out["NOT_LIVE"] = (
+                "REPLAY VERIFICATION. The ambient trajectory is %d CONSECUTIVE saved FortyGuard "
+                "windows from %s (%s site-local), so the temperature varies hour to hour exactly as "
+                "it did that day -- but these are NOT the hours the schedule names, and it is not a "
+                "forecast. Humidity and air quality are FortyGuard's, from the same date and the "
+                "same hours. WIND IS LIVE, because no saved wind exists for a past date. Nothing in "
+                "the demo may present this as a live run."
+                % (seq["windows"], seq.get("date"),
+                   ", ".join("%02d:00" % h for h in (seq.get("hours_site_local") or []))))
+        else:
+            out["NOT_LIVE"] = (
+                "REPLAY VERIFICATION. The ambient trajectory came from a SAVED FortyGuard response "
+                "(%s), reused for every hour of the horizon, so the schedule below proves the "
+                "solve/bound/decide/act chain and is NOT a forecast of the hours it names. Wind is "
+                "live. Nothing in the demo may present this as a live run."
+                % os.path.basename(replay[0] if isinstance(replay, list) else replay))
     return out
 
 
@@ -1084,8 +1549,27 @@ def _append_spend_ledger(out, recs):
         # a window came back `submit_rejected` the HTTP status and body -- the only fields that
         # explain WHY -- were already gone by the time anyone asked. A record of a failure that
         # omits the reason is barely a record.
+        # 🔴 AND KEEP THE WINDOW THAT WAS ASKED FOR. Added 2026-08-21, and it is the third time this
+        # record has been widened after the missing field was the one that mattered.
+        # FortyGuard told another entrant that a window past "the last hour currently in the
+        # catalog" comes back `completed` with an empty grid -- the exact signature this project has
+        # spent four days calling a vendor outage. Testing that against our own history needs one
+        # thing per call: WHICH HOUR WAS REQUESTED. It was not recorded. Only the successful windows
+        # were recoverable at all, from `data/live_cache/` filenames, and the failures -- the ones
+        # the question is about -- left no trace of their requested hour anywhere.
+        # `cache_hits` also means the `windows` array is NOT a consecutive run of hours from the
+        # first, so it cannot be reconstructed by counting. Record it instead of inferring it.
         "windows": [{k: v for k, v in
-                     {"class": r.get("class"), "tiles": r.get("tiles"),
+                     # SITE-LOCAL plus the LEAD, because together they pin the request exactly and
+                     # both are plain strings/floats. The `_start_utc` datetime that also sits in
+                     # the payload block is deliberately not written: `json.dump` here has no
+                     # `default=`, so a datetime would raise inside the one function whose job is to
+                     # make sure spend never goes unrecorded.
+                     {"window_start_site_local":
+                          ((r.get("window") or {}).get("start_date", "") + " "
+                           + (r.get("window") or {}).get("start_time", "")).strip() or None,
+                      "lead_h_at_request": r.get("lead_h"),
+                      "class": r.get("class"), "tiles": r.get("tiles"),
                       "activity_id": r.get("activity_id"),
                       "submit_http": r.get("submit_http"),
                       "submit_error_body": (r.get("submit_error_body") or None),
@@ -1217,16 +1701,41 @@ def verify_live_offline():
     rec_na = {"source": "would-call", "class": "not_attempted"}
     ck("an unrequested window classifies as not_attempted, never as vendor failure",
        classify_vendor(rec_na) != "ok" and rec_na["class"] == "not_attempted")
-    out = live_run(metro=M.DEFAULT_METRO, hours=6, allow_paid=False, verbose=False,
-                   cfg={"limit_c": 27.0})
-    ck("a run with unrequested windows emits NO schedule",
-       out.get("status") in ("dryrun", "incomplete_not_attempted")
-       and "hours" not in out and "commands" not in out,
-       "status=%s" % out.get("status"))
-    ck("...and says how many hours it never looked at",
-       "NEVER REQUESTED" in (out.get("operator_message") or "")
-       or "DRY RUN" in (out.get("operator_message") or ""),
-       (out.get("operator_message") or "")[:60])
+
+    # 🔴 THE HORIZON IS SIZED FROM THE MEASURED CACHE STATE, so an unlooked-at window is inside it
+    # BY CONSTRUCTION. A fixed `hours=6` exercised this guard only while fewer than six windows
+    # happened to be cached. On 2026-08-23 the vendor recovered and twelve consecutive windows
+    # landed in the cache, so the six-hour horizon became fully cached, `ok` was the CORRECT answer,
+    # and the regression test for the worst output this project has produced FAILED AGAINST WORKING
+    # CODE. That is gotcha #125 -- a test whose result depends on the clock -- recurring in the two
+    # branches the zero-budget test below had already been hardened against, three screens away.
+    # Deriving the horizon from `horizon_windows()` makes the guard fire on every run instead of
+    # only when the cache is thin, which is strictly stronger than what it replaces.
+    _site = next((s for s in json.load(open(M.demo_path("sites.json", M.DEFAULT_METRO),
+                                            encoding="utf-8"))["sites"]
+                  if s["key"] == M.DEFAULT_METRO), None) or {}
+    _now_p = site_local_now(_site.get("tz") or "America/New_York")
+    _, _probe = horizon_windows(M.DEFAULT_METRO, SELFTEST_PROBE_H, _now_p)
+    _n_cached = sum(1 for p in _probe if p["cached"])
+    _first_uncached = next((i for i, p in enumerate(_probe) if not p["cached"]), None)
+    # If this ever fails, the cache covers a whole day ahead and the guard cannot be exercised
+    # offline. Report that rather than skipping: a check that skips reports PASS for a path it
+    # never ran.
+    ck("the self-test found an uncached window to exercise the #107 guard with",
+       _first_uncached is not None,
+       "%d of %d probe windows cached" % (_n_cached, len(_probe)))
+    _h = (_first_uncached + 1) if _first_uncached is not None else SELFTEST_PROBE_H
+    if _first_uncached is not None:
+        out = live_run(metro=M.DEFAULT_METRO, hours=_h, allow_paid=False, verbose=False,
+                       cfg={"limit_c": 27.0})
+        ck("a run with unrequested windows emits NO schedule",
+           out.get("status") in ("dryrun", "incomplete_not_attempted")
+           and "hours" not in out and "commands" not in out,
+           "status=%s over a %d h horizon, %d cached" % (out.get("status"), _h, _first_uncached))
+        ck("...and says how many hours it never looked at",
+           "NEVER REQUESTED" in (out.get("operator_message") or "")
+           or "DRY RUN" in (out.get("operator_message") or ""),
+           (out.get("operator_message") or "")[:60])
 
     # ---- A BUDGET SHORTENS THE HORIZON RATHER THAN LEAVING HOLES IN IT. Regression test for the
     # blunt refusal: with a budget smaller than the horizon needs, the run must still produce a
@@ -1236,7 +1745,10 @@ def verify_live_offline():
     # the horizon happens to be in the cache -- and the horizon SLIDES with the clock. The first
     # version of this test assumed a cached first hour and started failing an hour later. A test
     # whose result depends on the time of day is worse than no test: it trains you to ignore it.
-    out2 = live_run(metro=M.DEFAULT_METRO, hours=6, allow_paid=False, verbose=False,
+    # `_h` is sized so its LAST window is uncached, so with a zero budget the branch that fires is
+    # decided by whether the FIRST window is cached -- which is exactly the fork below, and now a
+    # measured fact rather than a coin toss.
+    out2 = live_run(metro=M.DEFAULT_METRO, hours=_h, allow_paid=False, verbose=False,
                     cfg={"limit_c": 27.0}, max_calls=0)
     st2 = out2.get("status")
     if st2 == "no_call_budget":
@@ -1247,7 +1759,7 @@ def verify_live_offline():
     else:
         tr = out2.get("horizon_truncated")
         ck("a zero budget truncates the horizon to the cached prefix",
-           tr is not None and tr["requested_hours"] == 6 and 0 < tr["covered_hours"] <= 6,
+           tr is not None and tr["requested_hours"] == _h and 0 < tr["covered_hours"] <= _h,
            "covered %s of %s" % ((tr or {}).get("covered_hours"),
                                  (tr or {}).get("requested_hours")))
         # THE SUMMARY MUST PARTITION THE HORIZON. A negative count is what exposed the broadcasting
@@ -1268,6 +1780,106 @@ def verify_live_offline():
                    for h in (out2.get("hours") or [])),
            "status=%s" % st2)
 
+    # ---- E2: THE ENVIRONMENTAL GATES, offline ------------------------------------------------
+    # The alignment logic is the dangerous part and it is the part no live run would expose: a
+    # one-hour shift produces a schedule that is entirely plausible and quietly wrong, which is the
+    # nine-hour bug's whole family. So it is fed a synthetic day where the true lag is KNOWN.
+    from datetime import timezone as _tzc
+    base = _dt(2026, 8, 22, 12, 0, tzinfo=_tzc.utc)          # 08:00 EDT, so tz_off = -4
+    # A dew-point series NWS would report, and a FortyGuard array holding the same shape shifted by
+    # a known number of hours. If the detector cannot recover that shift, it cannot be trusted with
+    # the real thing.
+    shape = {h: 10.0 + 4.0 * math.sin((h - 4) * math.pi / 12.0) for h in range(24)}
+    nws_rows = [{"dewpoint_c": shape[(base + timedelta(hours=j - 4)).hour]} for j in range(12)]
+    for true_lag in (0, 1, -1):
+        fg = {h: {"wet_bulb_temperature_celsius": shape[(h - true_lag) % 24]} for h in range(24)}
+        got = env_alignment_lag(fg, nws_rows, base, -4)
+        ck("alignment detector recovers a known %+d h shift" % true_lag,
+           got.get("lag_hours") == true_lag,
+           "measured %s over %s pairs" % (got.get("lag_hours"), got.get("n_pairs")))
+    ck("alignment reports UNMEASURABLE rather than 0 when there is no overlap",
+       env_alignment_lag({}, nws_rows, base, -4).get("lag_hours") is None,
+       "returns None and says why, instead of a confident zero")
+
+    # MEASURING A LAG IS NOT THE SAME DECISION AS ACTING ON ONE. The real first run picked -1 from
+    # four overlapping hours and applied it; these pin that a thin result is reported and NOT used.
+    thin_nws = nws_rows[:4]
+    thin_fg = {h: {"wet_bulb_temperature_celsius": shape[(h + 1) % 24]} for h in range(24)}
+    thin = env_alignment_lag(thin_fg, thin_nws, base, -4)
+    ck("a lag measured from too few hours is reported but NOT applied",
+       thin.get("lag_hours") is not None and thin.get("applied_lag_hours") == 0
+       and "unresolved" in thin,
+       "measured %+d over %d pairs, applied 0" % (thin.get("lag_hours") or 0, thin.get("n_pairs")))
+    # ⚠ `shape[(h - L) % 24]` constructs a lag of +L -- the same convention as the loop above. The
+    # first version of this line built +1 and asserted -1, so it failed against correct code. Reuse
+    # the construction rather than restating it.
+    for true_lag in (1, -1):
+        strong = env_alignment_lag({h: {"wet_bulb_temperature_celsius": shape[(h - true_lag) % 24]}
+                                    for h in range(24)}, nws_rows, base, -4)
+        ck("...and a well-evidenced %+d h lag IS applied" % true_lag,
+           strong.get("applied_lag_hours") == true_lag,
+           "12 pairs, margin %.3f C over as-labelled"
+           % ((strong.get("evidence") or {}).get("margin_vs_as_labelled_c") or 0.0))
+    ck("every candidate lag's score is published, not just the winner",
+       set((env_alignment_lag(thin_fg, nws_rows, base, -4).get("candidates_c") or {}))
+       == {"-1", "0", "1"},
+       "a reader can see the separation rather than trust the argmax")
+
+    # The gate must never silently borrow: an hour gated on NWS and an hour gated on FortyGuard are
+    # different claims and the output has to say which.
+    ck("a run with no env_params still gates, on NWS, and says so",
+       dewpoint_from_env({}) is None and dewpoint_from_env(
+           {"wet_bulb_temperature_celsius": 18.5}) == 18.5,
+       "missing -> None (falls back), present -> the value")
+    ck("the refused fields are never read as a measurement",
+       dewpoint_from_env({"heat_index_celsius": 31.0, "temperature": 25.0}) is None,
+       "heat_index and the echoed temperature yield nothing (findings 1.1, 1.7)")
+    # A SITE MUST NOT REPLAY ANOTHER SITE'S AIR. Chicago's first replay picked Ashburn's response
+    # because the scan matched on date alone -- and reported `same_day: True` while doing it.
+    ash_ll, chi_ll = M.site_centre("ashburn"), M.site_centre("chicago")
+    _a, a_meta = saved_fortyguard_env("2026-08-20", ash_ll, verbose=False)
+    _c, c_meta = saved_fortyguard_env("2026-08-20", chi_ll, verbose=False)
+    ck("each site's replay picks its OWN saved environmental response",
+       a_meta.get("fixture") and c_meta.get("fixture")
+       and a_meta["fixture"] != c_meta["fixture"],
+       "ashburn=%s chicago=%s" % (a_meta.get("fixture"), c_meta.get("fixture")))
+    _n, n_meta = saved_fortyguard_env("2026-08-20", (10.0, 10.0), verbose=False)
+    ck("a site with no environmental response of its own falls back, never borrows",
+       _n is None and "another site" in (n_meta.get("why") or ""),
+       "returns nothing and says why")
+
+    # THE SEQUENCE REPLAY. A flat trajectory proves the chain executes and nothing about a day, and
+    # the two halves of the same replay disagreed about time: temperature frozen, humidity hourly.
+    _cache = os.path.join(M.ROOT, "data", "live_cache", "ashburn")
+    _first = os.path.join(_cache, "2026-08-20_0900-1000_g60_tcm.json")
+    if os.path.exists(_first):
+        paths, hrs, day = replay_sequence(_first, 12)
+        ck("a replay walks the CONSECUTIVE saved windows, not one repeated",
+           paths and len(paths) > 1 and hrs == sorted(hrs) and day == "2026-08-20",
+           "%d windows on %s at %s" % (len(paths or []), day,
+                                       ", ".join("%02d:00" % h for h in (hrs or []))))
+        ck("...and it truncates to what was SAVED rather than inventing hours",
+           len(replay_sequence(_first, 2)[0]) == 2,
+           "asked for 2 of 4 available -> 2")
+        ck("a lone fixture with no siblings still replays, flat, without pretending otherwise",
+           len(replay_sequence(os.path.join(M.ROOT, "data", "live_cache", "chicago",
+                                            "2026-08-20_1100-1200_g60_tcm.json"), 12)[0]) == 1,
+           "chicago has one saved window, so the sequence is one")
+
+    sv, sv_meta = saved_fortyguard_env("2026-08-22", verbose=False)
+    ck("a REPLAY gets FortyGuard humidity from a SAVED response, not from NWS and not by spending",
+       sv is not None and sv_meta["credits"] == 0 and sv_meta["n_fields"] >= 10
+       and dewpoint_from_env(sv.get(sorted(sv)[0])) is not None,
+       "%s: %d fields x %d hours, 0 credits" % (sv_meta.get("fixture"), sv_meta.get("n_fields", 0),
+                                                sv_meta.get("n_hours", 0)))
+    ck("...and it says so when the saved day is not the requested one",
+       ("note" in sv_meta) == (sv_meta.get("same_day") is False),
+       "same_day=%s" % sv_meta.get("same_day"))
+    m_na = fortyguard_env(None, 39.0, -77.4, "2026-08-22", allow_paid=False, verbose=False)[1]
+    ck("an unauthorised env fetch is not_attempted and spends nothing",
+       m_na["class"] == "not_attempted" and m_na["credits"] == 0,
+       "class=%s credits=%d" % (m_na["class"], m_na["credits"]))
+
     print("   %s" % ("ALL PASS" if not fails else "%d FAILURE(S): %s" % (len(fails), fails)))
     return 1 if fails else 0
 
@@ -1282,6 +1894,18 @@ def main():
     ap.add_argument("--metro", default=None)
     ap.add_argument("--limit-c", type=float, default=24.0)
     ap.add_argument("--out", default=None, help="write the emitted JSON here")
+    # THE ENVIRONMENTAL GATES ARE SETTABLE, and default to OFF rather than to a value. The
+    # air-quality index carries no documented units (findings 9.3), so a limit is a CHOICE the
+    # caller makes and must never be one this file makes on their behalf.
+    ap.add_argument("--dewpoint-limit", type=float, default=15.0,
+                    help="humidity gate, C. 15.0 is the Green Grid WP#46 p.6 maximum. "
+                         "Pass a negative value to disable.")
+    ap.add_argument("--aq-limit", type=float, default=None,
+                    help="contamination gate on FortyGuard's PM2.5 index. Unset = gate off, "
+                         "because the index has no documented units.")
+    ap.add_argument("--env-live-during-replay", action="store_true",
+                    help="fetch live env_params even in a replay. A replay is free and reproducible "
+                         "by default; this makes it neither, and costs 2,900.")
     ap.add_argument("--replay", default=None,
                     help="verify the decide path from a SAVED FortyGuard response. Output is "
                          "stamped replay-verification and is not a live forecast.")
@@ -1309,7 +1933,12 @@ def main():
         % (metro, a.hours, "PAID" if a.paid else "DRY RUN (no calls)"))
     say("=" * 78)
     out = live_run(metro=metro, hours=a.hours, allow_paid=bool(a.paid),
-                   cfg={"limit_c": a.limit_c}, replay=a.replay)
+                   cfg={"limit_c": a.limit_c,
+                        "dewpoint_limit_c": (None if a.dewpoint_limit is not None
+                                             and a.dewpoint_limit < 0 else a.dewpoint_limit),
+                        "aq_limit_idx": a.aq_limit,
+                        "env_live_during_replay": bool(a.env_live_during_replay)},
+                   replay=a.replay)
     say("")
     say("   status           : %s" % out.get("status"))
     if out.get("operator_message"):

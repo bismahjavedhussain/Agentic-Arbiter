@@ -78,6 +78,11 @@ METROS = {
         "basis": "Loudoun County data-centre corridor; brackets the coordinate the earlier "
                  "FortyGuard work used as its site centre (39.0100, -77.4460)",
         "fortyguard_field": "purchased -- 9 heatmap calls, 8 saved fields plus a verified forecast",
+        # The four measured forecast/outcome DAY-PAIRS live here and nowhere else. Every other site
+        # reads 0, which is what makes "this site's coverage is borrowed" a fact in the registry
+        # rather than a sentence in a document.
+        "fortyguard_field_fixture": None,          # the pairs are exported instead, one per leg
+        "fortyguard_day_pairs": 4,
         "climate_note": "mixed-humid: the dew-point gate and the dry-bulb limit both bind",
     },
     "phoenix": {
@@ -109,6 +114,8 @@ METROS = {
                  "at 33.3293, -111.6411, found by discover_dc_clusters.py. Station KFFZ chosen "
                  "on measured record completeness, not proximity -- see the comment above",
         "fortyguard_field": None,
+        "fortyguard_field_fixture": None,
+        "fortyguard_day_pairs": 0,
         # NOTE America/Phoenix does NOT observe daylight saving. That is a real trap for the
         # site_window() helpers and exactly the class of bug gotcha #1 and #27 record.
         "climate_note": "hot-dry: dry-bulb should dominate and the 15 C dew-point gate should "
@@ -126,7 +133,21 @@ METROS = {
         "candidates_file": "chicago_candidates.json",
         "basis": "OSM cluster of 11 tagged data centres (Aligned, Centersquare, Digital Realty) "
                  "at 41.9560, -87.9455, found by discover_dc_clusters.py; KORD is 4.4 km away",
-        "fortyguard_field": None,
+        # 🔴 THIS SAID `None` UNTIL 2026-08-21, AND CHICAGO'S FIELD WAS ON DISK THE WHOLE TIME.
+        # One past-window heatmap was purchased for this site on 2026-08-19 -- 17,797 tiles, 4,220
+        # credits, saved as `testing/results/fixtures/chicago_field_20260818_1400.json`. Because this
+        # key was None, `export_manifest()` published `has_own_fortyguard_field: false`, the demo's
+        # own note told the reader *"this site has no FortyGuard field of its own"*, and the panel
+        # showed ASHBURN'S field instead of the one we had paid for. A field we bought, labelled as
+        # not existing, standing next to a Virginia heatmap on a Chicago page.
+        # ⚠ IT IS ONE PAST WINDOW, NOT A DAY-PAIR. It buys the spatial statistics and the screen-zero
+        # visual; it does NOT buy a level offset or a coverage record, because those need a forecast
+        # leg AND its elapsed outcome (2 calls) -- see `fortyguard_day_pairs` below, which is the key
+        # the borrowed-calibration machinery actually reads.
+        "fortyguard_field": "purchased -- 1 past-window heatmap call, 17,797 tiles (2026-08-18 "
+                            "14:00 site-local), explicit timezone",
+        "fortyguard_field_fixture": "chicago_field_20260818_1400",
+        "fortyguard_day_pairs": 0,
         "climate_note": "cold: free cooling should be abundant and the binding constraint should "
                         "shift toward the switch budget. TO BE MEASURED",
     },
@@ -151,6 +172,8 @@ METROS = {
                  "CyrusOne) at 38.9501, -77.5331, found by discover_dc_clusters.py; 6.7 km from "
                  "KIAD, whose five-year record is already on disk",
         "fortyguard_field": None,
+        "fortyguard_field_fixture": None,
+        "fortyguard_day_pairs": 0,
         "climate_note": "same station and climate as the committed Ashburn site, so this isolates "
                         "GEOMETRY and OPERATOR from weather -- a genuinely different site, not a "
                         "different climate",
@@ -171,6 +194,8 @@ METROS = {
                  "the location of the NetApp case ENERGY STAR documents and PLAN.md section 12 "
                  "already cites, so one claim in the deck ties to this site",
         "fortyguard_field": None,
+        "fortyguard_field_fixture": None,
+        "fortyguard_day_pairs": 0,
         "climate_note": "mild marine: a narrow annual range, so the margin should be tight and the "
                         "hours plentiful. TO BE MEASURED",
     },
@@ -183,17 +208,151 @@ DEFAULT_METRO = "ashburn"
 MIN_WEATHER_COVERAGE = 0.95
 
 
+# ---------------------------------------------------------------------------------------------
+# THE NATIONAL FACILITY REGISTRY, read on demand
+# ---------------------------------------------------------------------------------------------
+# `METROS` above is five HAND-BUILT entries and stays exactly that: each one carries a researched
+# bbox, a station chosen on measured record quality, and prose provenance no generator could write.
+# Those five are authoritative and nothing below changes them.
+#
+# What the national build produces is different in kind: 639 facilities, each a connected component
+# of tagged buildings inside the solver's validated range, with a measured centroid, a measured
+# timezone and a reverse-geocoded state. Typing those into a literal dict would be absurd, and
+# generating them into one would put a 639-entry machine-written blob in the middle of a file whose
+# value is its hand-written reasoning. So they are LOADED, and `metro()` answers from whichever
+# source holds the key.
+#
+# 🔴 THE SAFETY PROPERTY THAT MUST SURVIVE: `metro_key()` raising on an unknown key is not
+# pedantry. `geom_path`/`demo_path` fall back to the UNSUFFIXED Ashburn filenames for the default
+# metro, so a typo that resolved to "some metro" would silently load Ashburn's geometry, Ashburn's
+# weather and Ashburn's bound under another site's name -- gotcha #98's family, from a spelling
+# mistake. So the validation still happens; it now consults two registries instead of one.
+_NATIONAL_CACHE = [None]
+_ASSIGN_CACHE = [None]
+
+
+def station_assignments():
+    """facility key -> its MEASURED station assignment, or {} if S5 has not run.
+
+    Deliberately a separate file from the registry (`data/weather/station_assignments.json`), not a
+    field inside it: `build_national_registry.py` is pure computation over geometry and is re-run
+    whenever a classification rule changes, and an assignment that cost 60 real requests to measure
+    must not be destroyed by a geometry rebuild.
+    """
+    if _ASSIGN_CACHE[0] is None:
+        p = os.path.join(WEATHER, "station_assignments.json")
+        try:
+            _ASSIGN_CACHE[0] = json.load(open(p, encoding="utf-8"))["assignments"]
+        except (IOError, OSError, ValueError, KeyError):
+            _ASSIGN_CACHE[0] = {}
+    return _ASSIGN_CACHE[0]
+
+
+def national_registry():
+    """The facility registry, or {} if it has not been built. Cached: `metro()` is called per
+    import of `agent.py` and this file is ~1 MB."""
+    if _NATIONAL_CACHE[0] is None:
+        p = os.path.join(GEOM, "national_registry.json")
+        try:
+            _NATIONAL_CACHE[0] = json.load(open(p, encoding="utf-8"))["facilities"]
+        except (IOError, OSError, ValueError, KeyError):
+            _NATIONAL_CACHE[0] = {}
+    return _NATIONAL_CACHE[0]
+
+
+def national_entry(k):
+    """A METROS-shaped record for one national facility, built from its MEASURED fields.
+
+    Every value here is either read from the registry or explicitly `None`. Nothing is invented to
+    fill a gap: `station` is None until S5 assigns one on measured record completeness, and
+    `weather_file()` refuses rather than composing a filename around it -- because a name that
+    asserts a station the pipeline never fetched is exactly the drift `weather_file`'s own docstring
+    was written about.
+    """
+    f = national_registry()[k]
+    names = f.get("names") or []
+    label = "%s, %s" % (names[0], f.get("state") or "US") if names else \
+            "%s facility %s" % (f.get("state") or "US", k)
+    # The bbox brackets this facility's OWN buildings, with a margin big enough for the solver's
+    # validated range so a later geometry fetch cannot clip a neighbour it needs to see.
+    lats = [c[0] for c in [f["centre"]]]
+    lons = [c[1] for c in [f["centre"]]]
+    pad = 0.012                      # ~1.3 km: covers the 600 m range plus the largest campus seen
+    # THE STATION, IF S5 HAS MEASURED ONE. Absent otherwise -- never the nearest by default, because
+    # nearest is not the rule: `assign_station.py` walks candidates by distance and takes the first
+    # whose OWN five-year record clears the coverage floor, exactly as KFFZ at 16.7 km was taken over
+    # KIWA at 2.7 km. A facility with no measured assignment has `station: None`, and
+    # `weather_file()` refuses rather than composing a filename around it.
+    asn = station_assignments().get(k) or {}
+    return {
+        "state": f.get("state"),
+        "label": label,
+        "bbox": (min(lats) - pad, min(lons) - pad, max(lats) + pad, max(lons) + pad),
+        "station": asn.get("station"),         # S5. Measured, or absent -- never guessed.
+        "station_assignment": asn or None,
+        "tz": f.get("tz"),
+        # A DERIVED NAME, not None. There is no pairwise candidate search for a national facility,
+        # so this file will not exist -- but `candidates_path()` is a PATH CONSTRUCTOR, and several
+        # modules build that path at IMPORT time (`fetch_geometry.py:45` is one). Returning None
+        # made `os.path.join` raise `TypeError` before any of those modules could even be imported
+        # for a facility, which is the same import-time landmine `site_centre()` was.
+        # Whether the file EXISTS is a separate question, and `readiness()` already answers it with
+        # `os.path.exists` -- so a path to an absent file is exactly what that check expects to find.
+        "candidates_file": "%s_candidates.json" % k,
+        "basis": "national OSM discovery: %d tagged building(s), %s. Classified %s."
+                 % (f.get("n_buildings", 0), ", ".join(f.get("members", [])[:3]), f.get("kind")),
+        "fortyguard_field": None,
+        "fortyguard_field_fixture": None,
+        "fortyguard_day_pairs": 0,
+        "climate_note": None,
+        # National-only fields, so a caller can tell the two registries apart rather than guessing
+        # from the shape of the key.
+        "national": True,
+        "kind": f.get("kind"),
+        "facility": f,
+    }
+
+
 def metro_key():
     """Which metro the pipeline is operating on. Defaults to ashburn so every existing path,
     filename and audited number is unchanged unless a caller explicitly asks otherwise."""
-    k = (os.environ.get("METRO") or DEFAULT_METRO).strip().lower()
-    if k not in METROS:
-        raise SystemExit("unknown METRO=%r. Known: %s" % (k, ", ".join(sorted(METROS))))
-    return k
+    # 🔴 UNSET AND EMPTY ARE DIFFERENT THINGS, AND CONFLATING THEM OVERWRITES THE REFERENCE SITE.
+    # This was `(os.environ.get("METRO") or DEFAULT_METRO)`, so METRO="" fell through to ashburn --
+    # while METRO=" " raised, because a space is truthy and strips to empty. Harmless at three
+    # sites, dangerous at 639: a driver looping `METRO=$KEY python agent.py` with one unset variable
+    # would silently rebuild ASHBURN, and because `demo_path` gives the default metro the UNSUFFIXED
+    # filenames, it would overwrite exactly the artefacts the 77 published numbers are read from.
+    # So: absent means "nobody asked", and defaults. Present-but-empty means somebody tried to pass
+    # a value and it was empty, which is a bug in the caller and is reported as one.
+    raw = os.environ.get("METRO")
+    if raw is None:
+        return DEFAULT_METRO
+    k = raw.strip()
+    if not k:
+        raise SystemExit("METRO is set but empty. That is a caller bug, not a request for the "
+                         "default: an empty value here would silently rebuild %r and overwrite the "
+                         "unsuffixed reference artefacts. Unset METRO entirely to mean %r."
+                         % (DEFAULT_METRO, DEFAULT_METRO))
+    # NOT lowercased for national keys: facility keys are `TX_way_102129663`, whose state prefix is
+    # upper case and whose OSM id is a real identifier. The five hand-built keys stay
+    # case-insensitive, because every existing caller and scheduled task types them in lower case.
+    if k.lower() in METROS:
+        return k.lower()
+    if k in national_registry():
+        return k
+    raise SystemExit("unknown METRO=%r. %d hand-built: %s. %d national facilities in "
+                     "data/geometry/national_registry.json%s"
+                     % (k, len(METROS), ", ".join(sorted(METROS)), len(national_registry()),
+                        " -- run build_national_registry.py" if not national_registry() else ""))
 
 
 def metro(k=None):
-    return METROS[k or metro_key()]
+    kk = k or metro_key()
+    if kk in METROS:
+        return METROS[kk]
+    if kk in national_registry():
+        return national_entry(kk)
+    raise SystemExit("unknown metro %r" % kk)
 
 
 def candidates_path(k=None):
@@ -209,6 +368,15 @@ def weather_file(k=None):
     "595 h/year" literal in the view: if a name describes a value, compute it from that value.
     Ashburn keeps its historical filename because that file exists and is audited."""
     m = metro(k)
+    # NO STATION, NO FILENAME. A national facility has `station: None` until S5 assigns one on
+    # measured five-year completeness, and composing "knone_hourly_2021_2025.json" around that
+    # would produce a path that looks like a record and is not one -- the same class of drift this
+    # docstring already describes, one step earlier. Refuse loudly instead.
+    if not m.get("station"):
+        raise SystemExit("%r has no weather station assigned yet, so it has no record filename. "
+                         "A station is chosen on measured 5-year completeness (>= %.0f %%), not on "
+                         "proximity -- see readiness(). Nothing here will guess one."
+                         % (k or metro_key(), 100 * MIN_WEATHER_COVERAGE))
     if m["station"] == "IAD":
         return "kiad_hourly_2021_2025.json"   # PRE-EXISTING, 43,763 records, do not rename
     return "k%s_hourly_2021_2025.json" % m["station"].lower()
@@ -306,7 +474,14 @@ def committed_imagery(k, committed):
         src = os.path.join(d, src_name)
         if not os.path.exists(src):
             continue
-        dst_name = ("site_aerial.png" if label == "esri" else "site_aerial_usgs.png")
+        # THE DESTINATION KEEPS THE SOURCE'S EXTENSION. This was a hardcoded `.png`, so a national
+        # facility's JPEG frame would have been copied to a file NAMED `.png` while containing JPEG
+        # bytes. Browsers sniff content and would have rendered it, which is exactly what makes it
+        # dangerous: a filename asserting a format the file is not, discovered by nobody, until
+        # something downstream trusted the name. The five hand-built metros are PNG and stay PNG --
+        # this only follows what is actually on disk.
+        ext = os.path.splitext(src_name)[1].lower() or ".png"
+        dst_name = (("site_aerial" if label == "esri" else "site_aerial_usgs") + ext)
         dst = demo_path(dst_name, k)
         # Copy only when the bytes differ, so a rebuild does not rewrite 2.5 MB per site per run
         # and git does not see a spurious change. `.gitattributes` marks *.png binary, so a
@@ -342,7 +517,23 @@ def site_centre(k=None):
     `centre_latlon` fields `export_manifest` publishes, so the map marker and the agent cannot
     disagree about where a site is.
     """
-    p = geom_path("selected_site.json", k)
+    kk = k or metro_key()
+
+    # 🔴 A FACILITY WITH NO PAIR HAS A CENTRE TOO, AND THIS USED TO CRASH ON IT.
+    # `agent.py` calls this at MODULE level (`SITE_CENTRE = M.site_centre()`), and
+    # `backtest`/`rolling`/`money`/`explain`/`ticker`/`plume_uncertainty` all import `agent` -- so a
+    # KeyError here meant no module in the chain could even be IMPORTED for a site without a
+    # committed source+receptor pair. That single line is why the standalone path was decided in
+    # prose and implemented nowhere: 383 of 639 national facilities have no pair by construction,
+    # and the pipeline could not load for any of them.
+    # A standalone facility's centre is the mean of its OWN buildings' measured coordinates, which
+    # the registry already carries. This is not a fallback to something approximate -- it is the
+    # same quantity, computed the same way, from the same OSM positions.
+    nat = national_registry().get(kk)
+    if nat:
+        return (nat["centre"][0], nat["centre"][1])
+
+    p = geom_path("selected_site.json", kk)
     sel = json.load(open(p, encoding="utf-8"))
     a = sel.get("source_building", {}).get("centre_latlon")
     b = sel.get("receptor_building", {}).get("centre_latlon")
@@ -351,9 +542,79 @@ def site_centre(k=None):
     return ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
 
 
+def national_readiness(k, m):
+    """Readiness for a NATIONAL facility, and the amendment to the offerable rule.
+
+    🔴 THE RULE THIS AMENDS, AND WHY THE AMENDMENT IS NOT A LOOSENING.
+    `sites.json` has carried this sentence since the multi-site engine was built:
+
+        "own geometry AND a data-centre-to-data-centre PAIR AND a >= 95 % own five-year station
+         record. Without its own record a site has no conformal bound of its own, and borrowing
+         another site's would be a lie about the only number this project promises."
+
+    Two of those three clauses are load-bearing for every site and are enforced here unchanged. The
+    PAIR clause is not: it exists so the plume solver is modelling two data centres rather than a
+    warehouse, and it is the admission test for the PHYSICS. A standalone facility has no plume to
+    model -- the rise is not computed, it is not applicable -- so requiring a pair of it would
+    refuse 359 real facilities for failing a test of a stage they never run.
+
+    What replaces it is stricter, not looser: the facility must be classified `standalone` by
+    `build_national_registry.py` on MEASURED geometry, and its standalone artefacts must exist on
+    disk. It cannot be offered by asserting it has no neighbour; it is offered because the union-find
+    over every tagged building's own coordinate found none inside the solver's validated range, and
+    because `build_standalone_site.py` then wrote its zero rise table and its own wind statistics.
+
+    ⚠ ONLY `standalone` IS OFFERABLE TODAY, and the reason is capability, not policy: a
+    `paired_clear` facility needs the existing pairwise funnel (select_site -> refusal_rank ->
+    build_site x2 -> direction_sweep -> export_plume_fields) run on it, which has not been built at
+    national scale. Recorded as `not_offerable_because` rather than left to look like a refusal.
+    """
+    reg = national_registry().get(k) or {}
+    kind = reg.get("kind")
+    wx = weather_path(k) if m.get("station") else None
+    out = {"key": k, "label": m["label"],
+           "station": ("K" + m["station"]) if m.get("station") else None,
+           "tz": m["tz"], "national": True, "kind": kind,
+           "geometry": os.path.exists(geom_path("selected_site.json", k)),
+           "weather": bool(wx and os.path.exists(wx)),
+           "fortyguard_field": m.get("fortyguard_field"),
+           "n_buildings": reg.get("n_building_footprints"),
+           "n_tagged_dc": reg.get("n_building_footprints"),
+           # ZERO, AND THAT IS THE POINT rather than a missing measurement. Published so the
+           # manifest cannot silently look like a site whose pair search simply failed.
+           "n_dc_to_dc_pairs": 0 if kind == "standalone" else None,
+           "longest_facade_m": reg.get("longest_facade_m"),
+           "nearest_other_tagged_dc_m": (reg.get("plume") or {}).get("nearest_other_tagged_dc_m")}
+    if out["weather"]:
+        d = json.load(open(wx, encoding="utf-8"))
+        wm = d.get("meta") or {}
+        out["n_hours"] = len(d.get("hours") or {})
+        out["coverage_frac"] = wm.get("coverage_frac")
+        out["weather_ok"] = bool(out["coverage_frac"] is not None
+                                 and out["coverage_frac"] >= MIN_WEATHER_COVERAGE)
+    built = os.path.exists(demo_path("trace.json", k))
+    out["artefacts_built"] = built
+    out["offerable"] = bool(out["geometry"] and out["weather"] and out.get("weather_ok")
+                            and built and kind == "standalone")
+    if not out["offerable"]:
+        out["not_offerable_because"] = (
+            "no weather station assigned yet (S5)" if not out["weather"] else
+            "its five-year record is %.4f, below the %.2f floor"
+            % (out.get("coverage_frac") or 0.0, MIN_WEATHER_COVERAGE) if not out.get("weather_ok")
+            else "standalone geometry artefacts not written -- run build_standalone_site.py"
+            if not out["geometry"] else
+            "artefacts not built -- run the build_sites chain" if not built else
+            "kind is %r: the pairwise plume funnel has not been run at national scale yet, so this "
+            "facility is not yet offerable. NOT a refusal -- nothing about it has been rejected"
+            % kind)
+    return out
+
+
 def readiness(k):
     """What exists on disk for this metro. Nothing here is inferred -- it is all stat() calls."""
-    m = METROS[k]
+    m = metro(k)                     # was METROS[k]: a KeyError for every national facility
+    if m.get("national"):
+        return national_readiness(k, m)
     cand = candidates_path(k)
     wx = weather_path(k)
     out = {"key": k, "label": m["label"], "station": "K" + m["station"], "tz": m["tz"],
@@ -434,9 +695,18 @@ def export_manifest():
                 for v in a[k]:
                     arch.setdefault(v.get("metro", DEFAULT_METRO), []).append(v)
     sites = []
-    for k in sorted(METROS):
+    # THE FIVE HAND-BUILT METROS, THEN EVERY NATIONAL FACILITY THAT HAS ACTUALLY BEEN BUILT.
+    # `sorted(METROS)` alone meant a national facility could never reach `sites.json` no matter how
+    # complete it was -- and `sites.json` is what the picker, `build_sites.py` and the map's click
+    # handler all read, so that one loop was the last gate between a fully-built facility and the
+    # interface. Gated on `trace.json` EXISTING rather than on the registry, so this lists the
+    # facilities that have artefacts and not the 639 that could have them: a picker offering a site
+    # with nothing behind it is the defect §6.13 exists for.
+    built_national = [k for k in sorted(national_registry())
+                      if os.path.exists(demo_path("trace.json", k))]
+    for k in sorted(METROS) + built_national:
         r = readiness(k)
-        m = METROS[k]
+        m = metro(k)                 # was METROS[k]
         verdicts = arch.get(k, [])
         committed = None
         cp = geom_path("selected_site.json", k)
@@ -486,20 +756,103 @@ def export_manifest():
                  if committed else None)
         cver = next((v for v in verdicts if v["pair"] == cpair), None) if cpair else None
         scope_ok = bool(cver and cver["in_scope"])
+
+        # ---- THE NATIONAL TIER, AND THE TWO GATES IT CANNOT MEET -----------------------------
+        # 🔴 THE IMAGERY GATE IS NOT WEAKENED HERE. It has actually refused two whole metros
+        # (Santa Clara rooftop-cooled, Phoenix not built) and it answers the question that decides
+        # whether this MODEL APPLIES AT ALL: is the cooling plant at ground level, where
+        # FortyGuard's 2 m field is? If it is on the roof, none of this describes the building.
+        # So an unscreened facility is given a THIRD state -- `not_screened` -- and never
+        # `in_scope`. NATIONAL-BUILD-PLAN section 7.4: "If imagery is unavailable for a site, that
+        # site is NOT SCREENED, not 'screened, assumed fine'." A screened refusal and an
+        # unscreened unknown are different facts and the manifest keeps them different.
+        #
+        # THE PLUME FIELD is required of a paired site because the panel that renders it is real.
+        # A standalone facility has no plume to render, so requiring the file would refuse it for
+        # not having an artefact of a stage it never runs -- the same category error as requiring
+        # it to have a pair.
+        national = bool(m.get("national"))
+        has_plume_field = os.path.exists(os.path.join(demo, pf))
+        if national:
+            # THE VERDICT IS READ FROM THIS FACILITY'S OWN FRAME, not assumed. `NOT SCREENED` was
+            # correct while no facility had imagery; now a facility may have a frame AND a recorded
+            # judgement, and the manifest must distinguish three states rather than two:
+            #   fully_screened          two sources + a human verdict on the exact pair (Ashburn)
+            #   national_single_source  one frame + one recorded verdict, naming its assessor --
+            #                           the DULLES standard, whose own record says the two-source
+            #                           rule is not met
+            #   national_unscreened     a frame with nobody's judgement, or no frame at all
+            # A frame is not a screening, so the middle state is only reached once a verdict exists.
+            sm = {}
+            smp = os.path.join(imagery_dir(k), "screen_manifest.json")
+            if os.path.exists(smp):
+                try:
+                    sm = json.load(open(smp, encoding="utf-8"))
+                except ValueError:
+                    sm = {}
+            v = sm.get("architecture_verdict") or "NOT SCREENED"
+            assessed = bool(sm.get("assessed_by")) and v not in ("NOT YET ASSESSED",)
+            imagery_state = v if assessed else "NOT SCREENED"
+            in_scope_nat = bool(sm.get("in_scope")) if assessed else False
+            tier = "national_single_source" if assessed else "national_unscreened"
+            # A RECORDED REFUSAL STILL REFUSES. If the frame was read and the plant is roof-mounted
+            # or the site is not built, this facility is NOT offerable -- the same consequence
+            # Santa Clara and Phoenix carry, reached by the same gate.
+            offer = bool(r["offerable"] and (in_scope_nat or not assessed))
+            if assessed and not in_scope_nat:
+                offer = False
+            why_not = (("committed building is %s -- refused by the imagery scope gate" % v)
+                       if (assessed and not in_scope_nat)
+                       else r.get("not_offerable_because"))
+        else:
+            imagery_state = (cver or {}).get("verdict") or "NOT ASSESSED"
+            offer = bool(r["offerable"] and scope_ok and has_plume_field)
+            tier = "fully_screened"
+            why_not = (None if offer else
+                       ("committed pair is %s -- refused by the imagery scope gate"
+                        % (cver or {}).get("verdict") if cver and not cver["in_scope"]
+                        else "no in-scope architecture verdict for the committed pair"
+                        if not scope_ok else "no solved plume field exported"))
         sites.append({
-            "key": k, "label": m["label"], "station": "K" + m["station"], "tz": m["tz"],
+            "key": k, "label": m["label"],
+            "station": ("K" + m["station"]) if m.get("station") else None,
+            "tz": m["tz"],
             "bbox": list(m["bbox"]),
             "data_ready": r["offerable"],
-            "scope_verdict": (cver or {}).get("verdict") or "NOT ASSESSED",
-            "scope_ok": scope_ok,
-            "offerable": bool(r["offerable"] and scope_ok
-                              and os.path.exists(os.path.join(demo, pf))),
-            "not_offerable_because": (
-                None if (r["offerable"] and scope_ok and os.path.exists(os.path.join(demo, pf)))
-                else ("committed pair is %s -- refused by the imagery scope gate"
-                      % (cver or {}).get("verdict") if cver and not cver["in_scope"]
-                      else "no in-scope architecture verdict for the committed pair"
-                      if not scope_ok else "no solved plume field exported")),
+            "scope_verdict": imagery_state,
+            # `scope_ok` MUST AGREE WITH `scope_verdict`. For a national facility the verdict comes
+            # from its own frame, not from `architecture_verdicts.json` (which is keyed by
+            # hand-built metro and has no row for it) -- so reading the old gate here published
+            # `scope_verdict: GRADE` beside `scope_ok: false`, two fields contradicting each other
+            # about the same screening in the same record.
+            "scope_ok": (in_scope_nat if national else scope_ok),
+            # WHICH TIER, published per site, so a reader and a judge can tell a fully-screened
+            # site from an unscreened one without reading the code. The three hand-built sites have
+            # a human imagery verdict on their exact committed pair; a national facility does not,
+            # and saying so is the whole point.
+            "offer_tier": tier,
+            "national": national,
+            "site_kind": r.get("kind"),
+            "plume_modelled": (not national) or False,
+            # THE CAVEAT TRACKS THE ACTUAL STATE. Three sentences for three situations, so a reader
+            # is never told a question is open when it has been answered, nor that it is settled
+            # when one frame was read at 0.3-0.5 m by a model.
+            "unscreened_caveat": (
+                None if not national else
+                ("This facility HAS been screened, from a single aerial frame: %s. Verdict %s, "
+                 "assessed by %s. Evidence: %s. The two-source cross-check is NOT met -- the same "
+                 "weaker standing this project records for Dulles -- and at this resolution "
+                 "'ground-level plant' says where the equipment is, not what it is."
+                 % ((sm.get("verdict_note") or "").split(".")[0] + ".",
+                    imagery_state, sm.get("assessed_by"), sm.get("evidence"))) if assessed else
+                ("This facility has NOT been screened from aerial imagery. The screening gate asks "
+                 "whether the cooling plant sits at ground level, where FortyGuard's 2 m field "
+                 "applies -- and it has refused two of the five hand-built metros, one for "
+                 "roof-mounted plant and one for never having been built. Until this facility is "
+                 "screened, that question is OPEN for it: if its plant is roof-mounted, this model "
+                 "does not describe it. Every other number here is its own.")),
+            "offerable": offer,
+            "not_offerable_because": why_not,
             "n_buildings": r.get("n_buildings"), "n_tagged_dc": r.get("n_tagged_dc"),
             "n_dc_to_dc_pairs": r.get("n_dc_to_dc_pairs"),
             "weather_hours": r.get("n_hours"), "weather_coverage": r.get("coverage_frac"),
@@ -516,6 +869,12 @@ def export_manifest():
             # `trace.json`, which is why picking a site changed one panel out of thirteen.
             "artefacts": artefacts,
             "has_own_fortyguard_field": bool(m.get("fortyguard_field")),
+            # OWNING A FIELD AND OWNING A CALIBRATION ARE DIFFERENT THINGS, and collapsing them
+            # into one boolean made the picker say "FortyGuard field purchased for this site" for
+            # Chicago while its measured LEVEL OFFSET is still Ashburn's. Chicago has one past
+            # window; a level offset needs a forecast leg AND its elapsed outcome. So the day-pair
+            # count travels too, and the interface has three states instead of two.
+            "fortyguard_day_pairs": m.get("fortyguard_day_pairs", 0),
             "verdicts": [{"pair": v["pair"], "name": v["name"], "verdict": v["verdict"],
                           "in_scope": v["in_scope"],
                           "consequence": v.get("consequence", "")[:240]} for v in verdicts],

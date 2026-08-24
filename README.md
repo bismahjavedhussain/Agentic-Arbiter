@@ -30,7 +30,7 @@ it an upper bound on that term rather than a projection (§ *What is honest*).
 ## Start here — two commands
 
 ```bash
-# 1. Prove it. 16 steps, ~5 minutes, ZERO API calls. Exits non-zero on any failure.
+# 1. Prove it. 25 steps, ~6 minutes, ZERO API calls. Exits non-zero on any failure.
 cd INTAKE-ARBITER/src && python run_all.py
 
 # 2. See it — REPLAY mode, no API key needed, works offline.
@@ -49,12 +49,17 @@ needs a key and anything the page can read, every visitor can read. `serve_live.
 its own process and returns only numbers. The page detects which mode it is in and says so — it does
 not offer a live button that cannot work.
 
+**New to this? Read [`READING-THE-AGENT.md`](READING-THE-AGENT.md) first.** It explains every
+screen, every control and every graph from zero — no data-centre or statistics background
+assumed, every term defined before it is used.
+
 **`file://` will not work.** Browsers block `fetch()` from it and the page will show only a red
 error. Any static host serves the demo as-is — there is no build step and no server side.
 
-**If `run_all.py` is not green, do not believe a number on the page.** It re-reads **70 published
-figures** from the files the code actually wrote and runs **62 audit checks**, including five that
-re-derive the browser's own arithmetic against Python.
+**If `run_all.py` is not green, do not believe a number on the page.** It re-reads **77 published
+figures** from the files the code actually wrote and runs **160 audit checks**, including five that
+re-derive the browser's own arithmetic against Python and one that drives a real browser to render
+every site and diff the panels a reader would look at.
 
 ---
 
@@ -202,12 +207,12 @@ there carries a citation and a link, verified by opening the source. The short v
 self-tests** — Mondrian, CQR, ACI/DtACI, joint coverage, worst-group. Physics validated against an
 analytic plume at **0.00 %**, heat conserved at **0.00 %**, **67 Prairie Grass** field experiments,
 and 6 instrumented condensers at **r = 0.798**. **1,336 explanations with 0 verification failures.**
-A reasoning tape whose **30 templates contain not one literal digit**, checked at build time.
+A reasoning tape whose **32 templates contain not one literal digit**, checked at build time.
 **Three sites live on their own geometry, weather, bound and tariff — and two more were refused on
 aerial evidence.**
 
-**On the size of the verification surface**, because it is fair to ask: **62 audit checks and a
-gotcha log running to #106 exist because every entry in it actually bit** — a NaN that
+**On the size of the verification surface**, because it is fair to ask: **160 audit checks and a
+gotcha log running to #161 exist because every entry in it actually bit** — a NaN that
 was legal Python JSON and illegal standard JSON, a rounded array that flipped decisions at gate
 boundaries, an invented constant that outlived its own retraction by a day, a site picker that
 swapped one file out of thirteen. Every check is a headstone. That is **validation** infrastructure,
@@ -264,7 +269,11 @@ problem we have deliberately not solved yet.**
 python testing/api_usage_ledger.py           # the API spend ledger, from saved meter readings
 python testing/scan_secrets.py               # full tree AND full git history, for leaked keys
 python testing/test_n26_coverage.py dryrun    # what the collector would do now; no key is read
-cd INTAKE-ARBITER/src && python audit.py      # 62 checks, 70 published numbers re-read
+python testing/test_n26_coverage.py selftest  # its retry budget, against all 5 measured vendor faults
+python testing/n26_recovery_watch.py plan     # what the recovery watcher would spend today; spends 0
+python testing/n26_chicago_offset.py dryrun    # Chicago's own level offset: window, lead, cost. Spends 0
+python testing/verify_site_panels.py          # renders every site in real Chrome and diffs the panels
+cd INTAKE-ARBITER/src && python audit.py      # 160 checks, 77 published numbers re-read
 cd INTAKE-ARBITER/src && python report.py     # the per-site PDF, verified by being reopened
 ```
 

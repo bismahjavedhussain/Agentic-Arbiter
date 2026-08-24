@@ -1,6 +1,6 @@
 {
  "generated_by": "INTAKE-ARBITER/src/live.py",
- "mode": "live",
+ "mode": "replay-verification",
  "metro": "ashburn",
  "site_label": "Ashburn, Virginia",
  "committed_pair": {
@@ -19,17 +19,19 @@
   "facade_gap_m": 60.3,
   "centroid_separation_m": 165.5
  },
- "utc_now": "2026-08-20T13:40:33.355066+00:00",
- "site_local_now": "2026-08-20T09:40:33.322420-04:00",
+ "utc_now": "2026-08-23T10:40:29.626884+00:00",
+ "site_local_now": "2026-08-23T06:40:29.610979-04:00",
  "site_tz": "America/New_York",
- "horizon_h": 4,
- "first_hour_site_local": "2026-08-20T10:00:00-04:00",
+ "horizon_h": 12,
+ "first_hour_site_local": "2026-08-23T07:00:00-04:00",
  "config": {
-  "limit_c": 27.0,
+  "limit_c": 24.0,
   "switch_budget": 2,
   "min_dwell_h": 3,
   "dewpoint_limit_c": 15.0,
-  "bank_mode": "longest"
+  "bank_mode": "longest",
+  "aq_limit_idx": 73.5,
+  "env_live_during_replay": false
  },
  "aoi": {
   "centre": [
@@ -45,6 +47,59 @@
   "wind_and_dewpoint": "NWS api.weather.gov gridpoint forecast (free, keyless). FortyGuard's API carries no wind field, and env_params returns no dry-bulb -- findings section 9.4",
   "rise": "this site's own 576-solve rise table on its real OSM geometry"
  },
+ "replay_sequence": {
+  "date": "2026-08-20",
+  "windows": 4,
+  "hours_site_local": [
+   9,
+   10,
+   11,
+   12
+  ],
+  "note": "the ambient trajectory is 4 CONSECUTIVE saved windows from 2026-08-20, not one window repeated -- so the temperature varies hour to hour exactly as it did on the day. Wind is still live, because no saved wind exists for a past date."
+ },
+ "horizon_plan": [
+  {
+   "window": {
+    "start_date": "2026-08-23",
+    "start_time": "07:00",
+    "end_time": "08:00",
+    "filter_type": 2
+   },
+   "lead_h": 0.325,
+   "already_cached": false
+  },
+  {
+   "window": {
+    "start_date": "2026-08-23",
+    "start_time": "08:00",
+    "end_time": "09:00",
+    "filter_type": 2
+   },
+   "lead_h": 1.325,
+   "already_cached": false
+  },
+  {
+   "window": {
+    "start_date": "2026-08-23",
+    "start_time": "09:00",
+    "end_time": "10:00",
+    "filter_type": 2
+   },
+   "lead_h": 2.325,
+   "already_cached": false
+  },
+  {
+   "window": {
+    "start_date": "2026-08-23",
+    "start_time": "10:00",
+    "end_time": "11:00",
+    "filter_type": 2
+   },
+   "lead_h": 3.325,
+   "already_cached": false
+  }
+ ],
  "nws": {
   "source": "api.weather.gov gridpoint forecast",
   "ok": true,
@@ -52,76 +107,109 @@
   "missing": [],
   "uom_note": "windSpeed converted km/h -> m/s; dewpoint already C"
  },
+ "fortyguard_env": {
+  "endpoint": "env_params",
+  "requested_day_site_local": "2026-08-23",
+  "credits": 0,
+  "class": "saved",
+  "source": "saved FortyGuard response",
+  "n_fields": 15,
+  "fixture": "diag65_env_params.json",
+  "n_hours": 24,
+  "same_day": false,
+  "note": "no saved response for 2026-08-23, so diag65_env_params.json is replayed instead. The gates are real FortyGuard values but they are NOT this date's air.",
+  "mode": "saved",
+  "matched_against": "2026-08-23",
+  "matched_against_note": "the replayed heatmap's own window date, so the temperature and the humidity describe the same day when a response for it exists",
+  "alignment": {
+   "method": "cross-correlate FortyGuard wet-bulb against NWS dew point over the horizon",
+   "lag_hours": -1,
+   "n_pairs": 4,
+   "note": "wet-bulb is BELOW dew point whenever the air is unsaturated, so this difference is expected to be positive and is NOT an error measurement -- it is used only to choose between three candidate alignments, where the correct one should be the smallest and the neighbours should be clearly worse",
+   "mean_abs_difference_c": 0.211,
+   "candidates_c": {
+    "-1": 0.211,
+    "0": 0.492,
+    "1": 0.617
+   },
+   "applied_lag_hours": 0,
+   "evidence": {
+    "min_pairs_required": 6,
+    "min_margin_c": 0.25,
+    "margin_vs_as_labelled_c": 0.281,
+    "strong_enough_to_apply": false
+   },
+   "unresolved": "measured lag -1 h is NOT applied: 4 overlapping hour(s) against 6 required, margin 0.281 C against 0.25 required. The array is used AS LABELLED and the daylight-saving question (findings 1.8) stands open. Re-run over a longer horizon to settle it."
+  }
+ },
  "spend": {
-  "credits_before": 1894500,
-  "credits_after": 1890280,
-  "credits_spent": 4220,
-  "calls_attempted": 1,
-  "cache_hits": 3,
+  "credits_before": 1650800,
+  "credits_after": 1650800,
+  "credits_spent": 0,
+  "calls_attempted": 0,
+  "cache_hits": 0,
   "note": "cache hits are byte-identical to fresh calls -- N-55"
  },
  "windows": [
   {
    "window": {
-    "start_date": "2026-08-20",
+    "start_date": "2026-08-23",
+    "start_time": "07:00",
+    "end_time": "08:00",
+    "filter_type": 2
+   },
+   "source": "replay-fixture",
+   "class": "ok",
+   "fixture": "2026-08-20_0900-1000_g60_tcm.json",
+   "tiles": 17785,
+   "tile_dist_m": 26.3,
+   "NOT_LIVE": "a saved response, replayed to verify the decision chain",
+   "lead_h": 0.325
+  },
+  {
+   "window": {
+    "start_date": "2026-08-23",
+    "start_time": "08:00",
+    "end_time": "09:00",
+    "filter_type": 2
+   },
+   "source": "replay-fixture",
+   "class": "ok",
+   "fixture": "2026-08-20_1000-1100_g60_tcm.json",
+   "tiles": 17785,
+   "tile_dist_m": 26.3,
+   "NOT_LIVE": "a saved response, replayed to verify the decision chain",
+   "lead_h": 1.325
+  },
+  {
+   "window": {
+    "start_date": "2026-08-23",
+    "start_time": "09:00",
+    "end_time": "10:00",
+    "filter_type": 2
+   },
+   "source": "replay-fixture",
+   "class": "ok",
+   "fixture": "2026-08-20_1100-1200_g60_tcm.json",
+   "tiles": 17785,
+   "tile_dist_m": 26.3,
+   "NOT_LIVE": "a saved response, replayed to verify the decision chain",
+   "lead_h": 2.325
+  },
+  {
+   "window": {
+    "start_date": "2026-08-23",
     "start_time": "10:00",
     "end_time": "11:00",
     "filter_type": 2
    },
-   "source": "cache",
+   "source": "replay-fixture",
    "class": "ok",
-   "path": "2026-08-20_1000-1100_g60_tcm.json",
+   "fixture": "2026-08-20_1200-1300_g60_tcm.json",
    "tiles": 17785,
    "tile_dist_m": 26.3,
-   "fetched_utc": "2026-08-20T12:53:46.374719+00:00"
-  },
-  {
-   "window": {
-    "start_date": "2026-08-20",
-    "start_time": "11:00",
-    "end_time": "12:00",
-    "filter_type": 2
-   },
-   "source": "cache",
-   "class": "ok",
-   "path": "2026-08-20_1100-1200_g60_tcm.json",
-   "tiles": 17785,
-   "tile_dist_m": 26.3,
-   "fetched_utc": "2026-08-20T12:54:28.343761+00:00"
-  },
-  {
-   "window": {
-    "start_date": "2026-08-20",
-    "start_time": "12:00",
-    "end_time": "13:00",
-    "filter_type": 2
-   },
-   "source": "cache",
-   "class": "ok",
-   "path": "2026-08-20_1200-1300_g60_tcm.json",
-   "tiles": 17785,
-   "tile_dist_m": 26.3,
-   "fetched_utc": "2026-08-20T12:55:16.527313+00:00"
-  },
-  {
-   "window": {
-    "start_date": "2026-08-20",
-    "start_time": "13:00",
-    "end_time": "14:00",
-    "filter_type": 2
-   },
-   "source": "live",
-   "submit_http": 200,
-   "activity_id": "f8b84db4-10e4-4700-82fd-c07584d255f7",
-   "polls": 32,
-   "elapsed_s": 309.7,
-   "statuses_seen": [
-    "completed",
-    "processing"
-   ],
-   "terminal_status": "completed",
-   "tiles": 0,
-   "class": "completed_but_empty"
+   "NOT_LIVE": "a saved response, replayed to verify the decision chain",
+   "lead_h": 3.325
   }
  ],
  "margin_provenance": {
@@ -147,64 +235,92 @@
   "borrowed_from": null,
   "borrowed_note": null
  },
- "status": "ok_partial",
+ "humidity_source_per_hour": [
+  "fortyguard-saved",
+  "fortyguard-saved",
+  "fortyguard-saved",
+  "fortyguard-saved"
+ ],
+ "humidity_source_summary": {
+  "fortyguard_hours": 4,
+  "fortyguard_mode": "saved",
+  "nws_hours": 0,
+  "gate_quantity": "wet-bulb where FortyGuard supplied it, dew point where NWS did",
+  "note": "wet-bulb >= dew point in unsaturated air, so a FortyGuard-gated hour is held to a STRICTER test than an NWS-gated one, never a looser one"
+ },
+ "air_quality": {
+  "limit_idx": 73.5,
+  "source": "FortyGuard env_params air_quality_pm2p5:idx",
+  "hours_with_a_value": 4,
+  "hours_blocked": 0,
+  "units_note": "the :idx fields carry no documented units or scale (findings 9.3), so a limit is only applied when the caller sets one and is never assumed"
+ },
+ "status": "ok_replay",
  "device": "GPU (NVIDIA Warp)",
  "hours": [
   {
-   "hour_site_local": "2026-08-20 10:00",
-   "lead_h": 1,
-   "ambient_c": 28.8416,
-   "bearing_deg": 150.0,
-   "speed_ms": 1.029,
-   "rise_c": 0.0004,
-   "margin_c": 0.152,
-   "bound_c": 28.994,
-   "dewpoint_c": 21.11,
-   "bearing_refused": false,
-   "gate_dry_ok": false,
-   "gate_dewpoint_ok": false,
-   "free_cooling": false
-  },
-  {
-   "hour_site_local": "2026-08-20 11:00",
-   "lead_h": 2,
-   "ambient_c": 30.7076,
-   "bearing_deg": 160.0,
+   "hour_site_local": "2026-08-23 07:00",
+   "lead_h": 0.325,
+   "hour_index": 1,
+   "no_data_reason": null,
+   "ambient_c": 25.6633,
+   "bearing_deg": 240.0,
    "speed_ms": 1.543,
-   "rise_c": 0.0009,
+   "rise_c": 0.2849,
    "margin_c": 0.152,
-   "bound_c": 30.8605,
-   "dewpoint_c": 21.11,
+   "bound_c": 26.1002,
+   "dewpoint_c": 20.2,
    "bearing_refused": false,
    "gate_dry_ok": false,
    "gate_dewpoint_ok": false,
    "free_cooling": false
   },
   {
-   "hour_site_local": "2026-08-20 12:00",
-   "lead_h": 3,
+   "hour_site_local": "2026-08-23 08:00",
+   "lead_h": 1.325,
+   "hour_index": 2,
+   "no_data_reason": null,
+   "ambient_c": 28.8416,
+   "bearing_deg": 260.0,
+   "speed_ms": 2.572,
+   "rise_c": 0.3481,
+   "margin_c": 0.152,
+   "bound_c": 29.3417,
+   "dewpoint_c": 20.5,
+   "bearing_refused": false,
+   "gate_dry_ok": false,
+   "gate_dewpoint_ok": false,
+   "free_cooling": false
+  },
+  {
+   "hour_site_local": "2026-08-23 09:00",
+   "lead_h": 2.325,
+   "hour_index": 3,
+   "no_data_reason": null,
+   "ambient_c": 30.7076,
+   "bearing_deg": 280.0,
+   "speed_ms": 3.601,
+   "rise_c": 0.2821,
+   "margin_c": 0.152,
+   "bound_c": 31.1417,
+   "dewpoint_c": 20.9,
+   "bearing_refused": false,
+   "gate_dry_ok": false,
+   "gate_dewpoint_ok": false,
+   "free_cooling": false
+  },
+  {
+   "hour_site_local": "2026-08-23 10:00",
+   "lead_h": 3.325,
+   "hour_index": 4,
+   "no_data_reason": null,
    "ambient_c": 32.2338,
-   "bearing_deg": 180.0,
-   "speed_ms": 2.058,
-   "rise_c": 0.0014,
+   "bearing_deg": 290.0,
+   "speed_ms": 5.144,
+   "rise_c": 0.2072,
    "margin_c": 0.152,
-   "bound_c": 32.3872,
-   "dewpoint_c": 21.67,
-   "bearing_refused": false,
-   "gate_dry_ok": false,
-   "gate_dewpoint_ok": false,
-   "free_cooling": false
-  },
-  {
-   "hour_site_local": "2026-08-20 13:00",
-   "lead_h": 4,
-   "ambient_c": null,
-   "bearing_deg": 200.0,
-   "speed_ms": 2.058,
-   "rise_c": 0.0482,
-   "margin_c": 0.152,
-   "bound_c": null,
-   "dewpoint_c": 22.22,
+   "bound_c": 32.5931,
+   "dewpoint_c": 21.4,
    "bearing_refused": false,
    "gate_dry_ok": false,
    "gate_dewpoint_ok": false,
@@ -214,25 +330,25 @@
  "summary": {
   "free_cooling_hours": 0,
   "of_hours": 4,
-  "hours_with_a_forecast": 3,
-  "hours_with_NO_forecast": 1,
+  "hours_with_a_forecast": 4,
+  "hours_with_NO_forecast": 0,
   "mode_changes": 0,
   "plan_reported_switches": 0,
   "hours_refused_by_solver": 0,
-  "hours_blocked_by_dewpoint": 3,
-  "hours_blocked_by_temperature": 3,
-  "peak_bound_c": 32.3872
+  "hours_blocked_by_dewpoint": 4,
+  "hours_blocked_by_temperature": 4,
+  "peak_bound_c": 32.5931
  },
  "commands": [
   {
-   "hour": "2026-08-20 10:00",
+   "hour": "2026-08-23 07:00",
    "index": 0,
    "command": "MECHANICAL",
-   "reason": "upper bound on intake 28.994 C is NOT under the 27.0 C plant limit (recirculation contributes +0.000 C).",
-   "bound_c": 28.9940484514612,
-   "rise_c": 0.0004,
+   "reason": "upper bound on intake 26.100 C is NOT under the 24.0 C plant limit (recirculation contributes +0.285 C).",
+   "bound_c": 26.100198451461203,
+   "rise_c": 0.2849,
    "refused": false
   }
  ],
- "operator_message": "PARTIAL HORIZON: 3 of 4 hours returned a field, 1 did not (completed_but_empty). The hours with no forecast are scheduled MECHANICAL -- chillers on is the safe default -- and are NOT counted as blocked by temperature or humidity, because nothing was measured about them. Only the 3 answered hours carry a bound."
+ "NOT_LIVE": "REPLAY VERIFICATION. The ambient trajectory is 4 CONSECUTIVE saved FortyGuard windows from 2026-08-20 (09:00, 10:00, 11:00, 12:00 site-local), so the temperature varies hour to hour exactly as it did that day -- but these are NOT the hours the schedule names, and it is not a forecast. Humidity and air quality are FortyGuard's, from the same date and the same hours. WIND IS LIVE, because no saved wind exists for a past date. Nothing in the demo may present this as a live run."
 }

@@ -30,8 +30,16 @@ A PAST WINDOW, DELIBERATELY
 --------------------------------------------------------------------------------------------
 The forecast path recovered on 2026-08-19 and was verified (DIAG-62, 17,862 tiles at 9.41 h lead).
 But it had also failed for ~30 hours immediately before that, and this is a single authorised call
-on a new site. A past window has NEVER failed on this key across nine calls, so the conservative
-choice is a fully-elapsed window: it guarantees the site gets its field.
+on a new site. A past window had NEVER failed on this key across nine calls AS OF 2026-08-19, so
+the conservative choice was a fully-elapsed window: it guaranteed the site got its field.
+
+🔴 RETRACTED 2026-08-23 -- DIAG-66. A past window is no longer a guarantee of anything. The
+national build's first live batch (20 calls, all AOIs) and a dedicated control call at Ashburn's
+own long-proven geometry BOTH came back `completed_but_empty`, fully billed, on a past/elapsed
+window -- the exact class this sentence claimed had never happened. It was true when written and
+is false now: the vendor relapsed into a general outage the same day its forecast path had
+recovered (HANDOFF.md section 4.0-RECOVERY). "Past window" is a risk-reducer, not a guarantee, and
+must never be quoted as one again.
 
     What one field buys: the real FortyGuard spatial statistics for Chicago and the screen-zero
     visual. It does NOT buy a level-offset measurement -- that needs a forecast leg AND its elapsed

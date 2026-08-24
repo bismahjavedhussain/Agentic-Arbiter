@@ -1,0 +1,48 @@
+{
+ "test": "DIAG-65 is env_params alive while heatmap is down",
+ "hypothesis": "the empty-response fault is specific to /v1/heatmap",
+ "authorised_by_user": "2026-08-22",
+ "endpoint": "env_params",
+ "metro": "ashburn",
+ "aoi_centre": [
+  39.0240165,
+  -77.4196915
+ ],
+ "side_km": 8.0,
+ "date_time": {
+  "start_date": "2026-08-22",
+  "start_time": "00:00",
+  "end_time": "23:00",
+  "filter_type": 2
+ },
+ "api_calls_made": 1,
+ "credits_before": 1662400,
+ "credits_after": 1659500,
+ "credits_spent": 2900,
+ "vendor_class": "completed_but_empty",
+ "state": "alive",
+ "n_parameters_returned": 15,
+ "populated_fields": {
+  "heat_index_celsius": 24,
+  "apparent_temperature_celsius": 24,
+  "relative_humidity_percent": 24,
+  "precipitation_mm": 24,
+  "cloud_cover_octas": 24,
+  "wet_bulb_temperature_celsius": 24,
+  "air_quality:idx": 24,
+  "air_quality_pm2p5:idx": 24,
+  "air_quality_pm10:idx": 24,
+  "air_quality_no2:idx": 24,
+  "aqi_us_co": 24,
+  "air_quality_o3:idx": 24,
+  "air_quality_so2:idx": 24,
+  "methane_ppb": 24,
+  "co2_ppm": 24
+ },
+ "wanted_fields_missing": [
+  "solar_irradiance"
+ ],
+ "h1_supported": true,
+ "conclusion": "H1 SUPPORTED. env_params served 15 populated field(s) for the same AOI and day that /v1/heatmap has been returning `completed` with n_cells: 0 for. The fault is HEATMAP-SPECIFIC. E2 is buildable now -- the humidity and air-quality gates can run on FortyGuard's own forecast while the temperature path is still broken -- and the vendor report gains a clean contrast case. NOTE: 1 field(s) we consume were absent or all-null: solar_irradiance.",
+ "does_not_establish": "whether the VALUES are correct -- only that the path serves data"
+}

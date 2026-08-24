@@ -121,7 +121,8 @@ N26_MANIFEST = os.path.join(ROOT, "testing", "results", "n26_manifest.json")
 sys.path.insert(0, HERE)
 from physics import solver                                          # noqa: E402
 from physics.solver import CALIBRATED                               # noqa: E402
-from build_site import rasterise                                    # noqa: E402
+from build_site import (BANK_DEPTH_M, BANK_FACADE_FRACTION,          # noqa: E402
+                        rasterise)
 import conformal as C                                               # noqa: E402
 import environment as E                                             # noqa: E402
 import metros as M                                                  # noqa: E402
@@ -870,13 +871,41 @@ def run_cycle():
 # ============================================================================
 # THE SCHEDULING CASES -- real KIAD days, real wind, the four MEASURED offsets
 # ============================================================================
+def case_criterion(c, worst_bearing):
+    """Render one case's criterion for THIS site's own measured worst bearing.
+
+    MODULE LEVEL so the console log and the emitted trace call the SAME function. The first version
+    was a closure defined just before the `return`, while the log loop printing the criteria runs
+    earlier in the same function -- so the console showed readers the raw
+    "{worst_bearing:.0f} deg" template while the artefact was correct. One renderer, two callers.
+
+    With no worst bearing there is nothing to quote: `.format(None)` renders "None deg" and skipping
+    the substitution leaves template syntax on the page. Both are worse than stating the true thing.
+    """
+    if "{worst_bearing" not in c:
+        return c
+    if worst_bearing is None:
+        return ("day whose wind sits closest to the worst bearing -- NOT APPLICABLE: no plume was "
+                "solved at this facility, so no bearing is worst")
+    return c.format(worst_bearing=worst_bearing)
+
+
 CASE_SPECS = [
     ("clear_cool",   "max hourly temp at least 4 C below the lowest limit in the envelope"),
     ("clear_hot",    "highest MINIMUM hourly temperature in five years -- mechanical all day"),
     ("crossing",     "crosses one limit exactly twice -- one changeover each way"),
     ("chatter",      "most limit crossings of any day in five years at some limit"),
     ("recirc_edge",  "most hours sitting within the worst recirculation rise below a limit"),
-    ("knife_edge",   "day whose wind sits closest to the worst bearing, 255 deg"),
+    # 🔴 GENERATED FROM THIS SITE'S OWN MEASUREMENT, and it used to be the literal "255 deg".
+    # 255 is ASHBURN's worst bearing. The string shipped verbatim on every site: measured
+    # 2026-08-24, `chicago_trace.json` and `dulles_trace.json` both published "closest to the worst
+    # bearing, 255 deg" while their own `rise_tables.longest.max_rise_bearing` read 240 and 265.
+    # The DAY the code picked was correct -- `knife_edge` minimises distance to the real
+    # `worst_bearing` variable -- so the selection was right and only the sentence describing it was
+    # false, which is the hardest version to notice. Fifth instance of gotcha #67 ("hard-coded
+    # narratives have asserted things that were false") and exactly what methodology rule 11 says:
+    # generate the prose from the data rather than writing it twice.
+    ("knife_edge",   "day whose wind sits closest to the worst bearing, {worst_bearing:.0f} deg"),
     ("safe_sector",  "day whose wind sits in the zero-rise sector"),
 ]
 
@@ -890,7 +919,16 @@ def select_cases(keys, temp, drct, sknt, tab):
         days.setdefault(k[:10], []).append(i)
     full = {d: ix for d, ix in days.items() if len(ix) >= 20 and not np.isnan(temp[ix]).any()}
     worst_rise = float(tab.max())
-    worst_bearing = float(BEARINGS[int(np.unravel_index(int(np.argmax(tab)), tab.shape)[0])])
+    # 🔴 argmax OF AN ALL-ZERO TABLE RETURNS INDEX 0, AND INDEX 0 IS DUE NORTH.
+    # A standalone facility's rise table is identically zero -- there is no neighbour intake for a
+    # plume to be worst at -- so this line published `worst_bearing_deg: 0.0`, and the knife_edge
+    # criterion rendered "the worst bearing, 0 deg". That is a fabricated compass direction, and it
+    # would have appeared in the trace, the wind dial and the PDF for 360 facilities.
+    # The rise table already publishes `max_rise_bearing: null` for exactly this reason; this is the
+    # same quantity computed a second time here, and it has to agree. Found by `audit.py` crashing
+    # while comparing the two -- the check disagreeing with the artefact is what exposed it.
+    worst_bearing = (None if not np.any(tab > 0.0) else
+                     float(BEARINGS[int(np.unravel_index(int(np.argmax(tab)), tab.shape)[0])]))
     lo, hi = min(PLANT_ENVELOPE["limit_c"]), max(PLANT_ENVELOPE["limit_c"])
     picks = {}
 
@@ -920,12 +958,21 @@ def select_cases(keys, temp, drct, sknt, tab):
         ok = (~np.isnan(b)) & (s >= CALM_KT)
         if ok.sum() < 12:
             continue
-        db = np.abs(((b[ok] - worst_bearing + 180.0) % 360.0) - 180.0)
-        c6.append((d, float(db.mean())))
+        if worst_bearing is not None:
+            db = np.abs(((b[ok] - worst_bearing + 180.0) % 360.0) - 180.0)
+            c6.append((d, float(db.mean())))
         r = lookup_rise(tab, b[ok], np.maximum(s[ok] * 0.514444, 0.3))
         c7.append((d, float(np.abs(r).mean())))
-    picks["knife_edge"] = min(c6, key=lambda x: x[1])[0] if c6 else None
-    picks["safe_sector"] = min(c7, key=lambda x: x[1])[0] if c7 else None
+    # NO WORST BEARING, NO knife_edge DAY. The case is "the day whose wind sat closest to the worst
+    # bearing" -- with no worst bearing there is no such day, and `min()` over an all-equal list
+    # would return whichever day happened to sort first while the label claimed it was chosen for a
+    # reason. `None` here renders as "NONE FOUND", which is what the other cases already do when
+    # five years of weather contain no example.
+    picks["knife_edge"] = (min(c6, key=lambda x: x[1])[0] if c6 else None)
+    # `safe_sector` is degenerate the same way when every rise is zero -- every day is equally
+    # "in the zero-rise sector", so picking one implies a discrimination that did not happen.
+    picks["safe_sector"] = (min(c7, key=lambda x: x[1])[0]
+                            if (c7 and worst_bearing is not None) else None)
     return picks, worst_rise, worst_bearing
 
 
@@ -975,9 +1022,13 @@ def plume_uncertainty_terms(mode):
     """
     try:
         from plume_uncertainty import lookup_spread, spread_table   # noqa: F401
-        pj = os.path.join(DEMO, "plume_uncertainty.json")
+        # PER-SITE. This was `os.path.join(DEMO, ...)` -- unsuffixed -- so every site after the
+        # first read the first site's calibration. See spread_table()'s docstring for the full
+        # measurement of what that shipped.
+        pj = M.demo_path("plume_uncertainty.json")
         if not os.path.exists(pj):
-            return None, 0.0, None, "plume_uncertainty.json missing -- run plume_uncertainty.py"
+            return None, 0.0, None, ("%s missing -- run plume_uncertainty.py for this metro"
+                                     % os.path.basename(pj))
         cal = json.load(open(pj, encoding="utf-8"))["calibration"]
         sd = cal["shipped"]["sigma_dir_deg"]
         mult = cal["shipped"]["multiplier"]
@@ -1032,11 +1083,17 @@ def run_cases(fg_offsets, extra_note=""):
     say("\n   case selection, by the criteria printed here, over %d complete days:"
         % len({k[:10] for k in keys}))
     for name, crit in CASE_SPECS:
-        say("      %-12s %-12s  %s" % (name, picks.get(name) or "NONE FOUND", crit))
-    say("      worst recirculation rise on the committed geometry: %+.4f C at %.0f deg"
-        % (worst_rise, worst_bearing))
-    say("      NOTE %.4f C is BELOW the 0.556 C resolution of the ASOS station one would" % worst_rise)
-    say("           validate against. Real physics, small here, and said so rather than hidden.")
+        say("      %-12s %-12s  %s" % (name, picks.get(name) or "NONE FOUND",
+                                       case_criterion(crit, worst_bearing)))
+    if worst_bearing is None:
+        say("      no recirculation was solved: this facility has no tagged neighbour inside the")
+        say("      solver's validated range, so there is no intake for a rise to be worst at.")
+    else:
+        say("      worst recirculation rise on the committed geometry: %+.4f C at %.0f deg"
+            % (worst_rise, worst_bearing))
+        say("      NOTE %.4f C is BELOW the 0.556 C resolution of the ASOS station one would"
+            % worst_rise)
+        say("           validate against. Real physics, small here, and said so rather than hidden.")
 
     # ---- THE BOUND IS NOW GROUP-CONDITIONAL (MONDRIAN), not one pooled quantile.
     # Measured on this exact data (backtest.py's Mondrian audit): a pooled quantile reads 0.9017
@@ -1444,9 +1501,19 @@ def run_cases(fg_offsets, extra_note=""):
     say("      ^ `longest` only, since pooling the modes would hide the effect. Unanchored, the")
     say("        agent carries FortyGuard's day-level offset into every decision -- and because a")
     say("        one-sided UPPER bound protects safety rather than efficiency, it cannot un-bias")
-    say("        a warm forecast. Measured over five real years in backtest.py: the same step")
-    say("        costs about 595 h/yr (+489.7 -> -104.8 h/yr at 3 h notice) while coverage RISES")
-    say("        to 0.9865 -- the bound stays safe and pays for it in hours.")
+    # GOTCHA #67, and it stood in this string for weeks. It used to print "costs about 595 h/yr
+    # (+489.7 -> -104.8 h/yr at 3 h notice) while coverage RISES to 0.9865" -- long after the
+    # ladder had moved to +405.7 -> -156.0, i.e. a ~562 h/yr step. Those are backtest.py's
+    # numbers: agent.py never opens backtest.json AND runs BEFORE it in run_all, so a figure
+    # typed here is one no check re-reads and one this module cannot recompute. Teaching it to
+    # read the artefact would be worse -- on a rebuild it would read the PREVIOUS run's file and
+    # present a stale number as current (gotcha #73's family). So state the DIRECTION, which the
+    # table above actually demonstrates, and send the reader to the artefact for the magnitude.
+    say("        a warm forecast. The table above carries the DIRECTION; for the five-year")
+    say("        MAGNITUDE read the anchored and unanchored rows of `n56_audit` in")
+    say("        demo/backtest.json, where audit.py check 6 registers all five with coverage.")
+    say("        Dropping the anchor COSTS HOURS while coverage RISES -- the bound stays safe")
+    say("        and pays for it in hours.")
     say("        SO THE HOURS CLAIM IS CONDITIONAL and the condition is stated: it wants a level")
     say("        anchor. The 90 % SAFETY guarantee is NOT conditional on hardware -- it needs")
     say("        ~10 calibration days of pure FortyGuard data (HANDOFF 7.3).")
@@ -1455,7 +1522,17 @@ def run_cases(fg_offsets, extra_note=""):
           lambda r: r["notice_h"], "%d h", order=PLANT_ENVELOPE["notice_h"])
     say("      ^ 0 h notice is the incumbent reading the PRESENT with a sensor we gave it for")
     say("        free and error-free. Nothing that forecasts can beat that, and nothing here")
-    say("        claims to: N-56 puts the zero-notice gain at +67 h/yr, recirculation alone.")
+    # RETRACTED CLAIM, HANDOFF 2.3 and 6.3. This printed "N-56 puts the zero-notice gain at
+    # +67 h/yr, recirculation alone." The registered retraction in audit.py:RETRACTED_CLAIMS is
+    # "+67 h/yr from recirculation alone" -- this string said "+67 h/yr, recirculation alone", so
+    # it evaded the exact-substring registry BY ONE WORD while asserting the misattribution
+    # verbatim. The gain is an uncertainty asymmetry (FortyGuard's forecast error against a
+    # customer sensor's), not recirculation. Figure not restated: it is backtest.py's.
+    say("        claims to. And the zero-notice gain is NOT recirculation: it is an UNCERTAINTY")
+    say("        ASYMMETRY between FortyGuard's forecast error and a customer sensor's, which is")
+    say("        why `n56_audit`'s A-rows sweep the sensor error. The plume term contributes part")
+    say("        of it -- the B-rows isolate it -- and buys most of the SAFETY, not most of the")
+    say("        hours. It buys BOTH; it does not trade one for the other.")
 
     block("ANCHORED ONLY, by forecast skill vs persistence (swept, never assumed):",
           lambda r: r["forecast_skill"] if r["anchor"] == "sensor" else None,
@@ -1673,7 +1750,11 @@ def run_cases(fg_offsets, extra_note=""):
     say("      That is physics, not inertia -- but the interface has to SAY so, or an all-mechanical")
     say("      day reads as an agent doing nothing. See demo/index.html drawZeroNote().")
 
-    return {"cases": [{"name": n, "criterion": c, "day": picks.get(n)} for n, c in CASE_SPECS],
+    # `.format` on EVERY criterion, not just the one with a placeholder: a criterion that gains a
+    # site-specific number later then cannot be added without it being filled, and the ones without
+    # placeholders are unaffected (none contains a brace -- asserted below).
+    return {"cases": [{"name": n, "criterion": case_criterion(c, worst_bearing),
+                       "day": picks.get(n)} for n, c in CASE_SPECS],
             "worst_rise_c": worst_rise, "worst_bearing_deg": worst_bearing,
             "incumbent_margin": {str(k): v for k, v in inc_margin.items()},
             "scenarios": results,
@@ -1784,16 +1865,50 @@ def run_all():
 
     banner("EXPORT   the demo's only input")
     os.makedirs(DEMO, exist_ok=True)
+    # ---- WHICH FORTYGUARD FIELD THIS SITE SHIPS, and it is no longer Ashburn's by default -------
+    # 🔴 THIS EXPORTED ASHBURN'S EIGHT PAIR FIELDS INTO EVERY SITE'S TRACE UNTIL 2026-08-21. The
+    # demo's "Screen zero -- FortyGuard's field" panel reads `T.fields`, so selecting Chicago
+    # displayed a heatmap of LOUDOUN COUNTY, VIRGINIA. It was labelled -- the note said the site had
+    # no field of its own -- and for Chicago that label was itself WRONG: one past-window heatmap
+    # was purchased for Chicago on 2026-08-19, 17,797 tiles, 4,220 credits, and it sat unused in
+    # `testing/results/fixtures/` while the page showed Ashburn's and claimed Chicago had none.
+    # `metros.py`'s own docstring already required this: *"the interface must say plainly that no
+    # FortyGuard field was purchased for it rather than borrowing another site's."* The intent was
+    # right and the implementation had drifted from it.
+    # Three cases, from the registry, never from a fallback:
     fields = {}
-    if cyc:
+    m_fg = M.metro()
+    if cyc and m_fg.get("fortyguard_day_pairs"):
+        # (1) MEASURED DAY-PAIRS of its own -- a forecast leg and its elapsed outcome. Ashburn only.
         for p in cyc["pairs"]:
             fields[p["date"] + "_forecast"] = export_field(p["forecast_tag"],
                                                            "field_%s_forecast.json" % p["date"])
             fields[p["date"] + "_outcome"] = export_field(p["outcome_tag"],
                                                           "field_%s_outcome.json" % p["date"])
+    elif m_fg.get("fortyguard_field_fixture"):
+        # (2) ONE PURCHASED PAST WINDOW. Real, this site's own, and NOT a pair: it carries no
+        # forecast leg, so it buys the spatial statistics and the screen-zero visual and cannot buy
+        # a level offset or a coverage record. The key is named for what it is, so no reader can
+        # mistake it for a pair.
+        got = export_field(m_fg["fortyguard_field_fixture"],
+                           "field_%s_observed.json" % M.metro_key())
+        if got:
+            fields["observed_past_window"] = got
+            say("      this site's OWN purchased field: %s tiles (one past window, not a pair)"
+                % format(got["n_tiles"], ","))
+    else:
+        # (3) NOTHING PURCHASED. Ship nothing. An empty block is a true statement; another site's
+        # field is not, however carefully it is labelled.
+        say("      no FortyGuard field was purchased for %s, so NONE is shipped -- the panel says"
+            % m_fg["label"])
+        say("      so. Borrowing Ashburn's here is what this used to do and it is what the registry"
+            " docstring already forbade.")
     dtab = json.load(open(M.geom_path("direction_table.json"), encoding="utf-8"))
     site_geom = {m: json.load(open(M.geom_path("solver_site_%s.json" % m), encoding="utf-8"))
                  for m in PLANT_ENVELOPE["bank_mode"]}
+    # WHO THIS PLANT IS, read from the file `commit_site.py` wrote. The trace used to name Ashburn's
+    # two AWS halls regardless of the metro -- see the `site` block below.
+    _committed = json.load(open(M.geom_path("selected_site.json"), encoding="utf-8"))
 
     trace = {
         "generated_by": "INTAKE-ARBITER/src/agent.py",
@@ -1824,15 +1939,46 @@ def run_all():
                      if M.metro_key() != M.DEFAULT_METRO else
                      "this site's own measured FortyGuard forecast/outcome day pairs"),
         },
+        # 🔴 THESE THREE WERE ASHBURN LITERALS, IN EVERY SITE'S TRACE, UNTIL 2026-08-21.
+        # `osm_source: 744496750`, `osm_receptor: 744496741` and the operator string "Amazon Web
+        # Services IAD116 / IAD117" were typed here, so Chicago's trace identified its plant as a
+        # pair of AWS halls in Virginia -- and `report.py` prints the OSM pair straight onto page 1
+        # of the downloadable PDF. Found by walking every leaf of the three traces and reporting the
+        # ones that agreed: two OSM ids that are identical across three different metros cannot be
+        # right, and no test compared them because none had been asked to.
+        # They are read from the same `*_selected_site.json` that `commit_site.py` wrote and that
+        # `metros.export_manifest()` reads, so there is one source of truth for who this plant is.
         "site": {"centre": list(SITE_CENTRE),
-                 "osm_source": 744496750, "osm_receptor": 744496741,
-                 "operator": "Amazon Web Services IAD116 / IAD117",
+                 "osm_source": _committed["source_building"]["osm_id"],
+                 "osm_receptor": _committed["receptor_building"]["osm_id"],
+                 # ONE BUILDING GETS ONE NAME. The pair form ("A / B") rendered as
+                 # "Apple / unnamed" for a standalone facility, and this string is printed on page 1
+                 # of the downloadable PDF as the reader's check that they are looking at the right
+                 # plant -- so a phantom second hall in it is worse than cosmetic.
+                 "operator": ("%s / %s" % (_committed["source_building"].get("name") or "unnamed",
+                                           _committed["receptor_building"].get("name") or "unnamed")
+                              if _committed["receptor_building"].get("osm_id") is not None
+                              else (_committed["source_building"].get("name") or "unnamed")),
                  "facade_gap_m": site_geom["longest"]["facade_gap_m"],
-                 "geometry": {m: {k: site_geom[m][k] for k in
-                                  ("domain", "source_ring_m", "receptor_ring_m", "bank_ring_m",
-                                   "source_centre_m", "receptor_centre_m", "intake_m",
-                                   "intake_radius_m", "bank_cells", "bank_area_m2", "bank_mode")}
-                              for m in site_geom}},
+                 # 🔴 `bank_length_m` AND `facade_length_m` ARE PUBLISHED BECAUSE THE PAGE WAS
+                 # ASSERTING THEM AS LITERALS. `demo/index.html`'s wind-dial note read "The
+                 # realistic placement -- a 123 m facade" and "a 50 m end wall" on EVERY site, and
+                 # measured 2026-08-24 the real facades are 162.5 m (Ashburn), 200.0 (Chicago),
+                 # 293.8 (Dulles) and 337.5 (the first national facility) -- so 123 m was wrong for
+                 # all four, including the site it was presumably typed from. "50 m end wall" was
+                 # Ashburn's BANK length described as a wall, which is a different quantity again.
+                 # Sixth instance of gotcha #67, and rendered. Derived here, in Python, from the
+                 # rasterised bank area and the two ASSUMED constants that produced it, so the page
+                 # prints a number instead of owning one.
+                 "geometry": {m: dict(
+                     {k: site_geom[m][k] for k in
+                      ("domain", "source_ring_m", "receptor_ring_m", "bank_ring_m",
+                       "source_centre_m", "receptor_centre_m", "intake_m",
+                       "intake_radius_m", "bank_cells", "bank_area_m2", "bank_mode")},
+                     bank_length_m=round(site_geom[m]["bank_area_m2"] / BANK_DEPTH_M, 1),
+                     facade_length_m=round(site_geom[m]["bank_area_m2"]
+                                           / BANK_DEPTH_M / BANK_FACADE_FRACTION, 1))
+                     for m in site_geom}},
         "plant_envelope": PLANT_ENVELOPE,
         "alpha": ALPHA,
         "physics_provenance": {
@@ -1855,15 +2001,33 @@ def run_all():
         "cycle": cyc,
         "cases": cas,
         "fields": fields,
+        # `u_median_ms` IS COPIED THROUGH from 2026-08-21, and it is not decoration: it is the wind
+        # speed every row in `rows` and every one of the 72 RENDERED plume fields was solved at. It
+        # was Ashburn's on all three sites until that day, and the trace could not have shown it,
+        # because the trace did not carry it. `audit.check_wind_is_this_sites_own()` joins it to the
+        # shipped field's own `wind_speed_ms` -- a number you cannot check without publishing it.
         "direction_table": {"parameters": dtab["parameters"], "wind": dtab["wind"],
                             "modes": {m: {"rows": dtab["modes"][m]["rows"],
                                           "worst": dtab["modes"][m]["worst"],
+                                          "u_median_ms": dtab["modes"][m].get("u_median_ms"),
                                           "n_refused": dtab["modes"][m]["n_refused"],
                                           "n_downwind": dtab["modes"][m]["n_downwind"],
                                           "n_downwind_refused": dtab["modes"][m]["n_downwind_refused"],
                                           "wind_weighted": dtab["modes"][m]["wind_weighted"]}
                                       for m in dtab["modes"]}},
         "standing_results_quoted_elsewhere": {
+            # WHERE THESE WERE MEASURED, stated in the block rather than implied by the file it
+            # sits in. Every figure below is a cross-reference to an earlier experiment, and all of
+            # the SITE-dependent ones were run at Ashburn -- so carrying them unlabelled inside a
+            # Chicago trace invites exactly the reading this project has spent two days removing.
+            # The Warp figures are the exception and are marked as such: a GPU speed-up is a
+            # property of this machine, not of a data centre.
+            "measured_at": M.DEFAULT_METRO,
+            "measured_at_note": ("these are standing results from earlier experiments, all run on "
+                                 "the Ashburn site. They are quoted here for reference and are NOT "
+                                 "this site's measurements unless this site IS Ashburn. The "
+                                 "warp_speedup figures are hardware, not site, and apply anywhere."),
+            "is_this_sites_own": M.metro_key() == M.DEFAULT_METRO,
             "n56_free_cooling_floor_h_per_year": 67,
             "n56_paired_per_day_h": {"mean": 0.1827, "se": 0.0196,
                                      "ci95": [0.1443, 0.2211], "n_days": 914},
@@ -1882,24 +2046,55 @@ def run_all():
     # arrives -- but it is SHIPPED IN FULL, because "we swept it" is only checkable if you can
     # read every row.
     if cas and cas.get("scenarios"):
-        sp = M.demo_path("scenarios.json")
-        # COLUMNAR, not a list of objects. Repeating 24 key names 40,320 times costs ~18 MB of
-        # nothing. Same rows, same fidelity, ~4x smaller: `columns` names the fields and `rows`
-        # holds one array per scenario in that order.
-        cols = list(cas["scenarios"][0].keys())
-        json.dump({"n": len(cas["scenarios"]),
-                   "swept_axes": list(PLANT_ENVELOPE.keys()) + ["forecast_skill", "case",
-                                                               "fortyguard_offset_day"],
-                   "forecast_skill_grid": FORECAST_SKILL,
-                   "columns": cols,
-                   "rows": [[r[c] for c in cols] for r in cas["scenarios"]]},
-                  open(sp, "w", encoding="utf-8"), default=_jsonable, allow_nan=False)
-        say("      %-28s %s rows x %d cols -> %s (%.1f KB)"
-            % ("the full plant-envelope sweep", format(len(cas["scenarios"]), ","), len(cols),
-               os.path.basename(sp), os.path.getsize(sp) / 1024.0))
+        # 🔴 THE SWEEP RUNS FOR EVERY SITE; THE 31 MB DUMP DOES NOT, AND THAT IS A SCALE DECISION.
+        # scenarios.json has exactly ONE consumer in the tree: demo/verify_browser_decision.js,
+        # which opens `__dirname + '/scenarios.json'` -- the UNSUFFIXED reference file, on every
+        # run. index.html never names it, audit.py never opens it, and nothing reads
+        # artefacts["scenarios"] out of the manifest. So chicago_scenarios.json and
+        # dulles_scenarios.json were 61.9 MB shipped on no code path at all.
+        # At three sites that is untidy. At national scale it is decisive: ~31 MB per site against
+        # a repo that must stay publishable on GitHub, where the whole rest of a site's artefacts
+        # come to ~5 MB. Writing it for every site would put a 100-site build past 3 GB.
+        # WHAT IS NOT REDUCED: the sweep itself still runs in full for every site, so
+        # trace["cases"]["summary"] and every audited number are computed from all 120,960 rows.
+        # Only the row dump is skipped, and only where nothing reads it.
+        # Force it anywhere with WRITE_SCENARIOS=1 -- the cross-language test needs exactly one.
+        is_reference = M.metro_key() == M.DEFAULT_METRO
+        want_dump = is_reference or os.environ.get("WRITE_SCENARIOS") == "1"
         trace["cases"] = dict(cas)
-        trace["cases"]["scenarios"] = {"in_file": "scenarios.json", "n": len(cas["scenarios"])}
         trace["cases"]["summary"] = _summarise(cas["scenarios"])
+        if want_dump:
+            sp = M.demo_path("scenarios.json")
+            # COLUMNAR, not a list of objects. Repeating 24 key names 40,320 times costs ~18 MB of
+            # nothing. Same rows, same fidelity, ~4x smaller: `columns` names the fields and `rows`
+            # holds one array per scenario in that order.
+            cols = list(cas["scenarios"][0].keys())
+            json.dump({"n": len(cas["scenarios"]),
+                       "swept_axes": list(PLANT_ENVELOPE.keys()) + ["forecast_skill", "case",
+                                                                    "fortyguard_offset_day"],
+                       "forecast_skill_grid": FORECAST_SKILL,
+                       "columns": cols,
+                       "rows": [[r[c] for c in cols] for r in cas["scenarios"]]},
+                      open(sp, "w", encoding="utf-8"), default=_jsonable, allow_nan=False)
+            say("      %-28s %s rows x %d cols -> %s (%.1f KB)"
+                % ("the full plant-envelope sweep", format(len(cas["scenarios"]), ","), len(cols),
+                   os.path.basename(sp), os.path.getsize(sp) / 1024.0))
+            # NAME THE FILE THAT WAS ACTUALLY WRITTEN. This said "scenarios.json" unconditionally,
+            # so every non-reference site's trace pointed a reader at ASHBURN's file -- gotcha
+            # #133's family, one field over.
+            trace["cases"]["scenarios"] = {"in_file": os.path.basename(sp),
+                                           "n": len(cas["scenarios"])}
+        else:
+            say("      %-28s %s rows swept, dump skipped (read by nothing for this site)"
+                % ("the full plant-envelope sweep", format(len(cas["scenarios"]), ",")))
+            trace["cases"]["scenarios"] = {
+                "in_file": None,
+                "n": len(cas["scenarios"]),
+                "not_shipped_because": (
+                    "the row dump has one consumer, verify_browser_decision.js, and it reads the "
+                    "reference site's file only. The sweep RAN in full and this trace's summary is "
+                    "computed from all of it; re-emit with WRITE_SCENARIOS=1."),
+            }
 
     trace["runtime_seconds"] = round(time.time() - t0, 2)
 

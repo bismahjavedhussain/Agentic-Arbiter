@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(python -c ' *)",
-      "Bash(python validate2.py)"
+      "Bash(python validate2.py)",
+      "Bash(METRO=chicago python plume_uncertainty.py)"
     ]
   }
 }

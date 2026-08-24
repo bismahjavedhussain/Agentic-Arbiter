@@ -31,6 +31,8 @@ the mistake this project has made most often (gotcha #12).
     four attempts each with growing backoff, and `failed_chunks` recorded in the output rather than
     a silent gap. A partial record is written ONLY with its failures listed.
 """
+import datetime
+import glob
 import json
 import os
 import statistics
@@ -99,16 +101,94 @@ def parse_into(raw, obs):
     return kept
 
 
+def expected_hours():
+    """The REAL number of hours in the requested span, counted from the calendar.
+
+    🔴 THIS WAS `len(YEARS) * 8760`, AND 2024 IS A LEAP YEAR.
+    2021-01-01 00:00 to 2026-01-01 00:00 is 1,826 days = **43,824 hours**, not 43,800. So every
+    coverage figure this module has ever written is inflated by a factor of 1.000548, i.e. +0.055
+    percentage points. Measured on the four records on disk: KIAD 0.999155 published against
+    0.998608 true, KFFZ 0.957055 against 0.956531.
+
+    Small, and it did not change any of the four existing verdicts -- but `MIN_COVERAGE` is a
+    DECISION BOUNDARY at 0.95, so an inflated numerator-over-denominator can pass a station that
+    should fail: a true 0.9497 record reports 0.9502. At three hand-checked sites that is noise. At
+    639 facilities, each assigned a station by this gate with nobody inspecting individual results,
+    it is a wrong answer waiting for the station that lands in the 0.055 pp band.
+
+    Counted, not multiplied, so it stays right if YEARS ever changes.
+    """
+    a = datetime.date(YEARS[0], 1, 1)
+    b = datetime.date(YEARS[-1] + 1, 1, 1)
+    return (b - a).days * 24
+
+
+def recompute_meta(path):
+    """Recompute the derived meta of an EXISTING record from its own stored hours. No network.
+
+    `build()` returns early when the file exists -- correctly, since refetching costs 60 requests
+    per station against a free shared service for data that has not changed. But that also means a
+    fix to a DERIVED figure (like the leap-year denominator above) would never reach the four
+    records already on disk without deleting and refetching them: 240 requests to recompute a
+    division. This recomputes from the hours already stored, which is the same arithmetic on the
+    same inputs.
+    """
+    d = json.load(open(path, encoding="utf-8"))
+    hours, meta = d["hours"], d["meta"]
+    temps = sorted(v[0] for v in hours.values() if v[0] is not None)
+    if not temps:
+        return None
+    nT = len(temps)
+    before = meta.get("coverage_frac")
+    meta["n_hours"] = len(hours)
+    meta["n_with_temp"] = nT
+    meta["expected_hours_5y"] = expected_hours()
+    meta["coverage_frac"] = nT / float(expected_hours())
+    meta["temp_min"], meta["temp_max"] = temps[0], temps[-1]
+    meta["temp_p10"] = temps[int(0.10 * (nT - 1))]
+    meta["temp_p90"] = temps[int(0.90 * (nT - 1))]
+    meta["temp_median"] = statistics.median(temps)
+    json.dump(d, open(path, "w", encoding="utf-8"), allow_nan=False)
+    return before, meta["coverage_frac"], nT
+
+
+def station_path(station):
+    """Where a station's record lives. Keyed by STATION, not by site, which is the whole point:
+    Ashburn and Dulles already share `kiad_hourly_2021_2025.json` deliberately, and at national
+    scale hundreds of facilities will legitimately share a few hundred stations. Sharing a station
+    is physically correct; sharing geometry, imagery, a tile or a plume is not."""
+    if station.upper() == "IAD":
+        return os.path.join(os.path.dirname(M.weather_path("ashburn")),
+                            "kiad_hourly_2021_2025.json")     # PRE-EXISTING, audited, do not rename
+    return os.path.join(os.path.dirname(M.weather_path("ashburn")),
+                        "k%s_hourly_2021_2025.json" % station.lower())
+
+
 def build(key):
+    """Fetch the record for a REGISTRY key, resolving its station and zone from the registry."""
     met = M.metro(key)
-    station, tz = met["station"], met["tz"]
-    out_path = M.weather_path(key)
+    return build_station(met["station"], met["tz"], M.weather_path(key),
+                         label=met.get("label"), metro=key)
+
+
+def build_station(station, tz, out_path, label=None, metro=None):
+    """Fetch a five-year record for an ARBITRARY station code and zone.
+
+    THE GENERALISATION S5 NEEDED. `build()` used to resolve `station`, `tz` and the output path from
+    `metros.METROS` -- five hand-written entries -- so there was no way to fetch a station chosen by
+    measurement rather than typed by a person. Everything below is the original body unchanged; only
+    the three inputs moved from a registry lookup to arguments. `build()` is now a thin caller, so
+    there is exactly one implementation of the fetch (gotcha #12).
+    """
+    if not station:
+        raise SystemExit("build_station needs a station code; refusing to guess one")
     if os.path.exists(out_path):
         d = json.load(open(out_path, encoding="utf-8"))
         print("   %-11s cached: %s  (%s records)"
-              % (key, os.path.basename(out_path), format(len(d["hours"]), ",")))
+              % (metro or station, os.path.basename(out_path), format(len(d["hours"]), ",")))
         return 0
 
+    key = metro or station
     print("\n   %-11s K%s  tz %s  ->  %s"
           % (key, station, tz, os.path.basename(out_path)))
     print("      %d monthly chunks. Iowa State rate-limits, so this is slow on purpose."
@@ -141,26 +221,32 @@ def build(key):
 
     temps = sorted(v[0] for v in hours.values() if v[0] is not None)
     nT = len(temps)
-    cov = nT / (len(YEARS) * 8760.0)
+    cov = nT / float(expected_hours())
     meta = {
         "station": "K" + station, "years": YEARS,
         "tz_requested_from_server": tz,
         "fields": ["tmpc", "dwpc", "drct", "sknt"],
         "n_hours": len(hours), "n_with_temp": nT,
-        "expected_hours_5y": len(YEARS) * 8760,
+        "expected_hours_5y": expected_hours(),
         "coverage_frac": cov,
         "temp_min": temps[0], "temp_p10": temps[int(0.10 * (nT - 1))],
         "temp_median": statistics.median(temps),
         "temp_p90": temps[int(0.90 * (nT - 1))], "temp_max": temps[-1],
         "failed_chunks": failed,
-        "metro": key, "metro_label": met["label"],
+        # `metro` is None when the station was chosen by MEASUREMENT rather than named in the
+        # hand-written registry -- a station serves facilities, it does not belong to one.
+        "metro": metro, "metro_label": label,
         "source": "NOAA ASOS via Iowa State Environmental Mesonet (free, no key)",
         "generated_by": "INTAKE-ARBITER/src/fetch_weather.py",
     }
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     json.dump({"hours": hours, "meta": meta}, open(out_path, "w"), allow_nan=False)
+    # `expected_hours()`, not `len(YEARS) * 8760` -- the printed denominator was still the stale
+    # 43,800 while `cov` above had already been corrected to the real 43,824, so the line reported a
+    # correct percentage against a wrong total. A number and its own denominator disagreeing in one
+    # sentence is the "prose that no check re-reads" family (rule 11) in miniature.
     print("      %s records, %.2f %% of the %d hours in five years%s"
-          % (format(len(hours), ","), 100 * cov, len(YEARS) * 8760,
+          % (format(len(hours), ","), 100 * cov, expected_hours(),
              ("  FAILED CHUNKS: " + ",".join(failed)) if failed else ""))
     print("      dry-bulb  min %.1f  p10 %.1f  median %.1f  p90 %.1f  max %.1f C"
           % (meta["temp_min"], meta["temp_p10"], meta["temp_median"], meta["temp_p90"],
@@ -203,6 +289,26 @@ def main(argv):
     print("=" * 78)
     print("FIVE-YEAR HOURLY WEATHER  --  free, keyless, NOAA ASOS via Iowa State")
     print("=" * 78)
+    if "--recompute-meta" in argv:
+        # ZERO NETWORK. Re-derives coverage and the percentiles from hours already on disk, so a
+        # correction to a DERIVED figure does not cost 60 requests per station against a free
+        # shared service for data that has not changed.
+        print("   recomputing derived meta from stored hours. No requests will be made.")
+        print("   expected hours in %d-%d = %d (counted from the calendar, leap years included)"
+              % (YEARS[0], YEARS[-1], expected_hours()))
+        n = 0
+        for p in sorted(glob.glob(os.path.join(os.path.dirname(M.weather_path("ashburn")),
+                                               "k*_hourly_*.json"))):
+            r = recompute_meta(p)
+            if r:
+                before, after, nT = r
+                print("      %-34s %s -> %.6f  (%s hours with temperature)"
+                      % (os.path.basename(p),
+                         ("%.6f" % before) if before is not None else "none", after,
+                         format(nT, ",")))
+                n += 1
+        print("   %d record(s) updated." % n)
+        return 0
     if "--all" in argv:
         keys = [k for k in sorted(M.METROS) if not os.path.exists(M.weather_path(k))]
         if not keys:

@@ -20,10 +20,10 @@ evidence without a test failing.
 | | |
 |---|---|
 | Plan | **`Hackathon`**, issued **2,000,000** credits, active 2026-08-18 → 2026-09-22 |
-| **Paid calls made** | **65** |
-| **Credits spent** | **274,300** |
-| **Share of the plan used** | **13.71 %** |
-| Credits remaining | **1,725,700** |
+| **Paid calls made** | **137** |
+| **Credits spent** | **571,540** |
+| **Share of the plan used** | **28.58 %** |
+| Credits remaining | **1,428,460** |
 | Calls at demo view time | **0 in REPLAY** (the default, and what a static host serves). **LIVE mode calls one heatmap per forecast hour** — see §6 |
 
 Thirteen calls is a deliberately small number, and it is small for two reasons that pull in
@@ -60,13 +60,13 @@ readings.
 | `GET /v1/status/{activity_id}` | **free** | unchanged meter across 59 polls | Polling a submitted activity to completion |
 | `POST /v1/system/fetch-api-key-usage` | **free** | unchanged meter | The meter itself — which is what makes this ledger possible |
 
-**All 65 paid calls on this plan were `/v1/heatmap`.** That is not an assumption: 274,300 ÷ 4,220 =
-**65 exactly**, with no remainder, and a single `env_params` call at 2,900 would have made the
+**All 137 paid calls on this plan were `/v1/heatmap`.** That is not an assumption: 571,540 ÷ 4,220 =
+**137 exactly**, with no remainder, and a single `env_params` call at 2,900 would have made the
 division impossible.
 
 ---
 
-## 3. The 65 calls, itemised
+## 3. The 137 calls, itemised
 
 Five calls saved a before/after meter pair and so are individually named. The rest are visible as
 gaps between readings and are counted, not named — the distinction is kept because *"11 of 13 calls
@@ -84,12 +84,12 @@ Classified by what the artefacts record:
 
 | | Calls | Credits |
 |---|---|---|
-| Returned a populated field, tile count saved | **7** | 29,540 |
-| Returned `completed` with **zero** features, individually attributed | **42** | 177,240 |
-| Not individually attributable — a gap between two readings | **16** | 67,520 |
+| Returned a populated field, tile count saved | **19** | 80,180 |
+| Returned `completed` with **zero** features, individually attributed | **54** | 227,880 |
+| Not individually attributable — a gap between two readings | **59** | 248,980 |
 
-So **64.6 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
-call also failed — is **89.2 %**. The vendor record makes the ceiling far likelier than the floor:
+So **39.9 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
+call also failed — is **83.4 %**. The vendor record makes the ceiling far likelier than the floor:
 across 08-18…08-20 the forecast leg failed **every single time it was tried.** The collector's
 08-18 and 08-19 attempts predate the per-day attempt counter it gained on 08-19, which is why their
 individual count is not recoverable and is not claimed.
@@ -135,12 +135,40 @@ The rules were fixed before the plan was issued and are visible in the code, not
   "2026-08-19"`, `"api_calls_made": 1`). The N-26 collector is the one exception and is not claimed
   otherwise: it fires from a scheduled task, so it runs under a **standing** authorisation bounded
   by the daily cap below rather than a per-call one. That is the whole reason the cap exists.
-- **`MAX_FORECAST_ATTEMPTS_PER_DAY = 3`** in `testing/test_n26_coverage.py` caps the daily collector
-  so a multi-day vendor fault cannot drain the plan. The attempt is written to the manifest
-  **before** the call, so a crash mid-call still counts against the budget. It is overridable with
-  `N26_MAX_ATTEMPTS` for a deliberate, attended retry — because the cap exists to bound a runaway
-  loop, not to ration credits, and **a lost day-pair is unrecoverable while 4,220 credits is 0.2 %
-  of the plan.**
+- **Two separate daily caps in `testing/test_n26_coverage.py`, because there are two different
+  risks.** `MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY = 3` is the **credit** budget and counts only
+  attempts FortyGuard actually charged for; `MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY = 8` is the
+  **runaway** guard and counts every attempt, billed or not. The attempt is written to the manifest
+  **before** the call, so a crash mid-call still counts. The credit budget is overridable with
+  `N26_MAX_ATTEMPTS` for a deliberate, attended retry — because **a lost day-pair is unrecoverable
+  while 4,220 credits is 0.2 % of the plan.**
+
+  **Why it was split on 2026-08-21.** Until 2026-08-20 every failed request cost 4,220, so
+  "attempts" and "billed calls" were the same number and one counter could serve both purposes.
+  Then the vendor began failing two ways that are **free** — `status: failed`, and an indefinite
+  stall in `Processing` — while `completed`-with-no-data stayed **billed**. A budget written to
+  ration credits was from that day being consumed by failures that cost none. The classifier that
+  decides which is which is `common.classify_vendor`, **the same function the live agent uses**, and
+  the split is exercised offline by `python testing/test_n26_coverage.py selftest` — 24 assertions,
+  zero API calls, no key read, and it is step 16 of `run_all.py`.
+
+  **What the split does not buy.** On a day whose failures are all `completed`-with-no-data
+  (2026-08-21: four of four) every attempt is billed and the split changes nothing. On a day that
+  stalls (2026-08-20) it permits the whole in-band window to be probed for zero credits.
+
+- **Every attempt is now recorded individually**, not counted. The manifest carries a
+  `forecast_attempt_log` per day holding each attempt's vendor class, whether it was billed, its
+  activity id, poll count, elapsed time and the HTTP body of any rejection. The previous record was
+  a single integer plus the *last* error string, and both lost information that had already cost
+  real money to recover: a mutable single-slot meter field lost three calls from the ledger, and a
+  rejection's status and body — the only fields that explain *why* — were gone by the time anyone
+  asked.
+
+- **A recovery watcher exists, and it is attended by design**: `testing/n26_recovery_watch.py`.
+  `plan` reports what it would do for zero credits and no key read; `watch --allow-paid` spreads the
+  remaining **billed** attempts across the rest of the in-band window and retries a **free** failure
+  almost immediately. It makes no API call of its own — every attempt goes through the collector and
+  its two caps, so the watcher cannot spend anything the collector would have refused.
 - **The collector refuses to spend when the data would not be comparable.** If the lead to the
   target window falls outside 6.0–11.5 h, it skips the day rather than buying a forecast whose
   accuracy is not exchangeable with the ones already collected. A short-lead forecast is much more

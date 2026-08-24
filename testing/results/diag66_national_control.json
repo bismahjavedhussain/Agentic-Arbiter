@@ -1,0 +1,41 @@
+{
+ "window": {
+  "start_date": "2026-08-22",
+  "start_time": "14:00",
+  "end_time": "16:00",
+  "filter_type": 2
+ },
+ "centre": [
+  39.0240165,
+  -77.4196915
+ ],
+ "ok": false,
+ "n_tiles": 0,
+ "activity_id": "8f590c22-7a9c-4a87-b7d2-62e07b10b02e",
+ "credits_before": 1435580,
+ "credits_after": 1431360,
+ "credits_spent": 4220,
+ "raw": {
+  "error": "completed but never populated after 25 polls over 486 s",
+  "aid": "8f590c22-7a9c-4a87-b7d2-62e07b10b02e",
+  "submit_http": 200,
+  "terminal_status": "completed",
+  "empty_completed_polls": 25,
+  "result": {
+   "map_data": {
+    "type": "FeatureCollection",
+    "features": []
+   },
+   "stats_data": {
+    "activity_id": "8f590c22-7a9c-4a87-b7d2-62e07b10b02e",
+    "n_cells": 0
+   }
+  },
+  "secs": 486.3,
+  "polls": 44,
+  "statuses_seen": [
+   "processing",
+   "completed"
+  ]
+ }
+}

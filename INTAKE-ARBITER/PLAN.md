@@ -1139,9 +1139,23 @@ it in the ground truth (sensor 0.3 °C, notice 0):**
 | agent KNOWS about the plume | **+65.6 h/yr** | **0.17** |
 | agent IGNORES the plume | +42.8 h/yr | 0.63 |
 
-**Knowing about the plume COSTS 22.8 h/yr and cuts the breach rate by 3.7×.**
-**Recirculation awareness buys SAFETY, not HOURS**, against an incumbent that carries no plume
-allowance of its own. State it that way from now on.
+🔴 **CORRECTED 2026-08-23. The two lines that stood here said the opposite of the table above them:**
+*"Knowing about the plume COSTS 22.8 h/yr"* and *"Recirculation awareness buys SAFETY, not HOURS —
+state it that way from now on."* Both were wrong, and the table directly above was right the whole
+time: +65.6 against +42.8 is a **gain** of 22.8, not a cost. Gotcha #97 records how it happened — a
+`%+.1f` printed next to the word "costs" — and the instruction to "state it that way from now on" is
+what carried the error into the demo page, where it survived three days longer than here.
+
+**Knowing about the plume BUYS 22.8 h/yr AND cuts the breach rate by 3.7×.** It is not a
+safety-for-hours trade; it is both, at all three sites (14.0 h/yr at Chicago, 25.2 at Dulles).
+
+**The mechanism, which is the part worth quoting:** with the rise modelled, the agent's residual is
+`(T + rise) − (fc + rise)` = `T − fc`, so **the plume cancels** and the margin only has to cover
+forecast error. Without it the residual carries the whole plume and the 90th-percentile quantile
+charges **every hour the worst case**, including the majority of hours when the wind carries the
+exhaust away. Measured mean margin: **0.193 °C with the physics, 0.326–0.378 °C without** — 70–96 %
+wider. **It is the margin, not the rise, that costs hours.** Full per-site before/after in
+`RECIRCULATION-DEFENCE.md`.
 
 ### 8h.7 The reproduction, and the five-year numbers
 
@@ -1716,7 +1730,7 @@ plant engineer asks**, and it is measured rather than promised.
 is that the words are hand-written, so the guard is mechanical — and it is the strongest single
 anti-theatre check in the project:
 
-- **30 templates, and not one of them may contain a literal digit** — `check_no_literal_digits()`
+- **31 templates, and not one of them may contain a literal digit** — `check_no_literal_digits()`
   fails the build otherwise. Every number a reader sees is interpolated from a payload value.
 - **18 short forms** for the streamed status line, under the **same** guard. This matters *more* for
   the short forms: *"reading 17,862 tiles"* reads identically whether the number was computed or
@@ -1914,6 +1928,139 @@ It also found a **duplicate `id="c_site"`**: the plume panel carried a second on
 pre-three-stage layout. `querySelector` returns the first match, so that dropdown was
 **permanently empty on every site** — a labelled "Data centre" select with no options.
 `audit.check_duplicate_element_ids()` (check 2f) now fails the build on any repeated id.
+
+---
+
+## 8r. ✅ SESSION 4 OF THE PER-SITE REWORK — autonomy, recovery, and turning a one-off check into a standing one (2026-08-21)
+
+The fourth and last session of the rework the user asked for on 2026-08-20. Its subject is the two
+places this project still depended on someone remembering something: the collector's retry budget,
+which only ever runs unattended, and §8q.3's panel diff, which was run once by hand and thrown away.
+
+### 8r.1 A credit budget that was being spent by failures costing no credits
+
+The collector holds a daily cap so a multi-day vendor fault cannot drain the plan. Until 2026-08-20
+that cap could count either attempts or billed calls, because **every failed request cost 4,220 and
+the two numbers were identical.** Then FortyGuard began failing in two ways that are **free** —
+`status: failed`, and an indefinite stall in `Processing` — while `completed`-with-no-data stayed
+**billed**. From that moment a budget written to ration credits was being consumed by failures that
+cost none, and the collector would stop trying on a day it had spent nothing.
+
+Split in two, because there are two risks and they are not the same risk:
+
+| | counts | default | what it protects |
+|---|---|---|---|
+| `MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY` | attempts FortyGuard **charged for** | 3 | the credit plan |
+| `MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY` | **every** attempt, billed or not | 8 | against an unbounded loop when the vendor fails for free |
+
+The judgement of which is which is **`common.classify_vendor` — the same function `src/live.py`
+uses**, moved into `testing/common.py` rather than copied, because two code paths computing one
+quantity is the gotcha that has bitten this project three times. `HEATMAP_CREDITS` moved with it, so
+the measured price of a call now has exactly one definition in the tree.
+
+**What the split does not buy, said plainly.** On 2026-08-21 all four failures were
+`completed`-with-no-data, so every attempt was billed and the split would have changed nothing. On
+2026-08-20 the vendor stalled twice for free, and it would have bought the whole window. Both days
+are real; neither is the general case.
+
+**And the budget is now testable without spending anything.** `python
+testing/test_n26_coverage.py selftest` replays all five measured vendor shapes against the real
+classifier and the real budget helpers — **24 assertions, zero network, no key read** — including
+the case that matters most: *three free failures must leave the loop able to continue, and three
+billed ones must stop it.* Before this, the only way to exercise the budget was to spend 4,220
+credits and wait ten minutes for a failure, which is why a day and a half of it being wrong went
+unnoticed.
+
+### 8r.2 The manifest kept a counter where it needed a record
+
+Each day carried `forecast_attempts` (an integer) and `forecast_error` (the *last* sentence). Both
+are lossy in ways that had already cost real money: a mutable single-slot meter field lost three
+calls from the spend ledger, and a rejection's HTTP status and body — the only fields that explain
+*why* — were gone by the time anyone asked. Each attempt now **appends** a full record: vendor class,
+billed or not, activity id, poll count, elapsed time, lead, and the body of any rejection. Nothing is
+ever rewritten, and `api_usage_ledger.py` reads the log where it exists and says so where it does
+not.
+
+### 8r.3 A recovery watcher, and what it honestly cannot do
+
+The three scheduled tasks fire at 13:30, 13:50 and 14:15 PKT. The window in which a call is
+*comparable* with the rest of the series runs 11:30–17:00 PKT. **Five and a half hours of
+opportunity, and the triggers use the first forty-five minutes of it** — which is how 2026-08-20 was
+lost: the vendor recovered at ~12:5x UTC, by which time nobody was asking any more.
+
+`testing/n26_recovery_watch.py` watches the clock and the manifest and re-runs the collector, so
+every attempt it makes is a collector attempt under the collector's own caps. Its one real decision
+is *when*, and that is taken from the billing partition rather than a timer: after a **billed**
+failure it spaces the remaining billed attempts evenly across the remaining window; after a **free**
+one it retries at a floor, because it cost nothing and a stall is the state a recovering vendor
+passes through.
+
+**There is no free probe for "does the forecast work right now".** A past-window request worked
+throughout the outage, so it cannot discriminate. The forecast request *is* the test, and it costs
+4,220 when it comes back empty. So the watcher does not detect recovery and then spend — it spends in
+order to detect, and the docstring says so. It also cannot make a late pair as good as an early one:
+a shorter lead is an easier forecast, so it prints what banking at the current lead would do to the
+series' lead spread before each attempt.
+
+### 8r.4 The panel diff, made permanent — in two instruments, because one is not enough
+
+§8q.3's verification was a script written once and thrown away. It is now two standing checks that
+fail the build, and the split between them is the interesting part:
+
+**`audit.check_panels_are_per_site()` (check 6d), Chrome-free.** It derives the panel list from
+`drawAll()` rather than holding one — so a panel added to the page and not registered fails the
+build — and asserts four things: every panel renders per-site data (following one level of
+indirection, because `drawSched` reads nothing itself and calls `decide()`); every per-site artefact
+is genuinely a different file; every declared "shared" panel really is identical across sites and
+records that it is borrowed; and **no site's own coordinate, OSM id or station appears as a literal
+anywhere in the page's code.** That last one is §8q.1's defect expressed as a mechanical rule.
+
+**`testing/verify_site_panels.py`, which drives a real browser.** It renders the page for every site
+through the real three-stage flow and diffs each panel's rendered text and canvas pixels. It renders
+one site **twice first** and requires byte-identical output, because a diff is only evidence if the
+same input gives the same output.
+
+**Neither is sufficient, and that is the point.** The render diff **cannot** catch §8q.1: Chicago's
+footprints on Ashburn's photograph produce pixels that *differ* from Ashburn's, so a difference test
+passes on a picture that is wrong. Only the literal scan catches that. Conversely the literal scan
+cannot see a panel that silently renders the same thing everywhere. Run together they cover both.
+
+### 8r.5 What the new checks found on their first run
+
+Three real defects, all in the panel whose entire job is honesty, and all invisible to the 62 checks
+that already existed:
+
+1. 🔴 **"Worst case 0.3550 °C = 0.64 of one weather-station grid step"** was a hard-coded literal in
+   the *Honest limits* panel. **0.3550 °C is Ashburn's** worst rise; Chicago's is 0.4108 and
+   Dulles's 0.3593. Two sites out of three were being told Ashburn's recirculation figure by the
+   panel a sceptical reader trusts most. Now computed from each site's own rise table, with the ASOS
+   step derived as one whole degree Fahrenheit (5/9 °C) — a unit conversion, which is the only number
+   in the entry with no artefact to read.
+2. 🔴 **"No dollars, no kWh, anywhere"** was still in the same panel, months after §8n.6 sourced the
+   compressor term and put a priced money panel on the same page. The correction is not to delete the
+   limit — the limit is real and **sharper** than the old sentence, because the unpriced fan term has
+   the *opposite* sign — so the entry now reads `money.json`'s own `not_claimed` list and cannot
+   drift from the file the money panel renders beside it.
+3. The coverage entry hard-coded **65.6 %**. That one was not *wrong* — every site's coverage is
+   Ashburn's, borrowed, because only Ashburn has day-pairs — but a borrowed number that looks native
+   is exactly what the borrowing rule exists to prevent. It now reads the trace and **says whose
+   measurement it is**.
+
+### 8r.6 And the check written to catch drifting figures had the drift it was written to catch
+
+`audit.py` check 9 requires the *current* spend figures to be present and a **hand-maintained list**
+of superseded strings to be absent. On 2026-08-21 HANDOFF's own summary block read *"SPEND IS 61
+CALLS / 257,420 / 12.87 %"* while §12.2 read 65 / 274,300 / 13.71 %, and **check 9 passed** — because
+`257,420` had never been added to the list. A stale figure has to be named to be caught, so the first
+stale figure of every new generation is never caught.
+
+It now matches the **shape** of a total-spend claim instead of its value: a call count is a total
+claim only when the same paragraph also states a plan percentage to two decimals, which is exactly
+the form that drifted and nothing else in these documents uses. It scans by paragraph rather than by
+line, because markdown wraps and a line scanner reported gotcha #93's own entry — which quotes the
+stale figure as its lesson — as the drift itself. And it carries a **six-case negative control whose
+first case is the exact header it failed to catch**, because a document check that cannot fail is not
+checking the document.
 
 ---
 

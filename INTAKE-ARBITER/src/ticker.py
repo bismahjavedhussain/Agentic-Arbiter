@@ -110,6 +110,16 @@ def fmt_value(v, spec):
         return format(int(v), ",")
     m = _SPEC_FIXED.match(spec)
     if m:
+        # AN ABSENT VALUE IS NOT A NUMBER, and it must fail by NAME rather than as a bare TypeError
+        # from `float(None)`. A standalone facility has no worst bearing -- there is no receptor
+        # intake for a plume to be worst AT -- so the rise table publishes `max_rise_bearing: null`
+        # rather than 0.0, because 0 degrees is due north and would put "the worst bearing is north"
+        # into the tape, the dial and the PDF for 360 facilities. The right response is a DIFFERENT
+        # TEMPLATE for the absent case, which is why this raises instead of inventing a rendering.
+        if v is None:
+            raise TickerError("refusing to render an ABSENT value as a number. The caller must "
+                              "choose a template for the absent case rather than have one "
+                              "invented here (spec %r)" % spec)
         x = float(v)
         if not math.isfinite(x):
             raise TickerError("refusing to render a non-finite number (%r)" % v)
@@ -167,9 +177,28 @@ STAGES = {1: "perceive", 2: "solve", 3: "bound", 4: "decide", 5: "act", 6: "scor
 # MEASUREMENT -- there is no adjective here that a number does not license. If a phrase reads as
 # though it is describing something impressive, that is the number's doing, not the template's.
 SYSTEM_TEMPLATES = [
+    # 🔴 `{pairs_site}` ADDED 2026-08-21. This sentence used to say "Read 4 day-pairs off disk,
+    # 17,862 tiles per call" on ALL THREE SITES -- and on two of them those pairs, and that tile
+    # count, are ASHBURN's. The tape's own verifier caught it the moment each site stopped shipping
+    # Ashburn's fields: Chicago's tape said 17,862 while Chicago's own field says 17,797. The number
+    # was never wrong; the sentence around it was, because it implied ownership it did not have.
+    # Naming the site the pairs were measured at costs one placeholder and removes the implication.
     ("perceive.fortyguard", 1,
-     "Read {n_pairs:,} FortyGuard forecast-and-outcome day pairs off disk, {n_tiles:,} tiles per "
-     "call, at forecast leads from {lead_min:.2f} to {lead_max:.2f} h."),
+     "Read {n_pairs:,} FortyGuard forecast-and-outcome day pairs measured at {pairs_site}, "
+     "{n_tiles:,} tiles per call, at forecast leads from {lead_min:.2f} to {lead_max:.2f} h."),
+    # A site can own a FortyGuard field WITHOUT owning a day-pair, and Chicago does: one past window,
+    # 17,797 tiles, bought for it. That is a real per-site measurement and it now says so on its own
+    # tape instead of being invisible while Ashburn's count stood in for it.
+    # ⚠ ONLY `n_tiles_own` IS IN THIS SENTENCE, and the first draft had two more. It also stated the
+    # granularity and the AOI size -- which are properties of the REQUEST, not of the exported field,
+    # so neither could be read from the artefact and both would have been literals with a fallback
+    # behind them. A constant with a fallback is the shape gotcha #80 warns about, and in this module
+    # a literal digit cannot even survive to a test run. So the sentence says the one thing the file
+    # actually knows.
+    ("perceive.own_window", 1,
+     "This site has its own purchased FortyGuard window: {n_tiles_own:,} tiles. One past window, "
+     "not a day-pair -- there is no forecast leg beside it, so it cannot yield a level offset or a "
+     "coverage figure, and the bound below is still borrowed."),
     ("perceive.site_tile", 1,
      "The committed site falls inside a tile whose centre lies {dist_m:.0f} m away; on {tile_date} "
      "that tile read {tile_c:.2f} C."),
@@ -190,6 +219,16 @@ SYSTEM_TEMPLATES = [
     ("solve.worst", 2,
      "Worst intake rise {worst_c:.4f} C, at {worst_bearing:.0f} deg and {worst_speed:.1f} m/s; "
      "averaged over the whole table it is {mean_c:.4f} C."),
+    # THE STANDALONE COUNTERPART. Not a variant of the sentence above with the bearing dropped: the
+    # claim is different. There is no worst bearing because there is no receptor intake for a plume
+    # to be worst at, so the sentence has to say that rather than quote a number it does not have.
+    # It also carries the measured distance to the nearest other data centre, so a reader can see
+    # WHY nothing was solved instead of taking it on trust.
+    ("solve.none", 2,
+     "No plume was solved: the nearest other tagged data centre is {nearest_m:,} m away, outside "
+     "the {range_m:,} m range this solver has been validated against, so there is no neighbour "
+     "intake for a plume to arrive at. Recirculation is NOT MODELLED here, which is a "
+     "statement about the model's domain and not a claim that it is zero."),
     ("solve.refuse", 2,
      "Declined to answer on {n_refused_long:,} of {n_bearings:,} bearings with the condenser bank "
      "on the long facade, and {n_refused_face:,} of {n_bearings:,} with it on the facing wall, "
@@ -309,12 +348,15 @@ HOUR_TEMPLATES = [
 # be least noticeable and most tempting -- "perceiving 17,862 tiles" reads exactly the same whether
 # the 17,862 was computed or invented -- so the guard has to cover them too.
 SHORT_TEMPLATES = {
-    "perceive.fortyguard": "reading {n_pairs:,} FortyGuard day-pairs, {n_tiles:,} tiles each",
+    "perceive.fortyguard": "reading {n_pairs:,} FortyGuard day-pairs from {pairs_site}, "
+                           "{n_tiles:,} tiles each",
+    "perceive.own_window": "reading its own purchased window, {n_tiles_own:,} tiles",
     "perceive.site_tile": "locating the site inside its tile, {dist_m:.0f} m off centre",
     "perceive.borrowed_field": "no FortyGuard field of its own at {site}",
     "perceive.record": "loading {n_hours:,} real station hours",
     "solve.table": "solving {n_solves:,} plume fields on the {device}",
     "solve.worst": "worst intake rise {worst_c:.4f} C at {worst_bearing:.0f} deg",
+    "solve.none": "no plume solved -- nearest other data centre {nearest_m:,} m away",
     "solve.refuse": "refusing {n_refused_long:,} of {n_bearings:,} bearings it cannot stand behind",
     "bound.level": "bounding from {n:,} day-level residuals",
     "bound.ceiling": "coverage ceiling {ceiling_pct:.1f} % at this sample size",
@@ -359,6 +401,29 @@ def check_no_literal_digits():
 check_no_literal_digits()
 
 
+def _standalone_facts():
+    """(nearest other tagged DC in metres, the solver's validated range) for THIS facility.
+
+    Read from `national_registry.json`, which is where both numbers were MEASURED -- the distance by
+    re-computing it from every building's own coordinate, the range from the union-find that
+    produced the groups. Not passed in and not defaulted: `ticker.py`'s guard is that no template
+    contains a literal digit, so a fallback constant here would be exactly the thing that guard
+    exists to prevent.
+    """
+    p = os.path.join(IA, "data", "geometry", "national_registry.json")
+    d = json.load(open(p, encoding="utf-8"))
+    f = d["facilities"][M.metro_key()]
+    return f["plume"]["nearest_other_tagged_dc_m"], d["solver_validated_range_m"]
+
+
+def _nearest_other_dc_m():
+    return _standalone_facts()[0]
+
+
+def _validated_range_m():
+    return _standalone_facts()[1]
+
+
 def event(code, **numbers):
     """One stage event: what it is, what it computed, and the sentence that follows from that."""
     if code not in ALL_TEMPLATES:
@@ -378,13 +443,51 @@ def event(code, **numbers):
 # exists to prevent. `verify()` reports the count both ways: how many numbers were re-derived, and
 # how many could only be read back from the field they were built from. The second figure is not a
 # failure, it is a limit, and it is printed.
+class NoIndependentPath(Exception):
+    """This number has no SECOND source at this site, which is not the same as being wrong.
+
+    Raised by a re-derivation lambda when the artefact it would read belongs to another site. The
+    distinction it protects is the one gotcha #103 is about: a check that quietly compares two
+    copies of the same thing reports agreement, not confirmation. `verify()` counts these as read
+    back only and prints the count.
+    """
+
+
+def _any_field_tiles(trace):
+    """The tile count of the field THE DAY-PAIRS CAME FROM, for the independent re-derivation.
+
+    IT MUST BE THE PAIRS' OWN FIELD, and getting that wrong turned a correct check into a wrong one
+    for ten minutes. The first version returned any field the site shipped -- so on Chicago it
+    compared the tape's 17,862 (Ashburn's pairs, which Chicago borrows) against Chicago's own
+    purchased window of 17,797 and reported a failure. Two true numbers about two different things.
+
+    So the rule is exact: re-derive only where the site owns the pairs, and raise otherwise.
+    `verify()` counts a raise as "this number has no independent path here", which is the honest
+    answer -- a borrowed number cannot be independently confirmed from a file this site does not
+    have, and counting it as checked would be the weaker claim dressed as the stronger one.
+    """
+    f = trace.get("fields") or {}
+    legs = sorted(k for k in f if k.endswith("_forecast") and f[k] and f[k].get("n_tiles"))
+    if not legs:
+        raise NoIndependentPath("this site's day-pairs are borrowed, so no file it owns can "
+                                "confirm the tile count -- see fortyguard_provenance")
+    return f[legs[-1]]["n_tiles"]
+
+
 def _rederive_table():
     return {
         "perceive.fortyguard": {
             # pairs counted from the sequential score rows (test days = pairs - 1) and from the
             # day-level conformal fit's own n -- three separate writers, one number
             "n_pairs": lambda a: len(a["trace"]["cycle"]["sequential"]) + 1,
-            "n_tiles": lambda a: a["trace"]["fields"]["2026-08-16_forecast"]["n_tiles"],
+            # 🔴 THIS WAS `a["trace"]["fields"]["2026-08-16_forecast"]` -- an ASHBURN DATE, typed
+            # into the re-derivation table. It worked on every site only because every site's trace
+            # used to ship Ashburn's eight fields; the moment a site shipped only its own (or none),
+            # this raised a KeyError and the verifier reported a failure against correct code.
+            # A re-derivation keyed by a literal from one site is not an independent check, it is a
+            # coincidence -- so it reads whichever field the site actually owns, and re-derives from
+            # NOTHING when the site owns nothing rather than reaching for another site's file.
+            "n_tiles": lambda a: _any_field_tiles(a["trace"]),
         },
         "perceive.record": {
             "n_hours": lambda a: a["backtest"]["hours"],
@@ -485,9 +588,24 @@ def system_stream(trace, backtest, rolling):
     trig = next((r["test_date"] for r in seq if r["cal_days"] == traj[i_best]["after_days"]),
                 seq[-1]["test_date"])
 
+    # WHERE THE PAIRS WERE MEASURED. Read from the trace's own provenance block, never assumed:
+    # `own_measured_day_pairs` is False for every site but Ashburn, and `level_offsets_measured_at`
+    # names the donor. For Ashburn both agree and the sentence says "Ashburn", which is also true.
+    prov = trace.get("fortyguard_provenance", {}) or {}
+    pairs_site = (trace.get("metro", {}).get("label", M.metro()["label"])
+                  if prov.get("own_measured_day_pairs", True)
+                  else prov.get("level_offsets_measured_at", M.DEFAULT_METRO).title())
+    # This site's OWN purchased field, if it has one that is not a pair. `observed_past_window` is
+    # the key `agent.py` uses for exactly that case, so its presence is the test -- not the metro name.
+    own_window = (trace.get("fields") or {}).get("observed_past_window")
+
     ev = [
         event("perceive.fortyguard", n_pairs=len(pairs), n_tiles=pairs[0]["n_tiles"],
-              lead_min=min(leads), lead_max=max(leads)),
+              pairs_site=pairs_site, lead_min=min(leads), lead_max=max(leads)),
+        # A site with its own purchased window says so, right after the borrowed pairs it also uses.
+        # Emitted only where it is true, which is why the tape differs between Chicago and Dulles.
+        (event("perceive.own_window", n_tiles_own=own_window["n_tiles"])
+         if own_window else None),
         (event("perceive.site_tile", dist_m=first_tile["dist_m"], tile_date=pairs[0]["date"],
                tile_c=first_tile["forecast_c"]) if own_field else
          event("perceive.borrowed_field",
@@ -497,8 +615,15 @@ def system_stream(trace, backtest, rolling):
         event("perceive.record", n_hours=backtest["hours"], n_days=backtest["days"]),
         event("solve.table", n_solves=rt["n_solves"], n_bearings=len(rt["bearings"]),
               n_speeds=len(rt["speeds"]), solve_s=rt["solve_seconds"], device=rt["device"]),
-        event("solve.worst", worst_c=rt["max_rise_c"], worst_bearing=rt["max_rise_bearing"],
-              worst_speed=rt["max_rise_speed_ms"], mean_c=rt["mean_rise_c"]),
+        # WHICH SENTENCE, decided by whether a worst bearing EXISTS -- not by a site-kind flag.
+        # The condition is the data: `max_rise_bearing is None` is exactly the situation the
+        # standalone template describes, so the branch cannot disagree with the artefact it renders.
+        (event("solve.worst", worst_c=rt["max_rise_c"], worst_bearing=rt["max_rise_bearing"],
+               worst_speed=rt["max_rise_speed_ms"], mean_c=rt["mean_rise_c"])
+         if rt.get("max_rise_bearing") is not None else
+         event("solve.none",
+               nearest_m=int(round(_nearest_other_dc_m())),
+               range_m=int(round(_validated_range_m())))),
         event("solve.refuse", n_refused_long=len(rt["refused"]),
               n_bearings=len(rt["bearings"]),
               n_refused_face=len(cyc["rise_tables"]["facing"]["refused"]),
@@ -542,7 +667,13 @@ def system_stream(trace, backtest, rolling):
     # pre-registration, not tuning knobs -- they were fixed in writing before any outcome existed
     # and the agent FAILS against them. They are passed as payload values rather than typed into
     # the template so that V1 still holds and so that a reader can see them beside the result.
-    return ev
+    #
+    # OPTIONAL EVENTS ARE DROPPED HERE, and there is now one: `perceive.own_window` fires only for a
+    # site that owns a FortyGuard field which is not a day-pair. A tape that differs between sites
+    # is the correct outcome -- Chicago has such a field, Dulles does not -- but a `None` in the
+    # list is not, and V4's "all seven stages appear" still holds either way because the stage is
+    # carried by the events beside it.
+    return [e for e in ev if e is not None]
 
 
 # ============================================================================
@@ -694,6 +825,7 @@ def verify(stream, artefacts=None):
 
     # V5 -- independent rederivation
     n_red = n_self = 0
+    unavailable = []
     if artefacts is not None:
         table = _rederive_table()
         for e in stream:
@@ -705,6 +837,18 @@ def verify(stream, artefacts=None):
                 n_red += 1
                 try:
                     expect = checks[key](artefacts)
+                except NoIndependentPath as why:
+                    # NOT A FAILURE, AND THE DIFFERENCE MATTERS. Some numbers have no second source
+                    # AT THIS SITE: Chicago and Dulles borrow Ashburn's day-pairs, so the tile count
+                    # in that sentence cannot be confirmed from any file those sites own. Counting
+                    # it as a failure says the tape is wrong, which it is not; counting it as
+                    # re-derived says it was independently confirmed, which it was not. It is
+                    # counted as READ BACK ONLY -- the weaker check, which this module already
+                    # reports separately precisely so that an unstated limit cannot hide here.
+                    n_red -= 1
+                    n_self += 1
+                    unavailable.append("%s/%s (%s)" % (e["code"], key, why))
+                    continue
                 except Exception as exc:                                  # noqa: BLE001
                     fails.append("%s/%s: rederivation raised %s" % (e["code"], key, exc))
                     continue
@@ -715,7 +859,11 @@ def verify(stream, artefacts=None):
                 elif val != expect:
                     fails.append("%s/%s: tape says %r, an independent path says %r"
                                  % (e["code"], key, val, expect))
-    return fails, {"rederived": n_red, "read_back_only": n_self}
+    # `no_independent_path_here` is reported, not just counted. A site that can independently
+    # confirm fewer numbers than Ashburn should say which ones and why -- otherwise the two sites'
+    # tapes look equally well verified when they are not.
+    return fails, {"rederived": n_red, "read_back_only": n_self,
+                   "no_independent_path_here": unavailable}
 
 
 # ============================================================================

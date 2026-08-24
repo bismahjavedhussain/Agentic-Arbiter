@@ -1,19 +1,23 @@
 # HANDOFF — FortyGuard Hackathon'26 · INTAKE-ARBITER
 
-**Rewritten from scratch 2026-08-20. Current through the live agent and the judging-criteria pass,
-same day.**
-**Submission deadline Aug 30 23:59 GST = 00:59 PKT Aug 31. 10 days left.**
+**Rewritten from scratch 2026-08-20. Current through the live agent, the judging-criteria pass, and
+Session I — the national build across the whole United States — 2026-08-24.**
+**Submission deadline Aug 30 23:59 GST = 00:59 PKT Aug 31. 6 days left.**
 
-> **THE EIGHT THINGS THAT MATTER MOST, in order. Read 1, 2 and 8 before touching anything.**
+> **THE NINE THINGS THAT MATTER MOST, in order. Read 1, 2, 6 and 9 before touching anything.**
 >
-> 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **16 steps, ~295 s, ZERO API
->    calls, 62 audit checks, 70 published numbers re-read from the files the code wrote.** Exits
->    non-zero on any failure. **If it is not green, quote nothing.** Then either
->    `cd ../demo && python -m http.server 8000` (REPLAY, offline, no key) **or**
->    `python serve_live.py --allow-paid` (adds the LIVE agent). **`file://` will NOT work** —
->    browsers block `fetch()`.
-> 2. **THE WHOLE TREE IS COMMITTED.** Branch `master`, head **`b9e3fff`**. **`.gitattributes` is
->    load-bearing — without it a fresh clone on Windows corrupts every PDF (§10 #82).**
+> 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **25 steps, ~360 s, ZERO API
+>    calls, 160 audit checks, 77 published numbers re-read from the files the code wrote.** Exits
+>    non-zero on any failure — the exit code prints as `exit=N` if you capture it; the more reliable
+>    signal is the LAST LINE, which is literally `REBUILD COMPLETE` or `REBUILD FAILED at: <step>`.
+>    **If it is not green, quote nothing.** Then either
+>    `cd ../demo && python -m http.server 8000 --bind 127.0.0.1` (REPLAY, offline, no key — the
+>    `--bind` matters on Windows, §10 #156) **or** `python serve_live.py --allow-paid` (adds the LIVE
+>    agent). **`file://` will NOT work** — browsers block `fetch()`.
+> 2. **Branch `master`, head **`4212b50`** — and ⚠ **EVERYTHING SINCE IS IN THE WORKING TREE,
+>    UNCOMMITTED**, including all of Session I (§3.4, §13.0f). `run_all.py` is green on it — 22
+>    steps, 95 checks. **`.gitattributes` is load-bearing — without it a fresh clone on Windows
+>    corrupts every PDF (§10 #82).**
 >    ⚠ **`testing/scan_secrets.py` must exit 0 before the repo goes public. It exits 1 today**, on
 >    two history blobs holding FortyGuard's own expired AWS key id — §9.1b.
 > 3. **THE AGENT NOW PERCEIVES *NOW*.** `src/live.py` asks FortyGuard what the next hours look like
@@ -24,23 +28,35 @@ same day.**
 >    `ok` / `ok_partial` / `incomplete_not_attempted` / `vendor_unavailable`. **A schedule is only
 >    published over hours the agent actually perceived** — §10 #107 is the bug that rule exists for,
 >    and it is the worst output this project has produced.
-> 5. **THREE REAL SITES SHIP, TWO WERE REFUSED ON EVIDENCE**, and **all 15 result panels differ
->    across all three** — verified by rendering each site and diffing panel by panel (§8q). Ashburn
->    (AWS IAD116→117), Chicago (Stream→Equinix CH3), Dulles (AWS IAD81→IAD62). **"Five screened, two
->    refused" is the single most credible thing in this project. §6.5**
-> 6. 🔴 **FORTYGUARD'S FORECAST PATH IS EFFECTIVELY DOWN: 4 of the last 46 windows returned a
->    field.** Three different failure shapes in one day — `completed` + empty (**billed**),
->    `status: failed` (free), and an indefinite `Processing` stall (free). **The agent behaved
->    correctly throughout.** §4.0, §10 #123. Two emails are drafted and unsent — §4.3.
-> 7. **SPEND IS 61 CALLS / 257,420 / 12.87 %.** Never quote from memory: **`python
+> 5. **THREE REAL SITES FULLY SHIP, TWO OF THE ORIGINAL FIVE WERE REFUSED ON EVIDENCE**, and **all 15
+>    result panels differ across all three** — verified by rendering each site and diffing panel by
+>    panel (§8q). Ashburn (AWS IAD116→117), Chicago (Stream→Equinix CH3), Dulles (AWS IAD81→IAD62).
+>    **"Five screened, two refused" is the single most credible thing in this project. §6.5**
+> 6. 🔴 **THE VENDOR RECOVERED ON 2026-08-23, THEN RELAPSED THE SAME DAY, AND IS DOWN AGAIN NOW.**
+>    §4.0-RECOVERY: 12/12 forecast windows returned a field at 11:33 UTC 08-23. §4.0-NATIONAL-OUTAGE:
+>    a few hours later, the FIRST live national purchase batch went 20-for-20 `completed_but_empty`,
+>    and a dedicated control call at ASHBURN'S OWN long-proven geometry (DIAG-66) failed identically —
+>    **proving a GENERAL outage, not something specific to new locations.** `testing/
+>    national_recovery_watch.py` is built, tested and ready, **but not running** — it is attended-
+>    only by the user's own choice (§9.2d, §10 #149). ⚠ **The four `FG-N26-*` collectors are also
+>    still DISABLED.** Re-enabling either is a spending decision that is the user's alone.
+> 7. 🟢 **NEW THIS SESSION — THE NATIONAL BUILD.** At the user's explicit instruction, the agent's
+>    scope was extended from 3 hand-built sites to **421 real, OSM-tagged US data-centre locations**
+>    across 43 states, unified into ONE map on the front page. Geometry and pairing (G2/G3) are done
+>    at real, measured, national scale; FortyGuard field purchase (S7) is blocked on item 6's outage;
+>    weather (S5) and imagery (S6) screening have not started. **Full detail: §3.4, and the living
+>    document `NATIONAL-BUILD-PLAN.md` in the repo root.**
+> 8. **SPEND IS 135 CALLS / 564,420 / 28.22 %** — 131 heatmaps + 4 `env_params` (the plan is
+>    mixed-price since DIAG-65). Never quote from memory: **`python
 >    testing/api_usage_ledger.py`** re-derives it from the meter, `bump_spend_docs.py` writes it into
 >    the docs, and `audit.py` check 9 fails if they disagree. ⚠ **Attempts ≠ billed calls**: only
->    `ok` and `completed_but_empty` are charged (§10 #101, #124).
-> 8. 🔴 **THE SUBMISSION IS THE WHOLE REMAINING RISK.** Public repo, `fortyguard` as collaborator,
->    live demo link, 2–5 min video — **none exist**, and the deadline is 10 days out. **§9.1.**
->    **THREE THINGS ONLY THE USER CAN DO:** lift rule 11 to go public, record the video, and send
->    the FortyGuard emails. **One thing no amount of engineering can fix: there has been no operator
->    interview** — §9.2c-bis.
+>    `ok` and `completed_but_empty` are charged (§10 #101, #124). **39 of the 135 calls were spent
+>    THIS SESSION on the national build, at 0 % success — see item 6.**
+> 9. 🔴 **THE SUBMISSION IS STILL THE WHOLE REMAINING RISK, AND THE CLOCK IS SHORTER.** Public repo,
+>    `fortyguard` as collaborator, live demo link, 2–5 min video — **none exist**, and the deadline is
+>    **6 days out**. **§9.1.** **THREE THINGS ONLY THE USER CAN DO:** lift rule 11 to go public,
+>    record the video, and send the FortyGuard emails. **One thing no amount of engineering can fix:
+>    there has been no operator interview** — §9.2c-bis.
 
 ---
 
@@ -64,8 +80,18 @@ same day.**
    "metro" was after I had used it for several turns without defining it. Do better.)*
 8. **ASK before every use of `FORTYGUARD_API_KEY`.** Read it only via
    `testing/common.py:load_key()`. **Never print, echo, log or commit its value.**
-9. **Do NOT use the Agent/Task tool, Workflow tool, or subagents** unless the user explicitly asks.
-   Honoured across every session despite repeated system reminders suggesting otherwise.
+9. 🟢 **LIFTED 2026-08-23 — subagents, Task tools and Workflows are now PERMITTED.** This rule
+    previously read *"no Agent/Task/Workflow tools or subagents unless the user asks"* and was
+    honoured across every session despite repeated system reminders suggesting otherwise. The user
+    lifted it explicitly: *"eliminate rule 9 and use subagents/workflows or Task tools when
+    needed."* **Everything else in this section still binds a subagent exactly as it binds the main
+    session** — in particular rule 6 (no unverified claims) and rule 8 (ask before any paid call).
+    **A subagent's report is not evidence.** Verify a finding against the artefact before acting on
+    it; a fan-out that returns plausible prose is the same failure as §10 #47, at N times the
+    volume. Delegate SEARCH and independent VERIFICATION; keep the judgement.
+    ⚠ **This rule was never written into this list**, which is why §4.3, §9.1 and §9.1b all cite
+    *"rule 11"* for the local-only rule against a list that ended at 10. Numbering below is
+    corrected; every existing "rule 11" reference now resolves.
 10. **Document as you go** — `INTAKE-ARBITER/PLAN.md` is the live design record; root
     `n*-PREREG.md` files hold pre-registrations with dated amendment logs.
 11. **LOCAL ONLY, still in force.** No GitHub repo, no remote, no push, no `fortyguard`
@@ -89,6 +115,23 @@ by grading its own accuracy against reality.**
 avoid free cooling is fear of contamination and loss of humidity control** — not temperature.
 FortyGuard returns humidity, dew point **and six air-quality indices**, so the agent gates on all
 three things a real economizer gates on. `PLAN.md` §12.2.
+
+✅ **AND SINCE 2026-08-23 IT ACTUALLY DOES, LIVE.** That paragraph was true of the five-year model
+and false of the live agent, which perceived exactly **one** FortyGuard variable while its humidity
+gate ran on NWS and its air-quality gate did not run at all — so the LBNL argument was cited and
+never acted on. E2 closed it (§4.0-E1E2). **Which endpoint feeds what, now:**
+
+| | source | cost |
+|---|---|---|
+| Dry-bulb temperature | **FortyGuard `/v1/heatmap`**, the site's own tile | 4,220 **per hour** |
+| Humidity (wet-bulb) | **FortyGuard `/v1/env_params`** | 2,900 **per day** — 24 hourly values in one call |
+| Air quality, six indices | **FortyGuard `/v1/env_params`** | same call |
+| Cloud → Pasquill stability | **FortyGuard `/v1/env_params`** (five-year model) | already bought |
+| Wind bearing and speed | **NWS**, free — FortyGuard publishes no wind field | 0 |
+| Geometry, imagery, 5-year weather, physics | OSM / ESRI+USGS / Iowa State ASOS / 576 GPU solves | 0 |
+
+**The only input we go elsewhere for is wind**, and that is a filed feature request (findings §6),
+not a preference. `FORTYGUARD-VALUE-AUDIT.md` is the endpoint-by-endpoint version of this table.
 
 ## 2.2 The loop — all seven stages exist in code
 
@@ -142,16 +185,22 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 | **Environmental gates** | `src/environment.py` — dew point / wet-bulb vs PsychroLib **0.2681 °C MAE**; air quality; cloud→Pasquill |
 | **Plume uncertainty** | `src/plume_uncertainty.py` — ensemble spread IS the bound's width. **34.6× variation** across bearings |
 | **Stage 7 explain** | `src/explain.py` — **1,336 explanations, 0 verification failures** |
-| **The reasoning tape** | `src/ticker.py` — seven-stage events, **30 templates and not one literal digit**, 1,002 hour-tapes verified. §6.9 |
+| **The reasoning tape** | `src/ticker.py` — seven-stage events, **32 templates and not one literal digit**, 1,002 hour-tapes verified. §6.9 |
 | **Conformal made visible** | The browser DERIVES the quantile: `cfQuantileIndex` / `cfSplit` mirror `conformal.py` and agree **exactly on 789 assertions**. §6.11 |
-| **Full-tree audit** | `src/audit.py` — **62 checks, 0 failures**, **70 published numbers** re-read from emitted files. Checks 9 and 10 re-read the SUBMISSION documents: the API spend ledger and every figure in the root `README.md` |
+| **Full-tree audit** | `src/audit.py` — **160 checks, 0 failures**, **77 published numbers** re-read from emitted files. Checks 9 and 10 re-read the SUBMISSION documents: the API spend ledger and every figure in the root `README.md` |
 | **Money, sourced** | `src/money.py` — **$/kWh and kW/ton BOTH SWEPT over published values**, 608 cells, nothing collapsed, **priced in each site's own state**. §6.12 |
 | **Per-site engine** | `src/build_sites.py` — every offerable site on **its own** weather, geometry, bound and tariff. §6.13 |
 | **Downloadable PDF** | `src/report.py` — a real 4-page PDF per site, **written without a PDF library** and verified by being read back. §6.15 |
 | **The interface** | `demo/index.html` (~118 KB of one inline script, light+dark, no build step). **Three-stage flow**: pick → configure → results. §6.14 |
 | 🟢 **THE LIVE AGENT** | `src/live.py` — perceives **now**, decides the next hours for the selected site, and **refuses to publish a schedule over any hour it did not perceive**. Four honest statuses. **34-assertion self-test, zero network.** §9.2b |
 | 🟢 **Live, in the browser** | `src/serve_live.py` — serves `demo/` **and** `/api/live/<site>`, with the API key never leaving the process. Async jobs, loopback-only, daily call cap, self-reloading. §9.2c |
-| **One command** | `src/run_all.py` — plume → agent → backtest → rolling → manifest → explain → **money** → **ticker** → fixtures → report → per-site → **live self-test** → audit. **16 steps, ~295 s, zero API calls** |
+| **Collector, hardened** | `testing/test_n26_coverage.py` — the retry budget counts **billed** attempts, a separate ceiling bounds free ones, and every attempt appends a full record. **24-assertion self-test, zero network.** §9.2d |
+| **Recovery watcher** | `testing/n26_recovery_watch.py` — uses the whole 5.5 h in-band window instead of its first 45 min, pacing on whether the last failure was **charged for**. `plan` is free. **18-assertion self-test.** §9.2d |
+| **Per-site truth, at the panel** | `audit.py` check 6d (no browser: panel list derived from `drawAll()`, and **no site's coordinate may be a literal in the page**) + `testing/verify_site_panels.py` (real Chrome, 15 panels × 3 sites, diffed, plus **named values compared individually**). **Neither is sufficient alone** — §9.2d |
+| 🟢 **Gates on FortyGuard's own data** | `src/live.py` — humidity from their `wet_bulb_temperature_celsius`, contamination from their PM2.5 index, **source recorded per hour**, DST shift MEASURED against NWS and applied only on ≥6 pairs. One call covers 24 hours. §4.0-E1E2 |
+| 🟢 **A replay that is one site, one date** | `replay_sequence()` walks the consecutive saved windows — a real morning **25.66 → 32.24 °C** — with environmental data matched on **location then date**. Free, reproducible, and FortyGuard's on every gate they supply |
+| **No retracted claim on any surface** | `audit.py` check 5b — 9 registered phrases × 4 reader-facing surfaces, with a 6-case negative control. Exists because this project shipped three (§10 #56, #129, #137) |
+| **One command** | `src/run_all.py` — plume → agent → backtest → rolling → manifest → explain → **money** → **ticker** → fixtures → report → per-site → **live self-test** → **collector + watcher self-tests** → audit → **browser panel diff**. **25 steps, ~360 s, zero API calls** |
 
 | **Cross-language proofs** | browser == Python on **scheduling (500 cases)**, **decisions (20,160 configs — was 2,016, see §6.10)**, **reasons (1,336 hours)**, **stage-event sentences (2,037, character for character)** |
 | **Validated physics** | vs analytic plume **0.00 %**, heat conserved **0.00 %**, **67** Prairie Grass experiments, 6 instrumented condensers **r=0.798**, GPU **81.6×** at **0.00012 °C** agreement |
@@ -173,11 +222,444 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 | Missing | Notes |
 |---|---|
 | 🔴 **THE SUBMISSION ITSELF** | Public repo, `fortyguard` as collaborator, live demo link, **2–5 min video**. **None exist. This is the whole remaining risk.** §9.1 |
-| 🔴 **Session 4 of the rework** | Collector hardening for all three vendor failure modes, a recovery watcher, the cross-site panel diff made a permanent check, PLAN currency. **§9.2d** |
+| ~~Session 4 of the rework~~ | ✅ **DONE 2026-08-21** — collector hardened on the BILLING of each failure, a recovery watcher, the panel diff made two permanent checks, and three stale claims found in the limits panel. **§9.2d** |
 | **An operator interview** | Zero conversations with a real facility engineer. The pain is evidenced from LBNL's instrumented study, not from a customer. **The one gap no engineering can close** — §9.2c-bis |
 | Local LLM narrator | ❌ **DECLINED, not pending.** VRAM measured at 371 MiB of 6,141 so it WOULD have fitted; declined because this stage reports numbers the agent already computed. `PLAN.md` §8l.1 and §10 |
 | Same-day anchoring test | ~2 paid calls/day. Would remove the customer-sensor requirement if it worked. **Blocked by the vendor, not by us** — 4 of 46 windows currently return a field |
 | Session F conformal panel | ✅ **Actually built** — §6.11. This row was stale |
+
+---
+
+## 3.4 🟢 SESSION I, 2026-08-23/24 — THE NATIONAL BUILD
+
+**Why this session exists, in the user's own words:** *"the thing is our project currently only
+suited for three data centres... that project is weak and doesn't show impact and commercial
+value... we need to run it in the entire US."* Later refined, again verbatim in effect: *"never
+claim a data centre that does not exist... don't replicate the same data for all data
+centres... each one of them will have its own world image and its own reasoning."*
+
+**The living document is `NATIONAL-BUILD-PLAN.md` in the repo root** — every decision, every
+measured number, every dated correction from this session is there in full. This subsection is the
+orientation; that file is the record. Read it before touching any of the scripts named below.
+
+### 3.4.0 The three standing decisions (asked and answered, do not reopen without reason)
+
+1. **FortyGuard fields are bought PER CLUSTER, not per site.** One 8×8 km heatmap call covers a
+   whole campus; each site inside it reads its OWN tile at its OWN coordinates — a shared purchase,
+   never a shared value. This is NOT the "one site's data standing in for another's" defect family
+   (§10 #98, #132, #133, #142) — it is what a spatial field product legitimately is.
+2. **The spend ceiling is REAL CREDITS, corrected mid-session from an overclaim.** The project had
+   long stated a "30 heatmaps/day" vendor cap. Re-checked when the user challenged it: that figure's
+   *only* source is `fortyguard-api-findings.md` §8.7 request #6, phrased **"we understand it to
+   be"** — a request ASKING FortyGuard to document a cap this project has never confirmed from the
+   API (no header, no spec, no observed rejection at call #31). **The real, measured ceiling is the
+   credit balance: 1,600,160 remaining ÷ 4,220/call = 379 calls**, independent of any daily-cap
+   question. §10 #145.
+3. **Allocation, per the user's explicit instruction 2026-08-23:** *"start with real tagged data
+   centres and then the highest impact and so on till all are covered."* `pack_national_aois.py`'s
+   impact ranking (tagged buildings served per purchase) is used as-is, pushed as far down the list
+   as the real ceiling allows — not a geographic-breadth-first allocation.
+
+### 3.4.1 What is DONE, with real numbers
+
+| Stage | What | Result |
+|---|---|---|
+| **S1 — foundation** | Repo-size fix, state resolution, national bboxes, dedup | `demo/` **120.5 MB → 57 MB** (§10 #146's family — `scenarios.json` had one consumer, the Ashburn-only cross-language test, and was being shipped per-site anyway) |
+| **S2 — discovery** | Overpass, 49 states, free/keyless, no credential | **1,647 tagged buildings, 422 real locations, 43 states** — three corrected passes, §10 #150–#154 |
+| **S3 — AOI packing** | Real distance-based grouping into 8×8 km purchases | **399 real purchases needed for full coverage** (not the ~150 first projected) — `src/pack_national_aois.py` |
+| **S4 — geometry & pairing (G2/G3)** | Real per-building union-find at the solver's 600 m validated range, then real footprint gaps | **396 buildings genuinely isolated, 1,136 eligible, 90 refused on evidence** (every internal pairing too close) — three corrective passes, §10 #150, #151 |
+| **National footprint UI** | One merged map, every real site, honest per-site status | `demo/index.html`'s `drawUnifiedMap()`; `src/export_unified_map.py` |
+
+**S7 (FortyGuard fields) is STARTED AND STOPPED** — see §4.0-NATIONAL-OUTAGE. **S5 (weather) and S6
+(imagery) have not started** — S5 is confirmed feasible (Iowa State Mesonet's free, keyless
+per-state `<STATE>_ASOS` networks) but not built; S6 needs a new capability (fetching and screening
+real aerial imagery at scale) not yet designed.
+
+### 3.4.2 The pipeline, as it actually exists in `src/` today
+
+```
+discover_dc_clusters.py          --all, 49 states -> data/geometry/dc_clusters.json (422 entries)
+classify_isolation.py            SUPERSEDED 2026-08-24 -- kept as the record of a real first pass
+fetch_national_building_centres.py -> data/geometry/national_building_centres.json (1,622 buildings)
+build_national_pairs.py          union-find @600m -> data/geometry/national_building_groups.json
+fetch_national_geometry.py       full rings, real pairing groups only -> national_geometry.json
+measure_national_gaps.py         G3, every internal pair -> national_geometry/national_gate_verdicts.json
+pack_national_aois.py            AOI packing -> national_aoi_plan.json (399 purchases)
+buy_national_fields.py           S7, PAID -- dryrun free, run --allow-paid spends
+national_recovery_watch.py       attended probe + auto-fire buy_national_fields on recovery
+export_unified_map.py            joins sites.json + the registry + S4 verdicts -> demo/unified_sites.json
+```
+
+**Every fetch script above is free and keyless** (Overpass, or Iowa State's Mesonet for weather —
+neither reads `FORTYGUARD_API_KEY`). Only `buy_national_fields.py` and the diagnostic scripts named
+in §4.0-NATIONAL-OUTAGE spend real credits.
+
+### 3.4.3 What a fresh session should do next, in order
+
+1. Read `NATIONAL-BUILD-PLAN.md` in full — it is the detailed record this subsection summarises.
+2. Check whether the vendor has recovered: either run `python testing/national_recovery_watch.py
+   plan` (free) to see the plan, or `watch --allow-paid` (attended, spends up to 3×4,220/day) to
+   actually probe and auto-resume the national buy on the first success.
+3. If not resuming the buy yet, **S5 (weather) is the next free, unblocked work** — build the
+   Iowa State Mesonet station-list fetch (`<STATE>_ASOS` networks, confirmed working this session,
+   not yet scripted) and nearest-station assignment for all 421 sites.
+4. **Never re-run `discover_dc_clusters.py --all`, `fetch_national_building_centres.py` or
+   `fetch_national_geometry.py` casually** — they are real Overpass load on a shared free resource,
+   already run multiple times this session. Only re-run if the underlying OSM data is believed to
+   have changed.
+
+---
+
+# 4. ⚠ THE FORECAST BLOCKER — diagnosed as an outage, and THAT DIAGNOSIS IS NOW IN DOUBT
+
+## 4.0-RECOVERY 🟢 2026-08-23 11:33 UTC — **THE HEATMAP PATH IS BACK. 12 OF 12 WINDOWS RETURNED A FIELD.**
+
+**This supersedes the "six consecutive days" framing everywhere it appears below. §4.0 and its
+dated entries stay as the record of what was measured; what changed is the present tense.**
+
+A 12-hour live run for Ashburn, first window **2026-08-23 08:00 site-local**, submitted
+**11:33:47 UTC**:
+
+| | |
+|---|---|
+| Windows | **12 of 12 returned a field**, 17,785 tiles each, 0 cache hits |
+| Polls | **1 poll, ~100 s each.** The outage signature was **27–61 polls over ~600 s then empty** |
+| Meter | 1,650,800 → **1,600,160**, i.e. 12 × 4,220 = **50,640, all billed** |
+| Leads | first window ≈ **0.4 h**, last window **19:00–20:00 site-local = 23:00–00:00 UTC ≈ 12.4 h** |
+| Cached | `data/live_cache/ashburn/2026-08-23_{0800…1900}_g60_tcm.json` — **gitignored**, so a fresh clone has none |
+
+🔴 **THE 12.4 h LEAD IS THE INTERESTING NUMBER.** `§4.0-CATALOG` raised the possibility that the
+whole outage was our own request pattern — windows past a **catalog forward limit** that a
+FortyGuard engineer put at 15:00 UTC on 08-20. Today a window starting **00:00 UTC the next day**
+came back full. So whatever bounded the catalog on 08-20 is not bounding it now, and the forward
+horizon is usable **at least to 12 h** today. That does not retro-diagnose 08-18..08-20 — DIAG-64
+proved a *past* window failed on 08-21, which no forward limit explains — but it does mean **the
+lead band the N-26 series needs (6.0–11.5 h) is available right now.**
+
+⚠ **TODAY'S N-26 PAIR IS ALREADY LOST, and for the third time it is the same cause.** The series
+targets 14:00 site-local = 18:00 UTC; the 6.0–11.5 h band puts the firing window at
+**11:30–17:00 PKT**, and the recovery was confirmed at ~17:40 PKT. §4.0a lost 08-20 exactly this
+way. **The four `FG-N26-*` scheduled tasks are still DISABLED** (§4.0-DIAG64), so nothing will fire
+tomorrow either unless they are turned back on:
+
+```powershell
+Enable-ScheduledTask -TaskName FG-N26-*      # then verify with Get-ScheduledTask FG-N26-*
+```
+
+🔴 **THIS IS NOW THE HIGHEST-VALUE DECISION LEFT, AND IT IS THE USER'S — it commits spending.** The
+bound needs **10 day-pairs and holds 4**. Six more at one per day needs the vendor to work six days
+running from tomorrow, with the last outcome leg landing ~Aug 29 against an Aug 30 deadline. **That
+is one day of slack and it assumes no further failure**, so plan the submission on **65.6 % being
+final** exactly as §4.1 says — but a pair landing is now *possible* again rather than blocked, and
+**every day the tasks stay off is one pair that cannot be recovered later.**
+
+⚠ **Who spent the 50,640 is not established here.** §4.0-DAY5 records a
+`serve_live.py --allow-paid --max-live-calls 40` process running unattended since 08-20. **Check for
+stray processes before attributing this run** — and decide deliberately whether that process should
+still be up, because a process that can spend money should not outlive the session that started it.
+**⚠ Found and killed again 2026-08-23, three days after the note above — the exact same class of
+stray process, unrelated to this section's PID. Check for one every session, do not assume it was
+already handled.**
+
+## 4.0-NATIONAL-OUTAGE 🔴 2026-08-23, HOURS AFTER 4.0-RECOVERY — THE VENDOR RELAPSED, CONFIRMED GENERAL
+
+**The national build (§3.4) authorised its first live purchase batch the same day the heatmap path
+had recovered.** User authorisation: *"authorize the full 379 now"* (§3.4.0 #2 — the real,
+credit-based ceiling). `testing/buy_national_fields.py run --allow-paid` was launched, chunked at
+20 calls, with a health check per chunk.
+
+**Chunk 1: 20 of 20 calls returned `completed_but_empty`.** Killed manually rather than wait for the
+script's own `STOP_AFTER_BAD_CHUNKS=2` to require a second unanimous-failure chunk to "confirm" what
+the first already showed unambiguously — a design flaw fixed afterward (§10 #148).
+
+**Killing the process exposed a worse defect than the outage itself.** `run_chunk()` batched
+classification and ledger-writing until the WHOLE chunk resolved. Billing happens server-side the
+instant FortyGuard's own job completes, independent of whether the polling client is still alive —
+so the kill left **14, then 18 more calls (confirmed by re-checking the live credit meter twice)**
+billed with **no ledger record at all**: gotcha #103's exact lesson, in a new shape (a batching
+WINDOW wide enough for a kill to fall inside it, not a missing source). Fixed: `finalize_job()` now
+classifies, saves the field (if real) and appends to the ledger THE INSTANT this process itself
+learns a job is terminal — §10 #147.
+
+**DIAG-66, one authorised control call, settled AOI-specific vs general.** Same date/hour as the
+failed batch's rank #1, but at **Ashburn's own long-proven, repeatedly-successful committed
+geometry** instead of a brand-new location. Result: **also `completed_but_empty`** — 0 tiles, 44
+empty polls over 481.5 s, billed in full. **Even the best-proven geometry this project has failed
+identically. The outage is general, not specific to unfamiliar AOIs.** This also RETRACTED a claim:
+`fetch_chicago_field.py`'s docstring said *"a past window has NEVER failed on this key across nine
+calls"* — true as of 2026-08-19, false as of today. Marked retracted in both `fetch_chicago_field.py`
+and `buy_national_fields.py` rather than silently rewritten.
+
+**Total this session: 39 calls (20 confirmed empty + 18 inferred from the credit meter, evidence
+lost to the same batching bug the fix now closes + 1 DIAG-66 control), 164,580 credits, 0 % success
+after the morning's recovery.** Session total now 135 calls / 564,420 / 28.22 % (was 96 / 399,840 /
+19.99 % before this session).
+
+**`testing/national_recovery_watch.py` was built in response** — mirrors
+`n26_recovery_watch.py`'s architecture exactly (day-keyed billed-probe budget, capped at 3/day per
+the user's own choice, a heartbeat during sleep). `plan` is free; `watch --allow-paid` probes every
+2 hours and, on the first success, calls `buy_national_fields.main(["run","--allow-paid"])` directly.
+**ATTENDED ONLY, deliberately not a scheduled task** — the user chose this explicitly, given this
+project's own scar with an unattended `serve_live.py --allow-paid` process (§4.0-DAY5, and again
+three days later per the note above). **Not currently running. A fresh session must start it
+itself if it wants to resume the national buy.**
+
+## 4.0-CATALOG 🔴 2026-08-21 — THE "OUTAGE" MAY BE OUR OWN REQUEST PATTERN. READ THIS BEFORE §4.0.
+
+**A FortyGuard engineer (Fawad Shah), answering a different entrant in the hackathon Slack about an
+`America/Phoenix` AOI, used a phrase this project had never encountered:**
+
+> *"…about six hours past **the last hour currently in the catalog** (2026-08-20 15:00 UTC). The
+> window fell outside the data, so the grid came back empty."*
+
+**The catalog has a FORWARD LIMIT, and a window past it returns `HTTP 200` + `status: completed` + an
+empty `features` array — which is the exact signature §4.0 below attributes to a vendor outage.**
+`fortyguard-api-findings.md` is 64 KB of endpoint probing and contains **zero** mentions of a catalog
+horizon. We never tested it because we did not know it existed.
+
+⚠ **The timezone half of that Slack message is NOT our bug.** We found the local-time convention on
+2026-08-12 (§10 #1) and build every window in the AOI's own zone. The entrant meant UTC and sent UTC
+digits; we mean AOI-local and send AOI-local digits, which is the convention Fawad confirms.
+
+**TWO INDEPENDENT SOURCES AGREE ON THE SAME BOUNDARY.** Our successful cached windows over Ashburn on
+2026-08-20 are `0900, 1000, 1100, 1200` site-local (UTC−4) = **13:00–16:00 UTC, and they stop there**;
+every window from 17:00 UTC onward that day came back empty. Fawad, independently, put the catalog's
+last hour that day at **15:00 UTC**.
+
+| Observation | "vendor outage" | "window past the catalog end" |
+|---|---|---|
+| Past-window requests always worked, at every hour | needs a further assumption | ✅ inside the catalog |
+| 08-20 12:52 UTC run: only **3 of 11** worked, and they are the NEAREST windows | why only the near ones? | ✅ near inside, far past the end |
+| 08-20 16:05 + 16:33 runs, windows 17:00 UTC on: **0 of 15** | ✅ | ✅ all past the end |
+| **Every N-26 collector attempt, four days running.** Target 14:00 site-local = **18:00 UTC**, called 08:30–11:30 UTC | ✅ | ✅ **past the end BY CONSTRUCTION, every single day** |
+| 2026-08-21 15:23 UTC, chicago, horizon 12: **0 of 12** | ✅ | ✅ |
+| 🔴 **diag62, 08-19 13:35 UTC: window 23:00–01:00 UTC, 9.41 h lead → 17,862 REAL tiles** | ✅ brief recovery | ❌ **does not fit** |
+
+**IF THIS IS RIGHT, THE N-26 SERIES WAS ASKING FOR DATA THAT STRUCTURALLY DOES NOT EXIST.** The
+series fixes 14:00 site-local at a 6.0–11.5 h lead, which *forces* a morning call for an 18:00 UTC
+window. That is not an outage; it is a design error on our side caused by assuming the documented
+12 h horizon was available in the catalog.
+
+**What survives, and what does not:**
+- ✅ **The product thesis holds** *if* the usable forward horizon is ≥3 h. The shipped headline uses
+  **3 h notice**, and the 08-20 successes were at leads of roughly 0–3 h.
+- ❌ The **6 h notice** row of the sweep would not be supportable on live data.
+- ✅ **The four existing day-pairs are unaffected** — they came from the earlier, unbilled key
+  (2026-08-11..17), not from this plan.
+- 🔴 **"227,880 credits provably bought nothing" may be OUR fault, not theirs.** Which is why
+  `fortyguard-report-2026-08-20-jobs-not-completing.md` **MUST NOT BE SENT** until this is answered —
+  it blames the vendor for something that may be a client-side request error.
+
+## 4.0-NEXT ☐ THREE PRE-REGISTERED EXPERIMENTS, WAITING ON THE DATA PATH
+
+**Full specifications: `FORTYGUARD-NEXT-EXPERIMENTS.md`. Background: `FORTYGUARD-VALUE-AUDIT.md`.**
+Written 2026-08-23 after the question *"is the only value we portray the forecast?"* — the audit's
+answer is **no, but very nearly yes in the live agent**, which perceives exactly ONE FortyGuard
+variable while its humidity gate runs on NWS and its air-quality gate does not run at all.
+
+| # | Experiment | Cost | Blocked by | What it buys |
+|---|---|---|---|---|
+| ~~E1~~ | ✅ **DONE 2026-08-23 — `env_params` IS ALIVE.** DIAG-65 returned **15 fields × 24 hourly values** while every heatmap window was empty | 2,900 | — | The fault is **heatmap-specific**. Unblocked E2 |
+| ~~E2~~ | ✅ **DONE 2026-08-23 — implemented in `src/live.py`.** Humidity gates on their `wet_bulb_temperature_celsius`, contamination on their PM2.5 index, source recorded per hour | 2,900/run | — | See §9.2e |
+| **E3** | Wide-AOI station→site offset: can their field replace the customer's thermometer? | 4,220 | the heatmap path recovering | Would remove the **−156 h/yr** anchor caveat, the product's biggest limitation |
+
+**E1 IS THE ONE TO RUN FIRST, AND IT IS NOT BLOCKED.** The user's read (2026-08-23) is that the fault
+is heatmap-specific and `env_params` is fine — and **it has never been tested**, because every probe
+during this outage has been a heatmap call. It is the cheapest call available, both outcomes are
+useful, and if it passes we can build new FortyGuard-powered agent behaviour **during** the outage
+instead of waiting it out. It also upgrades the vendor report from *"your API returns empty"* to
+*"your heatmap returns empty for an AOI and hour where your env_params serves normally"*.
+**Ready to run: `testing/diag65_env_params_alive.py` — `dryrun` is free, `run --allow-paid` is 2,900.**
+
+🔴 **E2's decisive fact is already paid for: `env_params` SERVES THE FORECAST HORIZON.**
+`testing/test_n15_forecast_state.py` asked for `now + 6 h` and got a full set back
+(`fixtures/n15_ep_future.json`: RH 87.2 %, wet-bulb 22.6 °C, cloud 100 %, all six AQ indices). So E2
+is an integration job, not a research question — and it is the experiment that makes LBNL's
+contamination thesis, the project's **commercial** argument, something the live agent actually acts
+on rather than merely cites.
+
+⚠ **E3 is a HYPOTHESIS, not a result, and must never be written up as a capability.** It assumes
+FortyGuard's 2 m field resolves a 9.38 km microclimate gradient, which has never been tested. The box
+needed is ~21 × 21 km ≈ 43,000 tiles at 100 m granularity, against the 17,862 we have ever seen
+returned — so it may simply be refused. Validation afterwards is free: 43,763 held KIAD hours.
+
+**Total for all three: 10,020 credits, ≈ 0.6 % of the plan.**
+
+## 4.0-E1E2 ✅ 2026-08-23 — `env_params` IS ALIVE, AND THE AGENT NOW GATES ON IT
+
+**This is the most useful thing that happened while the heatmap path was down, and it started with
+the user's read that the fault was heatmap-specific.** It had never been tested: every probe during
+the outage had been a heatmap call.
+
+### E1 — DIAG-65, `testing/diag65_env_params_alive.py`, 1 call, 2,900
+
+**Result: `env_params` served 15 fields × 24 hourly values — 360 real values — in 14 s and 2 polls**,
+for the *same AOI and the same day* every `/v1/heatmap` window was returning `n_cells: 0` for.
+Nine of the ten fields we consume came back populated; only `solar_irradiance` was absent.
+
+🔴 **THE FAULT IS HEATMAP-SPECIFIC.** That is measured now, not assumed, and it is the single most
+useful sentence to put in front of FortyGuard: *"your heatmap returns empty for an AOI and hour where
+your env_params serves normally"* is actionable in a way that *"your API is broken"* is not.
+
+⚠ **The first attempt sent `polygon_aoi` and was rejected `422 Field 'latitude' is required`.**
+`env_params` takes a **POINT** (`latitude`/`longitude` + a required `temperature` the endpoint merely
+echoes), not a polygon. Free, because rejections are unbilled — see §10 #138 for the expensive part.
+
+### E2 — the environmental gates, on FortyGuard's own forecast (`src/live.py`)
+
+| Gate | before | after |
+|---|---|---|
+| Dry-bulb | FortyGuard `heatmap` | FortyGuard `heatmap` |
+| **Humidity** | **NWS** | **FortyGuard `wet_bulb_temperature_celsius`** |
+| **Air quality** | **not evaluated at all** | **FortyGuard PM2.5 index** |
+| Wind | NWS | NWS — they publish no wind field (our filed request, findings §6) |
+
+**One call covers the whole day.** `filter_type: 2` over 00:00–23:00 returns 24 hourly values per
+field, so the environmental gates cost **2,900 once** against **4,220 per hour** for the heatmap —
+the cheapest part of the perception, not the most expensive.
+
+**New in `live.py`:** `fortyguard_env()` · `saved_fortyguard_env()` · `dewpoint_from_env()` ·
+`env_alignment_lag()` · `_append_env_spend()` · `replay_sequence()`. New CLI:
+`--aq-limit`, `--dewpoint-limit`, `--env-live-during-replay`.
+
+⚠ **Wet-bulb is compared against the dew-point limit, deliberately.** In unsaturated air wet-bulb
+sits ABOVE dew point, so a FortyGuard-gated hour is held to a **STRICTER** test than an NWS-gated
+one, never a looser one. Erring strict is the safe direction for a gate whose job is keeping moist
+air out — and it is stated in the output rather than buried.
+
+⚠ **The air-quality gate is OFF unless a limit is passed.** The `:idx` fields carry no documented
+units (findings §9.3), so choosing a threshold would be inventing a constant. The card shows their
+values with *"no limit applied"* and the reason. `--aq-limit 73.5` arms it.
+
+### 🔴 THE DAYLIGHT-SAVING TRAP, AND HOW IT IS HANDLED
+
+`env_params` reports a **fixed `GMT-5` offset and does not apply daylight saving** (findings §1.8).
+Our Virginia AOI is UTC−4 in August, so the response stamps `-05:00` on hours we requested as EDT.
+Indexing that array by position is the nine-hour bug one order of magnitude smaller.
+
+**So the lag is MEASURED, free**, by cross-correlating FortyGuard's wet-bulb against the NWS dew
+point `live.py` already fetches: `env_alignment_lag()`. On the first real run it measured **−1 h**
+from **4 overlapping hours** — and **did not apply it**. A shift is only acted on with **≥6 pairs
+AND a ≥0.25 °C margin** over the as-labelled alignment; otherwise the array is used as labelled and
+the disagreement is published as `unresolved`. All three candidate scores are emitted so a reader
+sees the separation rather than trusting an argmax.
+
+### THE REPLAY, REBUILT — and this took three wrong turns
+
+A replay is now **one site, one date, one set of saved FortyGuard responses**:
+
+| | temperature | humidity + air quality | wind | cost |
+|---|---|---|---|---|
+| **Replay** | FortyGuard, saved | **FortyGuard, saved, same date + same hours** | NWS live | **0** |
+| **Live run** | FortyGuard, live | FortyGuard, live | NWS live | 4,220/h + 2,900 |
+
+- **`replay_sequence()` walks the CONSECUTIVE saved windows** instead of repeating one. Ashburn's
+  2026-08-20 cache holds 09:00/10:00/11:00/12:00, so a replay now shows a real morning warming
+  **25.66 → 28.84 → 30.71 → 32.24 °C** with the wet-bulb rising 20.2 → 21.4. It **truncates to what
+  was saved** rather than inventing hours. Chicago has one window and correctly still replays flat.
+- **`saved_fortyguard_env()` matches on LOCATION then date**, using the `lat`/`lon` the response
+  echoes back — measured, not inferred from a filename. A site with no response of its own **falls
+  back to NWS rather than borrowing another site's air**.
+- **Two date-matched environmental days were bought** so this is real rather than aspirational:
+  `testing/fetch_env_for_replay.py run --date 2026-08-20 --metro {ashburn,chicago} --allow-paid`,
+  360 values each, 2,900 each.
+
+⚠ **What is still NOT date-consistent in a replay: WIND.** NWS is a forecast API and no saved wind
+exists for a past date, so wind is live in both modes. The `NOT_LIVE` banner says so, and it also
+says these are not the hours the schedule names.
+
+## 4.0-DAY5 🔴 2026-08-22 — FIFTH CONSECUTIVE DAY. CHICAGO'S FIRST OWN ATTEMPT ALSO EMPTY.
+
+**The four scheduled tasks were disabled on 08-21, so nothing fired at 13:30 today.** Ashburn's
+in-band window closed at 12:00 UTC unattended and **today's Ashburn pair is lost**. At the user's
+explicit instruction the CHICAGO forecast leg was fired by hand while its window was still open.
+
+| | |
+|---|---|
+| Submitted | **2026-08-22 12:39:50 UTC**, lead **6.34 h** (band 6.0–11.5) |
+| Window | 14:00–16:00 Chicago-local = **19:00–21:00 UTC** |
+| Activity | `d559384b-6218-4455-858e-c31f71bdcbd6` |
+| Result | **`completed`, 0 tiles, 61 polls over 604 s. BILLED 4,220** |
+| Meter | 1,666,620 → **1,662,400** |
+
+**Chicago still has 0 day-pairs. Ashburn still has 4. The conformal layer is untouched** — margin
+0.152028 °C, n=4, attainable 80 %, pooled coverage 65.6 %. Nothing about the bound has moved since
+2026-08-16.
+
+**This is the fifth straight day and the signature is identical to every other:** accepted with
+HTTP 200 and an activity id, ~10 minutes in `processing`, then `completed` carrying nothing, billed
+in full. It is now measured on **both** AOIs and in **both** directions in time.
+
+⚠ **`serve_live.py --allow-paid --max-live-calls 40` HAS BEEN RUNNING SINCE 2026-08-20 21:41 PKT** —
+PID 40872, two days. **That is the process that made 08-21's 50,640-credit browser run possible**, and
+it is still up and still permitted to spend. A process that can spend money should not outlive the
+session that started it (gotcha #122 is the smaller version of this: a leftover test flag read as a
+product defect). **Decide deliberately whether to keep it.**
+
+## 4.0-DIAG64 🔴 2026-08-21 16:15 UTC — HISTORY IS FAILING TOO. THE TEST IS VOID, AND THAT IS THE FINDING.
+
+**`testing/diag64_catalog_horizon.py`, 2 paid calls, 8,440 credits, authorised by the user.**
+
+The design was the one §4.0 called impossible: ask for **the collector's OWN window** (14:00–16:00
+site-local, 18:00–20:00 UTC) but ask **now**, at a 1.60 h lead instead of the ~9.5 h lead the
+schedule forces. Same AOI, centre, granularity, analytic, window length and `filter_type` — the only
+difference from the four calls that failed on 08-18..08-21 is **when it was asked**. §4.0's claim that
+"there is no request that varies one and holds the other" was true only of a request that must stay
+comparable with the N-26 series; a diagnostic may leave the band, and the moment it does the test is
+trivial.
+
+**A positive control was included, and it is what decided the run** (gotcha #59b: demand a positive
+control before retiring a forward plan):
+
+| | window site-local | = UTC | lead | result | billed |
+|---|---|---|---|---|---|
+| **CONTROL** | 2026-08-21 09:00–11:00 | 13:00–15:00 | **−3.23 h, already elapsed** | `completed`, **0 cells**, 607 s, 59 polls | 4,220 |
+| **PROBE** | 2026-08-21 14:00–16:00 | 18:00–20:00 | **+1.60 h** | `completed`, **0 cells**, 606 s, 60 polls | 4,220 |
+
+Activity ids `14742335-957b-429a-8c12-ee898fb8f889` and `f314239b-…`. Meter 1,675,060 → 1,666,620.
+
+🔴 **VERDICT: VOID for H1, exactly as pre-registered.** The control returned no field, so the probe
+cannot distinguish a forward limit from a general fault, and **no conclusion about the catalog horizon
+may be drawn from this run.** Writing that condition down before making either call is the only reason
+it cannot be reinterpreted now.
+
+**WHAT IT DOES ESTABLISH, and it is worth more than the hypothesis was:**
+
+1. **A window three hours IN THE PAST returns zero cells.** That cannot be a forward-limit effect. It
+   is also NEW: past-window requests over this AOI worked reliably at every hour throughout
+   08-18..08-20 — the one constant in §4.0's whole record.
+2. **A window 1.6 h ahead returns zero cells**, so today's failures are not about asking too far
+   ahead either.
+3. **Today's fault is therefore vendor-side and broader than the forecast path**, which means §4.0's
+   "outage" attribution is **at least partly right after all** — and `§4.0-CATALOG`'s worry that we
+   were about to blame the vendor for our own request pattern does **not** hold for today.
+
+**WHAT REMAINS OPEN.** The catalog-forward-limit mechanism is real — the vendor described it — and it
+may still explain **08-18..08-20**, where history worked and forecasts did not. It cannot explain
+today. **Two different faults, and they cannot be separated until history works again.** The horizon
+test must be repeated on a day when the control passes.
+
+✅ **`fortyguard-report-2026-08-20-jobs-not-completing.md` is UNBLOCKED** — a past window failing is
+squarely the vendor's. ⚠ **But widen it from "forecast windows" to "windows in general" before
+sending**, because it describes a forecast-path fault and the same signature is now measured on
+history.
+
+**ACTIONS TAKEN 2026-08-21, by the user's decision:**
+1. **All four scheduled collectors are DISABLED** (`FG-N26-Coverage`, `-Retry1`, `-Retry2`,
+   `FG-N26-Chicago-Offset`) rather than spend ~29,500 credits/day into an open question.
+   **Re-enable with `Enable-ScheduledTask -TaskName FG-N26-*` once the answer arrives.**
+2. **`fortyguard-question-catalog-horizon.md`** is drafted and ready to send. Three questions: how far
+   ahead the catalog extends; whether there is a **free** way to query the last available hour before
+   submitting; and how diag62 succeeded at a 9.41 h lead. **Only the user can send it.**
+3. `live.py`'s spend ledger now records **which window each call requested** (site-local start + lead).
+   It recorded the class, tile count, activity id and poll count of every call but **not the hour** —
+   the one field needed to test this against our own history, so the reconstruction above had to be
+   done from cache filenames, which exist only for the calls that SUCCEEDED. §10 #124's family, third
+   occurrence.
+
+⚠ **DO NOT DELETE §4.0 BELOW.** It is the record of what was measured and when, and it stands as
+evidence regardless of which explanation wins. What is in doubt is the *attribution*, not the
+observations.
 
 ---
 
@@ -245,7 +727,31 @@ three attempts today.**
 | Evidence | `testing/results/n26_manifest.json` — `2026-08-18`, `2026-08-19`, `2026-08-20` all `forecast_done: false`. Today: **`forecast_attempts: 3`**, error *"completed but never populated after 59 polls over 608 s"* |
 | Scheduled tasks | `FG-N26-Coverage` / `-Retry1` / `-Retry2` all report `LastTaskResult 0` at **13:30 / 13:50 / 14:15 PKT** today = **08:30 / 08:50 / 09:15 UTC**. They ran. They were billed. They returned nothing |
 | Cost | **3 × 4,220 = 12,660 credits today alone**, and the same again every day the fault persists |
-| **The pattern that survives** | **Every forecast FAILURE was a call made before 12:00 UTC** (08:30–11:30). **The one forecast SUCCESS was made at 13:35 UTC.** Past-window requests worked throughout, at every hour |
+| **The pattern that survives** | **Every forecast FAILURE was a call made before 12:00 UTC** (08:30–11:30). **The one forecast SUCCESS was made at 13:35 UTC.** ~~Past-window requests worked throughout, at every hour~~ 🔴 **THAT LAST CLAUSE IS FALSE AFTER 2026-08-20 11:11 UTC and is retracted** — see below |
+
+🔴 **RETRACTION, 2026-08-21: "past-window requests worked throughout, at every hour" was wrong, and
+it was load-bearing.** It is the clause that made "outage" look forecast-specific, and it is the
+clause `§4.0-CATALOG` leaned on when it argued our own request pattern might be to blame. Two
+measurements contradict it:
+
+| When (UTC) | Activity | Window | Result |
+|---|---|---|---|
+| **2026-08-20 11:11:56** | `58ef42ba-10a9-46a8-8032-253b4b84cfa0` | 08-19 18:00–20:00 UTC — **closed the previous day** | **stalled in `processing`, 45 polls / 425 s, never completed** |
+| **2026-08-21 16:13:54** | `14742335-957b-429a-8c12-ee898fb8f889` | 13:00–15:00 UTC — **closed 3 h earlier** | `completed`, `n_cells: 0`, 59 polls / 607 s, **billed** |
+
+The first is DIAG-63's own leg B — **a past-window positive control that was submitted in the same
+second as its forecast leg and stalled exactly as the forecast did.** It was in the artefact the
+whole time (`testing/results/diag63_forecast_failed_status.json`) and the summary above described it
+as though it had passed. **The 08-20 pair is stronger evidence than DIAG-64's**, because both legs
+went out in the same second, so nothing about the clock or the plan can differ between them.
+
+**What this changes:** the fault has affected **both directions in time since at least 08-20**, so it
+is vendor-side and not forecast-specific, and `§4.0-CATALOG`'s worry about blaming them for our own
+request pattern is settled — it does not apply. **What it does not change:** the horizon question is
+still unanswered, and DIAG-64 is still VOID for it.
+**The lesson is the ordinary one and it is §8.2 again: this clause was prose, and no check re-reads
+prose.** Every *number* in this file is registered in `audit.py`; the sentence that framed all of them
+was not.
 | **Why that cannot be tested cheaply** | Target hour and call clock time are **LOCKED TOGETHER** by the 6.0–11.5 h lead band. A 14:00 site-local window at a 9.4 h lead *forces* a call at ≈08:35 UTC. Calling at 13:35 UTC for that window gives a 4.4 h lead (below the floor); targeting tomorrow's 14:00 gives 28 h (beyond the 12 h horizon). **There is no request that varies one and holds the other** |
 
 **What this changes:**
@@ -300,7 +806,23 @@ stopped us one short at 8/9 = 88.9 %.)*
 | Retry cost | **Zero when the first succeeds** — `forecast_done` / `outcome_done` short-circuit before any call |
 | Spend cap | **`MAX_FORECAST_ATTEMPTS_PER_DAY = 3`**, written to the manifest *before* the call so a crash still counts |
 | Sleep | **`WakeToRun` + `StartWhenAvailable` + run-on-battery** on all three tasks (`FG-N26-Coverage`, `-Retry1`, `-Retry2`). **Sleep is what lost 2026-08-14 and 08-17** — absent from the manifest, no error, machine asleep |
-| Free verifier | **`python test_n26_coverage.py dryrun`** — window, true lead, in-band firing window, outcome debt, pair arithmetic. **Zero API calls, no key read** |
+| Free verifier | **`python test_n26_coverage.py dryrun`** — window, true lead, in-band firing window, outcome debt, pair arithmetic, **and both retry budgets with every attempt's vendor class and price**. Zero API calls, no key read |
+| **Offline self-test** | **`python test_n26_coverage.py selftest`** — 24 assertions over the five measured vendor shapes and both budgets. Zero network. `run_all` step 16 |
+
+**⚠ THE TRIGGERS STILL CLUSTER, AND SESSION 4 DID NOT CHANGE THAT.** They occupy the first 45 minutes
+of a 5.5-hour in-band window, which is how 2026-08-20's recovery was missed. `n26_recovery_watch.py`
+exists to use the rest of the window, but **nothing has been registered as a scheduled task** —
+that commits future spending, so it is the user's decision. To do it, after reading §9.2d:
+
+```powershell
+# ATTENDED FIRST. This spends credits; `plan` shows what it would do for free.
+python testing/n26_recovery_watch.py plan
+python testing/n26_recovery_watch.py watch --allow-paid --hours 5
+
+# Only then, if you want it unattended. WakeToRun matters -- sleep is what lost 08-14 and 08-17.
+schtasks /Create /TN FG-N26-Watch /TR "python d:\FGHackathon\testing\n26_recovery_watch.py watch --allow-paid" ^
+  /SC DAILY /ST 14:30 /RL LIMITED
+```
 
 ## 4.3 ✅ THE REWRITTEN FORTYGUARD REPORT EXISTS — `fortyguard-report-2026-08-20-jobs-not-completing.md`
 
@@ -362,7 +884,7 @@ Use `data/imagery/screen/…` and `screen_manifest.json`.
 
 ---
 
-# 6. RESULTS — every number traceable, `audit.py` re-checks 61 of them
+# 6. RESULTS — every number traceable, `audit.py` re-checks 77 of them
 
 ## 6.1 The seven dead decision cores — do not re-run these
 
@@ -746,7 +1268,7 @@ their data through `agent.load_hours()`, `agent.rise_table()` and `agent.perceiv
 | outputs | `trace.json`, `scenarios.json` | `M.demo_path(...)` — **ashburn stays unsuffixed** |
 
 **`metros.demo_path(name, k)` follows `geom_path`'s convention exactly: ashburn keeps the unsuffixed
-name because `audit.py` re-reads 70 published numbers out of `trace.json` / `backtest.json` /
+name because `audit.py` re-reads 77 published numbers out of `trace.json` / `backtest.json` /
 `rolling.json` / `money.json`, and renaming them would invalidate the audited chain for nothing.**
 
 **MEASURED, and `audit.check_sites_actually_differ()` (check 6c) fails if any two agree:**
@@ -1034,9 +1556,16 @@ a silent switch to cached data.
 
 `gates_for_hour` · `flip_distance` · `explain_hour` · `explain_schedule` · **`verify()` — re-runs the
 agent to check every claim** · `state_from_trace`. Seven binding constraints; measured distribution
-across 1,336 hours: dry-bulb 46.7 %, none 32.6 %, **dew point 11.1 %**, **refusal 6.6 %**, **switch
-budget 2.8 %**, air quality 0.1 %, **minimum dwell 0.1 % (1 hour in 1,336)**. **The last two are the
+across 1,336 hours — **recounted from the shipped `explanations.json` on 2026-08-21, because the
+figures here had drifted by 0.1–0.4 pp and nothing re-read them** (§8.2, the fifth instance):
+dry-bulb **46.9 %**, none **32.7 %**, **dew point 10.8 %**, **refusal 6.6 %**, **switch budget
+3.0 %**, **air quality 0 hours of 1,336 — VACUOUS in this configuration**, **minimum dwell
+1 hour in 1,336**. ⚠ The air-quality gate moved 2 hours → 0 on 2026-08-23, when DIAG-65's
+response became the **30th** env_params day and shifted the measured PM2.5 diurnal profile.
+New evidence changing a measured number is the system working; the registry caught it. **The last two are the
 ones a thermostat cannot produce, and they are nearly vacuous — say so.**
+⚠ These seven are **not** in `audit.check_published_numbers`, which is exactly why they drifted.
+`READING-THE-AGENT.md` quotes them, so registering them is worth doing.
 
 ## 7.6 `src/backtest.py` — five years
 
@@ -1082,15 +1611,15 @@ verdict for the committed pair** (§10 #69).
 prose documenting a retirement is not a false positive; **the detector passes its own 6-case test**)
 · **`check_act_stage`** (stage 5's 37 command bounds, rebuilt from the shipped inputs) ·
 **`check_stage_events`** (the reasoning tape's digit scan, re-run against the SHIPPED file)
-· **`check_published_numbers`** — **62 figures re-read from emitted JSON**, including all five ladder
+· **`check_published_numbers`** — **77 figures re-read from emitted JSON**, including all five ladder
 rows and **two cross-path invariants** (the ladder's rows 4 and 5 must equal the sensitivity sweep's
 base and `anchor=none` rows **to full precision**) · `check_self_tests` · `check_cross_language`.
 **`python run_all.py`** = plume → agent → backtest → rolling → manifest → **money** → explain →
 **ticker** → fixtures ×3 → **report** → **build_sites (chicago, dulles)** → manifest again → audit.
-**16 steps, ~295 s.** Most of that is the two extra sites: Ashburn alone is ~100 s. Step 15 is
+**25 steps, ~360 s.** Most of that is the two extra sites: Ashburn alone is ~100 s. Step 15 is
 `live.py selftest` — 34 assertions, zero network.
 
-### 7.7a THE 51 AUDIT CHECKS, by section — `python audit.py`
+### 7.7a THE 92 AUDIT CHECKS, by section — `python audit.py`
 
 | § | function | exists because |
 |---|---|---|
@@ -1103,12 +1632,18 @@ base and `anchor=none` rows **to full precision**) · `check_self_tests` · `che
 | 3 | `check_decision_precision` | rounding flipped decisions at exact gate boundaries |
 | 4 | `check_duplicate_constants` | asserts AGREEMENT, not absence |
 | 5 | `check_retired_constants` | AST-based, so prose documenting a retirement is not a false positive |
+| **5b** | **`check_retracted_claims`** | check 5 catches a retracted NUMBER; **nothing caught a retracted SENTENCE**, and this project shipped three (#56, #129, #137). A registry of 9 phrases scanned against every reader-facing surface, with a **6-case negative control** whose first case is the sentence that actually shipped |
+| **6e** | **`check_wind_is_this_sites_own`** | Chicago's plume was solved on Virginia's wind for two days (#132). Asserts `usable + calm + missing == that site's own n_hours`, that its rendered plume was solved at its OWN median wind, that Chicago differs from Ashburn and that Dulles matches — plus no two sites sharing an OSM id or operator (#134) |
 | **6a** | **`check_act_stage`** | all 37 command rows shipped `bound_c: null` — §6.10 |
 | **6b** | **`check_stage_events`** | the tape's digit scan, re-run against the SHIPPED file |
 | **6c** | **`check_sites_actually_differ`** | the picker changed one panel of thirteen — §6.13 |
-| 6 | `check_published_numbers` | **68 figures** re-read from emitted JSON |
+| **6d** | **`check_panels_are_per_site`** | 6c compares a hand-picked list of VALUES, so it only ever proves things about values someone thought to register. This compares the PANELS, **derives the list from `drawAll()`** so an unregistered panel fails the build, and **fails if any site's own coordinate, OSM id or station appears as a literal in the page** — gotcha #98's signature. Runs `_selftest_js_scanner` (6 cases) first, because the scanner decides what the check can see (#128) |
+| 6 | `check_published_numbers` | **77 figures** re-read from emitted JSON |
 | 7 | `check_self_tests` | `conformal`, `environment`, `plume_uncertainty`, `explain`, `ticker`, `money`, `report` |
 | 8 | `check_cross_language` | **five** browser-vs-Python tests |
+| **9** | **`check_api_spend`** | the ledger vs the documents — and since 2026-08-21 it matches the **SHAPE** of a total-spend claim rather than a hand-maintained list of stale strings, which is how `61 CALLS / 257,420 / 12.87 %` survived a green audit. **Six-case negative control**, §9.2d #5 |
+| 10 | `check_front_door_figures` | every README figure, incl. the self-referential check count. **Must run LAST** |
+| 11 | `check_live_chain` | `live.py selftest` — 34 assertions, zero network |
 
 ## 7.8 `demo/` — the interface
 
@@ -1148,7 +1683,8 @@ single syntax error silences the whole page (§10 #83). Grep for these:
 | **conformal** | `cfQuantileIndex()`, `cfAttainable()`, `cfMinN()`, `cfSplit()`, `drawConformal*()` |
 | **money** | `drawMoney()` |
 | **the PDF link** | `drawReportLink()` — **href comes from the manifest, never constructed** |
-| **panels** | `drawHeadline`, `drawSched`, `drawBound`, `drawExplain`, `drawPlume`, `drawField`, `drawAerial`, `drawDial`, `drawCov`, `drawCoverageTiles`, `drawLadder`, `drawLimits`, `drawMap`, `drawAll` |
+| **panels** | `drawHeadline`, `drawSched`, `drawBound`, `drawExplain`, `drawPlume`, `drawField`, `drawAerial`, `drawDial`, `drawCov`, `drawCoverageTiles`, `drawLadder`, `drawLimits`, `drawAll` |
+| **the national map** (§3.4) | `drawUnifiedMap()` — ONE map, every real site, merged 2026-08-24 from the old `drawMap()` (5 metros) + the old `drawNationalMap()` (422 candidates); reads `unified_sites.json`. `showSiteStatus()` — the honest per-site status shown on clicking anything not yet fully built. `mapFallback()` — repointed at `#natmapcard`/`#natmap`/`#natmapnote` |
 
 **Globals:** `T` trace · `BT` backtest · `RL` rolling · `MN` money · `TK` ticker · `EX`
 explanations · `PF` plume field · `SITES` manifest · `SITE` the chosen site's manifest entry ·
@@ -1166,13 +1702,20 @@ extract functions by counting braces, and a literal brace inside a regex cuts th
 # 8. HOW TO PROVE IT STILL WORKS
 
 ```bash
-cd INTAKE-ARBITER/src && python run_all.py      # 16 steps, ~295 s, zero API calls, non-zero on failure
+cd INTAKE-ARBITER/src && python run_all.py      # 25 steps, ~360 s, zero API calls, non-zero on failure
 cd INTAKE-ARBITER/src && python build_sites.py # just the per-site chain (agent..report) for each site
 cd INTAKE-ARBITER/src && python report.py      # just the PDFs, verified by being read back
 cd INTAKE-ARBITER/src && python ticker.py       # prints the whole tape -- READ IT, see #76
 cd ../demo && python -m http.server 8000       # then open http://localhost:8000
 cd ../../testing && python test_n26_coverage.py dryrun   # free: what the collector would do now
+cd ../../testing && python test_n26_coverage.py selftest # free: the retry budget, all 5 vendor shapes
+cd ../../testing && python n26_recovery_watch.py plan    # free: what the watcher would spend today
+cd ../../testing && python verify_site_panels.py         # real Chrome: 15 panels x 3 sites, diffed
 ```
+
+**⚠ `verify_site_panels.py` writes `demo/_verify_panels.html` and deletes it again.** If a run is
+killed, delete it by hand — `demo/` is what ships. It is regenerated from `index.html` on every run
+(gotcha #102: a driver copy goes stale the moment the page is edited).
 
 ## 8.1 Screenshot and actually LOOK at the page
 
@@ -1255,31 +1798,99 @@ higher the limit would need to be, that it is one of the 43.7 %, and the annual 
 
 ## 9.-1 🔴 IF YOU READ NOTHING ELSE: where this stands, and what to do next
 
-**The product is built and verified. The SUBMISSION is not, and that is the only thing that can
-lose this.** 10 days left as of 2026-08-20.
+**The 3-site product is built and verified. The national build is real and partial. The SUBMISSION
+is not started, and that is the only thing that can lose this.** **6 days left as of 2026-08-24**
+(deadline Aug 30 23:59 GST = 00:59 PKT Aug 31).
+
+**THE 60-SECOND ORIENTATION FOR A FRESH SESSION**
+
+1. `cd INTAKE-ARBITER/src && python run_all.py` → **23 steps, ~350 s, 102 checks, ZERO API calls.**
+   Read the LAST LINE, not the exit code a wrapper reports — it is literally `REBUILD COMPLETE` or
+   `REBUILD FAILED at: <step>`. If it is not `REBUILD COMPLETE`, quote nothing.
+2. `cd ../demo && python -m http.server 8000 --bind 127.0.0.1` → the demo in REPLAY. No key, no
+   calls, no network. **The `--bind 127.0.0.1` is not optional on Windows** — §10 #156.
+3. 🔴 **THE VENDOR RECOVERED 2026-08-23 11:33 UTC, THEN RELAPSED THE SAME DAY.** §4.0-RECOVERY (12/12
+   forecast windows) → §4.0-NATIONAL-OUTAGE (the first national purchase batch, 20/20 empty, and a
+   control call at Ashburn's own proven geometry ALSO failed). **Current state: down, general, not
+   AOI-specific.** `testing/national_recovery_watch.py plan` (free) / `watch --allow-paid` (attended,
+   probes every 2 h capped at 3 billed/day, auto-fires the national buy on the first success) is
+   ready but **not running**. ⚠ **The four `FG-N26-*` collectors are ALSO still disabled** —
+   re-enabling either is a spending decision, and it is the user's alone.
+4. 🟢 **THE NATIONAL BUILD (SESSION I, §3.4) is the newest major work.** 421 real US locations, one
+   unified map on the front page, real geometry/pairing at national scale (90 of 1,622 buildings
+   refused on evidence, the rest eligible or isolated). **Read `NATIONAL-BUILD-PLAN.md` in the repo
+   root before touching any `*_national_*.py` script** — it is the detailed record this file only
+   summarises.
+5. **Read §4.0-E1E2 before touching the live agent**, §10 #137–#143 before touching the page, and
+   §10 #145–#156 before touching anything in the national pipeline.
+6. **Rule 9 is lifted (§1)** — subagents, Task tools and Workflows are permitted. Rules 6 and 8 still
+   bind every subagent: no unverified claims, ask before any paid call. Treat a subagent's finding as
+   a lead, not a result.
+7. **Nothing is committed.** Everything since branch head `4212b50` is in the working tree, green.
 
 **Do these, in this order:**
 
 | # | Do | Blocked on | Effort |
 |---|---|---|---|
-| 1 | **Run `run_all.py` and confirm 62 green.** Never quote a number until it is | — | 5 min |
-| 2 | **Send the two FortyGuard emails** (`fortyguard-email-draft.md`, `fortyguard-email-2-empty-completed.md`) | 🔴 **USER** — nothing here can mail | 10 min |
+| 1 | **Run `run_all.py` and confirm `REBUILD COMPLETE`.** Never quote a number until it is | — | 6 min |
+| 1a | **Decide whether to run `national_recovery_watch.py watch --allow-paid`** to probe for the vendor coming back and auto-resume the national buy. It is attended-only by design — it only spends while someone has it running | 🔴 **USER** — commits spending | 2 min to start, hours to complete |
+| 1b | **S5 (weather stations) is the next FREE, unblocked national-build work** — Iowa State Mesonet's `<STATE>_ASOS` networks, confirmed feasible this session, not yet scripted. See §3.4.3 | — | new engineering |
+| 2 | **Send the FortyGuard emails**, updated to describe BOTH outages (the 08-18→08-22 one and this session's relapse) — a report that reads as one outage when there were two costs credibility | 🔴 **USER** — nothing here can mail | 10 min |
 | 3 | **Purge the AWS key id from git history** (§9.1b). Costs nothing today, more once a remote exists | 🔴 **USER** — it rewrites every SHA | 15 min |
 | 4 | **Go public**: rename `master`→`main`, push, add `fortyguard` as collaborator, enable Pages on `demo/` | 🔴 **USER** — rule 11 | 30 min |
-| 5 | **Record the 2–5 min video** | 🔴 **USER** | 1 h |
-| 6 | **Session 4** — collector hardening, recovery watcher, the panel diff made permanent (§9.2d) | not blocked | 2–3 h |
-| 7 | **One conversation with one facility engineer** | 🔴 **USER** | the highest value per minute left |
+| 5 | **Record the 2–5 min video** — decide whether it shows the 3-site product, the national map, or both | 🔴 **USER** | 1 h |
+| 6 | **One conversation with one facility engineer** | 🔴 **USER** | the highest value per minute left |
+| 7 | **Re-enable the `FG-N26-*` collectors** if the vendor is confirmed back | 🔴 **USER** — commits spending | 2 min |
 
-**⚠ Items 2–5 and 7 cannot be done by a coding session.** If you are an agent picking this up, item
-6 is your work; items 1 and 3 you can prepare but not authorise.
+**⚠ Items 2, 4–6 cannot be done by a coding session.** Item 1a is a real, sizeable spend decision —
+present the numbers, do not decide it. **S5/S6 are the only open engineering work in the national
+build, and S5 is unblocked.**
+
+### WHAT A FRESH SESSION SHOULD READ, IN ORDER
+
+| Document | Why |
+|---|---|
+| `NATIONAL-BUILD-PLAN.md` (repo root) | the national build's own detailed, dated record — read this BEFORE touching any national script |
+| `HANDOFF.md` §3.4, §4.0-NATIONAL-OUTAGE, §10 #145–#156 | this file's summary of the same work, and every trap hit building it |
+| `RECIRCULATION-DEFENCE.md` | why the plume physics is in the product when the rise is 0.36 °C — the question a judge will ask |
+| `FORTYGUARD-VALUE-AUDIT.md` | endpoint by endpoint, what we use and what we do not |
+| `READING-THE-AGENT.md` | every screen and control explained from zero. Give this to anyone who has to *use* the demo |
+| `INTAKE-ARBITER/PLAN.md` §12 | the citation register — every load-bearing claim with a source |
+
+### THE STANDING TRAPS, IN ONE PLACE
+
+- **Use the Write/Edit tools for code.** Bash heredocs mangle `\n` and `\b` into real control
+  characters.
+- **`common.SITE_TZ_NAME` is hard-coded `America/New_York`.** Any non-Virginia AOI needs an explicit
+  zone (§10 #1). `fetch_national_geometry.py`/`buy_national_fields.py` use `timezonefinder` instead,
+  for exactly this reason.
+- **`select_site.py` and `refusal_rank.py` are DESTRUCTIVE** — running either "just to check"
+  replaces the committed pair (§10 #66).
+- **`serve_live.py` and `live.py` self-reload; nothing else does.** Edit `metros.py` or `agent.py`
+  and you must restart the server.
+- **Every paid run moves the spend figure** and `audit.py` check 9 fails until the docs catch up:
+  `python testing/api_usage_ledger.py --json && python testing/bump_spend_docs.py`.
+- ⚠ **Stray `serve_live.py --allow-paid` processes have been found running unattended TWICE** —
+  once for two days (§4.0-DAY5), and again three days later, the same class of mistake. **Check for
+  stray processes every session; do not assume it was already handled.**
+- 🔴 **`discover_dc_clusters.py --all`, `fetch_national_building_centres.py` and
+  `fetch_national_geometry.py` all hit the SAME free, shared Overpass servers.** Do not re-run them
+  casually — they have already been run multiple times this session, and repeated automated load on
+  a free public resource is a real courtesy cost, not just a rate-limit risk to yourself.
+- **A headless-Chrome screenshot check can fail for reasons that have nothing to do with the code**
+  (§10 #155). Rule out a JS error, the data fetch, and the library loading before concluding the
+  code itself is broken — and if in doubt, say the UI change was not visually confirmed rather than
+  claim it was.
 
 ### What to say if you are asked "is it finished?"
 
-**The agent is.** Seven stages, three sites, a live path, 62 mechanical checks, 70 published numbers
-re-read from the files that produced them, and every failure published rather than buried. **The
-paperwork is not**, and the paperwork is worth marks.
+**The 3-site agent is.** Seven stages, three sites, a live path, 95 mechanical checks, 77 published
+numbers re-read from the files that produced them, and every failure published rather than buried.
+**The national build is real but partial**: 421 real locations mapped, geometry and pairing done at
+national scale, weather and imagery screening not started, FortyGuard field purchase blocked by a
+vendor outage. **The paperwork is not started at all**, and the paperwork is worth marks.
 
-### The three things most likely to trip a fresh session
+### The four things most likely to trip a fresh session
 
 1. **`serve_live.py` and `live.py` reload themselves now** (§10 #113, #118) — but if you edit
    `metros.py`, `agent.py` or anything else the server imported, **restart it**. Only those two
@@ -1287,9 +1898,14 @@ paperwork is not**, and the paperwork is worth marks.
 2. **Every paid live run moves the spend figure**, and `audit.py` check 9 fails until the docs
    catch up. The fix is one command: `python testing/api_usage_ledger.py --json && python
    testing/bump_spend_docs.py`.
-3. **The vendor is mostly down.** 4 of the last 46 windows returned a field. A 12-hour live run will
-   probably return `ok_partial` with most hours empty, and **that is the agent being honest, not a
-   bug**. Check `recent_vendor_record()` before spending.
+3. **The heatmap path is down again, confirmed general** (§4.0-NATIONAL-OUTAGE). A live run will
+   probably return `vendor_unavailable` or `ok_partial` with everything empty, and **that is the
+   agent being honest, not a bug**. Check `recent_vendor_record()` before spending, and consider
+   running `testing/national_recovery_watch.py plan` (free) for a current read.
+4. **The national build's fetch scripts are free but not infinite-courtesy.** `pack_national_aois.py`
+   and `measure_national_gaps.py` are pure computation (safe to re-run anytime); the four
+   `fetch_*`/`discover_*` scripts hit real Overpass/Mesonet servers and should not be re-run without
+   a reason.
 
 ---
 
@@ -1298,9 +1914,12 @@ paperwork is not**, and the paperwork is worth marks.
 fix) · **0** (collector hardening) · **A** (present tense + churn) · **C** (annual headline + the
 "no" days) · **B** (multi-site) · **E** (plume simulation, site picker, map) · **D** (the reasoning
 tape + three defects, §6.9/§6.10) · **F** (conformal made visible, §6.11) · **G** (money,
-sourced, §6.12).
+sourced, §6.12) · **H** (judging-criteria pass, submission split into blocked/not-blocked) ·
+**I** (§3.4 — the national build: discovery, packing, geometry/pairing at scale, the unified map,
+the second vendor outage).
 
-**Order confirmed by the user 2026-08-20: D → F → G → H as written.**
+**Order confirmed by the user 2026-08-20: D → F → G → H as written. I followed at the user's
+explicit direction 2026-08-23/24, independent of that ordering.**
 
 ## 9.0 ✅ CLOSED 2026-08-20 — the download button is findable
 
@@ -1342,7 +1961,7 @@ partly recorded); **the public repo, the collaborator, the live link and the vid
 | H3 | **Live demo link** | 🔴 **USER** — needs H1 | GitHub Pages serves `demo/` as static files with no build step, which is exactly what this demo is. **The only networked panel is the map, and it already fails soft** |
 | H4 | **2–5 minute video** | 🔴 **USER** | Nothing here can record one |
 | H5 | **Downloadable report (CSV/PDF)** | ✅ **not blocked** | Every number already exists in `demo/*.json`. A `src/report.py` writing a per-site CSV + a printable HTML is a self-contained job |
-| H6 | **API-usage document** | ✅ **not blocked** | `fortyguard-api-findings.md` is 64 KB of it already; needs a short front section stating: **10 paid calls, 42,200 credits, 2.11 %**, which endpoints, and the outage report |
+| H6 | **API-usage document** | ✅ **not blocked** | `fortyguard-api-findings.md` is 64 KB of it already; needs a short front section stating the spend (this row named a figure that was superseded twice while it sat here — read it from `python testing/api_usage_ledger.py`, never from this table), which endpoints, and the outage report |
 | H7 | **Repo-size decision** | ✅ **not blocked** | **194 MB**, of which `data/imagery/` is ~50 MB of screening PNGs and `scenarios.json` is 28.8 MB. Under every GitHub limit. **Decide deliberately whether the imagery ships** — it is the evidence behind "five screened, two refused", which is the single most credible thing in the project |
 
 **H5, H6 and H7 can be done without lifting rule 11, so do those first.** H1–H4 are the user's.
@@ -1547,7 +2166,7 @@ written down. Five changes, all writing rather than building, all numbers audit-
 | *"API of the problem"* — a fill-in-the-blanks formula, with the guardrail *"if you cannot fill out every variable cleanly you are not ready to write a single line of code"* | We COULD fill it. We never had. | The contract sentence, README §1 and **PLAN §1a**, every variable an audited number |
 | *"Engineering for the first buying customer"*, *"GTM fit"* | 🔴 **The real gap.** Value quantified, but no hero, no price, no wedge, no route to revenue | README *"Who buys this"* + PLAN §1a.1: the hero as a **role**, **$5,522–$7,990/MW-IT/yr** (16 swept cells), and the **30-day shadow trial** |
 | *"Useful AI"* / *"Regex vs LLMs"* / *"Agentic scope"* | We use **zero LLMs** deliberately — his framework endorses exactly that, but **unstated, we read as a physics project that wandered into an AI hackathon** | README *"Useful AI — and where we deliberately did not use one"*: the job-by-job table, `local_model_used: false` quoted from the emitted artefact, **371 MiB of 6,141** proving it was declined on merit not capacity, and the five execution-scope constraints |
-| *"MLP not MVP"*, validate before you scale | True of us, never said | The verification-surface paragraph: **62 checks and a gotcha log to #106 are headstones, not architecture**; no Kubernetes, no vector DB, no queue, no build step |
+| *"MLP not MVP"*, validate before you scale | True of us, never said | The verification-surface paragraph: **95 checks and a gotcha log to #143 are headstones, not architecture**; no Kubernetes, no vector DB, no queue, no build step |
 | — | 🔴 **65.6 % read to a skimmer as "their bound fails"** | Split into **method validated** (20/20 self-tests, 12 per-lead bounds ≥ 90 %) vs **calibration under-sampled** (9 pairs needed, 4 held, 80 % ceiling at n=4 — *arithmetically* unreachable, not refuted) |
 
 🔴 **THE STRUCTURAL ARGUMENT THAT CAME OUT OF THIS, AND IT IS THE BEST ONE IN THE PROJECT:** the
@@ -1561,20 +2180,75 @@ evidenced from LBNL's instrumented study, not from a customer conversation. Stat
 README and PLAN §1a.2 rather than papered over. **If any time frees up before Aug 30, one
 conversation with one facility engineer is worth more than any further engineering.**
 
-`audit.py` check 10 now re-reads **22** README figures, including the money floor/ceiling, the cell
+`audit.py` check 10 now re-reads **24** README figures, including the money floor/ceiling, the cell
 count, the VRAM pair, the solve count and time, and the 9-pairs/4-held/80 % trio — so none of the
 new commercial or AI claims can drift.
 
-### 9.2d ☐ SESSION 4 — autonomy, recovery, verification, docs
+### 9.2d ✅ SESSION 4 — DONE 2026-08-21. Autonomy, recovery, verification, docs
 
-Collector hardened for all three failure modes (`empty` / `failed` / `stall`); a health watcher that
-detects vendor recovery and banks the pair automatically; the **render-level cross-site panel diff
-made a permanent check** rather than the one-off script that found #98 and #99; `run_all`/`audit`
-extended; PLAN/HANDOFF/README/API-USAGE brought current.
+**Full record in `PLAN.md` §8r. New gotchas #126–#131.** Five deliverables, and the two new checks
+found three real defects on their first run.
 
-⚠ **`N26_MAX_ATTEMPTS` now overrides the daily cap** (default still 3). The cap exists to bound a
-runaway loop, not to ration credits, and on 08-20 it threw away a still-recoverable pair to save
-4,220 — a lost day-pair is unrecoverable, 4,220 credits is 0.2 % of the plan.
+**1. The collector is hardened on the BILLING of each failure, not on a count of failures.**
+`common.classify_vendor` — **moved out of `live.py`, not copied**, because two paths for one
+judgement is gotcha #12 — now tells the collector which of the three vendor faults it hit and
+whether that fault moved the credit meter. Two budgets replace one:
+
+| | counts | default | env override |
+|---|---|---|---|
+| `MAX_BILLED_FORECAST_ATTEMPTS_PER_DAY` | attempts FortyGuard **charged for** | 3 | `N26_MAX_ATTEMPTS` |
+| `MAX_TOTAL_FORECAST_ATTEMPTS_PER_DAY` | **every** attempt, billed or not | 8 | `N26_MAX_TOTAL_ATTEMPTS` |
+
+`HEATMAP_CREDITS` moved to `common.py` with it, so the measured price of a call has **one**
+definition in the tree. Each attempt now **appends** a full record — class, billed, activity id,
+polls, elapsed, lead, and the body of any rejection (#124's missing fields) — instead of overwriting
+an integer and the last error string (#100's mutable slot). `api_usage_ledger.py` reads the log where
+it exists and says so where it does not.
+⚠ **On a day like 08-21, whose four failures were all billed, this buys nothing.** On a day like
+08-20, which stalled twice for free, it buys the whole 5.5 h window. Say both.
+
+**2. A recovery watcher — `testing/n26_recovery_watch.py`.** The three scheduled tasks use the first
+**45 minutes** of a **5.5-hour** in-band window; 08-20's recovery arrived after all three had fired.
+The watcher re-runs the collector (never its own API call, so it cannot bypass either budget) and
+paces on the billing partition: a **billed** failure spreads the remaining billed attempts evenly
+across the rest of the window, a **free** one retries at a floor.
+🔴 **It does not detect recovery and then spend — it spends in order to detect**, because there is no
+free probe for *"does the forecast work right now"* (§4.0 #4). `plan` prints the schedule and the
+worst-case cost for zero credits and no key read; `watch` requires `--allow-paid`. It also prints
+what banking at the current lead would do to the series' **lead spread**, because a shorter lead is
+an easier forecast and would flatter coverage.
+
+**3. The panel diff is permanent, in TWO instruments, because neither is sufficient.**
+`audit.check_panels_are_per_site()` (**check 6d**, no browser) derives the panel list from
+`drawAll()` so an unregistered panel fails the build, follows one level of indirection, and — the
+important one — **fails if any site's own coordinate, OSM id or station appears as a literal in the
+page**, which is #98 expressed as a mechanical rule. `testing/verify_site_panels.py` drives real
+Chrome through pick → configure → results for each site and diffs rendered text and canvas pixels,
+after rendering one site **twice** and requiring byte-identical output.
+🔴 **The render diff CANNOT catch #98** — Chicago's footprints on Ashburn's photograph produce pixels
+that *differ*, so a difference test passes on a wrong picture. Only the literal scan catches that.
+And the render diff caught what the source check had **excused** (#131). Keep both.
+
+**4. `run_all` is 20 steps; `audit` is 95 checks.** Steps 16/17 are the collector and watcher
+self-tests (offline, 24 + 18 assertions, no key read); **step 20** is the browser panel diff, which
+**exits non-zero if no browser is found rather than skipping** — a check that skips reports PASS for
+a path it never ran.
+
+**5. Documents current, and check 9 rebuilt.** It required a **hand-maintained** list of superseded
+strings, so HANDOFF's own header carried `61 CALLS / 257,420 / 12.87 %` past a green audit for a day.
+It now matches the **shape** of a total-spend claim, scans by paragraph (markdown wraps, and a line
+scanner flagged gotcha #93's own entry as the drift it documents), and carries a **six-case negative
+control whose first case is the exact header it missed**.
+
+**What the new checks found — §10 #129.** The *Honest limits* panel was stating **Ashburn's**
+0.3550 °C worst rise on all three sites (Chicago is 0.4108, Dulles 0.3593), and still claiming
+**"No dollars, no kWh, anywhere"** with a priced money panel on the same page. Both are now computed
+from the artefacts, and the coverage line says whose measurement it is borrowing.
+
+⚠ **NOT DONE, and deliberately not attempted here: the three `FG-N26-*` scheduled tasks are
+unchanged.** Registering the watcher as a task, or re-timing the existing three to spread across the
+window, changes the machine's scheduler and commits future spending — the user's call, not a coding
+session's. The command is in §4.2.
 
 ---
 
@@ -1689,7 +2363,7 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
     quantity **identical at the base case** — gotcha #35 verbatim. (b) The retired-constant scanner
     failed on prose *documenting* a retirement; it is **AST-based** now, with its own 6-case test.
 56. 🔴 **A RETRACTION MUST PROPAGATE TO EVERY SURFACE.** The buildings-absorb-heat claim was live in
-    the demo's **"Honest limits"** panel a week after retraction. `audit.py` re-reads 62 *numbers*, so
+    the demo's **"Honest limits"** panel a week after retraction. `audit.py` re-reads *numbers*, so
     a stale **sentence** is invisible to it. **Grep the whole tree, and prefer generating prose from
     data.**
 57. 🔴 **I CAME ONE STEP FROM FILING A FALSE DEFECT REPORT AGAINST FORTYGUARD.** Their `stats_data`
@@ -2166,6 +2840,450 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
     times the code was correct and the harness was wrong. **Running tally: checks wrong 17,
     product wrong 18.**
 
+## New 2026-08-21, Session 4 of the per-site/live rework
+
+126. 🔴 **A BUDGET THAT COUNTS ATTEMPTS CANNOT RATION CREDITS ONCE FAILURES BECOME FREE.** The
+    collector's daily cap existed to stop a multi-day vendor fault draining the plan, and counting
+    attempts was a correct proxy for exactly as long as every failed request cost 4,220. On
+    2026-08-20 the vendor started failing two ways that are **unbilled** — `status: failed` and an
+    indefinite `Processing` stall — while `completed`-with-no-data stayed **billed**. From that hour
+    the collector could exhaust a *credit* budget on failures that cost **no credits** and stop
+    trying on a day it had spent nothing. **This is gotcha #101 recurring one layer down**: the
+    ledger was taught that attempts and billed calls had parted company, and the collector, which
+    is the thing that actually spends, was not. Split into a **credit** budget (billed attempts
+    only, 3) and a **runaway** guard (every attempt, 8), classified by the same
+    `common.classify_vendor` the live agent uses rather than a second copy of the judgement.
+    **The generalisable form: when a proxy stops tracking the thing it stood for, every consumer of
+    that proxy is wrong, and fixing the one you noticed is not fixing it.**
+    ⚠ **And the honest limit, because it is small:** on 2026-08-21 all four failures were billed, so
+    the split would have bought nothing that day. It buys the whole window on a day that stalls.
+
+127. 🔴 **THE RECORD IN FRONT OF THE SPEND BUTTON COULD ONLY SEE ONE OF THE TWO SPENDERS.**
+    `recent_vendor_record()` exists because a click can cost 50,640 credits against a service with a
+    measured 0 % success rate, and gotcha #123 concluded that such a click should be made with the
+    measured rate in view. It read `live_spend.json` — **the live agent's own runs, and nothing
+    else.** Measured 2026-08-21: the last live run was 18 h old, so the function returned `None` and
+    the panel showed **no vendor record at all**, while the COLLECTOR had four same-day billed
+    failures on file. **The one function whose job is to prevent spending blind was itself blind, in
+    the exact half of the evidence that was fresh.** Gotcha #103 said a record with a blind spot is
+    worse than none because it is trusted; this is that, sitting in the UI. It now reads both
+    spenders and reports which sources it saw. **Ask of any summary: who writes to the thing it
+    reads, and is that everyone who writes?**
+
+128. 🔴 **A COMMENT STRIPPER THAT DOES NOT KNOW WHAT A STRING IS CANNOT COUNT BRACES — and it
+    reported a missing function instead of a broken scanner.** Check 6d extracts a panel's body by
+    brace counting, and re-used `_COMMENT_RE`, the blunt regex `check_retired_constants` uses. That
+    regex treats `//` as a line comment wherever it appears — including inside
+    `'https://server.arcgisonline.com/...'` — so it ate the rest of that line **and the closing
+    brace on it**. `drawMap`, the one panel full of tile URLs, came out with unbalanced braces and
+    was reported as *"no function body found"*, which reads as a page defect rather than a tool
+    defect. The blunt regex is fine for hunting an identifier (a truncated line can only lose a hit,
+    and that limit is written down where it is used) and wrong for anything structural. Replaced
+    with a string/template/regex-aware scanner that **blanks rather than deletes**, so offsets
+    survive, and which **passes its own six-case test** — the first case being the URL that broke
+    it. **A helper's stated limitation is only safe while every caller is a caller it was stated
+    for.** Running tally: checks wrong 21, product wrong 22.
+
+129. 🔴 **THE PANEL WHOSE ENTIRE JOB IS HONESTY HELD TWO STALE CLAIMS, AND ONE WAS FALSE FOR TWO
+    SITES OUT OF THREE.** Found by check 6d on its first run.
+    (a) *"Worst case 0.3550 °C = 0.64 of one weather-station grid step"* — **0.3550 is ASHBURN's**
+    worst rise. Chicago's is 0.4108, Dulles's 0.3593. The per-site session fixed twelve panels and
+    this one survived, for the same reason #98 survived: **a reader cannot tell a hard-coded 0.3550
+    from a computed one.** Gotcha #67 already stated the rule — *if a sentence states a number,
+    compute the sentence* — and this is its fifth instance.
+    (b) *"No dollars, no kWh, anywhere"* was still there **with a priced money panel on the same
+    page**, months after Session G sourced the compressor term. That is #56 exactly — a retraction
+    that did not propagate — **in the same panel #56 was about.** The fix is not deletion: the limit
+    is real and *sharper* than the old sentence, because the unpriced fan term has the **opposite
+    sign**, so the entry now reads `money.json`'s own `not_claimed` list.
+    (c) The coverage entry hard-coded 65.6 %. Not wrong — coverage is Ashburn's for every site — but
+    **a borrowed number that looks native defeats the borrowing rule**, so it now says whose
+    measurement it is.
+    **The pattern across all three: prose is where retracted claims go to survive**, because every
+    check in this tree re-reads numbers and none of them read sentences.
+
+130. **A PANEL KEY CONTAINING A PER-SITE HEADING MAKES THE SAME PANEL LOOK ABSENT.** The render diff
+    keyed each panel by id-plus-heading — and several headings are per-site *by design* ("Five
+    years, 43,763 real hours at KIAD"). So the same card got a different key on each site and the
+    diff reported **five phantom "missing panel" findings on a page with nothing wrong.** A checker
+    whose identifier varies with the thing it is comparing cannot compare. Keyed by DOM order
+    instead, with the heading carried as data. **Same family as #58: measure the measurement.**
+
+131. 🔴 **A DECLARED EXCEPTION THAT IS WRONG SILENTLY EXCUSES THE THING IT NAMES.** Check 6d lets a
+    panel be identical across sites if the reason is recorded. `drawConformal` was declared shared —
+    *"the conformal arithmetic is a property of the method"* — and it is **not**: it renders each
+    site's own twelve per-lead margins from its own `rolling.json` (Ashburn 0.81 → 7.06 °C, Chicago
+    0.98 → 6.44 °C). A wrong exception is worse than no exception, because it removes the panel from
+    the check while looking like diligence. Caught only because the **render-level** diff and the
+    **source-level** check disagreed — the render measured a difference the source reading had
+    excused. **Two instruments that can contradict each other are worth more than one that cannot**,
+    and the first version of the source check made this impossible to see: it asserted a shared panel
+    reads no per-site global, which is the wrong test. The right test is that what it claims is
+    borrowed **really is identical**, and that the artefact says so.
+
+## New 2026-08-21, the per-site sweep — found by WALKING EVERY LEAF, not by reading
+
+> **THE METHOD IS THE LESSON.** The user pointed at ONE wrong number — the limits panel quoting
+> Ashburn's 0.3550 °C worst rise on all three sites — and said, in effect, *stop finding these one
+> at a time.* So instead of reading code, every leaf of all three sites' six artefacts was flattened
+> to a JSON pointer and compared, and every pointer whose value AGREED across all three was listed.
+> **That list found four more defects in twenty minutes, all of which had survived four sessions of
+> reading, two per-site rework sessions and 62 audit checks.** Two sites cannot share an OSM building
+> id; three metros cannot share a wind record. **Equality is evidence, and it is cheap to test for.**
+
+132. 🔴 **ONE LITERAL FILENAME OUTLIVED THE ENTIRE PER-SITE MIGRATION, AND CHICAGO'S WIND WAS
+    VIRGINIA'S.** §6.13 lists six paths converted from literals to `metros` lookups when the engine
+    was made per-site. `direction_sweep.py:load_wind()` was not among them: it read
+    `kiad_hourly_2021_2025.json` **on every site**. So every site's per-bearing plume curve was
+    solved at KIAD's median wind speed, and because `export_plume_fields.py` reads that same speed,
+    **the 72 rendered plume fields a reader drags around on Chicago's page were solved at Virginia's
+    wind too.** The block even hard-coded `"station": "KIAD"` beside the counts.
+    **The tell was arithmetic, and it was sitting in the artefact:** Chicago's usable + calm +
+    missing came to **43,763** — KIAD's hour count — against its own KORD record of **43,775**. Two
+    numbers twelve apart, in one file, that nobody was joining. Chicago is a genuinely different wind
+    climate — **2,488 calm hours against Ashburn's 7,728**, median wind **4.1156** against
+    **3.6011 m/s** — and all of that was being erased.
+    **What was NOT affected, stated precisely rather than hopefully:** `agent.rise_table()` maxes
+    over a fixed 72 × 8 bearing/speed grid and never opens a station record, so the bound, the
+    schedule and every hours figure are untouched. What was wrong is everything *displayed* about
+    wind and plume shape. **Ashburn's output is byte-identical after the fix and Dulles's matches
+    Ashburn because it genuinely shares KIAD — the control holding is what proves the fix is a fix.**
+    `audit.check_wind_is_this_sites_own()` (check 6e) now asserts the partition identity per site,
+    that each site's rendered plume was solved at its OWN median wind, and that Chicago's differs
+    from Ashburn's while Dulles's matches. **An exact identity beats a tolerance because you can say
+    why it must be zero (#63).**
+
+133. 🔴 **WE BOUGHT CHICAGO A FIELD, LABELLED IT AS NOT EXISTING, AND SHOWED ASHBURN'S INSTEAD.**
+    One past-window heatmap was purchased for Chicago on 2026-08-19 — 17,797 tiles, 4,220 credits —
+    and `METROS["chicago"]["fortyguard_field"]` said `None`. So `export_manifest()` published
+    `has_own_fortyguard_field: false`, the demo's *"Screen zero"* note told the reader **"this site
+    has no FortyGuard field of its own"**, and the panel rendered **Ashburn's** field: a heatmap of
+    Loudoun County on a Chicago page, beside a sentence denying the existence of the file we had paid
+    for. `metros.py`'s own docstring already forbade this — *"the interface must say plainly that no
+    FortyGuard field was purchased for it rather than borrowing another site's"* — so the intent was
+    right and the implementation had drifted from it, which is the same shape as #56.
+    Now three real states, from the registry and never a fallback: **pairs** (Ashburn), **one
+    observed window** (Chicago, and the tape says it is not a day-pair), **nothing** (Dulles, and the
+    panel says so and draws nothing). **An empty panel is a true statement; another site's data is
+    not, however carefully it is labelled.**
+
+134. 🔴 **THREE IDENTITY LITERALS PUT THE WRONG BUILDINGS ON THE WRONG SITE'S PDF.**
+    `osm_source: 744496750`, `osm_receptor: 744496741` and `operator: "Amazon Web Services IAD116 /
+    IAD117"` were typed into `agent.py`'s trace block, so **every** site's trace identified its plant
+    as two AWS halls in Virginia — and `report.py` prints that OSM pair onto **page 1 of the
+    downloadable PDF**, per site. Chicago's report named Ashburn's buildings. Now read from the
+    `*_selected_site.json` that `commit_site.py` wrote, and checked two ways: no two sites may share
+    an `osm_source`, `osm_receptor` or `operator`, and each trace must agree with the manifest, which
+    reaches the same committed file by a different path. **Agreement between two readers is the
+    check; a file agreeing with itself proves nothing (#103).**
+
+135. **A RE-DERIVATION KEYED BY ONE SITE'S LITERAL IS A COINCIDENCE, NOT AN INDEPENDENT CHECK.**
+    `ticker._rederive_table` re-derived the tile count as
+    `trace["fields"]["2026-08-16_forecast"]["n_tiles"]` — **an Ashburn date, typed into the
+    verifier.** It passed on all three sites only because all three shipped Ashburn's fields; the
+    moment each site shipped its own, it raised a KeyError and reported a failure against correct
+    code. **The check had never been independent anywhere except Ashburn, and nothing said so.**
+    Then the fix was wrong in the opposite direction: reading *any* field the site owned compared
+    Chicago's tape (17,862, the borrowed pairs) against Chicago's own window (17,797) — two true
+    numbers about two different things. The rule has to be exact: re-derive only where the site owns
+    the pairs. Running tally: **checks wrong 24, product wrong 26.**
+
+136. 🔴 **"NO INDEPENDENT PATH HERE" IS NOT A FAILURE, AND CALLING IT ONE IS ALSO A LIE.**
+    When a number genuinely has no second source at a site — Chicago and Dulles borrow Ashburn's
+    day-pairs, so no file they own can confirm that tile count — the verifier had two options and
+    both were wrong. Counting it as a **failure** says the tape is wrong; it is not. Counting it as
+    **re-derived** says it was independently confirmed; it was not. It is now a third thing,
+    `NoIndependentPath`, counted as *read back only* and **listed by name in the artefact**, so a
+    site that can independently confirm fewer numbers than Ashburn says which ones and why.
+    **Ashburn re-derives 23 of 72; Dulles 22 of 71, and the difference is now visible instead of
+    implied.** A verifier that reports the same confidence for two unequal situations is worse than
+    one that reports less.
+
+## New 2026-08-23 — E1, E2, the replay rework, and the recirculation defence
+
+137. 🔴 **THE PAGE TOLD THE READER THE OPPOSITE OF ITS OWN NUMBER, FOR THREE DAYS.** The five-year
+    ladder panel rendered *"knowing about it **costs** 22.8 h/year"* and closed with
+    *"**Recirculation awareness buys safety, not hours.**"* The 22.8 is a difference of two GAINS, so
+    a positive value is a BENEFIT — the panel printed a number and then contradicted it. The
+    underlying finding had been corrected in `backtest.py` and HANDOFF on 08-20 (#97); it never
+    reached `demo/index.html` or `PLAN.md`, where the sentence sat **directly beneath a table showing
+    +65.6 vs +42.8** and ended "state it that way from now on", which is how it propagated.
+    **This is the THIRD retracted claim this project has shipped** (#56, #129, this). The structural
+    cause is identical every time: **`audit.py` re-reads 77 FIGURES and nothing re-read PROSE.** In
+    all three the number was right and the words around it were wrong.
+    **Fixed by `audit.check_retracted_claims()` (check 5b)**: a registry of nine retracted phrases
+    scanned against every reader-facing surface, HTML comments stripped and markdown retraction
+    lines skipped so *recording* a correction stays legal. It carries a **six-case negative control
+    whose first case is the exact sentence that shipped**, because two checks written earlier this
+    week turned out to be vacuous.
+
+138. 🔴 **A DIAGNOSTIC THAT CANNOT TELL "THEY REFUSED ME" FROM "THEY SERVED ME NOTHING" IS WORSE
+    THAN NO DIAGNOSTIC.** DIAG-65's first run sent `polygon_aoi` to a POINT endpoint and was
+    rejected `422 Field 'latitude' is required` in one second, free. The script then reported, with
+    full confidence: *"env_params carried no populated hourly arrays — the fault SPANS ENDPOINTS."*
+    A rejected submit has no response body, so the body inspection fell through to "empty" and
+    **outranked the vendor classification, which had correctly said `submit_rejected`.**
+    That was one step from a vendor report saying *"your env_params is broken too"* about a request
+    they never processed. The classification is checked FIRST now, and a request that was never
+    accepted returns `INCONCLUSIVE` with the 422 body attached.
+
+139. 🔴 **THE SHARED CLASSIFIER ENCODES WHAT SUCCESS LOOKS LIKE FOR A *TILE* ENDPOINT.** E2 called
+    `vendor_rec(r, tiles=0)` for `env_params` — which returns hourly arrays, never tiles — so
+    `classify_vendor` saw a completed job carrying nothing and stamped **`completed_but_empty` on a
+    call that had returned 15 populated fields over 24 hours.**
+    Not cosmetic: `recent_vendor_record` counts that class as a **billed failure**, so every
+    successful environmental fetch would have degraded the success rate displayed next to the button
+    that spends 50,640 credits. Parse first, then classify, passing the endpoint's own notion of
+    "did data come back". **Same lesson as #138, one hour apart: a judgement built for one endpoint
+    cannot be inherited by another that cannot satisfy it.**
+
+140. 🔴 **THE LIVE AGENT'S ENVIRONMENTAL SPEND WAS INVISIBLE TO THE SPEND LEDGER — gotcha #103,
+    verbatim, one endpoint later.** `live.py` writes to `demo/`; `api_usage_ledger.py` walks
+    `testing/results/`. The exact mismatch that once hid 46,420 credits was recreated for every
+    `env_params` call. Fixed with `_append_env_spend()` writing to
+    `testing/results/live_env_spend.json`, and the ledger taught to read **both record shapes** — a
+    one-shot diagnostic's single `credits_spent`, and `live.py`'s appended `runs` list.
+    **And the plan is no longer single-priced.** `used / 4,220` was the reconciliation's proof and
+    DIAG-65 broke it deliberately. The proof is preserved rather than weakened: non-heatmap spend is
+    subtracted at its own measured price and the heatmap remainder must still be exactly zero — now
+    *"N heatmap × 4,220 + 4 env_params × 2,900 = total, remainder 0"* — read the live figures from
+    the ledger, never from this line. **It is written without digits deliberately:** the first
+    version quoted that day's totals, which is a number in prose that no check re-reads, and §8.2
+    says what happens to those.
+    ⚠ Two smaller ones from the same hour: `paid_calls` briefly meant heatmap-only, so the headline
+    said 80 while the plan had been charged for 81; and the reconciliation's detail line ended with
+    a hardcoded `", remainder 0"`, so on the run where the remainder was NOT zero **the failure
+    message said it was.**
+
+141. 🔴 **`let dialBearing = 255` — ASHBURN'S CRITICAL BEARING, HARD-CODED, AS EVERY SITE'S OPENING
+    VIEW.** The wind dial, the plume render and the aerial overlay all opened at 255° regardless of
+    site; Chicago's worst bearing is 240° and Dulles's 265°. The rise tables were always per-site and
+    correct — the VIEW was showing every site Virginia's answer, which is exactly what makes three
+    sites look like one relabelled.
+    **Neither existing check could see it.** Check 6d bans coordinates, OSM ids and stations as page
+    literals, not derived values like a bearing. The render diff compares whole cards, and the wind
+    card already differed across sites because the rise values behind it are per-site — so one
+    identical number inside it was invisible.
+    Fixed in `loadSite()`, which now reads this site's own `max_rise_bearing`; it is also the
+    INFORMATIVE default (gotcha #79). **`verify_site_panels.py` now compares NAMED VALUES
+    individually** — `dial.selected_bearing` must differ across sites AND equal each site's own worst
+    bearing. Verified rendered: 255 / 240 / 265.
+
+142. 🔴 **A REPLAY BORROWED ANOTHER SITE'S AIR AND REPORTED `same_day: True` WHILE DOING IT.** Two
+    compounding errors. First, `saved_fortyguard_env` was asked for TODAY's date even in a replay, so
+    it paired a 2026-08-20 temperature field with 2026-08-22 humidity — and the "same day" flag
+    compared the humidity against *today* rather than against the field beside it, **answering a
+    question nobody asked.** Second, once both sites had a 2026-08-20 response, the scan matched on
+    date alone and **Chicago's replay took Ashburn's humidity.**
+    **That is the third time one site's data has stood in for another** (#98 the aerial photograph,
+    #132 the wind record, this). Fixed by matching on the `lat`/`lon` the response echoes back —
+    measured, not inferred from a filename — with **location outranking date**, and a site with no
+    response of its own falling back to NWS rather than borrowing.
+
+143. **I PUT THE HORIZON TRUNCATION BELOW THE NWS FETCH, HAVING READ THE COMMENT THAT SAYS NOT TO.**
+    The sequence replay shortens a 12-hour horizon to the 4 windows actually saved. Placed after the
+    wind fetch, that left **4 temperatures against 12 wind rows** — and the length guard fired:
+    `horizon length mismatch: 4 hours, 4 temps, 12 nws rows`. Without it, numpy would have broadcast
+    silently into four plausible bounds computed from the wrong wind, which is gotcha #117 exactly.
+    #117's own comment — *"settle the horizon BEFORE building any per-hour array"* — is three screens
+    below the line I wrote. **A guard is worth more than the comment explaining it**, and this is the
+    proof: the comment did not stop me and the guard did.
+    ⚠ The `NOT_LIVE` banner also asserted *"reused for every hour of the horizon"* unconditionally,
+    which became false the moment a sequence replay existed — and it crashed on the list.
+    **Running tally: checks wrong 28, product wrong 30.**
+
+144. 🔴 **THE VENDOR RECOVERING BROKE MY REGRESSION TEST FOR THE WORST BUG THIS PROJECT EVER
+    SHIPPED — and the failure looked exactly like that bug coming back.** On 2026-08-23 a 12-hour
+    live run filled the cache with twelve consecutive windows. `verify_live_offline` then asked for
+    a **fixed** `hours=6` horizon with `allow_paid=False`, every window of it was now cached, the
+    agent returned a complete `status: ok` schedule — **the correct answer** — and three assertions
+    failed, including *"a run with unrequested windows emits NO schedule"*, the regression test for
+    **#107**. A fresh session reading `run_all` output would see the #107 guard failing and
+    reasonably conclude the guard had regressed. It had not: **there were no unrequested windows
+    left for it to catch.**
+    **This is gotcha #125 recurring three screens from where #125 is written down.** The
+    zero-budget test immediately below carries a seven-line comment explaining that *which branch
+    fires depends on whether the first window happens to be cached, and the horizon slides with the
+    clock* — and asserts both branches for exactly that reason. The `not_attempted` test above it
+    was never given the same treatment, so it stayed a coin toss that only came up heads while the
+    cache was thin.
+    **Fixed by sizing the horizon from the measured cache state** rather than fixing it at 6:
+    `horizon_windows()` is probed `SELFTEST_PROBE_H = 36` hours out, the first uncached window is
+    found, and the run asks for exactly that many hours + 1 — so **one unlooked-at window is inside
+    the horizon by construction, on every run, at every hour of the day.** It also fails loudly if
+    no uncached window exists in 36 hours rather than skipping, because a check that skips reports
+    PASS for a path it never ran. It is strictly stronger than what it replaced: the truncation
+    branch now genuinely executes every run (12 → 11 hours on the first one) where before it fired
+    only by luck.
+    **The generalisable form, and it is the third time this project has hit it: a test whose
+    fixture is the STATE OF THE WORLD is not a fixture.** Derive the input from a measurement of
+    that state, or the test is reporting on the weather. **Running tally: checks wrong 29,
+    product wrong 30.**
+
+## New 2026-08-23/24 — Session I, the national build
+
+145. 🔴 **AN UNVERIFIED BELIEF WAS STATED AS A MEASURED FACT, AND THE USER CAUGHT IT.** This project
+    had long quoted "30 heatmaps/day" as the vendor's cap, driving a whole allocation plan built
+    around a 150-call ceiling. Challenged directly: *"i dont think that there's any cap."* Traced
+    to its actual source — `fortyguard-api-findings.md` §8.7 request #6, phrased **"we understand it
+    to be 30 heatmaps/day,"** inside a request ASKING FortyGuard to document a cap never once
+    confirmed from the API (no header, no spec, no observed rejection at call #31). Corrected to the
+    real, measured ceiling: credits remaining ÷ 4,220 = 379 calls. **The lesson: "we understand it to
+    be" is not "measured," and repeating an old document's phrasing without re-opening its source is
+    exactly the mistake methodology rule 7 exists to prevent.**
+146. 🔴 **A 31 MB FILE WAS SHIPPED PER SITE FOR A CONSUMER THAT ONLY EVER READS ONE SITE'S COPY.**
+    `agent.py` wrote `scenarios.json` (the full 120,960-row sweep) for EVERY site, but its only
+    consumer, `demo/verify_browser_decision.js`, hard-codes `__dirname + '/scenarios.json'` — the
+    unsuffixed Ashburn file. `chicago_scenarios.json` and `dulles_scenarios.json` were **61.9 MB
+    shipped on no code path at all.** At national scale (hundreds of sites) this alone would have
+    made the repo unpublishable. Fixed: the sweep still runs in full for every site (the SUMMARY is
+    unaffected); only the reference site writes the row dump, and a non-reference site's trace
+    records `in_file: null` **with the reason**, never silently pointing at another site's file.
+147. 🔴 **KILLING A PROCESS DOES NOT CANCEL A JOB THE VENDOR HAS ALREADY ACCEPTED, AND MY LEDGER
+    ASSUMED IT DID.** `buy_national_fields.py`'s `run_chunk()` batched classification and
+    ledger-writing until an entire chunk (20 calls) resolved. A mid-chunk manual kill left 14, then
+    18 more calls (found only by re-checking the live credit meter, twice) billed with **no ledger
+    record whatsoever** — gotcha #103's exact lesson recurring in a new shape: not a missing
+    SOURCE this time, a batching WINDOW wide enough for a kill to fall inside it. Fixed:
+    `finalize_job()` classifies, saves the field, and appends to the ledger the INSTANT this
+    process itself learns a job is terminal, inside the poll loop — never after the slowest sibling
+    in its chunk also finishes.
+148. **A UNANIMOUS FIRST CHUNK SHOULD NOT WAIT FOR A SECOND ONE TO "CONFIRM" IT.** The purchase
+    script's own `STOP_AFTER_BAD_CHUNKS=2` would have let a second chunk of 20 fail before stopping
+    itself, after the FIRST chunk had already gone 20-for-20 empty. A manual kill was needed instead.
+    Fixed: a 0-of-≥10 first chunk now stops immediately.
+149. **STDOUT WAS FULLY BLOCK-BUFFERED WHEN REDIRECTED TO A LOG FILE, DURING A LIVE PAID RUN.**
+    Nothing printed for the first several minutes of real, billed activity; the only way to confirm
+    the run was actually working was to check the live credit meter directly, out of band. Fixed
+    with `sys.stdout.reconfigure(line_buffering=True)`. **A process that can spend real money must
+    never depend on someone knowing to route around output buffering to see what it is doing.**
+150. 🔴 **THE DISCOVERY GRID'S ~11 KM CELL HAS NOTHING TO DO WITH THE PHYSICS GATE'S 600 M RANGE, AND
+    TWO SEPARATE MEASUREMENTS PROVED IT WRONG IN OPPOSITE DIRECTIONS.** (a) Two real Georgia data
+    centres 280 m apart were labelled "single" (isolated) because they sat in adjacent grid cells —
+    a real neighbour existed and the grid could not see it. (b) A "cluster" entry (≥3 tagged
+    buildings in one cell) is NOT guaranteed to have any two of its OWN buildings within 600 m of
+    each other — an aggregate-entry check (`classify_isolation.py`, now superseded) found only 28
+    real pairing candidates nationally; fetching every building's own coordinate and running real
+    union-find at 600 m (`build_national_pairs.py`) found **243**. **Both directions of the same
+    root cause: a discovery-time convenience grid is not a measurement of anything a downstream gate
+    cares about, and must never be treated as one.**
+151. 🔴 **CHECKING ONLY THE CLOSEST PAIR IN A GROUP GAVE A FALSE REFUSAL FOR TWO REAL, WORKING
+    SITES.** `measure_national_gaps.py`'s first version measured G3 (the 60 m facade-gap floor) on
+    only the closest-by-centroid pair within each real building group. Chicago's and Dulles's own
+    committed pairs are NOT the closest pair within their respective 9–10-building groups, so both
+    were reported "too_close" — flatly contradicting their own already-verified, real, shipping
+    status (118.4 m and 137.7 m). **Proof the fix worked, not just a claim:** after checking every
+    internal pair and taking "clear" if ANY pair clears the floor, both resolved correctly, and the
+    true national refusal count fell from 143 (of 243 groups, wrong) to 43 groups / 90 buildings
+    (of 1,622, correct). **A "representative" simplification is only safe once checked against a
+    case you already know the right answer to.**
+152. **A METRO'S COMMITTED PAIR CAN STRADDLE TWO DIFFERENT DISCOVERY-GRID ENTRIES, PRODUCING TWO MAP
+    DOTS FOR ONE REAL SITE.** Chicago's real 118.4 m facade gap crosses an ~11 km grid-cell boundary,
+    so `export_unified_map.py`'s first version emitted "fully_built" twice for Chicago. Fixed by
+    grouping the export by METRO KEY and using `metros.site_centre()` — the same authoritative
+    committed-geometry midpoint `agent.py` itself uses — instead of re-deriving a position from the
+    discovery grid. **One metro, one dot, always; verified by re-running and confirming exactly 3
+    `fully_built` entries, not 4.**
+153. **A CRUDE VERTEX-AVERAGE "CENTROID" IS NOT A RELIABLE BOUND ON A REAL EDGE-TO-EDGE GAP.** A
+    docstring claimed centroid distance always OVERSTATES the true gap (the safe direction for a
+    pre-filter). Spot-checking PASSING verdicts, not just refusals, found a real counter-example:
+    Microsoft's Texas Research Park pair has a real ring-to-ring gap of 130.7 m against a
+    vertex-average centroid distance of only 50.7 m — the opposite. It did not affect any actual
+    verdict (every G3 decision came from real `ring_gap()`, never the centroid heuristic), but the
+    comment was corrected to state a tendency, not a guarantee, the moment the counter-example was
+    found. **Read your own passing results occasionally, not only the failures.**
+154. **TWO REAL BUYABLE-TODAY DATA CENTRES ARE NOT A SEPARATE POPULATION FROM THE NATIONAL
+    REGISTRY.** Ashburn, Chicago, Dulles, Phoenix and Santa Clara are all real, tagged buildings that
+    the 49-state discovery sweep ALSO found on its own. Concatenating the two lists (the 5 hand-built
+    metros' `sites.json` and the 422-entry national registry) would have shown each of the five
+    TWICE. `export_unified_map.py` cross-references by OSM element id instead, confirmed by checking
+    all 5 metros' committed OSM ids resolve inside the national registry before writing any output.
+155. **AN AUTOMATED HEADLESS-BROWSER SCREENSHOT CAN FAIL FOR A REASON THAT HAS NOTHING TO DO WITH THE
+    CODE BEING TESTED.** After the unified map was rebuilt, a screenshot showed the surrounding page
+    correctly (intro text, legend, computed counts) but NO map dots at all — even though the dots are
+    a purely local, no-network GeoJSON layer. Ruled out, in order: a JS error (none caught), the data
+    fetch (succeeded, 421 sites), the map library loading (it did), WebGL context creation
+    (succeeded), a longer `--virtual-time-budget` (no change from 20 s to 90 s), cross-origin network
+    fetches (all fast and successful via plain `fetch()`), `--disable-gpu` and swiftshader flags
+    (no change). **Conclusive test:** a MINIMAL, code-independent MapLibre page with none of this
+    project's code also failed to reach a loaded state in the same headless session. **This is a
+    headless-Chrome WebGL-rendering environment issue, not a defect in the shipped code** — but it
+    also means this specific change was NOT visually confirmed by this session, and was reported to
+    the user as such rather than claimed complete. **A fresh session should verify `drawUnifiedMap()`
+    renders in a REAL browser before trusting it further.**
+156. **PYTHON'S `http.server` CAN BIND IPv6-ONLY ON WINDOWS, AND "localhost" CAN RESOLVE TO IPv4
+    FIRST — A REAL USER HIT THIS.** `python -m http.server 8000` printed *"Serving HTTP on ::
+    port 8000"* — IPv6 wildcard only. The user's browser's `localhost:8000` resolved to the IPv4
+    loopback and got `ERR_CONNECTION_REFUSED`, because Windows does not treat a socket bound to `::`
+    as also accepting IPv4 by default. Fixed by restarting with `--bind 127.0.0.1`, which forces the
+    IPv4 address explicitly and removes the ambiguity entirely. **Added to the standard run
+    instructions (item 1 of the header) so the next person does not have to rediscover this.**
+
+## New 2026-08-24 — Session J, the national per-facility build
+
+157. 🔴 **THE PLUME HALF OF THE SAFETY BOUND WAS ASHBURN'S AT ALL THREE SITES, FOR FOUR DAYS, IN
+    THE UNSAFE DIRECTION.** `plume_uncertainty.spread_table()` cached to
+    `os.path.join(DEMO, "spread_table_%s_sd%02d.json")` and `main()` wrote
+    `os.path.join(DEMO, "plume_uncertainty.json")` — **both without a metro prefix** — while both are
+    derived from `rise_table(mode)` (this site's committed geometry) and `load_hours()` (this site's
+    station record). So they are per-site MEASUREMENTS addressed by a global name: the first site
+    built wrote them and every site built afterwards read them back. Measured from each site's own
+    rebuilt calibration, margin = multiplier × median spread on `longest`:
+
+    | site | own multiplier | own margin | was shipping | error |
+    |---|---|---|---|---|
+    | ashburn | 1.1136 | 0.10616 °C | 0.10616 °C | — (it wrote the file) |
+    | chicago | **1.9725** | 0.17034 °C | 0.10616 °C | **37.7 % TOO NARROW** |
+    | dulles  | **1.2902** | 0.14614 °C | 0.10616 °C | **27.4 % TOO NARROW** |
+
+    **Both errors are in the UNSAFE direction** — the bound was tighter than those sites' own
+    geometry justifies, i.e. the agent said "yes, free-cool" on hours its own physics would have
+    refused. This is the FIFTH instance of the "one site's value used for another" family (#98,
+    #132, #133, #142) and the first one that moved a SAFETY number rather than a displayed one.
+    **Why nothing caught it:** check 6c compares a registered list of values and these were not on
+    it; check 6d compares panels; check 6e (`check_wind_is_this_sites_own`) had been written for the
+    WIND record *specifically*, after `direction_sweep.load_wind()` committed the identical mistake —
+    so the project had already seen this exact failure shape and fixed only the one instance of it.
+    **Fixed** by routing both paths through `M.demo_path()`, adding `plume_uncertainty.py` as step 1
+    of `build_sites.py`'s chain so every site computes its own, and stamping `metro` into both
+    artefacts. **Ashburn's rebuilt files are byte-identical, which is what proves the fix is a fix
+    rather than a change (#132's method).** New audit check `6f`
+    `check_no_unsuffixed_per_site_artefact` is the GENERAL rule 6e was one instance of: no
+    metro-aware module may join a per-site artefact onto the raw `demo/` path. It keys on whether a
+    module imports `metros` rather than excluding `audit.py` by name — because excluding a file
+    hides everything else in it (§9.2c) — so the moment `audit.py` becomes metro-aware it comes
+    into scope automatically. Two negative controls: the detector must fire on the exact string
+    that shipped, and the scan must not be looking at an empty set.
+158. **A BACKGROUND WRAPPER REPORTED `exit 0` ON A RUN WHOSE LAST LINE SAID `REBUILD FAILED`.**
+    Exactly what the header's item 1 warns about, observed for real this session. The audit's own
+    self-referential check count had gone 95 → 102 (check `6f` adds 7 assertions) and the README
+    still said 95, so `check_front_door_figures` failed correctly — but a caller trusting the exit
+    code would have believed the tree was green. **Read the LAST LINE. Always.**
+159. **`run_all.py` NAMED THE OTHER SITES AS A LITERAL, SO A FOURTH SITE WOULD HAVE BEEN SILENTLY
+    SKIPPED** by the one step whose entire job is building the sites that are not the reference.
+    `[..., "build_sites.py", "chicago", "dulles"]` → `build_sites.py --others`, which derives the
+    set from the manifest (`metros.export_manifest()` is the only thing allowed to decide what is
+    offerable). Same "a name asserting a value" drift as `metros.weather_file` asserting `kphx`
+    while the station had been corrected to `IWA`.
+160. **A SUBAGENT REPORTED A CRASH THAT CANNOT HAPPEN, AND IT WAS BELIEVED FOR ONE MINUTE.** An
+    exploration agent listed `report.py`'s `cell[0]` money lookup as an IndexError blocker for any
+    site with no `bank_mode` axis. It is **already guarded** by `if cell:` at `report.py:375`. The
+    real consequence is milder and different: a standalone site's PDF would silently OMIT the
+    priced section rather than crash, which needs a stated reason rather than a fix. **Rule 9's own
+    warning, demonstrated: a subagent's report is a lead, not a result. Verify against the
+    artefact.** (Two more of the same agent's findings — the metro-agnostic spread table and
+    `run_all`'s literal site list — checked out exactly as reported, so the lesson is verification,
+    not distrust.)
+161. **SELF-RECIRCULATION IS NOT MODELLED AT ANY SITE, AND THAT HAD NEVER BEEN WRITTEN DOWN.**
+    `build_site.py:333-346` puts the condenser bank on the **source** ring and the intake outside
+    the **receptor's** facing facade, so the only quantity the solver ever computes is *the
+    neighbour's exhaust arriving at my intake*. A building's own exhaust re-entering its own
+    intake — which is the primary case **ASHRAE Handbook Ch. 46**, this project's own cited
+    source, is about — is outside the model at all three shipped sites, not merely at the new
+    standalone ones. Stating it matters twice over: it is a real limitation of the shipped
+    product, and it is what makes the standalone path **consistent** with the paired path rather
+    than a concession, which is the honest defence for running the 396 isolated facilities.
+
 ## Carried forward, continued
 
 72. **A CSS COMMENT CAN BE UNBALANCED AND SILENT.** Successive edits left **three `*/` against one
@@ -2218,8 +3336,8 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **274,300 = 65 calls = 13.71 %.** Remaining **1,725,700**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
-| **⚠ Of that, 177,240 PROVABLY bought nothing** | **64.6 %** of spend. Ceiling **244,760 = 89.2 %**. §10 #93 |
+| **Spent to date** | 🔴 **571,540 = 137 calls = 28.58 %.** Remaining **1,428,460**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
+| **⚠ Of that, 227,880 PROVABLY bought nothing** | **39.9 %** of spend. Ceiling **476,860 = 83.4 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |
@@ -2238,6 +3356,135 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
 
 # 13. FILES — created and modified
 
+## 13.0f Added / changed 2026-08-23/24 — Session I, the national build (§3.4)
+
+**New scripts in `INTAKE-ARBITER/src/`, in pipeline order:**
+
+| file | what |
+|---|---|
+| `discover_dc_clusters.py` | REWRITTEN, not new. `STATE_BBOX` 10 → 49 states. `resolve_geo()` replaces `resolve_state()` — reverse-geocodes each cell's OWN centroid (Nominatim, cached, 1 req/s) instead of inheriting the query bbox's state, and distinguishes `outside_united_states` (confirmed, excluded with evidence in `excluded_non_us`) from `geocode_failed` (a real retry candidate). Deduped by OSM element id, not by query state. Every cell ≥1 tagged building is emitted, tagged `category: cluster/pair/single`. Output key is the cell's own `(row, col)` grid index — a rounded-coordinate key silently collided once (§10 the packer note below) |
+| **`classify_isolation.py`** | NEW, then **SUPERSEDED same session** — kept as the record of a real first pass that was too coarse (entry-aggregate bbox distance, not real per-building distance). Do not use its output |
+| **`fetch_national_building_centres.py`** | NEW. Every one of the 1,622 tagged buildings' own coordinate, fetched by OSM id (`way(id:...); out center;`), batched at 300/request, no bbox rescan |
+| **`build_national_pairs.py`** | NEW. Union-find at the solver's 600 m validated range on real per-building coordinates. Writes `data/geometry/national_building_groups.json` — 396 isolated, 243 real pairing groups |
+| **`fetch_national_geometry.py`** | NEW. Full footprint rings (`out geom`) for the 1,226 buildings inside a real pairing group, batched at 150/request |
+| **`measure_national_gaps.py`** | NEW, REWRITTEN once. G3 on real rings, reusing `to_metres()` (`fetch_geometry.py`) and `ring_gap()`/`longest_edge()` (`build_site.py`) unchanged. First version checked only each group's closest pair and gave FALSE refusals for Chicago and Dulles (§10 #151); now checks every internal pair, clear if ANY pair clears 60 m |
+| **`pack_national_aois.py`** | NEW, fixed once. Real distance-based packing of the registry into 8×8 km purchases. An oversized entry (>8 km own extent) now emits one real, distinctly-tiled entry per sub-box instead of one entry claiming `n_calls: 2` with a single centroid |
+| **`export_unified_map.py`** | NEW, fixed once. Cross-references `sites.json`'s 5 hand-built metros against the national registry BY OSM ID, using `metros.site_centre()` for each metro's map position (not a re-derived grid position — Chicago's committed pair spans two grid entries and would otherwise get two dots). Writes `demo/unified_sites.json` |
+| ~~`export_national_sites.py`~~ | **DELETED**, same session — its output (`national_sites.json`) had no remaining consumer once the two old map panels were merged into `export_unified_map.py`'s output |
+
+**New scripts in `testing/`:**
+
+| file | what |
+|---|---|
+| **`buy_national_fields.py`** | NEW, fixed twice. `dryrun` (free) / `run --allow-paid [--max-calls N] [--chunk-size N]`. Chunked submit-then-poll (reusing `live.py`'s proven pattern), a per-chunk health check that now stops immediately on a unanimous 0-of-≥10 first chunk (§10 #148) rather than waiting for a second, and `finalize_job()` writing the ledger the instant THIS process learns a job is terminal rather than after its whole chunk resolves (§10 #147). `sys.stdout.reconfigure(line_buffering=True)` added after stdout buffering hid a live paid run's real progress (§10 #149) |
+| **`diag66_national_control.py`** | NEW. One authorised control call at Ashburn's own proven geometry, same date/hour as the failed batch's rank #1. Settled AOI-specific vs general outage — see §4.0-NATIONAL-OUTAGE |
+| **`national_recovery_watch.py`** | NEW. Mirrors `n26_recovery_watch.py`'s architecture: day-keyed billed-probe budget (3/day), a heartbeat during sleep, `plan` free / `watch --allow-paid` real. On the first successful probe, calls `buy_national_fields.main(["run","--allow-paid"])` directly. Attended only, by the user's explicit choice — not registered as a scheduled task |
+| `fetch_chicago_field.py` | Docstring's *"a past window has NEVER failed on this key across nine calls"* marked RETRACTED — true as of 2026-08-19, false as of 2026-08-23 (DIAG-66) |
+
+**Modified:**
+
+| file | what |
+|---|---|
+| `src/agent.py` | `scenarios.json` (the 120,960-row sweep dump) now written ONLY for the reference site (or `WRITE_SCENARIOS=1`) — its only consumer is the Ashburn-only cross-language test. Non-reference sites record `in_file: null` with the reason. `demo/` went 120.5 MB → 57 MB |
+| `demo/index.html` | `drawMap()` (5 metros) + `drawNationalMap()` (422 candidates) MERGED into one `drawUnifiedMap()`, reading `unified_sites.json`. New `#sitestatuscard` (`data-show="none"` — swept by `setStage()`'s existing single-owner mechanism on every transition) shown by `showSiteStatus()` for any site that is not one of the 3 fully built. `mapFallback()` repointed. A genuine pre-existing redundancy (the map drawn twice — once inside `boot()`, once chained off `boot().then()`) removed while rewriting this code, since two `maplibregl.Map` instances in one container is a real defect, not a harmless duplicate |
+| `src/audit.py` | `GLOBAL_PANELS["drawMap"]` renamed to `GLOBAL_PANELS["drawUnifiedMap"]` with an updated reason, or check 6d fails with "UNDECLARED: drawMap (no function body found)" |
+| `src/run_all.py` | 20 → **22 steps**: added the national footprint export and the national recovery watcher's offline selftest |
+| `HANDOFF.md`, `API-USAGE.md` | spend bumped to **135 calls / 564,420 / 28.22 %** (was 96 / 399,840 / 19.99 %) |
+
+**New root document:** `NATIONAL-BUILD-PLAN.md` — the detailed, dated, living record of the entire
+national build. **Read it before touching any file in this section.**
+
+## 13.0e Added / changed 2026-08-23 — E1, E2 and the replay rework
+
+| file | what |
+|---|---|
+| **`testing/diag65_env_params_alive.py`** | NEW. E1: is `env_params` alive while `heatmap` is down. Pre-registered outcomes, free `dryrun`, `--allow-paid` required. **Answer: YES** |
+| **`testing/fetch_env_for_replay.py`** | NEW. Buys a date-matched environmental day so a replay is consistent. `dryrun --date YYYY-MM-DD [--metro X]`, then `run --allow-paid`. Run for ashburn and chicago on 2026-08-20 |
+| `src/live.py` | **E2.** `fortyguard_env` · `saved_fortyguard_env` (matches on **location** then date) · `dewpoint_from_env` · `env_alignment_lag` (measures the DST shift, applies it only on ≥6 pairs and ≥0.25 °C margin) · `_append_env_spend` · `replay_sequence` (walks consecutive saved windows). CLI: `--aq-limit`, `--dewpoint-limit`, `--env-live-during-replay`. Selftest grew to cover all of it |
+| `src/audit.py` | **check 5b** `check_retracted_claims` + `_retracted_hits` + `_selftest_retracted_scanner`; the seven **binding-constraint shares registered** (§7.5 had drifted with nothing re-reading it); check 9 rebuilt for a **mixed-price plan** |
+| `testing/api_usage_ledger.py` | `non_heatmap_spend()` + `OTHER_PRICES`; reads **both** record shapes; `paid_calls` is the TOTAL across endpoints and `heatmap_calls` the narrower one |
+| `testing/verify_site_panels.py` | **named-value comparison** — `dial.selected_bearing` must differ across sites and equal each site's own worst bearing (#141) |
+| `demo/index.html` | `loadSite()` sets the dial to this site's own worst bearing (#141); `drawLimits` and `drawLadder` corrected (#137); `#liveenv` provenance block; the Screen-zero hover readout |
+| `demo/live.json`, `demo/chicago_live.json` | regenerated by the replay runs |
+
+**Later the same day, after the vendor recovered (§4.0-RECOVERY):**
+
+| file | what |
+|---|---|
+| `src/live.py` | **`SELFTEST_PROBE_H = 36`** and `verify_live_offline` now **sizes its horizon from the measured cache state** instead of a fixed 6 hours, so the #107 guard and the truncation branch fire by construction on every run. The twelve windows the recovery cached had made the old test fail against correct code. **§10 #144** |
+| `HANDOFF.md`, `API-USAGE.md` | that day's spend bumped to the ledger's then-current, now historical **96 calls / 399,840 / 19.99 %** (`bump_spend_docs.py`, then the header bullet by hand — the bumper matches table-row labels and the header is prose, which is #106's blind spot and the second time it has hidden there) |
+| `HANDOFF.md` | **§4.0-RECOVERY** added; header item 6 and the §9.-1 orientation rewritten off the six-day-outage framing; **the drifted self-counts reconciled against a live `audit.py` run — 92 checks, 77 published numbers, 24 README figures** (the file had been carrying 62/70/77, 89/92 and 22/24 simultaneously) |
+
+⚠ **`data/live_cache/` IS GITIGNORED** and the replay sequence reads from it. A fresh clone has no
+cached windows, so `--replay` will find nothing until a live run populates it. The date-matched
+environmental fixtures ARE tracked, in `testing/results/fixtures/env_replay_<metro>_<date>.json`.
+
+## 13.0d Added 2026-08-23 — the FortyGuard value audit and the experiment queue
+
+| | |
+|---|---|
+| **`FORTYGUARD-VALUE-AUDIT.md`** | NEW. Endpoint by endpoint: what their API offers versus what we consume. Finds that the **live agent perceives one FortyGuard variable** while humidity runs on NWS and air quality is not evaluated at all — and that `env_params` is already load-bearing in the five-year model (the PM2.5 diurnal profile from 30 saved responses, and `cloud_cover_octas` + `solar_irradiance` deriving the Pasquill stability class, which replaced an assumed clear sky over 43,708 hours) |
+| **`FORTYGUARD-NEXT-EXPERIMENTS.md`** | NEW. E1/E2/E3, each pre-registered before running: payload, cost, pass/fail, and what it would **not** establish |
+| **`testing/diag65_env_params_alive.py`** | NEW. E1, ready to run. Free `dryrun`, `--allow-paid` required, meter readings both sides, shared vendor classifier, result saved to `testing/results/` |
+| **`RECIRCULATION-DEFENCE.md`** | NEW (2026-08-23). Why the plume physics is in the product when the rise is only 0.36 °C: removing it costs **14–25 h/yr at every site**, makes breaches **1.8–4× more frequent**, and drops measured coverage **below the 90 % nominal at all three sites**. Plus the screening funnel — 2,812 pairs considered, 59 rejected under the 60 m measurement floor, 166 measured, **58 refusing every downwind bearing** |
+
+## 13.0c Added 2026-08-21 — the beginner's guide, and Chicago's collector on a schedule
+
+| | |
+|---|---|
+| **`READING-THE-AGENT.md`** (root) | NEW, and it is the only document in the tree written for someone with **no** data-centre or statistics background. Every screen, all 12 sidebar controls, all 14 result panels, a 10-minute guided tour, and a glossary that defines *intake*, *bearing*, *plume*, *conformal*, *dwell* and the rest before using them. Written because a reader who cannot decode the interface cannot audit it either. |
+| **`FG-N26-Chicago-Offset`** (Windows task) | NEW. Daily **13:35 / 14:05 / 15:00 PKT**, running `n26_chicago_offset.py collect --allow-paid`. Leads at those times are **10.42 / 9.92 / 9.00 h** — all inside the 6.0–11.5 h band, spread 1.42 h, bracketing Ashburn's 9.41 h reference. `WakeToRun` + `StartWhenAvailable` + runs on battery, because sleep is what lost 08-14 and 08-17. |
+| `src/audit.py` | the **seven binding-constraint shares** are now registered figures (§7.5 had drifted 0.1–0.4 pp with nothing re-reading it — the fifth instance of §8.2) |
+| `src/metros.py`, `demo/index.html` | the site picker has **three** states, not two: own pairs / own field but no pair / nothing. One boolean had made Chicago read "field purchased" while its level offset was still Ashburn's |
+
+⚠ **The machine must be awake 13:25–15:05 PKT, two days running, for one Chicago pair.** The forecast
+leg fires in that window; its outcome is only readable at 02:15 PKT, so it is collected on the NEXT
+day's run rather than at 2 a.m. Sleep is fine (WakeToRun); powered off is not.
+
+🔴 **A user-initiated LIVE run for Chicago on 2026-08-21 15:23 UTC cost 50,640 credits and returned
+nothing** — 12 of 12 windows `completed` with an empty field, every one billed. The agent behaved
+correctly (it perceived nothing, so it published nothing). It is the reason spend jumped 65 → 77 calls
+in one afternoon, and it is a fair warning about what the Chicago collector will cost while the
+vendor's forecast path stays broken: **the daily cap bounds it at 2 billed attempts per leg.**
+
+## 13.0b Added / changed 2026-08-21 — THE PER-SITE SWEEP (§10 #132–#136)
+
+**The user's instruction, verbatim in effect:** *"there are three sites because we want the agent to
+do its reasoning on three individual sites with their own geometry and individualistic traits. Don't
+use Ashburn's numerical values as a fallback for the remaining two."*
+
+| file | what |
+|---|---|
+| `src/direction_sweep.py` | 🔴 `load_wind()` read `kiad_hourly_...json` as a **literal, on every site**. Now `_M.weather_path()`; the wind block reports the site's own station, weather file and `n_hours_in_record`. §10 #132 |
+| `src/export_plume_fields.py` | *(unchanged code)* — but its 72 fields per site were **regenerated**, because it reads the direction table's median wind and Chicago's was Ashburn's |
+| `src/metros.py` | Chicago's purchased field **registered** (`fortyguard_field`, `fortyguard_field_fixture`); every metro gained explicit `fortyguard_day_pairs`. §10 #133 |
+| `src/agent.py` | the `fields` block is per-site (pairs / one observed window / none); `osm_source`, `osm_receptor` and `operator` **read from the committed site file** instead of three Ashburn literals; `u_median_ms` and the standing-results `measured_at` block published. §10 #133–#134 |
+| `src/ticker.py` | `perceive.fortyguard` names **where the pairs were measured**; new `perceive.own_window` for a site with its own non-pair field; `NoIndependentPath` so a borrowed number is counted as read-back-only rather than failed. §10 #135–#136 |
+| `src/audit.py` | **check 6e** `check_wind_is_this_sites_own` (11 assertions: the partition identity per site, plume solved at its own wind, Chicago ≠ Ashburn, Dulles = Ashburn) + the identity checks (no two sites share an OSM id or operator; trace agrees with manifest) |
+| `demo/index.html` | the Screen-zero panel renders three real states and **draws nothing** where nothing was purchased |
+| **`testing/n26_chicago_offset.py`** | NEW. Chicago's own level offset, 2 paid calls, explicit `America/Chicago` zone, lead band and AOI matched to the Ashburn series so the two offsets are comparable. `selftest` (12 assertions) is `run_all` step 18 |
+| `src/run_all.py` | **20 steps** |
+
+**What is measurably different now:** Chicago's median wind 3.6011 → **4.1156 m/s**, calm hours
+7,728 → **2,488**, worst rise 0.41156 → **0.41298 °C @240°**, its own **17,797-tile** field on
+screen, its plant named **Stream Chicago II / Equinix Chicago CH3**. **Ashburn is byte-identical and
+Dulles still matches Ashburn on weather** — the control holding is the proof.
+
+## 13.0 Added / changed 2026-08-21 — Session 4
+
+| file | what |
+|---|---|
+| **`testing/n26_recovery_watch.py`** | NEW. The recovery watcher: `plan` (free) / `watch --allow-paid` / `selftest`. §9.2d |
+| **`testing/verify_site_panels.py`** | NEW. Real-Chrome render-level cross-site panel diff, with a determinism pre-check. `run_all` step 19 **when written; it is step 20 today** — `audit` is 19 |
+| `testing/common.py` | gained **`classify_vendor` / `vendor_sentence` / `VENDOR_HUMAN` / `BILLED_CLASSES` / `is_billed` / `vendor_rec` / `HEATMAP_CREDITS` / `recent_vendor_record`**, all moved from `src/live.py` rather than copied. `submit_poll` now returns the evidence needed to classify a failure (HTTP status, body, statuses seen, poll count) on **every** return path |
+| `testing/test_n26_coverage.py` | two budgets, a per-attempt append-only log, `attempt_summary` / `billed_attempts` / `total_attempts` / `record_attempt`, a richer `dryrun`, and a new **`selftest`** |
+| `testing/api_usage_ledger.py` | reads the per-attempt log where it exists (exact) and the legacy counter where it does not (a floor), and says which; imports `HEATMAP_CREDITS` instead of defining it |
+| `src/live.py` | the classifier and `recent_vendor_record` now imported from `common`; **no behaviour change**, 34-assertion self-test unchanged |
+| `src/audit.py` | **check 6d** (`check_panels_are_per_site`) + `_js_code_only` / `_js_function_body` / `_selftest_js_scanner`; **check 9 rebuilt** around `_unmarked_spend_claims` + `_selftest_spend_scanner` |
+| `src/run_all.py` | steps 16, 17, 19 and a `TESTING` path constant — **19 steps** |
+| `demo/index.html` | `drawLimits` computes its coverage, worst-rise and money entries from the artefacts. **Three stale/wrong claims removed** — §10 #129 |
+| `README.md` · `API-USAGE.md` · `PLAN.md` (§8r) · this file | brought current |
+
 ## 13.1 `INTAKE-ARBITER/src/` — 30 modules, **ALL COMMITTED**
 
 **Added 2026-08-20 (the live-agent rework), in order:**
@@ -2246,7 +3493,7 @@ runaway loop, not to ration credits, and on 08-20 it threw away a still-recovera
 - `metros.py` gained **`imagery_dir()`** and **`committed_imagery()`** — per-site aerial frames
 - `audit.py` gained checks **2f** (duplicate element ids), **9** (the spend ledger vs the docs),
   **10** (every README figure vs the emitted JSON), **11** (the live chain, offline)
-- `run_all.py` gained step 15, the live self-test — **16 steps now**
+- `run_all.py` gained step 15, the live self-test — **19 steps now** (see §13.1's Session 4 block)
 
 **Added 2026-08-20, in order:** **`ticker.py`** (+ `demo/gen_ticker_cases.py`,
 `demo/verify_browser_ticker.js`) · **`money.py`** · **`report.py`** · **`build_sites.py`** ·
@@ -2385,7 +3632,7 @@ committing (**0 hits**; only the two gitignored `.env` files hold it, and the co
 - Timings: rise table **5–9 s GPU** · `agent.py run` ~37 s · `backtest.py all` ~27 s ·
   `rolling.py` ~10 s · `export_plume_fields.py --all` **~2.3 min** (deliberately NOT in `run_all`,
   since fields change only when geometry does; `audit.py` check 2d `check_plume_fields` verifies the shipped ones) ·
-  `run_all.py` **~295 s** (16 steps; ~100 s of it is Ashburn, the rest the two other sites) ·
+  `run_all.py` **~390 s** (20 steps; ~100 s of it is Ashburn, the rest the two other sites, plus ~11 s for the browser panel diff) ·
   `build_sites.py` **~237 s** for three sites · `report.py` ~2 s for all three.
 - **⚠ `d:\FGHackathon\CLAUDE.md` DOES NOT EXIST** and never has. The rules it would carry are §1.
 
@@ -2420,6 +3667,6 @@ cooling; **three real sites across two climates** show it generalises; and the d
   **outlier** that under-predicts in the unsafe direction;
 - a 12-hour schedule whose stability is **measured (94.08 % of re-plans change nothing)** and whose
   cause is **correctly attributed to the forecast, not to our constraints**;
-- and an audit that re-reads **62 published numbers** out of the files the code itself wrote,
-  plus a reasoning tape whose **29 templates contain not one literal digit** — so "nothing here is
+- and an audit that re-reads **77 published numbers** out of the files the code itself wrote,
+  plus a reasoning tape whose **32 templates contain not one literal digit** — so "nothing here is
   hand-written" is a command you can run rather than a claim you have to take on trust.

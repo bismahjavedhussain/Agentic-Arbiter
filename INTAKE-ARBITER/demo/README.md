@@ -81,7 +81,7 @@ so it tests the code that actually ships.
 | Browser agent == Python agent | 500 random cases, 0 mismatches |
 | Colour palette | the data-viz validator, all checks pass all-pairs in both modes (CVD ΔE 24.7 light / 26.8 dark; normal-vision 33.6 / 31.8) |
 | Files serve over HTTP | 200 on `index.html`, `trace.json`, `backtest.json`, a field file |
-| **Visual rendering** | ⚠️ **NOT verified.** No browser was available in the build environment, so label collisions, canvas geometry and overflow have not been eyeballed. **Open it and look before recording anything.** |
+| **Visual rendering** | ✅ **Diffed in a real browser.** `testing/verify_site_panels.py` — `run_all.py` step 20 — drives Chrome through pick → configure → results for every offerable site, renders one site **twice** and requires byte-identical output, then diffs rendered text and canvas pixels across sites. **A missing browser exits non-zero rather than skipping**, because a skipped check reports PASS for a path it never ran. ⚠️ **A difference test cannot catch a WRONG picture** — one site's overlay on another's photograph produces pixels that differ, so it passes; `audit.py` check 6d separately bans any site's own coordinates, OSM ids and station from the page for that reason. **Neither instrument judges whether a label collides: open it and look.** |
 
 ## What the page deliberately shows going wrong
 
@@ -92,5 +92,8 @@ A demo that only shows success is not evidence. On screen, by design:
 - the hour where a single pooled quantile drops to **73 % coverage** while its average reads 90 %;
 - the **refusal** screen — switch bank placement to `facing` and the agent declines to certify
   almost every hour, losing hours by construction, because a building sits on the plume path;
-- what believing FortyGuard's level as delivered costs over five years (**about 595 h/year**);
-- that recirculation awareness **costs hours and buys safety**, rather than the reverse.
+- what believing FortyGuard's level as delivered costs over five years — **about 562 h/year**,
+  from **+405.7** h/yr anchored to **−156.0** unanchored, while measured coverage *rises* to 0.9865;
+- that our own plume shape is the **outlier, in the unsafe direction**: against 67 Project Prairie
+  Grass experiments our √x spread measured an exponent of **0.805**, so at these distances the
+  plume is too *wide* and **under-predicts rise by 5–25 %**.

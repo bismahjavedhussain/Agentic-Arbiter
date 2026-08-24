@@ -17,9 +17,12 @@
  },
  "wind": {
   "station": "KIAD",
+  "metro": "dulles",
+  "weather_file": "kiad_hourly_2021_2025.json",
   "usable_hours": 34200,
   "calm_excluded": 7728,
-  "missing": 1835
+  "missing": 1835,
+  "n_hours_in_record": 43763
  },
  "verdicts": {
   "P1_non_degenerate_refusal": {
@@ -507,7 +510,7 @@
     "refused": false,
     "rise_c": 0.35929
    },
-   "solve_seconds": 44.5,
+   "solve_seconds": 47.9,
    "wind_weighted": {
     "all_hours": {
      "n_hours": 34200,
@@ -1026,7 +1029,7 @@
     "refused": false,
     "rise_c": 0.36264
    },
-   "solve_seconds": 45.2,
+   "solve_seconds": 49.0,
    "wind_weighted": {
     "all_hours": {
      "n_hours": 34200,

@@ -68,9 +68,35 @@ h3{font-size:13px;margin:0 0 8px;color:var(--text-secondary);font-weight:600}
   display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
 .f{display:flex;flex-direction:column;gap:3px}
 .f label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-select,button{font:inherit;font-size:13px;padding:5px 8px;border-radius:6px;
+/* 🔴 `.muted` WAS USED AS A CLASS AND HAD NO RULE AT ALL. Four places in the JS-built markup wrote
+   `class="muted"` -- including the map readout's own resting message -- while only the CUSTOM
+   PROPERTY `--muted` existed. So the text those places meant to de-emphasise rendered at full
+   primary weight, and nothing failed: a missing CSS class is silent in a way a missing variable is
+   not. Same family as the unbalanced-comment gotcha (#72): the stylesheet does not complain. */
+.muted{color:var(--text-secondary)}
+/* `input` WAS NOT IN THIS SELECTOR LIST, and there was no text input anywhere in the page until the
+   site search was added -- so an <input> inherited the browser default: a white box with a dark
+   border, unreadable in dark mode. Added here rather than styled inline so the search box cannot
+   drift from the selects beside it. */
+select,button,input{font:inherit;font-size:13px;padding:5px 8px;border-radius:6px;
   border:1px solid var(--axis);background:var(--surface-1);color:var(--text-primary)}
 button{cursor:pointer}
+input::placeholder{color:var(--text-secondary);opacity:.85}
+/* THE SEARCH RESULT LIST. Deliberately NOT `.filters`, which is `position:sticky` -- a sticky
+   results panel would follow the reader down the page over the map it is offering to replace. */
+.srch{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.srch input{flex:1 1 320px;min-width:220px}
+.srchlist{margin:10px 0 0;max-height:288px;overflow-y:auto;border:1px solid var(--border);
+  border-radius:8px}
+.srchlist:empty{display:none;border:0}
+.srchrow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  padding:8px 11px;border-bottom:1px solid var(--grid);cursor:pointer;font-size:12.5px}
+.srchrow:last-child{border-bottom:0}
+.srchrow:hover,.srchrow:focus{background:var(--surface-2);outline:none}
+.srchrow[aria-disabled="true"]{cursor:default;opacity:.72}
+.srchrow[aria-disabled="true"]:hover{background:transparent}
+.srchname{font-weight:600}
+.srchmeta{color:var(--text-secondary);font-size:11.5px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px}
 .tile{background:var(--surface-1);border:1px solid var(--border);border-radius:9px;padding:12px 14px}
 .tile .v{font-size:25px;line-height:1.15;letter-spacing:-.02em}
@@ -143,6 +169,27 @@ summary{cursor:pointer;font-size:12px;color:var(--text-secondary)}
 @media (max-width:900px){
   .side{grid-template-columns:1fr}
   .sidebar{position:static;max-height:none}
+}
+
+/* ---- THE MAP'S OWN READOUT COLUMN. A separate rule from `.side`, deliberately: `.side` is
+   `data-show="configure results"` and does not exist on the pick stage, so reusing it here would
+   have meant widening a stage-scoped selector to cover a card that is only ever shown on a
+   different stage. Same sticky + collapse recipe, its own name.
+   `min-height` MATCHES THE MAP'S OWN HEIGHT so the card does not resize when the readout fills --
+   the `#fieldhover` lesson (a readout that changes height makes the page jump under the cursor
+   that is driving it, which is the one interaction where that is least acceptable). ---- */
+.mapside{display:grid;grid-template-columns:minmax(0,1fr) 292px;gap:16px;align-items:start}
+.mapreadout{background:var(--surface-1);border:1px solid var(--border);border-radius:10px;
+  padding:13px 14px;min-height:520px;box-sizing:border-box;overflow-y:auto;
+  font-variant-numeric:tabular-nums;font-size:12.5px;line-height:1.5}
+.mapreadout h3{font-size:14px;line-height:1.3;margin:0 0 7px}
+.mapreadout dl{margin:0}
+.mapreadout dt{color:var(--text-secondary);font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.04em;margin-top:9px}
+.mapreadout dd{margin:1px 0 0}
+@media (max-width:900px){
+  .mapside{grid-template-columns:1fr}
+  .mapreadout{min-height:0}
 }
 /* ---- THE STATUS STREAM. One line per stage event, revealed in order. ---- */
 .stream{display:flex;flex-direction:column;gap:0}
@@ -220,14 +267,63 @@ accuracy against reality. <span id="modebanner">Checking for a live agent…</sp
   <button id="pickgo" class="btn btn-go">Configure the plant &rarr;</button>
 </div>
 
-<div data-show="pick" class="card" id="mapcard">
-  <h2>Five sites screened, three shipped</h2>
-  <p class="note" style="margin-bottom:10px">Real coordinates on a real map. <strong>Green</strong> =
-  running, with its own geometry, its own five-year weather record and an in-scope cooling
-  architecture. <strong>Red</strong> = refused, and the reason is on the marker — one rooftop-cooled,
-  one not yet built. Click a green marker to load it above.</p>
-  <div id="map" style="height:360px;border-radius:10px;overflow:hidden"></div>
-  <p class="note" id="mapnote" style="margin-top:10px"></p>
+<!-- ============ SEARCH, AS AN ALTERNATIVE TO THE MAP ============
+     The map is the discovery surface: it shows the whole country and answers "what is near here".
+     It is the wrong tool for "I already know the name of the site I want" -- that reader would have
+     to pan and zoom hundreds of dots hunting for a label the map does not print. This searches the
+     SAME file the map draws from (`unified_sites.json`), so the two surfaces can never disagree
+     about what exists, and a click here runs exactly the sequence a map click runs.
+     `data-show="pick"` puts it on the first stage only, like the picker and the map above it. -->
+<div data-show="pick" class="card" id="searchcard">
+  <h2>Search for a data centre by name</h2>
+  <p class="note" id="searchintro" style="margin-bottom:11px">Loading the registry…</p>
+  <div class="srch">
+    <label for="sitesearch" class="srchmeta" style="text-transform:uppercase;letter-spacing:.05em">
+      Name, operator or state</label>
+    <input id="sitesearch" type="search" autocomplete="off" spellcheck="false"
+           placeholder="e.g. Apple, Equinix, Meta, IA…" aria-describedby="searchintro">
+    <button id="searchclear" class="btn btn-sm" type="button">Clear</button>
+  </div>
+  <div id="searchresults" class="srchlist" role="listbox" aria-label="Matching data centres"></div>
+  <p class="note" id="searchnote" style="margin-top:10px"></p>
+</div>
+
+<!-- ============ THE NATIONAL FOOTPRINT -- ONE MAP, EVERY REAL SITE ============
+     Merged 2026-08-24 at the user's explicit instruction: this used to be two maps -- a small one
+     holding the 3 running + 2 refused hand-built metros, and a separate big one for the other ~419
+     national candidates. They are all real, OSM-tagged locations from ONE registry
+     (src/export_unified_map.py cross-references by OSM id so the 5 known metros are never counted
+     twice), so they belong on ONE map. Colour is STATUS: the 3 metros with a full agent run and a
+     purchased FortyGuard field get their own colour, because that is the single most important fact
+     a reader needs -- everything else is real, but only these three are clickable into a full run
+     today. Size is CATEGORY (campus / pair / standalone) as a secondary encoding. Hover any point
+     for its real name and location; click a running site to load it below, click anything else for
+     its own honest, real status -- never a fabricated run. -->
+<div data-show="pick" class="card" id="natmapcard">
+  <h2>Every real data centre this project has found</h2>
+  <p class="note" id="natmapintro" style="margin-bottom:10px">Loading…</p>
+  <div class="mapside">
+    <div id="natmap" style="height:520px;border-radius:10px;overflow:hidden"></div>
+    <!-- THE HOVER READOUT. Modelled on `#fieldhover` (the Screen-zero tile readout), not on a
+         floating tooltip: it has a RESTING MESSAGE rather than being blank, a reserved height so
+         nothing reflows, and it can hold more than two lines. It replaced a `maplibregl.Popup`
+         anchored to the dot, which showed three fields out of the ten already on the feature and
+         rendered in maplibre's own white regardless of the page theme, because nothing here ever
+         styled `.maplibregl-popup-content`. -->
+    <aside id="natside" class="mapreadout" aria-live="polite">
+      <div id="natsidebody"></div>
+    </aside>
+  </div>
+  <p class="note" id="natmapnote" style="margin-top:10px"></p>
+</div>
+<!-- data-show="none" matches no real stage on purpose: setStage()'s own sweep (gotcha #84 -- one
+     owner of .hidden, not two) then hides this card automatically on EVERY stage transition,
+     including #backtopick's setStage('pick'). Only the map's own click handler ever un-hides it,
+     so a transition elsewhere in the app can never leave both this and the map visible at once. -->
+<div data-show="none" class="card" id="sitestatuscard">
+  <h2 id="sitestatustitle"></h2>
+  <p class="note" id="sitestatusbody"></p>
+  <button id="sitestatusclose" class="btn">&larr; Back to the map</button>
 </div>
 <!-- ============ STAGE 2: THE PLANT ENVELOPE, AS A COLUMN ============
      These were a full-width row of ten dropdowns above the results, which read as a toolbar nobody
@@ -308,6 +404,10 @@ accuracy against reality. <span id="modebanner">Checking for a live agent…</sp
   <p class="note warn" id="liverefusal" style="margin-bottom:10px"></p>
   <div id="livestream" class="stream" style="margin-bottom:10px"></div>
   <p class="note" id="livemsg" style="margin-bottom:10px"></p>
+  <!-- WHICH VENDOR SUPPLIED EACH GATE. Written by drawLive(). Without it the E2 integration is
+       invisible: the agent gates humidity on FortyGuard's own wet-bulb and evaluates their PM2.5
+       index, and a reader would still have assumed the live card perceives one FortyGuard number. -->
+  <p class="note" id="liveenv" style="margin-bottom:10px"></p>
   <div class="tiles" id="livetiles"></div>
   <table id="livetable" style="margin-top:12px"></table>
   <p class="note warn" id="livebound" style="margin-top:12px"></p>
@@ -365,11 +465,14 @@ accuracy against reality. <span id="modebanner">Checking for a live agent…</sp
   <div class="row">
     <div>
       <canvas id="aerial" width="560" height="440" style="cursor:grab;border-radius:8px"></canvas>
+      <!-- The receptor and intake entries are hidden by drawAerial() at a facility with one
+           building, because a legend that names a colour absent from the picture tells the reader
+           to look for something that was never drawn. -->
       <div class="legend" style="margin-top:9px">
         <span><i style="background:var(--series-2)"></i>Source hall (exhaust)</span>
-        <span><i style="background:var(--series-1)"></i>Receptor hall (intake)</span>
+        <span id="leg_receptor"><i style="background:var(--series-1)"></i>Receptor hall (intake)</span>
         <span><i style="background:var(--warning)"></i>Condenser bank</span>
-        <span><i style="background:var(--good)"></i>Intake measurement disc</span>
+        <span id="leg_intake"><i style="background:var(--good)"></i>Intake measurement disc</span>
       </div>
     </div>
     <div class="grow">
@@ -389,8 +492,18 @@ accuracy against reality. <span id="modebanner">Checking for a live agent…</sp
     </div>
   </div>
 </div>
-<div data-show="results" class="card">
+<!-- THE THREE PLUME/FIELD CARDS CARRY AN "ABSENT" SLOT, and it is not cosmetic.
+     359 of 639 facilities are standalone: no other tagged data centre inside the solver's validated
+     600 m range, so there is no neighbour intake for a rise to be computed at and no plume is
+     solved. Leaving these cards in place, tall and empty, told the reader nothing and cost them a
+     screenful of scrolling to discover that. Each now collapses to its heading plus a statement of
+     WHY it is empty, carrying that facility's own measured distance to the nearest data centre.
+     The card stays in the DOM rather than being removed: `verify_site_panels.py` keys panels by
+     their position among `[data-show~="results"]`, so removing one would rename every later card's
+     key and produce phantom findings. -->
+<div data-show="results" class="card" id="plumecard">
   <h2>The plume, solved — turn the wind and watch the exhaust move</h2>
+  <p class="note" id="plumeabsent" hidden></p>
   <p class="note" style="margin-bottom:10px">This is the <strong>field the solver computes</strong>,
   cell by cell, on the rasterised OpenStreetMap footprints — the same <code>solve()</code> behind
   every rise figure on this page, at 72 bearings. Buildings are drawn from the solver's own obstacle
@@ -417,8 +530,9 @@ accuracy against reality. <span id="modebanner">Checking for a live agent…</sp
     </div>
   </div>
 </div>
-<div data-show="results" class="card">
+<div data-show="results" class="card" id="dialcard">
   <h2>Turn the wind — 72 bearings solved on the real geometry</h2>
+  <p class="note" id="dialabsent" hidden></p>
   <p class="note" style="margin-bottom:10px">Each bearing is a real solve of the dispersion model on
   the committed building footprints (576 GPU solves per placement, NVIDIA Warp). Drag the dial.
   Bearings the solver <strong>refuses</strong> are marked and labelled — it declines to return a
@@ -436,14 +550,22 @@ accuracy against reality. <span id="modebanner">Checking for a live agent…</sp
   </div>
   <details><summary>Table view — all 72 bearings</summary><table id="dtable"></table></details>
 </div>
-<div data-show="results" class="card">
+<div data-show="results" class="card" id="fieldcard">
   <h2>Screen zero — FortyGuard's field, doing the work first</h2>
+  <p class="note" id="fieldabsent" hidden></p>
   <!-- WAS: a hardcoded "17,862 tiles ... Ashburn data-centre corridor" on all three sites, which
        for Chicago and Dulles asserted a measurement neither of them has. drawSiteNotes(). -->
   <p class="note" id="screenzeronote" style="margin-bottom:12px">&nbsp;</p>
   <div class="row">
     <div>
-      <canvas id="field" width="470" height="470"></canvas>
+      <canvas id="field" width="470" height="470" style="cursor:crosshair"></canvas>
+      <!-- HOVER READOUT. Without it this panel is a near-uniform blue rectangle a reader cannot
+           interrogate: the whole 8x8 km field spans about 1.5 C, so most of it sits in the middle
+           of the ramp and looks like one shade. That flatness is the DATA and must not be
+           exaggerated by a percentile stretch -- so the fix is to let the reader read a tile
+           instead of recolouring the field into something it is not. -->
+      <div id="fieldhover" class="note" style="min-height:1.2em;margin-top:6px;font-variant-numeric:tabular-nums">
+        hover the field to read a tile</div>
       <div class="scale" style="margin-top:8px">
         <span id="fmin">–</span>
         <div class="bar" id="fbar"></div>
@@ -599,6 +721,15 @@ function untip(){ TT.style.opacity=0; }
 let T=null, BT=null, FIELD=null, ENV=null, RL=null, PF=null, SITES=null, TK=null,
     MN=null, EX=null, SITE=null;
 
+/* THE NATIONAL MAP'S STATE, hoisted out of drawUnifiedMap()'s closure on purpose.
+   `US` (the whole registry) and the map handle were function-locals, so the ONLY thing any hover
+   or click could see was the ten properties flattened onto each GeoJSON feature -- with
+   `operators` truncated to 4 and `sample_names` to 3 at feature-build time. The readout wants the
+   full row, so it looks the site up by key in `NATBYKEY` instead of widening those slices and
+   paying the cost on all 421 features. These are map-wide, NOT per-site, so they are deliberately
+   not in audit.py's PER_SITE_GLOBALS and no panel in drawAll() reads them. */
+let US=null, NATMAP=null, NATBYKEY=null;
+
 /* ---------- sequential ramps (one hue each, light -> dark) ---------- */
 const BLUE=['#cde2fb','#9ec5f4','#6da7ec','#3987e5','#256abf','#184f95','#0d366b'];
 const ORANGE=['#fbdccd','#f6bfa2','#f09f75','#eb6834','#c9521f','#a34018','#7d3011'];
@@ -649,7 +780,14 @@ async function boot(){
   $('#loading').hidden = true;
   $('#app').hidden = false;
   setStage('pick');
-  drawMap().catch(()=>{});
+  // drawUnifiedMap() is called ONCE, chained off boot()'s own promise below -- not here too. It
+  // used to be called from both places (a pre-existing redundancy, not something this rewrite
+  // introduced): two `new maplibregl.Map(...)` instances writing into the same #natmap container
+  // is a real, avoidable defect, not a harmless duplicate, and the outer call already satisfies
+  // the "must not block boot()" requirement its own comment states.
+  // Wired HERE, not in wire() -- wire() only runs after chooseSite(), but a click on a
+  // not-yet-built map dot can happen on the very first view, before any site is ever chosen.
+  $('#sitestatusclose').onclick = ()=>{ $('#sitestatuscard').hidden = true; $('#natmapcard').hidden = false; };
   $('#c_site').onchange = () => { $('#pickgo').disabled = !$('#c_site').value; describeSite(); };
   $('#pickgo').onclick = chooseSite;
   describeSite();
@@ -665,25 +803,42 @@ function describeSite(){
     + ' at ' + fmt(100*s.weather_coverage,2) + ' % coverage.<br>Committed pair: <strong>'
     + (c.source_name||'?') + '</strong> → <strong>' + (c.receptor_name||'?')
     + '</strong>, facades ' + fmt(c.facade_gap_m,1) + ' m apart.<br>'
-    + (s.has_own_fortyguard_field
-        ? '<span class="ok">FortyGuard field purchased for this site.</span>'
+    /* THREE STATES, NOT TWO. One boolean conflated "we bought a field here" with "we measured this
+       site's own forecast error here", and they are different purchases: a field is ONE call, a
+       calibration is a forecast leg PLUS its elapsed outcome. Chicago has the first and not the
+       second, and the two-state version told the reader only the good half. */
+    + (s.fortyguard_day_pairs > 0
+        ? '<span class="ok">FortyGuard field purchased for this site, and its own measured '
+          + 'forecast error: ' + int(s.fortyguard_day_pairs) + ' forecast-and-outcome day pair'
+          + (s.fortyguard_day_pairs === 1 ? '' : 's') + '. Nothing here is borrowed.</span>'
+        : s.has_own_fortyguard_field
+        ? '<span class="ok">FortyGuard field purchased for this site.</span> <span class="warn">'
+          + 'But no forecast/outcome day pair yet, so the measured level offset is still '
+          + "Ashburn&rsquo;s. A field is one call; a calibration needs a forecast AND its elapsed "
+          + 'outcome.</span>'
         : '<span class="warn">No FortyGuard field purchased here — its weather, geometry and hours '
           + "are its own, but the measured level offset is Ashburn&rsquo;s.</span>");
 }
 
+/* RETURNS whether the site actually loaded. The map's click handler chains runAgent() off this, and
+   an unchecked chain would render a full results screen from the PREVIOUS site's globals under the
+   newly-clicked site's name -- `loadSite()` deliberately leaves the old globals intact when a fetch
+   fails, so the failure would look like a successful run of the wrong site. The value is otherwise
+   unused: `#pickgo.onclick = chooseSite` already received a Promise, and still does. */
 async function chooseSite(){
   const key = $('#c_site').value;
   $('#pickgo').disabled = true; $('#pickgo').textContent = 'Loading ' + key + '…';
   const ok = await loadSite(key);
   $('#pickgo').textContent = 'Configure the plant →'; $('#pickgo').disabled = false;
   if(!ok){ $('#pickinfo').innerHTML = '<span class="err">This site has no built artefacts. '
-    + 'Run <code>python src/build_sites.py ' + key + '</code>.</span>'; return; }
+    + 'Run <code>python src/build_sites.py ' + key + '</code>.</span>'; return false; }
   buildControls();
   await loadField();
   wire();
   wireAerial();
   $('#sitename').textContent = SITE.label;
   setStage('configure');
+  return true;
 }
 
 const PE = () => T.plant_envelope;
@@ -861,11 +1016,81 @@ async function loadField(){
   const key=$('#c_field').value; const meta=T.fields[key]; if(!meta) return;
   try{ FIELD = await (await fetch(meta.file)).json(); }catch(e){ FIELD=null; }
 }
+/* ---- COLLAPSE A CARD TO ITS REASON -------------------------------------------------------------
+   A panel with nothing in it is worse than no panel: the reader scrolls a screenful of empty canvas
+   to discover a fact that fits in two lines. These two helpers swap a card between its full content
+   and a single explanatory paragraph, so an absent measurement reads as a stated absence.
+
+   Generic over DIRECT CHILDREN rather than a hand-listed set of element ids, because the three cards
+   this serves have 4-5 children each and a per-card list would go stale the first time one gained a
+   control. The heading always stays; the message slot is the only thing shown when collapsed.
+
+   `plumeReason()` is the one place the sentence is built, so the three cards cannot drift into
+   describing the same facility differently -- and every number in it is read from the artefacts. */
+function cardSetAbsent(cardId, msgId, html){
+  const c=$('#'+cardId); if(!c) return;
+  for(const el of c.children){
+    if(el.tagName==='H2') continue;
+    if(el.id===msgId){ el.hidden=false; el.innerHTML=html; }
+    else el.hidden=true;
+  }
+}
+function cardSetPresent(cardId, msgId){
+  const c=$('#'+cardId); if(!c) return;
+  for(const el of c.children){
+    if(el.id===msgId) el.hidden=true;
+    else if(el.tagName!=='H2') el.hidden=false;
+  }
+}
+/* Is this facility's plume modelled at all? Read from the artefact, not from a site-kind flag: the
+   rise table publishes a null worst bearing exactly when no plume was solved, so the condition and
+   the thing it describes cannot disagree. */
+function plumeModelled(){
+  const rt = T && T.cycle && T.cycle.rise_tables && T.cycle.rise_tables.longest;
+  return !!(rt && rt.max_rise_bearing !== null && rt.max_rise_bearing !== undefined);
+}
+function plumeReason(){
+  const rt = (T.cycle.rise_tables||{}).longest || {};
+  const why = rt.why_zero || '';
+  const gap = T.site.facade_gap_m;
+  return '<span class="warn"><strong>No plume is modelled at this facility, and that is a '
+    + 'measurement rather than a gap.</strong> ' + (why ||
+      ('There is no second tagged data centre within the solver’s validated range, so there is no '
+       + 'neighbour intake for a rise to be computed at.'))
+    + (gap===null||gap===undefined ? ' It has one building, so there is no facade gap for a plume '
+        + 'to cross.' : '')
+    + ' The ' + int((rt.bearings||[]).length) + '-bearing sweep, the '
+    + 'solved field and the intake disc all describe a source→receptor pair, so none of them is '
+    + 'shown here rather than being shown empty. Everything else on this page — its weather, its '
+    + 'geometry, its bound and its hours — is this facility’s own.</span>';
+}
+
 function drawField(){
+  /* THE FORTYGUARD FIELD IS A SEPARATE QUESTION FROM THE PLUME, and conflating them would be
+     wrong: a facility can have a purchased field and no plume (nothing nearby) or a plume and no
+     field (Dulles). So this card collapses on `FIELD`, not on `plumeModelled()`. */
   const c=$('#field'), g=c.getContext('2d');
   g.clearRect(0,0,c.width,c.height);
-  if(!FIELD){ g.fillStyle=cssv('--muted'); g.font='13px system-ui';
-    g.fillText('field file not loaded', 12, 22); return; }
+  if(!FIELD){
+    /* Two different reasons for an empty canvas, and they must not read the same. "not loaded" on a
+       site that never bought a field is a fault message for a non-fault -- and it is exactly the
+       gap that made borrowing Ashburn's field look like the tidier option. */
+    const none = Object.keys(T.fields || {}).length === 0;
+    /* COLLAPSED, not drawn empty. A ~29-line card holding one sentence of apology is the thing the
+       reader is asked to scroll past on every site that has no purchased field -- and with the
+       heatmap endpoint down, that is most of them. */
+    cardSetAbsent('fieldcard', 'fieldabsent', none
+      ? '<span class="warn"><strong>No FortyGuard temperature field was purchased for this '
+        + 'facility.</strong> A field is one heatmap call at this site’s own coordinates; none was '
+        + 'bought here, and another site’s field is not shown in its place. Its dry-bulb history '
+        + 'comes from its own weather station instead, and the humidity and air-quality gates run '
+        + 'on FortyGuard’s own values where they were bought. Nothing on this page is borrowed '
+        + 'except the measured forecast offset, which says so where it is used.</span>'
+      : '<span class="err">The saved field file did not load. Serve this page over http rather '
+        + 'than opening it from the filesystem — browsers block <code>fetch()</code> from '
+        + '<code>file://</code>.</span>');
+    return; }
+  cardSetPresent('fieldcard', 'fieldabsent');
   const t=FIELD.tiles, n=t.length;
   let la0=1e9,la1=-1e9,lo0=1e9,lo1=-1e9;
   for(const [la,lo] of t){ if(la<la0)la0=la; if(la>la1)la1=la; if(lo<lo0)lo0=lo; if(lo>lo1)lo1=lo; }
@@ -933,6 +1158,44 @@ function drawField(){
   g.fillText(lbl, (px+12+lw > c.width-2) ? px-12-lw : px+12, py+4);
   $('#fmin').textContent=fmt(tmin,1); $('#fmax').textContent=fmt(tmax,1);
   $('#fbar').style.background=rampCss(BLUE);
+
+  /* THE HOVER READOUT. This panel is honestly near-uniform -- the whole 8x8 km field spans about
+     1.5 C and two thirds of the tiles sit within half a degree of the median -- so a linear ramp
+     puts most of the image in one shade and it reads as a flat blue block.
+     The tempting fix is a percentile or histogram stretch, and it is REFUSED: it would paint a
+     dramatic-looking field that implies spatial structure this data does not have, which is the
+     same class of dishonesty as a hand-drawn plume cone. The mapping stays linear from the real
+     min and max.
+     What the reader gets instead is the ability to interrogate it: hover any tile and read its
+     actual value, its distance from the committed site, and where it sits in the distribution.
+     Nearest-centroid rather than a point-in-quad test, because the lattice is regular and the
+     difference is under half a tile. */
+  const fc=$('#field'), fh=$('#fieldhover');
+  if(fc && fh){
+    fc.onmousemove=(ev)=>{
+      const r=fc.getBoundingClientRect();
+      const mx=(ev.clientX-r.left)*(fc.width/r.width), my=(ev.clientY-r.top)*(fc.height/r.height);
+      let best=-1, bd=1e18;
+      for(let i=0;i<n;i++){
+        const dx=(offx+(t[i][1]-lo0)*s)-mx, dy=(offy+(la1-t[i][0])*s)-my;
+        const d=dx*dx+dy*dy; if(d<bd){ bd=d; best=i; }
+      }
+      if(best<0 || bd>400){ fh.textContent='hover the field to read a tile'; return; }
+      const [la,lo,v]=t[best];
+      let warmer=0; for(let i=0;i<n;i++) if(t[i][2]<v) warmer++;
+      /* Equirectangular, not haversine: over an 8 km box the two agree to well under a metre and
+         this runs on every mouse move over 17,862 tiles. `common.py` uses haversine because it is
+         measuring committed geometry, where the extra precision is free. */
+      const RE=6371000, rad=Math.PI/180;
+      const dLa=(la-site[0])*rad, dLo=(lo-site[1])*rad*Math.cos((la+site[0])/2*rad);
+      const dm=RE*Math.hypot(dLa,dLo);
+      fh.innerHTML='<strong>'+fmt(v,3)+' °C</strong> &mdash; warmer than '
+        + fmt(100*warmer/n,0) + ' % of the ' + int(n) + ' tiles, '
+        + (dm<1000 ? int(Math.round(dm))+' m' : fmt(dm/1000,1)+' km') + ' from the committed site'
+        + ' &nbsp;·&nbsp; <span class="muted">' + fmt(la,4) + ', ' + fmt(lo,4) + '</span>';
+    };
+    fc.onmouseleave=()=>{ fh.textContent='hover the field to read a tile'; };
+  }
   /* WHY THE EDGE IS STILL SLIGHTLY RAGGED, MEASURED RATHER THAN APOLOGISED FOR. Drawing the real
      rotated quads removed the staircase, but small notches remain and they are DATA, not a
      rendering fault: the AOI is a lat/lon box while FortyGuard's tile lattice is rotated inside it,
@@ -1892,9 +2155,17 @@ function drawConformal(){
 }
 
 /* ---------- wind dial ---------- */
-let dialBearing=255;
+/* Overwritten by loadSite() with THIS site's own worst bearing before anything renders. The
+   literal here is only a pre-load placeholder and must never be read as a site value -- it was
+   255 (Ashburn's) and it silently became every site's opening view. */
+let dialBearing=0;
 function drawDial(){
   const k=cfg(), md=T.direction_table.modes[k.bank]; if(!md) return;
+  /* THE 72-BEARING SWEEP DESCRIBES A SOURCE→RECEPTOR PAIR. With no receptor there is nothing to
+     sweep: the dial would render a perfect circle of zeros, which reads as "every bearing is safe"
+     -- the opposite of "nothing was computed". Collapsed to the reason instead. */
+  if(!plumeModelled()){ cardSetAbsent('dialcard', 'dialabsent', plumeReason()); return; }
+  cardSetPresent('dialcard', 'dialabsent');
   const rows=md.rows, c=$('#dial'), g=c.getContext('2d');
   const W=c.width,H=c.height,cx=W/2,cy=H/2,R0=34,R1=Math.min(W,H)/2-24;
   g.clearRect(0,0,W,H);
@@ -1921,19 +2192,46 @@ function drawDial(){
   const ww=md.wind_weighted && md.wind_weighted.all_hours ? md.wind_weighted.all_hours : {};
   $('#dialtiles').innerHTML =
      tile('Selected bearing', dialBearing+'°', sel.refused?'REFUSED — no number returned':'intake rise '+fmt(sel.rise_c,4)+' °C')
-   + tile('Worst bearing', md.worst.bearing+'°', 'rise '+fmt(md.worst.rise_c,4)+' °C')
+   /* `md.worst` IS NULL AT A FACILITY WITH NO NEIGHBOUR -- there is no receptor intake for a rise
+      to be worst at, so the direction table publishes null rather than bearing 0, which would read
+      as "due north". This crashed the page for the first standalone site: the real-browser panel
+      diff reported "Cannot read properties of null (reading 'bearing')", which is exactly the job
+      that check exists to do. */
+   + (md.worst
+      ? tile('Worst bearing', md.worst.bearing+'°', 'rise '+fmt(md.worst.rise_c,4)+' °C')
+      : tile('Worst bearing', 'n/a', 'no plume solved — no neighbour in range'))
    + tile('Bearings refused', md.n_refused+' of 72', md.n_downwind_refused+' of '+md.n_downwind+' downwind')
    /* 'real KIAD hours' was hardcoded, so Chicago's dial credited its wind statistics to
       Virginia's station. The station is per-site in both trace.json and sites.json. */
    + tile('Wind-weighted refusal', fmt(100*(ww.frac_refused||0),1)+' %',
           int(ww.n_hours)+' real '+stationName()+' hours');
-  $('#dialnote').innerHTML = k.bank==='facing'
-    ? '<span class="warn">This is the <strong>sensitivity</strong> placement — a 50 m end wall, '
-      +'which no condenser bank actually occupies. The solver refuses <strong>36 of 36 downwind '
-      +'bearings</strong> here, so the agent falls back to mechanical and loses hours by '
-      +'construction. That is the refusal guard working, and it is why this mode is never the headline.</span>'
-    : '<span class="ok">The realistic placement — a 123 m facade. The path is clear on every '
-      +'bearing, so the solver never has to refuse. The worst case is '
+  /* 🔴 THE FACADE LENGTHS WERE LITERALS AND WRONG ON EVERY SITE. This read "a 50 m end wall" and
+     "a 123 m facade" for whatever site was loaded. Measured 2026-08-24, the real `longest` facades
+     are 162.5 m (Ashburn), 200.0 (Chicago), 293.8 (Dulles) and 337.5 (the first national facility)
+     — so 123 m matched none of them, not even the site it was presumably typed from, and "50 m end
+     wall" was Ashburn's BANK length relabelled as a wall. `agent.py` now publishes
+     `facade_length_m` per mode in the trace, derived from the rasterised bank area, so this prints
+     a measurement. Sixth instance of gotcha #67. */
+  const geo = (T.site.geometry||{})[k.bank] || {};
+  const facLen = geo.facade_length_m;
+  const facTxt = facLen ? fmt(facLen,0)+' m' : 'this site’s own';
+  const nRef = md.n_refused, nDw = md.n_downwind;
+  $('#dialnote').innerHTML = !md.worst
+    ? '<span class="warn">No plume was solved at this facility: there is no other tagged data '
+      +'centre inside the solver’s validated range, so there is no neighbour intake for a rise '
+      +'to be computed at. Recirculation is <strong>not modelled</strong> here — a statement about '
+      +'the model’s domain, not a claim that it is zero. The dial is flat because nothing was '
+      +'computed, not because every bearing was found safe.</span>'
+    : k.bank==='facing'
+    ? '<span class="warn">This is the <strong>sensitivity</strong> placement — a '+facTxt+' end '
+      +'wall, which no condenser bank actually occupies. The solver refuses <strong>'+int(nRef)
+      +' of '+int(nDw)+' downwind bearings</strong> here, so the agent falls back to mechanical and '
+      +'loses hours by construction. That is the refusal guard working, and it is why this mode is '
+      +'never the headline.</span>'
+    : '<span class="ok">The realistic placement — a '+facTxt+' facade. '
+      +(nRef===0 ? 'The path is clear on every bearing, so the solver never has to refuse. '
+                 : 'The solver refuses '+int(nRef)+' of '+int(nDw)+' downwind bearings here. ')
+      +'The worst case is '
       +fmt(md.worst.rise_c,4)+' °C, which is <strong>below the 0.5556 °C resolution</strong> of the '
       +'weather station any of this would be validated against — real physics, small here, and said so.</span>';
   $('#dtable').innerHTML='<tr><th>Bearing</th><th>Downwind</th><th>Refused</th><th>Rise °C</th></tr>'
@@ -2003,7 +2301,12 @@ function buildImageryOptions(){
 function drawAerial(){
   const c = $('#aerial'), g = c.getContext('2d');
   const im = aerialImagery();
-  if(!im || !im.bbox || !im.source_latlon || !im.receptor_latlon){
+  /* `receptor_latlon` IS NO LONGER REQUIRED. A facility with no tagged neighbour has one building,
+     so there is no receptor to georeference -- and demanding one kept its aerial panel permanently
+     blank while the frame, the footprint and the condenser bank were all real and available. The
+     source anchor alone is in fact MORE accurate than the two-centre midpoint this used to use
+     (see the anchor comment below), not less. */
+  if(!im || !im.bbox || !im.source_latlon){
     g.clearRect(0,0,c.width,c.height);
     g.fillStyle = cssv('--muted'); g.font = '13px system-ui';
     g.fillText('No georeferenced screening frame for this site’s committed pair.', 12, 24);
@@ -2041,10 +2344,20 @@ function drawAerial(){
   const geo = T.site.geometry[cfg().bank];
   const ctr = T.site.centre;
   const mLat = 111320, mLon = 111320*Math.cos(ctr[0]*Math.PI/180);
+  /* THE ANCHOR, AND WHY THE ONE-BUILDING CASE IS NOT A DEGRADED VERSION OF IT.
+     With two buildings this pins solver-metres to lat/lon at the MIDPOINT of the two centroids --
+     documented above as an approximation of a few metres. With one building it pins at that
+     building's own centroid, which is exact for that building and is the same per-building anchor
+     `annotate_screen.ring_latlon` uses.
+     🔴 THIS BLOCK CRASHED THE WHOLE RESULTS PAGE for a facility with no receptor:
+     `(sC[0]+rC[0])/2` on a null `receptor_centre_m` throws, `drawAll()` has no try/catch, and the
+     eleven panels after this one never render. Exactly the failure the wind dial had two hours
+     earlier, in a different function, for the same reason. */
   const sC = geo.source_centre_m, rC = geo.receptor_centre_m;
-  const midM = [(sC[0]+rC[0])/2, (sC[1]+rC[1])/2];
   const OSM_SRC = im.source_latlon, OSM_REC = im.receptor_latlon;
-  const midL = [(OSM_SRC[0]+OSM_REC[0])/2, (OSM_SRC[1]+OSM_REC[1])/2];
+  const paired = !!(rC && OSM_REC);
+  const midM = paired ? [(sC[0]+rC[0])/2, (sC[1]+rC[1])/2] : sC;
+  const midL = paired ? [(OSM_SRC[0]+OSM_REC[0])/2, (OSM_SRC[1]+OSM_REC[1])/2] : OSM_SRC;
   const M2LL = (xm,ym) => [ midL[0] + (ym-midM[1])/mLat, midL[1] + (xm-midM[0])/mLon ];
   const ringPx = r => r.map(pt => { const ll = M2LL(pt[0], pt[1]); return PX(ll[1], ll[0]); });
 
@@ -2057,15 +2370,26 @@ function drawAerial(){
     g.strokeStyle = stroke; g.lineWidth = 2; g.stroke();
   }
   poly(ringPx(geo.source_ring_m),   cssv('--series-2'), 'rgba(235,104,52,0.14)');
-  poly(ringPx(geo.receptor_ring_m), cssv('--series-1'), 'rgba(42,120,214,0.14)');
+  /* The receptor hall and the intake disc are DRAWN ONLY IF THEY EXIST. Nothing is substituted for
+     them: a facility with one building has no second footprint and no intake, and inventing either
+     would be drawing geometry that is not there -- the aerial panel's own original defect (#98) in
+     mirror image. The legend below is filtered to match, so it never names a colour that is absent
+     from the picture. */
+  if(geo.receptor_ring_m)
+    poly(ringPx(geo.receptor_ring_m), cssv('--series-1'), 'rgba(42,120,214,0.14)');
+  { const lr = $('#leg_receptor'), li = $('#leg_intake');
+    if(lr) lr.hidden = !geo.receptor_ring_m;
+    if(li) li.hidden = !geo.intake_m; }
   poly(ringPx(geo.bank_ring_m),     cssv('--warning'),  'rgba(250,178,25,0.30)');
 
-  const ill = M2LL(geo.intake_m[0], geo.intake_m[1]);
-  const ip = PX(ill[1], ill[0]);
-  const rpx = Math.abs(geo.intake_radius_m/mLon*(iw/(lo1-lo0)));
-  g.beginPath(); g.arc(ip[0], ip[1], rpx, 0, 7);
-  g.strokeStyle = cssv('--surface-1'); g.lineWidth = 3.5; g.stroke();
-  g.strokeStyle = cssv('--good'); g.lineWidth = 2; g.stroke();
+  if(geo.intake_m){
+    const ill = M2LL(geo.intake_m[0], geo.intake_m[1]);
+    const ip = PX(ill[1], ill[0]);
+    const rpx = Math.abs(geo.intake_radius_m/mLon*(iw/(lo1-lo0)));
+    g.beginPath(); g.arc(ip[0], ip[1], rpx, 0, 7);
+    g.strokeStyle = cssv('--surface-1'); g.lineWidth = 3.5; g.stroke();
+    g.strokeStyle = cssv('--good'); g.lineWidth = 2; g.stroke();
+  }
 
   const a = (dialBearing+180-90)*Math.PI/180;
   const ax = W-64, ay = 54, ln = 26;
@@ -2147,22 +2471,52 @@ function drawSiteNotes(){
   /* The screen-zero header: tile count and the corridor's own name, both were Ashburn's. The tile
      count is read from the field this site actually has -- and a site with no field of its own
      must say so instead of quoting Ashburn's 17,862. */
+  /* 🔴 THIS PANEL USED TO SHOW ASHBURN'S FIELD ON EVERY SITE, and the note below it said so --
+     which made it labelled rather than fixed. The label was ALSO wrong for Chicago, which has a
+     purchased field of its own that was sitting unused in the fixtures directory while this note
+     told the reader it had none.
+     Now the trace ships only what the site actually owns (agent.py, the `fields` block), so there
+     are three real states and the panel renders whichever is true:
+        pairs     -- a forecast leg AND its elapsed outcome. Ashburn only.
+        observed  -- ONE purchased past window. Real and this site's own, but not a pair, so it
+                     cannot yield a level offset or a coverage record.
+        none      -- nothing purchased. Nothing is drawn. An empty panel is a true statement;
+                     another site's field is not, however carefully it is labelled. */
   const fn = $('#screenzeronote');
   if(fn){
-    const own = SITE && SITE.has_own_fortyguard_field;
     const f = T.fields || {};
-    const k0 = Object.keys(f)[0];
-    const nt = k0 && f[k0] ? Object.keys(f[k0].tiles || f[k0] || {}).length : 0;
-    fn.innerHTML = own
-      ? 'One <code>/v1/heatmap</code> call returns <strong>' + int(nt) + ' tiles</strong> over '
-        + '8×8 km of the ' + (SITE.label || '') + ' data-centre corridor at 2 m. This is the '
-        + 'forecast leg and its elapsed outcome for the same window, same tiles, same plane.'
-      : '<span class="warn"><strong>This site has no FortyGuard field of its own.</strong> '
-        + (SITE ? SITE.label : '') + ' was committed on geometry and its own five-year station '
-        + 'record; no <code>/v1/heatmap</code> call was purchased for it. The field shown below is '
-        + '<strong>Ashburn’s</strong>, displayed so the method is visible — it is NOT '
-        + 'this site’s measurement, and no number on this page is derived from it.</span>';
+    const keys = Object.keys(f);
+    const k0 = keys[0];
+    const nt = (k0 && f[k0] && f[k0].n_tiles) || 0;
+    const pairs = keys.some(k => k.endsWith('_forecast'));
+    const observed = keys.includes('observed_past_window');
+    const label = (SITE && SITE.label) || '';
+    if(pairs){
+      fn.innerHTML = 'One <code>/v1/heatmap</code> call returns <strong>' + int(nt) + ' tiles</strong>'
+        + ' over 8×8 km of the ' + label + ' data-centre corridor at 2 m. This is the '
+        + 'forecast leg and its elapsed outcome for the same window, same tiles, same plane — '
+        + '<strong>' + (keys.length / 2) + ' measured day-pairs</strong>, this site’s own.';
+    } else if(observed){
+      fn.innerHTML = 'One <code>/v1/heatmap</code> call over 8×8 km of ' + label + ' at 2 m, '
+        + '<strong>' + int(nt) + ' tiles</strong> — <strong>this site’s own field</strong>, '
+        + 'purchased for it. ⚠ It is <strong>one past window, not a day-pair</strong>: there is no '
+        + 'forecast leg beside it, so it shows what FortyGuard resolves here and it cannot produce '
+        + 'a level offset or a coverage figure. Those need a forecast and its elapsed outcome — '
+        + 'two more calls, and the coverage tile on this page is still Ashburn’s.';
+    } else {
+      fn.innerHTML = '<span class="warn"><strong>No FortyGuard field was purchased for ' + label
+        + ', so none is shown.</strong> This site was committed on its own OpenStreetMap '
+        + 'footprints and its own five-year station record, and every hours figure on this page is '
+        + 'its own. What is missing is a 4,220-credit <code>/v1/heatmap</code> call. Ashburn’s '
+        + 'field is deliberately <em>not</em> displayed here: borrowing another site’s '
+        + 'measurement to fill a panel is what this project refuses to do.</span>';
+    }
   }
+  /* The field selector and its canvas go with it: no field, no empty dropdown to click. */
+  const fwrap = $('#c_field') && $('#c_field').closest('label, .ctl, div');
+  const hasField = Object.keys(T.fields || {}).length > 0;
+  if($('#c_field')) $('#c_field').disabled = !hasField;
+  if(fwrap && fwrap.id !== 'sidebar') fwrap.style.opacity = hasField ? '' : '0.45';
 }
 
 /* ---------- THE LIVE AGENT, from the browser ----------------------------------------------
@@ -2379,6 +2733,66 @@ function drawLive(L){
     $('#livemsg').innerHTML = '<span class="warn"><strong>PARTIAL HORIZON.</strong> '
       + (L.operator_message||'') + '</span>';
   }
+
+  /* WHERE EACH GATE'S DATA CAME FROM. Added 2026-08-23 with E2, and it exists because the
+     integration was otherwise INVISIBLE: the agent had started gating humidity on FortyGuard's own
+     wet-bulb and evaluating their air-quality indices, and the page still said nothing, so a reader
+     would have gone on believing the live card perceived one FortyGuard number.
+     It also carries the two honest qualifications with the numbers rather than away from them: the
+     wet-bulb/dew-point substitution is STRICTER not looser, and the air-quality index has no
+     documented units so no limit is applied unless someone sets one. */
+  const envEl = $('#liveenv');
+  if(envEl){
+    const fe = L.fortyguard_env || {}, hs = L.humidity_source_summary || {}, aq = L.air_quality || {};
+    if(!fe.class || fe.class === 'not_attempted'){
+      envEl.innerHTML = '<span class="muted">Humidity from NWS; no FortyGuard environmental data '
+        + 'was available for this run' + (fe.why ? ' (' + fe.why + ')' : '') + '.</span>';
+    } else if(hs.fortyguard_hours){
+      const al = fe.alignment || {};
+      const saved = fe.mode === 'saved';
+      /* SAVED AND LIVE ARE BOTH FORTYGUARD, and the card says which without implying the saved one
+         is a lesser thing: the heatmap beside it is replayed on exactly the same basis, and N-55
+         showed a refetched window is byte-identical. What it must never do is let a reader think a
+         replayed number was fetched just now. */
+      let s2 = '<strong>Every gate FortyGuard supplies, on FortyGuard data.</strong> Humidity for '
+        + '<strong>' + int(hs.fortyguard_hours) + ' of '
+        + int(hs.fortyguard_hours + (hs.nws_hours||0)) + ' hour(s)</strong> came from '
+        + '<code>env_params</code> — ' + int(fe.n_fields) + ' fields × ' + int(fe.n_hours)
+        + ' hours, '
+        + (saved ? '<strong>replayed from a saved response</strong> (' + (fe.fixture||'') + '), '
+                 + '0 credits — the same basis as the heatmap beside it'
+                 : '<strong>fetched live</strong> for ' + int(fe.credits) + ' credits, one call '
+                 + 'covering the whole day')
+        + '. Wind is NWS in both modes, because FortyGuard publishes no wind field. '
+        + '<span class="muted">' + (hs.note || '') + '</span>';
+      if(saved && fe.same_day === false && fe.note){
+        s2 += '<br><span class="warn">' + fe.note + '</span>';
+      }
+      if(aq.source && aq.hours_with_a_value){
+        s2 += '<br><strong>Contamination:</strong> FortyGuard’s PM2.5 index for '
+          + int(aq.hours_with_a_value) + ' hour(s)'
+          + (aq.limit_idx === null || aq.limit_idx === undefined
+             ? ', <strong>no limit applied</strong> — ' + (aq.units_note || '')
+             : ', limit ' + fmt(aq.limit_idx,1) + ', <strong>' + int(aq.hours_blocked)
+               + ' hour(s) blocked</strong>');
+      }
+      /* THE ALIGNMENT, INCLUDING WHEN IT IS NOT ACTED ON. Their array is stamped GMT-5 with no
+         daylight saving, so "hour 14" may not be 14:00 local. The lag is MEASURED against the free
+         NWS series and applied only when the evidence carries it. */
+      if(al.lag_hours !== null && al.lag_hours !== undefined){
+        s2 += '<br><span class="' + (al.applied_lag_hours ? 'muted' : 'warn') + '">'
+          + 'Hour alignment measured against NWS: <strong>' + (al.lag_hours>0?'+':'')
+          + int(al.lag_hours) + ' h</strong> over ' + int(al.n_pairs) + ' overlapping hour(s), '
+          + (al.applied_lag_hours ? 'applied.' : 'NOT applied — ' + (al.unresolved || ''))
+          + '</span>';
+      }
+      envEl.innerHTML = s2;
+    } else {
+      envEl.innerHTML = '<span class="warn">FortyGuard <code>env_params</code> returned '
+        + fe.class + ', so humidity fell back to NWS for every hour. '
+        + int(fe.credits) + ' credits.</span>';
+    }
+  }
   $('#livetiles').innerHTML =
       tile('Free cooling, next ' + int(L.horizon_h) + ' h', s.free_cooling_hours + ' h',
            'of ' + s.of_hours + ', with ' + s.mode_changes + ' mode change(s)')
@@ -2565,72 +2979,371 @@ function loadScript(src, timeout){
   });
 }
 function mapFallback(why){
-  const c=$('#mapcard'); if(!c) return;
-  const m=$('#map'); if(m) m.remove();
-  $('#mapnote').innerHTML = `<span class="warn"><strong>Map not shown — ${why}.</strong>
+  const c=$('#natmapcard'); if(!c) return;
+  const m=$('#natmap'); if(m) m.remove();
+  $('#natmapnote').innerHTML = `<span class="warn"><strong>Map not shown — ${why}.</strong>
     This is the only panel on the page that needs the network; everything else replays saved files,
-    so nothing else is affected. The sites and their verdicts are listed below instead.</span>`
-    + (SITES ? '<br><br>' + SITES.sites.map(s=>
-        `<strong>${s.label}</strong> — ${s.offerable ? 'RUNNING' : 'REFUSED: '+s.scope_verdict}
-         · station ${s.station} · ${int(s.weather_hours||0)} h`).join('<br>') : '');
+    so nothing else is affected.</span>`;
 }
-async function drawMap(){
-  if(!SITES){ mapFallback('sites.json did not load'); return; }
+
+/* ---------- ONE map, every real site ----------
+   Merged 2026-08-24 at the user's explicit instruction: this used to be two maps, one for the 3
+   running + 2 refused hand-built metros and one for the other ~419 national candidates. All of
+   them are real, OSM-tagged locations from ONE registry (src/export_unified_map.py cross-
+   references by OSM id, so the 5 known metros are never double-counted), so they belong on ONE
+   map. Rendered as a GeoJSON circle layer, not one DOM marker per point -- fine at 3-5 markers,
+   not at hundreds.
+
+   COLOUR IS "CAN I RUN THE AGENT ON IT TODAY": exactly what the user asked for -- the 3 sites with
+   a full agent run and a purchased FortyGuard field get their OWN colour (the project's reserved
+   `--good`), because that is the single fact that changes what a click DOES. Everything else is
+   real and shown, but shares one neutral colour -- their finer status (isolated / refused on
+   geometry / refused by imagery / not yet screened) is real text on hover and click, not a further
+   colour split nobody asked for. Category (campus / pair / standalone) rides on marker RADIUS, a
+   secondary encoding, so it never competes with the one colour distinction that was requested. */
+const UNIFIED_STATUS_COLOR = {fully_built: 'var(--good)'};      // everything else uses --muted
+const UNIFIED_CATEGORY_RADIUS = {cluster: 8, pair: 6, single: 4};
+const UNIFIED_CATEGORY_LABEL = {
+  cluster: 'multi-building campus', pair: 'exact source → receptor pair',
+  single: 'standalone, no tagged neighbour'};
+const UNIFIED_STATUS_LABEL = {
+  fully_built: 'Running now — click to load its own agent run.',
+  refused_known: null, refused_geometry: null,
+  isolated: null, not_yet_screened: null};   // these four print their own real `detail` text instead
+
+/* ---- THE HOVER READOUT: "which data centre am I pointing at" ----------------------------------
+   Reads the FULL registry row out of NATBYKEY, so it can name every operator rather than the first
+   four the feature carries. Every field it prints is real and already in unified_sites.json; where
+   a field does not exist yet (a weather station, an imagery verdict, a FortyGuard field) it prints
+   NOTHING rather than a placeholder, because a dash that looks like a measurement is worse than an
+   absent row -- and those fields arrive per-facility in a later stage, at which point this function
+   picks them up without being touched.
+
+   `siteIsRunnable()` is deliberately derived from the MANIFEST, not from the map's status string:
+   `sites.json` is the only thing allowed to decide what is offerable (metros.export_manifest), and
+   keying on it means that when more facilities are built the click routes them to their own agent
+   run automatically instead of needing this branch edited again. */
+const NATSIDE_REST = 'Hover any point on the map to see exactly which data centre it is.';
+
+/* ---- SEARCH: name a facility instead of hunting for it on the map ---------------------------
+   Reads `US.sites` -- the SAME parsed `unified_sites.json` the map draws -- so the two surfaces
+   cannot disagree about what exists or about which sites are runnable.
+
+   DELIBERATELY NOT NAMED `draw*` AND NOT CALLED FROM `drawAll()`. audit.py check 6d derives its
+   panel list by regexing `draw[A-Za-z]\w*\(` out of `drawAll()`'s body and then requires each one
+   to read a per-site global; these functions are pick-stage chrome that reads the NATIONAL registry,
+   so putting them in that set would mean declaring an exception instead of simply not being one.
+
+   NO LITERALS OF ANY SITE'S OWN DATA. audit.py check 6d part 4 scans the inline script for any
+   site's OSM id, its 6-dp coordinates, its imagery bbox or its station code, over all six sites
+   including the refused ones. Everything below is looked up from `US` / `SITES` at runtime. */
+let SEARCH_HITS = [], searchNavigating = false;
+
+function searchIndexReady(){ return !!(US && US.sites && US.sites.length); }
+
+function searchMatch(q){
+  /* Ranked, not merely filtered: a reader typing "apple" wants the facility CALLED Apple above one
+     merely operated by a company whose name contains it. Name hits outrank operator hits, and a
+     prefix outranks a substring, so the obvious answer is first without a scoring framework. */
+  const t = q.trim().toLowerCase();
+  if(t.length < 2) return [];
+  const out = [];
+  for(const s of US.sites){
+    const names = (s.sample_names || []).filter(Boolean);
+    const ops   = (s.operators || []).filter(Boolean);
+    const label = s.label || '';
+    let score = 0;
+    const hitAny = (arr, base) => {
+      for(const v of arr){
+        const lv = String(v).toLowerCase();
+        if(lv.startsWith(t)) { score = Math.max(score, base + 2); }
+        else if(lv.indexOf(t) >= 0) { score = Math.max(score, base + 1); }
+      }
+    };
+    hitAny(names, 40);
+    hitAny([label], 40);
+    hitAny(ops, 20);
+    if(String(s.state || '').toLowerCase() === t) score = Math.max(score, 12);
+    if(String(s.key || '').toLowerCase().indexOf(t) >= 0) score = Math.max(score, 6);
+    if(score) out.push([score, s]);
+  }
+  /* Runnable sites float to the top within a score band: a reader searching a name almost always
+     wants the one they can actually open. Ties then fall back to name so the order is stable
+     between keystrokes rather than depending on object order. */
+  out.sort((a,b) => (b[0]-a[0])
+    || (siteIsRunnable(b[1].metro_key) - siteIsRunnable(a[1].metro_key))
+    || String((a[1].sample_names||[])[0] || a[1].key)
+         .localeCompare(String((b[1].sample_names||[])[0] || b[1].key)));
+  return out.slice(0, 40).map(r => r[1]);
+}
+
+const SEARCH_STATUS_WORD = {
+  fully_built:'running now', built_national:'running now', refused_known:'refused on evidence',
+  standalone:'not built yet', paired_clear:'not built yet', paired_advisory:'not built yet',
+  boundary_only:'no building outline mapped', below_model_scale:'below model scale'};
+
+function searchRender(){
+  const box = $('#searchresults'), note = $('#searchnote');
+  if(!box) return;
+  const q = ($('#sitesearch') || {}).value || '';
+  if(!searchIndexReady()){
+    box.innerHTML = '';
+    if(note) note.innerHTML = '<span class="warn">The registry has not loaded, so search cannot '
+      + 'run. It reads the same file as the map; if the map below also failed, that is why.</span>';
+    return;
+  }
+  if(q.trim().length < 2){
+    box.innerHTML = ''; SEARCH_HITS = [];
+    if(note) note.textContent = 'Type at least two characters.';
+    return;
+  }
+  SEARCH_HITS = searchMatch(q);
+  if(!SEARCH_HITS.length){
+    box.innerHTML = '';
+    if(note) note.textContent = 'No facility matches “' + q + '”.';
+    return;
+  }
+  box.innerHTML = SEARCH_HITS.map((s,i) => {
+    const run = siteIsRunnable(s.metro_key);
+    const nm = (s.label || (s.sample_names||[])[0] || ((s.state||'??') + ' facility'));
+    const ops = (s.operators||[]).filter(Boolean).slice(0,2).join(', ');
+    const word = SEARCH_STATUS_WORD[s.status] || s.status;
+    return '<div class="srchrow" role="option" tabindex="0" data-i="' + i + '"'
+      + (run ? '' : ' aria-disabled="true"') + '>'
+      + '<span><span class="srchname">' + nm + '</span>'
+      + '<span class="srchmeta"> — ' + (s.state||'??')
+      + (ops ? ' · ' + ops : '') + ' · ' + int(s.n_tagged) + ' building'
+      + (s.n_tagged === 1 ? '' : 's') + '</span></span>'
+      + '<span class="pill">' + (run ? 'RUN THE AGENT' : word) + '</span></div>';
+  }).join('');
+  if(note) note.textContent = SEARCH_HITS.length + ' match'
+    + (SEARCH_HITS.length===1?'':'es') + '. Sites marked RUN THE AGENT open their full results; '
+    + 'the rest show their own honest status, and nothing is invented to fill the gap.';
+  box.querySelectorAll('.srchrow').forEach(el => {
+    el.onclick = () => searchOpen(+el.dataset.i);
+    el.onkeydown = ev => { if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault();
+                                                               searchOpen(+el.dataset.i); } };
+  });
+}
+
+async function searchOpen(i){
+  const s = SEARCH_HITS[i]; if(!s) return;
+  /* SAME SEQUENCE AS THE MAP CLICK, and for the same reasons: dispatch `change` so `describeSite()`
+     and `#pickgo.disabled` are not left describing the previous selection, and CHECK the boolean
+     `chooseSite()` returns -- `loadSite()` leaves the previous site's globals intact on a failed
+     fetch, so an unchecked chain renders one site's numbers under another's name.
+     Its own re-entry guard: the map's `navigating` flag lives inside drawUnifiedMap's closure. */
+  if(!siteIsRunnable(s.metro_key)){ showSiteStatus({
+      key:s.key, state:s.state, category:s.category, status:s.status, n_tagged:s.n_tagged,
+      detail:s.detail, metro_key:s.metro_key, label:s.label,
+      operators:(s.operators||[]).slice(0,4).join(', ') || '—',
+      names:(s.sample_names||[]).slice(0,3).join(', ') || (s.label || '—')}); return; }
+  if(searchNavigating) return;
+  searchNavigating = true;
   try{
-    const css=document.createElement('link');
-    css.rel='stylesheet'; css.href=MAPLIBRE_CSS; document.head.appendChild(css);
-    await loadScript(MAPLIBRE_JS, MAP_TIMEOUT_MS);
+    const sel = $('#c_site');
+    if(sel){ sel.value = s.metro_key; sel.dispatchEvent(new Event('change')); }
+    if(await chooseSite()) await runAgent();
+  } finally { searchNavigating = false; }
+}
+
+function searchWire(){
+  const inp = $('#sitesearch'); if(!inp) return;
+  inp.oninput = searchRender;
+  const clr = $('#searchclear');
+  if(clr) clr.onclick = () => { inp.value=''; searchRender(); inp.focus(); };
+  const intro = $('#searchintro');
+  if(intro && searchIndexReady()){
+    const n = US.sites.length;
+    const runnable = US.sites.filter(x => siteIsRunnable(x.metro_key)).length;
+    intro.innerHTML = 'Search all <strong>' + int(n) + '</strong> real, OSM-tagged facilities this '
+      + 'project has found. <strong>' + int(runnable) + '</strong> have a full agent run behind '
+      + 'them today; the rest show their own real status. This is the same registry the map below '
+      + 'draws, so the two can never disagree about what exists.';
+  }
+  searchRender();
+}
+
+function siteIsRunnable(metroKey){
+  return !!(metroKey && SITES && SITES.sites
+            && SITES.sites.some(x => x.key === metroKey && x.offerable));
+}
+
+function natReadout(key){
+  const el = $('#natsidebody'); if(!el) return;
+  const s = (key && NATBYKEY) ? NATBYKEY[key] : null;
+  if(!s){
+    el.innerHTML = '<p class="note muted" style="margin:0">' + NATSIDE_REST + '</p>';
+    return;
+  }
+  const names = (s.sample_names || []).filter(Boolean);
+  const ops   = (s.operators || []).filter(Boolean);
+  const title = s.label || names[0] || ((s.state || '??') + ' site');
+  const cat   = UNIFIED_CATEGORY_LABEL[s.category] || s.category || '—';
+  const run   = siteIsRunnable(s.metro_key);
+  const rows  = [];
+
+  rows.push(['Where', (s.state || '??') + ' · ' + fmt(s.centre[0], 4) + ', ' + fmt(s.centre[1], 4)]);
+  rows.push(['Shape', cat + ' · ' + int(s.n_tagged) + ' OSM-tagged building'
+             + (s.n_tagged === 1 ? '' : 's')]);
+  if(ops.length) rows.push(['Operator' + (ops.length > 1 ? 's' : ''), ops.join(', ')]);
+  // The other names only when there is more than one, and never repeating the title.
+  const others = names.filter(n => n !== title);
+  if(others.length) rows.push(['Buildings', others.join(', ')]);
+  rows.push(['Status', s.detail || '—']);
+
+  el.innerHTML = '<h3>' + title + '</h3><dl>'
+    + rows.map(([k, v]) => '<dt>' + k + '</dt><dd>' + v + '</dd>').join('')
+    + '</dl><p class="note" style="margin:12px 0 0">'
+    + (run ? '<strong class="ok">Click to run the agent on this site.</strong>'
+           : '<span class="muted">Click for this site’s own status. '
+             + 'No agent run is published for it, and none is invented.</span>')
+    + '</p>';
+}
+
+function showSiteStatus(p){
+  $('#natmapcard').hidden = true;
+  $('#sitestatuscard').hidden = false;
+  const cat = UNIFIED_CATEGORY_LABEL[p.category] || p.category;
+  $('#sitestatustitle').textContent = (p.names && p.names !== '—') ? p.names : (p.state + ' site');
+  $('#sitestatusbody').innerHTML = `<strong>${p.state}</strong> · ${cat} ·
+    ${int(p.n_tagged)} tagged building(s)${p.operators!=='—' ? ' · '+p.operators : ''}<br><br>
+    ${p.detail}<br><br>
+    <span class="thin">This is a real, OSM-tagged location. It has not yet been through weather,
+    imagery or a FortyGuard-field purchase, so nothing here is invented to fill that gap — the
+    agent cannot run on it today for the reason stated above.</span>`;
+}
+
+async function drawUnifiedMap(){
+  // `US` and `NATBYKEY` are the module-scope globals declared beside the per-site ones, not locals:
+  // the hover readout runs from the map's own event handlers and needs the whole row.
+  natReadout(null);                       // resting message, before anything can be hovered
+  try{ const r = await fetch('unified_sites.json'); if(!r.ok) throw new Error('HTTP '+r.status);
+    US = await r.json(); }
+  catch(e){ mapFallback('unified_sites.json did not load ('+e.message+')'); return; }
+  NATBYKEY = Object.fromEntries(US.sites.map(s => [s.key, s]));
+  /* WIRED HERE, the moment the registry exists -- not in `boot()` and not in `wire()`.
+     `wire()` only runs after a site has been chosen, and the search box has to work BEFORE that;
+     `boot()` runs before this fetch resolves, so a search there would read a null `US`. This is the
+     one point at which the data the search needs is guaranteed present. If the fetch fails, the
+     `mapFallback` above returns first and `searchRender()`'s own not-ready branch explains why
+     search is unavailable rather than leaving an inert box. */
+  searchWire();
+
+  const nBuilt = US.counts.fully_built || 0;
+  $('#natmapintro').innerHTML = `<strong>${int(US.n_sites)} real, OSM-tagged data-centre
+    locations</strong> — crowd-sourced tagging, so this is a <strong>lower bound</strong>, never a
+    market-size claim. <strong style="color:${getCssVar('--good')}">${int(nBuilt)} are running now
+    </strong> with a full agent run and a purchased FortyGuard field; the rest are real candidates
+    at various stages of screening, shown honestly rather than with invented results.`;
+
+  try{
+    if(!window.maplibregl){
+      const css=document.createElement('link');
+      css.rel='stylesheet'; css.href=MAPLIBRE_CSS; document.head.appendChild(css);
+      await loadScript(MAPLIBRE_JS, MAP_TIMEOUT_MS);
+    }
   }catch(e){ mapFallback('the map library could not be fetched ('+e.message+')'); return; }
   if(!window.maplibregl){ mapFallback('the map library loaded but did not initialise'); return; }
+
   let map;
   try{
+    // Assigned to the global NATMAP as well, at the end of this try, so a later stage can reach the
+    // handle without re-creating a second Map into the same container (which is a real defect --
+    // see boot()'s comment).
     map = new maplibregl.Map({
-      container:'map', attributionControl:{compact:true},
+      container:'natmap', attributionControl:{compact:true},
       style:{ version:8,
         sources:{ osm:{ type:'raster', tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
                         tileSize:256,
                         attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' } },
         layers:[{id:'osm', type:'raster', source:'osm'}] },
-      center:[-96, 39], zoom:3.1
+      center:[-96, 39], zoom:3.4
     });
   }catch(e){ mapFallback('the map failed to start ('+e.message+')'); return; }
   map.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-right');
   let tileErrors=0;
   map.on('error', ()=>{ if(++tileErrors===1)
-    $('#mapnote').innerHTML='<span class="warn">Some map tiles failed to load. The physics '
+    $('#natmapnote').innerHTML='<span class="warn">Some map tiles failed to load. The physics '
       +'panels are unaffected — they read saved files.</span>'; });
 
-  const bounds=new maplibregl.LngLatBounds();
-  for(const s of SITES.sites){
-    const c=s.committed; if(!c || !c.source_latlon) continue;
-    const [la,lo]=c.source_latlon;
-    bounds.extend([lo,la]);
-    const el=document.createElement('div');
-    el.style.cssText='width:16px;height:16px;border-radius:50%;border:2px solid #fff;cursor:'
-      +(s.offerable?'pointer':'not-allowed')+';box-shadow:0 1px 5px rgba(0,0,0,.4);background:'
-      +(s.offerable?'#0ca30c':'#d03b3b');
-    const pair=(c.source_name||c.source_osm_id)+' → '+(c.receptor_name||c.receptor_osm_id);
-    const html = s.offerable
-      ? `<strong>${s.label}</strong><br>${pair}<br>gap ${fmt(c.facade_gap_m,1)} m ·
-         station ${s.station}<br>${int(s.weather_hours)} h of weather,
-         ${fmt(100*s.weather_coverage,2)} % complete<br>
-         FortyGuard field: ${s.fortyguard_field ? 'purchased' : 'not purchased'}<br>
-         <em>click the marker to load this site above</em>`
-      : `<strong>${s.label}</strong><br>${pair}<br>
-         <strong style="color:#d03b3b">REFUSED — ${s.scope_verdict}</strong><br>
-         ${s.not_offerable_because||''}`;
-    const mk=new maplibregl.Marker({element:el}).setLngLat([lo,la])
-      .setPopup(new maplibregl.Popup({offset:14, maxWidth:'300px'}).setHTML(html)).addTo(map);
-    if(s.offerable) el.onclick=async()=>{
-      await loadSite(s.key); const sel=$('#c_site'); if(sel) sel.value=s.key;
-      drawPlume(); $('#plume').scrollIntoView({behavior:'smooth', block:'center'});
-    };
-  }
-  map.on('load', ()=>{ try{ map.fitBounds(bounds, {padding:70, maxZoom:9, duration:0}); }catch(e){} });
-  const n=SITES.sites.filter(s=>s.offerable).length;
-  $('#mapnote').innerHTML = `<strong>${n} running, ${SITES.sites.length-n} refused.</strong>
-    ${SITES.screening_note} Tiles © OpenStreetMap contributors; this is the only panel that fetches
-    anything at view time.`;
+  const features = US.sites.map(s=>({
+    type:'Feature', geometry:{type:'Point', coordinates:[s.centre[1], s.centre[0]]},
+    properties:{key:s.key, state:s.state||'??', category:s.category, status:s.status,
+                n_tagged:s.n_tagged, detail:s.detail, metro_key:s.metro_key, label:s.label,
+                operators:(s.operators||[]).slice(0,4).join(', ') || '—',
+                names:(s.sample_names||[]).slice(0,3).join(', ') || (s.label || '—')}}));
+
+  map.on('load', ()=>{
+    map.addSource('unisites', {type:'geojson', data:{type:'FeatureCollection', features}});
+    map.addLayer({
+      id:'unisites-circles', type:'circle', source:'unisites',
+      paint:{
+        'circle-radius':['match', ['get','category'],
+          'cluster', UNIFIED_CATEGORY_RADIUS.cluster,
+          'pair', UNIFIED_CATEGORY_RADIUS.pair,
+          UNIFIED_CATEGORY_RADIUS.single],
+        'circle-color':['match', ['get','status'],
+          'fully_built', getCssVar('--good'),
+          getCssVar('--muted')],
+        'circle-stroke-width':['match', ['get','status'], 'fully_built', 2, 1],
+        'circle-stroke-color':getCssVar('--surface-1'),
+        'circle-opacity':0.9,
+      }
+    });
+    const bounds=new maplibregl.LngLatBounds();
+    for(const f of features) bounds.extend(f.geometry.coordinates);
+    try{ map.fitBounds(bounds, {padding:40, maxZoom:5, duration:0}); }catch(e){}
+
+    /* HOVER names the facility in the side column; CLICK navigates. Two different jobs, so two
+       different surfaces -- the readout can carry five labelled rows, which a cursor-following
+       popup cannot without covering the map it is describing.
+       `mousemove` rather than `mouseenter` because MapLibre fires enter once per LAYER, not per
+       feature, so moving from one dot straight to another would leave the first one's text up. */
+    map.on('mousemove', 'unisites-circles', (ev)=>{
+      map.getCanvas().style.cursor='pointer';
+      natReadout(ev.features[0].properties.key);
+    });
+    map.on('mouseleave', 'unisites-circles', ()=>{
+      map.getCanvas().style.cursor='';
+      natReadout(null);                   // back to the resting message, never blank
+    });
+
+    /* CLICK. Two things this must get right, both of which the first version did not:
+       1. DISPATCH `change`. Setting `sel.value` alone leaves `describeSite()` and `#pickgo.disabled`
+          describing whatever was selected before, because boot() wires the behaviour to the event.
+       2. AWAIT, and check. `chooseSite()` returns false when a site has no built artefacts, and
+          running the agent on a site that failed to load would put an empty results screen on
+          screen under that site's name -- the exact class of thing this project refuses to do. */
+    let navigating = false;
+    map.on('click', 'unisites-circles', async (ev)=>{
+      const p = ev.features[0].properties;
+      if(!siteIsRunnable(p.metro_key)){ showSiteStatus(p); return; }
+      if(navigating) return;              // a double-click would otherwise run two loadSite()s
+      navigating = true;
+      try{
+        const sel = $('#c_site');
+        if(sel){ sel.value = p.metro_key; sel.dispatchEvent(new Event('change')); }
+        if(await chooseSite()) await runAgent();
+      } finally { navigating = false; }
+    });
+  });
+  NATMAP = map;
+
+  $('#natmapnote').innerHTML = `<span style="display:inline-flex;align-items:center;gap:5px">
+      <span style="width:10px;height:10px;border-radius:50%;background:${getCssVar('--good')}"></span>
+      running now, click to load</span>
+    &nbsp;&nbsp;
+    <span style="display:inline-flex;align-items:center;gap:5px">
+      <span style="width:10px;height:10px;border-radius:50%;background:${getCssVar('--muted')}"></span>
+      real candidate, not yet built — click for its own status</span><br>
+    Marker size is the site's category: larger = multi-building campus, smaller = standalone.
+    Hover any point and the column beside the map names that exact data centre — its operators, its
+    buildings, its coordinates and its real status. Tiles © OpenStreetMap contributors;
+    this is the only panel that fetches anything at view time.`;
+}
+function getCssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
 }
 
 /* ---------- the site picker ----------
@@ -2655,6 +3368,21 @@ async function loadSite(key){
     j(s.plume_field_file)]);
   if(!t) return false;
   T=t; BT=bt; RL=rl; MN=mn; TK=tk; EX=ex; PF=pf; SITE=s;
+
+  /* 🔴 THE WIND DIAL OPENED ON ASHBURN'S CRITICAL BEARING FOR EVERY SITE. `dialBearing` was
+     initialised to the literal 255 -- Ashburn's worst direction -- and nothing reset it on a site
+     change, so Chicago (worst 240°) and Dulles (worst 265°) both opened their dial, their plume
+     render and their aerial overlay pointing at Virginia's answer. The underlying rise tables were
+     always per-site and correct; the VIEW was showing every site the same starting direction, which
+     is exactly what makes three sites look like one site relabelled.
+     It is now READ from this site's own solved table. And it is not merely per-site, it is the
+     INFORMATIVE default: the bearing where this site's recirculation is worst, which is the one a
+     reader should be looking at first. Same rule as the hour tape's tightest-hour default and the
+     PDF's block selection -- a default is a choice, so compute it rather than take it (gotcha #79). */
+  const rt = t.cycle && t.cycle.rise_tables && t.cycle.rise_tables.longest;
+  if(rt && typeof rt.max_rise_bearing === 'number'){
+    dialBearing = ((Math.round(rt.max_rise_bearing/5)*5)%360+360)%360;
+  }
   return true;
 }
 function buildSitePicker(){
@@ -2680,9 +3408,19 @@ function buildSitePicker(){
 function drawPlume(){
   const c=$('#plume'), g=c.getContext('2d');
   g.clearRect(0,0,c.width,c.height);
-  if(!PF){ g.fillStyle=cssv('--muted'); g.font='13px system-ui';
-    g.fillText('plume_field_*.json not loaded — run: python src/export_plume_fields.py --all', 10, 22);
-    $('#plumetiles').innerHTML=''; $('#plumenote').innerHTML=''; return; }
+  /* TWO REASONS THIS CARD CAN BE EMPTY, AND THEY MUST NOT READ THE SAME.
+     No plume was solved (a standalone facility -- a measurement) versus the solved field file
+     failing to load (a build or serving fault). The old message asserted the second on every
+     occurrence of the first, telling a reader to run an export for a site where there is nothing
+     to export. Same distinction drawField() already drew for the FortyGuard field. */
+  if(!plumeModelled()){ cardSetAbsent('plumecard', 'plumeabsent', plumeReason()); return; }
+  if(!PF){
+    cardSetAbsent('plumecard', 'plumeabsent',
+      '<span class="err">This facility’s plume WAS solved, but its rendered field file did not '
+      + 'load. Run <code>python src/export_plume_fields.py --all</code>, and serve this page over '
+      + 'http rather than <code>file://</code>.</span>');
+    return; }
+  cardSetPresent('plumecard', 'plumeabsent');
   const R=PF.rows, C=PF.cols, dx=PF.dx_m, q=PF.quantisation.scale_c_per_byte;
   const ox=PF.origin_m[0], oy=PF.origin_m[1];
   /* one scale for both axes so the geometry is not distorted -- a stretched site would make the
@@ -2877,12 +3615,28 @@ function drawLadder(){
     is the strongest argument for a level anchor and for ~10 calibration days.`;
   if(B.length===2){
     const w=B[0], wo=B[1];
+    /* 🔴 THIS SENTENCE SAID THE OPPOSITE OF ITS OWN NUMBER UNTIL 2026-08-23. It read "knowing
+       about it COSTS 22.8 h/year" and closed with "Recirculation awareness buys safety, not
+       hours." The value is a difference of two GAINS, so a positive result is a BENEFIT — the
+       prose contradicted the arithmetic it was printing, on screen, for three days after the
+       underlying finding was corrected in backtest.py and HANDOFF (gotcha #97).
+       This is gotcha #56 for the THIRD time: a retraction that reached the code and the documents
+       and not the rendered page. The numbers were always right and always computed; only the words
+       around them were wrong, which is exactly why no check caught it -- `audit.py` re-reads
+       figures, and nothing re-read prose until `check_retracted_claims()` was added alongside this
+       fix. */
+    const plumeGain = w.gain_h_per_year - wo.gain_h_per_year;
     note += `<br><br><strong>What the plume model is actually worth.</strong> Rerunning with the
       plume term removed from the agent's bound but left in the ground truth:
-      knowing about it <strong>costs ${fmt(w.gain_h_per_year-wo.gain_h_per_year,1)} h/year</strong>
+      knowing about it <strong>buys ${fmt(plumeGain,1)} h/year</strong>
       and cuts unsafe declarations from <strong>${fmt(wo.agent_breach_per_1000_free_h,2)}</strong> to
-      <strong>${fmt(w.agent_breach_per_1000_free_h,2)} per 1,000 free-cooling hours</strong>.
-      <strong>Recirculation awareness buys safety, not hours.</strong>`;
+      <strong>${fmt(w.agent_breach_per_1000_free_h,2)} per 1,000 free-cooling hours</strong> —
+      <strong>${fmt(wo.agent_breach_per_1000_free_h/Math.max(1e-9,w.agent_breach_per_1000_free_h),1)}× fewer</strong>.
+      <strong>Recirculation awareness buys BOTH: more hours and fewer breaches.</strong> The reason
+      is that modelling the rise makes it cancel out of the agent's own residual, so the safety
+      margin only has to cover forecast error — ${fmt(w.agent_margin_mean_c,3)} °C here against
+      ${fmt(wo.agent_margin_mean_c,3)} °C when the quantile has to absorb the plume as if it were
+      noise. It is the margin, not the rise, that costs hours.`;
   }
   if(A.length===3){
     note += `<br><br><strong>And what the headline actually depends on.</strong> At zero notice the
@@ -2928,11 +3682,56 @@ function refusalLimits(){
   }
   return out;
 }
+/* 🔴 TWO OF THESE ENTRIES STATED ASHBURN'S NUMBERS ON EVERY SITE'S PAGE, and one of them was
+   simply wrong for two sites out of three. Found 2026-08-21 by audit check 6d.
+     "Worst case 0.3550 °C = 0.64 of one weather-station grid step" is ASHBURN's worst rise.
+     Chicago's is 0.4108 and Dulles's is 0.3593, and both were being told Ashburn's figure by the
+     one panel on the page whose entire job is honesty.
+   The per-site session fixed twelve panels and this one survived it, for the same reason gotcha #98
+   survived: the sentence was PLAUSIBLE, and a reader cannot tell a hard-coded 0.3550 from a
+   computed one. Gotcha #67 stated the rule already -- "if a sentence states a number, compute the
+   sentence" -- and this is its fifth instance.
+   The coverage entry was hard-coded too. That one was not WRONG (every site's coverage is
+   Ashburn's, borrowed, because only Ashburn has day-pairs -- HANDOFF section 6.13), but a borrowed
+   number that looks native is exactly what the borrowing rule exists to prevent, so it now reads
+   the trace and SAYS whose measurement it is.
+   The ASOS step is left as an arithmetic definition rather than a per-site measurement: ASOS
+   reports whole degrees Fahrenheit, so the step is 5/9 °C at every station in the network. That is
+   a unit conversion, like KW_PER_TON in money.py, and the one number here with no artefact to
+   read. */
 function drawLimits(){
-  const lim=[
-    ['The 90 % bound does not hold yet','Measured 65.6 % over 3 test days, worst day 0.0 %. It failed its pre-registered conditions. Quote 65.6 %, never 90 %, until ~10 calibration days exist.','crit'],
-    ['The hours claim is conditional','It wants a level anchor — one local reading. Unanchored, five years of data say the agent loses. The <em>safety</em> guarantee needs no customer hardware; the <em>hours</em> do.','warn'],
-    ['Recirculation is small here, and that is the physics working','Worst case 0.3550 °C = 0.64 of one weather-station grid step (0.5556 °C). Its value is refusal and safety, not hours. The site was chosen for a clear plume path, so a small number is the expected result.','warn'],
+  const rt = (T && T.cycle && T.cycle.rise_tables && T.cycle.rise_tables.longest) || null;
+  const bdl = (T && T.cycle && T.cycle.bound_day_level) || null;
+  const cov = (T && T.cycle && typeof T.cycle.pooled_coverage === 'number')
+              ? T.cycle.pooled_coverage : null;
+  const prov = (T && T.fortyguard_provenance) || null;
+  const nPairs = (T && T.cycle && T.cycle.pairs) ? T.cycle.pairs.length : null;
+  const ASOS_STEP_C = 5/9;                 // 1 °F, the ASOS reporting convention. A definition.
+  const lim=[];
+  if(cov!==null && bdl){
+    /* WHOSE measurement this is, said in the sentence. `own_measured_day_pairs` is false for every
+       site but Ashburn, and on those sites the honest phrasing is "borrowed", not "measured". */
+    const own = prov ? prov.own_measured_day_pairs !== false : true;
+    lim.push(['The 90 % bound does not hold yet',
+      `${own ? 'Measured' : 'Borrowed from ' + (prov && prov.level_offsets_measured_at || 'Ashburn')
+       + ', which measured'} ${fmt(100*cov,1)} % against a ${fmt(100*bdl.nominal,0)} % nominal, on
+       ${nPairs} forecast/outcome day-pair${nPairs===1?'':'s'}. It failed its pre-registered
+       conditions. At n = ${bdl.n} the largest attainable coverage is n/(n+1) =
+       ${fmt(100*bdl.attainable,1)} %, so ${fmt(100*bdl.nominal,0)} % is not reachable by any code
+       change — it needs ${bdl.n_needed_for_nominal} calibration day-pairs and
+       ${bdl.n_needed_for_nominal+1} in total. Quote ${fmt(100*cov,1)} %, never
+       ${fmt(100*bdl.nominal,0)} %.`, 'crit']);
+  }
+  lim.push(['The hours claim is conditional','It wants a level anchor — one local reading. Unanchored, five years of data say the agent loses. The <em>safety</em> guarantee needs no customer hardware; the <em>hours</em> do.','warn']);
+  if(rt){
+    lim.push(['Recirculation is small here, and that is the physics working',
+      `Worst case ${fmt(rt.max_rise_c,4)} °C at ${fmt(rt.max_rise_bearing,0)}° =
+       ${fmt(rt.max_rise_c/ASOS_STEP_C,2)} of one weather-station grid step
+       (${fmt(ASOS_STEP_C,4)} °C, one whole degree Fahrenheit — ASOS reports nothing finer).
+       Its value is refusal and safety, not hours. This site was chosen for a clear plume path, so
+       a small number is the expected result.`, 'warn']);
+  }
+  lim.push(...[
     /* CORRECTED 2026-08-19. This entry read "The solver absorbs heat into buildings — a known
        defect, deliberately not fixed". THAT CLAIM WAS RETRACTED ON 2026-08-12 and this panel kept
        asserting it: solver.py carries a dated "OBSTACLE PINNING REMOVED" block, and re-running
@@ -2945,8 +3744,25 @@ function drawLimits(){
        view that no test re-reads is a figure that drifts (methodology rule 10). */
     ...refusalLimits(),
     ['Air quality could not be backtested over five years','No five-year air-quality record exists here. The gate uses real measured FortyGuard 24-hour series paired arbitrarily with weather days, and its limit is swept because FortyGuard\'s index has no documented units.','warn'],
-    ['No dollars, no kWh, anywhere','The °C-to-kWh conversion could not be sourced from a primary document, so the unit is chiller-hours avoided.','ok'],
-    ['Designed for the edge, not verified on it','The GPU kernel runs inside 6 GB, which is why an edge claim is defensible — but there is no Jetson here, so it is "designed for", never "verified on".','ok']];
+    /* 🔴 THIS ENTRY SAID "No dollars, no kWh, anywhere" UNTIL 2026-08-21, and by then the page had
+       a money panel with a dollar figure in it. Session G sourced the compressor term from EIA and
+       PNNL-29674 and priced every ladder row; the honest-limits panel went on denying it existed.
+       That is gotcha #56 EXACTLY -- a retraction that did not propagate to every surface -- in the
+       same panel #56 was about, and it is the second stale claim this panel was caught holding on
+       the same day.
+       The correction is not "delete the limit". The limit is real and it is SHARPER than the old
+       sentence: only the compressor is priced, and the unpriced fan term has the OPPOSITE SIGN. It
+       is read from money.json's own `not_claimed` list so it cannot drift from the file the money
+       panel renders beside it. */
+    ...((MN && MN.not_claimed && MN.not_claimed.length) ? [[
+      'The dollar figure is a CEILING, and one unpriced term has the opposite sign',
+      `Only the chiller compressor is priced. ${MN.not_claimed[0]} Every figure is
+       <strong>per MW of IT load</strong> — nothing here measures a data centre's size, so there is
+       nothing to multiply by. The money panel carries all ${MN.not_claimed.length} limits and the
+       document each price was read out of.`, 'warn']] : [[
+      'No dollars, no kWh, anywhere',
+      'money.json did not load, so no price is shown and the unit is chiller-hours avoided.', 'ok']]),
+    ['Designed for the edge, not verified on it','The GPU kernel runs inside 6 GB, which is why an edge claim is defensible — but there is no Jetson here, so it is "designed for", never "verified on".','ok']]);
   $('#limits').innerHTML = lim.map(([h,b,c])=>
     `<p class="note ${c}" style="margin-bottom:11px"><strong>${h}.</strong> ${b}</p>`).join('');
 }
@@ -2958,11 +3774,21 @@ function drawAll(){ syncOffday(); drawReportLink(); drawHeadline(); drawPlume();
    loads. A first version fired it in setTimeout(...,0), which runs BEFORE an async boot() has
    finished awaiting, so the map reported "sites.json did not load" while the picker beside it was
    working from that very file. The failure path was correct; the ordering was not. */
-boot().then(()=>{ try{ drawMap(); }catch(e){ mapFallback('unexpected error: '+e.message); } });
+/* 🔴 ONE boot(), TWO continuations. This was two separate `boot().then(...)` calls, which ran the
+   WHOLE of boot twice: sites.json fetched twice, buildSitePicker() rebuilt the picker from scratch
+   (it starts with `sel.innerHTML=''`, discarding any selection the first pass had made),
+   setStage('pick') twice, and #sitestatusclose / #c_site.onchange / #pickgo.onclick each assigned
+   twice. Harmless-looking, and it survived because every one of those operations is idempotent --
+   but the picker rebuild is a real race with any click that lands between the two passes, and
+   "runs twice by accident" is not something to leave in the startup path.
+   Both stated properties are preserved: boot() still never awaits either of these, so a dead CDN
+   or an absent /api/health cannot delay or break a single saved-data panel. */
+const BOOTED = boot();
+BOOTED.then(()=>{ try{ drawUnifiedMap(); }catch(e){ mapFallback('unexpected error: '+e.message); } });
 /* The live probe is chained off boot and NEVER awaited by it, for the same reason as the map: it
    talks to something that may not exist. On a static host `api/health` 404s (or is served as HTML
    by a catch-all), and neither outcome may delay or break a single saved-data panel. */
-boot().then(()=>{ probeLive().catch(()=>{ HEALTH=null; drawModeBanner(); }); });
+BOOTED.then(()=>{ probeLive().catch(()=>{ HEALTH=null; drawModeBanner(); }); });
 </script>
 </body>
 </html>

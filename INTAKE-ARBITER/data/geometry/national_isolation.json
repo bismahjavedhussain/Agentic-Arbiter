@@ -1,0 +1,5498 @@
+{
+ "generated_by": "src/classify_isolation.py",
+ "api_calls_made": 0,
+ "method": "bbox-to-bbox nearest edge distance, national, O(n^2) -- overstates the true nearest-BUILDING distance for wide multi-building entries; understating a gap is the unsafe direction and this method never does that",
+ "solver_validated_range_m": 600.0,
+ "n_entries": 422,
+ "n_isolated": 394,
+ "n_paired_candidate": 28,
+ "n_reclassified_from_single": 2,
+ "entries": {
+  "VA_388_-776": {
+   "state": "VA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    38.80340635,
+    -77.51056395
+   ],
+   "nearest_other_entry": "VA_387_-776",
+   "nearest_other_entry_gap_m": 379.2,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "VA_387_-776": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 53,
+   "centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "nearest_other_entry": "VA_387_-775",
+   "nearest_other_entry_gap_m": 350.5,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "VA_390_-775": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 111,
+   "centre": [
+    39.024398899999994,
+    -77.4496489
+   ],
+   "nearest_other_entry": "VA_389_-775",
+   "nearest_other_entry_gap_m": 54.7,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "VA_389_-774": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    38.95495355,
+    -77.35236245
+   ],
+   "nearest_other_entry": "VA_389_-775",
+   "nearest_other_entry_gap_m": 2861.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MD_390_-770": {
+   "state": "MD",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    39.05572425,
+    -76.9451959
+   ],
+   "nearest_other_entry": "MD_391_-769",
+   "nearest_other_entry_gap_m": 10548.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_389_-773": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    38.9141941,
+    -77.21872644999999
+   ],
+   "nearest_other_entry": "VA_389_-774",
+   "nearest_other_entry_gap_m": 9334.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MD_393_-775": {
+   "state": "MD",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.3777781,
+    -77.4115448
+   ],
+   "nearest_other_entry": "VA_390_-776",
+   "nearest_other_entry_gap_m": 34579.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_388_-777": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 9,
+   "centre": [
+    38.80911055,
+    -77.63739785
+   ],
+   "nearest_other_entry": "VA_387_-776",
+   "nearest_other_entry_gap_m": 2223.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_387_-777": {
+   "state": "VA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.7474201,
+    -77.6744649
+   ],
+   "nearest_other_entry": "VA_388_-777",
+   "nearest_other_entry_gap_m": 6242.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_389_-775": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 83,
+   "centre": [
+    38.9519422,
+    -77.45426665
+   ],
+   "nearest_other_entry": "VA_390_-775",
+   "nearest_other_entry_gap_m": 54.7,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "VA_376_-775": {
+   "state": "VA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.6468902,
+    -77.4386952
+   ],
+   "nearest_other_entry": "VA_374_-773",
+   "nearest_other_entry_gap_m": 23593.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_388_-775": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    38.89879365,
+    -77.45427355
+   ],
+   "nearest_other_entry": "VA_389_-775",
+   "nearest_other_entry_gap_m": 514.4,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "VA_387_-772": {
+   "state": "VA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    38.74639855,
+    -77.1912224
+   ],
+   "nearest_other_entry": "VA_389_-773",
+   "nearest_other_entry_gap_m": 17589.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MD_392_-767": {
+   "state": "MD",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    39.244411,
+    -76.654172
+   ],
+   "nearest_other_entry": "MD_392_-766",
+   "nearest_other_entry_gap_m": 6673.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_374_-773": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 17,
+   "centre": [
+    37.48570515,
+    -77.2397388
+   ],
+   "nearest_other_entry": "VA_373_-774",
+   "nearest_other_entry_gap_m": 14455.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_373_-774": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    37.3584994,
+    -77.3296721
+   ],
+   "nearest_other_entry": "VA_374_-773",
+   "nearest_other_entry_gap_m": 14455.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_384_-780": {
+   "state": "VA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.4548439,
+    -77.9781318
+   ],
+   "nearest_other_entry": "VA_387_-779",
+   "nearest_other_entry_gap_m": 34096.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_389_-776": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 22,
+   "centre": [
+    38.950328999999996,
+    -77.53157970000001
+   ],
+   "nearest_other_entry": "VA_389_-775",
+   "nearest_other_entry_gap_m": 394.5,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "VA_390_-776": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 20,
+   "centre": [
+    39.06192145,
+    -77.5499609
+   ],
+   "nearest_other_entry": "VA_390_-775",
+   "nearest_other_entry_gap_m": 4124.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_390_-783": {
+   "state": "VA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.0176781,
+    -78.2909424
+   ],
+   "nearest_other_entry": "VA_387_-779",
+   "nearest_other_entry_gap_m": 50885.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_384_-789": {
+   "state": "VA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.4626027,
+    -78.8567247
+   ],
+   "nearest_other_entry": "VA_384_-780",
+   "nearest_other_entry_gap_m": 76591.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_387_-775": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    38.73228185,
+    -77.4964747
+   ],
+   "nearest_other_entry": "VA_387_-776",
+   "nearest_other_entry_gap_m": 350.5,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "MD_392_-766": {
+   "state": "MD",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.2935593,
+    -76.5517314
+   ],
+   "nearest_other_entry": "MD_392_-767",
+   "nearest_other_entry_gap_m": 6673.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_366_-784": {
+   "state": "VA",
+   "category": "cluster",
+   "n_tagged": 18,
+   "centre": [
+    36.68531395,
+    -78.3759393
+   ],
+   "nearest_other_entry": "NC_358_-784",
+   "nearest_other_entry_gap_m": 93194.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MD_391_-769": {
+   "state": "MD",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.133687,
+    -76.8514344
+   ],
+   "nearest_other_entry": "MD_390_-770",
+   "nearest_other_entry_gap_m": 10548.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "VA_387_-779": {
+   "state": "VA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    38.737711250000004,
+    -77.826074
+   ],
+   "nearest_other_entry": "VA_387_-777",
+   "nearest_other_entry_gap_m": 13185.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "KY_376_-827": {
+   "state": "KY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.6001856,
+    -82.6787687
+   ],
+   "nearest_other_entry": "TN_363_-834",
+   "nearest_other_entry_gap_m": 154620.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_334_-1121": {
+   "state": "AZ",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    33.44726425,
+    -112.0401317
+   ],
+   "nearest_other_entry": "AZ_333_-1121",
+   "nearest_other_entry_gap_m": 955.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_333_-1117": {
+   "state": "AZ",
+   "category": "cluster",
+   "n_tagged": 10,
+   "centre": [
+    33.3292639,
+    -111.6411072
+   ],
+   "nearest_other_entry": "AZ_334_-1118",
+   "nearest_other_entry_gap_m": 14132.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_336_-1122": {
+   "state": "AZ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.6590546,
+    -112.1111595
+   ],
+   "nearest_other_entry": "AZ_336_-1121",
+   "nearest_other_entry_gap_m": 3089.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_336_-1121": {
+   "state": "AZ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.6846775,
+    -112.0983398
+   ],
+   "nearest_other_entry": "AZ_336_-1122",
+   "nearest_other_entry_gap_m": 3089.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_333_-1120": {
+   "state": "AZ",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    33.3949912,
+    -111.96130245
+   ],
+   "nearest_other_entry": "AZ_333_-1121",
+   "nearest_other_entry_gap_m": 2797.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_333_-1119": {
+   "state": "AZ",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    33.3522696,
+    -111.86925439999999
+   ],
+   "nearest_other_entry": "AZ_333_-1120",
+   "nearest_other_entry_gap_m": 6135.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_332_-1119": {
+   "state": "AZ",
+   "category": "cluster",
+   "n_tagged": 10,
+   "centre": [
+    33.27166355,
+    -111.88411085
+   ],
+   "nearest_other_entry": "AZ_333_-1119",
+   "nearest_other_entry_gap_m": 7303.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_334_-1124": {
+   "state": "AZ",
+   "category": "cluster",
+   "n_tagged": 8,
+   "centre": [
+    33.427124449999994,
+    -112.36851815
+   ],
+   "nearest_other_entry": "AZ_334_-1121",
+   "nearest_other_entry_gap_m": 26865.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_334_-1119": {
+   "state": "AZ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.4212542,
+    -111.8590191
+   ],
+   "nearest_other_entry": "AZ_333_-1119",
+   "nearest_other_entry_gap_m": 6603.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_334_-1120": {
+   "state": "AZ",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    33.4584189,
+    -111.98688915
+   ],
+   "nearest_other_entry": "AZ_334_-1121",
+   "nearest_other_entry_gap_m": 1106.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_334_-1118": {
+   "state": "AZ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.4754208,
+    -111.7191652
+   ],
+   "nearest_other_entry": "AZ_333_-1117",
+   "nearest_other_entry_gap_m": 14132.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_320_-1108": {
+   "state": "AZ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    32.0927065,
+    -110.7874236
+   ],
+   "nearest_other_entry": "AZ_319_-1104",
+   "nearest_other_entry_gap_m": 47469.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_333_-1121": {
+   "state": "AZ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.3965617,
+    -112.0001645
+   ],
+   "nearest_other_entry": "AZ_334_-1121",
+   "nearest_other_entry_gap_m": 955.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AZ_319_-1104": {
+   "state": "AZ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    31.9726748,
+    -110.3047517
+   ],
+   "nearest_other_entry": "AZ_320_-1108",
+   "nearest_other_entry_gap_m": 47469.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MO_386_-902": {
+   "state": "MO",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    38.6295109,
+    -90.19679785
+   ],
+   "nearest_other_entry": "MO_386_-903",
+   "nearest_other_entry_gap_m": 5122.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_417_-883": {
+   "state": "IL",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    41.78435555,
+    -88.23202345
+   ],
+   "nearest_other_entry": "IL_418_-883",
+   "nearest_other_entry_gap_m": 696.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_419_-880": {
+   "state": "IL",
+   "category": "cluster",
+   "n_tagged": 11,
+   "centre": [
+    41.9560436,
+    -87.94551865
+   ],
+   "nearest_other_entry": "IL_420_-880",
+   "nearest_other_entry_gap_m": 183.8,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "IL_400_-883": {
+   "state": "IL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.0952591,
+    -88.2420314
+   ],
+   "nearest_other_entry": "IL_417_-880",
+   "nearest_other_entry_gap_m": 180825.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_418_-877": {
+   "state": "IL",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    41.85823285,
+    -87.64360155
+   ],
+   "nearest_other_entry": "IL_419_-879",
+   "nearest_other_entry_gap_m": 16880.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_420_-880": {
+   "state": "IL",
+   "category": "cluster",
+   "n_tagged": 8,
+   "centre": [
+    42.011959250000004,
+    -87.96316265
+   ],
+   "nearest_other_entry": "IL_419_-880",
+   "nearest_other_entry_gap_m": 183.8,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "IL_418_-880": {
+   "state": "IL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.8125627,
+    -87.9728504
+   ],
+   "nearest_other_entry": "IL_418_-881",
+   "nearest_other_entry_gap_m": 10189.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_422_-880": {
+   "state": "IL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.2167763,
+    -87.9529303
+   ],
+   "nearest_other_entry": "IL_420_-880",
+   "nearest_other_entry_gap_m": 21555.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_415_-905": {
+   "state": "IA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.5502695,
+    -90.4824093
+   ],
+   "nearest_other_entry": "IA_417_-916",
+   "nearest_other_entry_gap_m": 93498.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_419_-883": {
+   "state": "IL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.9053402,
+    -88.2195062
+   ],
+   "nearest_other_entry": "IL_418_-883",
+   "nearest_other_entry_gap_m": 11100.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_419_-879": {
+   "state": "IL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.9283557,
+    -87.8592545
+   ],
+   "nearest_other_entry": "IL_419_-880",
+   "nearest_other_entry_gap_m": 4824.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_418_-881": {
+   "state": "IL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.8023406,
+    -88.0948856
+   ],
+   "nearest_other_entry": "IL_417_-883",
+   "nearest_other_entry_gap_m": 10161.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MO_386_-903": {
+   "state": "MO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.6365522,
+    -90.2554356
+   ],
+   "nearest_other_entry": "MO_386_-902",
+   "nearest_other_entry_gap_m": 5122.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_417_-916": {
+   "state": "IA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.7039984,
+    -91.5870781
+   ],
+   "nearest_other_entry": "IA_415_-905",
+   "nearest_other_entry_gap_m": 93498.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IN_417_-876": {
+   "state": "IN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.7074166,
+    -87.5202329
+   ],
+   "nearest_other_entry": "IL_418_-877",
+   "nearest_other_entry_gap_m": 17065.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_388_-900": {
+   "state": "IL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.8105602,
+    -89.9487033
+   ],
+   "nearest_other_entry": "MO_386_-902",
+   "nearest_other_entry_gap_m": 29461.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_417_-880": {
+   "state": "IL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.7071342,
+    -87.9759559
+   ],
+   "nearest_other_entry": "IL_418_-880",
+   "nearest_other_entry_gap_m": 11739.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_419_-881": {
+   "state": "IL",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    41.98802105,
+    -88.0063715
+   ],
+   "nearest_other_entry": "IL_419_-880",
+   "nearest_other_entry_gap_m": 2585.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "KY_373_-876": {
+   "state": "KY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.3629981,
+    -87.5471512
+   ],
+   "nearest_other_entry": "TN_366_-873",
+   "nearest_other_entry_gap_m": 85591.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_418_-888": {
+   "state": "IL",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    41.88942555,
+    -88.72643195
+   ],
+   "nearest_other_entry": "IL_418_-883",
+   "nearest_other_entry_gap_m": 40430.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IL_418_-883": {
+   "state": "IL",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    41.804896049999996,
+    -88.24392455
+   ],
+   "nearest_other_entry": "IL_417_-883",
+   "nearest_other_entry_gap_m": 696.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_340_-1183": {
+   "state": "CA",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    34.05271715,
+    -118.24645195
+   ],
+   "nearest_other_entry": "CA_341_-1184",
+   "nearest_other_entry_gap_m": 17671.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_328_-1172": {
+   "state": "CA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    32.835124750000006,
+    -117.14967505
+   ],
+   "nearest_other_entry": "CA_327_-1172",
+   "nearest_other_entry_gap_m": 8932.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_386_-1215": {
+   "state": "CA",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    38.647335600000005,
+    -121.49251565
+   ],
+   "nearest_other_entry": "CA_385_-1213",
+   "nearest_other_entry_gap_m": 19061.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_372_-1218": {
+   "state": "CA",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    37.2419219,
+    -121.7832694
+   ],
+   "nearest_other_entry": "CA_373_-1219",
+   "nearest_other_entry_gap_m": 13645.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_373_-1220": {
+   "state": "CA",
+   "category": "cluster",
+   "n_tagged": 53,
+   "centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "nearest_other_entry": "CA_374_-1220",
+   "nearest_other_entry_gap_m": 784.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_374_-1221": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.4145109,
+    -122.0145563
+   ],
+   "nearest_other_entry": "CA_373_-1221",
+   "nearest_other_entry_gap_m": 1656.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_374_-1222": {
+   "state": "CA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    37.43965395,
+    -122.1707468
+   ],
+   "nearest_other_entry": "CA_374_-1221",
+   "nearest_other_entry_gap_m": 13097.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NV_360_-1153": {
+   "state": "NV",
+   "category": "cluster",
+   "n_tagged": 10,
+   "centre": [
+    36.06039665,
+    -115.21662889999999
+   ],
+   "nearest_other_entry": "NV_360_-1152",
+   "nearest_other_entry_gap_m": 5671.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_377_-1224": {
+   "state": "CA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    37.756309400000006,
+    -122.3940455
+   ],
+   "nearest_other_entry": "CA_377_-1223",
+   "nearest_other_entry_gap_m": 9532.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_374_-1220": {
+   "state": "CA",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    37.447785249999995,
+    -121.94112035
+   ],
+   "nearest_other_entry": "CA_373_-1220",
+   "nearest_other_entry_gap_m": 784.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NV_361_-1151": {
+   "state": "NV",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    36.1628806,
+    -115.07302735
+   ],
+   "nearest_other_entry": "NV_362_-1152",
+   "nearest_other_entry_gap_m": 4618.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_376_-1220": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.6994753,
+    -121.9037995
+   ],
+   "nearest_other_entry": "CA_374_-1220",
+   "nearest_other_entry_gap_m": 23357.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_377_-1223": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.7990205,
+    -122.2825386
+   ],
+   "nearest_other_entry": "CA_377_-1224",
+   "nearest_other_entry_gap_m": 9532.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_373_-1221": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.3996265,
+    -122.0145584
+   ],
+   "nearest_other_entry": "CA_374_-1221",
+   "nearest_other_entry_gap_m": 1656.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_338_-1184": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.8507525,
+    -118.3040815
+   ],
+   "nearest_other_entry": "CA_339_-1184",
+   "nearest_other_entry_gap_m": 10373.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_339_-1184": {
+   "state": "CA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    33.918700400000006,
+    -118.3855387
+   ],
+   "nearest_other_entry": "CA_338_-1184",
+   "nearest_other_entry_gap_m": 10373.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_337_-1179": {
+   "state": "CA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    33.710185249999995,
+    -117.82795915
+   ],
+   "nearest_other_entry": "CA_338_-1184",
+   "nearest_other_entry_gap_m": 44570.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_373_-1219": {
+   "state": "CA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    37.360953300000006,
+    -121.8882051
+   ],
+   "nearest_other_entry": "CA_374_-1219",
+   "nearest_other_entry_gap_m": 1552.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_374_-1219": {
+   "state": "CA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    37.40308675,
+    -121.89131090000001
+   ],
+   "nearest_other_entry": "CA_373_-1219",
+   "nearest_other_entry_gap_m": 1552.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_341_-1184": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    34.1998691,
+    -118.3437888
+   ],
+   "nearest_other_entry": "CA_340_-1183",
+   "nearest_other_entry_gap_m": 17671.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NV_395_-1196": {
+   "state": "NV",
+   "category": "cluster",
+   "n_tagged": 11,
+   "centre": [
+    39.56804625,
+    -119.54192545000001
+   ],
+   "nearest_other_entry": "NV_395_-1195",
+   "nearest_other_entry_gap_m": 7144.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_382_-1223": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.254065,
+    -122.2730918
+   ],
+   "nearest_other_entry": "CA_382_-1221",
+   "nearest_other_entry_gap_m": 18021.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_345_-1182": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    34.5799784,
+    -118.1140073
+   ],
+   "nearest_other_entry": "CA_341_-1184",
+   "nearest_other_entry_gap_m": 47286.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_327_-1172": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    32.7476543,
+    -117.1589538
+   ],
+   "nearest_other_entry": "CA_328_-1172",
+   "nearest_other_entry_gap_m": 8932.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NV_362_-1152": {
+   "state": "NV",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    36.2350289,
+    -115.12415095
+   ],
+   "nearest_other_entry": "NV_361_-1151",
+   "nearest_other_entry_gap_m": 4618.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_340_-1173": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    34.0594667,
+    -117.2021665
+   ],
+   "nearest_other_entry": "CA_337_-1179",
+   "nearest_other_entry_gap_m": 67578.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_382_-1221": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.2462382,
+    -122.0671844
+   ],
+   "nearest_other_entry": "CA_382_-1223",
+   "nearest_other_entry_gap_m": 18021.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NV_360_-1151": {
+   "state": "NV",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    36.0575434,
+    -115.0086885
+   ],
+   "nearest_other_entry": "NV_361_-1151",
+   "nearest_other_entry_gap_m": 10526.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_331_-1173": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.1536001,
+    -117.2388464
+   ],
+   "nearest_other_entry": "CA_328_-1172",
+   "nearest_other_entry_gap_m": 35248.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_385_-1213": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.5922987,
+    -121.27744
+   ],
+   "nearest_other_entry": "CA_386_-1215",
+   "nearest_other_entry_gap_m": 19061.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NV_360_-1152": {
+   "state": "NV",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    36.059754,
+    -115.1471723
+   ],
+   "nearest_other_entry": "NV_360_-1153",
+   "nearest_other_entry_gap_m": 5671.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NV_395_-1195": {
+   "state": "NV",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    39.5110754,
+    -119.48018379999999
+   ],
+   "nearest_other_entry": "NV_395_-1196",
+   "nearest_other_entry_gap_m": 7144.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CA_376_-1211": {
+   "state": "CA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.6651447,
+    -121.0400334
+   ],
+   "nearest_other_entry": "CA_376_-1220",
+   "nearest_other_entry_gap_m": 76193.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NV_361_-1152": {
+   "state": "NV",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    36.1686438,
+    -115.1431445
+   ],
+   "nearest_other_entry": "NV_361_-1151",
+   "nearest_other_entry_gap_m": 5370.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_328_-971": {
+   "state": "TX",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    32.8415967,
+    -97.0556629
+   ],
+   "nearest_other_entry": "TX_328_-970",
+   "nearest_other_entry_gap_m": 7354.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_328_-969": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 9,
+   "centre": [
+    32.8194558,
+    -96.85195105
+   ],
+   "nearest_other_entry": "TX_327_-968",
+   "nearest_other_entry_gap_m": 2749.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_327_-968": {
+   "state": "TX",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    32.7810298,
+    -96.79653605
+   ],
+   "nearest_other_entry": "TX_328_-969",
+   "nearest_other_entry_gap_m": 2749.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_294_-985": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.4293706,
+    -98.4869057
+   ],
+   "nearest_other_entry": "TX_294_-986",
+   "nearest_other_entry_gap_m": 2144.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OK_361_-960": {
+   "state": "OK",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    36.1585898,
+    -95.9886293
+   ],
+   "nearest_other_entry": "OK_362_-960",
+   "nearest_other_entry_gap_m": 13555.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NM_349_-1067": {
+   "state": "NM",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    34.9954515,
+    -106.6180334
+   ],
+   "nearest_other_entry": "NM_350_-1066",
+   "nearest_other_entry_gap_m": 9084.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OK_362_-960": {
+   "state": "OK",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    36.2625496,
+    -95.9100413
+   ],
+   "nearest_other_entry": "OK_361_-960",
+   "nearest_other_entry_gap_m": 13555.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_294_-987": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 39,
+   "centre": [
+    29.4625017,
+    -98.6687696
+   ],
+   "nearest_other_entry": "TX_294_-988",
+   "nearest_other_entry_gap_m": 1461.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_330_-967": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 7,
+   "centre": [
+    33.04808105,
+    -96.67043989999999
+   ],
+   "nearest_other_entry": "TX_329_-967",
+   "nearest_other_entry_gap_m": 1839.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NM_356_-1060": {
+   "state": "NM",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.6724585,
+    -105.9565798
+   ],
+   "nearest_other_entry": "NM_350_-1066",
+   "nearest_other_entry_gap_m": 87481.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_294_-986": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.4382791,
+    -98.5065217
+   ],
+   "nearest_other_entry": "TX_294_-985",
+   "nearest_other_entry_gap_m": 2144.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_331_-967": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    33.138304250000004,
+    -96.6584666
+   ],
+   "nearest_other_entry": "TX_330_-967",
+   "nearest_other_entry_gap_m": 4446.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_302_-978": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    30.231036250000002,
+    -97.71212955
+   ],
+   "nearest_other_entry": "TX_301_-978",
+   "nearest_other_entry_gap_m": 122.8,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "TX_302_-977": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    30.21076265,
+    -97.65844465
+   ],
+   "nearest_other_entry": "TX_302_-978",
+   "nearest_other_entry_gap_m": 260.8,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "TX_301_-978": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    30.1980368,
+    -97.713093
+   ],
+   "nearest_other_entry": "TX_302_-978",
+   "nearest_other_entry_gap_m": 122.8,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "TX_303_-977": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    30.3428035,
+    -97.6961735
+   ],
+   "nearest_other_entry": "TX_302_-978",
+   "nearest_other_entry_gap_m": 9072.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_300_-959": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    30.0187,
+    -95.8637474
+   ],
+   "nearest_other_entry": "TX_298_-958",
+   "nearest_other_entry_gap_m": 26202.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_329_-973": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    32.9863481,
+    -97.25719004999999
+   ],
+   "nearest_other_entry": "TX_330_-973",
+   "nearest_other_entry_gap_m": 1925.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_330_-973": {
+   "state": "TX",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    33.0054469,
+    -97.2457157
+   ],
+   "nearest_other_entry": "TX_329_-973",
+   "nearest_other_entry_gap_m": 1925.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_294_-989": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 10,
+   "centre": [
+    29.42058885,
+    -98.8396925
+   ],
+   "nearest_other_entry": "TX_294_-988",
+   "nearest_other_entry_gap_m": 1216.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_328_-970": {
+   "state": "TX",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    32.89600435,
+    -96.9822926
+   ],
+   "nearest_other_entry": "TX_328_-971",
+   "nearest_other_entry_gap_m": 7354.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_299_-956": {
+   "state": "TX",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    29.996266249999998,
+    -95.56368665
+   ],
+   "nearest_other_entry": "TX_299_-955",
+   "nearest_other_entry_gap_m": 14529.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_329_-968": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 9,
+   "centre": [
+    32.97979675,
+    -96.73137625
+   ],
+   "nearest_other_entry": "TX_330_-967",
+   "nearest_other_entry_gap_m": 2540.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_331_-968": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.1717958,
+    -96.725505
+   ],
+   "nearest_other_entry": "TX_331_-967",
+   "nearest_other_entry_gap_m": 6940.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_304_-976": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    30.4211412,
+    -97.591603
+   ],
+   "nearest_other_entry": "TX_304_-977",
+   "nearest_other_entry_gap_m": 10757.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_298_-956": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.8215755,
+    -95.5708004
+   ],
+   "nearest_other_entry": "TX_298_-958",
+   "nearest_other_entry_gap_m": 17945.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_329_-967": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 7,
+   "centre": [
+    32.979027,
+    -96.65479429999999
+   ],
+   "nearest_other_entry": "TX_330_-967",
+   "nearest_other_entry_gap_m": 1839.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_296_-955": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.6581451,
+    -95.4433121
+   ],
+   "nearest_other_entry": "TX_298_-956",
+   "nearest_other_entry_gap_m": 21973.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NM_350_-1066": {
+   "state": "NM",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.0483475,
+    -106.5421546
+   ],
+   "nearest_other_entry": "NM_349_-1067",
+   "nearest_other_entry_gap_m": 9084.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_330_-969": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.0872472,
+    -96.8156779
+   ],
+   "nearest_other_entry": "TX_329_-968",
+   "nearest_other_entry_gap_m": 11859.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_298_-958": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.802893,
+    -95.7553386
+   ],
+   "nearest_other_entry": "TX_298_-956",
+   "nearest_other_entry_gap_m": 17945.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OK_339_-965": {
+   "state": "OK",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.9716849,
+    -96.4028488
+   ],
+   "nearest_other_entry": "TX_331_-968",
+   "nearest_other_entry_gap_m": 93938.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_301_-955": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    30.1777082,
+    -95.486593
+   ],
+   "nearest_other_entry": "TX_299_-956",
+   "nearest_other_entry_gap_m": 21396.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_339_-986": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.9533733,
+    -98.5247859
+   ],
+   "nearest_other_entry": "TX_330_-973",
+   "nearest_other_entry_gap_m": 158771.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_324_-971": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    32.44183385,
+    -97.0621147
+   ],
+   "nearest_other_entry": "TX_325_-971",
+   "nearest_other_entry_gap_m": 11878.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_325_-969": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    32.54213575,
+    -96.8033238
+   ],
+   "nearest_other_entry": "TX_325_-968",
+   "nearest_other_entry_gap_m": 791.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OK_360_-959": {
+   "state": "OK",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    36.0812515,
+    -95.8541492
+   ],
+   "nearest_other_entry": "OK_361_-960",
+   "nearest_other_entry_gap_m": 14844.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_329_-972": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    32.9720407,
+    -97.1567144
+   ],
+   "nearest_other_entry": "TX_330_-973",
+   "nearest_other_entry_gap_m": 9026.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_294_-988": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 11,
+   "centre": [
+    29.4336985,
+    -98.75204785
+   ],
+   "nearest_other_entry": "TX_294_-989",
+   "nearest_other_entry_gap_m": 1216.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_326_-974": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    32.6512011,
+    -97.3196729
+   ],
+   "nearest_other_entry": "TX_325_-971",
+   "nearest_other_entry_gap_m": 25583.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_296_-985": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.686403,
+    -98.4626475
+   ],
+   "nearest_other_entry": "TX_295_-986",
+   "nearest_other_entry_gap_m": 14064.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_323_-978": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    32.3413407,
+    -97.7316918
+   ],
+   "nearest_other_entry": "TX_326_-974",
+   "nearest_other_entry_gap_m": 51829.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_295_-986": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.5801522,
+    -98.5413037
+   ],
+   "nearest_other_entry": "TX_296_-985",
+   "nearest_other_entry_gap_m": 14064.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OK_355_-956": {
+   "state": "OK",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.5681349,
+    -95.5124166
+   ],
+   "nearest_other_entry": "OK_360_-959",
+   "nearest_other_entry_gap_m": 64916.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_325_-968": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    32.5421514,
+    -96.79106915
+   ],
+   "nearest_other_entry": "TX_325_-969",
+   "nearest_other_entry_gap_m": 791.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_325_-971": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    32.5498227,
+    -97.0748553
+   ],
+   "nearest_other_entry": "TX_324_-971",
+   "nearest_other_entry_gap_m": 11878.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_311_-948": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    31.1941757,
+    -94.7967665
+   ],
+   "nearest_other_entry": "TX_301_-955",
+   "nearest_other_entry_gap_m": 131014.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_292_-984": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.2930099,
+    -98.3915987
+   ],
+   "nearest_other_entry": "TX_294_-985",
+   "nearest_other_entry_gap_m": 17774.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_311_-974": {
+   "state": "TX",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    31.1313545,
+    -97.3705741
+   ],
+   "nearest_other_entry": "TX_310_-973",
+   "nearest_other_entry_gap_m": 10582.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_325_-998": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 10,
+   "centre": [
+    32.5051028,
+    -99.7796594
+   ],
+   "nearest_other_entry": "TX_324_-998",
+   "nearest_other_entry_gap_m": 463.5,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "TX_337_-1009": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.777264,
+    -100.8689012
+   ],
+   "nearest_other_entry": "TX_324_-998",
+   "nearest_other_entry_gap_m": 173858.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_304_-977": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    30.4880189,
+    -97.6725256
+   ],
+   "nearest_other_entry": "TX_304_-976",
+   "nearest_other_entry_gap_m": 10757.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_310_-973": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    31.0575233,
+    -97.2982979
+   ],
+   "nearest_other_entry": "TX_311_-974",
+   "nearest_other_entry_gap_m": 10582.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_317_-1064": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    31.7500067,
+    -106.3099264
+   ],
+   "nearest_other_entry": "NM_323_-1065",
+   "nearest_other_entry_gap_m": 72020.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_315_-1039": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    31.533046849999998,
+    -103.80334325
+   ],
+   "nearest_other_entry": "TX_315_-1035",
+   "nearest_other_entry_gap_m": 33400.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NM_323_-1065": {
+   "state": "NM",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    32.3805057,
+    -106.4810659
+   ],
+   "nearest_other_entry": "NM_323_-1068",
+   "nearest_other_entry_gap_m": 24632.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_324_-998": {
+   "state": "TX",
+   "category": "cluster",
+   "n_tagged": 30,
+   "centre": [
+    32.49827165,
+    -99.7858987
+   ],
+   "nearest_other_entry": "TX_325_-998",
+   "nearest_other_entry_gap_m": 463.5,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "TX_299_-955": {
+   "state": "TX",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.9451277,
+    -95.4241979
+   ],
+   "nearest_other_entry": "TX_299_-956",
+   "nearest_other_entry_gap_m": 14529.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_315_-1035": {
+   "state": "TX",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    31.513655749999998,
+    -103.4488953
+   ],
+   "nearest_other_entry": "TX_315_-1039",
+   "nearest_other_entry_gap_m": 33400.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TX_311_-1033": {
+   "state": "TX",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    31.10356925,
+    -103.2384625
+   ],
+   "nearest_other_entry": "TX_315_-1035",
+   "nearest_other_entry_gap_m": 49800.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_455_-1230": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 24,
+   "centre": [
+    45.560002049999994,
+    -122.9307292
+   ],
+   "nearest_other_entry": "OR_455_-1229",
+   "nearest_other_entry_gap_m": 1155.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_456_-1213": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    45.6308411,
+    -121.20481505000001
+   ],
+   "nearest_other_entry": "OR_458_-1199",
+   "nearest_other_entry_gap_m": 106051.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_442_-1209": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 9,
+   "centre": [
+    44.292486800000006,
+    -120.8822519
+   ],
+   "nearest_other_entry": "OR_443_-1209",
+   "nearest_other_entry_gap_m": 227.1,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "OR_455_-1229": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 8,
+   "centre": [
+    45.538527450000004,
+    -122.88644585
+   ],
+   "nearest_other_entry": "OR_455_-1230",
+   "nearest_other_entry_gap_m": 1155.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_455_-1227": {
+   "state": "OR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    45.5215436,
+    -122.6807041
+   ],
+   "nearest_other_entry": "OR_455_-1229",
+   "nearest_other_entry_gap_m": 15202.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_459_-1193": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 16,
+   "centre": [
+    45.9172456,
+    -119.24805459999999
+   ],
+   "nearest_other_entry": "OR_459_-1194",
+   "nearest_other_entry_gap_m": 4007.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_458_-1197": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 32,
+   "centre": [
+    45.84047505,
+    -119.64841485
+   ],
+   "nearest_other_entry": "OR_458_-1199",
+   "nearest_other_entry_gap_m": 12826.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_453_-1228": {
+   "state": "OR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    45.3187166,
+    -122.7658797
+   ],
+   "nearest_other_entry": "OR_455_-1227",
+   "nearest_other_entry_gap_m": 23539.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_440_-1213": {
+   "state": "OR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.0861049,
+    -121.2830411
+   ],
+   "nearest_other_entry": "OR_440_-1214",
+   "nearest_other_entry_gap_m": 5639.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_457_-1194": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    45.79871755,
+    -119.36254275
+   ],
+   "nearest_other_entry": "OR_458_-1193",
+   "nearest_other_entry_gap_m": 6295.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_449_-1231": {
+   "state": "OR",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    44.93232055,
+    -123.0177846
+   ],
+   "nearest_other_entry": "OR_447_-1227",
+   "nearest_other_entry_gap_m": 34804.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_440_-1214": {
+   "state": "OR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.0474074,
+    -121.3285496
+   ],
+   "nearest_other_entry": "OR_440_-1213",
+   "nearest_other_entry_gap_m": 5639.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_443_-1209": {
+   "state": "OR",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    44.30146515,
+    -120.8922388
+   ],
+   "nearest_other_entry": "OR_442_-1209",
+   "nearest_other_entry_gap_m": 227.1,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "OR_423_-1229": {
+   "state": "OR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.3324601,
+    -122.880426
+   ],
+   "nearest_other_entry": "OR_440_-1214",
+   "nearest_other_entry_gap_m": 228714.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_459_-1194": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    45.90327515,
+    -119.3203335
+   ],
+   "nearest_other_entry": "OR_458_-1194",
+   "nearest_other_entry_gap_m": 2577.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_458_-1194": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    45.8810287,
+    -119.34067569999999
+   ],
+   "nearest_other_entry": "OR_459_-1194",
+   "nearest_other_entry_gap_m": 2577.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_447_-1227": {
+   "state": "OR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.7752235,
+    -122.6159312
+   ],
+   "nearest_other_entry": "OR_449_-1231",
+   "nearest_other_entry_gap_m": 34804.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_458_-1193": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    45.8100111,
+    -119.27342895000001
+   ],
+   "nearest_other_entry": "OR_457_-1194",
+   "nearest_other_entry_gap_m": 6295.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_455_-1231": {
+   "state": "OR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    45.5147872,
+    -123.078828
+   ],
+   "nearest_other_entry": "OR_455_-1230",
+   "nearest_other_entry_gap_m": 10761.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_457_-1199": {
+   "state": "OR",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    45.710103000000004,
+    -119.8237235
+   ],
+   "nearest_other_entry": "OR_458_-1199",
+   "nearest_other_entry_gap_m": 11189.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OR_458_-1199": {
+   "state": "OR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    45.8098277,
+    -119.8589037
+   ],
+   "nearest_other_entry": "OR_457_-1199",
+   "nearest_other_entry_gap_m": 11189.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_393_-844": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.3038941,
+    -84.3116127
+   ],
+   "nearest_other_entry": "OH_392_-845",
+   "nearest_other_entry_gap_m": 8726.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_392_-845": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.2940482,
+    -84.4121132
+   ],
+   "nearest_other_entry": "OH_393_-844",
+   "nearest_other_entry_gap_m": 8726.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_391_-846": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.1026943,
+    -84.5178996
+   ],
+   "nearest_other_entry": "OH_392_-845",
+   "nearest_other_entry_gap_m": 23174.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_393_-843": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.3889702,
+    -84.2218527
+   ],
+   "nearest_other_entry": "OH_393_-844",
+   "nearest_other_entry_gap_m": 12223.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_399_-838": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.912797,
+    -83.7236638
+   ],
+   "nearest_other_entry": "OH_400_-832",
+   "nearest_other_entry_gap_m": 46191.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_414_-828": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.4321977,
+    -82.7189574
+   ],
+   "nearest_other_entry": "OH_414_-819",
+   "nearest_other_entry_gap_m": 76412.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_400_-832": {
+   "state": "OH",
+   "category": "cluster",
+   "n_tagged": 17,
+   "centre": [
+    40.058102899999994,
+    -83.16122645
+   ],
+   "nearest_other_entry": "OH_401_-832",
+   "nearest_other_entry_gap_m": 109.3,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "OH_415_-817": {
+   "state": "OH",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    41.50571065,
+    -81.6706827
+   ],
+   "nearest_other_entry": "OH_414_-819",
+   "nearest_other_entry_gap_m": 12070.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_401_-829": {
+   "state": "OH",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    40.10500705,
+    -82.80568844999999
+   ],
+   "nearest_other_entry": "OH_400_-828",
+   "nearest_other_entry_gap_m": 2510.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_401_-831": {
+   "state": "OH",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    40.11578365,
+    -83.00203355
+   ],
+   "nearest_other_entry": "OH_400_-832",
+   "nearest_other_entry_gap_m": 10424.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_400_-828": {
+   "state": "OH",
+   "category": "cluster",
+   "n_tagged": 29,
+   "centre": [
+    40.07591995,
+    -82.74925865
+   ],
+   "nearest_other_entry": "OH_401_-828",
+   "nearest_other_entry_gap_m": 196.9,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "OH_401_-832": {
+   "state": "OH",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    40.1104157,
+    -83.19954154999999
+   ],
+   "nearest_other_entry": "OH_401_-833",
+   "nearest_other_entry_gap_m": 40.8,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "OH_410_-807": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.041059,
+    -80.633078
+   ],
+   "nearest_other_entry": "PA_412_-799",
+   "nearest_other_entry_gap_m": 73254.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_413_-817": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.361071,
+    -81.6327814
+   ],
+   "nearest_other_entry": "OH_415_-817",
+   "nearest_other_entry_gap_m": 16164.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_401_-833": {
+   "state": "OH",
+   "category": "cluster",
+   "n_tagged": 7,
+   "centre": [
+    40.12602495,
+    -83.20804235
+   ],
+   "nearest_other_entry": "OH_401_-832",
+   "nearest_other_entry_gap_m": 40.8,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "OH_398_-830": {
+   "state": "OH",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    39.8502644,
+    -82.99561425
+   ],
+   "nearest_other_entry": "OH_400_-832",
+   "nearest_other_entry_gap_m": 21254.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_397_-827": {
+   "state": "OH",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    39.72407805,
+    -82.6893317
+   ],
+   "nearest_other_entry": "OH_398_-830",
+   "nearest_other_entry_gap_m": 29437.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_410_-816": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.0573837,
+    -81.5219276
+   ],
+   "nearest_other_entry": "OH_413_-817",
+   "nearest_other_entry_gap_m": 35058.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_414_-819": {
+   "state": "OH",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    41.4428394,
+    -81.8028724
+   ],
+   "nearest_other_entry": "OH_415_-817",
+   "nearest_other_entry_gap_m": 12070.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_402_-831": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.2245343,
+    -83.0457923
+   ],
+   "nearest_other_entry": "OH_401_-831",
+   "nearest_other_entry_gap_m": 12647.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_393_-846": {
+   "state": "OH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.3852721,
+    -84.5662844
+   ],
+   "nearest_other_entry": "OH_392_-845",
+   "nearest_other_entry_gap_m": 16712.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "OH_401_-828": {
+   "state": "OH",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    40.1015142,
+    -82.74943205
+   ],
+   "nearest_other_entry": "OH_400_-828",
+   "nearest_other_entry_gap_m": 196.9,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "UT_405_-1121": {
+   "state": "UT",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    40.56385725,
+    -112.04921995000001
+   ],
+   "nearest_other_entry": "UT_406_-1120",
+   "nearest_other_entry_gap_m": 8151.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "UT_406_-1120": {
+   "state": "UT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.6203519,
+    -111.986047
+   ],
+   "nearest_other_entry": "UT_405_-1120",
+   "nearest_other_entry_gap_m": 7690.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "UT_404_-1120": {
+   "state": "UT",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    40.480545750000005,
+    -111.90515725
+   ],
+   "nearest_other_entry": "UT_405_-1119",
+   "nearest_other_entry_gap_m": 3608.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "UT_404_-1096": {
+   "state": "UT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.4565951,
+    -109.5290169
+   ],
+   "nearest_other_entry": "UT_405_-1119",
+   "nearest_other_entry_gap_m": 199846.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "UT_407_-1120": {
+   "state": "UT",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    40.7615514,
+    -111.9375661
+   ],
+   "nearest_other_entry": "UT_406_-1119",
+   "nearest_other_entry_gap_m": 8417.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "UT_370_-1136": {
+   "state": "UT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.062799,
+    -113.5447485
+   ],
+   "nearest_other_entry": "NV_362_-1152",
+   "nearest_other_entry_gap_m": 165979.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "UT_405_-1120": {
+   "state": "UT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.5908144,
+    -111.9037856
+   ],
+   "nearest_other_entry": "UT_406_-1120",
+   "nearest_other_entry_gap_m": 7690.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "UT_402_-1121": {
+   "state": "UT",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    40.26894725,
+    -112.0172571
+   ],
+   "nearest_other_entry": "UT_404_-1120",
+   "nearest_other_entry_gap_m": 24864.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "UT_406_-1119": {
+   "state": "UT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.685569,
+    -111.8850505
+   ],
+   "nearest_other_entry": "UT_407_-1120",
+   "nearest_other_entry_gap_m": 8417.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "UT_405_-1119": {
+   "state": "UT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.5114517,
+    -111.8882555
+   ],
+   "nearest_other_entry": "UT_404_-1120",
+   "nearest_other_entry_gap_m": 3608.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_340_-843": {
+   "state": "GA",
+   "category": "cluster",
+   "n_tagged": 8,
+   "centre": [
+    34.0769001,
+    -84.2548755
+   ],
+   "nearest_other_entry": "GA_341_-843",
+   "nearest_other_entry_gap_m": 2052.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_340_-844": {
+   "state": "GA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    34.0362568,
+    -84.3195121
+   ],
+   "nearest_other_entry": "GA_340_-843",
+   "nearest_other_entry_gap_m": 4793.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_337_-845": {
+   "state": "GA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    33.777645500000006,
+    -84.42030035
+   ],
+   "nearest_other_entry": "GA_337_-844",
+   "nearest_other_entry_gap_m": 3583.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_336_-845": {
+   "state": "GA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.6570094,
+    -84.4152195
+   ],
+   "nearest_other_entry": "GA_337_-844",
+   "nearest_other_entry_gap_m": 12385.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_339_-845": {
+   "state": "GA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.9255145,
+    -84.4816338
+   ],
+   "nearest_other_entry": "GA_337_-845",
+   "nearest_other_entry_gap_m": 17379.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_340_-841": {
+   "state": "GA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    34.0362289,
+    -84.05940075000001
+   ],
+   "nearest_other_entry": "GA_339_-842",
+   "nearest_other_entry_gap_m": 15539.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_339_-842": {
+   "state": "GA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.9547396,
+    -84.1985246
+   ],
+   "nearest_other_entry": "GA_340_-843",
+   "nearest_other_entry_gap_m": 11899.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_303_-817": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    30.3314298,
+    -81.6624257
+   ],
+   "nearest_other_entry": "FL_296_-823",
+   "nearest_other_entry_gap_m": 95687.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_337_-844": {
+   "state": "GA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.7651394,
+    -84.3837393
+   ],
+   "nearest_other_entry": "GA_337_-845",
+   "nearest_other_entry_gap_m": 3583.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_340_-847": {
+   "state": "GA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    34.0707004,
+    -84.6759032
+   ],
+   "nearest_other_entry": "GA_339_-845",
+   "nearest_other_entry_gap_m": 24138.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_337_-846": {
+   "state": "GA",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    33.7496251,
+    -84.5835046
+   ],
+   "nearest_other_entry": "GA_337_-847",
+   "nearest_other_entry_gap_m": 2659.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AL_312_-855": {
+   "state": "AL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    31.2318987,
+    -85.455834
+   ],
+   "nearest_other_entry": "GA_324_-849",
+   "nearest_other_entry_gap_m": 150989.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_324_-849": {
+   "state": "GA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    32.4982295,
+    -84.8836074
+   ],
+   "nearest_other_entry": "GA_334_-846",
+   "nearest_other_entry_gap_m": 110827.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_336_-838": {
+   "state": "GA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    33.6009272,
+    -83.70289195000001
+   ],
+   "nearest_other_entry": "GA_336_-837",
+   "nearest_other_entry_gap_m": 328.5,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "GA_336_-837": {
+   "state": "GA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.6000742,
+    -83.6968472
+   ],
+   "nearest_other_entry": "GA_335_-837",
+   "nearest_other_entry_gap_m": 279.9,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": true
+  },
+  "GA_335_-837": {
+   "state": "GA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.5980717,
+    -83.6950212
+   ],
+   "nearest_other_entry": "GA_336_-837",
+   "nearest_other_entry_gap_m": 279.9,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": true
+  },
+  "GA_337_-847": {
+   "state": "GA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    33.730880049999996,
+    -84.61366035
+   ],
+   "nearest_other_entry": "GA_337_-846",
+   "nearest_other_entry_gap_m": 2659.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_341_-843": {
+   "state": "GA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    34.1033836,
+    -84.2149701
+   ],
+   "nearest_other_entry": "GA_340_-843",
+   "nearest_other_entry_gap_m": 2052.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "GA_334_-846": {
+   "state": "GA",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    33.45619825,
+    -84.52583625
+   ],
+   "nearest_other_entry": "GA_336_-845",
+   "nearest_other_entry_gap_m": 23679.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AL_347_-867": {
+   "state": "AL",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    34.7409855,
+    -86.68249235
+   ],
+   "nearest_other_entry": "AL_348_-867",
+   "nearest_other_entry_gap_m": 11323.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_350_-853": {
+   "state": "TN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.0315499,
+    -85.2972523
+   ],
+   "nearest_other_entry": "AL_349_-858",
+   "nearest_other_entry_gap_m": 42945.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AL_349_-858": {
+   "state": "AL",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    34.914153,
+    -85.7471476
+   ],
+   "nearest_other_entry": "TN_350_-853",
+   "nearest_other_entry_gap_m": 42945.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AL_334_-870": {
+   "state": "AL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.4047759,
+    -86.9115651
+   ],
+   "nearest_other_entry": "AL_335_-869",
+   "nearest_other_entry_gap_m": 13600.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AL_335_-869": {
+   "state": "AL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.5006749,
+    -86.8208315
+   ],
+   "nearest_other_entry": "AL_334_-870",
+   "nearest_other_entry_gap_m": 13600.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AL_348_-867": {
+   "state": "AL",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    34.84902805,
+    -86.62551235000001
+   ],
+   "nearest_other_entry": "AL_347_-867",
+   "nearest_other_entry_gap_m": 11323.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AR_347_-925": {
+   "state": "AR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    34.7562396,
+    -92.4447234
+   ],
+   "nearest_other_entry": "AR_352_-918",
+   "nearest_other_entry_gap_m": 84441.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "AR_352_-918": {
+   "state": "AR",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.2492161,
+    -91.7409058
+   ],
+   "nearest_other_entry": "AR_347_-925",
+   "nearest_other_entry_gap_m": 84441.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_349_-901": {
+   "state": "TN",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    34.9957356,
+    -90.03451865
+   ],
+   "nearest_other_entry": "TN_350_-902",
+   "nearest_other_entry_gap_m": 13049.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_350_-902": {
+   "state": "TN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.0599502,
+    -90.1563819
+   ],
+   "nearest_other_entry": "TN_349_-901",
+   "nearest_other_entry_gap_m": 13049.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CO_397_-1050": {
+   "state": "CO",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    39.745401150000006,
+    -104.98751155
+   ],
+   "nearest_other_entry": "CO_395_-1049",
+   "nearest_other_entry_gap_m": 18360.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CO_395_-1049": {
+   "state": "CO",
+   "category": "cluster",
+   "n_tagged": 8,
+   "centre": [
+    39.579463399999995,
+    -104.85517555
+   ],
+   "nearest_other_entry": "CO_397_-1048",
+   "nearest_other_entry_gap_m": 17701.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CO_389_-1048": {
+   "state": "CO",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    38.9873242,
+    -104.78679604999999
+   ],
+   "nearest_other_entry": "CO_387_-1048",
+   "nearest_other_entry_gap_m": 22216.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CO_399_-1050": {
+   "state": "CO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.922465,
+    -104.9834252
+   ],
+   "nearest_other_entry": "CO_399_-1051",
+   "nearest_other_entry_gap_m": 8077.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CO_388_-1046": {
+   "state": "CO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.8026713,
+    -104.5219809
+   ],
+   "nearest_other_entry": "CO_387_-1048",
+   "nearest_other_entry_gap_m": 23204.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CO_399_-1051": {
+   "state": "CO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.9891579,
+    -105.0207261
+   ],
+   "nearest_other_entry": "CO_399_-1050",
+   "nearest_other_entry_gap_m": 8077.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CO_397_-1048": {
+   "state": "CO",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    39.73181030000001,
+    -104.71036004999999
+   ],
+   "nearest_other_entry": "CO_395_-1049",
+   "nearest_other_entry_gap_m": 17701.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CO_387_-1048": {
+   "state": "CO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.7861601,
+    -104.7885828
+   ],
+   "nearest_other_entry": "CO_389_-1048",
+   "nearest_other_entry_gap_m": 22216.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WY_410_-1048": {
+   "state": "WY",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    41.06317375,
+    -104.7829202
+   ],
+   "nearest_other_entry": "WY_410_-1049",
+   "nearest_other_entry_gap_m": 3455.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WY_410_-1049": {
+   "state": "WY",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    41.076945699999996,
+    -104.82493604999999
+   ],
+   "nearest_other_entry": "WY_410_-1048",
+   "nearest_other_entry_gap_m": 3455.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CT_412_-732": {
+   "state": "CT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.2407307,
+    -73.1472668
+   ],
+   "nearest_other_entry": "CT_411_-734",
+   "nearest_other_entry_gap_m": 24717.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CT_411_-734": {
+   "state": "CT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.1130924,
+    -73.3886495
+   ],
+   "nearest_other_entry": "CT_410_-736",
+   "nearest_other_entry_gap_m": 10997.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CT_410_-736": {
+   "state": "CT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.0917847,
+    -73.5166728
+   ],
+   "nearest_other_entry": "CT_411_-734",
+   "nearest_other_entry_gap_m": 10997.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "CT_414_-729": {
+   "state": "CT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.4788147,
+    -72.8010139
+   ],
+   "nearest_other_entry": "CT_412_-732",
+   "nearest_other_entry_gap_m": 39235.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_398_-752": {
+   "state": "NJ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.8309301,
+    -75.1953233
+   ],
+   "nearest_other_entry": "PA_399_-752",
+   "nearest_other_entry_gap_m": 14646.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_296_-823": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    29.6725909,
+    -82.2999288
+   ],
+   "nearest_other_entry": "FL_303_-817",
+   "nearest_other_entry_gap_m": 95687.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_257_-802": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    25.7823886,
+    -80.1930798
+   ],
+   "nearest_other_entry": "FL_257_-803",
+   "nearest_other_entry_gap_m": 4070.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_257_-803": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    25.7975445,
+    -80.2300338
+   ],
+   "nearest_other_entry": "FL_257_-802",
+   "nearest_other_entry_gap_m": 4070.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_279_-824": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    27.9455353,
+    -82.351102
+   ],
+   "nearest_other_entry": "FL_280_-824",
+   "nearest_other_entry_gap_m": 14386.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_286_-814": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    28.6174494,
+    -81.3934606
+   ],
+   "nearest_other_entry": "FL_285_-816",
+   "nearest_other_entry_gap_m": 17290.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_261_-802": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    26.1900857,
+    -80.1932967
+   ],
+   "nearest_other_entry": "FL_261_-803",
+   "nearest_other_entry_gap_m": 9365.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_285_-816": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    28.5779418,
+    -81.5645492
+   ],
+   "nearest_other_entry": "FL_286_-814",
+   "nearest_other_entry_gap_m": 17290.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_261_-803": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    26.1849937,
+    -80.2868773
+   ],
+   "nearest_other_entry": "FL_261_-802",
+   "nearest_other_entry_gap_m": 9365.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_282_-819": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    28.2940687,
+    -81.8348651
+   ],
+   "nearest_other_entry": "FL_285_-816",
+   "nearest_other_entry_gap_m": 41216.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "FL_280_-824": {
+   "state": "FL",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    28.0738698,
+    -82.3683619
+   ],
+   "nearest_other_entry": "FL_279_-824",
+   "nearest_other_entry_gap_m": 14386.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_415_-937": {
+   "state": "IA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.5879926,
+    -93.6310139
+   ],
+   "nearest_other_entry": "IA_415_-936",
+   "nearest_other_entry_gap_m": 9182.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NE_413_-961": {
+   "state": "NE",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    41.3317436,
+    -96.0607287
+   ],
+   "nearest_other_entry": "NE_412_-960",
+   "nearest_other_entry_gap_m": 9810.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_412_-959": {
+   "state": "IA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    41.216796450000004,
+    -95.870911
+   ],
+   "nearest_other_entry": "IA_411_-959",
+   "nearest_other_entry_gap_m": 6138.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NE_412_-960": {
+   "state": "NE",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    41.25935645,
+    -95.93717380000001
+   ],
+   "nearest_other_entry": "IA_412_-959",
+   "nearest_other_entry_gap_m": 6314.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NE_411_-961": {
+   "state": "NE",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    41.1730115,
+    -96.08413635
+   ],
+   "nearest_other_entry": "NE_411_-962",
+   "nearest_other_entry_gap_m": 5062.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_415_-939": {
+   "state": "IA",
+   "category": "cluster",
+   "n_tagged": 8,
+   "centre": [
+    41.53623225,
+    -93.8441528
+   ],
+   "nearest_other_entry": "IA_414_-938",
+   "nearest_other_entry_gap_m": 4830.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_416_-936": {
+   "state": "IA",
+   "category": "cluster",
+   "n_tagged": 7,
+   "centre": [
+    41.670024600000005,
+    -93.51131575
+   ],
+   "nearest_other_entry": "IA_416_-935",
+   "nearest_other_entry_gap_m": 4165.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NE_412_-962": {
+   "state": "NE",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.2204018,
+    -96.1476408
+   ],
+   "nearest_other_entry": "NE_411_-961",
+   "nearest_other_entry_gap_m": 6880.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_415_-938": {
+   "state": "IA",
+   "category": "cluster",
+   "n_tagged": 12,
+   "centre": [
+    41.5162123,
+    -93.71195080000001
+   ],
+   "nearest_other_entry": "IA_414_-938",
+   "nearest_other_entry_gap_m": 5716.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_414_-938": {
+   "state": "IA",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    41.49682525,
+    -93.7870332
+   ],
+   "nearest_other_entry": "IA_415_-939",
+   "nearest_other_entry_gap_m": 4830.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NE_411_-962": {
+   "state": "NE",
+   "category": "cluster",
+   "n_tagged": 10,
+   "centre": [
+    41.12507865,
+    -96.1443962
+   ],
+   "nearest_other_entry": "NE_411_-961",
+   "nearest_other_entry_gap_m": 5062.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_415_-936": {
+   "state": "IA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    41.55811665,
+    -93.5279406
+   ],
+   "nearest_other_entry": "IA_415_-937",
+   "nearest_other_entry_gap_m": 9182.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_411_-959": {
+   "state": "IA",
+   "category": "cluster",
+   "n_tagged": 13,
+   "centre": [
+    41.1750226,
+    -95.8038504
+   ],
+   "nearest_other_entry": "IA_411_-958",
+   "nearest_other_entry_gap_m": 80.3,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "IA_411_-958": {
+   "state": "IA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    41.17458135,
+    -95.79431235
+   ],
+   "nearest_other_entry": "IA_411_-959",
+   "nearest_other_entry_gap_m": 80.3,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "IA_416_-935": {
+   "state": "IA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    41.6672384,
+    -93.45571365
+   ],
+   "nearest_other_entry": "IA_416_-936",
+   "nearest_other_entry_gap_m": 4165.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IA_416_-940": {
+   "state": "IA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.6168519,
+    -93.9243968
+   ],
+   "nearest_other_entry": "IA_415_-939",
+   "nearest_other_entry_gap_m": 9884.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "ID_438_-1118": {
+   "state": "ID",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.8252286,
+    -111.7820703
+   ],
+   "nearest_other_entry": "ID_423_-1114",
+   "nearest_other_entry_gap_m": 172304.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_476_-1171": {
+   "state": "WA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    47.6719149,
+    -117.0959323
+   ],
+   "nearest_other_entry": "WA_476_-1175",
+   "nearest_other_entry_gap_m": 24376.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MT_463_-1133": {
+   "state": "MT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    46.3321316,
+    -113.2926719
+   ],
+   "nearest_other_entry": "ID_438_-1118",
+   "nearest_other_entry_gap_m": 303280.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "ID_423_-1114": {
+   "state": "ID",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.3172742,
+    -111.304246
+   ],
+   "nearest_other_entry": "ID_438_-1118",
+   "nearest_other_entry_gap_m": 172304.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "ID_434_-1163": {
+   "state": "ID",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    43.4632388,
+    -116.2701637
+   ],
+   "nearest_other_entry": "OR_458_-1193",
+   "nearest_other_entry_gap_m": 352820.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IN_391_-866": {
+   "state": "IN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.1744228,
+    -86.5006878
+   ],
+   "nearest_other_entry": "IN_397_-860",
+   "nearest_other_entry_gap_m": 77215.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "KY_382_-856": {
+   "state": "KY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.2771906,
+    -85.5072402
+   ],
+   "nearest_other_entry": "KY_382_-858",
+   "nearest_other_entry_gap_m": 20136.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "KY_382_-858": {
+   "state": "KY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.242501,
+    -85.733336
+   ],
+   "nearest_other_entry": "KY_382_-856",
+   "nearest_other_entry_gap_m": 20136.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IN_397_-860": {
+   "state": "IN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.7171971,
+    -85.941411
+   ],
+   "nearest_other_entry": "IN_391_-866",
+   "nearest_other_entry_gap_m": 77215.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "IN_416_-865": {
+   "state": "IN",
+   "category": "cluster",
+   "n_tagged": 8,
+   "centre": [
+    41.67991105,
+    -86.46938775
+   ],
+   "nearest_other_entry": "MI_419_-861",
+   "nearest_other_entry_gap_m": 45164.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MO_390_-946": {
+   "state": "MO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.0944683,
+    -94.5794418
+   ],
+   "nearest_other_entry": "KS_389_-948",
+   "nearest_other_entry_gap_m": 22901.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MO_392_-947": {
+   "state": "MO",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    39.29284495,
+    -94.67927515
+   ],
+   "nearest_other_entry": "MO_393_-947",
+   "nearest_other_entry_gap_m": 762.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MO_393_-947": {
+   "state": "MO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.3024057,
+    -94.6847918
+   ],
+   "nearest_other_entry": "MO_392_-947",
+   "nearest_other_entry_gap_m": 762.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "KS_389_-948": {
+   "state": "KS",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    38.932896549999995,
+    -94.76277445
+   ],
+   "nearest_other_entry": "KS_389_-949",
+   "nearest_other_entry_gap_m": 7781.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "KS_388_-994": {
+   "state": "KS",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.8721322,
+    -99.3001874
+   ],
+   "nearest_other_entry": "KS_372_-986",
+   "nearest_other_entry_gap_m": 188057.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "KS_389_-949": {
+   "state": "KS",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    38.9373924,
+    -94.8623449
+   ],
+   "nearest_other_entry": "KS_389_-948",
+   "nearest_other_entry_gap_m": 7781.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MO_393_-946": {
+   "state": "MO",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    39.32262995,
+    -94.5964353
+   ],
+   "nearest_other_entry": "MO_392_-947",
+   "nearest_other_entry_gap_m": 7160.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "KS_372_-986": {
+   "state": "KS",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    37.2784058,
+    -98.5884618
+   ],
+   "nearest_other_entry": "KS_388_-994",
+   "nearest_other_entry_gap_m": 188057.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_366_-873": {
+   "state": "TN",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    36.62615905,
+    -87.2602112
+   ],
+   "nearest_other_entry": "TN_362_-868",
+   "nearest_other_entry_gap_m": 56071.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_364_-864": {
+   "state": "TN",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    36.4089787,
+    -86.36881199999999
+   ],
+   "nearest_other_entry": "TN_362_-868",
+   "nearest_other_entry_gap_m": 39439.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MS_325_-901": {
+   "state": "MS",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    32.59538335,
+    -90.09363475
+   ],
+   "nearest_other_entry": "MS_324_-902",
+   "nearest_other_entry_gap_m": 21997.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MS_324_-902": {
+   "state": "MS",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    32.41194185,
+    -90.1900362
+   ],
+   "nearest_other_entry": "MS_325_-901",
+   "nearest_other_entry_gap_m": 21997.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MA_423_-711": {
+   "state": "MA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.3767059,
+    -71.0797577
+   ],
+   "nearest_other_entry": "MA_426_-714",
+   "nearest_other_entry_gap_m": 33722.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MA_426_-713": {
+   "state": "MA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.6857078,
+    -71.2086024
+   ],
+   "nearest_other_entry": "MA_426_-714",
+   "nearest_other_entry_gap_m": 9989.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MA_426_-714": {
+   "state": "MA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.6302832,
+    -71.3045615
+   ],
+   "nearest_other_entry": "MA_426_-713",
+   "nearest_other_entry_gap_m": 9989.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NH_429_-710": {
+   "state": "NH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.9820886,
+    -70.9505947
+   ],
+   "nearest_other_entry": "NH_430_-709",
+   "nearest_other_entry_gap_m": 15625.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NH_431_-710": {
+   "state": "NH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.1436204,
+    -70.9524471
+   ],
+   "nearest_other_entry": "NH_430_-709",
+   "nearest_other_entry_gap_m": 13934.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NH_430_-709": {
+   "state": "NH",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.0761287,
+    -70.8080395
+   ],
+   "nearest_other_entry": "NH_431_-710",
+   "nearest_other_entry_gap_m": 13934.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "ME_438_-700": {
+   "state": "ME",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.8951573,
+    -69.9234342
+   ],
+   "nearest_other_entry": "NH_430_-709",
+   "nearest_other_entry_gap_m": 115834.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "ME_469_-680": {
+   "state": "ME",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    46.9399928,
+    -67.9055877
+   ],
+   "nearest_other_entry": "ME_438_-700",
+   "nearest_other_entry_gap_m": 373829.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MI_423_-831": {
+   "state": "MI",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    42.32623275,
+    -83.07337275
+   ],
+   "nearest_other_entry": "MI_422_-832",
+   "nearest_other_entry_gap_m": 15998.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MI_424_-833": {
+   "state": "MI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.4476693,
+    -83.2626336
+   ],
+   "nearest_other_entry": "MI_423_-831",
+   "nearest_other_entry_gap_m": 20386.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_430_-895": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.0672971,
+    -89.436704
+   ],
+   "nearest_other_entry": "WI_428_-888",
+   "nearest_other_entry_gap_m": 62887.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MI_426_-847": {
+   "state": "MI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.6879527,
+    -84.6430423
+   ],
+   "nearest_other_entry": "MI_427_-847",
+   "nearest_other_entry_gap_m": 2706.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MI_427_-847": {
+   "state": "MI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.7053904,
+    -84.6660891
+   ],
+   "nearest_other_entry": "MI_426_-847",
+   "nearest_other_entry_gap_m": 2706.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_428_-880": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.8631424,
+    -87.9778759
+   ],
+   "nearest_other_entry": "WI_426_-880",
+   "nearest_other_entry_gap_m": 21428.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MI_429_-838": {
+   "state": "MI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.9687271,
+    -83.779585
+   ],
+   "nearest_other_entry": "MI_424_-833",
+   "nearest_other_entry_gap_m": 71781.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_442_-884": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.2044349,
+    -88.3449304
+   ],
+   "nearest_other_entry": "WI_437_-896",
+   "nearest_other_entry_gap_m": 109139.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MI_422_-835": {
+   "state": "MI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.2353267,
+    -83.4441406
+   ],
+   "nearest_other_entry": "MI_422_-832",
+   "nearest_other_entry_gap_m": 20412.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MI_422_-832": {
+   "state": "MI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.213902,
+    -83.198214
+   ],
+   "nearest_other_entry": "MI_423_-831",
+   "nearest_other_entry_gap_m": 15998.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_437_-896": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.7821763,
+    -89.5748406
+   ],
+   "nearest_other_entry": "WI_436_-898",
+   "nearest_other_entry_gap_m": 19886.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_426_-880": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.675665,
+    -87.9184055
+   ],
+   "nearest_other_entry": "WI_426_-879",
+   "nearest_other_entry_gap_m": 1783.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_430_-883": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.0513735,
+    -88.216698
+   ],
+   "nearest_other_entry": "WI_428_-880",
+   "nearest_other_entry_gap_m": 28594.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_436_-898": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.6383333,
+    -89.7214027
+   ],
+   "nearest_other_entry": "WI_437_-896",
+   "nearest_other_entry_gap_m": 19886.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_426_-879": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.6733205,
+    -87.8968464
+   ],
+   "nearest_other_entry": "WI_426_-880",
+   "nearest_other_entry_gap_m": 1783.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MI_419_-861": {
+   "state": "MI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.9929788,
+    -86.0984691
+   ],
+   "nearest_other_entry": "IN_416_-865",
+   "nearest_other_entry_gap_m": 45164.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_449_-933": {
+   "state": "MN",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    44.981365249999996,
+    -93.25336455
+   ],
+   "nearest_other_entry": "MN_449_-932",
+   "nearest_other_entry_gap_m": 6214.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_448_-936": {
+   "state": "MN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.8516116,
+    -93.5988964
+   ],
+   "nearest_other_entry": "MN_448_-937",
+   "nearest_other_entry_gap_m": 5556.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_448_-934": {
+   "state": "MN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.8072109,
+    -93.375385
+   ],
+   "nearest_other_entry": "MN_448_-936",
+   "nearest_other_entry_gap_m": 18325.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_449_-932": {
+   "state": "MN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.972195,
+    -93.1474731
+   ],
+   "nearest_other_entry": "MN_449_-933",
+   "nearest_other_entry_gap_m": 6214.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "SD_436_-969": {
+   "state": "SD",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.6069708,
+    -96.8091949
+   ],
+   "nearest_other_entry": "SD_435_-968",
+   "nearest_other_entry_gap_m": 1404.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_448_-937": {
+   "state": "MN",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    44.80790495,
+    -93.63596935000001
+   ],
+   "nearest_other_entry": "MN_448_-936",
+   "nearest_other_entry_gap_m": 5556.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "SD_435_-968": {
+   "state": "SD",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.5999139,
+    -96.7947573
+   ],
+   "nearest_other_entry": "SD_436_-969",
+   "nearest_other_entry_gap_m": 1404.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_440_-926": {
+   "state": "MN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.0707955,
+    -92.5221323
+   ],
+   "nearest_other_entry": "MN_447_-931",
+   "nearest_other_entry_gap_m": 85451.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_448_-920": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.8771653,
+    -91.9199989
+   ],
+   "nearest_other_entry": "MN_447_-931",
+   "nearest_other_entry_gap_m": 91568.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_468_-922": {
+   "state": "MN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    46.8274678,
+    -92.1304819
+   ],
+   "nearest_other_entry": "MN_451_-931",
+   "nearest_other_entry_gap_m": 202953.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_451_-934": {
+   "state": "MN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    45.1436925,
+    -93.3871189
+   ],
+   "nearest_other_entry": "MN_449_-933",
+   "nearest_other_entry_gap_m": 18914.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_451_-931": {
+   "state": "MN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    45.1321573,
+    -93.0956156
+   ],
+   "nearest_other_entry": "MN_449_-932",
+   "nearest_other_entry_gap_m": 18268.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MN_447_-931": {
+   "state": "MN",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    44.7346468,
+    -93.06337554999999
+   ],
+   "nearest_other_entry": "MN_448_-934",
+   "nearest_other_entry_gap_m": 25829.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MO_389_-923": {
+   "state": "MO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    38.9235166,
+    -92.2886061
+   ],
+   "nearest_other_entry": "MO_401_-926",
+   "nearest_other_entry_gap_m": 143695.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MO_401_-926": {
+   "state": "MO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.1944836,
+    -92.5812336
+   ],
+   "nearest_other_entry": "MO_397_-940",
+   "nearest_other_entry_gap_m": 130809.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MO_397_-940": {
+   "state": "MO",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.7440482,
+    -93.997376
+   ],
+   "nearest_other_entry": "MO_393_-946",
+   "nearest_other_entry_gap_m": 69509.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "MT_464_-1059": {
+   "state": "MT",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    46.4068846,
+    -105.8206969
+   ],
+   "nearest_other_entry": "WY_441_-1057",
+   "nearest_other_entry_gap_m": 247416.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_355_-813": {
+   "state": "NC",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    35.5887233,
+    -81.26242669999999
+   ],
+   "nearest_other_entry": "NC_352_-814",
+   "nearest_other_entry_gap_m": 39298.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_358_-816": {
+   "state": "NC",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    35.89550135,
+    -81.5471095
+   ],
+   "nearest_other_entry": "NC_355_-813",
+   "nearest_other_entry_gap_m": 42218.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_351_-810": {
+   "state": "NC",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    35.1577327,
+    -80.92652705
+   ],
+   "nearest_other_entry": "NC_353_-808",
+   "nearest_other_entry_gap_m": 21562.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_357_-787": {
+   "state": "NC",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.7249921,
+    -78.6623632
+   ],
+   "nearest_other_entry": "NC_357_-788",
+   "nearest_other_entry_gap_m": 11931.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_353_-819": {
+   "state": "NC",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    35.3158141,
+    -81.82414765
+   ],
+   "nearest_other_entry": "NC_352_-814",
+   "nearest_other_entry_gap_m": 39448.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_352_-814": {
+   "state": "NC",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.2504249,
+    -81.395039
+   ],
+   "nearest_other_entry": "NC_355_-813",
+   "nearest_other_entry_gap_m": 39298.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_357_-788": {
+   "state": "NC",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.766751,
+    -78.7839874
+   ],
+   "nearest_other_entry": "NC_357_-787",
+   "nearest_other_entry_gap_m": 11931.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_358_-784": {
+   "state": "NC",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.8393357,
+    -78.3281352
+   ],
+   "nearest_other_entry": "NC_357_-787",
+   "nearest_other_entry_gap_m": 32757.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_363_-834": {
+   "state": "TN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    36.3280739,
+    -83.3767035
+   ],
+   "nearest_other_entry": "KY_376_-827",
+   "nearest_other_entry_gap_m": 154620.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_351_-806": {
+   "state": "NC",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.1794881,
+    -80.5701825
+   ],
+   "nearest_other_entry": "NC_353_-808",
+   "nearest_other_entry_gap_m": 24412.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NC_353_-808": {
+   "state": "NC",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.329773,
+    -80.7657588
+   ],
+   "nearest_other_entry": "NC_351_-810",
+   "nearest_other_entry_gap_m": 21562.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "ND_460_-986": {
+   "state": "ND",
+   "category": "cluster",
+   "n_tagged": 10,
+   "centre": [
+    46.0129261,
+    -98.57278425
+   ],
+   "nearest_other_entry": "SD_436_-969",
+   "nearest_other_entry_gap_m": 301760.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "ND_481_-1038": {
+   "state": "ND",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    48.1462599,
+    -103.7727866
+   ],
+   "nearest_other_entry": "MT_464_-1059",
+   "nearest_other_entry_gap_m": 247819.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NE_407_-991": {
+   "state": "NE",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.7259269,
+    -99.038336
+   ],
+   "nearest_other_entry": "KS_388_-994",
+   "nearest_other_entry_gap_m": 207576.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WY_411_-1041": {
+   "state": "WY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.1826012,
+    -104.0684983
+   ],
+   "nearest_other_entry": "WY_411_-1048",
+   "nearest_other_entry_gap_m": 54513.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_407_-741": {
+   "state": "NJ",
+   "category": "cluster",
+   "n_tagged": 16,
+   "centre": [
+    40.75669164999999,
+    -74.0402543
+   ],
+   "nearest_other_entry": "NJ_408_-742",
+   "nearest_other_entry_gap_m": 4924.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_405_-744": {
+   "state": "NJ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.5208169,
+    -74.3472226
+   ],
+   "nearest_other_entry": "NJ_405_-745",
+   "nearest_other_entry_gap_m": 9641.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_405_-745": {
+   "state": "NJ",
+   "category": "cluster",
+   "n_tagged": 8,
+   "centre": [
+    40.55092945,
+    -74.47602295
+   ],
+   "nearest_other_entry": "NJ_405_-746",
+   "nearest_other_entry_gap_m": 2033.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_406_-742": {
+   "state": "NY",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    40.6072081,
+    -74.17403585
+   ],
+   "nearest_other_entry": "NJ_405_-743",
+   "nearest_other_entry_gap_m": 6314.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "PA_406_-755": {
+   "state": "PA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.6356953,
+    -75.4575733
+   ],
+   "nearest_other_entry": "PA_405_-757",
+   "nearest_other_entry_gap_m": 19503.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "PA_399_-752": {
+   "state": "PA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    39.9598116,
+    -75.1608332
+   ],
+   "nearest_other_entry": "NJ_398_-752",
+   "nearest_other_entry_gap_m": 14646.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "PA_401_-755": {
+   "state": "PA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    40.1370589,
+    -75.44313835
+   ],
+   "nearest_other_entry": "PA_399_-752",
+   "nearest_other_entry_gap_m": 27775.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_396_-744": {
+   "state": "NJ",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    39.6124703,
+    -74.32747335
+   ],
+   "nearest_other_entry": "NJ_400_-743",
+   "nearest_other_entry_gap_m": 47772.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_407_-742": {
+   "state": "NJ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.7367304,
+    -74.1738875
+   ],
+   "nearest_other_entry": "NJ_407_-741",
+   "nearest_other_entry_gap_m": 8260.5,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_408_-742": {
+   "state": "NJ",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    40.8274521,
+    -74.13236655
+   ],
+   "nearest_other_entry": "NJ_407_-741",
+   "nearest_other_entry_gap_m": 4924.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_401_-742": {
+   "state": "NJ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.1570435,
+    -74.101582
+   ],
+   "nearest_other_entry": "NJ_401_-741",
+   "nearest_other_entry_gap_m": 4128.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_405_-746": {
+   "state": "NJ",
+   "category": "cluster",
+   "n_tagged": 9,
+   "centre": [
+    40.5528808,
+    -74.54664489999999
+   ],
+   "nearest_other_entry": "NJ_405_-745",
+   "nearest_other_entry_gap_m": 2033.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_410_-742": {
+   "state": "NJ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    41.0783165,
+    -74.152912
+   ],
+   "nearest_other_entry": "NY_410_-740",
+   "nearest_other_entry_gap_m": 14012.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_405_-747": {
+   "state": "NJ",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    40.549222,
+    -74.67657295000001
+   ],
+   "nearest_other_entry": "NJ_405_-748",
+   "nearest_other_entry_gap_m": 3978.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_405_-743": {
+   "state": "NJ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.5843719,
+    -74.2433813
+   ],
+   "nearest_other_entry": "NY_406_-742",
+   "nearest_other_entry_gap_m": 6314.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_405_-748": {
+   "state": "NJ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.5995576,
+    -74.7099684
+   ],
+   "nearest_other_entry": "NJ_405_-747",
+   "nearest_other_entry_gap_m": 3978.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_409_-739": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.9512698,
+    -73.897901
+   ],
+   "nearest_other_entry": "NY_410_-740",
+   "nearest_other_entry_gap_m": 11151.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_401_-741": {
+   "state": "NJ",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    40.14515805,
+    -74.04791789999999
+   ],
+   "nearest_other_entry": "NJ_401_-742",
+   "nearest_other_entry_gap_m": 4128.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_410_-740": {
+   "state": "NY",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    41.04341255,
+    -73.9806735
+   ],
+   "nearest_other_entry": "NY_409_-739",
+   "nearest_other_entry_gap_m": 11151.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_402_-742": {
+   "state": "NJ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.2084622,
+    -74.119242
+   ],
+   "nearest_other_entry": "NJ_401_-742",
+   "nearest_other_entry_gap_m": 5917.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_402_-744": {
+   "state": "NJ",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.2392258,
+    -74.3195376
+   ],
+   "nearest_other_entry": "NJ_402_-742",
+   "nearest_other_entry_gap_m": 17365.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NJ_400_-743": {
+   "state": "NJ",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    40.0444893,
+    -74.27913129999999
+   ],
+   "nearest_other_entry": "NJ_401_-742",
+   "nearest_other_entry_gap_m": 19497.8,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NM_348_-1068": {
+   "state": "NM",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    34.82806085,
+    -106.78013655000001
+   ],
+   "nearest_other_entry": "NM_349_-1067",
+   "nearest_other_entry_gap_m": 23393.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NM_323_-1068": {
+   "state": "NM",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    32.3096657,
+    -106.7291929
+   ],
+   "nearest_other_entry": "NM_323_-1065",
+   "nearest_other_entry_gap_m": 24632.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_446_-750": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.6681065,
+    -74.980582
+   ],
+   "nearest_other_entry": "NY_448_-741",
+   "nearest_other_entry_gap_m": 75966.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_426_-770": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.6793587,
+    -76.9485811
+   ],
+   "nearest_other_entry": "NY_429_-777",
+   "nearest_other_entry_gap_m": 67017.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_408_-729": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.8436519,
+    -72.8833757
+   ],
+   "nearest_other_entry": "CT_412_-732",
+   "nearest_other_entry_gap_m": 49444.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "PA_405_-757": {
+   "state": "PA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.5442553,
+    -75.6543694
+   ],
+   "nearest_other_entry": "PA_406_-755",
+   "nearest_other_entry_gap_m": 19503.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_430_-790": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.074831,
+    -78.944809
+   ],
+   "nearest_other_entry": "NY_430_-791",
+   "nearest_other_entry_gap_m": 4794.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_430_-791": {
+   "state": "NY",
+   "category": "cluster",
+   "n_tagged": 12,
+   "centre": [
+    43.0827606,
+    -79.0168591
+   ],
+   "nearest_other_entry": "NY_430_-790",
+   "nearest_other_entry_gap_m": 4794.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_427_-738": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.7454447,
+    -73.7592013
+   ],
+   "nearest_other_entry": "CT_414_-729",
+   "nearest_other_entry_gap_m": 161686.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_430_-788": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.0449439,
+    -78.7492033
+   ],
+   "nearest_other_entry": "NY_430_-790",
+   "nearest_other_entry_gap_m": 16253.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_430_-762": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    43.0120761,
+    -76.1159253
+   ],
+   "nearest_other_entry": "NY_426_-770",
+   "nearest_other_entry_gap_m": 77397.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "PA_410_-762": {
+   "state": "PA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    41.083308099999996,
+    -76.1474105
+   ],
+   "nearest_other_entry": "PA_405_-757",
+   "nearest_other_entry_gap_m": 72726.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_448_-741": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.8930062,
+    -74.0728813
+   ],
+   "nearest_other_entry": "NY_446_-750",
+   "nearest_other_entry_gap_m": 75966.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "NY_429_-777": {
+   "state": "NY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.9972167,
+    -77.6458295
+   ],
+   "nearest_other_entry": "NY_426_-770",
+   "nearest_other_entry_gap_m": 67017.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "PA_404_-802": {
+   "state": "PA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.4513704,
+    -80.1901663
+   ],
+   "nearest_other_entry": "PA_404_-801",
+   "nearest_other_entry_gap_m": 12791.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "PA_404_-801": {
+   "state": "PA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    40.427371,
+    -80.0425212
+   ],
+   "nearest_other_entry": "PA_404_-802",
+   "nearest_other_entry_gap_m": 12791.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "PA_412_-799": {
+   "state": "PA",
+   "category": "cluster",
+   "n_tagged": 32,
+   "centre": [
+    41.2716635,
+    -79.8132459
+   ],
+   "nearest_other_entry": "OH_410_-807",
+   "nearest_other_entry_gap_m": 73254.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "SC_330_-801": {
+   "state": "SC",
+   "category": "cluster",
+   "n_tagged": 10,
+   "centre": [
+    33.0641714,
+    -80.04217539999999
+   ],
+   "nearest_other_entry": "SC_336_-790",
+   "nearest_other_entry_gap_m": 122216.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "SC_336_-790": {
+   "state": "SC",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    33.6746067,
+    -78.9438847
+   ],
+   "nearest_other_entry": "SC_330_-801",
+   "nearest_other_entry_gap_m": 122216.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_361_-868": {
+   "state": "TN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    36.1405001,
+    -86.7641364
+   ],
+   "nearest_other_entry": "TN_362_-868",
+   "nearest_other_entry_gap_m": 8518.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_362_-868": {
+   "state": "TN",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    36.24878375,
+    -86.79038295000001
+   ],
+   "nearest_other_entry": "TN_361_-868",
+   "nearest_other_entry_gap_m": 8518.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_360_-867": {
+   "state": "TN",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    36.0326759,
+    -86.63775294999999
+   ],
+   "nearest_other_entry": "TN_359_-865",
+   "nearest_other_entry_gap_m": 13501.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_359_-869": {
+   "state": "TN",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    35.946491300000005,
+    -86.8318645
+   ],
+   "nearest_other_entry": "TN_360_-868",
+   "nearest_other_entry_gap_m": 5859.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_360_-868": {
+   "state": "TN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    36.0234892,
+    -86.7916196
+   ],
+   "nearest_other_entry": "TN_359_-869",
+   "nearest_other_entry_gap_m": 5859.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_359_-865": {
+   "state": "TN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    35.9934295,
+    -86.4958261
+   ],
+   "nearest_other_entry": "TN_360_-867",
+   "nearest_other_entry_gap_m": 13501.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "TN_363_-884": {
+   "state": "TN",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    36.3270316,
+    -88.3200731
+   ],
+   "nearest_other_entry": "TN_366_-873",
+   "nearest_other_entry_gap_m": 100189.1,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_474_-1223": {
+   "state": "WA",
+   "category": "cluster",
+   "n_tagged": 8,
+   "centre": [
+    47.49350845,
+    -122.29129575
+   ],
+   "nearest_other_entry": "WA_476_-1224",
+   "nearest_other_entry_gap_m": 13394.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_476_-1224": {
+   "state": "WA",
+   "category": "cluster",
+   "n_tagged": 7,
+   "centre": [
+    47.65383955,
+    -122.3370056
+   ],
+   "nearest_other_entry": "WA_474_-1223",
+   "nearest_other_entry_gap_m": 13394.3,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_472_-1199": {
+   "state": "WA",
+   "category": "cluster",
+   "n_tagged": 33,
+   "centre": [
+    47.2453456,
+    -119.8541179
+   ],
+   "nearest_other_entry": "WA_474_-1202",
+   "nearest_other_entry_gap_m": 27883.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_487_-1225": {
+   "state": "WA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    48.75726,
+    -122.4805485
+   ],
+   "nearest_other_entry": "WA_478_-1223",
+   "nearest_other_entry_gap_m": 100361.6,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_478_-1224": {
+   "state": "WA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    47.841809,
+    -122.3016653
+   ],
+   "nearest_other_entry": "WA_478_-1223",
+   "nearest_other_entry_gap_m": 900.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_476_-1175": {
+   "state": "WA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    47.6542257,
+    -117.4200007
+   ],
+   "nearest_other_entry": "WA_475_-1176",
+   "nearest_other_entry_gap_m": 11013.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_474_-1202": {
+   "state": "WA",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    47.40789225,
+    -120.18966185
+   ],
+   "nearest_other_entry": "WA_474_-1203",
+   "nearest_other_entry_gap_m": 1196.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_478_-1223": {
+   "state": "WA",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    47.84354835,
+    -122.2868835
+   ],
+   "nearest_other_entry": "WA_478_-1224",
+   "nearest_other_entry_gap_m": 900.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_471_-1223": {
+   "state": "WA",
+   "category": "cluster",
+   "n_tagged": 3,
+   "centre": [
+    47.15988345,
+    -122.27955485
+   ],
+   "nearest_other_entry": "WA_474_-1223",
+   "nearest_other_entry_gap_m": 36867.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_474_-1203": {
+   "state": "WA",
+   "category": "cluster",
+   "n_tagged": 5,
+   "centre": [
+    47.4134401,
+    -120.2108492
+   ],
+   "nearest_other_entry": "WA_474_-1202",
+   "nearest_other_entry_gap_m": 1196.9,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_473_-1203": {
+   "state": "WA",
+   "category": "cluster",
+   "n_tagged": 4,
+   "centre": [
+    47.39195315,
+    -120.21738935
+   ],
+   "nearest_other_entry": "WA_474_-1203",
+   "nearest_other_entry_gap_m": 1694.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WA_475_-1176": {
+   "state": "WA",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    47.5946162,
+    -117.5371477
+   ],
+   "nearest_other_entry": "WA_476_-1175",
+   "nearest_other_entry_gap_m": 11013.0,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WI_428_-888": {
+   "state": "WI",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    42.8336437,
+    -88.7339975
+   ],
+   "nearest_other_entry": "WI_430_-883",
+   "nearest_other_entry_gap_m": 48626.2,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WY_411_-1049": {
+   "state": "WY",
+   "category": "cluster",
+   "n_tagged": 7,
+   "centre": [
+    41.126389849999995,
+    -104.8982656
+   ],
+   "nearest_other_entry": "WY_411_-1050",
+   "nearest_other_entry_gap_m": 196.0,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "WY_411_-1050": {
+   "state": "WY",
+   "category": "cluster",
+   "n_tagged": 6,
+   "centre": [
+    41.124269999999996,
+    -104.90568485
+   ],
+   "nearest_other_entry": "WY_411_-1049",
+   "nearest_other_entry_gap_m": 196.0,
+   "has_neighbour_within_validated_range": true,
+   "reclassified_from_single": false
+  },
+  "WY_411_-1048": {
+   "state": "WY",
+   "category": "pair",
+   "n_tagged": 2,
+   "centre": [
+    41.14181575,
+    -104.71720515
+   ],
+   "nearest_other_entry": "WY_410_-1048",
+   "nearest_other_entry_gap_m": 10054.4,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  },
+  "WY_441_-1057": {
+   "state": "WY",
+   "category": "single",
+   "n_tagged": 1,
+   "centre": [
+    44.1892369,
+    -105.6104802
+   ],
+   "nearest_other_entry": "MT_464_-1059",
+   "nearest_other_entry_gap_m": 247416.7,
+   "has_neighbour_within_validated_range": false,
+   "reclassified_from_single": false
+  }
+ }
+}

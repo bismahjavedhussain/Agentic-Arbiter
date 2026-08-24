@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(python run_all.py)",
+      "Bash(echo \"EXIT=$?\")",
+      "Read(//tmp/**)",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process -Filter \"Name='\\\\''python.exe'\\\\''\" | Where-Object { $_.CommandLine -like '\\\\''*run_all*'\\\\'' -or $_.CommandLine -like '\\\\''*agent.py*'\\\\'' -or $_.CommandLine -like '\\\\''*backtest*'\\\\'' -or $_.CommandLine -like '\\\\''*plume*'\\\\'' -or $_.CommandLine -like '\\\\''*build_sites*'\\\\'' } | Select-Object ProcessId,CreationDate,CommandLine | Format-List')",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process -Filter \"Name='\\\\''python.exe'\\\\''\" | Where-Object { $_.CommandLine -notlike '\\\\''*http.server*'\\\\'' } | Select-Object ProcessId,CommandLine | Format-Table -AutoSize -Wrap')",
+      "Bash(powershell -NoProfile -Command \"Get-Process msedge,chrome -ErrorAction SilentlyContinue | Measure-Object | Select-Object -ExpandProperty Count\")",
+      "Bash(tail -25 /tmp/run_all_s0.log)",
+      "Bash(python audit.py)",
+      "Bash(python -u run_all.py)",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process -Filter \"Name='\\\\''python.exe'\\\\''\" | Where-Object { $_.CommandLine -notlike '\\\\''*http.server*'\\\\'' } | Select-Object CommandLine | Format-Table -AutoSize -Wrap')",
+      "Bash(tail -4 /tmp/run_all_s0b.log 2>/dev/null)",
+      "Bash(python testing/verify_site_panels.py)",
+      "Bash(python testing/verify_map_hover.py)",
+      "Bash(curl -s -o /dev/null -w \"sites.json -> HTTP %{http_code}\\\\n\" http://127.0.0.1:8000/sites.json)",
+      "Bash(curl -s -o /dev/null -w \"unified_sites.json -> HTTP %{http_code}\\\\n\" http://127.0.0.1:8000/unified_sites.json)",
+      "Bash(curl -s http://127.0.0.1:8000/index.html)"
+    ]
+  }
+}

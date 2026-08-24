@@ -19,17 +19,19 @@
   "facade_gap_m": 118.4,
   "centroid_separation_m": 319.4
  },
- "utc_now": "2026-08-20T12:13:06.015987+00:00",
- "site_local_now": "2026-08-20T07:13:06.003085-05:00",
+ "utc_now": "2026-08-23T10:22:53.465874+00:00",
+ "site_local_now": "2026-08-23T05:22:53.452336-05:00",
  "site_tz": "America/Chicago",
  "horizon_h": 2,
- "first_hour_site_local": "2026-08-20T08:00:00-05:00",
+ "first_hour_site_local": "2026-08-23T06:00:00-05:00",
  "config": {
-  "limit_c": 27.0,
+  "limit_c": 24.0,
   "switch_budget": 2,
   "min_dwell_h": 3,
   "dewpoint_limit_c": 15.0,
-  "bank_mode": "longest"
+  "bank_mode": "longest",
+  "aq_limit_idx": null,
+  "env_live_during_replay": false
  },
  "aoi": {
   "centre": [
@@ -45,6 +47,28 @@
   "wind_and_dewpoint": "NWS api.weather.gov gridpoint forecast (free, keyless). FortyGuard's API carries no wind field, and env_params returns no dry-bulb -- findings section 9.4",
   "rise": "this site's own 576-solve rise table on its real OSM geometry"
  },
+ "horizon_plan": [
+  {
+   "window": {
+    "start_date": "2026-08-23",
+    "start_time": "06:00",
+    "end_time": "07:00",
+    "filter_type": 2
+   },
+   "lead_h": 0.618,
+   "already_cached": false
+  },
+  {
+   "window": {
+    "start_date": "2026-08-23",
+    "start_time": "07:00",
+    "end_time": "08:00",
+    "filter_type": 2
+   },
+   "lead_h": 1.618,
+   "already_cached": false
+  }
+ ],
  "nws": {
   "source": "api.weather.gov gridpoint forecast",
   "ok": true,
@@ -52,9 +76,30 @@
   "missing": [],
   "uom_note": "windSpeed converted km/h -> m/s; dewpoint already C"
  },
+ "fortyguard_env": {
+  "endpoint": "env_params",
+  "requested_day_site_local": "2026-08-20",
+  "credits": 0,
+  "class": "saved",
+  "source": "saved FortyGuard response",
+  "n_fields": 15,
+  "fixture": "env_replay_chicago_2026-08-20.json",
+  "n_hours": 24,
+  "same_day": true,
+  "mode": "saved",
+  "matched_against": "2026-08-20",
+  "matched_against_note": "the replayed heatmap's own window date, so the temperature and the humidity describe the same day when a response for it exists",
+  "alignment": {
+   "method": "cross-correlate FortyGuard wet-bulb against NWS dew point over the horizon",
+   "lag_hours": null,
+   "n_pairs": 0,
+   "note": "too few overlapping hours to measure the lag; FortyGuard's array is used as labelled and the DST caveat stands unresolved",
+   "applied_lag_hours": 0
+  }
+ },
  "spend": {
-  "credits_before": null,
-  "credits_after": null,
+  "credits_before": 1650800,
+  "credits_after": 1650800,
   "credits_spent": 0,
   "calls_attempted": 0,
   "cache_hits": 0,
@@ -63,34 +108,136 @@
  "windows": [
   {
    "window": {
-    "start_date": "2026-08-20",
-    "start_time": "08:00",
-    "end_time": "09:00",
+    "start_date": "2026-08-23",
+    "start_time": "06:00",
+    "end_time": "07:00",
     "filter_type": 2
    },
    "source": "replay-fixture",
-   "class": "fixture_wrong_metro",
-   "fixture": "n26_f_2026-08-16.json",
-   "tile_dist_m": 926063.5,
-   "error": "the nearest tile in n26_f_2026-08-16.json is 926 km from this site's centre, so this fixture is another metro's field. Refusing to report a temperature for it."
+   "class": "ok",
+   "fixture": "2026-08-20_1100-1200_g60_tcm.json",
+   "tiles": 17797,
+   "tile_dist_m": 10.7,
+   "NOT_LIVE": "a saved response, replayed to verify the decision chain",
+   "lead_h": 0.618
   },
   {
    "window": {
-    "start_date": "2026-08-20",
-    "start_time": "09:00",
-    "end_time": "10:00",
+    "start_date": "2026-08-23",
+    "start_time": "07:00",
+    "end_time": "08:00",
     "filter_type": 2
    },
    "source": "replay-fixture",
-   "class": "fixture_wrong_metro",
-   "fixture": "n26_f_2026-08-16.json",
-   "tile_dist_m": 926063.5,
-   "error": "the nearest tile in n26_f_2026-08-16.json is 926 km from this site's centre, so this fixture is another metro's field. Refusing to report a temperature for it."
+   "class": "ok",
+   "fixture": "2026-08-20_1100-1200_g60_tcm.json",
+   "tiles": 17797,
+   "tile_dist_m": 10.7,
+   "NOT_LIVE": "a saved response, replayed to verify the decision chain",
+   "lead_h": 1.618
   }
  ],
- "vendor_classes": [
-  "fixture_wrong_metro"
+ "margin_provenance": {
+  "margin_c": 0.15202845146120256,
+  "source": "cycle.bound_day_level -- the quantile of FortyGuard's OWN measured forecast-vs-outcome day-level residuals",
+  "not_used": "rolling.py's per-lead margins are calibrated on de-biased PERSISTENCE error, which describes a different forecaster. Using them here would be the category error PLAN section 8e exists to prevent.",
+  "n_calibration_pairs": 4,
+  "clamped_to_attainable": true,
+  "attainable_coverage_ceiling": 0.8,
+  "nominal_coverage": 0.9,
+  "pairs_needed_for_nominal": 9,
+  "measured_pooled_coverage": 0.655898928824693,
+  "prereg_verdict": "FAIL -- 65.6 % measured against a 90 % promise, worst day 0.0 %",
+  "calibration_leads_h": [
+   9.41,
+   9.498,
+   9.265,
+   9.498
+  ],
+  "calibration_target_hour_site": 14,
+  "EXTRAPOLATION_WARNING": "Every calibration pair was measured at a ~9.4 h lead against a 14:00 site-local window. This run bounds leads of 1..2 h at whatever hour it is now, so the margin is being applied OUTSIDE its calibration domain. Marginal coverage measured in one (lead, hour-of-day) cell is not a guarantee in another.",
+  "site_owns_this_calibration": false,
+  "borrowed_from": "ashburn",
+  "borrowed_note": "chicago has no FortyGuard day-pairs of its own, so the margin above was measured at Ashburn and applied here. Its hours and geometry are its own; its BOUND is not."
+ },
+ "humidity_source_per_hour": [
+  "fortyguard-saved",
+  "fortyguard-saved"
  ],
- "status": "fixture_mismatch",
- "operator_message": "the nearest tile in n26_f_2026-08-16.json is 926 km from this site's centre, so this fixture is another metro's field. Refusing to report a temperature for it."
+ "humidity_source_summary": {
+  "fortyguard_hours": 2,
+  "fortyguard_mode": "saved",
+  "nws_hours": 0,
+  "gate_quantity": "wet-bulb where FortyGuard supplied it, dew point where NWS did",
+  "note": "wet-bulb >= dew point in unsaturated air, so a FortyGuard-gated hour is held to a STRICTER test than an NWS-gated one, never a looser one"
+ },
+ "air_quality": {
+  "limit_idx": null,
+  "source": "FortyGuard env_params air_quality_pm2p5:idx",
+  "hours_with_a_value": 2,
+  "hours_blocked": 0,
+  "units_note": "the :idx fields carry no documented units or scale (findings 9.3), so a limit is only applied when the caller sets one and is never assumed"
+ },
+ "status": "ok_replay",
+ "device": "GPU (NVIDIA Warp)",
+ "hours": [
+  {
+   "hour_site_local": "2026-08-23 06:00",
+   "lead_h": 0.618,
+   "hour_index": 1,
+   "no_data_reason": null,
+   "ambient_c": 26.6739,
+   "bearing_deg": 330.0,
+   "speed_ms": 2.572,
+   "rise_c": 0.0,
+   "margin_c": 0.152,
+   "bound_c": 26.8259,
+   "dewpoint_c": 14.6,
+   "bearing_refused": false,
+   "gate_dry_ok": false,
+   "gate_dewpoint_ok": true,
+   "free_cooling": false
+  },
+  {
+   "hour_site_local": "2026-08-23 07:00",
+   "lead_h": 1.618,
+   "hour_index": 2,
+   "no_data_reason": null,
+   "ambient_c": 26.6739,
+   "bearing_deg": 330.0,
+   "speed_ms": 2.572,
+   "rise_c": 0.0,
+   "margin_c": 0.152,
+   "bound_c": 26.8259,
+   "dewpoint_c": 16.2,
+   "bearing_refused": false,
+   "gate_dry_ok": false,
+   "gate_dewpoint_ok": false,
+   "free_cooling": false
+  }
+ ],
+ "summary": {
+  "free_cooling_hours": 0,
+  "of_hours": 2,
+  "hours_with_a_forecast": 2,
+  "hours_with_NO_forecast": 0,
+  "mode_changes": 0,
+  "plan_reported_switches": 0,
+  "hours_refused_by_solver": 0,
+  "hours_blocked_by_dewpoint": 1,
+  "hours_blocked_by_temperature": 2,
+  "peak_bound_c": 26.8259
+ },
+ "commands": [
+  {
+   "hour": "2026-08-23 06:00",
+   "index": 0,
+   "command": "MECHANICAL",
+   "reason": "upper bound on intake 26.826 C is NOT under the 24.0 C plant limit (recirculation contributes +0.000 C).",
+   "bound_c": 26.825928451461202,
+   "rise_c": 0.0,
+   "refused": false
+  }
+ ],
+ "NOT_LIVE": "REPLAY VERIFICATION. The ambient trajectory came from a SAVED FortyGuard response (2026-08-20_1100-1200_g60_tcm.json), reused for every hour of the horizon, so the schedule below proves the solve/bound/decide/act chain and is NOT a forecast of the hours it names. Wind and dew point ARE live. Nothing in the demo may present this as a live run."
 }

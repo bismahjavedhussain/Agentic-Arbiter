@@ -1,5 +1,20 @@
 # FortyGuard `/v1/heatmap` — jobs accepted, never completed (2026-08-20)
 
+> ⚠ **BEFORE SENDING — READ THIS, ADDED 2026-08-21 AFTER DIAG-64.**
+>
+> This report describes a fault on the **forecast** path. On 2026-08-21 at 16:15 UTC, DIAG-64
+> measured the identical signature on a window that had **already elapsed three hours earlier**:
+> `status: completed`, `"features": []`, `n_cells: 0`, ~607 s, 59 polls, billed 4,220
+> (activity `14742335-957b-429a-8c12-ee898fb8f889`). A second call 1.6 h ahead behaved the same
+> (`f314239b-…`).
+>
+> **So the fault is not forecast-specific.** Widen the framing from "forecast windows" to "windows in
+> general, including history" before sending, and add those two activity ids — a past window failing
+> is the least arguable evidence in the whole report, and it is the newest.
+>
+> Nothing already in this document is retracted; it is the record of 08-18..08-20, when history DID
+> work. See HANDOFF §4.0-DIAG64 and `fortyguard-question-catalog-horizon.md`.
+
 **Hackathon'26 participant report. Written to be actionable rather than to complain: every claim
 below has an `activity_id` you can look up, and the control experiment is included so you can rule
 out the obvious client-side causes without asking.**

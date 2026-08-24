@@ -1,0 +1,408 @@
+[
+ {
+  "aoi_key": "VA_1",
+  "rank": 1,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 111,
+  "entries": [
+   "VA_390_-775"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "709af691-6a9d-4f24-a49e-39e2826ccc8b",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330024+00:00"
+ },
+ {
+  "aoi_key": "VA_2",
+  "rank": 2,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 53,
+  "entries": [
+   "VA_387_-776"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "d05a986c-c23e-4259-9b6e-1d6d6d27a06d",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330121+00:00"
+ },
+ {
+  "aoi_key": "CA_3",
+  "rank": 3,
+  "state": "CA",
+  "category": "cluster",
+  "n_tagged": 53,
+  "entries": [
+   "CA_373_-1220"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Los_Angeles",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "c5a7f414-cf8f-40d6-9aba-9068624bc9fb",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330147+00:00"
+ },
+ {
+  "aoi_key": "VA_4",
+  "rank": 4,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 42,
+  "entries": [
+   "VA_389_-775"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "b6848b1a-c95b-4168-bb48-0494e5be1531",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330163+00:00"
+ },
+ {
+  "aoi_key": "VA_5",
+  "rank": 5,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 42,
+  "entries": [
+   "VA_389_-775"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "07ad3949-e5d4-4b6f-8cd0-8a5e390ee783",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330180+00:00"
+ },
+ {
+  "aoi_key": "TX_6",
+  "rank": 6,
+  "state": "TX",
+  "category": "mixed",
+  "n_tagged": 40,
+  "entries": [
+   "TX_325_-998",
+   "TX_324_-998"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Chicago",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "aab36862-de00-4eab-91d9-86e846434bde",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330194+00:00"
+ },
+ {
+  "aoi_key": "TX_7",
+  "rank": 7,
+  "state": "TX",
+  "category": "cluster",
+  "n_tagged": 39,
+  "entries": [
+   "TX_294_-987"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Chicago",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "a16a5633-2e3e-4dcf-8735-3c63975bc46c",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330209+00:00"
+ },
+ {
+  "aoi_key": "OH_8",
+  "rank": 8,
+  "state": "OH",
+  "category": "mixed",
+  "n_tagged": 33,
+  "entries": [
+   "OH_400_-828",
+   "OH_401_-828"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "11238c09-e336-4920-845c-053edd827618",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330223+00:00"
+ },
+ {
+  "aoi_key": "WA_9",
+  "rank": 9,
+  "state": "WA",
+  "category": "cluster",
+  "n_tagged": 33,
+  "entries": [
+   "WA_472_-1199"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Los_Angeles",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "7f22b15e-b69f-4fd6-8316-30857ec42a49",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330237+00:00"
+ },
+ {
+  "aoi_key": "OR_10",
+  "rank": 10,
+  "state": "OR",
+  "category": "cluster",
+  "n_tagged": 32,
+  "entries": [
+   "OR_458_-1197"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Los_Angeles",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "b58fb73b-4b77-4e98-b4b1-2cf561379eb3",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330265+00:00"
+ },
+ {
+  "aoi_key": "PA_11",
+  "rank": 11,
+  "state": "PA",
+  "category": "cluster",
+  "n_tagged": 32,
+  "entries": [
+   "PA_412_-799"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "79224012-ecf7-4af5-8096-c9b79442707d",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330278+00:00"
+ },
+ {
+  "aoi_key": "OR_12",
+  "rank": 12,
+  "state": "OR",
+  "category": "cluster",
+  "n_tagged": 24,
+  "entries": [
+   "OR_455_-1230"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Los_Angeles",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "544bfe1c-092a-4b0b-a976-733a30f04388",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330291+00:00"
+ },
+ {
+  "aoi_key": "VA_13",
+  "rank": 13,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 22,
+  "entries": [
+   "VA_389_-776"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "476576a7-693d-4438-946a-0b9e014dc591",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330303+00:00"
+ },
+ {
+  "aoi_key": "VA_14",
+  "rank": 14,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 20,
+  "entries": [
+   "VA_390_-776"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "147049c7-d0f2-41a3-ae2c-3998c99d662f",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330314+00:00"
+ },
+ {
+  "aoi_key": "VA_15",
+  "rank": 15,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 18,
+  "entries": [
+   "VA_366_-784"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "a86d369f-6e87-48c2-a8c6-d69e5b964b14",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330327+00:00"
+ },
+ {
+  "aoi_key": "VA_16",
+  "rank": 16,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 17,
+  "entries": [
+   "VA_374_-773"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "463b5079-381d-4f9c-8756-e3fa3f04d31b",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330339+00:00"
+ },
+ {
+  "aoi_key": "IA_17",
+  "rank": 17,
+  "state": "IA",
+  "category": "mixed",
+  "n_tagged": 16,
+  "entries": [
+   "IA_411_-959",
+   "IA_411_-958"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Chicago",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "3abb2880-fef4-4a22-8d2f-799a71af6759",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330351+00:00"
+ },
+ {
+  "aoi_key": "OR_18",
+  "rank": 18,
+  "state": "OR",
+  "category": "cluster",
+  "n_tagged": 16,
+  "entries": [
+   "OR_459_-1193"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Los_Angeles",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "515c8cc6-a9d2-414c-9d69-0228ebf25415",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330362+00:00"
+ },
+ {
+  "aoi_key": "WA_19",
+  "rank": 19,
+  "state": "WA",
+  "category": "mixed",
+  "n_tagged": 13,
+  "entries": [
+   "WA_474_-1202",
+   "WA_474_-1203",
+   "WA_473_-1203"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Los_Angeles",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "3bbdb218-1eb7-4371-ab51-e58d28ad1dc0",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330373+00:00"
+ },
+ {
+  "aoi_key": "WY_20",
+  "rank": 20,
+  "state": "WY",
+  "category": "mixed",
+  "n_tagged": 13,
+  "entries": [
+   "WY_411_-1049",
+   "WY_411_-1050"
+  ],
+  "window_local": "2026-08-22 14:00-16:00 America/Denver",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 0,
+  "activity_id": "82d4fbf4-fc37-4934-b69a-9e58fda04035",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": "timed out after 5 polls",
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-23T17:57:59.330389+00:00"
+ }
+]
