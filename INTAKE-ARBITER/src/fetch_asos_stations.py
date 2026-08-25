@@ -50,6 +50,8 @@ import json
 import os
 import sys
 import time
+import http.client
+import urllib.parse
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -78,12 +80,49 @@ def load_cache():
             "networks": {}}
 
 
+def _get(url):
+    """GET a URL, trying urllib and then http.client. Returns bytes, or raises the last error.
+
+    🔴 urllib FAILS ON SOME STATES AND http.client DOES NOT, WITH THE SAME HEADER. Measured
+    2026-08-26, back to back, same process, same User-Agent:
+
+        CA   urllib=ConnectionResetError   http.client=OK 161 features
+        NY   urllib=OK 53 features         http.client=OK 53 features
+
+    CA, FL and MN each failed all three urllib retries with WinError 10054 -- "an existing
+    connection was forcibly closed by the remote host" -- and were correctly recorded as absent
+    rather than empty. They are among the largest state networks, and the endpoint serves them
+    fine: `http.client` retrieved California's 161 stations first time. So this was never an
+    upstream outage and never a rate limit; three states were simply unreachable through one
+    HTTP client and reachable through another.
+
+    I have NOT established why, and this comment does not pretend to. urllib adds headers of its
+    own (Accept-Encoding, Connection) that http.client does not, and the failure tracks payload
+    size, which points at the interaction between those and a large chunked response -- a
+    hypothesis, not a finding. What is established is the behaviour above, which is enough to fix
+    it: try both, prefer the one that answers.
+    """
+    try:
+        return urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=90).read()
+    except Exception:
+        parts = urllib.parse.urlsplit(url)
+        c = http.client.HTTPSConnection(parts.netloc, timeout=120)
+        try:
+            c.request("GET", parts.path or "/", headers=UA)
+            r = c.getresponse()
+            body = r.read()
+            if r.status != 200:
+                raise OSError("HTTP %s %s" % (r.status, r.reason))
+            return body
+        finally:
+            c.close()
+
+
 def fetch_state(st):
     """One state's ASOS network, or None. Never raises -- a missing state is recorded, not fatal."""
     for i in range(RETRIES):
         try:
-            req = urllib.request.Request(URL % st, headers=UA)
-            d = json.loads(urllib.request.urlopen(req, timeout=90).read())
+            d = json.loads(_get(URL % st))
             out = []
             for f in d.get("features", []):
                 p = f.get("properties") or {}

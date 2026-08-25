@@ -263,9 +263,21 @@ def main(argv):
 
     if not chosen:
         store["assignments"].pop(key, None)
+        # 🔴 TWO DIFFERENT FAILURES WERE REPORTED AS ONE, AND THE WRONG ONE. This always said
+        # "no candidate ... cleared the coverage floor", which blames the 0.95 floor -- so eleven
+        # facilities were recorded as having poor station records when NOT ONE STATION HAD BEEN
+        # MEASURED. `candidates_tried` was `[]`, because the cached ASOS inventory holds 17 state
+        # networks and California and New York are not among them: `fetch_asos_stations.py` was run
+        # for the states that had facilities at the time. Ten of the eleven were Californian.
+        # A message that names the wrong cause sends the next reader to measure coverage on stations
+        # that were never in the list.
         store.setdefault("unassigned", {})[key] = {
-            "why": "no candidate within %d tried cleared the %.2f coverage floor"
-                   % (len(tried), M.MIN_WEATHER_COVERAGE),
+            "why": ("no station is CACHED for this facility's search area -- 0 candidates, so the "
+                    "%.2f coverage floor was never reached. Run fetch_asos_stations.py for this "
+                    "state." % M.MIN_WEATHER_COVERAGE) if not tried else
+                   ("none of the %d nearest stations cleared the %.2f coverage floor"
+                    % (len(tried), M.MIN_WEATHER_COVERAGE)),
+            "n_candidates_tried": len(tried),
             "candidates_tried": tried}
         json.dump(store, open(OUT, "w", encoding="utf-8"), allow_nan=False)
         print("\n   UNASSIGNED. %d candidate(s) measured, none cleared the floor. Recorded with"
