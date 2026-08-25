@@ -70,7 +70,49 @@ def main():
     unattr = u["calls_not_individually_identified"]
     floor = u["credits_that_bought_no_data_floor"]
     ceil = u["credits_that_bought_no_data_ceiling"]
+    # THE PLAN IS MIXED-PRICE SINCE DIAG-65, AND THIS SCRIPT USED TO DENY IT. Three of its
+    # templates hardcoded the pure-heatmap era: the "division proof" paragraph asserted that
+    # 4,220 divided the total exactly, and two table rows computed credits as `calls * 4220`.
+    # Once five `env_params` calls at 2,900 were billed, all three wrote FALSE STATEMENTS into a
+    # judge-facing document -- and did so confidently, because a template that is wrong about
+    # the world still substitutes cleanly. So the endpoint split is read from the ledger now
+    # rather than assumed, and the arithmetic below is the ledger's, not this file's.
+    hm = u["heatmap_calls"]
+    oth = u["other_endpoint_calls"]
+    othc = u["other_endpoint_credits"]
+    price = u["heatmap_credits"]
+    # Call counts for the attribution split are DERIVED AT THE HEATMAP PRICE and so are ±1 when
+    # the plan is mixed. The credit totals are exact; these are not, and the document says so.
+    attr_calls = u["attributed_credits"] // price
+    unattr_calls = u["unattributed_credits"] // price
     misses = []
+
+    # 🔴 REFUSE TO WRITE AN EQUATION WHOSE SIDES DISAGREE. The reconciliation sentence takes its
+    # left side from the endpoint split and its right side from `spent`, and the first version of
+    # it checked nothing -- so when the ledger snapshot was one call stale it wrote
+    # "173 x 4,220 + 6 x 2,900 = 748,780" into a judge-facing document. The left side was 747,460.
+    # A tool that writes arithmetic MUST do the arithmetic. This is also the live-drift alarm: the
+    # snapshot goes stale the moment `live.py` bills anything, so re-derive and re-run.
+    lhs = hm * price + othc
+    # The classification table makes the same promise a second way, so it gets the same guard:
+    # its three rows are asserted in the document to sum to the headline.
+    row_calls = data + oth + empty + unattr
+    row_credits = data * price + othc + empty * price + unattr * price
+    if row_calls != calls or row_credits != spent:
+        print("\n*** CLASSIFICATION ROWS DO NOT SUM TO THE HEADLINE -- NOTHING WAS WRITTEN.")
+        print("    rows: %d calls / %s credits    headline: %d calls / %s credits"
+              % (row_calls, money(row_credits), calls, money(spent)))
+        print("    The document claims these sum. Fix the ledger's classification, not this text.")
+        return 1
+    if lhs != spent:
+        print("\n*** LEDGER SNAPSHOT DOES NOT RECONCILE -- NOTHING WAS WRITTEN.")
+        print("    %d heatmap x %s + %s other = %s, but spent = %s (differs by %s)."
+              % (hm, money(price), money(othc), money(lhs), money(spent),
+                 money(abs(spent - lhs))))
+        print("    Almost always means a paid call landed between the ledger run and this one.")
+        print("    Re-run: python testing/api_usage_ledger.py --json && "
+              "python testing/bump_spend_docs.py")
+        return 1
 
     print("ledger: %d calls, %s credits, %.2f %% of plan, %s remaining"
           % (calls, money(spent), pct, money(rem)))
@@ -79,28 +121,56 @@ def main():
     p = os.path.join(ROOT, "API-USAGE.md")
     t = io.open(p, encoding="utf-8").read()
     for pat, rep, label in (
-        (r"(\| \*\*Paid calls made\*\* \| \*\*)\d[\d,]*(\*\* \|)",
-         r"\g<1>%d\g<2>" % calls, "paid calls"),
+        (r"\| \*\*Paid calls made\*\* \|[^\n]*",
+         "| **Paid calls made** | **%d** — %d `heatmap` + %d `env_params` |"
+         % (calls, hm, oth) if oth else
+         "| **Paid calls made** | **%d** — all `heatmap` |" % calls, "paid calls"),
         (r"(\| \*\*Credits spent\*\* \| \*\*)[\d,]+(\*\* \|)",
          r"\g<1>%s\g<2>" % money(spent), "credits spent"),
         (r"(\| \*\*Share of the plan used\*\* \| \*\*)[\d.]+( %\*\* \|)",
          r"\g<1>%.2f\g<2>" % pct, "share of plan"),
         (r"(\| Credits remaining \| \*\*)[\d,]+(\*\* \|)",
          r"\g<1>%s\g<2>" % money(rem), "credits remaining"),
-        (r"\*\*All \d+ paid calls on this plan were `/v1/heatmap`\.\*\* That is not an assumption: "
-         r"[\d,]+ ÷ 4,220 =\n\*\*\d+ exactly\*\*",
-         "**All %d paid calls on this plan were `/v1/heatmap`.** That is not an assumption: "
-         "%s ÷ 4,220 =\n**%d exactly**" % (calls, money(spent), calls), "division proof"),
+        # The reconciliation, not the old divisibility claim. Matches only the bolded arithmetic,
+        # so the surrounding prose is the document's business and this is the ledger's.
+        (r"\*\*\d[\d,]* × [\d,]+ \+ \d+ × [\d,]+ = [\d,]+\*\*",
+         "**%d × %s + %d × %s = %s**"
+         % (hm, money(price), oth, money(othc // oth if oth else 0), money(spent)),
+         "reconciliation arithmetic"),
         (r"## 3\. The \d+ calls, itemised",
          "## 3. The %d calls, itemised" % calls, "section 3 heading"),
-        (r"(\| Returned a populated field, tile count saved \| \*\*)\d+(\*\* \| )[\d,]+( \|)",
-         r"\g<1>%d\g<2>%s\g<3>" % (data, money(data * 4220)), "populated field row"),
+        (r"\| Returned a populated field, tile count saved \|[^\n]*",
+         "| Returned a populated field, tile count saved | **%d** — %d heatmap + %d `env_params` "
+         "| %s |" % (data + oth, data, oth, money(data * price + othc)) if oth else
+         "| Returned a populated field, tile count saved | **%d** | %s |"
+         % (data, money(data * price)), "populated field row"),
         (r"(\| Returned `completed` with \*\*zero\*\* features, individually attributed \| \*\*)\d+"
          r"(\*\* \| )[\d,]+( \|)",
-         r"\g<1>%d\g<2>%s\g<3>" % (empty, money(empty * 4220)), "zero features row"),
+         r"\g<1>%d\g<2>%s\g<3>" % (empty, money(empty * price)), "zero features row"),
         (r"(\| Not individually attributable — a gap between two readings \| \*\*)\d+"
          r"(\*\* \| )[\d,]+( \|)",
-         r"\g<1>%d\g<2>%s\g<3>" % (unattr, money(unattr * 4220)), "unattributable row"),
+         r"\g<1>%d\g<2>%s\g<3>" % (unattr, money(unattr * price)), "unattributable row"),
+        # The three rows must sum to the headline, and the document states the sum so a reader can
+        # check it without trusting us. Maintained here so it cannot drift away from the rows above.
+        # `[\d,]*\d` NOT `[\d,]+` -- the greedy version swallowed the comma that ends the clause
+        # ("...to 748,780, which is the check") and deleted it from the sentence.
+        (r"Those three rows sum to \d+ and to [\d,]*\d",
+         "Those three rows sum to %d and to %s" % (row_calls, money(row_credits)),
+         "row-sum sentence"),
+        (r"\*\*\d+ calls\*\* saved a before/after meter pair and so are individually attributable; "
+         r"the remaining\n\*\*\d+\*\*",
+         "**%d calls** saved a before/after meter pair and so are individually attributable; "
+         "the remaining\n**%d**" % (attr_calls, unattr_calls), "attribution split"),
+        (r"The \d+-call gap figure", "The %d-call gap figure" % unattr_calls, "gap caveat"),
+        # §3a's one-run share. It read "44 % of everything this plan has ever spent" for days after
+        # that stopped being true -- a share of a moving total is a figure that MUST be derived, and
+        # it slipped through because the audit only polices percentages given to two decimals.
+        (r"(\| Spent \| \*\*46,420 credits\*\* — \*\*)[\d.]+( %\*\*)",
+         r"\g<1>%.1f\g<2>" % (100.0 * 46420 / spent), "one-run share"),
+        (r"records \*\*\d+\*\* failed attempts across \*\*\d+\*\* days",
+         "records **%d** failed attempts across **%d** days"
+         % (u["collector_recorded_failed_attempts"],
+            u["collector_failed_attempt_days"]), "collector attempts"),
         (r"So \*\*[\d.]+ %\*\* of spend is \*proven\* to have bought nothing, and the ceiling — if "
          r"every unattributable\ncall also failed — is \*\*[\d.]+ %\*\*\.",
          "So **%.1f %%** of spend is *proven* to have bought nothing, and the ceiling — if "

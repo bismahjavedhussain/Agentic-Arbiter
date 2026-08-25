@@ -20,13 +20,13 @@ evidence without a test failing.
 | | |
 |---|---|
 | Plan | **`Hackathon`**, issued **2,000,000** credits, active 2026-08-18 → 2026-09-22 |
-| **Paid calls made** | **137** |
-| **Credits spent** | **571,540** |
-| **Share of the plan used** | **28.58 %** |
-| Credits remaining | **1,428,460** |
+| **Paid calls made** | **192** — 186 `heatmap` + 6 `env_params` |
+| **Credits spent** | **802,320** |
+| **Share of the plan used** | **40.12 %** |
+| Credits remaining | **1,197,680** |
 | Calls at demo view time | **0 in REPLAY** (the default, and what a static host serves). **LIVE mode calls one heatmap per forecast hour** — see §6 |
 
-Thirteen calls is a deliberately small number, and it is small for two reasons that pull in
+**The call count is bounded by the clock, not the budget**, and for two reasons that pull in
 opposite directions. The good one: **the daily cap of 30 heatmaps binds long before credits do**, so
 the design question was never "how many calls can we afford" but "which single call earns its
 place". The bad one: **the forecast endpoint spent most of this plan's active life returning
@@ -60,17 +60,26 @@ readings.
 | `GET /v1/status/{activity_id}` | **free** | unchanged meter across 59 polls | Polling a submitted activity to completion |
 | `POST /v1/system/fetch-api-key-usage` | **free** | unchanged meter | The meter itself — which is what makes this ledger possible |
 
-**All 137 paid calls on this plan were `/v1/heatmap`.** That is not an assumption: 571,540 ÷ 4,220 =
-**137 exactly**, with no remainder, and a single `env_params` call at 2,900 would have made the
-division impossible.
+**Two endpoints were billed, and the meter proves the split.** This section used to argue the spend
+was pure `/v1/heatmap` because 4,220 divided the total exactly. That stopped being true once the
+live agent started buying humidity and dew point, and the honest statement is now the arithmetic
+one: **186 × 4,220 + 6 × 2,900 = 802,320**, matching the lowest meter reading ever recorded to the
+credit. Both prices were measured the same way, so this is a derivation and not bookkeeping — and if
+a third endpoint were ever billed, the reconciliation would **stop closing and say so** rather than
+absorbing it silently.
 
 ---
 
-## 3. The 137 calls, itemised
+## 3. The 192 calls, itemised
 
-Five calls saved a before/after meter pair and so are individually named. The rest are visible as
-gaps between readings and are counted, not named — the distinction is kept because *"11 of 13 calls
-returned zero tiles"* is only worth saying if the number is arithmetic rather than memory.
+**97 calls** saved a before/after meter pair and so are individually attributable; the remaining
+**92** are visible only as gaps between readings and are counted, not named. Five of the attributable
+ones are named below as worked examples. The distinction is kept because *"11 of 13 calls returned
+zero tiles"* is only worth saying if the number is arithmetic rather than memory.
+
+⚠ The 92-call gap figure is **derived at the heatmap price** and so is approximate to ±1: the gaps
+leave a 1,320-credit remainder that no whole number of either endpoint explains. The credit total is
+exact; that call count is not, and it is reported rather than rounded away.
 
 | Meter before → after | Call | Returned |
 |---|---|---|
@@ -84,18 +93,20 @@ Classified by what the artefacts record:
 
 | | Calls | Credits |
 |---|---|---|
-| Returned a populated field, tile count saved | **19** | 80,180 |
+| Returned a populated field, tile count saved | **37** — 31 heatmap + 6 `env_params` | 148,220 |
 | Returned `completed` with **zero** features, individually attributed | **54** | 227,880 |
-| Not individually attributable — a gap between two readings | **59** | 248,980 |
+| Not individually attributable — a gap between two readings | **101** | 426,220 |
 
-So **39.9 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
-call also failed — is **83.4 %**. The vendor record makes the ceiling far likelier than the floor:
+Those three rows sum to 192 and to 802,320, which is the check that keeps this table honest.
+
+So **28.4 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
+call also failed — is **81.5 %**. The vendor record makes the ceiling far likelier than the floor:
 across 08-18…08-20 the forecast leg failed **every single time it was tried.** The collector's
 08-18 and 08-19 attempts predate the per-day attempt counter it gained on 08-19, which is why their
 individual count is not recoverable and is not claimed.
 
 ⚠ **Attempts are not billed calls, and since 2026-08-20 they are not even close.** The collector
-records **6** failed attempts across three days; at least one of those cost **0** credits, because
+records **10** failed attempts across **4** days; at least one of those cost **0** credits, because
 the vendor began returning `status: failed` and stalling in `Processing` — both unbilled. Any figure
 computed as *attempts × 4,220* is therefore not a spend figure, and the ledger reports the two
 quantities side by side rather than summing them.
@@ -111,7 +122,7 @@ per-tile aggregate **over the window** rather than a time series. The first full
 | | |
 |---|---|
 | Calls | **11** live (one window was already cached, so it cost nothing) |
-| Spent | **46,420 credits** — 44 % of everything this plan has ever spent, in one run |
+| Spent | **46,420 credits** — **5.8 %** of this plan's spend today, in one run. It was **44 %** on the day it was made, which is the better measure of how sharp this endpoint's cost is |
 | Returned a field | **3** — a real rising morning trajectory, 25.66 → 28.84 → 30.71 → 32.23 °C |
 | Returned `completed` with **no data** | **8**, and **all 8 were billed** — **33,760 credits for nothing** |
 

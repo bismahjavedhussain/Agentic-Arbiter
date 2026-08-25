@@ -30,12 +30,18 @@ it an upper bound on that term rather than a projection (§ *What is honest*).
 ## Start here — two commands
 
 ```bash
-# 1. Prove it. 25 steps, ~6 minutes, ZERO API calls. Exits non-zero on any failure.
+# 1. Prove it. 25 steps, ZERO API calls. Exits non-zero on any failure.
 cd INTAKE-ARBITER/src && python run_all.py
 
 # 2. See it — REPLAY mode, no API key needed, works offline.
 cd INTAKE-ARBITER/demo && python -m http.server 8000        # then open http://localhost:8000
 ```
+
+**How long step 1 takes scales with how many sites are offerable**, so it is quoted as a rate rather
+than a duration: step 13 rebuilds every offerable site from its own data at **~63 s each** (measured),
+and the rest of the ladder is a few minutes. That is ~5 minutes at the three shipped metros and a few
+hours across the national tier. It used to say "~6 minutes" full stop, which was true when three
+sites shipped and quietly stopped being true as the national build grew.
 
 **To see it decide the next hours from a LIVE forecast**, serve it with the live agent attached
 instead. This needs a FortyGuard key in `.env`:
@@ -57,7 +63,7 @@ assumed, every term defined before it is used.
 error. Any static host serves the demo as-is — there is no build step and no server side.
 
 **If `run_all.py` is not green, do not believe a number on the page.** It re-reads **77 published
-figures** from the files the code actually wrote and runs **160 audit checks**, including five that
+figures** from the files the code actually wrote and runs **1475 audit checks**, including five that
 re-derive the browser's own arithmetic against Python and one that drives a real browser to render
 every site and diff the panels a reader would look at.
 
@@ -108,8 +114,16 @@ overheats.
 |---|---|
 | Chiller-hours recoverable | **406 h/yr** vs the tuned reactive incumbent |
 | Value of those hours | **$5,522 – $7,990 per MW-IT per year** |
-| A 30 MW hall | **$166,000 – $240,000 per year** |
+| Scaled to 30 MW of IT load — **an illustration, ×30 of the row above** | **$166,000 – $240,000 per year** |
 | Basis | 16 cells: 4 published tariffs × 4 published chiller efficiencies, **swept, not chosen** |
+
+⚠ **The 30 MW is a round illustrative figure and the only unsourced number in this table.** The
+measured unit is the row above it — **per megawatt of IT load** — because a building footprint from
+OpenStreetMap yields floor area, not IT load, and converting one to the other needs a watts-per-
+square-foot assumption we have no primary source for. LBNL 2024 publishes average square footage
+per module (11,000 colocation, 30,000 hyperscale, p. 35) but **no megawatts per facility and no
+power density**, so the conversion cannot be sourced from it. Multiply the per-MW row by whatever
+hall size you can defend; we multiply by 30 to show the order of magnitude and label it as ours.
 
 ⚠ **Compressor-only, and therefore an upper bound on that term.** Fans, chilled-water pumps,
 condenser pumps and tower fans keep running, and an airside economizer moves *more* air — so the
@@ -211,8 +225,8 @@ A reasoning tape whose **32 templates contain not one literal digit**, checked a
 **Three sites live on their own geometry, weather, bound and tariff — and two more were refused on
 aerial evidence.**
 
-**On the size of the verification surface**, because it is fair to ask: **160 audit checks and a
-gotcha log running to #161 exist because every entry in it actually bit** — a NaN that
+**On the size of the verification surface**, because it is fair to ask: **1475 audit checks and a
+gotcha log running to #185 exist because every entry in it actually bit** — a NaN that
 was legal Python JSON and illegal standard JSON, a rounded array that flipped decisions at gate
 boundaries, an invented constant that outlived its own retraction by a day, a site picker that
 swapped one file out of thirteen. Every check is a headstone. That is **validation** infrastructure,
@@ -273,7 +287,7 @@ python testing/test_n26_coverage.py selftest  # its retry budget, against all 5 
 python testing/n26_recovery_watch.py plan     # what the recovery watcher would spend today; spends 0
 python testing/n26_chicago_offset.py dryrun    # Chicago's own level offset: window, lead, cost. Spends 0
 python testing/verify_site_panels.py          # renders every site in real Chrome and diffs the panels
-cd INTAKE-ARBITER/src && python audit.py      # 160 checks, 77 published numbers re-read
+cd INTAKE-ARBITER/src && python audit.py      # 1475 checks, 77 published numbers re-read
 cd INTAKE-ARBITER/src && python report.py     # the per-site PDF, verified by being reopened
 ```
 

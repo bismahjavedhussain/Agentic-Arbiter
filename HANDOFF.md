@@ -1,25 +1,39 @@
 # HANDOFF — FortyGuard Hackathon'26 · INTAKE-ARBITER
 
-**Rewritten from scratch 2026-08-20. Current through the live agent, the judging-criteria pass, and
-Session I — the national build across the whole United States — 2026-08-24.**
+**Rewritten from scratch 2026-08-20. Current through Session J — the agent running on individual
+national facilities, the standalone path, S5 weather, S6 imagery, the search box, and the git
+history purge — 2026-08-24/25.**
 **Submission deadline Aug 30 23:59 GST = 00:59 PKT Aug 31. 6 days left.**
+
+> 🟢 **THE ONE-PARAGRAPH ORIENTATION.** The agent now runs on ARBITRARY US data-centre facilities,
+> not just the three hand-built metros. 639 real facilities are discovered, classified and mapped;
+> the no-neighbour ("standalone") path through all eight chain steps is built and green; weather
+> station discovery/assignment and per-facility aerial imagery are built; and a facility appears in
+> both the site dropdown and a new search box the moment its artefacts exist. **A long unattended
+> batch (`src/build_national_batch.py run`) is building the rest.** The repo is now publishable —
+> `testing/scan_secrets.py` exits 0 for the first time. **§3.5 is the full record of this session.**
 
 > **THE NINE THINGS THAT MATTER MOST, in order. Read 1, 2, 6 and 9 before touching anything.**
 >
 > 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **25 steps, ~360 s, ZERO API
->    calls, 160 audit checks, 77 published numbers re-read from the files the code wrote.** Exits
+>    calls, 169 audit checks, 77 published numbers re-read from the files the code wrote.** Exits
 >    non-zero on any failure — the exit code prints as `exit=N` if you capture it; the more reliable
 >    signal is the LAST LINE, which is literally `REBUILD COMPLETE` or `REBUILD FAILED at: <step>`.
 >    **If it is not green, quote nothing.** Then either
 >    `cd ../demo && python -m http.server 8000 --bind 127.0.0.1` (REPLAY, offline, no key — the
 >    `--bind` matters on Windows, §10 #156) **or** `python serve_live.py --allow-paid` (adds the LIVE
 >    agent). **`file://` will NOT work** — browsers block `fetch()`.
-> 2. **Branch `master`, head **`4212b50`** — and ⚠ **EVERYTHING SINCE IS IN THE WORKING TREE,
->    UNCOMMITTED**, including all of Session I (§3.4, §13.0f). `run_all.py` is green on it — 22
->    steps, 95 checks. **`.gitattributes` is load-bearing — without it a fresh clone on Windows
->    corrupts every PDF (§10 #82).**
->    ⚠ **`testing/scan_secrets.py` must exit 0 before the repo goes public. It exits 1 today**, on
->    two history blobs holding FortyGuard's own expired AWS key id — §9.1b.
+> 2. **Branch `master`. 🟢 SESSION J IS COMMITTED** — everything through the standalone path, S5
+>    weather, S6 imagery and the search box is in git. **⚠ GIT HISTORY WAS REWRITTEN 2026-08-24:**
+>    `git filter-branch --index-filter` purged
+>    `testing/results/fixtures/probe_heatintel.json` from all 33 commits, so **EVERY COMMIT SHA IN
+>    THIS FILE FROM BEFORE THAT POINT IS STALE** (the old `4212b50` no longer exists). All three
+>    affected commits survived — none was pruned — so the dated record is intact.
+>    🟢 **`testing/scan_secrets.py` NOW EXITS 0**: *CLEAN, 0 hits in 765 tracked files and 1,163
+>    history blobs.* The publication blocker of §9.1b is GONE. Files written by the overnight batch
+>    after that commit are still untracked — commit them before publishing.
+>    **`.gitattributes` is load-bearing — without it a fresh clone on Windows corrupts every PDF
+>    (§10 #82).**
 > 3. **THE AGENT NOW PERCEIVES *NOW*.** `src/live.py` asks FortyGuard what the next hours look like
 >    at the selected site, bounds it with the margin measured from FortyGuard's OWN past errors, and
 >    emits a schedule for hours that have not happened. `src/serve_live.py` keeps the API key
@@ -32,20 +46,40 @@ Session I — the national build across the whole United States — 2026-08-24.*
 >    result panels differ across all three** — verified by rendering each site and diffing panel by
 >    panel (§8q). Ashburn (AWS IAD116→117), Chicago (Stream→Equinix CH3), Dulles (AWS IAD81→IAD62).
 >    **"Five screened, two refused" is the single most credible thing in this project. §6.5**
-> 6. 🔴 **THE VENDOR RECOVERED ON 2026-08-23, THEN RELAPSED THE SAME DAY, AND IS DOWN AGAIN NOW.**
->    §4.0-RECOVERY: 12/12 forecast windows returned a field at 11:33 UTC 08-23. §4.0-NATIONAL-OUTAGE:
->    a few hours later, the FIRST live national purchase batch went 20-for-20 `completed_but_empty`,
->    and a dedicated control call at ASHBURN'S OWN long-proven geometry (DIAG-66) failed identically —
->    **proving a GENERAL outage, not something specific to new locations.** `testing/
->    national_recovery_watch.py` is built, tested and ready, **but not running** — it is attended-
->    only by the user's own choice (§9.2d, §10 #149). ⚠ **The four `FG-N26-*` collectors are also
->    still DISABLED.** Re-enabling either is a spending decision that is the user's alone.
-> 7. 🟢 **NEW THIS SESSION — THE NATIONAL BUILD.** At the user's explicit instruction, the agent's
->    scope was extended from 3 hand-built sites to **421 real, OSM-tagged US data-centre locations**
->    across 43 states, unified into ONE map on the front page. Geometry and pairing (G2/G3) are done
->    at real, measured, national scale; FortyGuard field purchase (S7) is blocked on item 6's outage;
->    weather (S5) and imagery (S6) screening have not started. **Full detail: §3.4, and the living
->    document `NATIONAL-BUILD-PLAN.md` in the repo root.**
+> 6. 🔴 **FORTYGUARD IS STILL DOWN, AND SESSION J MAPPED THE FAULT PRECISELY — THREE ENDPOINTS,
+>    THREE DIFFERENT FAILURES.** Measured 2026-08-24, total cost 7,120 credits (two of the three
+>    tests were FREE):
+>
+>    | Endpoint / window | Result | Billed |
+>    |---|---|---|
+>    | `heatmap`, a PAST window (2026-08-22, 2 days elapsed) at Ashburn's own proven geometry | `completed`, **0 tiles**, 25 empty polls over 486 s | **4,220 — charged for nothing** |
+>    | `env_params`, a fully-ELAPSED day | ✅ **works** — 15 fields × 24 hourly values | 2,900 |
+>    | `env_params`, TODAY (part elapsed, part future) | **stalled in `processing`**, 604 s, 56 polls | 0 |
+>    | `env_params`, TOMORROW | terminal **`failed`** in 16 s | 0 |
+>
+>    🔴 **THE HEATMAP FAULT IS NOT A FORECAST-HORIZON PROBLEM.** It fails on ARCHIVED data it must
+>    already hold, so "catalog forward limit" (§4.0-CATALOG) cannot explain it. That is a sharper
+>    and more actionable thing to tell FortyGuard than "your API is broken", and the empty-but-billed
+>    row is the one to lead the report with.
+>    🔴 **NOTHING AT FORTYGUARD IS FORECASTING RIGHT NOW.** `env_params` serves only finished days.
+>    So the live "next hours" card cannot work for ANY site including Ashburn — and the agent
+>    already handles that honestly by refusing to publish a schedule over hours it could not perceive.
+>    ✅ **DIAG-67 (FREE): `env_params` takes exactly ONE point per call.** `locations:[…]` →
+>    `422 Field 'latitude' is required`; parallel arrays → `422 …should be a valid number`. So
+>    per-facility environmental perception is **2,900 each**, with no batching discount. Worth
+>    filing as a feature request. `testing/diag67_env_params_multilocation.py`.
+>    ⚠ `national_recovery_watch.py` is still **not running** (attended-only, the user's choice) and
+>    the four `FG-N26-*` collectors are still DISABLED. Both are spending decisions, the user's alone.
+> 7. 🟢 **THE AGENT NOW RUNS ON ARBITRARY NATIONAL FACILITIES — SESSION J. Read §3.5.**
+>    The unit is now the **FACILITY** (a connected component of tagged buildings inside the solver's
+>    validated 600 m range), not the ~11 km discovery cell: **639 facilities**, replacing the 421
+>    grid dots. **359 standalone / 195 paired_clear / 28 paired_advisory / 34 boundary_only /
+>    23 below_model_scale.** The no-neighbour path runs all eight chain steps and is green; S5
+>    (weather station discovery + assignment) and S6 (one aerial frame per facility) are built;
+>    hover, click and a new **search box** all resolve a facility through the manifest.
+>    **`src/build_national_batch.py run` is the unattended driver** — ~6.5 min/facility, ~46 h for
+>    the standalone tier, resumable by construction. **§3.5 is the record; `NATIONAL-BUILD-PLAN.md`
+>    §6's stage table is now partly stale — trust §3.5.**
 > 8. **SPEND IS 135 CALLS / 564,420 / 28.22 %** — 131 heatmaps + 4 `env_params` (the plan is
 >    mixed-price since DIAG-65). Never quote from memory: **`python
 >    testing/api_usage_ledger.py`** re-derives it from the meter, `bump_spend_docs.py` writes it into
@@ -187,7 +221,7 @@ still NOT claimed**, and the unmeasured fan term has the *opposite* sign.
 | **Stage 7 explain** | `src/explain.py` — **1,336 explanations, 0 verification failures** |
 | **The reasoning tape** | `src/ticker.py` — seven-stage events, **32 templates and not one literal digit**, 1,002 hour-tapes verified. §6.9 |
 | **Conformal made visible** | The browser DERIVES the quantile: `cfQuantileIndex` / `cfSplit` mirror `conformal.py` and agree **exactly on 789 assertions**. §6.11 |
-| **Full-tree audit** | `src/audit.py` — **160 checks, 0 failures**, **77 published numbers** re-read from emitted files. Checks 9 and 10 re-read the SUBMISSION documents: the API spend ledger and every figure in the root `README.md` |
+| **Full-tree audit** | `src/audit.py` — **169 checks, 0 failures**, **77 published numbers** re-read from emitted files. Checks 9 and 10 re-read the SUBMISSION documents: the API spend ledger and every figure in the root `README.md` |
 | **Money, sourced** | `src/money.py` — **$/kWh and kW/ton BOTH SWEPT over published values**, 608 cells, nothing collapsed, **priced in each site's own state**. §6.12 |
 | **Per-site engine** | `src/build_sites.py` — every offerable site on **its own** weather, geometry, bound and tariff. §6.13 |
 | **Downloadable PDF** | `src/report.py` — a real 4-page PDF per site, **written without a PDF library** and verified by being read back. §6.15 |
@@ -307,6 +341,355 @@ in §4.0-NATIONAL-OUTAGE spend real credits.
    `fetch_national_geometry.py` casually** — they are real Overpass load on a shared free resource,
    already run multiple times this session. Only re-run if the underlying OSM data is believed to
    have changed.
+
+---
+
+## 3.5 🟢 SESSION J, 2026-08-24/25 — THE AGENT RUNS ON ANY US FACILITY
+
+**The user's framing, and it shaped every priority:** *"Our engineering should be on point and done
+regardless of whether we have the data or not currently. It should be workable as soon as we get the
+data."* That is why this session built the CODE PATH first and data volume second.
+
+**Verified mid-session: `REBUILD COMPLETE`, 25 steps, `audit.py` 169 checks, 0 failures, 14 result
+panels differing across FOUR sites in a real browser.**
+
+🔴 **THE TREE IS NOT GREEN AS THIS IS WRITTEN, AND A FRESH SESSION MUST FIX THAT FIRST.**
+Re-running `audit.py` at 22:50 with the overnight batch mid-flight gives **187 passed, 4 FAILURES**.
+Two are transient and two are real:
+
+| failure | verdict |
+|---|---|
+| `WI_way_1510420026: manifest names every artefact` — missing `rolling`, `money`, `ticker`, `explanations` | 🔴 **NOT TRANSIENT — I CALLED IT TRANSIENT AND I WAS WRONG.** The batch had already moved on to three further facilities and left this one half-built **permanently**. Root cause and fix in §10 #188. **RESOLVED**: the resume test is fixed and WI's chain is finished (`EXPLAIN PASSED`) |
+| `every offerable site's artefacts load  7 of 8` | Same cause. **RESOLVED** |
+| `every site names its OWN operator` — `NC_way_844372538=unnamed`, `WI_way_1510420026=unnamed` | 🔴 **REAL, AND IT WILL FAIL FOREVER FROM HERE.** See §10 #186 |
+| `every README figure matches the emitted JSON` — `expected "191 audit checks"` | 🔴 **REAL, AND STRUCTURAL.** See §10 #187 |
+
+⚠ **Every "169 checks" figure in this file and in `README.md` is therefore a snapshot, not a
+constant.** It was 169 at four built sites and is 191 at eight. Do not chase it while the batch
+runs — settle #187 first, then bump the documents once.
+
+### 3.5.1 The defect that started it, and why it mattered most
+
+🔴 **The plume half of the safety bound was Ashburn's at all three shipped sites, in the UNSAFE
+direction.** `plume_uncertainty.spread_table()` cached to
+`os.path.join(DEMO, "spread_table_%s_sd%02d.json")` — **no metro prefix** — while deriving from the
+per-site `rise_table(mode)`. The first site built wrote the file; every site after read it back.
+Margin = multiplier × median spread on `longest`:
+
+| site | own multiplier | own margin | was shipping | error |
+|---|---|---|---|---|
+| ashburn | 1.1136 | 0.10616 °C | 0.10616 °C | — (it wrote the file) |
+| chicago | **1.9725** | 0.17034 °C | 0.10616 °C | **37.7 % TOO NARROW** |
+| dulles | **1.2902** | 0.14614 °C | 0.10616 °C | **27.4 % TOO NARROW** |
+
+Fifth instance of the "one site's value used for another" family (#98/#132/#133/#142) and **the first
+to move a SAFETY number rather than a displayed one**. Fixed by routing the spread cache AND
+`plume_uncertainty.json` through `M.demo_path()`, stamping `metro` into both, and adding
+`plume_uncertainty.py` as **step 1 of `build_sites.py`'s CHAIN**. **Ashburn's rebuilt artefacts are
+byte-identical — that control holding is what proves the fix is a fix (#132's method).**
+
+New audit check **6f `check_no_unsuffixed_per_site_artefact`** is the GENERAL rule 6e was one
+instance of: no metro-aware module may join a per-site artefact onto the raw `demo/` path. It keys on
+whether a module has a **top-level** `import metros` rather than excluding `audit.py` by name — so
+the moment `audit.py` becomes metro-aware it comes into scope automatically.
+
+### 3.5.2 The FACILITY is now the unit — `data/geometry/national_registry.json`
+
+`dc_clusters.json` is keyed by a ~11 km discovery cell, which #150 and #152 both show is not a
+measurement of anything: one cell can hold 81 buildings or one. **`src/build_national_registry.py`**
+publishes the unit the solver actually works on — the connected component of tagged buildings inside
+its validated 600 m range.
+
+| kind | n | what happens |
+|---|---|---|
+| `standalone` | **359** | Runs. Plume NOT MODELLED — no neighbour intake for a rise to exist at |
+| `paired_clear` | **195** | Runs with the full plume physics. Tightest clear gap 63.4 m |
+| `paired_advisory` | **28** | Runs, with an on-screen advisory that the bound may be optimistic |
+| `boundary_only` | **34** | Shown; OSM holds a land parcel, no building outline |
+| `below_model_scale` | **23** | Shown; too small for the modelled plant |
+| | **639** | of which **582 runnable** |
+
+Every facility carries its own **measured** timezone (`timezonefinder` on its own centroid) and its
+own reverse-geocoded state — 9 zones, 43 states, none guessed from a bbox. Key functions:
+`classify()`, `_standalone_reason()`, `facade_len()`. `selftest` covers 23 assertions including the
+boundary cases and the control that **Ashburn's own 190 m hall is unaffected**.
+
+⚠ **`NATIONAL-BUILD-PLAN.md` §10 is STALE** — it still reports 100 clear / 143 too-close, the
+pre-fix numbers. Trust `national_gate_verdicts.json` and this section.
+
+### 3.5.3 🔴 FOUR WAYS OSM LIES ABOUT WHAT A DATA CENTRE IS
+
+`discover_dc_clusters.py` filters on `telecom=data_center OR building=data_center`, and OSM applies
+`telecom=data_center` to far more than halls. Each found by MEASURING:
+
+1. **87 of 1,622 ways are LAND PARCELS** — no `building=*` tag, 60 explicitly `landuse`, median
+   61,894 m² vs the real footprints' 10,625, **max 247 hectares**. One was published as a facility
+   with a **1,489.8 m "wall"** (a 116.8 ha polygon named *Amazon AWS Data Center*).
+   🔴 **Consequence before the fix: 18 of 243 gate verdicts (7.4 %) were decided on a property
+   boundary rather than a building facade, and EIGHT reported CLEAR** — a fence-line gap read as a
+   safe facade gap. `measure_national_gaps.is_building_footprint()` is now the ONE definition,
+   imported by the registry so gate and registry cannot disagree. Tested on **the tag, not area**: a
+   12 ha hall and a 6 ha parcel overlap in size, so a size threshold would misclassify both ways
+   *and* be an invented constant (#49's family).
+2. **23 facilities are cabinets or server rooms** — smallest a **4.7 m wall, 19 m² footprint**;
+   includes *Modesto Junior College West Data Center*, *Family History Center*, *CTI Biopharma*,
+   *Norma Beach Cable Landing Station*. The floor is **not a chosen number**: it is
+   `build_site.BANK_DEPTH_M` (20 m), the depth of the bank the solver places on a facade, so a
+   shorter wall cannot host the modelled plant at all. The building is still SHOWN; what is refused
+   is the claim that this model describes it.
+3. **3 ways carry `building=no`** — OSM stating a mapped area is explicitly NOT a building. A
+   `"building" in tags` presence test counts it as one; for `Compute North` (NE) it was the ONLY
+   "building" in its facility, published with a 235.8 m facade the mapper had denied.
+4. **16 ways are `building=construction`** — deliberately NOT acted on. A facility under construction
+   has no operating chiller plant, and this project already refused a whole metro (Phoenix) for that
+   **on imagery evidence**. A crowd-sourced tag is not that quality of evidence, so the tag is
+   carried per building into the registry (`building_tags`) for the imagery stage to judge.
+
+### 3.5.4 The STANDALONE path — decided in prose since §0.2, implemented here
+
+§0.2 decided a facility with no neighbour is a pass, not a refusal. **No code implemented it**, and
+there were 14 structural blockers — the worst that `metros.site_centre()` raised `KeyError` without
+both a source AND a receptor, and `agent.py` calls it at **module import**, which
+`backtest`/`rolling`/`money`/`explain`/`ticker`/`plume_uncertainty` all import. Nothing in the chain
+could even be IMPORTED for any of the 359 pairless facilities.
+
+**`src/build_standalone_site.py`** writes the six artefacts such a facility needs:
+`<k>_selected_site.json`, `<k>_solver_site_{longest,facing}.json`,
+`<k>_rise_table_{longest,facing}.json`, `<k>_direction_table.json`. Decisions:
+
+- **The zero rise table is written into `agent.rise_table()`'s OWN cache path**, so the solver is
+  never reached: **zero GPU solves**, which is also the physically correct cost.
+- 🔴 **`max_rise_bearing` is `null`, NOT `0.0`.** Bearing 0 is due north — a real direction — and
+  `argmax` of an all-zero table returns index 0. Publishing 0.0 would have put *"the worst bearing is
+  due north"* into the trace, the wind dial and the PDF for 359 facilities.
+- Receptor fields are **null — never zero, never another building's value**.
+- The wind block is REAL (`direction_sweep.load_wind()` on this facility's own station), and `main()`
+  asserts `usable + calm + missing == n_hours` exactly — audit check 6e's identity.
+- `build_sites.py` **SKIPS** `plume_uncertainty.py` for a standalone facility (`SKIP_FOR_STANDALONE`):
+  its four assertions correctly fail on an all-zero table, because a flat difficulty signal means a
+  normalised bound buys nothing. The honest response is not to run the stage rather than to weaken
+  its checks.
+
+**Proven end to end on `IA_way_1318322780` (Apple, Waukee IA):** 120,960 scenarios, 43,810 h /
+1,826 days, 43,307 adaptive-conformal rounds, **EXPLAIN PASSED**, 1,008 hour-tapes / 0 verification
+failures, a 4-page PDF verified by reading itself back. **+290.4 chiller-hours/year**,
+`all_mechanical` 14.60 % vs Ashburn's 43.69 %. Bound margin 0.15203 °C at n=4, **openly disclosed as
+Ashburn's** — the Dulles pattern exactly.
+
+### 3.5.5 S5 — WEATHER, the long pole. Two new modules.
+
+HANDOFF called this "confirmed feasible, NOT YET SCRIPTED" in three places while the confirmation
+lived only in prose. **Not one line of station-list or assignment code existed.**
+
+- **`src/fetch_asos_stations.py`** — `<STATE>_ASOS` metadata from Iowa State Mesonet, free/keyless,
+  one request per state, incremental. **17 states / 1,155 stations cached.** Stores lat/lon as NAMED
+  fields because the source is `[lon, lat]` and everything else here is (lat, lon).
+- **`src/assign_station.py`** — ranks by real distance, then **measures** candidates in order and
+  takes the first whose OWN record clears `MIN_WEATHER_COVERAGE` (0.95). Encodes the KIWA/KFFZ
+  precedent (2.7 km at 81.7 % lost to 16.7 km at 99.1 %). Every candidate tried is recorded with its
+  distance and measured coverage. `dryrun` is free. **A facility that exhausts `MAX_CANDIDATES` is
+  recorded UNASSIGNED with its candidates, never given the least-bad station** — observed live:
+  `AZ_way_938592711` tried KGYR 0.6351 / KLUF 0.9486 / KGEU 0.4307 / KBXK 0.9445, correctly
+  unassigned. Key functions: `candidates()`, `viable()`, `measured_coverage()`.
+- **`fetch_weather.build_station(station, tz, out_path)`** — the generalisation. `build()` is now a
+  thin caller, so exactly ONE implementation of the fetch exists. **Records are keyed by STATION,
+  not by site** (Ashburn and Dulles already share KIAD deliberately), so the second facility on a
+  station costs **zero** requests. That is what makes the tier affordable.
+  Also new: `expected_hours()` and `recompute_meta()` — see §3.5.6.
+- Assignments live in **`data/weather/station_assignments.json`**, deliberately NOT inside the
+  registry: `build_national_registry.py` is pure computation, re-run whenever a classification rule
+  changes, and an assignment that cost 60 real requests must not be destroyed by a geometry rebuild.
+  Read by `metros.station_assignments()`.
+
+**Measured: 5.05 min/station × ~1.3 stations per facility → ~6.5 min/facility, ~46 h for the
+standalone tier.** ~95 % of the total build time. Iowa State throttles; this paces itself and runs
+ONE facility at a time on purpose.
+
+### 3.5.6 🔴 A COVERAGE FRACTION IS NOT A MEASURE OF CONTINUITY
+
+`rolling.py` carried *"The largest gap in the record is 5 h, well inside the 12 h horizon, so the
+loop can never break early"* and treated its step count as an exact identity. **That is a property of
+ONE STATION.** Measured:
+
+| station | coverage | max gap | gaps > 12 h |
+|---|---|---|---|
+| KIAD (Ashburn) | 0.9986 | 5 h | 0 |
+| KDSM (Apple) | 0.9997 | 3 h | 0 |
+| KLCK (Google Lockbourne) | 0.9892 | 16 h | 2 |
+| KFTY (Google Douglas Co.) | 0.9964 | 23 h | 3 |
+| **KMRN** | **0.9652** | **330 h** | **15** |
+
+**KMRN PASSES the 95 % floor while missing a continuous two-week block.** With the old `break`, its
+five-year rolling result came from **400 of 21,111 hours** and would have shipped as a five-year
+figure. `simulate()` now **resumes** after a discontinuity with `mode`, `dwell_owed` and
+`switches_today` RESET — carrying them across a two-week hole would assert continuity that did not
+exist — counts the breaks, and publishes **`n_discontinuities`** in the artefact.
+**KMRN now: 21,099 hours, 12 outages, stated. Ashburn: byte-identical, `n_discontinuities: 0`.**
+
+Separately, `fetch_weather`'s coverage denominator was `len(YEARS) * 8760` = 43,800; the real span is
+**43,824 hours** (2024 is a leap year), inflating every coverage figure by **+0.055 pp** against a
+0.95 gate. `expected_hours()` now counts the calendar. `recompute_meta()` / `--recompute-meta`
+re-derives the figure from hours already on disk, so the correction reached the four existing records
+with **zero network requests** rather than 240.
+
+### 3.5.7 S6 — IMAGERY, and the distinction that must not be fudged
+
+**`src/fetch_facility_imagery.py`** — one keyless ArcGIS World Imagery frame per facility. The request
+is **copied verbatim** from `screen_architecture.py` (`bboxSR=4326`, `imageSR=3857`,
+`size=1400,1050`, pads 0.0009/0.0012) so national frames are comparable with the ones the three
+shipped sites were screened from; a different zoom would mean judging national sites at a different
+scale from Ashburn. The manifest it writes is in `screen_architecture.py`'s own schema so
+`metros.committed_imagery()` reads it **unchanged** — and `receptor_osm_id: null` is what makes that
+function's exact-tuple match succeed for a one-building facility.
+
+🔴 **FETCHING A PHOTOGRAPH IS NOT SCREENING A SITE.** The gate asks whether the cooling plant is at
+ground level, where FortyGuard's 2 m field applies; it has refused two whole metros. A fetched frame
+records `architecture_verdict: "NOT YET ASSESSED"` and the facility stays **NOT SCREENED**.
+**Three honest states, not two:**
+
+| tier | meaning |
+|---|---|
+| `fully_screened` | two sources + a human verdict on the exact committed pair — the 3 metros |
+| `national_single_source` | one frame + one recorded verdict **naming its assessor** — the DULLES standard |
+| `national_unscreened` | a frame with nobody's judgement, or no frame at all |
+
+**`fetch_facility_imagery.py verdict <KEY> <VERDICT> <0|1> "<by>" "<evidence>" "<note>"`** records a
+verdict carrying **who assessed it, on how many sources, and the resolution limit** — which the
+existing `architecture_verdicts.json` does NOT, and which at scale is the only way a reader can tell
+a two-source human screening from a single-frame model reading.
+
+**`IA_way_1318322780` is the one assessed: GRADE, in_scope.** Two linear arrays of ground-mounted
+units in a yard along the long south facade; enlarged 6×, each shows internal fin/coil structure with
+fan arrays — characteristic of air-cooled condensers rather than the enclosed radiator-and-stack form
+generators take. **Evidence toward cooling plant, not certification of it.** The units sit on a LONG
+facade — the placement `build_standalone_site.py` chose from the footprint alone, an independent check
+on that assumption.
+
+⚠ **FRAMES ARE JPEG (q88), and this is a hard constraint.** A frame is 2.58 MB as png32; **359
+facilities is 928 MB in `demo/`, over the GitHub Pages 1 GB cap on imagery alone.** JPEG is 0.42 MB
+— 6.1× smaller, 151 MB for the tier. **Legibility was verified BEFORE converting** (§8 of
+NATIONAL-BUILD-PLAN asks for exactly this): the equipment yard was cropped from both formats and
+compared, and the condenser units keep their fin and fan structure. The five hand-built metros keep
+their PNGs — their frames are the audited evidence behind "five screened, two refused", and two
+browser harnesses name `site_aerial.png`. `metros.committed_imagery()` now **preserves the source
+extension** instead of hardcoding `.png`.
+
+### 3.5.8 The UI, for a country rather than three sites
+
+All in `demo/index.html`:
+
+- **Hover** — `natReadout()` writes a persistent side column (`#natside` / `#natsidebody`) naming the
+  facility under the cursor, its operators, buildings, coordinates and real status. It reads the FULL
+  registry row via the hoisted globals `US` / `NATBYKEY` / `NATMAP`, not the 10 truncated feature
+  properties. Replaced a `maplibregl.Popup` that showed 3 of 10 available fields **and rendered white
+  in dark mode**, because nothing ever styled `.maplibregl-popup-content`.
+- **Click** — resolves through the MANIFEST (`siteIsRunnable()`), not the map's status string, so a
+  facility becomes clickable the moment it has artefacts with no further code change. Dispatches
+  `change` (without it `describeSite()` and `#pickgo.disabled` stay on the previous selection), then
+  `await chooseSite()` and **checks its boolean** before `runAgent()` — `loadSite()` leaves the old
+  globals intact on a failed fetch, so an unchecked chain renders one site's numbers under another's
+  name.
+- 🟢 **A SEARCH BOX** (`#searchcard`, above `#natmapcard`, `data-show="pick"`). `searchMatch()` ranks
+  name/label hits above operator hits and prefixes above substrings; runnable sites float up; capped
+  at 40. Reads **the same `unified_sites.json` the map draws**, so the two surfaces cannot disagree
+  about what exists. `searchOpen()` runs the same sequence as the map click with its own re-entry
+  guard. Functions are deliberately **not named `draw*` and not called from `drawAll()`**, so audit
+  check 6d is not implicated. Wired from inside `drawUnifiedMap()` the moment the registry exists —
+  `boot()` runs too early and `wire()` too late.
+- 🟢 **THE PLUME CARDS COLLAPSE TO THEIR REASON.** 359 of 639 facilities have no plume, so
+  `#plumecard`, `#dialcard` and `#fieldcard` were tall and empty on most of the country.
+  `cardSetAbsent()` / `cardSetPresent()` / `plumeModelled()` / `plumeReason()` swap a card between
+  full content and one explanatory paragraph carrying that facility's own measured distance. **The
+  card stays in the DOM** — removing one would rename every later card's key in
+  `verify_site_panels.py`. The dial mattered most: it rendered **a perfect circle of zeros, which
+  reads as "every bearing is safe"** — the opposite of "nothing was computed".
+- `drawAerial()` now survives ONE building: anchors on the source alone (which is *more* accurate
+  than the two-centre midpoint), and skips the receptor ring, the intake disc and their legend
+  entries (`#leg_receptor`, `#leg_intake`) rather than inventing them.
+- New CSS: `.muted` (**it had FOUR uses and NO rule**), `input` added to the control selector (**no
+  text input existed in the page at all**), `.srch` / `.srchlist` / `.srchrow`.
+- `export_unified_map.py` emits **639 facilities** and sets `metro_key` for built ones — that is what
+  makes both the map click and the search box work.
+
+### 3.5.9 🟢 THE REPO IS NOW PUBLISHABLE
+
+`testing/scan_secrets.py` had exited **1** since §9.1b, on two history blobs holding FortyGuard's own
+expired AWS access key id inside a presigned S3 URL. With the user's explicit authorisation:
+
+```
+git filter-branch --index-filter \
+  "git rm --cached --ignore-unmatch testing/results/fixtures/probe_heatintel.json" \
+  --prune-empty -- --all
+rm -rf .git/refs/original && git reflog expire --expire=now --all && git gc --prune=now
+```
+
+**Result: `SCAN: CLEAN. 0 hits in 765 tracked files and 1,163 history blobs`, exit 0.** All three
+affected commits survived — checked FIRST (each had 5–68 other files, so `--prune-empty` removed
+none), so the dated development record is intact.
+⚠ **Every commit SHA changed.** Any SHA cited in this file from before 2026-08-24 is stale.
+⚠ The purge also removed the **redacted** working-tree copy of that fixture. The finding it evidenced
+(FortyGuard returning the caller key in a URL path) survives in `fortyguard-api-findings.md` and
+§12.3, and `testing/fetch_heatintel_payload.py` / `probe_heat_intelligence.py` can regenerate it.
+
+### 3.5.10 THE OVERNIGHT DRIVER, and the circular gate it exposed
+
+**`src/build_national_batch.py`** — `plan` (free) / `run` / `status` (free). Six steps per facility,
+each **idempotent and asking the disk whether it already ran**, so an interrupted 46-hour run loses
+at most the facility in flight. Impact-ordered by longest facade. Processes facilities **one at a time
+on purpose** — parallelising would finish sooner and is the wrong thing to do to a free,
+volunteer-run service. `sys.stdout.reconfigure(line_buffering=True)` per #149.
+
+🔴 **The first live run failed on EVERY facility, and the cause was a circular dependency.**
+`national_readiness()` made `offerable` require `trace.json` to exist, while `build_sites.py` gated on
+`offerable` to decide what it was allowed to BUILD. Nothing could ever be built. **The one facility
+that worked had been built by hand before the manifest ever saw it — which is exactly how a circular
+gate hides: the case that appears to prove it works is the case that bypassed it.** Fixed by splitting:
+
+| flag | question |
+|---|---|
+| `data_ready` | may this facility BE built? geometry + own ≥95 % weather + a runnable kind |
+| `offerable` | may the interface OFFER it? `data_ready` AND its artefacts exist |
+
+`export_manifest()` was the other half: it only listed facilities that already had a trace, so one
+with weather, imagery and geometry had **no row at all**. It now includes any facility whose
+`selected_site.json` exists — one `stat()`, and exactly the point at which a facility becomes
+buildable.
+
+### 3.5.11 WHAT A FRESH SESSION SHOULD DO, IN ORDER
+
+1. **`cd INTAKE-ARBITER/src && python run_all.py`** → must end `REBUILD COMPLETE`. Quote nothing otherwise.
+2. **`python build_national_batch.py status`** (free) — how far the overnight run got.
+3. **`python build_national_batch.py run`** — resume it. Safe to re-run at any time.
+4. **Read the fetched frames and record verdicts.** `data/imagery/screen/<KEY>/00_*.jpg`, then
+   `fetch_facility_imagery.py verdict …`. **This is the ONLY step that cannot be automated**, and a
+   script must never assert a verdict nobody made.
+5. **Trim the Pages budget.** Measured **5.2 MB/site**; `explanations.json` (~987 KB) and
+   `money.json` (~460 KB) are the bulk and neither is read per-site for a non-reference facility.
+   Target ~0.8 MB/site. **This is the blocker for publishing hundreds of sites.**
+6. **The 43-state tariff.** `money.ELECTRICITY_CENTS_PER_KWH` holds **8 rows across 2 states** (VA,
+   IL) while the registry spans 43 — **545 of 639 facilities (85.3 %) get a Virginia-to-Illinois
+   blend**, reported honestly via `electricity_prices_are_this_states_own` but not their own price.
+   **Recommendation, researched: parse the two EIA files this project already cites**
+   (`sales_revenue_price/xls/table_4.xlsx`, `monthly/xls/table_5_06_a.xlsx`) — a workflow re-derived
+   **all 8 existing rows from them exactly, 8 for 8**, so parsing is the standard already in force,
+   not a new one. Read the vintage out of the file, keep the 8 rows as a regression assertion, parse
+   all 51 jurisdictions (the cost is identical), and **preserve the label format** — `audit.py`
+   matches `"Virginia commercial, 2024 annual"` by exact string and a change is an `IndexError`.
+   Hand-entry is rejected on this project's own evidence: `money.py:263-273` records that **three of
+   eight** hand-derived expectations were wrong first time.
+7. **The 195 `paired_clear` facilities** need the existing pairwise funnel at national scale
+   (`select_site` → `refusal_rank` → `build_site` ×2 → `direction_sweep` → `export_plume_fields`).
+   ~13 h GPU. ⚠ `direction_sweep.py` **exits 1 at every clean site** (P1 fails at 0.0 %), so an
+   automated driver must not treat its return code as fatal.
+8. **`MIN_FACADE_M = 100.0` is labelled CHOSEN in `select_site.py`**, and **250 facilities (39 %)
+   have a longest wall of 20–100 m.** Irrelevant for standalone sites (no bank to place) but it gates
+   the paired ones. **Decide before the build, not during it** — lowering a guard because it refused
+   something is #65's scar.
+9. **FortyGuard `env_params` for built facilities** — 2,900 each, ONE point per call (DIAG-67), works
+   today. The user pre-authorised **up to half the remaining credits** (~717,790 of the 1,428,460
+   remaining as of 2026-08-24). Rule 8 still binds: ask per batch.
+10. **The submission is still the whole remaining risk** and none of it is engineering: public repo,
+    `fortyguard` as collaborator, a live link, a 2–5 min video. §9.1.
 
 ---
 
@@ -1804,7 +2187,7 @@ is not started, and that is the only thing that can lose this.** **6 days left a
 
 **THE 60-SECOND ORIENTATION FOR A FRESH SESSION**
 
-1. `cd INTAKE-ARBITER/src && python run_all.py` → **23 steps, ~350 s, 102 checks, ZERO API calls.**
+1. `cd INTAKE-ARBITER/src && python run_all.py` → **25 steps, 169 checks, ZERO API calls.**
    Read the LAST LINE, not the exit code a wrapper reports — it is literally `REBUILD COMPLETE` or
    `REBUILD FAILED at: <step>`. If it is not `REBUILD COMPLETE`, quote nothing.
 2. `cd ../demo && python -m http.server 8000 --bind 127.0.0.1` → the demo in REPLAY. No key, no
@@ -2166,7 +2549,7 @@ written down. Five changes, all writing rather than building, all numbers audit-
 | *"API of the problem"* — a fill-in-the-blanks formula, with the guardrail *"if you cannot fill out every variable cleanly you are not ready to write a single line of code"* | We COULD fill it. We never had. | The contract sentence, README §1 and **PLAN §1a**, every variable an audited number |
 | *"Engineering for the first buying customer"*, *"GTM fit"* | 🔴 **The real gap.** Value quantified, but no hero, no price, no wedge, no route to revenue | README *"Who buys this"* + PLAN §1a.1: the hero as a **role**, **$5,522–$7,990/MW-IT/yr** (16 swept cells), and the **30-day shadow trial** |
 | *"Useful AI"* / *"Regex vs LLMs"* / *"Agentic scope"* | We use **zero LLMs** deliberately — his framework endorses exactly that, but **unstated, we read as a physics project that wandered into an AI hackathon** | README *"Useful AI — and where we deliberately did not use one"*: the job-by-job table, `local_model_used: false` quoted from the emitted artefact, **371 MiB of 6,141** proving it was declined on merit not capacity, and the five execution-scope constraints |
-| *"MLP not MVP"*, validate before you scale | True of us, never said | The verification-surface paragraph: **95 checks and a gotcha log to #143 are headstones, not architecture**; no Kubernetes, no vector DB, no queue, no build step |
+| *"MLP not MVP"*, validate before you scale | True of us, never said | The verification-surface paragraph: **169 checks and a gotcha log to #185 are headstones, not architecture**; no Kubernetes, no vector DB, no queue, no build step |
 | — | 🔴 **65.6 % read to a skimmer as "their bound fails"** | Split into **method validated** (20/20 self-tests, 12 per-lead bounds ≥ 90 %) vs **calibration under-sampled** (9 pairs needed, 4 held, 80 % ceiling at n=4 — *arithmetically* unreachable, not refuted) |
 
 🔴 **THE STRUCTURAL ARGUMENT THAT CAME OUT OF THIS, AND IT IS THE BEST ONE IN THE PROJECT:** the
@@ -2229,8 +2612,8 @@ after rendering one site **twice** and requiring byte-identical output.
 that *differ*, so a difference test passes on a wrong picture. Only the literal scan catches that.
 And the render diff caught what the source check had **excused** (#131). Keep both.
 
-**4. `run_all` is 20 steps; `audit` is 95 checks.** Steps 16/17 are the collector and watcher
-self-tests (offline, 24 + 18 assertions, no key read); **step 20** is the browser panel diff, which
+**4. `run_all` is 25 steps; `audit` is 169 checks.** Steps 19/20 are the collector and watcher
+self-tests (offline, 24 + 18 assertions, no key read); **step 24** is the browser panel diff, which
 **exits non-zero if no browser is found rather than skipping** — a check that skips reports PASS for
 a path it never ran.
 
@@ -3284,6 +3667,317 @@ session's. The command is in §4.2.
     product, and it is what makes the standalone path **consistent** with the paired path rather
     than a concession, which is the honest defence for running the 396 isolated facilities.
 
+162. 🔴 **OSM TAGS A 247-HECTARE LAND PARCEL `telecom=data_center`, AND WE MEASURED A 1,489.8 M
+    "FACADE" ON ONE.** `discover_dc_clusters.py` filters `telecom=data_center OR
+    building=data_center`; of 1,622 tagged ways **87 carry no `building=*` at all** (60 explicitly
+    `landuse`, median 61,894 m² against the real footprints' 10,625, max 247 ha). One was published
+    as a facility whose longest wall was a **1.5 km fence line** of a 116.8 ha polygon named
+    *Amazon AWS Data Center*. **Consequence before the fix: 18 of 243 gate verdicts (7.4 %) were
+    decided on a property boundary rather than a building facade, and EIGHT of those reported
+    CLEAR** — a fence-line gap read as a safe facade gap, which would have let the solver run on
+    geometry that describes no building. Fixed with **one** definition,
+    `measure_national_gaps.is_building_footprint()`, imported by the registry so gate and registry
+    cannot disagree. It tests **the tag, not the area**: a 12 ha hall and a 6 ha parcel overlap in
+    size, so an area threshold would misclassify both ways *and* invent a constant (#49's family).
+
+163. 🔴 **`"building" in tags` COUNTS `building=no` AS A BUILDING.** OSM uses `building=no` to state
+    that a mapped area explicitly is **not** one. Three ways carry it, and for `Compute North` (NE)
+    it was the **only** "building" in the facility — so that facility shipped as a standalone site
+    with a **235.8 m facade the mapper had denied existed**. A presence test on a key whose *value*
+    is the negation is not a test. Related and deliberately **not** acted on: 16 ways are
+    `building=construction`. A facility under construction has no operating chiller plant, and this
+    project refused a whole metro (Phoenix) for exactly that — but on **imagery** evidence. A
+    crowd-sourced tag is not that quality of evidence, so the tag is carried per building into the
+    registry (`build_national_registry.py`'s `building_tags`) for the imagery stage to judge.
+
+164. **THE SAME WAYS-VS-BUILDINGS CONFUSION BIT THREE TIMES IN ONE FILE, AND A DIFFERENT INSTRUMENT
+    CAUGHT EACH.** After #162 introduced the distinction, `build_national_registry.py` still counted
+    **ways** in three places: (a) `selftest()` found a 1-building-plus-2-parcels facility classified
+    `paired_advisory` — an advisory about a facade gap it cannot have; (b) `selftest()` found the
+    merge branch counting ways; (c) `audit.py` **crashed** on a null gap from a single hall flagged
+    `merged_into_one_structure`. The lesson is not "count buildings" — it is that introducing a
+    distinction obliges you to re-audit **every** existing count in the file, because the old name
+    still compiles.
+
+165. 🔴 **`argmax` OF AN ALL-ZERO TABLE RETURNS INDEX 0, AND INDEX 0 IS DUE NORTH.**
+    `agent.select_cases` derived its own worst bearing by `np.argmax` over the 72-bearing rise
+    table. For a standalone facility the table is all zeros, so it published *"the worst bearing,
+    0 deg"* — a real, specific, wrong compass direction — into the trace, the wind dial and the PDF
+    for what would have been 359 facilities. Two derivations of one quantity (`build_standalone_site`'s
+    deliberate `null` and `select_cases`' computed `0.0`) disagreed and **nothing compared them**.
+    Now both are `None`, and `audit.py` asserts they agree. Guard the argmax, not the display:
+    `worst_bearing = None if not np.any(tab > 0.0) else …`.
+
+166. 🔴 **THE WIND-DIAL NOTE ASSERTED "A 123 M FACADE" AND "A 50 M END WALL" ON EVERY SITE, AND
+    123 M MATCHES NO SITE — NOT EVEN ASHBURN.** Measured facades: **162.5 / 200.0 / 293.8 /
+    337.5 m**. "50 m end wall" was Ashburn's **bank length** relabelled as a wall. Sixth instance of
+    #67 (a hard-coded number in rendered prose), and this one was on screen. `agent.py` now
+    publishes `bank_length_m` and `facade_length_m` per mode from `build_site`'s own constants.
+    **Every literal number in prose is a claim about a specific site; at N sites it is a claim about
+    all of them.**
+
+167. **THE COVERAGE DENOMINATOR ASSUMED 8,760 HOURS A YEAR, AND 2024 IS A LEAP YEAR.**
+    `fetch_weather` used `len(YEARS) * 8760` = 43,800 against a real span of **43,824**, inflating
+    every station's coverage by **+0.055 pp** against a gate set at exactly 0.95. `expected_hours()`
+    now counts the calendar. The fix that mattered as much: **`recompute_meta()` / `--recompute-meta`
+    re-derives the figure from hours already on disk**, so the correction reached the four existing
+    records with **zero network requests** instead of 240. When a derived field is wrong, ask whether
+    it can be re-derived from what you already have before re-fetching.
+
+168. 🔴 **`METRO=""` SILENTLY RESOLVED TO ASHBURN, AND ASHBURN OWNS THE UNSUFFIXED FILENAMES.**
+    `(get("METRO") or DEFAULT)` treats present-but-empty as unset. A driver looping `METRO=$KEY` with
+    one unset shell variable would therefore **rebuild Ashburn** — and the default metro's artefacts
+    are the *unsuffixed* files the 77 published numbers are read from, so the overwrite would be
+    invisible. At 3 sites this is a nuisance; at 639 with a batch driver it is a silent corruption of
+    the reference site. `metros.metro_key()` now distinguishes **absent** (defaults) from
+    **present-but-empty** (a caller bug, and it says so). 7 cases guarded permanently in the audit.
+
+169. 🔴 **A CIRCULAR READINESS GATE MADE THE FIRST LIVE BATCH FAIL ON EVERY FACILITY, AND THE ONE
+    CASE THAT "PROVED IT WORKED" WAS THE ONE THAT BYPASSED IT.** `metros.national_readiness()` made
+    `offerable` require `trace.json` to exist, while `build_sites.py` gated on `offerable` to decide
+    what it was **allowed to build**. Nothing could ever be built. It looked fine because the single
+    facility that had run was built **by hand before the manifest ever saw it**. That is the shape to
+    watch for: *the case that appears to prove a gate works is the case that never went through it.*
+    Fixed by splitting the question in two — `data_ready` ("may this facility BE built?": geometry +
+    its own ≥95 % weather + a runnable kind) and `offerable` ("may the interface OFFER it?":
+    `data_ready` AND artefacts on disk). `export_manifest()` was the other half — it listed only
+    facilities that already had a trace, so one with weather, imagery and geometry had **no row at
+    all**; it now includes any facility whose `selected_site.json` exists.
+
+170. 🔴 **A COVERAGE FRACTION IS NOT A MEASURE OF CONTINUITY, AND `rolling.py` HAD HARD-CODED ONE
+    STATION'S CONTINUITY AS A GENERAL PROPERTY.** The source read *"the largest gap in the record is
+    5 h, well inside the 12 h horizon, so the loop can never break early"* — true of **KIAD only**.
+    Measured: KIAD 0.9986 / 5 h; KDSM 0.9997 / 3 h; KLCK 0.9892 / **16 h**; KFTY 0.9964 / **23 h**;
+    **KMRN 0.9652 / 330 h with 15 gaps over 12 h.** KMRN **passes** the 95 % floor while missing a
+    continuous two-week block, and with the old `break` its five-year rolling result came from
+    **400 of 21,111 hours** and would have shipped labelled as five years. `simulate()` now
+    **resumes** after a discontinuity with `mode`, `dwell_owed` and `switches_today` **reset** —
+    carrying them across a two-week hole would assert a continuity that did not exist — counts the
+    breaks, and publishes `n_discontinuities`. KMRN now: 21,099 hours, 12 outages, **stated**.
+    Ashburn byte-identical with `n_discontinuities: 0`, which is the control that proves it.
+
+171. **`.muted` HAD FOUR USES IN THE PAGE AND NO CSS RULE, AND THERE WAS NO `input` RULE BECAUSE THE
+    PAGE HAD NEVER CONTAINED A TEXT INPUT.** Four elements were styled by nothing and rendered at
+    full body contrast — invisible as a defect because "unstyled" still looks like text. Adding the
+    search box then exposed the second half: the control selector listed `select` and `button` only,
+    so the new `<input>` inherited the browser default and looked foreign in dark mode. **Grep for a
+    class before assuming it is styled, and check the shared selector when adding an element type the
+    page has never had.**
+
+172. 🔴 **`drawAerial()` THREW ON A NULL RECEPTOR, AND `drawAll()` HAS NO `try/catch` — ONE THROW
+    WOULD HAVE KILLED ELEVEN PANELS.** `md.worst.bearing` on a null and the two-centre midpoint both
+    assumed a pair. The real-browser panel diff caught it: the page crashed on the first standalone
+    site. `drawAerial()` now anchors on the source alone (which is *more* accurate than a midpoint)
+    and **skips** the receptor ring, the intake disc and their legend entries rather than inventing
+    them. In a render loop with no error boundary, the blast radius of one optional field is every
+    panel after it.
+
+173. **THE PDF'S READ-BACK VERIFIER FLAGGED THE WORD "undefined" IN MY OWN ENGLISH PROSE.**
+    `report.py`'s verifier scans the rendered page for `nan` / `none` / `null` / `undefined` leaking
+    out of a formatter, and my new standalone sentence used "undefined" in its ordinary sense. **The
+    guard was right and the wording moved**, in all three places. Do not widen a leak detector to
+    accommodate your own copy.
+
+174. 🔴 **`submit_poll` CATCHES HTTP ERRORS AND RETURNS THEM IN THE DICT INSTEAD OF RAISING, SO MY
+    `try/except` NEVER FIRED AND A `422` READ AS "ACCEPTED, ZERO LOCATIONS".** DIAG-67 (does
+    `env_params` take many points per call?) nearly returned the **opposite** conclusion: the
+    rejection arrived as an empty success and the error **body — the only field that says why — was
+    discarded**. Fixed to read `submit_http` / `submit_error_body`; the re-run produced the quotable
+    errors (`Field 'latitude' is required`; `…should be a valid number`) that make the finding real.
+    #124's exact lesson, and worth restating because it cost a near-false negative on a **free**
+    experiment: **know whether your helper raises before you write the handler.**
+
+175. **I PUT CARD-COLLAPSE STATE INTO `named`, WHICH CARRIES A DISTINCTNESS CONTRACT.**
+    `verify_site_panels.py`'s `named` dict is asserted to **differ** between sites. Card presence is
+    legitimately **identical** across all 359 standalone facilities, so adding it there would have
+    made a correct page fail. Moved to its own `cards` dict with its own assertion. **A test fixture's
+    invariant is part of its interface — adding a key with different semantics breaks it.**
+
+176. 🔴 **MY OWN CHECK THAT THE PLUME CARDS COLLAPSE WAS CIRCULAR: IT DETECTED "NO PLUME" FROM A TILE
+    THE COLLAPSE HIDES.** So it passed whether or not the collapse worked, and would have passed on a
+    page that hid the tile and left the empty card. Rewritten to read `plumeModelled()` from the page
+    itself. Same family as the vacuous `excluded_non_us[*].key` intersection earlier the same night
+    (a field those records do not have, so the set was always empty and the check always passed).
+    **Both were caught by asking "what would make this check FAIL?" — a check with no answer to that
+    question is decoration.**
+
+177. **`UnicodeEncodeError` WHILE PRINTING A PASS.** The Windows console is cp1252; a check that had
+    genuinely succeeded died writing a `✓` to stdout, and the non-zero exit read as a failure of the
+    thing being tested. Verifier output is now ASCII-folded. **A harness must not be able to fail in
+    a way that impersonates the defect it looks for** (#155's family).
+
+178. **`JPEG_QUALITY` WAS DEFINED IN `run()` AND USED IN `fetch()` — `NameError` ON EVERY FETCH.**
+    Caught only because `fetch_facility_imagery.py` **records failures as failures** rather than
+    skipping them, so the manifest showed 0 successes instead of silently showing nothing. Moved to
+    module level. The instrument that saved this was the error recording, not the error handling.
+
+179. **AN OVERPASS `429` BURNED ALL RETRIES IN 15 SECONDS.** The backoff was 5 s then 10 s, which
+    against a throttle that wants minutes is not a backoff. Now exponential from a **60 s** base when
+    the response is specifically `429`. Because the ring fetch is **incremental** — it reads what is
+    on disk and requests only the difference — the retry then cost **1 batch instead of 11**.
+    Incrementality is a politeness property, not just a speed one.
+
+180. **THE PUBLISHED FIELD AND THE PROSE QUOTING IT DISAGREED BY 1 M ON 23 FACILITIES.** Both were
+    "the nearest other tagged data centre", rounded **twice from two starting points**, and Python's
+    half-even against the format's half-up split them at exactly `.5`. Found by a check, not by
+    reading. Fixed at source: **round once, use one value** (methodology rule 11). Two roundings of
+    one quantity is the same defect as two derivations of one quantity (#165).
+
+181. **`fetch_geometry.py` BUILT `candidates_path()` AT IMPORT TIME, SO A `None` THERE RAISED
+    `TypeError` BEFORE THE MODULE COULD BE IMPORTED AT ALL.** The same import-time landmine as
+    `metros.site_centre()` (which `agent.py` calls at module scope, and the whole chain imports
+    `agent`). Fixed with a derived name — **whether the file exists is `readiness()`'s question, not
+    the path constructor's.** Two instances in one codebase means the pattern, not the line, is the
+    bug: computing anything fallible at module scope makes it un-importable rather than merely broken.
+
+182. **MY OWN NEW CHECK 6f FLAGGED `audit.py` ITSELF, AND IT WAS RIGHT TO.** Check
+    `check_no_unsuffixed_per_site_artefact` scopes itself by "does this module `import metros`", and
+    adding a **function-local** `import metros` to `audit.py` for a self-test brought `audit.py` into
+    scope, where its legitimate reference-site reads failed. Right instinct, wrong granularity:
+    tightened to **top-level imports only** (`^import\s+metros`, column 0). A genuinely metro-aware
+    module imports at module scope; a lazy import inside one function is a test fixture. Note what was
+    **not** done — excluding `audit.py` by name, which would have exempted it forever.
+
+183. **`check_dead_code` CAUGHT A HELPER I HAD JUST ADDED AND NEVER CALLED** (`metros.known_keys`).
+    Removed, not kept "for later" — keeping it is precisely what that check exists to refuse.
+
+184. 🔴 **FETCHING A PHOTOGRAPH IS NOT SCREENING A SITE, AND AT 639 SITES THE TWO LOOK IDENTICAL IN A
+    MANIFEST.** Gate G5 asks whether the cooling plant is at **ground level**, where FortyGuard's 2 m
+    field applies; it has refused two whole metros on that question. A fetched ArcGIS frame answers
+    nothing on its own. So **three states, not two**: `fully_screened` (two sources + a human verdict
+    on the exact committed pair — the 3 metros), `national_single_source` (one frame + one recorded
+    verdict **naming its assessor** — the Dulles standard, whose own record says chillers and
+    generators are hard to separate at 0.3–0.5 m/px), and `national_unscreened` (a frame with nobody's
+    judgement, or no frame). `fetch_facility_imagery.py verdict …` records **who** assessed it, on how
+    many sources, and the resolution limit — which the existing `architecture_verdicts.json` does not.
+    **This is the one build step that cannot be automated, and a script must never assert a verdict
+    nobody made.**
+
+185. **THE AERIAL FRAMES WOULD HAVE EXCEEDED THE GITHUB PAGES CAP ON IMAGERY ALONE.** 2.58 MB per
+    frame as png32 × 359 standalone facilities = **928 MB** against a **1 GB** published-site limit,
+    before a single JSON artefact. JPEG q88 is 0.42 MB — 6.1× smaller, 151 MB for the tier. The
+    ordering was the point: **legibility was verified BEFORE converting** — the equipment yard was
+    cropped from both formats and compared, and the condenser units keep their fin and fan structure.
+    The five hand-built metros **keep their PNGs**, because their frames are the audited evidence
+    behind "five screened, two refused" and two browser harnesses name `site_aerial.png` by filename.
+    `metros.committed_imagery()` now **preserves the source extension** instead of hardcoding `.png`.
+
+186. 🔴 **`operator` IS NOT A DISTINCTNESS-BEARING FIELD, AND THE IDENTITY CHECK WILL NOW FAIL ON
+    EVERY HONEST PAIR OF UNNAMED FACILITIES.** `audit.py`'s identity loop asserts `osm_source`,
+    `osm_receptor` and `operator` are all unique across offerable sites, on the stated reasoning that
+    *"two different buildings cannot share an OSM id, so equality here is proof of a fallback"*. That
+    reasoning is exactly right for an **OSM id**, which is unique by construction — and simply untrue
+    for an **operator name**. Two honest collisions exist: (a) a facility with no `operator` tag
+    renders the literal string `"unnamed"`, so any two of them collide — observed tonight at
+    `NC_way_844372538` and `WI_way_1510420026`; (b) two genuinely different facilities can share a
+    real operator, and the registry already contains several Microsoft and several Amazon sites.
+    At 3 hand-typed sites `operator` happened to be distinct, so the field rode along inside a check
+    that was only ever load-bearing for the ids.
+    **This is the FOURTH time this file has had to meet "an absence is not a collision"** — the
+    comment above the null-receptor branch says so itself. **The fix is not to delete the assertion**
+    (that is #65's scar: weakening a guard because it refused something). It is to replace uniqueness
+    with the strictly **stronger** claim: assert each site's `operator` **matches its own registry
+    row** — provenance, not distinctness. That catches #98 (Chicago's trace naming AWS halls in
+    Virginia) even in the case where the wrong names happen to be distinct, which the uniqueness test
+    would have passed.
+
+187. 🔴 **THE README'S AUDIT-CHECK COUNT IS A MOVING TARGET WHILE THE NATIONAL BATCH RUNS, SO THE
+    TREE CANNOT BE GREEN MID-BUILD.** Check 10 computes what the README must say as
+    `len(PASSES) + len(WARNS) + len(FAILS) + 1` (`audit.py:2681`) — and a large share of the checks
+    are **per-site**, so the total is a function of how many facilities are built. It was **169 at
+    four sites** and is **191 at eight**; at 359 it will be in the thousands. Every single facility
+    the batch completes therefore falsifies a hard-coded figure in a **submission document**, and
+    `README.md` currently states 169 in three places (`:60`, `:214`, `:276`).
+    This was invisible at 3 sites, where the count only moved when someone added a check on purpose.
+    **Do not "fix" it by chasing the number** — that is a doc edit per facility, and the figure is
+    stale again before it is committed. The decision to take, and it is a real one: either check 10
+    compares against the count for a **fixed reference configuration** (the 3 shipped metros) rather
+    than whatever happens to be on disk, or the README quotes the count **with the site count it was
+    measured at** and check 10 asserts that pair. The first is better — a submission document should
+    describe a reproducible configuration, not the state of a work queue.
+
+    🟢 **DECIDED BY THE USER, 2026-08-24: PIN CHECK 10 TO THE THREE SHIPPED METROS.** The
+    README figure describes the reproducible reference configuration; national facilities may
+    add checks without moving the documented number. **NOT YET IMPLEMENTED** — and it is a
+    change to `audit.py`, the verification surface, so it must be done with room to test, not
+    squeezed in. What the next session needs, already established:
+
+    * `ck(name, ok, detail, warn)` (`audit.py:58`) appends `(name, detail)` to `PASSES` /
+      `WARNS` / `FAILS`. The **name is the only handle** on which site a check belongs to, and
+      there are 200+ call sites, so adding a `site=` argument to `ck()` is out.
+    * The expected figure is built at `audit.py:2681` as
+      `len(PASSES) + len(WARNS) + len(FAILS) + 1`.
+    * Measured growth: **169 checks at 4 sites → 209 at 12** (10 offerable), i.e. about
+      **5 checks per additional site**, from loops whose check name embeds the site key.
+    * So the mechanism is: exclude checks whose name matches a national facility key
+      (`[A-Z]{2}_way_\d+`) and compare the README against that remainder.
+    * ⚠ **THAT ALONE IS NOT SUFFICIENT, AND THE GAP MUST NOT BE PAPERED OVER.** Some checks
+      exist *only because* national sites exist yet do **not** name one — e.g. the
+      `"%s is NULL at %d facility(ies) with no receptor"` check, raised only when a standalone
+      facility is present. Those would still drift.
+    * **Therefore pair the exclusion with a self-verifying assertion**: that the number of
+      excluded checks equals `5 × (offerable national sites)`. If someone later adds a per-site
+      check, that assertion fires and forces the count to be re-derived on purpose rather than
+      drifting silently. A bare exclusion with no such tie-back would be exactly the kind of
+      check that cannot fail — §10 #176.
+
+188. 🔴 **THE OVERNIGHT DRIVER'S "ALREADY DONE" TEST WAS THE FIRST ARTEFACT OF SIX, SO ANY
+    INTERRUPTED FACILITY WAS ORPHANED PERMANENTLY AND COUNTED AS COMPLETE.**
+    `build_national_batch.state_of()` had `"built": os.path.exists(M.demo_path("trace.json", key))`.
+    `trace.json` is what **step 1 of 8** writes. So a facility whose chain stopped after step 1 — a
+    killed process, a closed terminal, one transient error — was thereafter:
+    (a) skipped by `do_facility()`, which only runs the chain `if not st["built"]`, so it was **never
+    repaired on any resume**; (b) reported **complete** by `status`; and (c) still **offered to the
+    user** by `export_manifest()`, which lists any facility with a `selected_site.json`, so the
+    interface would present a site whose money, ticker and explanation panels cannot load.
+    **Measured, not hypothesised: 1 of the first 7 national facilities was already orphaned this
+    way** (`WI_way_1510420026`, holding only `trace` + `backtest` + the rise tables while the batch
+    had moved on to three later facilities). At that rate a 359-facility run leaves **~50 silently
+    half-built sites**, each offerable.
+    **There was no code bug** — `rolling.py` and `money.py` both ran to completion for WI when
+    invoked by hand, and `explain.py` then returned `EXPLAIN PASSED`. The chain was merely
+    interrupted; the defect was entirely in *how resumability was tested*. **An idempotency check
+    that asks whether work STARTED cannot tell you whether work FINISHED**, and the failure is
+    invisible because a half-built site looks exactly like a built one to a one-file `stat()`.
+    Fixed by giving the question **one** answer: new `metros.REQUIRED_ARTEFACTS` — the same six the
+    audit demands of any offerable site — with `state_of()` requiring **all** of them. `status`
+    immediately went 7 → 6 complete, which is the confirmation that it had been lying.
+    ⚠ Note `audit.py:998` keeps its **own** copy of that list on purpose: a verification file that
+    imports its expectations from the code it verifies cannot catch a change in that code. The
+    remaining work is an audit check asserting the two lists agree — the pattern this file already
+    uses for the knife-edge bearing (#165).
+    ⚠ And a live-process caveat that cost me a wrong assumption: `main()` snapshots
+    `states = {k: state_of(k, ...) for k in todo}` **once at startup**, so a driver already running
+    holds both the old code and a stale view. Fixing the source does not repair the facility the
+    running process already dismissed.
+
+189. 🔴 **THE SITE PICKER PRINTED THE LITERAL WORD `null` TO THE USER, AND FOUR COPIES OF THE
+    SAME LABEL DISAGREED ABOUT HOW TO AVOID IT.** Every site was rendered as
+    `source → receptor`, which is right for a pair and meaningless for a standalone facility — there
+    is no second building, so `receptor_name` and `receptor_osm_id` are both null (correctly: see
+    #165 on why they are null and not zero). The picker at `index.html:3396` did
+    `(c.receptor_name||c.receptor_osm_id)`, whose fallback chain **ends in null**, so JavaScript
+    concatenated the string `"null"` onto the screen: *"Apple, IA — Apple → null"*. The user spotted
+    it in the dropdown.
+    **Four call sites built that label and all four handled the absence differently** — `:804`
+    fell back to `'?'`, `:2439` to the raw OSM id then `'?'`, `:3396` to the raw OSM id then
+    **nothing**, and `:930` (the ready tiles) had **no fallback at all**, so it would have printed
+    `null` too. Classic #162: one concept, four definitions, and the weakest one is what the user
+    sees. Fixed with one renderer — `loneBuilding()` / `buildingOf()` / `pairLabel()` — used by all
+    of them. A lone building now reads *"Apple (single building)"*, and a facility with no `name`
+    and no `operator` tag reads *"OSM way 844372538"* rather than a bare number.
+    `describeSite()` additionally stops claiming a *"Committed pair"* and a facade gap for a site
+    that has neither.
+    **This is the same class of leak `report.py`'s read-back verifier already catches in the PDF**
+    (#173) — it scans rendered output for `nan`/`none`/`null`/`undefined`. The PDF had that guard
+    and the HTML page did not, which is why a null reached a human here and not there.
+    Verified: `node --check` on the extracted page script, then all 15 manifest labels rendered
+    through the real function with **0 hits for `null`/`undefined`/`NaN`**, then
+    `verify_site_panels.py` (**14 panels differ, PASS**) and `verify_map_hover.py` (**PASS**).
+    ⚠ **Worth doing next: give the page the same automated leak scan the PDF has.** A test that
+    renders every manifest label and greps for those four words is a few lines, and it is the only
+    reason this was found by a person rather than by the harness.
+
 ## Carried forward, continued
 
 72. **A CSS COMMENT CAN BE UNBALANCED AND SILENT.** Successive edits left **three `*/` against one
@@ -3336,8 +4030,8 @@ session's. The command is in §4.2.
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **571,540 = 137 calls = 28.58 %.** Remaining **1,428,460**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** |
-| **⚠ Of that, 227,880 PROVABLY bought nothing** | **39.9 %** of spend. Ceiling **476,860 = 83.4 %**. §10 #93 |
+| **Spent to date** | 🔴 **802,320 = 192 calls = 40.12 %.** Remaining **1,197,680**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
+| **⚠ Of that, 227,880 PROVABLY bought nothing** | **28.4 %** of spend. Ceiling **654,100 = 81.5 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |
@@ -3355,6 +4049,59 @@ session's. The command is in §4.2.
 ---
 
 # 13. FILES — created and modified
+
+## 13.0g Added / changed 2026-08-24/25 — Session J, the agent runs on any US facility (§3.5)
+
+**New scripts in `INTAKE-ARBITER/src/`, in pipeline order:**
+
+| file | what |
+|---|---|
+| **`build_national_registry.py`** | NEW. `data/geometry/national_registry.json` — one row per **facility** (639), the unit the solver actually works on, replacing the ~11 km discovery cell (#150). Joins `national_building_groups.json` + `national_gate_verdicts.json` + `state_by_coord.json` + `national_geometry.json`. `classify(n_members, verdict, gap_m, nearest_m, longest_facade_m, n_buildings)` returns one of five kinds, precedence **below_model_scale → boundary_only → paired/standalone**; `_standalone_reason()` writes the NOT-MODELLED sentence with the facility's own measured distance and the Prairie Grass citation (never "zero by geometry" — §3.5.1); `facade_len()` measures the longest edge via `build_site.longest_edge()`. Timezone from `timezonefinder` on the facility's **own** centroid, state reverse-geocoded. Publishes `nearest_over_validated_range` (a ratio, 1.02×…622×), `longest_facade_m`, `n_building_footprints`, `n_parcel_ways`, `building_tags`. `selftest()` = **23 assertions** incl. the 20 m boundary, precedence, an absent ring **skipping** rather than passing, and the control that Ashburn's 190 m hall is unaffected |
+| **`build_standalone_site.py`** | NEW. The six geometry artefacts a pairless facility needs: `<k>_selected_site.json`, `<k>_solver_site_{longest,facing}.json`, `<k>_rise_table_{longest,facing}.json`, `<k>_direction_table.json`. `zero_rise_table()` writes a 72×8 all-zero table with `max_rise_bearing: None` (**not 0.0** — #165) and `device: "not solved…"`, **into `agent.rise_table()`'s own cache path** so the solver is never reached (zero GPU solves, which is also the correct cost). `solver_site()` keeps the real condenser bank and sets receptor/intake/`facade_gap_m` to **null — never zero, never another building's value**. `wind_block()` is REAL (`direction_sweep.load_wind()` on this facility's own station) and `main()` asserts `usable + calm + missing == n_hours`. `selftest()` with a `tb()` boolean helper |
+| **`fetch_asos_stations.py`** | NEW. `<STATE>_ASOS.geojson` network metadata from Iowa State Mesonet — free, keyless, one request per state, **incremental**. 17 states / 1,155 stations cached. Stores lat/lon as **named** fields because the source is `[lon, lat]` and everything else here is `(lat, lon)`. A state that fails is **recorded, not assumed empty** |
+| **`assign_station.py`** | NEW. `data/weather/station_assignments.json`. `candidates()` ranks by real distance; `viable()` prunes on `archive_begin`/`archive_end`; `measured_coverage()` then **measures** candidates in order and takes the first clearing `MIN_WEATHER_COVERAGE` (0.95) — the project's own KIWA/KFFZ precedent (2.7 km at 81.7 % lost to 16.7 km at 99.1 %). `MAX_CANDIDATES = 4`, `MAX_DISTANCE_M = 200000.0`. `dryrun` is free. A facility that exhausts the cap is recorded **UNASSIGNED with every candidate and its measured coverage**, never given the least-bad station |
+| **`fetch_facility_imagery.py`** | NEW. One keyless ArcGIS World Imagery frame per facility. `frame_bbox()` **copies `screen_architecture.py`'s request verbatim** (`bboxSR=4326`, `imageSR=3857`, `size=1400,1050`, pads 0.0009/0.0012) so national frames are comparable with the three shipped sites'. `fetch()` re-encodes to JPEG at module-level `JPEG_QUALITY = 88` (#185). Writes `screen_architecture.py`'s own manifest schema so `metros.committed_imagery()` reads it unchanged. `record_verdict()` / the `verdict` subcommand capture `assessed_by`, `evidence` and `limits` — **a fetched frame records `architecture_verdicts: "NOT YET ASSESSED"` and the facility stays NOT SCREENED** (#184) |
+| **`build_national_batch.py`** | NEW. The overnight driver. `plan` (free) / `run` / `status` (free). `eligible()` orders by longest facade (the honest measured proxy for cooling load); `do_facility()` runs six steps, **each idempotent and each asking the disk whether it already ran**, so an interrupted 46-hour run loses at most the facility in flight. **One facility at a time on purpose** — parallelising would finish sooner and is the wrong thing to do to a free, volunteer-run service. `sys.stdout.reconfigure(line_buffering=True)` (#149) |
+
+**Modified in `INTAKE-ARBITER/src/`:**
+
+| file | what |
+|---|---|
+| `plume_uncertainty.py` | 🔴 **THE SESSION'S FOUNDING DEFECT.** `spread_table()`'s cache path and `main()`'s output moved from `os.path.join(DEMO, …)` to `M.demo_path(…)`; `metro` stamped into both artefacts; `import metros as M` added. Was shipping Ashburn's CQR width term at all three sites, **37.7 % / 27.4 % too narrow in the UNSAFE direction** (#157) |
+| `agent.py` | `plume_uncertainty_terms()` reads `M.demo_path("plume_uncertainty.json")`. `CASE_SPECS` knife_edge literal `"255 deg"` → `"{worst_bearing:.0f} deg"`, rendered by a new **module-level** `case_criterion(c, worst_bearing)` used by BOTH the console log and the trace (one renderer, two callers). `select_cases()` guards the argmax: `worst_bearing = None if not np.any(tab > 0.0) else …`, and `picks["knife_edge"]` / `picks["safe_sector"]` become `None` accordingly. `operator` branches so a single building reads `"Apple"`, not `"Apple / unnamed"` (page 1 of the PDF). Geometry block now publishes `bank_length_m` and `facade_length_m` per mode, importing `BANK_DEPTH_M, BANK_FACADE_FRACTION` from `build_site` (#166) |
+| `build_sites.py` | `plume_uncertainty.py` added as **step 1** of the CHAIN. `SKIP_FOR_STANDALONE = {"plume_uncertainty.py"}` — its four assertions correctly fail on an all-zero table, so the honest response is not to run the stage rather than to weaken its checks. `M.METROS[k]` → `M.metro(k)`. New `--others` flag (replaces `run_all.py`'s literal site list, #159). argv **no longer blindly lowercased** — a `_by_lower` map, since `IA_way_…` became `ia_way_…` and printed "not offerable" beside a list containing it. `offerable_sites()` accepts `offerable or data_ready` (#169) |
+| `metros.py` | `national_registry()`, `station_assignments()`, `national_entry()`, `national_readiness()`. Now answers for **644 keys** — 5 hand-built entries untouched and authoritative + 639 national facilities synthesised into the same shape. `site_centre()` returns the registry centroid for a national facility, **clearing the import-time `KeyError`** that made no module in the chain importable for a pairless facility. `metro_key()` distinguishes unset from present-but-empty METRO (#168) and resolves national keys. `weather_file()` **refuses** without a station rather than composing `knone_hourly_2021_2025.json`. `candidates_file` uses a derived name, not `None` (#181). `export_manifest()` loops `sorted(METROS) + built_national`, gated on `selected_site.json` existing (#169). Three-state imagery tier: `fully_screened` / `national_single_source` / `national_unscreened` (#184). `data_ready` split from `offerable`. `committed_imagery()` **preserves the source extension** instead of hardcoding `.png` (#185) |
+| `measure_national_gaps.py` | `is_building_footprint()` — **the ONE definition**, imported by the registry so gate and registry cannot disagree; rejects `building=no` (#163). `BUILDING_TAGS_NEEDING_IMAGERY_REVIEW` carries `building=construction` forward rather than acting on it. Pair loop now buildings-only; new `no_building_footprint` verdict (#162) |
+| `fetch_weather.py` | `build_station(station, tz, out_path, label, metro)` — the generalisation; `build()` is now a thin caller so exactly ONE implementation of the fetch exists. Records keyed by **STATION, not site**, so the second facility on a station costs **zero** requests. `expected_hours()` counts the calendar (43,824, not `len(YEARS)*8760`); `recompute_meta()` / `--recompute-meta` re-derives coverage from hours already on disk, so the fix reached 4 existing records with **zero** network requests (#167) |
+| `rolling.py` | `simulate()` now `continue`s on a discontinuity and **resets** `mode`, `dwell_owed`, `switches_today` instead of `break`ing; `hours_run_expected = len(idx_all) - 1 - n_discontinuities`; `n_discontinuities` published through `summarise()`. KMRN went from 400 of 21,111 hours to 21,099 hours with 12 stated outages; Ashburn byte-identical (#170) |
+| `export_unified_map.py` | Emits **639 facilities** from `national_registry.json` (new `REGISTRY_FILE`), sets `metro_key` for built ones — which is what makes both the map click and the search box work — and skips national rows in the metro-absorption pass (a national facility is already a registry entry) |
+| `audit.py` | New **6f `check_no_unsuffixed_per_site_artefact`** — the general form of 6e; keys on a **top-level** `^import\s+metros` rather than excluding `audit.py` by name (#182). New **6g `check_national_registry`** — 32 assertions; counts partition, ids resolve, nothing invented, no foreign site shown as US, one metro one dot, the 20 m floor asserted against `build_site.BANK_DEPTH_M` itself. `check_sites_actually_differ` **rebuilt** — the old rule crashed on `float(None)` and its premise stops holding (two standalone facilities on one station in one state legitimately agree); replaced by three threshold-free statements plus `_unexplained_agreements()` / `_selftest_agreement_rule()`. New `_run_all_steps()`. knife_edge/worst-bearing agreement checks; null-receptor handling in the identity-distinctness loop. **95 → 169 checks** |
+| `report.py` | Standalone branch for page 1. ⚠ Its prose must not contain the words `undefined` / `null` / `none` / `nan` — the read-back verifier scans for them and flagged my own English (#173) |
+| `ticker.py` | `fmt_value` refuses `None` **by name**; new `solve.none` event with its own short form (the claim is different, so the sentence is different — not the same sentence with a number dropped); `_standalone_facts()`, `_nearest_other_dc_m()`, `_validated_range_m()` |
+| `run_all.py` | Step count now **machine-checked** from `run_all.STEPS` after it drifted across ~10 places at once (README said 20, HANDOFF 22, truth 22). **25 steps** |
+
+**New / modified in `testing/`:**
+
+| file | what |
+|---|---|
+| **`verify_map_hover.py`** | NEW, wired as a `run_all.py` step. 15 assertions in real Chrome, incl. "two facilities read differently" (the national form of check 6c). ⚠ Reads the **bare** identifier `NATBYKEY`, not `window.NATBYKEY` — a top-level `let`/`const` is not a property of `window` |
+| **`diag67_env_params_multilocation.py`** | NEW. Pre-registered P1–P5, **free** (rejections are unbilled). Reads `submit_http` / `submit_error_body` because `submit_poll` **does not raise** (#174). Result: `env_params` takes **one point per call**, 2,900 each |
+| `verify_site_panels.py` | `cards` dict kept **separate** from `named`, which carries a distinctness contract (#175). `plumeModelled()` read from the page rather than inferred from a tile the collapse hides (#176). `n/a` matched **before** the digit regex, and the extractor returns the rendered string so the caller asserts the absence is *visible*. Output ASCII-folded (#177) |
+| `scan_secrets.py` | Unchanged, but **now exits 0**: `SCAN: CLEAN, 0 hits in 765 tracked files and 1,163 history blobs`, after `git filter-branch --index-filter` removed `testing/results/fixtures/probe_heatintel.json` from all history. ⚠ **Every commit SHA changed** — any SHA cited in this file from before 2026-08-24 is stale |
+
+**Modified in `INTAKE-ARBITER/demo/`:**
+
+| file | what |
+|---|---|
+| `index.html` | Hover: `natReadout()` writes a persistent side column (`#natside` / `#natsidebody`) reading the FULL registry row via hoisted `US` / `NATBYKEY` / `NATMAP`; the `maplibregl.Popup` it replaces showed 3 of 10 fields and **rendered white in dark mode**. Click: `siteIsRunnable()` resolves through the **manifest**, dispatches `change`, then checks `chooseSite()`'s boolean before `runAgent()`. Search: `#searchcard` above `#natmapcard`, `searchMatch()` / `searchOpen()` / `searchWire()`, reading the **same `unified_sites.json` the map draws**; wired from inside `drawUnifiedMap()` (`boot()` is too early, `wire()` too late); deliberately not named `draw*` so check 6d is not implicated. Collapse: `cardSetAbsent()` / `cardSetPresent()` / `plumeModelled()` / `plumeReason()` swap `#plumecard` / `#dialcard` / `#fieldcard` between full content and one explanatory paragraph carrying that facility's own measured distance — the card **stays in the DOM** so `verify_site_panels.py`'s keys do not shift. `drawAerial()` survives one building (#172). New CSS `.muted` (it had four uses and no rule), `input` added to the control selector, `.srch*`, `.mapside`, `.mapreadout` (#171). Double `boot()` fixed |
+
+**New data artefacts:** `data/geometry/national_registry.json` (639 facilities),
+`data/weather/station_assignments.json` (deliberately **not** inside the registry — an assignment
+that cost 60 real requests must not be destroyed by a geometry rebuild),
+`data/weather/<STATE>_ASOS.geojson` (17 states), `data/imagery/screen/<KEY>/00_*.jpg`.
+
+⚠ **`NATIONAL-BUILD-PLAN.md` §10 is STALE** — it still reports the pre-fix 100 clear / 143 too-close.
+Trust `national_gate_verdicts.json` and §3.5.2.
 
 ## 13.0f Added / changed 2026-08-23/24 — Session I, the national build (§3.4)
 

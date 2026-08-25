@@ -470,6 +470,10 @@ def main():
             "live_run_calls_completed_but_empty": live_empty,
             "live_run_attempts_unbilled": live_unbilled,
             "collector_recorded_failed_attempts": collector_zero,
+            # Exported so bump_spend_docs.py can maintain "N attempts across M days" as a pair.
+            # It was printed but not exported, so the day count in API-USAGE.md was the one figure
+            # in that sentence no tool could refresh -- and it had already drifted to "three".
+            "collector_failed_attempt_days": len(collector_failures),
             "collector_attempts_are_not_all_billed": True,
             "calls_not_individually_identified": unknown,
             "credits_that_bought_no_data_floor": zero_floor,
