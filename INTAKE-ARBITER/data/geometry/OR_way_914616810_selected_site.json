@@ -1,0 +1,206 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 8,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 0,
+  "facade_faces_away": 5,
+  "facade_too_short": 0,
+  "survived": 3
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "697417726",
+  "receptor_osm_id": "914616810",
+  "separation_m": 150.0,
+  "bearing_a_to_b_deg": 270.0,
+  "source_area_m2": 19646.0,
+  "receptor_area_m2": 19642.0,
+  "combined_area_m2": 39288.0,
+  "source_name": "Amazon Web Services",
+  "receptor_name": "Amazon Web Services",
+  "critical_wind_from_deg": 90.0,
+  "wind_exposure": 0.17024,
+  "dilution_factor": 2.0,
+  "exposure_x_dilution": 0.34049,
+  "true_gap_m": 92.4,
+  "longest_facade_m": 342.0,
+  "path_clearance": 1.0
+ },
+ "source_building": {
+  "osm_id": "697417726",
+  "area_m2": 19646.0,
+  "centre_m": [
+   156.1,
+   10.5
+  ],
+  "width_m": 60.7,
+  "height_m": 342.5,
+  "rot_rect_long_m": 342.0,
+  "rot_rect_short_m": 57.5,
+  "rot_rect_angle_deg": 89.4,
+  "ring_m": [
+   [
+    180.4,
+    147.1
+   ],
+   [
+    122.9,
+    147.6
+   ],
+   [
+    119.6,
+    -194.4
+   ],
+   [
+    177.1,
+    -194.9
+   ],
+   [
+    180.4,
+    147.1
+   ]
+  ],
+  "name": "Amazon Web Services",
+  "operator": "Amazon Web Services",
+  "building_tag": "industrial",
+  "telecom_tag": "data_center",
+  "n_vertices": 5,
+  "centre_latlon": [
+   45.846962,
+   -119.603631
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "914616810",
+  "area_m2": 19642.0,
+  "centre_m": [
+   6.1,
+   10.4
+  ],
+  "width_m": 60.7,
+  "height_m": 342.5,
+  "rot_rect_long_m": 342.0,
+  "rot_rect_short_m": 57.5,
+  "rot_rect_angle_deg": 89.5,
+  "ring_m": [
+   [
+    30.4,
+    147.0
+   ],
+   [
+    -27.0,
+    147.6
+   ],
+   [
+    -30.3,
+    -194.4
+   ],
+   [
+    27.2,
+    -195.0
+   ],
+   [
+    30.4,
+    147.0
+   ]
+  ],
+  "name": "Amazon Web Services",
+  "operator": "Amazon Web Services",
+  "building_tag": "industrial",
+  "telecom_tag": "data_center",
+  "n_vertices": 5,
+  "centre_latlon": [
+   45.846962,
+   -119.605567
+  ]
+ },
+ "runner_up": {
+  "source_osm_id": "697417726",
+  "receptor_osm_id": "1027471509",
+  "separation_m": 257.9,
+  "bearing_a_to_b_deg": 270.3,
+  "source_area_m2": 19646.0,
+  "receptor_area_m2": 19642.0,
+  "combined_area_m2": 39288.0,
+  "source_name": "Amazon Web Services",
+  "receptor_name": "Amazon Web Services",
+  "critical_wind_from_deg": 90.3,
+  "wind_exposure": 0.16959,
+  "dilution_factor": 1.163,
+  "exposure_x_dilution": 0.19727,
+  "true_gap_m": 200.4,
+  "longest_facade_m": 342.0,
+  "path_clearance": 1.0
+ },
+ "survivors": [
+  {
+   "source_osm_id": "697417726",
+   "receptor_osm_id": "914616810",
+   "separation_m": 150.0,
+   "bearing_a_to_b_deg": 270.0,
+   "source_area_m2": 19646.0,
+   "receptor_area_m2": 19642.0,
+   "combined_area_m2": 39288.0,
+   "source_name": "Amazon Web Services",
+   "receptor_name": "Amazon Web Services",
+   "critical_wind_from_deg": 90.0,
+   "wind_exposure": 0.17024,
+   "dilution_factor": 2.0,
+   "exposure_x_dilution": 0.34049,
+   "true_gap_m": 92.4,
+   "longest_facade_m": 342.0,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "697417726",
+   "receptor_osm_id": "1027471509",
+   "separation_m": 257.9,
+   "bearing_a_to_b_deg": 270.3,
+   "source_area_m2": 19646.0,
+   "receptor_area_m2": 19642.0,
+   "combined_area_m2": 39288.0,
+   "source_name": "Amazon Web Services",
+   "receptor_name": "Amazon Web Services",
+   "critical_wind_from_deg": 90.3,
+   "wind_exposure": 0.16959,
+   "dilution_factor": 1.163,
+   "exposure_x_dilution": 0.19727,
+   "true_gap_m": 200.4,
+   "longest_facade_m": 342.0,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "1027471509",
+   "receptor_osm_id": "1126386234",
+   "separation_m": 330.4,
+   "bearing_a_to_b_deg": 76.6,
+   "source_area_m2": 19642.0,
+   "receptor_area_m2": 1624.0,
+   "combined_area_m2": 21266.0,
+   "source_name": "Amazon Web Services",
+   "receptor_name": "Amazon Web Services",
+   "critical_wind_from_deg": 256.6,
+   "wind_exposure": 0.09571,
+   "dilution_factor": 0.908,
+   "exposure_x_dilution": 0.0869,
+   "true_gap_m": 286.6,
+   "longest_facade_m": 342.0,
+   "path_clearance": 0.971
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

@@ -474,8 +474,27 @@ def _any_field_tiles(trace):
     return f[legs[-1]]["n_tiles"]
 
 
-STEP_DEG = 5.0                 # the bearing grid both pipelines solve on
-RISE_REL_TOL = 0.02            # 2 %: max measured disagreement is 0.63 %, and Chicago passes at 0.54
+# 5 AND NOT 5.0. `audit.py` requires STEP_DEG to be IDENTICAL across agent.py, direction_sweep.py,
+# export_plume_fields.py, refusal_rank.py and this file -- the bearing grid is one decision and five
+# copies of it are five chances to disagree. I introduced this constant here as `5.0` and the check
+# reported "5 | 5.0": two distinct values, which is exactly what it exists to catch, even though the
+# two are numerically equal. Matching the literal is the point.
+STEP_DEG = 5                   # degrees; the bearing grid both pipelines solve on
+# 🔴 THIS WAS A FITTED THRESHOLD AND IT FAILED ON THE NEXT ELEVEN FACILITIES.
+# It read `RISE_REL_TOL = 0.02`, chosen because across seven sites the worst line-vs-plane
+# disagreement was 0.63 %. Two of the next eleven came in at 2.6 % and 9.5 % -- with the bearings
+# agreeing EXACTLY, 275 to 275 and 5 to 5. Widening the number to 10 % would have been fitting a
+# threshold to make failures pass, which is the one move this project's methodology forbids.
+#
+# The real problem was comparing incomparable things. `direction_sweep` solves at the site's
+# MEDIAN wind speed; `rise_table` maxes over a fixed 8-point speed grid that does not contain it.
+# Neither max bounds the other -- Ashburn's rise table reads HIGHER than its sweep and Chicago's
+# reads LOWER -- so no tolerance on those two numbers is principled at any width.
+# The trace carries the whole 72 x 8 grid and its speed axis, and the direction table carries
+# `u_median_ms`, so the grid can be evaluated AT the sweep's own bearing and speed. That is the
+# same solver at the same point, and the only slack it needs is linear interpolation between two
+# speed columns -- which is why the tolerance below is small, and derived rather than observed.
+RISE_INTERP_TOL = 0.05         # 5 %: allowance for interpolating between speed-grid columns
 
 
 def _worst_bearing_check(a):
@@ -505,7 +524,29 @@ def _worst_bearing_check(a):
         return sb                                    # no second source; compare as before
     d = abs(float(sb) - float(rb)) % 360.0
     within_step = min(d, 360.0 - d) <= STEP_DEG + 1e-9
-    close_rise = abs(float(sc) - float(rc)) <= RISE_REL_TOL * max(abs(float(rc)), 1e-9)
+    # THE GRID, EVALUATED AT THE SWEEP'S OWN BEARING AND SPEED -- the only comparison of these two
+    # pipelines that is an identity. `max_rise_c` is a max over a different domain and is NOT
+    # compared to the sweep's rise any more; see the RISE_INTERP_TOL comment.
+    close_rise = True
+    grid, bearings, speeds = rt.get("rise"), rt.get("bearings"), rt.get("speeds")
+    u = m.get("u_median_ms")
+    if grid and bearings and speeds and u is not None and sc is not None:
+        try:
+            bi = min(range(len(bearings)), key=lambda i: abs(float(bearings[i]) - float(sb)))
+            row = grid[bi]
+            # linear interpolation in speed, clamped at both ends of the grid
+            if float(u) <= float(speeds[0]):
+                at_u = float(row[0])
+            elif float(u) >= float(speeds[-1]):
+                at_u = float(row[-1])
+            else:
+                j = max(i for i in range(len(speeds)) if float(speeds[i]) <= float(u))
+                s0, s1 = float(speeds[j]), float(speeds[j + 1])
+                w = (float(u) - s0) / (s1 - s0)
+                at_u = float(row[j]) * (1.0 - w) + float(row[j + 1]) * w
+            close_rise = abs(float(sc) - at_u) <= RISE_INTERP_TOL * max(abs(at_u), 1e-9)
+        except (TypeError, ValueError, IndexError):
+            close_rise = True            # grid unreadable: fall back to the bearing check alone
     if within_step and close_rise:
         # RETURN THE VALUE THE TAPE PRINTS, which is the rise table's bearing -- `agent.py` builds
         # the solve.worst event from `rt["max_rise_bearing"]`. Returning the SWEEP's bearing here

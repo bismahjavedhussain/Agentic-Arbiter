@@ -1,0 +1,241 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 2,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 0,
+  "facade_faces_away": 1,
+  "facade_too_short": 0,
+  "survived": 1
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "844394339",
+  "receptor_osm_id": "942557184",
+  "separation_m": 490.6,
+  "bearing_a_to_b_deg": 351.1,
+  "source_area_m2": 61826.3,
+  "receptor_area_m2": 16924.9,
+  "combined_area_m2": 78751.2,
+  "source_name": "Meta Sarpy Data center",
+  "receptor_name": "Travelers Insurance",
+  "critical_wind_from_deg": 171.1,
+  "wind_exposure": 0.22567,
+  "dilution_factor": 0.611,
+  "exposure_x_dilution": 0.138,
+  "true_gap_m": 262.7,
+  "longest_facade_m": 385.9,
+  "path_clearance": 0.973
+ },
+ "source_building": {
+  "osm_id": "844394339",
+  "area_m2": 61826.3,
+  "centre_m": [
+   27.4,
+   -70.2
+  ],
+  "width_m": 402.0,
+  "height_m": 283.7,
+  "rot_rect_long_m": 385.9,
+  "rot_rect_short_m": 261.9,
+  "rot_rect_angle_deg": 175.5,
+  "ring_m": [
+   [
+    -150.1,
+    91.3
+   ],
+   [
+    -155.8,
+    19.4
+   ],
+   [
+    7.2,
+    6.5
+   ],
+   [
+    -1.7,
+    -106.0
+   ],
+   [
+    -162.2,
+    -93.3
+   ],
+   [
+    -167.4,
+    -159.7
+   ],
+   [
+    3.4,
+    -173.2
+   ],
+   [
+    2.6,
+    -183.6
+   ],
+   [
+    44.6,
+    -186.9
+   ],
+   [
+    45.2,
+    -179.4
+   ],
+   [
+    214.1,
+    -192.5
+   ],
+   [
+    219.4,
+    -123.8
+   ],
+   [
+    51.5,
+    -110.8
+   ],
+   [
+    52.2,
+    -102.6
+   ],
+   [
+    65.8,
+    -103.7
+   ],
+   [
+    73.3,
+    -8.2
+   ],
+   [
+    59.5,
+    -7.1
+   ],
+   [
+    60.1,
+    0.3
+   ],
+   [
+    228.8,
+    -13.1
+   ],
+   [
+    234.6,
+    60.8
+   ],
+   [
+    -150.1,
+    91.3
+   ]
+  ],
+  "name": "Meta Sarpy Data center",
+  "operator": "Meta",
+  "building_tag": "yes",
+  "telecom_tag": "data_center",
+  "n_vertices": 21,
+  "centre_latlon": [
+   41.123353,
+   -96.144274
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "942557184",
+  "area_m2": 16924.9,
+  "centre_m": [
+   -48.5,
+   414.5
+  ],
+  "width_m": 112.8,
+  "height_m": 164.5,
+  "rot_rect_long_m": 163.8,
+  "rot_rect_short_m": 111.4,
+  "rot_rect_angle_deg": 90.8,
+  "ring_m": [
+   [
+    -90.1,
+    350.1
+   ],
+   [
+    13.9,
+    351.0
+   ],
+   [
+    13.3,
+    380.1
+   ],
+   [
+    17.0,
+    380.1
+   ],
+   [
+    14.1,
+    514.5
+   ],
+   [
+    -65.8,
+    513.7
+   ],
+   [
+    -65.1,
+    481.0
+   ],
+   [
+    -95.8,
+    481.0
+   ],
+   [
+    -94.4,
+    378.8
+   ],
+   [
+    -90.5,
+    378.9
+   ],
+   [
+    -90.1,
+    350.1
+   ]
+  ],
+  "name": "Travelers Insurance",
+  "operator": "Travelers Insurance",
+  "building_tag": "yes",
+  "telecom_tag": "data_center",
+  "n_vertices": 11,
+  "centre_latlon": [
+   41.127711,
+   -96.14518
+  ]
+ },
+ "runner_up": null,
+ "survivors": [
+  {
+   "source_osm_id": "844394339",
+   "receptor_osm_id": "942557184",
+   "separation_m": 490.6,
+   "bearing_a_to_b_deg": 351.1,
+   "source_area_m2": 61826.3,
+   "receptor_area_m2": 16924.9,
+   "combined_area_m2": 78751.2,
+   "source_name": "Meta Sarpy Data center",
+   "receptor_name": "Travelers Insurance",
+   "critical_wind_from_deg": 171.1,
+   "wind_exposure": 0.22567,
+   "dilution_factor": 0.611,
+   "exposure_x_dilution": 0.138,
+   "true_gap_m": 262.7,
+   "longest_facade_m": 385.9,
+   "path_clearance": 0.973
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

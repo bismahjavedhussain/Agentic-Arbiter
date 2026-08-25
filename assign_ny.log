@@ -1,0 +1,29 @@
+==============================================================================
+STATION ASSIGNMENT -- NY_way_832658041  (43.08291, -79.00343)
+==============================================================================
+   Blockfusion Niagra Falls, Blockfusion Niagra Falls, Blockfusion Niagra Falls, Blockfusion Niagra Falls, Blockfusion Niagra Falls, Blockfusion Niagra Falls, Blockfusion Niagra Falls, Blockfusion Niagra Falls, Blockfusion Niagra Falls, Blockfusion Niagra Falls, Blockfusion Niagra Falls | NY | paired_clear
+   facility NY_way_832658041
+   networks considered: AL, AR, AZ, CA, CO, CT, FL, GA, IA, ID, IL, IN, KS, KY, MA, MD, ME, MI, MN, MO, MS, MT, NC, ND, NE, NH, NJ, NM, NV, NY, OH, OK, OR, PA, SC, SD, TN, TX, UT, VA, WA, WI, WY
+   sid   name                       dist km   meta      coverage on disk
+   IAG   NIAGARA FALLS INTL              5.4  ok        not fetched
+   BUF   BUFFALO INTL ARPT              26.9  ok        not fetched
+   GVQ   Batavia                        68.2  ok        not fetched
+   DKK   DUNKIRK AIRPORT                69.1  ok        not fetched
+   XNT   Springville - Bertrand Cha     69.8  REJECT    not fetched   <- offline
+   JHW   JAMESTOWN (AWOS)              105.4  ok        not fetched
+   OLE   Olean                         106.9  ok        not fetched
+   ROC   ROCHESTER/MONROE CO           107.8  ok        not fetched
+
+   17 station(s) within 200 km, 15 viable on metadata
+
+   measuring KIAG at 5.4 km -- fetching its five-year record
+
+   IAG         KIAG  tz America/New_York  ->  kiag_hourly_2021_2025.json
+      60 monthly chunks. Iowa State rate-limits, so this is slow on purpose.
+      [ 6/60] 2021-06    719 rows   running hours   4330   34s
+      [12/60] 2021-12    735 rows   running hours   8727   61s
+      [18/60] 2022-06    720 rows   running hours  13063   88s
+      [24/60] 2022-12    744 rows   running hours  17474   102s
+      [30/60] 2023-06    720 rows   running hours  21815   131s
+      [36/60] 2023-12    729 rows   running hours  26216   157s
+      [42/60] 2024-06    720 rows   running hours  30580   470s

@@ -1,0 +1,32 @@
+18:25:45  batch starting, 13 h budget -- live progress in D:\FGHackathon\batch_progress.log
+22:49:51  complete_covered            exit=0
+         -> no_geometry
+   
+   [114/115] AZ_way_152163722       AZ  L3Harris Technologies Inc, AZ Labs  (4.4 h elapsed)
+         paired geometry: commit a pair and solve FAILED    2.0s  
+            ERR 
+         -> no_geometry
+   
+   [115/115] NY_way_832658041       NY  Blockfusion Niagra Falls, Blockfusio  (4.4 h elapsed)
+         weather: assign a station          FAILED    0.3s  
+            ERR 
+         -> no_station
+   
+   ==============================================================================
+   BATCH DONE in 4.40 h
+      built            56
+      chain_failed     23
+      no_geometry      25
+      no_station       11
+      Re-run to continue: every step asks the disk whether it already ran, so nothing
+      below is repeated and at most the facility in flight is lost.
+      NEXT, and it needs a person: read each frame and record a screening verdict.
+   ==============================================================================
+22:50:07  metros --manifest          exit=0
+22:52:30  audit (pass 1)             exit=1
+22:52:30  pass 1: exit=1, 1 FAIL line(s)
+      every README figure matches the emitted JSON  audit check count: expected "2040 audit checks"
+22:52:30  README: 1482 -> 2040 in 3 place(s)
+22:54:54  audit (pass 2)             exit=0
+22:54:54  pass 2: exit=0, 0 FAIL line(s)
+22:54:54  DONE. Repository green.

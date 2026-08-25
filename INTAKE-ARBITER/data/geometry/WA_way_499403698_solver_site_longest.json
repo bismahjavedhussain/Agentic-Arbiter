@@ -1,0 +1,146 @@
+{
+ "provenance": "OpenStreetMap ways 1343761104 (source) and 337127824 (receptor), Ashburn VA. ODbL.",
+ "domain": {
+  "size_m": 2000.0,
+  "dx_m": 10.0,
+  "n": 200
+ },
+ "shift_applied_m": [
+  1328.05,
+  608.75
+ ],
+ "source_ring_m": [
+  [
+   837.25,
+   951.85
+  ],
+  [
+   837.55,
+   1070.25
+  ],
+  [
+   930.8499999999999,
+   1070.05
+  ],
+  [
+   930.55,
+   951.55
+  ],
+  [
+   837.25,
+   951.85
+  ]
+ ],
+ "receptor_ring_m": [
+  [
+   1080.55,
+   1061.95
+  ],
+  [
+   1163.45,
+   1061.65
+  ],
+  [
+   1163.25,
+   1018.75
+  ],
+  [
+   1186.45,
+   1018.65
+  ],
+  [
+   1186.25,
+   956.15
+  ],
+  [
+   1164.45,
+   956.25
+  ],
+  [
+   1164.35,
+   945.45
+  ],
+  [
+   1104.6499999999999,
+   945.55
+  ],
+  [
+   1104.75,
+   975.45
+  ],
+  [
+   1097.55,
+   975.45
+  ],
+  [
+   1097.55,
+   990.45
+  ],
+  [
+   1103.35,
+   990.45
+  ],
+  [
+   1103.55,
+   1027.85
+  ],
+  [
+   1080.45,
+   1027.95
+  ],
+  [
+   1080.55,
+   1061.95
+  ]
+ ],
+ "source_centre_m": [
+  874.65,
+  999.05
+ ],
+ "receptor_centre_m": [
+  1125.35,
+  1000.95
+ ],
+ "bank_mode": "longest",
+ "bank_ring_m": [
+  [
+   930.5799999999999,
+   963.4
+  ],
+  [
+   910.5800640919847,
+   963.4506327491341
+  ],
+  [
+   910.8200640919847,
+   1058.2506327491342
+  ],
+  [
+   930.8199999999999,
+   1058.1999999999998
+  ]
+ ],
+ "bank_cells": 20,
+ "facade_gap_m": 149.7,
+ "bank_area_m2": 2000.0,
+ "intake_m": [
+  1060.5005743542324,
+  1044.7984287645515
+ ],
+ "intake_radius_m": 30.0,
+ "unit_source_to_receptor": [
+  0.9999712822883773,
+  0.007578561772429232
+ ],
+ "discharge_k": 11.0,
+ "exchange_s": 47.4,
+ "assumptions": {
+  "bank_position": "strip inside the source hall on the facade facing the receptor; NOT mapped in OSM. Conservative worst case.",
+  "bank_facade_fraction": 0.8,
+  "bank_depth_m": 20.0,
+  "intake_position": "on the receptor facade facing the source, 20 m standoff; NOT mapped",
+  "building_height": "absent from OSM; irrelevant to this 2-D solver but central to the 2 m measurement-height gap -- see docs/GEOMETRY-AND-PHYSICS.md section 2",
+  "source_strength": "discharge_k 11 K with the calibrated exchange_s; strength per unit area is unchanged from the validated reference, so total heat release follows the real footprint"
+ },
+ "verification": "V1 rasteriser vs add_building, V2 area vs analytic, V3 no shared cells -- all passed; the script refuses to write otherwise"
+}

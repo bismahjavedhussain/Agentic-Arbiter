@@ -1,0 +1,106 @@
+{
+ "provenance": "OpenStreetMap ways 775412069 (source) and 775412067 (receptor), Ashburn VA. ODbL.",
+ "domain": {
+  "size_m": 2000.0,
+  "dx_m": 10.0,
+  "n": 200
+ },
+ "shift_applied_m": [
+  1161.4,
+  1093.85
+ ],
+ "source_ring_m": [
+  [
+   927.5000000000001,
+   1035.85
+  ],
+  [
+   967.1000000000001,
+   923.1499999999999
+  ],
+  [
+   899.5000000000001,
+   899.4499999999999
+  ],
+  [
+   860.0000000000001,
+   1012.1499999999999
+  ],
+  [
+   927.5000000000001,
+   1035.85
+  ]
+ ],
+ "receptor_ring_m": [
+  [
+   1072.9,
+   965.05
+  ],
+  [
+   1033.3000000000002,
+   1075.35
+  ],
+  [
+   1100.1000000000001,
+   1099.35
+  ],
+  [
+   1139.6000000000001,
+   988.9499999999999
+  ],
+  [
+   1072.9,
+   965.05
+  ]
+ ],
+ "source_centre_m": [
+  916.3000000000001,
+  981.2499999999999
+ ],
+ "receptor_centre_m": [
+  1083.7,
+  1018.7499999999999
+ ],
+ "bank_mode": "longest",
+ "bank_ring_m": [
+  [
+   963.1400000000002,
+   934.4199999999998
+  ],
+  [
+   944.2709387298347,
+   927.7898773176703
+  ],
+  [
+   912.5909387298346,
+   1017.9498773176704
+  ],
+  [
+   931.4600000000002,
+   1024.58
+  ]
+ ],
+ "bank_cells": 20,
+ "facade_gap_m": 112.9,
+ "bank_area_m2": 2000.0,
+ "intake_m": [
+  1033.5836938130885,
+  1015.8280676104588
+ ],
+ "intake_radius_m": 30.0,
+ "unit_source_to_receptor": [
+  0.9758153093455766,
+  0.21859661947705572
+ ],
+ "discharge_k": 11.0,
+ "exchange_s": 47.4,
+ "assumptions": {
+  "bank_position": "strip inside the source hall on the facade facing the receptor; NOT mapped in OSM. Conservative worst case.",
+  "bank_facade_fraction": 0.8,
+  "bank_depth_m": 20.0,
+  "intake_position": "on the receptor facade facing the source, 20 m standoff; NOT mapped",
+  "building_height": "absent from OSM; irrelevant to this 2-D solver but central to the 2 m measurement-height gap -- see docs/GEOMETRY-AND-PHYSICS.md section 2",
+  "source_strength": "discharge_k 11 K with the calibrated exchange_s; strength per unit area is unchanged from the validated reference, so total heat release follows the real footprint"
+ },
+ "verification": "V1 rasteriser vs add_building, V2 area vs analytic, V3 no shared cells -- all passed; the script refuses to write otherwise"
+}

@@ -1,0 +1,297 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 1,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 0,
+  "facade_faces_away": 0,
+  "facade_too_short": 0,
+  "survived": 1
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "379204279",
+  "receptor_osm_id": "379205427",
+  "separation_m": 377.7,
+  "bearing_a_to_b_deg": 356.7,
+  "source_area_m2": 7438.8,
+  "receptor_area_m2": 4693.2,
+  "combined_area_m2": 12132.0,
+  "source_name": "Digital Realty Austin AUS11",
+  "receptor_name": "Data Foundry Austin 1 Data Center",
+  "critical_wind_from_deg": 176.7,
+  "wind_exposure": 0.34239,
+  "dilution_factor": 0.794,
+  "exposure_x_dilution": 0.27195,
+  "true_gap_m": 295.8,
+  "longest_facade_m": 149.3,
+  "path_clearance": 0.859
+ },
+ "source_building": {
+  "osm_id": "379204279",
+  "area_m2": 7438.8,
+  "centre_m": [
+   26.9,
+   -190.0
+  ],
+  "width_m": 160.4,
+  "height_m": 132.8,
+  "rot_rect_long_m": 167.7,
+  "rot_rect_short_m": 52.3,
+  "rot_rect_angle_deg": 34.1,
+  "ring_m": [
+   [
+    72.4,
+    -124.3
+   ],
+   [
+    69.6,
+    -126.2
+   ],
+   [
+    89.5,
+    -155.8
+   ],
+   [
+    92.7,
+    -153.7
+   ],
+   [
+    95.5,
+    -157.9
+   ],
+   [
+    92.5,
+    -159.9
+   ],
+   [
+    93.6,
+    -161.5
+   ],
+   [
+    89.3,
+    -164.7
+   ],
+   [
+    86.4,
+    -160.1
+   ],
+   [
+    62.4,
+    -176.4
+   ],
+   [
+    64.9,
+    -180.0
+   ],
+   [
+    59.6,
+    -183.7
+   ],
+   [
+    57.2,
+    -180.2
+   ],
+   [
+    32.6,
+    -197.0
+   ],
+   [
+    32.3,
+    -196.7
+   ],
+   [
+    30.5,
+    -197.9
+   ],
+   [
+    34.6,
+    -204.0
+   ],
+   [
+    22.4,
+    -212.4
+   ],
+   [
+    18.1,
+    -206.2
+   ],
+   [
+    15.8,
+    -207.6
+   ],
+   [
+    16.0,
+    -207.9
+   ],
+   [
+    -8.3,
+    -224.4
+   ],
+   [
+    -6.1,
+    -227.6
+   ],
+   [
+    -11.7,
+    -231.4
+   ],
+   [
+    -14.0,
+    -228.1
+   ],
+   [
+    -37.8,
+    -244.2
+   ],
+   [
+    -34.1,
+    -249.7
+   ],
+   [
+    -38.3,
+    -252.5
+   ],
+   [
+    -40.2,
+    -249.7
+   ],
+   [
+    -43.0,
+    -251.6
+   ],
+   [
+    -45.9,
+    -247.3
+   ],
+   [
+    -43.0,
+    -245.3
+   ],
+   [
+    -64.9,
+    -212.6
+   ],
+   [
+    -55.9,
+    -206.5
+   ],
+   [
+    -57.9,
+    -203.6
+   ],
+   [
+    65.7,
+    -119.9
+   ],
+   [
+    67.0,
+    -121.9
+   ],
+   [
+    70.2,
+    -119.8
+   ],
+   [
+    73.0,
+    -124.0
+   ],
+   [
+    72.4,
+    -124.3
+   ]
+  ],
+  "name": "Digital Realty Austin AUS11",
+  "operator": null,
+  "building_tag": "yes",
+  "telecom_tag": "data_center",
+  "n_vertices": 40,
+  "centre_latlon": [
+   30.212122,
+   -97.695635
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "379205427",
+  "area_m2": 4693.2,
+  "centre_m": [
+   5.4,
+   187.1
+  ],
+  "width_m": 128.0,
+  "height_m": 78.9,
+  "rot_rect_long_m": 122.6,
+  "rot_rect_short_m": 38.3,
+  "rot_rect_angle_deg": 20.6,
+  "ring_m": [
+   [
+    46.7,
+    188.9
+   ],
+   [
+    -65.9,
+    146.7
+   ],
+   [
+    -79.3,
+    182.6
+   ],
+   [
+    35.3,
+    225.6
+   ],
+   [
+    48.7,
+    189.7
+   ],
+   [
+    46.7,
+    188.9
+   ]
+  ],
+  "name": "Data Foundry Austin 1 Data Center",
+  "operator": null,
+  "building_tag": "yes",
+  "telecom_tag": "data_center",
+  "n_vertices": 6,
+  "centre_latlon": [
+   30.215512,
+   -97.695859
+  ]
+ },
+ "runner_up": null,
+ "survivors": [
+  {
+   "source_osm_id": "379204279",
+   "receptor_osm_id": "379205427",
+   "separation_m": 377.7,
+   "bearing_a_to_b_deg": 356.7,
+   "source_area_m2": 7438.8,
+   "receptor_area_m2": 4693.2,
+   "combined_area_m2": 12132.0,
+   "source_name": "Digital Realty Austin AUS11",
+   "receptor_name": "Data Foundry Austin 1 Data Center",
+   "critical_wind_from_deg": 176.7,
+   "wind_exposure": 0.34239,
+   "dilution_factor": 0.794,
+   "exposure_x_dilution": 0.27195,
+   "true_gap_m": 295.8,
+   "longest_facade_m": 149.3,
+   "path_clearance": 0.859
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

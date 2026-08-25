@@ -876,7 +876,8 @@
     "rolling": "AZ_way_1456975949_rolling.json",
     "money": "AZ_way_1456975949_money.json",
     "explanations": "AZ_way_1456975949_explanations.json",
-    "ticker": "AZ_way_1456975949_ticker.json"
+    "ticker": "AZ_way_1456975949_ticker.json",
+    "report": "AZ_way_1456975949_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -1171,7 +1172,8 @@
     "rolling": "AZ_way_300959969_rolling.json",
     "money": "AZ_way_300959969_money.json",
     "explanations": "AZ_way_300959969_explanations.json",
-    "ticker": "AZ_way_300959969_ticker.json"
+    "ticker": "AZ_way_300959969_ticker.json",
+    "report": "AZ_way_300959969_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -1332,6 +1334,160 @@
    "verdicts": []
   },
   {
+   "key": "CA_way_1351049826",
+   "label": "DataBank Santa Clara SFO1, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.3953026,
+    -121.9779803,
+    37.4193026,
+    -121.9539803
+   ],
+   "footprint_m2": 2488.3,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "standalone",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 1,
+   "n_tagged_dc": 1,
+   "n_dc_to_dc_pairs": 0,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 3,030.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 1 tagged building(s), way/1351049826. Classified standalone.",
+   "committed": {
+    "source_osm_id": 1351049826,
+    "receptor_osm_id": null,
+    "source_name": "DataBank Santa Clara SFO1",
+    "receptor_name": null,
+    "source_latlon": [
+     37.40726926666667,
+     -121.96598511111112
+    ],
+    "receptor_latlon": null,
+    "facade_gap_m": null,
+    "centroid_separation_m": null
+   },
+   "imagery": {
+    "candidate_file": "00_way_1351049826.jpg",
+    "bbox": [
+     -121.9677033,
+     37.4061278,
+     -121.96425740000001,
+     37.4084773
+    ],
+    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+    "source_latlon": [
+     37.40726926666667,
+     -121.96598511111112
+    ],
+    "receptor_latlon": null,
+    "resolution_note": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+    "sources": {
+     "esri": "CA_way_1351049826_site_aerial.jpg"
+    },
+    "two_source_cross_check": false
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_1351049826_trace.json",
+    "backtest": "CA_way_1351049826_backtest.json",
+    "rolling": "CA_way_1351049826_rolling.json",
+    "money": "CA_way_1351049826_money.json",
+    "explanations": "CA_way_1351049826_explanations.json",
+    "ticker": "CA_way_1351049826_ticker.json",
+    "report": "CA_way_1351049826_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "CA_way_1460847458",
+   "label": "EdgeCore Silicon Valley, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.3717192,
+    -121.9774044,
+    37.3957192,
+    -121.9534044
+   ],
+   "footprint_m2": 7474.2,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "standalone",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 1,
+   "n_tagged_dc": 1,
+   "n_dc_to_dc_pairs": 0,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 422.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 1 tagged building(s), way/1460847458. Classified standalone.",
+   "committed": {
+    "source_osm_id": 1460847458,
+    "receptor_osm_id": null,
+    "source_name": "EdgeCore Silicon Valley",
+    "receptor_name": null,
+    "source_latlon": [
+     37.38373542857143,
+     -121.96530984285714
+    ],
+    "receptor_latlon": null,
+    "facade_gap_m": null,
+    "centroid_separation_m": null
+   },
+   "imagery": {
+    "candidate_file": "00_way_1460847458.jpg",
+    "bbox": [
+     -121.9673832,
+     37.3823095,
+     -121.96342560000001,
+     37.385129
+    ],
+    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+    "source_latlon": [
+     37.38373542857143,
+     -121.96530984285714
+    ],
+    "receptor_latlon": null,
+    "resolution_note": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+    "sources": {
+     "esri": "CA_way_1460847458_site_aerial.jpg"
+    },
+    "two_source_cross_check": false
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_1460847458_trace.json",
+    "backtest": "CA_way_1460847458_backtest.json",
+    "rolling": "CA_way_1460847458_rolling.json",
+    "money": "CA_way_1460847458_money.json",
+    "explanations": "CA_way_1460847458_explanations.json",
+    "ticker": "CA_way_1460847458_ticker.json",
+    "report": "CA_way_1460847458_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
    "key": "CA_way_190868312",
    "label": "RagingWire CA3, CA",
    "station": "KMEV",
@@ -1405,6 +1561,538 @@
     "report": "CA_way_190868312_report.pdf"
    },
    "has_own_fortyguard_field": false,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "CA_way_209087373",
+   "label": "Digital Realty Silicon Valley SJC37, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.364139294736844,
+    -121.96537209473684,
+    37.388139294736845,
+    -121.94137209473683
+   ],
+   "footprint_m2": 86467.8,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 19,
+   "n_tagged_dc": 19,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 1,150.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 19 tagged building(s), way/1314012931, way/1344376231, way/209073635. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "37947314",
+    "receptor_osm_id": "209073658",
+    "source_name": "Equinix Santa Clara SV2",
+    "receptor_name": "Csquare SFO4",
+    "source_latlon": [
+     37.378558,
+     -121.955054
+    ],
+    "receptor_latlon": [
+     37.375881,
+     -121.95527
+    ],
+    "facade_gap_m": 205.8,
+    "centroid_separation_m": 298.4
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 37947314 -> 209073658"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_209087373_trace.json",
+    "backtest": "CA_way_209087373_backtest.json",
+    "rolling": "CA_way_209087373_rolling.json",
+    "money": "CA_way_209087373_money.json",
+    "explanations": "CA_way_209087373_explanations.json",
+    "ticker": "CA_way_209087373_ticker.json",
+    "report": "CA_way_209087373_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "CA_way_209117217",
+   "label": "Amazon, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.37773255,
+    -121.9759653,
+    37.40173255,
+    -121.9519653
+   ],
+   "footprint_m2": 13896.0,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 2,
+   "n_tagged_dc": 2,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 1,096.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 2 tagged building(s), way/1065780801, way/209117217. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "1065780801",
+    "receptor_osm_id": "209117217",
+    "source_name": "Amazon",
+    "receptor_name": "Evocative Santa Clara SJC11",
+    "source_latlon": [
+     37.389674,
+     -121.965987
+    ],
+    "receptor_latlon": [
+     37.389543,
+     -121.96199
+    ],
+    "facade_gap_m": 281.3,
+    "centroid_separation_m": 353.4
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 1065780801 -> 209117217"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_209117217_trace.json",
+    "backtest": "CA_way_209117217_backtest.json",
+    "rolling": "CA_way_209117217_rolling.json",
+    "money": "CA_way_209117217_money.json",
+    "explanations": "CA_way_209117217_explanations.json",
+    "ticker": "CA_way_209117217_ticker.json",
+    "report": "CA_way_209117217_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "CA_way_358455179",
+   "label": "Vantage Santa Clara CA2, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.350226199999994,
+    -121.9569168,
+    37.374226199999995,
+    -121.9329168
+   ],
+   "footprint_m2": 65501.5,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 4,
+   "n_tagged_dc": 4,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 2,671.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 4 tagged building(s), way/1075445245, way/1314010354, way/224998784. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "1314010354",
+    "receptor_osm_id": "1075445245",
+    "source_name": "Vantage Santa Clara CA2",
+    "receptor_name": null,
+    "source_latlon": [
+     37.363976,
+     -121.946576
+    ],
+    "receptor_latlon": [
+     37.361105,
+     -121.94218
+    ],
+    "facade_gap_m": 350.5,
+    "centroid_separation_m": 502.9
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 1314010354 -> 1075445245"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_358455179_trace.json",
+    "backtest": "CA_way_358455179_backtest.json",
+    "rolling": "CA_way_358455179_rolling.json",
+    "money": "CA_way_358455179_money.json",
+    "explanations": "CA_way_358455179_explanations.json",
+    "ticker": "CA_way_358455179_ticker.json",
+    "report": "CA_way_358455179_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "CA_way_37877544",
+   "label": "Equinix SV15, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.3627764,
+    -121.99999595000001,
+    37.3867764,
+    -121.97599595000001
+   ],
+   "footprint_m2": 25595.0,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 6,
+   "n_tagged_dc": 6,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 2,068.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 6 tagged building(s), way/205823968, way/205823970, way/205823971. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "37877544",
+    "receptor_osm_id": "271893323",
+    "source_name": "Lumen Sunnyvale 1",
+    "receptor_name": "Csquare SFO3",
+    "source_latlon": [
+     37.373609,
+     -121.987988
+    ],
+    "receptor_latlon": [
+     37.372129,
+     -121.985976
+    ],
+    "facade_gap_m": 100.5,
+    "centroid_separation_m": 242.3
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 37877544 -> 271893323"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_37877544_trace.json",
+    "backtest": "CA_way_37877544_backtest.json",
+    "rolling": "CA_way_37877544_rolling.json",
+    "money": "CA_way_37877544_money.json",
+    "explanations": "CA_way_37877544_explanations.json",
+    "ticker": "CA_way_37877544_ticker.json",
+    "report": "CA_way_37877544_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "CA_way_40608200",
+   "label": "STACK SVY02, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.351872166666666,
+    -121.97006366666666,
+    37.37587216666667,
+    -121.94606366666666
+   ],
+   "footprint_m2": 25502.6,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 3,
+   "n_tagged_dc": 3,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 1,890.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 3 tagged building(s), way/1460855151, way/224174031, way/40608200. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "40608200",
+    "receptor_osm_id": "224174031",
+    "source_name": "Cologix Santa Clara SV1 Data Center",
+    "receptor_name": "SV Colo",
+    "source_latlon": [
+     37.365373,
+     -121.961658
+    ],
+    "receptor_latlon": [
+     37.364223,
+     -121.958819
+    ],
+    "facade_gap_m": 201.2,
+    "centroid_separation_m": 281.7
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 40608200 -> 224174031"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_40608200_trace.json",
+    "backtest": "CA_way_40608200_backtest.json",
+    "rolling": "CA_way_40608200_rolling.json",
+    "money": "CA_way_40608200_money.json",
+    "explanations": "CA_way_40608200_explanations.json",
+    "ticker": "CA_way_40608200_ticker.json",
+    "report": "CA_way_40608200_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "CA_way_460159928",
+   "label": "CoreSite SV7, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.36199935384615,
+    -121.98373797692307,
+    37.38599935384615,
+    -121.95973797692307
+   ],
+   "footprint_m2": 90967.5,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 13,
+   "n_tagged_dc": 13,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 853.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 13 tagged building(s), way/1160688107, way/1313995085, way/205846843. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "1160688107",
+    "receptor_osm_id": "54173383",
+    "source_name": "CoreSite SV7",
+    "receptor_name": "CoreSite SV3",
+    "source_latlon": [
+     37.376182,
+     -121.973
+    ],
+    "receptor_latlon": [
+     37.375257,
+     -121.971658
+    ],
+    "facade_gap_m": 63.6,
+    "centroid_separation_m": 156.9
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 1160688107 -> 54173383"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_460159928_trace.json",
+    "backtest": "CA_way_460159928_backtest.json",
+    "rolling": "CA_way_460159928_rolling.json",
+    "money": "CA_way_460159928_money.json",
+    "explanations": "CA_way_460159928_explanations.json",
+    "ticker": "CA_way_460159928_ticker.json",
+    "report": "CA_way_460159928_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "CA_way_58708529",
+   "label": "Csquare SFO2, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.383731749999995,
+    -121.99171692499999,
+    37.407731749999996,
+    -121.96771692499999
+   ],
+   "footprint_m2": 30691.9,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 4,
+   "n_tagged_dc": 4,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 2,155.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 4 tagged building(s), way/54119665, way/54119667, way/54121151. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "54119665",
+    "receptor_osm_id": "54121151",
+    "source_name": "Csquare SFO2",
+    "receptor_name": "QTS Santa Clara 1",
+    "source_latlon": [
+     37.397618,
+     -121.981017
+    ],
+    "receptor_latlon": [
+     37.393981,
+     -121.978467
+    ],
+    "facade_gap_m": 339.2,
+    "centroid_separation_m": 462.9
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 54119665 -> 54121151"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_58708529_trace.json",
+    "backtest": "CA_way_58708529_backtest.json",
+    "rolling": "CA_way_58708529_rolling.json",
+    "money": "CA_way_58708529_money.json",
+    "explanations": "CA_way_58708529_explanations.json",
+    "ticker": "CA_way_58708529_ticker.json",
+    "report": "CA_way_58708529_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "CA_way_888253616",
+   "label": "NTT Silicon Valley SV1 Data Center, CA",
+   "station": "KSJC",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    37.3570532,
+    -121.9673378,
+    37.381053200000004,
+    -121.9433378
+   ],
+   "footprint_m2": 3601.2,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "standalone",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 1,
+   "n_tagged_dc": 1,
+   "n_dc_to_dc_pairs": 0,
+   "weather_hours": 43747,
+   "weather_coverage": 0.9982429718875502,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 1,498.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 1 tagged building(s), way/888253616. Classified standalone.",
+   "committed": {
+    "source_osm_id": 888253616,
+    "receptor_osm_id": null,
+    "source_name": "NTT Silicon Valley SV1 Data Center",
+    "receptor_name": null,
+    "source_latlon": [
+     37.3691447,
+     -121.95537744
+    ],
+    "receptor_latlon": null,
+    "facade_gap_m": null,
+    "centroid_separation_m": null
+   },
+   "imagery": {
+    "candidate_file": "00_way_888253616.jpg",
+    "bbox": [
+     -121.95674029999999,
+     37.367695999999995,
+     -121.9539353,
+     37.3704105
+    ],
+    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+    "source_latlon": [
+     37.3691447,
+     -121.95537744
+    ],
+    "receptor_latlon": null,
+    "resolution_note": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+    "sources": {
+     "esri": "CA_way_888253616_site_aerial.jpg"
+    },
+    "two_source_cross_check": false
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "CA_way_888253616_trace.json",
+    "backtest": "CA_way_888253616_backtest.json",
+    "rolling": "CA_way_888253616_rolling.json",
+    "money": "CA_way_888253616_money.json",
+    "explanations": "CA_way_888253616_explanations.json",
+    "ticker": "CA_way_888253616_ticker.json",
+    "report": "CA_way_888253616_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
    "verdicts": []
   },
@@ -2410,6 +3098,71 @@
    "verdicts": []
   },
   {
+   "key": "GA_way_615593145",
+   "label": "Strategic Datasphere, GA",
+   "station": "KPDK",
+   "tz": "America/New_York",
+   "bbox": [
+    34.083760299999994,
+    -84.24860175,
+    34.107760299999995,
+    -84.22460175
+   ],
+   "footprint_m2": 22717.7,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 2,
+   "n_tagged_dc": 2,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43250,
+   "weather_coverage": 0.9869021540708288,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI GA_37 (rank 37, GA), 17,808 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,680.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 2 tagged building(s), way/39083541, way/615593145. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "39083541",
+    "receptor_osm_id": "615593145",
+    "source_name": "Strategic Datasphere",
+    "receptor_name": "Mapletree Industrial",
+    "source_latlon": [
+     34.094692,
+     -84.235445
+    ],
+    "receptor_latlon": [
+     34.096629,
+     -84.237632
+    ],
+    "facade_gap_m": 137.2,
+    "centroid_separation_m": 294.8
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 39083541 -> 615593145"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "GA_way_615593145_trace.json",
+    "backtest": "GA_way_615593145_backtest.json",
+    "rolling": "GA_way_615593145_rolling.json",
+    "money": "GA_way_615593145_money.json",
+    "explanations": "GA_way_615593145_explanations.json",
+    "ticker": "GA_way_615593145_ticker.json",
+    "report": "GA_way_615593145_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
    "key": "GA_way_891031651",
    "label": "T5 Data Center, GA",
    "station": "KPDK",
@@ -2698,7 +3451,8 @@
     "rolling": "IA_way_1073720221_rolling.json",
     "money": "IA_way_1073720221_money.json",
     "explanations": "IA_way_1073720221_explanations.json",
-    "ticker": "IA_way_1073720221_ticker.json"
+    "ticker": "IA_way_1073720221_ticker.json",
+    "report": "IA_way_1073720221_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -3078,6 +3832,71 @@
    "verdicts": []
   },
   {
+   "key": "IA_way_830881745",
+   "label": "Microsoft, IA",
+   "station": "KDSM",
+   "tz": "America/Chicago",
+   "bbox": [
+    41.50517385,
+    -93.71641355,
+    41.52917385,
+    -93.69241355
+   ],
+   "footprint_m2": 108096.9,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 8,
+   "n_tagged_dc": 8,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43810,
+   "weather_coverage": 0.999680540343191,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI IA_24 (rank 24, IA), 17,684 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 637.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 8 tagged building(s), way/830881731, way/830881732, way/830881733. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "830881733",
+    "receptor_osm_id": "830881743",
+    "source_name": "Microsoft",
+    "receptor_name": "Microsoft",
+    "source_latlon": [
+     41.515841,
+     -93.706185
+    ],
+    "receptor_latlon": [
+     41.517587,
+     -93.706211
+    ],
+    "facade_gap_m": 139.4,
+    "centroid_separation_m": 194.2
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 830881733 -> 830881743"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "IA_way_830881745_trace.json",
+    "backtest": "IA_way_830881745_backtest.json",
+    "rolling": "IA_way_830881745_rolling.json",
+    "money": "IA_way_830881745_money.json",
+    "explanations": "IA_way_830881745_explanations.json",
+    "ticker": "IA_way_830881745_ticker.json",
+    "report": "IA_way_830881745_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
    "key": "IL_way_1219083554",
    "label": "T5 Chicago II, IL",
    "station": "KORD",
@@ -3135,7 +3954,8 @@
     "rolling": "IL_way_1219083554_rolling.json",
     "money": "IL_way_1219083554_money.json",
     "explanations": "IL_way_1219083554_explanations.json",
-    "ticker": "IL_way_1219083554_ticker.json"
+    "ticker": "IL_way_1219083554_ticker.json",
+    "report": "IL_way_1219083554_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -6044,6 +6864,71 @@
    "verdicts": []
   },
   {
+   "key": "ND_way_1422191477",
+   "label": "ND facility ND_way_1422191477",
+   "station": "KABR",
+   "tz": "America/Chicago",
+   "bbox": [
+    46.00108254,
+    -98.58494332000001,
+    46.02508254,
+    -98.56094332
+   ],
+   "footprint_m2": 11258.7,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 10,
+   "n_tagged_dc": 10,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43427,
+   "weather_coverage": 0.9909410368747719,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI ND_34 (rank 34, ND), 17,901 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 21.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 10 tagged building(s), way/1422191468, way/1422191469, way/1422191470. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "1422191475",
+    "receptor_osm_id": "1422191477",
+    "source_name": null,
+    "receptor_name": null,
+    "source_latlon": [
+     46.013602,
+     -98.573542
+    ],
+    "receptor_latlon": [
+     46.012696,
+     -98.574493
+    ],
+    "facade_gap_m": 102.5,
+    "centroid_separation_m": 124.8
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 1422191475 -> 1422191477"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "ND_way_1422191477_trace.json",
+    "backtest": "ND_way_1422191477_backtest.json",
+    "rolling": "ND_way_1422191477_rolling.json",
+    "money": "ND_way_1422191477_money.json",
+    "explanations": "ND_way_1422191477_explanations.json",
+    "ticker": "ND_way_1422191477_ticker.json",
+    "report": "ND_way_1422191477_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
    "key": "NE_way_1235150788",
    "label": "Yahoo, NE",
    "station": "KMLE",
@@ -6255,7 +7140,8 @@
     "rolling": "NE_way_1253282102_rolling.json",
     "money": "NE_way_1253282102_money.json",
     "explanations": "NE_way_1253282102_explanations.json",
-    "ticker": "NE_way_1253282102_ticker.json"
+    "ticker": "NE_way_1253282102_ticker.json",
+    "report": "NE_way_1253282102_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -6535,7 +7421,8 @@
     "rolling": "NE_way_942557184_rolling.json",
     "money": "NE_way_942557184_money.json",
     "explanations": "NE_way_942557184_explanations.json",
-    "ticker": "NE_way_942557184_ticker.json"
+    "ticker": "NE_way_942557184_ticker.json",
+    "report": "NE_way_942557184_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -7896,7 +8783,8 @@
     "rolling": "NV_way_984796364_rolling.json",
     "money": "NV_way_984796364_money.json",
     "explanations": "NV_way_984796364_explanations.json",
-    "ticker": "NV_way_984796364_ticker.json"
+    "ticker": "NV_way_984796364_ticker.json",
+    "report": "NV_way_984796364_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -8442,6 +9330,71 @@
    "verdicts": []
   },
   {
+   "key": "OH_way_1386016631",
+   "label": "Amazon Web Services, OH",
+   "station": "KCMH",
+   "tz": "America/New_York",
+   "bbox": [
+    40.08178018333333,
+    -82.74193665,
+    40.10578018333333,
+    -82.71793665
+   ],
+   "footprint_m2": 87264.6,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 6,
+   "n_tagged_dc": 6,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43786,
+   "weather_coverage": 0.9991328952172326,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_8 (rank 8, OH), 17,476 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,570.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 6 tagged building(s), way/1252196802, way/1252196803, way/1252196804. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "1386016629",
+    "receptor_osm_id": "1386016631",
+    "source_name": "Amazon Web Services",
+    "receptor_name": "Amazon Web Services",
+    "source_latlon": [
+     40.094212,
+     -82.732237
+    ],
+    "receptor_latlon": [
+     40.095514,
+     -82.732016
+    ],
+    "facade_gap_m": 73.3,
+    "centroid_separation_m": 145.9
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 1386016629 -> 1386016631"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "OH_way_1386016631_trace.json",
+    "backtest": "OH_way_1386016631_backtest.json",
+    "rolling": "OH_way_1386016631_rolling.json",
+    "money": "OH_way_1386016631_money.json",
+    "explanations": "OH_way_1386016631_explanations.json",
+    "ticker": "OH_way_1386016631_ticker.json",
+    "report": "OH_way_1386016631_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
    "key": "OH_way_1386016635",
    "label": "LCO 1, OH",
    "station": "KCMH",
@@ -8499,7 +9452,8 @@
     "rolling": "OH_way_1386016635_rolling.json",
     "money": "OH_way_1386016635_money.json",
     "explanations": "OH_way_1386016635_explanations.json",
-    "ticker": "OH_way_1386016635_ticker.json"
+    "ticker": "OH_way_1386016635_ticker.json",
+    "report": "OH_way_1386016635_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -8563,7 +9517,8 @@
     "rolling": "OH_way_1386016639_rolling.json",
     "money": "OH_way_1386016639_money.json",
     "explanations": "OH_way_1386016639_explanations.json",
-    "ticker": "OH_way_1386016639_ticker.json"
+    "ticker": "OH_way_1386016639_ticker.json",
+    "report": "OH_way_1386016639_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -9511,6 +10466,71 @@
    "verdicts": []
   },
   {
+   "key": "OR_way_1280344155",
+   "label": "Amazon Web Services, OR",
+   "station": "KRLD",
+   "tz": "America/Los_Angeles",
+   "bbox": [
+    45.848016560000005,
+    -119.61706494,
+    45.872016560000006,
+    -119.59306494
+   ],
+   "footprint_m2": 80094.7,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 5,
+   "n_tagged_dc": 5,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 42730,
+   "weather_coverage": 0.975036509675064,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_10 (rank 10, OR), 17,940 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 3,995.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 5 tagged building(s), way/1252196816, way/1252196817, way/1252196818. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "1252196818",
+    "receptor_osm_id": "1280344154",
+    "source_name": "Amazon Web Services",
+    "receptor_name": "Amazon Web Services",
+    "source_latlon": [
+     45.860956,
+     -119.605275
+    ],
+    "receptor_latlon": [
+     45.862265,
+     -119.60525
+    ],
+    "facade_gap_m": 71.5,
+    "centroid_separation_m": 145.6
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 1252196818 -> 1280344154"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "OR_way_1280344155_trace.json",
+    "backtest": "OR_way_1280344155_backtest.json",
+    "rolling": "OR_way_1280344155_rolling.json",
+    "money": "OR_way_1280344155_money.json",
+    "explanations": "OR_way_1280344155_explanations.json",
+    "ticker": "OR_way_1280344155_ticker.json",
+    "report": "OR_way_1280344155_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
    "key": "OR_way_1386017494",
    "label": "Amazon Web Services, OR",
    "station": "KRLD",
@@ -9929,7 +10949,8 @@
     "rolling": "OR_way_471691757_rolling.json",
     "money": "OR_way_471691757_money.json",
     "explanations": "OR_way_471691757_explanations.json",
-    "ticker": "OR_way_471691757_ticker.json"
+    "ticker": "OR_way_471691757_ticker.json",
+    "report": "OR_way_471691757_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -10070,7 +11091,8 @@
     "rolling": "OR_way_697413741_rolling.json",
     "money": "OR_way_697413741_money.json",
     "explanations": "OR_way_697413741_explanations.json",
-    "ticker": "OR_way_697413741_ticker.json"
+    "ticker": "OR_way_697413741_ticker.json",
+    "report": "OR_way_697413741_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -10329,7 +11351,8 @@
     "rolling": "OR_way_734323663_rolling.json",
     "money": "OR_way_734323663_money.json",
     "explanations": "OR_way_734323663_explanations.json",
-    "ticker": "OR_way_734323663_ticker.json"
+    "ticker": "OR_way_734323663_ticker.json",
+    "report": "OR_way_734323663_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -11050,7 +12073,8 @@
     "rolling": "SC_way_1069388211_rolling.json",
     "money": "SC_way_1069388211_money.json",
     "explanations": "SC_way_1069388211_explanations.json",
-    "ticker": "SC_way_1069388211_ticker.json"
+    "ticker": "SC_way_1069388211_ticker.json",
+    "report": "SC_way_1069388211_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -12554,6 +13578,71 @@
    "verdicts": []
   },
   {
+   "key": "TX_way_1530966395",
+   "label": "TX facility TX_way_1530966395",
+   "station": "KDYS",
+   "tz": "America/Chicago",
+   "bbox": [
+    32.48816081,
+    -99.79597213,
+    32.51216081,
+    -99.77197213
+   ],
+   "footprint_m2": 360182.2,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 40,
+   "n_tagged_dc": 40,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 42562,
+   "weather_coverage": 0.9712029937933553,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_6 (rank 6, TX), 17,825 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 680.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 40 tagged building(s), way/1472056705, way/1472056706, way/1472056707. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "1530966391",
+    "receptor_osm_id": "1530966394",
+    "source_name": null,
+    "receptor_name": null,
+    "source_latlon": [
+     32.496564,
+     -99.794438
+    ],
+    "receptor_latlon": [
+     32.498236,
+     -99.795467
+    ],
+    "facade_gap_m": 88.9,
+    "centroid_separation_m": 209.5
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 1530966391 -> 1530966394"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "TX_way_1530966395_trace.json",
+    "backtest": "TX_way_1530966395_backtest.json",
+    "rolling": "TX_way_1530966395_rolling.json",
+    "money": "TX_way_1530966395_money.json",
+    "explanations": "TX_way_1530966395_explanations.json",
+    "ticker": "TX_way_1530966395_ticker.json",
+    "report": "TX_way_1530966395_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
    "key": "TX_way_1533349844",
    "label": "CyrusOne SAT10 & SAT11, TX",
    "station": "KSSF",
@@ -12822,6 +13911,71 @@
     "report": "TX_way_1535715798_report.pdf"
    },
    "has_own_fortyguard_field": false,
+   "fortyguard_day_pairs": 0,
+   "verdicts": []
+  },
+  {
+   "key": "TX_way_1537390751",
+   "label": "Amazon, TX",
+   "station": "KSAT",
+   "tz": "America/Chicago",
+   "bbox": [
+    29.4333228,
+    -98.655383,
+    29.4573228,
+    -98.631383
+   ],
+   "footprint_m2": 48253.6,
+   "data_ready": true,
+   "scope_verdict": "NOT SCREENED",
+   "scope_ok": false,
+   "offer_tier": "national_unscreened",
+   "national": true,
+   "site_kind": "paired_clear",
+   "plume_modelled": false,
+   "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
+   "offerable": true,
+   "not_offerable_because": null,
+   "n_buildings": 22,
+   "n_tagged_dc": 22,
+   "n_dc_to_dc_pairs": null,
+   "weather_hours": 43809,
+   "weather_coverage": 0.999657721796276,
+   "fortyguard_field": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_7 (rank 7, TX), 17,152 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 3,108.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record.",
+   "climate_note": null,
+   "basis": "national OSM discovery: 23 tagged building(s), way/1344369104, way/254742608, way/254742609. Classified paired_clear.",
+   "committed": {
+    "source_osm_id": "254742609",
+    "receptor_osm_id": "1537390734",
+    "source_name": null,
+    "receptor_name": null,
+    "source_latlon": [
+     29.44782,
+     -98.641119
+    ],
+    "receptor_latlon": [
+     29.445272,
+     -98.644087
+    ],
+    "facade_gap_m": 315.7,
+    "centroid_separation_m": 403.5
+   },
+   "imagery": {
+    "bbox": null,
+    "sources": {},
+    "note": "no screening frame matches the committed pair 254742609 -> 1537390734"
+   },
+   "plume_field_file": null,
+   "artefacts": {
+    "trace": "TX_way_1537390751_trace.json",
+    "backtest": "TX_way_1537390751_backtest.json",
+    "rolling": "TX_way_1537390751_rolling.json",
+    "money": "TX_way_1537390751_money.json",
+    "explanations": "TX_way_1537390751_explanations.json",
+    "ticker": "TX_way_1537390751_ticker.json",
+    "report": "TX_way_1537390751_report.pdf"
+   },
+   "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
    "verdicts": []
   },
@@ -14006,7 +15160,8 @@
     "rolling": "TX_way_577628941_rolling.json",
     "money": "TX_way_577628941_money.json",
     "explanations": "TX_way_577628941_explanations.json",
-    "ticker": "TX_way_577628941_ticker.json"
+    "ticker": "TX_way_577628941_ticker.json",
+    "report": "TX_way_577628941_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -14637,7 +15792,8 @@
     "rolling": "VA_way_1252196825_rolling.json",
     "money": "VA_way_1252196825_money.json",
     "explanations": "VA_way_1252196825_explanations.json",
-    "ticker": "VA_way_1252196825_ticker.json"
+    "ticker": "VA_way_1252196825_ticker.json",
+    "report": "VA_way_1252196825_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -14778,7 +15934,8 @@
     "rolling": "VA_way_1287260555_rolling.json",
     "money": "VA_way_1287260555_money.json",
     "explanations": "VA_way_1287260555_explanations.json",
-    "ticker": "VA_way_1287260555_ticker.json"
+    "ticker": "VA_way_1287260555_ticker.json",
+    "report": "VA_way_1287260555_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -14842,7 +15999,8 @@
     "rolling": "VA_way_1333205263_rolling.json",
     "money": "VA_way_1333205263_money.json",
     "explanations": "VA_way_1333205263_explanations.json",
-    "ticker": "VA_way_1333205263_ticker.json"
+    "ticker": "VA_way_1333205263_ticker.json",
+    "report": "VA_way_1333205263_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -15332,7 +16490,8 @@
     "rolling": "VA_way_1510517639_rolling.json",
     "money": "VA_way_1510517639_money.json",
     "explanations": "VA_way_1510517639_explanations.json",
-    "ticker": "VA_way_1510517639_ticker.json"
+    "ticker": "VA_way_1510517639_ticker.json",
+    "report": "VA_way_1510517639_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -16337,7 +17496,8 @@
     "rolling": "VA_way_460175664_rolling.json",
     "money": "VA_way_460175664_money.json",
     "explanations": "VA_way_460175664_explanations.json",
-    "ticker": "VA_way_460175664_ticker.json"
+    "ticker": "VA_way_460175664_ticker.json",
+    "report": "VA_way_460175664_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -16543,7 +17703,8 @@
     "rolling": "VA_way_696992451_rolling.json",
     "money": "VA_way_696992451_money.json",
     "explanations": "VA_way_696992451_explanations.json",
-    "ticker": "VA_way_696992451_ticker.json"
+    "ticker": "VA_way_696992451_ticker.json",
+    "report": "VA_way_696992451_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -16794,7 +17955,8 @@
     "rolling": "VA_way_744496750_rolling.json",
     "money": "VA_way_744496750_money.json",
     "explanations": "VA_way_744496750_explanations.json",
-    "ticker": "VA_way_744496750_ticker.json"
+    "ticker": "VA_way_744496750_ticker.json",
+    "report": "VA_way_744496750_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -17390,7 +18552,8 @@
     "rolling": "VA_way_996723587_rolling.json",
     "money": "VA_way_996723587_money.json",
     "explanations": "VA_way_996723587_explanations.json",
-    "ticker": "VA_way_996723587_ticker.json"
+    "ticker": "VA_way_996723587_ticker.json",
+    "report": "VA_way_996723587_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
@@ -17454,7 +18617,8 @@
     "rolling": "VA_way_996899488_rolling.json",
     "money": "VA_way_996899488_money.json",
     "explanations": "VA_way_996899488_explanations.json",
-    "ticker": "VA_way_996899488_ticker.json"
+    "ticker": "VA_way_996899488_ticker.json",
+    "report": "VA_way_996899488_report.pdf"
    },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,

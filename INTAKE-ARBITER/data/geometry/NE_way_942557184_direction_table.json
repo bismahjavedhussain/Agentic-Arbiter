@@ -1,0 +1,1086 @@
+{
+ "test": "N-54 refusal surface",
+ "generated_by": "INTAKE-ARBITER/src/direction_sweep.py",
+ "parameters": {
+  "diffusivity_m2s": 7.4,
+  "ambient_c": 30.0,
+  "step_deg": 5,
+  "downwash_uc": 8.0,
+  "downwash_exponent": 1.25,
+  "intake_operator": "disc=True (fixed physical region)",
+  "changeover_limits_c": [
+   18.0,
+   21.0,
+   24.0,
+   27.0
+  ]
+ },
+ "wind": {
+  "station": "KMLE",
+  "metro": "NE_way_942557184",
+  "weather_file": "kmle_hourly_2021_2025.json",
+  "usable_hours": 32420,
+  "calm_excluded": 10745,
+  "missing": 0,
+  "n_hours_in_record": 43165
+ },
+ "verdicts": {
+  "P1_non_degenerate_refusal": {
+   "pass": false,
+   "frac_all_bearings": 0.0,
+   "frac_downwind": 0.0
+  },
+  "P2_naive_bearing_wrong": {
+   "pass": true,
+   "delta_deg": 43.69999999999999,
+   "vacuous": false,
+   "worst_bearing": 160,
+   "worst_rise_c": 0.38022
+  },
+  "P3_geometric_coherence": {
+   "pass": true,
+   "arcs": 0
+  }
+ },
+ "all_pass": false,
+ "modes": {
+  "longest": {
+   "mode": "longest",
+   "rows": [
+    {
+     "bearing": 0,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 5,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 10,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 15,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 20,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 25,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 30,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 35,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 40,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 45,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 50,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 55,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 60,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 65,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 70,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 75,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 80,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 85,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 90,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 95,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 100,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 1e-05
+    },
+    {
+     "bearing": 105,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.00014
+    },
+    {
+     "bearing": 110,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.00109
+    },
+    {
+     "bearing": 115,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.00532
+    },
+    {
+     "bearing": 120,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.01815
+    },
+    {
+     "bearing": 125,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.04686
+    },
+    {
+     "bearing": 130,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.09683
+    },
+    {
+     "bearing": 135,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.16632
+    },
+    {
+     "bearing": 140,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.2442
+    },
+    {
+     "bearing": 145,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.31358
+    },
+    {
+     "bearing": 150,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.36023
+    },
+    {
+     "bearing": 155,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.38016
+    },
+    {
+     "bearing": 160,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.38022
+    },
+    {
+     "bearing": 165,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.37147
+    },
+    {
+     "bearing": 170,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.36147
+    },
+    {
+     "bearing": 175,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.35235
+    },
+    {
+     "bearing": 180,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.34247
+    },
+    {
+     "bearing": 185,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.31423
+    },
+    {
+     "bearing": 190,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.26331
+    },
+    {
+     "bearing": 195,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.19859
+    },
+    {
+     "bearing": 200,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.13496
+    },
+    {
+     "bearing": 205,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.08316
+    },
+    {
+     "bearing": 210,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.0467
+    },
+    {
+     "bearing": 215,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.02393
+    },
+    {
+     "bearing": 220,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.01116
+    },
+    {
+     "bearing": 225,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.0047
+    },
+    {
+     "bearing": 230,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.00176
+    },
+    {
+     "bearing": 235,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.00057
+    },
+    {
+     "bearing": 240,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 0.00016
+    },
+    {
+     "bearing": 245,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 3e-05
+    },
+    {
+     "bearing": 250,
+     "downwind": true,
+     "refused": false,
+     "rise_c": 1e-05
+    },
+    {
+     "bearing": 255,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 260,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 265,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 270,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 275,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 280,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 285,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 290,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 295,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 300,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 305,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 310,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 315,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 320,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 325,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 330,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 335,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 340,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 345,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 350,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 355,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    }
+   ],
+   "emission_point": [
+    1058.1190027517732,
+    903.1592673719854
+   ],
+   "bank_centroid": [
+    1056.7460317460318,
+    893.2539682539682
+   ],
+   "outward_normal": [
+    0.1372971005741524,
+    0.990529911801724
+   ],
+   "march_m": 10.0,
+   "u_median_ms": 3.086664,
+   "n_refused": 0,
+   "n_downwind": 36,
+   "n_downwind_refused": 0,
+   "arcs": 0,
+   "worst": {
+    "bearing": 160,
+    "downwind": true,
+    "refused": false,
+    "rise_c": 0.38022
+   },
+   "solve_seconds": 49.3,
+   "wind_weighted": {
+    "all_hours": {
+     "n_hours": 32420,
+     "n_refused": 0,
+     "frac_refused": 0.0,
+     "ci95": [
+      0.0,
+      0.00011848071697956974
+     ],
+     "mean_rise_c_when_computed": 0.10214044016039482,
+     "max_rise_c_when_computed": 0.38022
+    },
+    "below_18C": {
+     "n_hours": 19426,
+     "n_refused": 0,
+     "frac_refused": 0.0,
+     "ci95": [
+      0.0,
+      0.00019771648575868985
+     ],
+     "mean_rise_c_when_computed": 0.07070312364871821,
+     "max_rise_c_when_computed": 0.38022
+    },
+    "below_21C": {
+     "n_hours": 22244,
+     "n_refused": 0,
+     "frac_refused": 0.0,
+     "ci95": [
+      0.0,
+      0.0001726729302135988
+     ],
+     "mean_rise_c_when_computed": 0.07668320490918899,
+     "max_rise_c_when_computed": 0.38022
+    },
+    "below_24C": {
+     "n_hours": 25249,
+     "n_refused": 0,
+     "frac_refused": 0.0,
+     "ci95": [
+      0.0,
+      0.0001521254542696692
+     ],
+     "mean_rise_c_when_computed": 0.08301427818923521,
+     "max_rise_c_when_computed": 0.38022
+    },
+    "below_27C": {
+     "n_hours": 28294,
+     "n_refused": 0,
+     "frac_refused": 0.0,
+     "ci95": [
+      0.0,
+      0.00013575593694750202
+     ],
+     "mean_rise_c_when_computed": 0.09006363151198134,
+     "max_rise_c_when_computed": 0.38022
+    }
+   }
+  },
+  "facing": {
+   "mode": "facing",
+   "rows": [
+    {
+     "bearing": 0,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 5,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 10,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 15,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 20,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 25,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 30,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 35,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 40,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 45,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 50,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 55,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 60,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 65,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 70,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 75,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 80,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 85,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 90,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 95,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 100,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 105,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 110,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 115,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 120,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 125,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 130,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 135,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 140,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 145,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 150,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 155,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 160,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 165,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 170,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 175,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 180,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 185,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 190,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 195,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 200,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 205,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 210,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 215,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 220,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 225,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 230,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 235,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 240,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 245,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 250,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 255,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 260,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 265,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 270,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 275,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 280,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 285,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 290,
+     "downwind": true,
+     "refused": true,
+     "rise_c": null
+    },
+    {
+     "bearing": 295,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 300,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 305,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 310,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 315,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 320,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 325,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 330,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 335,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 340,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 345,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 350,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    },
+    {
+     "bearing": 355,
+     "downwind": false,
+     "refused": false,
+     "rise_c": 0.0
+    }
+   ],
+   "emission_point": [
+    855.772132114906,
+    872.6692945034579
+   ],
+   "bank_centroid": [
+    860.0,
+    870.0
+   ],
+   "outward_normal": [
+    -0.8455735770188152,
+    0.5338589006915644
+   ],
+   "march_m": 5.0,
+   "u_median_ms": 3.086664,
+   "n_refused": 36,
+   "n_downwind": 36,
+   "n_downwind_refused": 36,
+   "arcs": 1,
+   "worst": {
+    "bearing": 0,
+    "downwind": false,
+    "refused": false,
+    "rise_c": 0.0
+   },
+   "solve_seconds": 20.4,
+   "wind_weighted": {
+    "all_hours": {
+     "n_hours": 32420,
+     "n_refused": 17603,
+     "frac_refused": 0.5429673041332511,
+     "ci95": [
+      0.5375399013442946,
+      0.5483845253282068
+     ],
+     "mean_rise_c_when_computed": 0.0,
+     "max_rise_c_when_computed": 0.0
+    },
+    "below_18C": {
+     "n_hours": 19426,
+     "n_refused": 8253,
+     "frac_refused": 0.42484299392566666,
+     "ci95": [
+      0.4179071324657339,
+      0.4318085749438418
+     ],
+     "mean_rise_c_when_computed": 0.0,
+     "max_rise_c_when_computed": 0.0
+    },
+    "below_21C": {
+     "n_hours": 22244,
+     "n_refused": 10043,
+     "frac_refused": 0.45149253731343286,
+     "ci95": [
+      0.4449616466284966,
+      0.45804017984980794
+     ],
+     "mean_rise_c_when_computed": 0.0,
+     "max_rise_c_when_computed": 0.0
+    },
+    "below_24C": {
+     "n_hours": 25249,
+     "n_refused": 12082,
+     "frac_refused": 0.4785140005544774,
+     "ci95": [
+      0.4723560074156419,
+      0.48467853082816514
+     ],
+     "mean_rise_c_when_computed": 0.0,
+     "max_rise_c_when_computed": 0.0
+    },
+    "below_27C": {
+     "n_hours": 28294,
+     "n_refused": 14251,
+     "frac_refused": 0.5036756909592139,
+     "ci95": [
+      0.49784963187531456,
+      0.5095007520493733
+     ],
+     "mean_rise_c_when_computed": 0.0,
+     "max_rise_c_when_computed": 0.0
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,783 @@
+facilities with a purchased field : 157
+   already offerable              : 39
+   to complete in this run        : 118
+
+measured pace is ~7.8 min/facility (a station fetch dominates), so ~15.3 h to finish all 118.
+Last night 28 of 167 (17%%) ended `no_station` because no station cleared the 95%% floor,
+so expect roughly 98 to complete and the rest to be recorded UNASSIGNED, honestly.
+
+launching: build_national_batch.py run --hours 13 --keys <118 keys>
+==============================================================================
+NATIONAL BATCH RUN -- 115 facility(ies). One at a time, on purpose.
+==============================================================================
+
+[1/115] TX_way_1426525221      TX  Google, Compass Data Center, Compass  (0.0 h elapsed)
+      paired geometry: commit a pair and solve OK       95.9s  
+      manifest refresh                   OK       12.8s  
+      the 8-step agent chain             OK       74.5s  
+      manifest re-read                   OK       16.5s  
+      -> built
+
+[2/115] WY_way_537172528       WY  CYS41 Datacenter, CYS42 Datacenter,   (0.1 h elapsed)
+      paired geometry: commit a pair and solve OK       89.1s  
+      manifest refresh                   OK       14.0s  
+      the 8-step agent chain             OK       92.0s  
+      manifest re-read                   OK       14.4s  
+      -> built
+
+[3/115] VA_way_1333205263      VA  (unnamed)  (0.1 h elapsed)
+      paired geometry: commit a pair and solve OK       72.7s  
+      manifest refresh                   OK       13.2s  
+      the 8-step agent chain             FAILED   81.1s  
+         ERR 
+      manifest re-read                   OK        8.7s  
+      -> chain_failed
+
+[4/115] IA_way_1454813846      IA  (unnamed)  (0.2 h elapsed)
+      paired geometry: commit a pair and solve OK       86.8s  
+      manifest refresh                   OK        8.4s  
+      the 8-step agent chain             OK       88.1s  
+      manifest re-read                   OK       13.6s  
+      -> built
+
+[5/115] VA_way_897226575       VA  Microsoft IAD11, Microsoft Data Cent  (0.2 h elapsed)
+      paired geometry: commit a pair and solve OK       91.1s  
+      manifest refresh                   OK        9.8s  
+      the 8-step agent chain             OK       89.3s  
+      manifest re-read                   OK       14.3s  
+      -> built
+
+[6/115] WA_way_1173537117      WA  Microsoft EAT02, Microsoft EAT03, Mi  (0.3 h elapsed)
+      paired geometry: commit a pair and solve OK       87.0s  
+      manifest refresh                   OK        8.9s  
+      the 8-step agent chain             OK       96.0s  
+      manifest re-read                   OK        9.8s  
+      -> built
+
+[7/115] TX_way_1533392814      TX  Microsoft SAT 80, Microsoft SAT 81,   (0.3 h elapsed)
+      paired geometry: commit a pair and solve OK       98.5s  
+      manifest refresh                   OK        9.6s  
+      the 8-step agent chain             OK       79.9s  
+      manifest re-read                   OK       12.8s  
+      -> built
+
+[8/115] NE_way_942557184       NE  Meta Sarpy Data center, Meta Sarpy D  (0.4 h elapsed)
+      paired geometry: commit a pair and solve OK       74.9s  
+      manifest refresh                   OK       16.2s  
+      the 8-step agent chain             FAILED   78.9s  
+         ERR 
+      manifest re-read                   OK       10.1s  
+      -> chain_failed
+
+[9/115] OH_way_802160675       OH  NAO 1/NAO 2, NAO 3  (0.4 h elapsed)
+      paired geometry: commit a pair and solve OK       89.8s  
+      manifest refresh                   OK        9.4s  
+      the 8-step agent chain             OK       86.5s  
+      manifest re-read                   OK        8.9s  
+      -> built
+
+[10/115] OR_way_772827597       OR  Meta, Meta, Meta, Meta  (0.5 h elapsed)
+      paired geometry: commit a pair and solve OK       82.4s  
+      manifest refresh                   OK       12.5s  
+      the 8-step agent chain             OK       84.7s  
+      manifest re-read                   OK       11.1s  
+      -> built
+
+[11/115] OR_way_772827601       OR  Meta, Meta, Meta  (0.6 h elapsed)
+      paired geometry: commit a pair and solve OK       82.9s  
+      manifest refresh                   OK       11.8s  
+      the 8-step agent chain             OK       86.8s  
+      manifest re-read                   OK        9.6s  
+      -> built
+
+[12/115] VA_way_1493516633      VA  Meta Henrico Data Center, DC6, DC5,   (0.6 h elapsed)
+      paired geometry: commit a pair and solve OK       91.2s  
+      manifest refresh                   OK       10.8s  
+      the 8-step agent chain             OK       82.1s  
+      manifest re-read                   OK       14.2s  
+      -> built
+
+[13/115] AZ_way_1456975949      AZ  (unnamed)  (0.7 h elapsed)
+      paired geometry: commit a pair and solve OK       46.2s  
+      manifest refresh                   OK        8.8s  
+      the 8-step agent chain             FAILED   72.0s  
+         ERR 
+      manifest re-read                   OK       10.1s  
+      -> chain_failed
+
+[14/115] OH_way_1427613543      OH  Google NBY-2, Google NBY-3, Google N  (0.7 h elapsed)
+      paired geometry: commit a pair and solve OK      100.3s  
+      manifest refresh                   OK       17.5s  
+      the 8-step agent chain             OK       95.7s  
+      manifest re-read                   OK       13.9s  
+      -> built
+
+[15/115] NE_way_1253282102      NE  Meta Sarpy Data center, Meta Sarpy D  (0.8 h elapsed)
+      paired geometry: commit a pair and solve OK       51.3s  
+      manifest refresh                   OK       14.4s  
+      the 8-step agent chain             FAILED   82.9s  
+         ERR 
+      manifest re-read                   OK       17.4s  
+      -> chain_failed
+
+[16/115] OR_way_706759844       OR  Apple, Apple, Apple, Apple  (0.8 h elapsed)
+      paired geometry: commit a pair and solve OK       93.1s  
+      manifest refresh                   OK       11.3s  
+      the 8-step agent chain             OK       89.3s  
+      manifest re-read                   OK       11.0s  
+      -> built
+
+[17/115] VA_way_701923203       VA  QTS Ashburn-Shellhorn DC1, Amazon We  (0.9 h elapsed)
+      paired geometry: commit a pair and solve FAILED   26.2s  
+         ERR     dt = json.load(open(M.geom_path("direction_table.json", key), encoding="utf-8"))
+         ERR                    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         ERR FileNotFoundError: [Errno 2] No such file or directory: 'D:\\FGHackathon\\INTAKE-ARBITER\\data\\geometry
+      -> no_geometry
+
+[18/115] OR_way_471691757       OR  Flexential Portland - Hillsboro 4 Ex  (0.9 h elapsed)
+      paired geometry: commit a pair and solve OK       54.3s  
+      manifest refresh                   OK       16.9s  
+      the 8-step agent chain             FAILED   80.0s  
+         ERR 
+      manifest re-read                   OK       16.6s  
+      -> chain_failed
+
+[19/115] VA_way_1543296494      VA  Digital Realty Northern Virginia IAD  (0.9 h elapsed)
+      paired geometry: commit a pair and solve OK       75.7s  
+      manifest refresh                   OK       11.0s  
+      the 8-step agent chain             OK       91.2s  
+      manifest re-read                   OK       15.2s  
+      -> built
+
+[20/115] NV_way_984796364       NV  Switch Edge 1, Switch Las Vegas 12,   (1.0 h elapsed)
+      paired geometry: commit a pair and solve OK       81.2s  
+      manifest refresh                   OK       17.5s  
+      the 8-step agent chain             FAILED   78.4s  
+         ERR 
+      manifest re-read                   OK       13.0s  
+      -> chain_failed
+
+[21/115] VA_way_989735624       VA  Amazon IAD150, Amazon IAD152, Amazon  (1.0 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.2s  
+         ERR 
+      -> no_geometry
+
+[22/115] VA_way_996723587       VA  Iron Mountain VA-3, Iron Mountain VA  (1.0 h elapsed)
+      paired geometry: commit a pair and solve OK       70.6s  
+      manifest refresh                   OK       13.5s  
+      the 8-step agent chain             FAILED   79.0s  
+         ERR 
+      manifest re-read                   OK       17.4s  
+      -> chain_failed
+
+[23/115] VA_way_954433119       VA  Amazon Web Services, Amazon Web Serv  (1.1 h elapsed)
+      paired geometry: commit a pair and solve OK       87.4s  
+      manifest refresh                   OK       10.9s  
+      the 8-step agent chain             OK       81.1s  
+      manifest re-read                   OK       17.6s  
+      -> built
+
+[24/115] OR_way_914616810       OR  Amazon Web Services, Amazon Web Serv  (1.1 h elapsed)
+      paired geometry: commit a pair and solve OK      104.4s  
+      manifest refresh                   OK        9.8s  
+      the 8-step agent chain             OK       80.5s  
+      manifest re-read                   OK        9.7s  
+      -> built
+
+[25/115] VA_way_996899488       VA  Amazon IAD103, Amazon IAD102, Amazon  (1.2 h elapsed)
+      paired geometry: commit a pair and solve OK       68.4s  
+      manifest refresh                   OK        9.6s  
+      the 8-step agent chain             FAILED   77.0s  
+         ERR 
+      manifest re-read                   OK       11.1s  
+      -> chain_failed
+
+[26/115] OR_way_914616809       OR  Amazon Web Services, Amazon Web Serv  (1.3 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.1s  
+         ERR 
+      -> no_geometry
+
+[27/115] VA_way_460175664       VA  Digital Realty IAD42 (Building R), Q  (1.3 h elapsed)
+      paired geometry: commit a pair and solve OK       63.0s  
+      manifest refresh                   OK        9.5s  
+      the 8-step agent chain             FAILED   75.4s  
+         ERR 
+      manifest re-read                   OK       18.5s  
+      -> chain_failed
+
+[28/115] WA_way_807374322       WA  Microsoft, Microsoft, Microsoft, Mic  (1.3 h elapsed)
+      paired geometry: commit a pair and solve OK       63.5s  
+      manifest refresh                   OK        9.5s  
+      the 8-step agent chain             OK       83.1s  
+      manifest re-read                   OK        9.5s  
+      -> built
+
+[29/115] OH_way_1386016636      OH  Amazon Web Services, Amazon Web Serv  (1.3 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[30/115] OR_way_1280344151      OR  Amazon Web Services, Amazon Web Serv  (1.3 h elapsed)
+      paired geometry: commit a pair and solve OK       89.6s  
+      manifest refresh                   OK        9.8s  
+      the 8-step agent chain             OK       83.4s  
+      manifest re-read                   OK       14.2s  
+      -> built
+
+[31/115] VA_way_1252196825      VA  AWS IAD105, AWS IAD104, AWS IAD106,   (1.4 h elapsed)
+      paired geometry: commit a pair and solve OK       46.9s  
+      manifest refresh                   OK       14.4s  
+      the 8-step agent chain             FAILED   76.0s  
+         ERR 
+      manifest re-read                   OK       14.5s  
+      -> chain_failed
+
+[32/115] VA_way_990537858       VA  Amazon IAD120, Amazon IAD121, Amazon  (1.4 h elapsed)
+      paired geometry: commit a pair and solve OK       88.1s  
+      manifest refresh                   OK       11.3s  
+      the 8-step agent chain             OK       83.2s  
+      manifest re-read                   OK       11.8s  
+      -> built
+
+[33/115] VA_way_714622339       VA  Google: Arcola 2, Amazon Web Service  (1.5 h elapsed)
+      paired geometry: commit a pair and solve OK       87.4s  
+      manifest refresh                   OK        9.9s  
+      the 8-step agent chain             OK       83.3s  
+      manifest re-read                   OK       16.8s  
+      -> built
+
+[34/115] NV_way_1421212901      NV  Switch Las Vegas 14  (1.6 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.2s  
+         ERR 
+      -> no_geometry
+
+[35/115] VA_way_844374689       VA  Stonewall Creek Business Park, Googl  (1.6 h elapsed)
+      paired geometry: commit a pair and solve OK       96.5s  
+      manifest refresh                   OK       13.5s  
+      the 8-step agent chain             OK       83.9s  
+      manifest re-read                   OK       13.2s  
+      -> built
+
+[36/115] VA_way_1464257783      VA  Google, Google, Google  (1.6 h elapsed)
+      paired geometry: commit a pair and solve OK       77.5s  
+      manifest refresh                   OK       12.5s  
+      the 8-step agent chain             OK       76.9s  
+      manifest re-read                   OK       10.5s  
+      -> built
+
+[37/115] NE_way_844394357       NE  Google, Google, Google, Google  (1.7 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[38/115] IA_way_1287260561      IA  Google, Google  (1.7 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[39/115] VA_way_1074595310      VA  (unnamed)  (1.7 h elapsed)
+      paired geometry: commit a pair and solve OK      111.6s  
+      manifest refresh                   OK       10.2s  
+      the 8-step agent chain             OK       74.2s  
+      manifest re-read                   OK       10.5s  
+      -> built
+
+[40/115] OH_way_1425043213      OH  QTS NAL 2 DC1, QTS NAL 2 DC2  (1.7 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[41/115] VA_way_224100721       VA  Amazon Web Services, Amazon Web Serv  (1.7 h elapsed)
+      paired geometry: commit a pair and solve OK       93.0s  
+      manifest refresh                   OK       10.5s  
+      the 8-step agent chain             OK       79.4s  
+      manifest re-read                   OK       10.3s  
+      -> built
+
+[42/115] OH_way_1386016635      OH  LCO 1, LCO 2  (1.8 h elapsed)
+      paired geometry: commit a pair and solve OK       64.4s  
+      manifest refresh                   OK       11.1s  
+      the 8-step agent chain             FAILED   75.0s  
+         ERR 
+      manifest re-read                   OK       10.3s  
+      -> chain_failed
+
+[43/115] VA_way_909455922       VA  42311 THUNDERBALL DR, 42255 THUNDERB  (1.8 h elapsed)
+      paired geometry: commit a pair and solve OK       68.0s  
+      manifest refresh                   OK       10.2s  
+      the 8-step agent chain             OK       75.9s  
+      manifest re-read                   OK       10.5s  
+      -> built
+
+[44/115] OR_way_697415323       OR  Amazon Web Services, Amazon Web Serv  (1.9 h elapsed)
+      paired geometry: commit a pair and solve OK      107.6s  
+      manifest refresh                   OK       11.3s  
+      the 8-step agent chain             OK       81.1s  
+      manifest re-read                   OK       12.3s  
+      -> built
+
+[45/115] WA_way_499403698       WA  NTT Data Quincy  (1.9 h elapsed)
+      paired geometry: commit a pair and solve OK       90.8s  
+      manifest refresh                   OK       17.7s  
+      the 8-step agent chain             OK       98.2s  
+      manifest re-read                   OK       19.7s  
+      -> built
+
+[46/115] OH_way_1427613546      OH  Amazon Web Services  CMH53, Amazon W  (2.0 h elapsed)
+      paired geometry: commit a pair and solve OK       64.5s  
+      manifest refresh                   OK       10.4s  
+      the 8-step agent chain             OK       76.3s  
+      manifest re-read                   OK       10.1s  
+      -> built
+
+[47/115] OH_way_821081358       OH  Amazon Web Services, Amazon Web Serv  (2.1 h elapsed)
+      paired geometry: commit a pair and solve OK       86.6s  
+      manifest refresh                   OK       11.3s  
+      the 8-step agent chain             OK       78.7s  
+      manifest re-read                   OK       11.0s  
+      -> built
+
+[48/115] VA_way_986829280       VA  Microsoft, Microsoft  (2.1 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[49/115] TX_way_509611432       TX  Vantage Data Centers TX22, Vantage D  (2.1 h elapsed)
+      paired geometry: commit a pair and solve OK       77.8s  
+      manifest refresh                   OK       10.5s  
+      the 8-step agent chain             OK       73.1s  
+      manifest re-read                   OK       10.6s  
+      -> built
+
+[50/115] VA_way_1464257784      VA  QTS Manassas DC5, QTS Manassas DC1,   (2.2 h elapsed)
+      paired geometry: commit a pair and solve OK       91.0s  
+      manifest refresh                   OK       13.1s  
+      the 8-step agent chain             OK       77.1s  
+      manifest re-read                   OK       11.5s  
+      -> built
+
+[51/115] OR_way_697413741       OR  Amazon Web Services, Amazon Web Serv  (2.2 h elapsed)
+      paired geometry: commit a pair and solve OK       95.8s  
+      manifest refresh                   OK       11.7s  
+      the 8-step agent chain             FAILED   84.8s  
+         ERR 
+      manifest re-read                   OK       12.8s  
+      -> chain_failed
+
+[52/115] VA_way_828135845       VA  Amazon Web Services, Amazon Web Serv  (2.3 h elapsed)
+      paired geometry: commit a pair and solve OK       93.3s  
+      manifest refresh                   OK       12.7s  
+      the 8-step agent chain             OK       84.8s  
+      manifest re-read                   OK       12.8s  
+      -> built
+
+[53/115] OR_way_697415321       OR  Amazon Web Services, Amazon Web Serv  (2.3 h elapsed)
+      paired geometry: commit a pair and solve OK       79.5s  
+      manifest refresh                   OK       12.6s  
+      the 8-step agent chain             OK       76.4s  
+      manifest re-read                   OK       11.4s  
+      -> built
+
+[54/115] VA_way_701924669       VA  Amazon IAD90, Amazon IAD91, Amazon I  (2.4 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[55/115] VA_way_490997244       VA  Amazon IAD601, Amazon IAD73, Amazon   (2.4 h elapsed)
+      paired geometry: commit a pair and solve OK       73.7s  
+      manifest refresh                   OK       15.0s  
+      the 8-step agent chain             OK       82.9s  
+      manifest re-read                   OK       16.0s  
+      -> built
+
+[56/115] VA_way_701931819       VA  Amazon IAD86, Amazon Web Services, A  (2.4 h elapsed)
+      paired geometry: commit a pair and solve OK       97.0s  
+      manifest refresh                   OK       16.3s  
+      the 8-step agent chain             OK       84.3s  
+      manifest re-read                   OK       12.3s  
+      -> built
+
+[57/115] IL_way_1219083554      IL  T5 Chicago II  (2.5 h elapsed)
+      paired geometry: commit a pair and solve OK       64.7s  
+      manifest refresh                   OK       13.3s  
+      the 8-step agent chain             FAILED   78.8s  
+         ERR 
+      manifest re-read                   OK       12.8s  
+      -> chain_failed
+
+[58/115] VA_way_701930930       VA  Amazon IAD114, Amazon IAD115  (2.5 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.2s  
+         ERR 
+      -> no_geometry
+
+[59/115] VA_way_983627455       VA  Amazon IAD601, Amazon IAD10, Amazon   (2.5 h elapsed)
+      paired geometry: commit a pair and solve OK       72.9s  
+      manifest refresh                   OK       16.7s  
+      the 8-step agent chain             OK       92.9s  
+      manifest re-read                   OK       12.9s  
+      -> built
+
+[60/115] TX_way_1432637062      TX  (unnamed)  (2.6 h elapsed)
+      paired geometry: commit a pair and solve OK       60.8s  
+      manifest refresh                   OK       10.7s  
+      the 8-step agent chain             OK       73.8s  
+      manifest re-read                   OK       11.9s  
+      -> built
+
+[61/115] VA_way_696992451       VA  Amazon IAD14, Amazon IAD59, Amazon I  (2.6 h elapsed)
+      paired geometry: commit a pair and solve OK      100.5s  
+      manifest refresh                   OK       15.4s  
+      the 8-step agent chain             FAILED   88.7s  
+         ERR 
+      manifest re-read                   OK       13.1s  
+      -> chain_failed
+
+[62/115] IL_way_863162820       IL  Digital Realty CH1, EdgeConneX CHI01  (2.7 h elapsed)
+      paired geometry: commit a pair and solve OK       85.6s  
+      manifest refresh                   OK       12.4s  
+      the 8-step agent chain             OK       91.4s  
+      manifest re-read                   OK       14.9s  
+      -> built
+
+[63/115] OR_way_734323663       OR  Digital Realty PDX11 Data Center, QT  (2.8 h elapsed)
+      paired geometry: commit a pair and solve OK       82.7s  
+      manifest refresh                   OK       13.0s  
+      the 8-step agent chain             FAILED   84.6s  
+         ERR 
+      manifest re-read                   OK       15.7s  
+      -> chain_failed
+
+[64/115] VA_way_1544103416      VA  (unnamed)  (2.8 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.2s  
+         ERR 
+      -> no_geometry
+
+[65/115] VA_way_744496750       VA  Centersquare IAD1-B, Centersquare IA  (2.8 h elapsed)
+      paired geometry: commit a pair and solve OK       67.9s  
+      manifest refresh                   OK       12.3s  
+      the 8-step agent chain             FAILED   71.6s  
+         ERR 
+      manifest re-read                   OK       11.2s  
+      -> chain_failed
+
+[66/115] IA_way_1073720221      IA  Google, Google, Google, Google, Goog  (2.9 h elapsed)
+      paired geometry: commit a pair and solve OK       59.6s  
+      manifest refresh                   OK       11.4s  
+      the 8-step agent chain             FAILED   79.9s  
+         ERR 
+      manifest re-read                   OK       17.0s  
+      -> chain_failed
+
+[67/115] VA_way_258520532       VA  Digital Realty  (2.9 h elapsed)
+      paired geometry: commit a pair and solve OK       99.7s  
+      manifest refresh                   OK       15.8s  
+      the 8-step agent chain             OK       85.4s  
+      manifest re-read                   OK       15.0s  
+      -> built
+
+[68/115] VA_way_45776988        VA  Amazon IAD11, Amazon IAD24, Amazon I  (3.0 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[69/115] TX_way_713411279       TX  CyrusOne Austin Data Center II, Cyru  (3.0 h elapsed)
+      paired geometry: commit a pair and solve OK       83.1s  
+      manifest refresh                   OK       14.5s  
+      the 8-step agent chain             OK       96.6s  
+      manifest re-read                   OK       15.7s  
+      -> built
+
+[70/115] SC_way_1069388211      SC  Google, Google, Google, Google, Goog  (3.0 h elapsed)
+      paired geometry: commit a pair and solve OK       65.0s  
+      manifest refresh                   OK       13.8s  
+      the 8-step agent chain             FAILED   78.5s  
+         ERR 
+      manifest re-read                   OK       13.5s  
+      -> chain_failed
+
+[71/115] VA_way_262058094       VA  Amazon IAD-165, Amazon IAD-166, Amaz  (3.1 h elapsed)
+      paired geometry: commit a pair and solve OK       90.0s  
+      manifest refresh                   OK       14.1s  
+      the 8-step agent chain             OK       85.1s  
+      manifest re-read                   OK       16.0s  
+      -> built
+
+[72/115] VA_way_1287260555      VA  Amazon Web Services, Amazon Web Serv  (3.1 h elapsed)
+      paired geometry: commit a pair and solve OK      107.8s  
+      manifest refresh                   OK       22.5s  
+      the 8-step agent chain             FAILED   89.8s  
+         ERR 
+      manifest re-read                   OK       17.8s  
+      -> chain_failed
+
+[73/115] VA_way_1510517639      VA  Amazon Web Services, Amazon Web Serv  (3.2 h elapsed)
+      paired geometry: commit a pair and solve OK       67.9s  
+      manifest refresh                   OK       11.5s  
+      the 8-step agent chain             FAILED   76.1s  
+         ERR 
+      manifest re-read                   OK       14.2s  
+      -> chain_failed
+
+[74/115] WA_way_694602725       WA  Vantage WA13, Vantage WA11, Vantage   (3.3 h elapsed)
+      paired geometry: commit a pair and solve OK       87.8s  
+      manifest refresh                   OK       21.3s  
+      the 8-step agent chain             OK       85.1s  
+      manifest re-read                   OK       18.2s  
+      -> built
+
+[75/115] VA_way_1521913707      VA  Amazon IAD-500  (3.3 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[76/115] TX_way_577628941       TX  LightEdge Austin II, Lumen Austin 1,  (3.3 h elapsed)
+      paired geometry: commit a pair and solve OK       58.0s  
+      manifest refresh                   OK       12.5s  
+      the 8-step agent chain             FAILED   73.1s  
+         ERR 
+      manifest re-read                   OK       11.9s  
+      -> chain_failed
+
+[77/115] VA_way_984953814       VA  Amazon IAD163, Amazon IAD174, Amazon  (3.4 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[78/115] IL_way_1446350370      IL  NTT Chicago CH1, NTT Chicago CH2, NT  (3.4 h elapsed)
+      paired geometry: commit a pair and solve OK       80.8s  
+      manifest refresh                   OK       11.8s  
+      the 8-step agent chain             OK       80.2s  
+      manifest re-read                   OK       11.6s  
+      -> built
+
+[79/115] NV_way_775412073       NV  (unnamed)  (3.4 h elapsed)
+      paired geometry: commit a pair and solve OK       88.4s  
+      manifest refresh                   OK       12.2s  
+      the 8-step agent chain             OK       82.0s  
+      manifest re-read                   OK       11.5s  
+      -> built
+
+[80/115] WA_way_460167190       WA  Intergate Columbia D, Intergate Colu  (3.5 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[81/115] WA_way_499403699       WA  (unnamed)  (3.5 h elapsed)
+      paired geometry: commit a pair and solve OK       83.5s  
+      manifest refresh                   OK       11.6s  
+      the 8-step agent chain             OK       82.1s  
+      manifest re-read                   OK       11.7s  
+      -> built
+
+[82/115] CA_way_58708529        CA  Csquare SFO2, Csquare SFO2, QTS Sant  (3.5 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[83/115] VA_way_258343749       VA  Amazon Web Services, Amazon Web Serv  (3.5 h elapsed)
+      paired geometry: commit a pair and solve OK       82.8s  
+      manifest refresh                   OK       11.7s  
+      the 8-step agent chain             OK       84.3s  
+      manifest re-read                   OK       27.3s  
+      -> built
+
+[84/115] AZ_way_300959969       AZ  CyrusOne PHX8, CyrusOne PHX3, CyrusO  (3.6 h elapsed)
+      paired geometry: commit a pair and solve OK       63.9s  
+      manifest refresh                   OK       11.6s  
+      the 8-step agent chain             FAILED   77.8s  
+         ERR 
+      manifest re-read                   OK       14.4s  
+      -> chain_failed
+
+[85/115] CA_way_40608200        CA  STACK SVY02, SV Colo, Cologix Santa   (3.6 h elapsed)
+      weather: assign a station          FAILED    0.4s  
+         ERR 
+      -> no_station
+
+[86/115] TX_way_379205427       TX  Digital Realty Austin AUS11, Data Fo  (3.6 h elapsed)
+      paired geometry: commit a pair and solve FAILED   44.0s  
+         ERR     dt = json.load(open(M.geom_path("direction_table.json", key), encoding="utf-8"))
+         ERR                    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         ERR FileNotFoundError: [Errno 2] No such file or directory: 'D:\\FGHackathon\\INTAKE-ARBITER\\data\\geometry
+      -> no_geometry
+
+[87/115] TX_way_1533349844      TX  CyrusOne SAT10 & SAT11, Vantage San   (3.6 h elapsed)
+      paired geometry: commit a pair and solve OK      102.0s  
+      manifest refresh                   OK       18.3s  
+      the 8-step agent chain             OK       89.4s  
+      manifest re-read                   OK       20.0s  
+      -> built
+
+[88/115] CA_way_460159928       CA  CoreSite SV7, CoreSite SV4, Digital   (3.7 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[89/115] OR_way_471691760       OR  EdgeConneX - Portland, Flexential Po  (3.7 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[90/115] TX_way_597876798       TX  Rackspace Richardson DFW3, Digital R  (3.7 h elapsed)
+      paired geometry: commit a pair and solve OK       88.8s  
+      manifest refresh                   OK       19.4s  
+      the 8-step agent chain             OK       87.7s  
+      manifest re-read                   OK       20.9s  
+      -> built
+
+[91/115] TX_way_465032380       TX  Prime DFW01-01, Prime DFW01-01  (3.8 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.1s  
+         ERR 
+      -> no_geometry
+
+[92/115] OR_way_1386017494      OR  Amazon Web Services, Amazon Web Serv  (3.8 h elapsed)
+      paired geometry: commit a pair and solve OK      103.1s  
+      manifest refresh                   OK       15.4s  
+      the 8-step agent chain             OK       88.7s  
+      manifest re-read                   OK       21.7s  
+      -> built
+
+[93/115] OR_way_1501436324      OR  Amazon Web Services, Amazon Web Serv  (3.8 h elapsed)
+      paired geometry: commit a pair and solve OK      106.5s  
+      manifest refresh                   OK       23.2s  
+      the 8-step agent chain             OK       88.2s  
+      manifest re-read                   OK       16.3s  
+      -> built
+
+[94/115] OH_way_1386016639      OH  Amazon Web Services, Amazon Web Serv  (3.9 h elapsed)
+      paired geometry: commit a pair and solve OK       46.2s  
+      manifest refresh                   OK       15.2s  
+      the 8-step agent chain             FAILED   77.2s  
+         ERR 
+      manifest re-read                   OK       16.5s  
+      -> chain_failed
+
+[95/115] OR_way_1280344155      OR  Amazon Web Services, Amazon Web Serv  (4.0 h elapsed)
+      paired geometry: commit a pair and solve OK      103.9s  
+      manifest refresh                   OK       14.1s  
+      the 8-step agent chain             OK       86.1s  
+      manifest re-read                   OK       24.0s  
+      -> built
+
+[96/115] OH_way_1386016631      OH  Amazon Web Services, Amazon Web Serv  (4.0 h elapsed)
+      paired geometry: commit a pair and solve OK       97.3s  
+      manifest refresh                   OK       16.7s  
+      the 8-step agent chain             OK       92.8s  
+      manifest re-read                   OK       25.2s  
+      -> built
+
+[97/115] CA_way_358455179       CA  Vantage Santa Clara CA2, Microsoft,   (4.1 h elapsed)
+      weather: assign a station          FAILED    0.4s  
+         ERR 
+      -> no_station
+
+[98/115] CA_way_209117217       CA  Amazon, Evocative Santa Clara SJC11  (4.1 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[99/115] CA_way_209087373       CA  Digital Realty Silicon Valley SJC37,  (4.1 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[100/115] CA_way_1460847458      CA  EdgeCore Silicon Valley  (4.1 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[101/115] GA_way_615593145       GA  Strategic Datasphere, Mapletree Indu  (4.1 h elapsed)
+      paired geometry: commit a pair and solve OK       73.4s  
+      manifest refresh                   OK       14.8s  
+      the 8-step agent chain             OK       85.4s  
+      manifest re-read                   OK       21.6s  
+      -> built
+
+[102/115] ND_way_1422191477      ND  (unnamed)  (4.1 h elapsed)
+      paired geometry: commit a pair and solve OK       84.6s  
+      manifest refresh                   OK       15.9s  
+      the 8-step agent chain             OK       94.5s  
+      manifest re-read                   OK       24.6s  
+      -> built
+
+[103/115] TX_way_1530966395      TX  (unnamed)  (4.2 h elapsed)
+      paired geometry: commit a pair and solve OK       83.7s  
+      manifest refresh                   OK       19.7s  
+      the 8-step agent chain             OK       81.6s  
+      manifest re-read                   OK       15.3s  
+      -> built
+
+[104/115] TX_way_509611439       TX  CyrusOne San Antonio IV, Stream San   (4.3 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[105/115] CA_way_37877544        CA  Equinix SV15, Equinix SV16, Equinix   (4.3 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[106/115] IA_way_830881745       IA  Microsoft, Microsoft, Microsoft, Mic  (4.3 h elapsed)
+      paired geometry: commit a pair and solve OK       85.9s  
+      manifest refresh                   OK       17.6s  
+      the 8-step agent chain             OK       96.5s  
+      manifest re-read                   OK       22.2s  
+      -> built
+
+[107/115] TX_way_1537390751      TX  Amazon, Texas Cryptologic Center  (4.3 h elapsed)
+      paired geometry: commit a pair and solve OK       97.0s  
+      manifest refresh                   OK       19.7s  
+      the 8-step agent chain             OK       83.3s  
+      manifest re-read                   OK       18.3s  
+      -> built
+
+[108/115] CA_way_888253616       CA  NTT Silicon Valley SV1 Data Center  (4.4 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[109/115] TX_way_465032631       TX  CoreSpace Dallas, DataBank Dallas Em  (4.4 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.4s  
+         ERR 
+      -> no_geometry
+
+[110/115] OR_way_328703599       OR  TGN Hillsboro, Stack Infrastructure   (4.4 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[111/115] WA_way_814061071       WA  (unnamed)  (4.4 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.1s  
+         ERR 
+      -> no_geometry
+
+[112/115] CA_way_1351049826      CA  DataBank Santa Clara SFO1  (4.4 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[113/115] TX_way_379199519       TX  Lumen Austin 3, Alpheus DataCenter  (4.4 h elapsed)
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[114/115] AZ_way_152163722       AZ  L3Harris Technologies Inc, AZ Labs  (4.4 h elapsed)
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[115/115] NY_way_832658041       NY  Blockfusion Niagra Falls, Blockfusio  (4.4 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+==============================================================================
+BATCH DONE in 4.40 h
+   built            56
+   chain_failed     23
+   no_geometry      25
+   no_station       11
+   Re-run to continue: every step asks the disk whether it already ran, so nothing
+   below is repeated and at most the facility in flight is lost.
+   NEXT, and it needs a person: read each frame and record a screening verdict.
+==============================================================================

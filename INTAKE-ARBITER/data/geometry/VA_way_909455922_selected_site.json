@@ -1,0 +1,304 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 10,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 3,
+  "facade_faces_away": 3,
+  "facade_too_short": 0,
+  "survived": 4
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "1292897242",
+  "receptor_osm_id": "1292897241",
+  "separation_m": 159.9,
+  "bearing_a_to_b_deg": 31.7,
+  "source_area_m2": 5611.8,
+  "receptor_area_m2": 3776.4,
+  "combined_area_m2": 9388.2,
+  "source_name": "42255 THUNDERBALL DR",
+  "receptor_name": "42311 THUNDERBALL DR",
+  "critical_wind_from_deg": 211.7,
+  "wind_exposure": 0.17691,
+  "dilution_factor": 1.876,
+  "exposure_x_dilution": 0.33192,
+  "true_gap_m": 94.1,
+  "longest_facade_m": 193.9,
+  "path_clearance": 0.915
+ },
+ "source_building": {
+  "osm_id": "1292897242",
+  "area_m2": 5611.8,
+  "centre_m": [
+   -27.9,
+   -204.0
+  ],
+  "width_m": 130.2,
+  "height_m": 173.5,
+  "rot_rect_long_m": 193.9,
+  "rot_rect_short_m": 42.3,
+  "rot_rect_angle_deg": 124.5,
+  "ring_m": [
+   [
+    16.1,
+    -266.9
+   ],
+   [
+    -8.3,
+    -231.8
+   ],
+   [
+    -16.6,
+    -237.5
+   ],
+   [
+    -44.5,
+    -197.1
+   ],
+   [
+    -49.5,
+    -189.7
+   ],
+   [
+    -55.8,
+    -193.9
+   ],
+   [
+    -61.7,
+    -185.2
+   ],
+   [
+    -53.2,
+    -179.4
+   ],
+   [
+    -57.5,
+    -172.8
+   ],
+   [
+    -51.6,
+    -168.8
+   ],
+   [
+    -93.9,
+    -107.2
+   ],
+   [
+    -73.6,
+    -93.3
+   ],
+   [
+    36.3,
+    -253.0
+   ],
+   [
+    33.9,
+    -254.6
+   ],
+   [
+    17.8,
+    -265.7
+   ],
+   [
+    16.1,
+    -266.9
+   ]
+  ],
+  "name": "42255 THUNDERBALL DR",
+  "operator": "True North Data Solutions",
+  "building_tag": "data_center",
+  "telecom_tag": "data_center",
+  "n_vertices": 16,
+  "centre_latlon": [
+   39.041439,
+   -77.539202
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "1292897241",
+  "area_m2": 3776.4,
+  "centre_m": [
+   56.2,
+   -68.0
+  ],
+  "width_m": 93.5,
+  "height_m": 126.0,
+  "rot_rect_long_m": 129.4,
+  "rot_rect_short_m": 42.4,
+  "rot_rect_angle_deg": 124.5,
+  "ring_m": [
+   [
+    32.3,
+    -20.8
+   ],
+   [
+    48.6,
+    -44.2
+   ],
+   [
+    53.0,
+    -50.5
+   ],
+   [
+    59.5,
+    -45.9
+   ],
+   [
+    62.7,
+    -50.5
+   ],
+   [
+    65.8,
+    -55.1
+   ],
+   [
+    56.8,
+    -61.3
+   ],
+   [
+    61.0,
+    -67.4
+   ],
+   [
+    55.2,
+    -71.3
+   ],
+   [
+    97.6,
+    -132.8
+   ],
+   [
+    79.9,
+    -145.0
+   ],
+   [
+    77.4,
+    -146.8
+   ],
+   [
+    4.1,
+    -40.2
+   ],
+   [
+    32.3,
+    -20.8
+   ]
+  ],
+  "name": "42311 THUNDERBALL DR",
+  "operator": "True North Data Solutions",
+  "building_tag": "data_center",
+  "telecom_tag": "data_center",
+  "n_vertices": 14,
+  "centre_latlon": [
+   39.042661,
+   -77.538229
+  ]
+ },
+ "runner_up": {
+  "source_osm_id": "909455922",
+  "receptor_osm_id": "1292897243",
+  "separation_m": 153.2,
+  "bearing_a_to_b_deg": 252.6,
+  "source_area_m2": 7324.8,
+  "receptor_area_m2": 7193.7,
+  "combined_area_m2": 14518.5,
+  "source_name": "42310 THUNDERBALL DR",
+  "receptor_name": "42254 THUNDERBALL DR",
+  "critical_wind_from_deg": 72.6,
+  "wind_exposure": 0.07818,
+  "dilution_factor": 1.958,
+  "exposure_x_dilution": 0.1531,
+  "true_gap_m": 94.0,
+  "longest_facade_m": 258.8,
+  "path_clearance": 0.956
+ },
+ "survivors": [
+  {
+   "source_osm_id": "1292897242",
+   "receptor_osm_id": "1292897241",
+   "separation_m": 159.9,
+   "bearing_a_to_b_deg": 31.7,
+   "source_area_m2": 5611.8,
+   "receptor_area_m2": 3776.4,
+   "combined_area_m2": 9388.2,
+   "source_name": "42255 THUNDERBALL DR",
+   "receptor_name": "42311 THUNDERBALL DR",
+   "critical_wind_from_deg": 211.7,
+   "wind_exposure": 0.17691,
+   "dilution_factor": 1.876,
+   "exposure_x_dilution": 0.33192,
+   "true_gap_m": 94.1,
+   "longest_facade_m": 193.9,
+   "path_clearance": 0.915
+  },
+  {
+   "source_osm_id": "909455922",
+   "receptor_osm_id": "1292897243",
+   "separation_m": 153.2,
+   "bearing_a_to_b_deg": 252.6,
+   "source_area_m2": 7324.8,
+   "receptor_area_m2": 7193.7,
+   "combined_area_m2": 14518.5,
+   "source_name": "42310 THUNDERBALL DR",
+   "receptor_name": "42254 THUNDERBALL DR",
+   "critical_wind_from_deg": 72.6,
+   "wind_exposure": 0.07818,
+   "dilution_factor": 1.958,
+   "exposure_x_dilution": 0.1531,
+   "true_gap_m": 94.0,
+   "longest_facade_m": 258.8,
+   "path_clearance": 0.956
+  },
+  {
+   "source_osm_id": "1292897243",
+   "receptor_osm_id": "1292897241",
+   "separation_m": 258.4,
+   "bearing_a_to_b_deg": 110.8,
+   "source_area_m2": 7193.7,
+   "receptor_area_m2": 3776.4,
+   "combined_area_m2": 10970.1,
+   "source_name": "42254 THUNDERBALL DR",
+   "receptor_name": "42311 THUNDERBALL DR",
+   "critical_wind_from_deg": 290.8,
+   "wind_exposure": 0.12079,
+   "dilution_factor": 1.161,
+   "exposure_x_dilution": 0.14024,
+   "true_gap_m": 96.6,
+   "longest_facade_m": 258.9,
+   "path_clearance": 0.57
+  },
+  {
+   "source_osm_id": "909455922",
+   "receptor_osm_id": "1292897242",
+   "separation_m": 273.6,
+   "bearing_a_to_b_deg": 177.6,
+   "source_area_m2": 7324.8,
+   "receptor_area_m2": 5611.8,
+   "combined_area_m2": 12936.6,
+   "source_name": "42310 THUNDERBALL DR",
+   "receptor_name": "42255 THUNDERBALL DR",
+   "critical_wind_from_deg": 357.6,
+   "wind_exposure": 0.11275,
+   "dilution_factor": 1.096,
+   "exposure_x_dilution": 0.12363,
+   "true_gap_m": 96.9,
+   "longest_facade_m": 258.8,
+   "path_clearance": 0.532
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

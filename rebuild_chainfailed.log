@@ -1,0 +1,309 @@
+rebuilding 23 chain_failed facilities
+VA_way_1333205263, NE_way_942557184, AZ_way_1456975949, NE_way_1253282102, OR_way_471691757, NV_way_984796364, VA_way_996723587, VA_way_996899488, VA_way_460175664, VA_way_1252196825, OH_way_1386016635, OR_way_697413741, IL_way_1219083554, VA_way_696992451, OR_way_734323663, VA_way_744496750, IA_way_1073720221, SC_way_1069388211, VA_way_1287260555, VA_way_1510517639, TX_way_577628941, AZ_way_300959969, OH_way_1386016639
+
+==============================================================================
+BUILD SITES -- VA_way_1333205263, NE_way_942557184, AZ_way_1456975949, NE_way_1253282102, OR_way_471691757, NV_way_984796364, VA_way_996723587, VA_way_996899488, VA_way_460175664, VA_way_1252196825, OH_way_1386016635, OR_way_697413741, IL_way_1219083554, VA_way_696992451, OR_way_734323663, VA_way_744496750, IA_way_1073720221, SC_way_1069388211, VA_way_1287260555, VA_way_1510517639, TX_way_577628941, AZ_way_300959969, OH_way_1386016639.  ZERO API CALLS.
+==============================================================================
+
+------------------------------------------------------------------------------
+VA_WAY_1333205263  (VA facility VA_way_1333205263, station KJYO, VA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.3 s   ============================================================
+   the agent loop                         OK     in  31.5 s   a committed geometry file, or 43,249 real weather records fr
+   five-year backtest                     OK     in  23.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1333205263_b
+   rolling control                        OK     in  10.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1333205263_r
+   money, priced in this state's tariff   OK     in   0.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1333205263_m
+   stage 7 explain, verified              OK     in   1.1 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1333205263_t
+   downloadable PDF report                OK     in   1.5 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+NE_WAY_942557184  (Meta Sarpy Data center, NE, station KMLE, NE)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.3 s   ============================================================
+   the agent loop                         OK     in  31.3 s   a committed geometry file, or 43,165 real weather records fr
+   five-year backtest                     OK     in  24.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NE_way_942557184_ba
+   rolling control                        OK     in  11.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NE_way_942557184_ro
+   money, priced in this state's tariff   OK     in   0.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NE_way_942557184_mo
+   stage 7 explain, verified              OK     in   0.9 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NE_way_942557184_ti
+   downloadable PDF report                OK     in   1.2 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+AZ_WAY_1456975949  (AZ facility AZ_way_1456975949, station KFFZ, AZ)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  26.7 s   a committed geometry file, or 41,919 real weather records fr
+   five-year backtest                     OK     in  21.6 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\AZ_way_1456975949_b
+   rolling control                        OK     in   9.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\AZ_way_1456975949_r
+   money, priced in this state's tariff   OK     in   0.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\AZ_way_1456975949_m
+   stage 7 explain, verified              OK     in   1.0 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\AZ_way_1456975949_t
+   downloadable PDF report                OK     in   1.1 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+NE_WAY_1253282102  (Meta Sarpy Data center, NE, station KMLE, NE)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.1 s   ============================================================
+   the agent loop                         OK     in  29.0 s   a committed geometry file, or 43,165 real weather records fr
+   five-year backtest                     OK     in  21.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NE_way_1253282102_b
+   rolling control                        OK     in   9.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NE_way_1253282102_r
+   money, priced in this state's tariff   OK     in   0.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NE_way_1253282102_m
+   stage 7 explain, verified              OK     in   0.8 s   ============================================================
+   stage events                           OK     in   1.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NE_way_1253282102_t
+   downloadable PDF report                OK     in   1.0 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+OR_WAY_471691757  (Flexential Portland - Hillsboro 4 Expansion, OR, station KVUO, OR)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.1 s   ============================================================
+   the agent loop                         OK     in  28.3 s   a committed geometry file, or 42,062 real weather records fr
+   five-year backtest                     OK     in  21.6 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_471691757_ba
+   rolling control                        OK     in   9.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_471691757_ro
+   money, priced in this state's tariff   OK     in   0.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_471691757_mo
+   stage 7 explain, verified              OK     in   0.9 s   ============================================================
+   stage events                           OK     in   1.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_471691757_ti
+   downloadable PDF report                OK     in   1.1 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+NV_WAY_984796364  (Switch Edge 1, NV, station KLAS, NV)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.1 s   ============================================================
+   the agent loop                         OK     in  28.2 s   a committed geometry file, or 43,768 real weather records fr
+   five-year backtest                     OK     in  21.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NV_way_984796364_ba
+   rolling control                        OK     in   9.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NV_way_984796364_ro
+   money, priced in this state's tariff   OK     in   0.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NV_way_984796364_mo
+   stage 7 explain, verified              OK     in   0.8 s   ============================================================
+   stage events                           OK     in   1.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\NV_way_984796364_ti
+   downloadable PDF report                OK     in   1.0 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+VA_WAY_996723587  (Iron Mountain VA-3, VA, station KHEF, VA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.1 s   ============================================================
+   the agent loop                         OK     in  28.1 s   a committed geometry file, or 42,554 real weather records fr
+   five-year backtest                     OK     in  22.4 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_996723587_ba
+   rolling control                        OK     in   9.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_996723587_ro
+   money, priced in this state's tariff   OK     in   0.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_996723587_mo
+   stage 7 explain, verified              OK     in   0.8 s   ============================================================
+   stage events                           OK     in   1.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_996723587_ti
+   downloadable PDF report                OK     in   1.1 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+VA_WAY_996899488  (Amazon IAD103, VA, station KHEF, VA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  30.4 s   a committed geometry file, or 42,554 real weather records fr
+   five-year backtest                     OK     in  22.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_996899488_ba
+   rolling control                        OK     in  10.1 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_996899488_ro
+   money, priced in this state's tariff   OK     in   0.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_996899488_mo
+   stage 7 explain, verified              OK     in   1.0 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_996899488_ti
+   downloadable PDF report                OK     in   1.2 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+VA_WAY_460175664  (Digital Realty IAD42 (Building R), VA, station KIAD, VA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  30.0 s   a committed geometry file, or 43,763 real weather records fr
+   five-year backtest                     OK     in  23.4 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_460175664_ba
+   rolling control                        OK     in  10.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_460175664_ro
+   money, priced in this state's tariff   OK     in   0.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_460175664_mo
+   stage 7 explain, verified              OK     in   1.0 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_460175664_ti
+   downloadable PDF report                OK     in   1.1 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+VA_WAY_1252196825  (AWS IAD105, VA, station KHEF, VA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  30.9 s   a committed geometry file, or 42,554 real weather records fr
+   five-year backtest                     OK     in  22.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1252196825_b
+   rolling control                        OK     in   9.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1252196825_r
+   money, priced in this state's tariff   OK     in   0.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1252196825_m
+   stage 7 explain, verified              OK     in   1.0 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1252196825_t
+   downloadable PDF report                OK     in   1.2 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+OH_WAY_1386016635  (LCO 1, OH, station KCMH, OH)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  31.9 s   a committed geometry file, or 43,786 real weather records fr
+   five-year backtest                     OK     in  23.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OH_way_1386016635_b
+   rolling control                        OK     in   9.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OH_way_1386016635_r
+   money, priced in this state's tariff   OK     in   0.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OH_way_1386016635_m
+   stage 7 explain, verified              OK     in   0.9 s   ============================================================
+   stage events                           OK     in   1.1 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OH_way_1386016635_t
+   downloadable PDF report                OK     in   1.1 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+OR_WAY_697413741  (Amazon Web Services, OR, station KPSC, OR)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  32.8 s   a committed geometry file, or 43,732 real weather records fr
+   five-year backtest                     OK     in  25.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_697413741_ba
+   rolling control                        OK     in  11.4 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_697413741_ro
+   money, priced in this state's tariff   OK     in   0.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_697413741_mo
+   stage 7 explain, verified              OK     in   0.9 s   ============================================================
+   stage events                           OK     in   1.3 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_697413741_ti
+   downloadable PDF report                OK     in   1.2 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+IL_WAY_1219083554  (T5 Chicago II, IL, station KORD, IL)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  29.9 s   a committed geometry file, or 43,775 real weather records fr
+   five-year backtest                     OK     in  22.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\IL_way_1219083554_b
+   rolling control                        OK     in   9.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\IL_way_1219083554_r
+   money, priced in this state's tariff   OK     in   0.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\IL_way_1219083554_m
+   stage 7 explain, verified              OK     in   0.9 s   ============================================================
+   stage events                           OK     in   1.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\IL_way_1219083554_t
+   downloadable PDF report                OK     in   1.0 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+VA_WAY_696992451  (Amazon IAD14, VA, station KHEF, VA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.1 s   ============================================================
+   the agent loop                         OK     in  31.8 s   a committed geometry file, or 42,554 real weather records fr
+   five-year backtest                     OK     in  24.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_696992451_ba
+   rolling control                        OK     in  10.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_696992451_ro
+   money, priced in this state's tariff   OK     in   0.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_696992451_mo
+   stage 7 explain, verified              OK     in   1.0 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_696992451_ti
+   downloadable PDF report                OK     in   1.2 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+OR_WAY_734323663  (Digital Realty PDX11 Data Center, OR, station KVUO, OR)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.3 s   ============================================================
+   the agent loop                         OK     in  32.2 s   a committed geometry file, or 42,062 real weather records fr
+   five-year backtest                     OK     in  23.4 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_734323663_ba
+   rolling control                        OK     in  10.3 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_734323663_ro
+   money, priced in this state's tariff   OK     in   0.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_734323663_mo
+   stage 7 explain, verified              OK     in   1.0 s   ============================================================
+   stage events                           OK     in   1.3 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OR_way_734323663_ti
+   downloadable PDF report                OK     in   1.2 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+VA_WAY_744496750  (Centersquare IAD1-B, VA, station KIAD, VA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.3 s   ============================================================
+   the agent loop                         OK     in  30.8 s   a committed geometry file, or 43,763 real weather records fr
+   five-year backtest                     OK     in  23.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_744496750_ba
+   rolling control                        OK     in   9.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_744496750_ro
+   money, priced in this state's tariff   OK     in   0.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_744496750_mo
+   stage 7 explain, verified              OK     in   0.9 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_744496750_ti
+   downloadable PDF report                OK     in   1.1 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+IA_WAY_1073720221  (Google, IA, station KCBF, IA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  30.2 s   a committed geometry file, or 42,455 real weather records fr
+   five-year backtest                     OK     in  22.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\IA_way_1073720221_b
+   rolling control                        OK     in   9.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\IA_way_1073720221_r
+   money, priced in this state's tariff   OK     in   0.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\IA_way_1073720221_m
+   stage 7 explain, verified              OK     in   0.9 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\IA_way_1073720221_t
+   downloadable PDF report                OK     in   1.2 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+SC_WAY_1069388211  (Google, SC, station KSAV, SC)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.3 s   ============================================================
+   the agent loop                         OK     in  30.6 s   a committed geometry file, or 43,716 real weather records fr
+   five-year backtest                     OK     in  22.3 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\SC_way_1069388211_b
+   rolling control                        OK     in   9.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\SC_way_1069388211_r
+   money, priced in this state's tariff   OK     in   0.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\SC_way_1069388211_m
+   stage 7 explain, verified              OK     in   0.8 s   ============================================================
+   stage events                           OK     in   1.1 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\SC_way_1069388211_t
+   downloadable PDF report                OK     in   1.0 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+VA_WAY_1287260555  (Amazon Web Services, VA, station KHEF, VA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  34.1 s   a committed geometry file, or 42,554 real weather records fr
+   five-year backtest                     OK     in  24.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1287260555_b
+   rolling control                        OK     in  11.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1287260555_r
+   money, priced in this state's tariff   OK     in   0.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1287260555_m
+   stage 7 explain, verified              OK     in   1.0 s   ============================================================
+   stage events                           OK     in   1.3 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1287260555_t
+   downloadable PDF report                OK     in   1.2 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+VA_WAY_1510517639  (Amazon Web Services, VA, station KHEF, VA)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.4 s   ============================================================
+   the agent loop                         OK     in  33.5 s   a committed geometry file, or 42,554 real weather records fr
+   five-year backtest                     OK     in  22.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1510517639_b
+   rolling control                        OK     in   9.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1510517639_r
+   money, priced in this state's tariff   OK     in   0.9 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1510517639_m
+   stage 7 explain, verified              OK     in   1.0 s   ============================================================
+   stage events                           OK     in   1.2 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\VA_way_1510517639_t
+   downloadable PDF report                OK     in   1.3 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+TX_WAY_577628941  (LightEdge Austin II, TX, station KAUS, TX)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.2 s   ============================================================
+   the agent loop                         OK     in  31.3 s   a committed geometry file, or 43,746 real weather records fr
+   five-year backtest                     OK     in  23.4 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\TX_way_577628941_ba
+   rolling control                        OK     in   9.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\TX_way_577628941_ro
+   money, priced in this state's tariff   OK     in   0.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\TX_way_577628941_mo
+   stage 7 explain, verified              OK     in   0.8 s   ============================================================
+   stage events                           OK     in   1.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\TX_way_577628941_ti
+   downloadable PDF report                OK     in   1.2 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+AZ_WAY_300959969  (CyrusOne PHX8, AZ, station KPHX, AZ)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.1 s   ============================================================
+   the agent loop                         OK     in  27.9 s   a committed geometry file, or 43,776 real weather records fr
+   five-year backtest                     OK     in  21.8 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\AZ_way_300959969_ba
+   rolling control                        OK     in   8.5 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\AZ_way_300959969_ro
+   money, priced in this state's tariff   OK     in   0.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\AZ_way_300959969_mo
+   stage 7 explain, verified              OK     in   0.8 s   ============================================================
+   stage events                           OK     in   1.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\AZ_way_300959969_ti
+   downloadable PDF report                OK     in   1.0 s   Every report was reopened after writing and its own contents
+
+------------------------------------------------------------------------------
+OH_WAY_1386016639  (Amazon Web Services, OH, station KOSU, OH)   [paired_clear]
+------------------------------------------------------------------------------
+   plume uncertainty: this site's spread tables + calibration OK     in   1.1 s   ============================================================
+   the agent loop                         OK     in  24.8 s   a committed geometry file, or 43,575 real weather records fr
+   five-year backtest                     OK     in  21.1 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OH_way_1386016639_b
+   rolling control                        OK     in   9.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OH_way_1386016639_r
+   money, priced in this state's tariff   OK     in   0.7 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OH_way_1386016639_m
+   stage 7 explain, verified              OK     in   0.8 s   ============================================================
+   stage events                           OK     in   1.0 s   wrote D:\FGHackathon\INTAKE-ARBITER\demo\OH_way_1386016639_t
+   downloadable PDF report                OK     in   1.0 s   Every report was reopened after writing and its own contents
+
+==============================================================================
+BUILT 23 SITES in 1569.3 s. Each on its own weather, geometry and bound.
+   VA_way_1333205263 13 artefacts
+   NE_way_942557184 13 artefacts
+   AZ_way_1456975949 13 artefacts
+   NE_way_1253282102 13 artefacts
+   OR_way_471691757 13 artefacts
+   NV_way_984796364 13 artefacts
+   VA_way_996723587 13 artefacts
+   VA_way_996899488 13 artefacts
+   VA_way_460175664 13 artefacts
+   VA_way_1252196825 13 artefacts
+   OH_way_1386016635 13 artefacts
+   OR_way_697413741 13 artefacts
+   IL_way_1219083554 13 artefacts
+   VA_way_696992451 13 artefacts
+   OR_way_734323663 13 artefacts
+   VA_way_744496750 13 artefacts
+   IA_way_1073720221 13 artefacts
+   SC_way_1069388211 13 artefacts
+   VA_way_1287260555 13 artefacts
+   VA_way_1510517639 13 artefacts
+   TX_way_577628941 13 artefacts
+   AZ_way_300959969 13 artefacts
+   OH_way_1386016639 13 artefacts
+==============================================================================

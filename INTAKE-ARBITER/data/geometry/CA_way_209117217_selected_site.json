@@ -1,0 +1,221 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 1,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 0,
+  "facade_faces_away": 0,
+  "facade_too_short": 0,
+  "survived": 1
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "1065780801",
+  "receptor_osm_id": "209117217",
+  "separation_m": 353.4,
+  "bearing_a_to_b_deg": 92.4,
+  "source_area_m2": 9113.5,
+  "receptor_area_m2": 4774.7,
+  "combined_area_m2": 13888.2,
+  "source_name": "Amazon",
+  "receptor_name": "Evocative Santa Clara SJC11",
+  "critical_wind_from_deg": 272.4,
+  "wind_exposure": 0.00539,
+  "dilution_factor": 0.849,
+  "exposure_x_dilution": 0.00457,
+  "true_gap_m": 281.3,
+  "longest_facade_m": 134.7,
+  "path_clearance": 0.999
+ },
+ "source_building": {
+  "osm_id": "1065780801",
+  "area_m2": 9113.5,
+  "centre_m": [
+   -178.6,
+   -6.5
+  ],
+  "width_m": 77.8,
+  "height_m": 139.4,
+  "rot_rect_long_m": 134.7,
+  "rot_rect_short_m": 68.1,
+  "rot_rect_angle_deg": 85.7,
+  "ring_m": [
+   [
+    -150.1,
+    -47.9
+   ],
+   [
+    -192.1,
+    -44.7
+   ],
+   [
+    -191.9,
+    -42.3
+   ],
+   [
+    -217.8,
+    -40.4
+   ],
+   [
+    -208.0,
+    91.5
+   ],
+   [
+    -140.0,
+    86.4
+   ],
+   [
+    -150.1,
+    -47.9
+   ]
+  ],
+  "name": "Amazon",
+  "operator": "Amazon Web Services",
+  "building_tag": "yes",
+  "telecom_tag": "data_center",
+  "n_vertices": 7,
+  "centre_latlon": [
+   37.389674,
+   -121.965987
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "209117217",
+  "area_m2": 4774.7,
+  "centre_m": [
+   174.5,
+   -21.0
+  ],
+  "width_m": 88.4,
+  "height_m": 94.5,
+  "rot_rect_long_m": 82.9,
+  "rot_rect_short_m": 67.3,
+  "rot_rect_angle_deg": 115.6,
+  "ring_m": [
+   [
+    191.6,
+    25.5
+   ],
+   [
+    223.2,
+    -40.4
+   ],
+   [
+    206.8,
+    -48.3
+   ],
+   [
+    209.0,
+    -52.9
+   ],
+   [
+    203.1,
+    -55.7
+   ],
+   [
+    187.9,
+    -50.6
+   ],
+   [
+    190.8,
+    -56.4
+   ],
+   [
+    165.0,
+    -69.1
+   ],
+   [
+    154.9,
+    -48.5
+   ],
+   [
+    158.7,
+    -46.6
+   ],
+   [
+    152.6,
+    -34.2
+   ],
+   [
+    144.0,
+    -30.7
+   ],
+   [
+    134.7,
+    -11.6
+   ],
+   [
+    139.0,
+    0.2
+   ],
+   [
+    158.9,
+    10.0
+   ],
+   [
+    161.9,
+    4.0
+   ],
+   [
+    168.0,
+    19.4
+   ],
+   [
+    173.2,
+    21.9
+   ],
+   [
+    175.3,
+    17.7
+   ],
+   [
+    191.6,
+    25.5
+   ]
+  ],
+  "name": "Evocative Santa Clara SJC11",
+  "operator": null,
+  "building_tag": "commercial",
+  "telecom_tag": "data_center",
+  "n_vertices": 20,
+  "centre_latlon": [
+   37.389543,
+   -121.96199
+  ]
+ },
+ "runner_up": null,
+ "survivors": [
+  {
+   "source_osm_id": "1065780801",
+   "receptor_osm_id": "209117217",
+   "separation_m": 353.4,
+   "bearing_a_to_b_deg": 92.4,
+   "source_area_m2": 9113.5,
+   "receptor_area_m2": 4774.7,
+   "combined_area_m2": 13888.2,
+   "source_name": "Amazon",
+   "receptor_name": "Evocative Santa Clara SJC11",
+   "critical_wind_from_deg": 272.4,
+   "wind_exposure": 0.00539,
+   "dilution_factor": 0.849,
+   "exposure_x_dilution": 0.00457,
+   "true_gap_m": 281.3,
+   "longest_facade_m": 134.7,
+   "path_clearance": 0.999
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

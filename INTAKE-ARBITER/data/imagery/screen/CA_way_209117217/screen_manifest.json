@@ -1,0 +1,33 @@
+{
+ "generated_by": "INTAKE-ARBITER/src/fetch_facility_imagery.py",
+ "api_calls_made": 0,
+ "source": "ESRI World Imagery via the keyless ArcGIS REST export endpoint",
+ "facility": "CA_way_209117217",
+ "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+ "architecture_verdict": "NOT YET ASSESSED",
+ "what_would_change_this": "a recorded judgement on whether the cooling plant is at ground level (where FortyGuard's 2 m field applies) or roof-mounted (where this model does not describe the building at all)",
+ "candidates": [
+  {
+   "rank": 0,
+   "file": "00_way_209117217.jpg",
+   "source_osm_id": 209117217,
+   "receptor_osm_id": null,
+   "source_name": "Evocative Santa Clara SJC11",
+   "receptor_name": null,
+   "source_latlon": [
+    37.389543294999996,
+    -121.961990005
+   ],
+   "receptor_latlon": null,
+   "bbox": [
+    -121.96763109999999,
+    37.3882113,
+    -121.9602393,
+    37.3914554
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "n_buildings_framed": 2,
+   "architecture_verdict": "NOT YET ASSESSED"
+  }
+ ]
+}

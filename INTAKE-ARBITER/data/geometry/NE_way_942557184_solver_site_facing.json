@@ -1,0 +1,194 @@
+{
+ "provenance": "OpenStreetMap ways 844394339 (source) and 942557184 (receptor), Ashburn VA. ODbL.",
+ "domain": {
+  "size_m": 2000.0,
+  "dx_m": 10.0,
+  "n": 200
+ },
+ "shift_applied_m": [
+  1010.55,
+  827.85
+ ],
+ "source_ring_m": [
+  [
+   860.4499999999999,
+   919.15
+  ],
+  [
+   854.75,
+   847.25
+  ],
+  [
+   1017.75,
+   834.35
+  ],
+  [
+   1008.8499999999999,
+   721.85
+  ],
+  [
+   848.3499999999999,
+   734.5500000000001
+  ],
+  [
+   843.15,
+   668.1500000000001
+  ],
+  [
+   1013.9499999999999,
+   654.6500000000001
+  ],
+  [
+   1013.15,
+   644.25
+  ],
+  [
+   1055.1499999999999,
+   640.95
+  ],
+  [
+   1055.75,
+   648.45
+  ],
+  [
+   1224.6499999999999,
+   635.35
+  ],
+  [
+   1229.95,
+   704.0500000000001
+  ],
+  [
+   1062.05,
+   717.0500000000001
+  ],
+  [
+   1062.75,
+   725.25
+  ],
+  [
+   1076.35,
+   724.15
+  ],
+  [
+   1083.85,
+   819.65
+  ],
+  [
+   1070.05,
+   820.75
+  ],
+  [
+   1070.6499999999999,
+   828.15
+  ],
+  [
+   1239.35,
+   814.75
+  ],
+  [
+   1245.1499999999999,
+   888.65
+  ],
+  [
+   860.4499999999999,
+   919.15
+  ]
+ ],
+ "receptor_ring_m": [
+  [
+   920.4499999999999,
+   1177.95
+  ],
+  [
+   1024.45,
+   1178.85
+  ],
+  [
+   1023.8499999999999,
+   1207.95
+  ],
+  [
+   1027.55,
+   1207.95
+  ],
+  [
+   1024.6499999999999,
+   1342.35
+  ],
+  [
+   944.75,
+   1341.5500000000002
+  ],
+  [
+   945.4499999999999,
+   1308.85
+  ],
+  [
+   914.75,
+   1308.85
+  ],
+  [
+   916.15,
+   1206.65
+  ],
+  [
+   920.05,
+   1206.75
+  ],
+  [
+   920.4499999999999,
+   1177.95
+  ]
+ ],
+ "source_centre_m": [
+  1037.95,
+  757.65
+ ],
+ "receptor_centre_m": [
+  962.05,
+  1242.35
+ ],
+ "bank_mode": "facing",
+ "bank_ring_m": [
+  [
+   866.8357874985211,
+   843.7701069104402
+  ],
+  [
+   846.8983408684217,
+   845.3506833470404
+  ],
+  [
+   851.4583408684216,
+   902.8706833470404
+  ],
+  [
+   871.395787498521,
+   901.2901069104402
+  ]
+ ],
+ "bank_cells": 12,
+ "facade_gap_m": 262.7,
+ "bank_area_m2": 1200.0,
+ "intake_m": [
+  975.5441283669429,
+  1158.6407902574806
+ ],
+ "intake_radius_m": 30.0,
+ "unit_source_to_receptor": [
+  -0.15470641834714619,
+  0.987960487125977
+ ],
+ "discharge_k": 11.0,
+ "exchange_s": 47.4,
+ "assumptions": {
+  "bank_position": "strip inside the source hall on the facade facing the receptor; NOT mapped in OSM. Conservative worst case.",
+  "bank_facade_fraction": 0.8,
+  "bank_depth_m": 20.0,
+  "intake_position": "on the receptor facade facing the source, 20 m standoff; NOT mapped",
+  "building_height": "absent from OSM; irrelevant to this 2-D solver but central to the 2 m measurement-height gap -- see docs/GEOMETRY-AND-PHYSICS.md section 2",
+  "source_strength": "discharge_k 11 K with the calibrated exchange_s; strength per unit area is unchanged from the validated reference, so total heat release follows the real footprint"
+ },
+ "verification": "V1 rasteriser vs add_building, V2 area vs analytic, V3 no shared cells -- all passed; the script refuses to write otherwise"
+}

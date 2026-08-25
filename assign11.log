@@ -1,0 +1,46 @@
+[ 1/11] CA_way_58708529        exit=0  4.0 min
+        1 nearer candidate(s) rejected on measurement: KNUQ (6.2 km, below_coverage_floor)
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[ 2/11] CA_way_40608200        exit=0  0.0 min
+        ASSIGNED CA_way_40608200 -> KSJC (SAN JOSE INTL A), 3.0 km, coverage 0.9982
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[ 3/11] CA_way_460159928       exit=0  0.0 min
+        ASSIGNED CA_way_460159928 -> KSJC (SAN JOSE INTL A), 4.5 km, coverage 0.9982
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[ 4/11] CA_way_358455179       exit=0  0.0 min
+        ASSIGNED CA_way_358455179 -> KSJC (SAN JOSE INTL A), 1.8 km, coverage 0.9982
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[ 5/11] CA_way_209117217       exit=0  0.0 min
+        ASSIGNED CA_way_209117217 -> KSJC (SAN JOSE INTL A), 4.9 km, coverage 0.9982
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[ 6/11] CA_way_209087373       exit=0  0.0 min
+        ASSIGNED CA_way_209087373 -> KSJC (SAN JOSE INTL A), 3.2 km, coverage 0.9982
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[ 7/11] CA_way_1460847458      exit=0  0.0 min
+        ASSIGNED CA_way_1460847458 -> KSJC (SAN JOSE INTL A), 4.5 km, coverage 0.9982
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[ 8/11] CA_way_37877544        exit=0  0.0 min
+        ASSIGNED CA_way_37877544 -> KSJC (SAN JOSE INTL A), 5.9 km, coverage 0.9982
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[ 9/11] CA_way_888253616       exit=0  0.0 min
+        ASSIGNED CA_way_888253616 -> KSJC (SAN JOSE INTL A), 2.9 km, coverage 0.9982
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[10/11] CA_way_1351049826      exit=0  0.0 min
+        ASSIGNED CA_way_1351049826 -> KSJC (SAN JOSE INTL A), 6.5 km, coverage 0.9982
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+[11/11] NY_way_832658041       exit=0  14.6 min
+        ASSIGNED NY_way_832658041 -> KIAG (NIAGARA FALLS INTL), 5.4 km, coverage 0.9971
+        wrote D:\FGHackathon\INTAKE-ARBITER\data\weather\station_assignments.json
+        ==============================================================================
+
+ASSIGNED 11, UNASSIGNED 0 of 11

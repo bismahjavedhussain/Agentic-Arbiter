@@ -1,0 +1,155 @@
+==============================================================================
+NATIONAL BATCH RUN -- 11 facility(ies). One at a time, on purpose.
+==============================================================================
+
+[1/11] CA_way_58708529        CA  Csquare SFO2, Csquare SFO2, QTS Sant  (0.0 h elapsed)
+      imagery: one aerial frame          OK       10.6s  
+      paired geometry: commit a pair and solve OK       91.8s  
+      manifest refresh                   OK       15.2s  
+      the 8-step agent chain             OK       80.3s  
+      manifest re-read                   OK       14.1s  
+      -> built
+
+[2/11] CA_way_40608200        CA  STACK SVY02, SV Colo, Cologix Santa   (0.1 h elapsed)
+      imagery: one aerial frame          OK        8.0s  
+      paired geometry: commit a pair and solve OK       92.9s  
+      manifest refresh                   OK       14.1s  
+      the 8-step agent chain             OK       85.4s  
+      manifest re-read                   OK       13.7s  
+      -> built
+
+[3/11] CA_way_460159928       CA  CoreSite SV7, CoreSite SV4, Digital   (0.1 h elapsed)
+      imagery: one aerial frame          OK        5.8s  
+      paired geometry: commit a pair and solve OK       90.0s  
+      manifest refresh                   OK       13.8s  
+      the 8-step agent chain             OK       81.6s  
+      manifest re-read                   OK       13.3s  
+      -> built
+
+[4/11] CA_way_358455179       CA  Vantage Santa Clara CA2, Microsoft,   (0.2 h elapsed)
+      imagery: one aerial frame          OK       13.0s  
+      paired geometry: commit a pair and solve OK       64.6s  
+      manifest refresh                   OK       13.8s  
+      the 8-step agent chain             OK       77.7s  
+      manifest re-read                   OK       13.5s  
+      -> built
+
+[5/11] CA_way_209117217       CA  Amazon, Evocative Santa Clara SJC11  (0.2 h elapsed)
+      imagery: one aerial frame          OK       10.0s  
+      paired geometry: commit a pair and solve OK       91.0s  
+      manifest refresh                   OK       14.3s  
+      the 8-step agent chain             FAILED   81.0s  
+                     1 perceive     00:00: the forecast for this hour is 9.798 C dry-bulb and 8.725 C dew point, issued 3 h ahead at 0.50 of the skill of persi
+                     2 solve        Calm hour: the station reports no bearing, so the agent takes the worst rise over every bearing it is still allowed to comp
+                     3 bound        Margin 0.7739 C = 0.7616 C of group-conditional forecast error for this hour of day, plus 0.01236 C of plume-ensemble sprea
+                     4 decide       10.686 C against the 18.0 C limit leaves 7.314 C of room, so the hour is certified safe.
+                     5 act          Command FREE-COOLING, unchanged from the hour before: 0 of 2 mode changes spent so far.
+                     6 score        What actually happened: 10.674 C at the intake. The bound sat 0.012 C above it, so this hour was covered.
+                     7 recalibrate  This hour is one row of the record the margin is fitted from: 43,744 persistence hours at this notice, split across 24 hour
+                  1008 hour-tapes verified across 7 case days x 6 configurations
+                  *** 1 VERIFICATION FAILURES ***
+                     solve.worst/worst_bearing: tape says 275.0, an independent path says '275 deg (rise 0.28009 C) vs rise-table 275.0 deg (0.28724 C)'
+                  REDERIVED FROM AN INDEPENDENT FIELD: 22 of 72 system-tape numbers. The other 50 are
+                  read back from the field they were built from, which is a weaker check, and saying so
+                  is the point -- an unstated limit is the defect this module exists to prevent.
+                  wrote D:\FGHackathon\INTAKE-ARBITER\demo\CA_way_209117217_ticker.json (17.4 KB)
+               ERR (stderr empty -- refused cleanly with exit 1; the reason is in the output above)
+         ==============================================================================
+         BUILD FAILED at: CA_way_209117217/stage events
+         ==============================================================================
+         ERR (stderr empty -- the child refused cleanly with exit 1; the reason is in the output above)
+      manifest re-read                   OK       13.2s  
+      -> chain_failed
+
+[6/11] CA_way_209087373       CA  Digital Realty Silicon Valley SJC37,  (0.3 h elapsed)
+      imagery: one aerial frame          OK        7.8s  
+      paired geometry: commit a pair and solve OK       89.3s  
+      manifest refresh                   OK       13.4s  
+      the 8-step agent chain             FAILED   83.2s  
+                     1 perceive     00:00: the forecast for this hour is 9.798 C dry-bulb and 8.725 C dew point, issued 3 h ahead at 0.50 of the skill of persi
+                     2 solve        Calm hour: the station reports no bearing, so the agent takes the worst rise over every bearing it is still allowed to comp
+                     3 bound        Margin 0.8375 C = 0.7616 C of group-conditional forecast error for this hour of day, plus 0.07591 C of plume-ensemble sprea
+                     4 decide       10.752 C against the 18.0 C limit leaves 7.248 C of room, so the hour is certified safe.
+                     5 act          Command FREE-COOLING, unchanged from the hour before: 0 of 2 mode changes spent so far.
+                     6 score        What actually happened: 10.676 C at the intake. The bound sat 0.076 C above it, so this hour was covered.
+                     7 recalibrate  This hour is one row of the record the margin is fitted from: 43,744 persistence hours at this notice, split across 24 hour
+                  1008 hour-tapes verified across 7 case days x 6 configurations
+                  *** 1 VERIFICATION FAILURES ***
+                     solve.worst/worst_bearing: tape says 5.0, an independent path says '5 deg (rise 0.32972 C) vs rise-table 5.0 deg (0.36117 C)'
+                  REDERIVED FROM AN INDEPENDENT FIELD: 22 of 72 system-tape numbers. The other 50 are
+                  read back from the field they were built from, which is a weaker check, and saying so
+                  is the point -- an unstated limit is the defect this module exists to prevent.
+                  wrote D:\FGHackathon\INTAKE-ARBITER\demo\CA_way_209087373_ticker.json (17.5 KB)
+               ERR (stderr empty -- refused cleanly with exit 1; the reason is in the output above)
+         ==============================================================================
+         BUILD FAILED at: CA_way_209087373/stage events
+         ==============================================================================
+         ERR (stderr empty -- the child refused cleanly with exit 1; the reason is in the output above)
+      manifest re-read                   OK       13.5s  
+      -> chain_failed
+
+[7/11] CA_way_1460847458      CA  EdgeCore Silicon Valley  (0.3 h elapsed)
+      imagery: one aerial frame          OK        6.8s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK       14.2s  
+      the 8-step agent chain             OK       64.2s  
+      manifest re-read                   OK       14.0s  
+      -> built
+
+[8/11] CA_way_37877544        CA  Equinix SV15, Equinix SV16, Equinix   (0.4 h elapsed)
+      imagery: one aerial frame          OK        7.9s  
+      paired geometry: commit a pair and solve OK       89.2s  
+      manifest refresh                   OK       13.6s  
+      the 8-step agent chain             OK       85.4s  
+      manifest re-read                   OK       13.5s  
+      -> built
+
+[9/11] CA_way_888253616       CA  NTT Silicon Valley SV1 Data Center  (0.4 h elapsed)
+      imagery: one aerial frame          OK        6.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK       13.9s  
+      the 8-step agent chain             OK       64.2s  
+      manifest re-read                   OK       14.2s  
+      -> built
+
+[10/11] CA_way_1351049826      CA  DataBank Santa Clara SFO1  (0.5 h elapsed)
+      imagery: one aerial frame          OK        9.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK       14.1s  
+      the 8-step agent chain             OK       62.8s  
+      manifest re-read                   OK       13.9s  
+      -> built
+
+[11/11] NY_way_832658041       NY  Blockfusion Niagra Falls, Blockfusio  (0.5 h elapsed)
+      imagery: one aerial frame          OK        9.6s  
+      paired geometry: commit a pair and solve FAILED    2.1s  
+               INTAKE-ARBITER  choosing the site by WIND EXPOSURE, not by size   [FREE]
+               ==============================================================================
+                  metro NY_way_832658041 (Blockfusion Niagra Falls, NY)   wind histogram: computed from kiag_hourly_2021_2025.json (434 days)
+                  wind climatology: 434 target-hour observations, calm (<3 kt) excluded
+                  most common bearings (wind FROM): 230-235 deg 15.2%, 240-245 deg 9.4%, 220-225 deg 8.5%, 210-215 deg 6.5%, 320-325 deg 5.3%
+                  SELECTION FUNNEL  (gates B/C/D added 2026-08-18 after N-54)
+                     candidate pairs                                 11
+                     - not a data-centre pair                         0
+                     - GATE B footprints touch (gap = 0)              0
+                     - GATE B true gap < 60 m (intake disc)           0
+                     - GATE C longest facade faces AWAY               4
+                     - GATE D longest facade < 100 m                  7
+                     = SURVIVED all gates                             0
+                  0 pairs survived. Top by exposure x dilution:
+                     source      receptor     sep m  gap m  facade   clear   expos.     score
+                  no qualifying pair found -- widen the filters and re-run
+               ERR (stderr empty -- the child refused cleanly, exit 2; the reason is in the stdout above)
+            STOPPED. No pair cleared the published gates, so nothing was committed. That is a real answer about this facility, not a failure of this driver.
+         ERR (stderr empty -- the child refused cleanly with exit 5; the reason is in the output above)
+      -> no_geometry
+
+==============================================================================
+BATCH DONE in 0.50 h
+   built            8
+   chain_failed     2
+   no_geometry      1
+   Re-run to continue: every step asks the disk whether it already ran, so nothing
+   below is repeated and at most the facility in flight is lost.
+   NEXT, and it needs a person: read each frame and record a screening verdict.
+==============================================================================
