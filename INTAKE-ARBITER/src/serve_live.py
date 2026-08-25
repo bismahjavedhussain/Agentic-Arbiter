@@ -343,6 +343,27 @@ class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=DEMO, **kw)
 
+    def end_headers(self):
+        """Make static artefacts REVALIDATE. `SimpleHTTPRequestHandler` sends no `Cache-Control` at
+        all, so a browser falls back to heuristic freshness and may serve `demo/*.json` from memory
+        long after the file changed on disk.
+
+        Measured 2026-08-25, and it wasted a round trip diagnosing a bug that did not exist: an edit
+        to `index.html` was picked up (browsers revalidate the top-level document on reload) while
+        `trace.json` was not, so the page rendered the NEW prose around a field the OLD artefact did
+        not have -- and because that clause and a whole paragraph are guarded on the field being
+        present, both silently vanished. The page looked broken and was correct; the server was
+        serving 0.962 the whole time.
+
+        `no-cache` means "revalidate before reuse", NOT "do not store" -- the answer is usually a
+        304 with no body, so this costs a request header and buys away a class of phantom bug.
+        `/api/*` sets its own `no-store` in `_json` and is left alone, which keeps this stateless:
+        no per-request flag to reset on a keep-alive connection.
+        """
+        if not self.path.startswith("/api/"):
+            self.send_header("Cache-Control", "no-cache")
+        super().end_headers()
+
     def log_message(self, fmt, *args):
         # Quieter than the default, and -- more importantly -- this is the only place a request line
         # is written anywhere. Query strings are truncated so a stray parameter cannot be logged.
