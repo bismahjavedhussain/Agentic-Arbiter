@@ -2771,6 +2771,20 @@ def check_front_door_figures():
     FG_SHARE = (SKB["gain_h_per_year"] - SK0["gain_h_per_year"]) / SKB["gain_h_per_year"]
     NT = sorted((r for r in bt["sensitivity"]["rows"] if r["axis"] == "notice_h"),
                 key=lambda r: float(r["value"]))
+    # THE SCALE BLOCK AND THIS SITE'S FOOTPRINT, read from the manifest that computed them rather
+    # than recomputed here -- the point of registering a derived figure is to catch the PRODUCER
+    # drifting, and a checker that redoes the arithmetic itself cannot see that.
+    import metros as _MS                                                 # noqa: PLC0415
+    SITES_J = jload(os.path.join(DEMO, "sites.json"))
+    SCALE = SITES_J.get("scale") or {}
+    SITE_FOOT = next((s.get("footprint_m2") for s in SITES_J["sites"]
+                      if s["key"] == _MS.DEFAULT_METRO), None)
+    # MECHANICAL RUNTIME, both controllers, on the shipped row. Same derivation as the page's tile.
+    _sr = [r for r in C if r["anchor"] != "none"][-1]
+    _hpd = bt["hours"] / bt["days"]
+    _H = _hpd * _sr["test_days"]
+    RUNTIME = {"mech_agent": _H - _sr["agent_safe_free_h"],
+               "mech_inc": _H - _sr["incumbent_safe_free_h"]}
     mn = jload(os.path.join(DEMO, "money.json"))
     MONEY_ROW = [c["usd_per_mw_it_per_year"] for c in mn["cells"]
                  if c["hours_label"].startswith("+ notice 3 h")]
@@ -2828,10 +2842,36 @@ def check_front_door_figures():
         ("$/MW-IT/yr floor", "$%s" % format(round(min(MONEY_ROW)), ",")),
         ("$/MW-IT/yr ceiling", "$%s" % format(round(max(MONEY_ROW)), ",")),
         ("money cells swept", "%d cells" % len(MONEY_ROW)),
-        # The 30 MW illustration is DERIVED (x30, rounded to the nearest thousand), so it is
-        # registered too -- a derived figure drifts exactly as easily as a read one.
-        ("30 MW hall floor", "$%s" % format(int(round(min(MONEY_ROW) * 30, -3)), ",")),
-        ("30 MW hall ceiling", "$%s" % format(int(round(max(MONEY_ROW) * 30, -3)), ",")),
+        # THE 30 MW ILLUSTRATION IS GONE, replaced by the site's own MEASURED footprint. It was the
+        # only unsourced number in that table -- a round figure I picked -- and it is now a
+        # derivation with a measured half. Registered more thoroughly than it was, not less: both
+        # ends of the density, the national footprint it divides, the per-site footprint, and both
+        # ends of the resulting dollar range. A derived figure drifts exactly as easily as a read
+        # one, and this one has more moving parts than the thing it replaced.
+        ("national footprint measured", "%s m²" % format(int(SCALE["national_footprint_m2"]), ",")),
+        ("national average IT load", "%s MW" % format(int(SCALE["national_it_mw_average"]), ",")),
+        ("density, average load", "%d W/m²" % round(SCALE["w_per_m2_average_load"])),
+        ("density, installed", "%s W/m²" % format(int(round(SCALE["w_per_m2_installed"])), ",")),
+        ("the shipped site's footprint", "%s m²" % format(int(SITE_FOOT), ",")),
+        # round(), NOT "%d" -- %d TRUNCATES, so 60.55 MW registered as "60" while the README quite
+        # correctly said 61. A display figure is rounded; a check that truncates fails a document
+        # that is right.
+        ("the shipped site in MW",
+         "**%d–%d MW**" % (round(SITE_FOOT * SCALE["w_per_m2_average_load"] / 1e6),
+                           round(SITE_FOOT * SCALE["w_per_m2_installed"] / 1e6))),
+        ("the shipped site in dollars",
+         "$%s – $%s per year" % (format(int(round(SITE_FOOT * SCALE["w_per_m2_average_load"] / 1e6
+                                                 * min(MONEY_ROW), -3)), ","),
+                                 format(int(round(SITE_FOOT * SCALE["w_per_m2_installed"] / 1e6
+                                                  * max(MONEY_ROW), -3)), ","))),
+        # THE SCALE-FREE HEADLINE, which is now the first row of that table and the one the pitch
+        # leads with. Mechanical hours are (hours in the scored days) minus (safe free-cooling
+        # hours), and the day total uses the record's own MEASURED hours-per-day rather than 24 --
+        # the station does not report every hour, and assuming it does understates the share.
+        ("chiller runtime cut", "%.1f %%" % (100 * (RUNTIME["mech_inc"] - RUNTIME["mech_agent"])
+                                            / RUNTIME["mech_inc"])),
+        ("incumbent chiller hours", "%s h" % format(int(round(RUNTIME["mech_inc"])), ",")),
+        ("agent chiller hours", "%s" % format(int(round(RUNTIME["mech_agent"])), ",")),
         ("the LLM was declined with room to spare",
          "**%d MiB peak of %s available**" % (ex["warp_peak_vram_mib"],
                                               format(ex["gpu_total_mib"], ","))),

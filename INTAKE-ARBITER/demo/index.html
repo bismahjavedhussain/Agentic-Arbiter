@@ -2658,6 +2658,16 @@ function drawMoney(){
   const bcell = cells.find(c => c.hours_label === (base && base.label));
   const kw = MN.chiller_kw_per_mw_it[
     MN.chiller_efficiencies_swept.find(c => c.kw_per_ton === kpt).label];
+  /* The derived density, from sites.json rather than from money.json: it is a NATIONAL derivation
+     (LBNL total ÷ our own measured footprint), so it belongs beside the per-site footprints in the
+     manifest and not inside a per-site money artefact. Null when the registry is absent. */
+  const scale = (SITES && SITES.scale) || null;
+  /* Dollars sized for a tile. A tile is about three numbers wide, and "$4,537,983 to $9,075,320"
+     does not fit at 390 px -- so k above ten thousand and M above a million. Full precision is
+     still one line below, per megawatt, where the arithmetic is checkable. */
+  const money0 = v => Math.abs(v) >= 1e6 ? fmt(v/1e6,1)+'M'
+                    : Math.abs(v) >= 1e4 ? int(Math.round(v/1e3))+'k'
+                    : int(Math.round(v));
 
   $('#mtiles').innerHTML =
       tile('Chiller power per MW of IT', fmt(kw,1)+' kW',
@@ -2670,6 +2680,28 @@ function drawMoney(){
     /* Sub-label no longer says "including the negative row, sign intact" -- that row is not in
        `lad` any more, so the claim would have been describing something absent. The genuinely
        negative cells are still reported, one line below, as the worst of all 608. */
+    /* WHAT IT IS WORTH AT THIS FACILITY'S OWN SIZE. The panel prices one megawatt because this
+       project measures no data centre's size -- honest, and it undersells hard enough that a
+       reader sees $5,794 beside a five-year study and misjudges the engineering. So: the FOOTPRINT
+       is measured by us from the same OSM rings the solver runs on, and the DENSITY is derived from
+       LBNL 2024, which this panel already cites for PUE. Both come from sites.json's `scale` block
+       and this site's own `footprint_m2`; nothing here is typed.
+       A RANGE, because LBNL puts capacity utilisation near 50 %, so installed capacity is about
+       twice average load -- and because the density's errors do not cancel. The tile says "derived"
+       out loud for that reason: it is the one figure on this card that is not a measurement of
+       this site. */
+    + (scale && SITE && SITE.footprint_m2 && bcell
+       ? tile('At this facility’s measured size',
+              '$'+money0(SITE.footprint_m2*scale.w_per_m2_average_load/1e6
+                         *bcell.usd_per_mw_it_per_year)+' to $'
+              +money0(SITE.footprint_m2*scale.w_per_m2_installed/1e6
+                      *bcell.usd_per_mw_it_per_year),
+              int(Math.round(SITE.footprint_m2))+' m² of building measured here × '
+              +int(Math.round(scale.w_per_m2_average_load))+'–'
+              +int(Math.round(scale.w_per_m2_installed))+' W/m² <em>derived</em> from LBNL = '
+              +fmt(SITE.footprint_m2*scale.w_per_m2_average_load/1e6,0)+'–'
+              +fmt(SITE.footprint_m2*scale.w_per_m2_installed/1e6,0)+' MW of IT load')
+       : '')
     + tile('Range across the whole ladder',
            '$'+int(Math.round(Math.min(...lad.map(c=>c.usd_per_mw_it_per_year))))+' to $'
            + int(Math.round(Math.max(...lad.map(c=>c.usd_per_mw_it_per_year)))),
@@ -4242,7 +4274,14 @@ function shippedGain(){
   if(!(BT && BT.n56_audit)) return null;
   const C = BT.n56_audit.filter(r => r.step.startsWith('C '));
   if(!C.length) return null;
-  return { best: C[C.length-2], unanch: C[C.length-1] };   // notice 3 h, skill 0.50: anchored, then not
+  /* ANCHOR-BASED, NOT `C[C.length-2]` / `C[C.length-1]`. Those indices silently encoded "the
+     unanchored row is last and the shipped row is second-last", so adding a rung to the ladder
+     would have re-pointed BOTH at the wrong configurations with nothing to notice. `anchor` is a
+     field on every row; audit.py's README check was moved off the same indices for the same
+     reason. */
+  const anch = C.filter(r => r.anchor !== 'none');
+  return { best: anch[anch.length - 1] || null,
+           unanch: C.find(r => r.anchor === 'none') || null };
 }
 
 /* ---- THE SPECIFICATION PLATE ----
@@ -4332,21 +4371,37 @@ function drawHeadline(){
   if(gn){
     if(gn.best) out.push(tile('Chiller-hours avoided', (gn.best.gain_h_per_year>0?'+':'')
       +fmt(gn.best.gain_h_per_year,0)+' h/yr', 'vs a tuned reactive incumbent, paired per day'));
-    /* 🔴 THE "…without a local sensor" TILE IS REMOVED, 2026-08-25, AT THE USER'S DIRECTION, AND
-       THE DISCLOSURE IT CARRIED IS NOT.
+    /* CHILLER RUNTIME, THE SCALE-FREE NUMBER. Everything else in this panel is either hours or
+       dollars, and both need a facility size before they mean anything commercially. This one does
+       not: it is a PERCENTAGE, so it reads identically on a 1 MW room and a 1,500 MW campus.
+       Derived, not typed -- mechanical hours are (hours in the scored days) minus (safe free-cooling
+       hours), for each controller, and the total comes from the record's own measured hours-per-day
+       rather than an assumed 24, because the station does not report every hour. */
+    if(gn.best && gn.best.test_days && BT.days){
+      const hpd = BT.hours / BT.days;                       // measured, ~23.97 not 24
+      const H   = hpd * gn.best.test_days;
+      const mA  = H - gn.best.agent_safe_free_h;
+      const mI  = H - gn.best.incumbent_safe_free_h;
+      if(mI > 0 && mA > 0) out.push(tile('Chiller runtime cut', fmt(100*(mI-mA)/mI,1)+' %',
+        int(Math.round(mI))+' h of mechanical cooling becomes '+int(Math.round(mA))
+        +' h — a share, so it holds at any hall size'));
+    }
+    /* 🔴 THE "…without a local sensor" TILE IS REMOVED, 2026-08-25, AT THE USER'S DIRECTION.
        That tile published the UNANCHORED row -- the agent with no local thermometer, losing 156
        h/yr -- next to the anchored headline. The user's position is that the claim should rest on
        FortyGuard's forecast bounded by conformal prediction over the measured forecast-versus-
        outcome gap, and that advertising a local-sensor requirement narrows the claim rather than
        qualifying it.
-       WHERE THE FACT STILL LIVES, because deleting a tile must not delete a limitation:
-         * the five-year ladder still prints the unanchored row in full, with its negative gain, its
-           confidence interval and its coverage -- it is the last row of the table;
-         * drawLadder()'s own note reads "believing FortyGuard's level as delivered costs N h/year",
-           computed from those two rows;
-         * drawLimits() carries "The hours claim is conditional" as a registered honest limit.
-       So the number is on the page three times and is simply no longer a headline tile. */
-
+       WHERE THE LIMITATION STILL LIVES, and this list is now CORRECT -- it previously named two
+       places that had since stopped being true, which is the exact rot it existed to prevent:
+         * `drawLimits()` carries "The hours claim is conditional -- it wants a level anchor, one
+           local reading. Unanchored, five years of data say the agent loses." That is the honest
+           statement and it is still on screen, in prose, as a registered limit.
+         * `backtest.json` still holds the row in full -- gain, CI and coverage -- and audit.py
+           re-derives all three, so the measurement is verifiable even though it is not displayed.
+       WHAT IS NO LONGER ON THE PAGE, stated plainly rather than implied: the MAGNITUDE. The ladder
+       row, its -156.0 h/yr and the 561.7 h/yr difference were all removed from view at the user's
+       direction. The limitation is qualitative on screen and quantitative only in the artefact. */
   }
   /* 3. PLAN STABILITY -- the operator's first question about a published 12-hour schedule. */
   if(RL && RL.configs && RL.configs.length){
@@ -4426,8 +4481,9 @@ function drawLadder(){
      hard-coded in the view is a figure no test can re-read (methodology rule 10), so it is now
      differenced out of the two rows it describes. */
   const ship = rows[rows.length-1];
-  const anchCost = (ship && unanch.length)
-    ? ship.gain_h_per_year - unanch[0].gain_h_per_year : 0;
+  /* `anchCost` -- the unanchored h/yr difference -- was computed here and is gone with the
+     paragraph that printed it. Left as a comment rather than dead code: the figure is still in
+     backtest.json and still audited, and drawLimits() carries the limitation in prose. */
   /* WHAT THE FORECAST ITSELF IS WORTH, MEASURED BY TAKING IT AWAY rather than asserted. The skill
      axis holds every other setting at base and varies only the forecast: at skill 0 the "forecast"
      carries nothing beyond debiased persistence, so the difference IS FortyGuard's contribution.

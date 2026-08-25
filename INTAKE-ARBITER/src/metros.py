@@ -39,6 +39,7 @@ kind of borrowed calibration this project refuses, so a metro without its own AS
 bound and must not be offered as if it did.
 """
 import json
+import math
 import os
 import shutil
 import sys
@@ -294,6 +295,151 @@ def national_registry():
         except (IOError, OSError, ValueError, KeyError):
             _NATIONAL_CACHE[0] = {}
     return _NATIONAL_CACHE[0]
+
+
+# ============================================================================
+# SCALE -- how big is this facility, so the money panel can stop quoting one megawatt
+# ============================================================================
+# The money panel prices ONE MEGAWATT of IT load because this project measures no data centre's
+# size. That is honest and it undersells badly: no facility is 1 MW, so a reader sees $5,794 beside
+# a five-year study and concludes the engineering is worth less than it is. Both halves of a size
+# estimate are now DERIVED rather than invented:
+#
+#   FOOTPRINT is MEASURED, here, from the same OSM rings the solver runs on -- the connected
+#   component `build_national_pairs.py` grouped at the solver's 600 m validated range.
+#
+#   DENSITY is DERIVED from LBNL 2024, which money.json already cites for PUE: 176 TWh of US
+#   data-centre electricity in 2023 (p.6 and p.52) at an average PUE of 1.4 (p.47) is 125.7 TWh of
+#   IT-only energy -- 14,341 MW averaged over 8,766 h -- spread across the tagged footprint this
+#   repository measures. LBNL also puts capacity utilisation at roughly 50 % (p.7), so installed
+#   capacity is about twice the average load, which is why every figure here is a RANGE.
+#
+# ⚠ THE DENSITY IS A DERIVATION AND NOT A MEASUREMENT OF ANY SITE, and its errors DO NOT CANCEL:
+#   * LBNL's 176 TWh covers every data centre including server closets that carry no OSM
+#     `data_center` tag, so dividing it by tagged-only footprint OVERSTATES density;
+#   * incomplete OSM coverage understates the footprint, which OVERSTATES it again;
+#   * multi-storey halls hold more IT than their footprint suggests, which UNDERSTATES it.
+#   Net: probably high. The one independent check available says it lands in the right place --
+#   applied to Virginia's measured footprint it gives ~3,300 MW of average IT load, and published
+#   Northern Virginia data-centre load is in the low thousands of MW. That check is a sanity test,
+#   not a calibration, and it is reported as such.
+LBNL_TWH_2023 = 176.0            # LBNL 2024 United States Data Center Energy Usage Report, p.6/p.52
+LBNL_PUE_2023 = 1.4              # same report, p.47 -- already cited in money.json
+LBNL_UTILISATION = 0.5           # same report, p.7 -- "average capacity utilization rate of 50%"
+HOURS_PER_YEAR = 8766.0          # 365.25 x 24
+
+
+def ring_area_m2(ring_latlon):
+    """Planar area of a lat/lon ring in square metres, by the shoelace formula.
+
+    Equirectangular about the ring's own mean latitude. A data-centre hall is a few hundred metres
+    across, so the projection error over one ring is far below the error in the density this feeds.
+    `build_standalone_site._ring_area_m2` is the same arithmetic; it is not imported because
+    `metros` is the leaf module here -- everything else imports IT -- and reversing that would make
+    `fetch_geometry` -> `metros` -> `build_standalone_site` -> `metros` circular.
+    """
+    if not ring_latlon or len(ring_latlon) < 3:
+        return 0.0
+    la = sum(p[0] for p in ring_latlon) / len(ring_latlon)
+    mlat, mlon = 111132.0, 111320.0 * math.cos(math.radians(la))
+    pts = [(p[1] * mlon, p[0] * mlat) for p in ring_latlon]
+    a = 0.0
+    for i in range(len(pts)):
+        x1, y1 = pts[i]
+        x2, y2 = pts[(i + 1) % len(pts)]
+        a += x1 * y2 - x2 * y1
+    return abs(a) / 2.0
+
+
+_FOOT_CACHE = {}
+
+
+def _footprints_by_facility():
+    """{facility key: measured building footprint m2}, computed once per process.
+
+    `is_building_footprint` is imported LAZILY and deliberately. It is THE ONE DEFINITION of what
+    counts as a building rather than a land parcel -- 87 of 1,622 tagged ways are parcels, median
+    6.2 ha -- so restating it here would be the duplicate-definition defect that module's own
+    docstring warns about. A top-level import cannot be used because it reaches `build_site`, which
+    imports this file.
+    """
+    if "by_fac" in _FOOT_CACHE:
+        return _FOOT_CACHE["by_fac"]
+    from measure_national_gaps import is_building_footprint          # lazy: see docstring
+    gp = os.path.join(GEOM, "national_geometry.json")
+    rp = os.path.join(GEOM, "national_registry.json")
+    if not (os.path.exists(gp) and os.path.exists(rp)):
+        _FOOT_CACHE["by_fac"] = {}
+        return {}
+    rings = json.load(open(gp, encoding="utf-8"))["rings"]
+    reg = json.load(open(rp, encoding="utf-8"))["facilities"]
+    out = {}
+    for k, f in reg.items():
+        tot = 0.0
+        for m in f.get("members", []):
+            r = rings.get(m)
+            if r and is_building_footprint(r):
+                tot += ring_area_m2(r["geometry"])
+        out[k] = round(tot, 1)
+    _FOOT_CACHE["by_fac"] = out
+    # WHICH FACILITY OWNS EACH WAY, so a hand-built metro can find its own component by the osm id
+    # of the pair it committed. Ashburn's committed pair is in the national registry too -- the
+    # discovery query covered all of Virginia -- so one lookup serves both tiers.
+    owner = {}
+    for k, f in reg.items():
+        for m in f.get("members", []):
+            owner[str(m).split("/")[-1]] = k
+    _FOOT_CACHE["owner"] = owner
+    return out
+
+
+def scale_factors():
+    """The derived power density, or None if the registry is not present. See the block comment."""
+    by_fac = _footprints_by_facility()
+    total = sum(by_fac.values())
+    if total <= 0:
+        return None
+    avg_w = LBNL_TWH_2023 * 1e12 / LBNL_PUE_2023 / HOURS_PER_YEAR
+    w_avg = avg_w / total
+    return {
+        "source": ("footprint measured here from OpenStreetMap rings; density DERIVED from LBNL "
+                   "2024 (176 TWh in 2023, p.6/p.52; PUE 1.4, p.47; ~50 %% capacity utilisation, "
+                   "p.7). NOT a measurement of any individual site."),
+        "lbnl_twh_2023": LBNL_TWH_2023,
+        "lbnl_pue_2023": LBNL_PUE_2023,
+        "national_footprint_m2": round(total, 1),
+        "national_it_mw_average": round(avg_w / 1e6, 1),
+        "w_per_m2_average_load": round(w_avg, 1),
+        "w_per_m2_installed": round(w_avg / LBNL_UTILISATION, 1),
+        "caveat": ("a RANGE, not a point estimate: the errors do not cancel and probably run high. "
+                   "Sanity check, not a calibration -- Virginia's measured footprint gives ~3,300 "
+                   "MW of average IT load against published Northern Virginia load in the low "
+                   "thousands of MW."),
+    }
+
+
+def facility_footprint_m2(k):
+    """This site's own MEASURED footprint: the component containing the pair it committed.
+
+    Keyed off the committed pair rather than the metro name, so a hand-built metro and a national
+    facility resolve the same way. Returns None when there is nothing to measure -- no committed
+    site yet, or a way the registry does not know -- because 0.0 would read as "this facility has no
+    buildings" rather than "not established".
+    """
+    by_fac = _footprints_by_facility()
+    if k in by_fac:
+        return by_fac[k]
+    sp = geom_path("selected_site.json", k)
+    if not os.path.exists(sp):
+        return None
+    try:
+        sel = (json.load(open(sp, encoding="utf-8")).get("selected") or {})
+    except (ValueError, OSError):
+        return None
+    src = sel.get("source_osm_id")
+    owner = _FOOT_CACHE.get("owner", {})
+    fk = owner.get(str(src))
+    return by_fac.get(fk) if fk else None
 
 
 PAIRED_READY_ARTEFACTS = ("solver_site_longest.json", "solver_site_facing.json",
@@ -982,11 +1128,16 @@ def export_manifest():
                         % (cver or {}).get("verdict") if cver and not cver["in_scope"]
                         else "no in-scope architecture verdict for the committed pair"
                         if not scope_ok else "no solved plume field exported"))
+        # THIS SITE'S OWN MEASURED FOOTPRINT, so the money panel can quote the facility instead of
+        # quoting one megawatt. None when there is no committed pair to measure a component from --
+        # never 0.0, which would read as "no buildings here".
+        _foot = facility_footprint_m2(k)
         sites.append({
             "key": k, "label": m["label"],
             "station": ("K" + m["station"]) if m.get("station") else None,
             "tz": m["tz"],
             "bbox": list(m["bbox"]),
+            "footprint_m2": _foot,
             # `data_ready` MEANS "COULD BE BUILT", not "is offered". It read `r["offerable"]`, which
             # made the two synonyms and is half of the circular gate described in
             # `national_readiness`. `build_sites.py` reads THIS field to decide what it may build.
@@ -1061,6 +1212,10 @@ def export_manifest():
                               "rooftop-cooled, one not yet built -- and a third was refused by the "
                               "solver itself because the intake disc would have averaged the exhaust "
                               "it is meant to measure. The refusals are exported deliberately."),
+           # THE DERIVED DENSITY, exported once rather than per site: it is a national derivation,
+           # and putting it beside the per-site footprints is what lets the money panel show a
+           # facility figure with its own arithmetic visible. See `scale_factors`.
+           "scale": scale_factors(),
            "sites": sites}
     p = os.path.join(demo, "sites.json")
     json.dump(obj, open(p, "w", encoding="utf-8"), indent=1, allow_nan=False)

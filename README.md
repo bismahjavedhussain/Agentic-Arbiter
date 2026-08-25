@@ -115,22 +115,37 @@ called at 03:00 when an intake runs hot. They are the buyer because they carry b
 trade: the energy number they are measured on, and the risk they personally absorb if a hall
 overheats.
 
-**What the pain costs them today, per megawatt of IT load:**
+**What the pain costs them today:**
 
 | | |
 |---|---|
+| **Mechanical cooling runtime cut** | **10.7 %** — 9,510 h of chiller time becomes 8,496 h. A share, so it holds at any hall size |
 | Chiller-hours recoverable | **406 h/yr** vs the tuned reactive incumbent |
 | Value of those hours | **$5,522 – $7,990 per MW-IT per year** |
-| Scaled to 30 MW of IT load — **an illustration, ×30 of the row above** | **$166,000 – $240,000 per year** |
+| At the shipped site's own measured size — 86,280 m², **61–121 MW** of IT load | **$334,000 – $967,000 per year** |
+| At the largest facility in the registry — 1,116,335 m², **783–1,566 MW** | **$4.3M – $12.5M per year** |
 | Basis | 16 cells: 4 published tariffs × 4 published chiller efficiencies, **swept, not chosen** |
 
-⚠ **The 30 MW is a round illustrative figure and the only unsourced number in this table.** The
-measured unit is the row above it — **per megawatt of IT load** — because a building footprint from
-OpenStreetMap yields floor area, not IT load, and converting one to the other needs a watts-per-
-square-foot assumption we have no primary source for. LBNL 2024 publishes average square footage
-per module (11,000 colocation, 30,000 hyperscale, p. 35) but **no megawatts per facility and no
-power density**, so the conversion cannot be sourced from it. Multiply the per-MW row by whatever
-hall size you can defend; we multiply by 30 to show the order of magnitude and label it as ours.
+**Lead with the first row.** It is a percentage, so it needs no assumption about how big the
+building is: over 913 held-out days the reactive incumbent runs its chillers **9,510 hours** and the
+agent runs them **8,496**. That figure reads the same on a 1 MW room and a 1,500 MW campus, which is
+why it is the honest headline and the dollar rows are the illustration.
+
+⚠ **The megawatt figures are DERIVED, and the footprint half of them is measured.** The footprint is
+ours: **20,441,476 m²** of tagged data-centre buildings across 639 US facilities, computed from the
+same OpenStreetMap rings the solver runs on. The density is derived from LBNL 2024 — **176 TWh** of
+US data-centre electricity in 2023 (p.6, p.52) at **PUE 1.4** (p.47) is 125.7 TWh of IT-only energy,
+**14,341 MW** averaged over the year, spread over that footprint: **702 W/m²** of average load, or
+**1,403 W/m²** installed at LBNL's ~50 % capacity utilisation (p.7). Hence a range, not a point.
+
+⚠ **And the density's errors do not cancel.** LBNL's 176 TWh covers every data centre, including
+server closets carrying no OSM tag, so dividing it by tagged-only footprint **overstates** density;
+incomplete OSM coverage overstates it again; multi-storey halls understate it. Net: probably high.
+The one independent check available says it lands in the right place — applied to Virginia's measured
+4.71 km² it gives **~3,300 MW** of average IT load, against published Northern Virginia data-centre
+load in the low thousands of MW. That is a sanity test, not a calibration, and the range is quoted
+because of it. **The old row here read "a 30 MW hall" — a round number with no source behind it,
+which this replaces.**
 
 ⚠ **Compressor-only, and therefore an upper bound on that term.** Fans, chilled-water pumps,
 condenser pumps and tower fans keep running, and an airside economizer moves *more* air — so the
