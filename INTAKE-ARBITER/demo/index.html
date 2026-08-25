@@ -905,8 +905,8 @@ notice to change mode. <strong>FortyGuard</strong>'s forecast is exactly the mis
 </div>
 <div data-show="results" class="card" id="sitecard">
   <h2>The site, on real imagery</h2>
-  <p class="note">Drag to pan, scroll to zoom, double-click to reset. The wind arrow follows the
-  dial below.</p>
+  <!-- The pan/zoom instruction line was removed here AND below the canvas, 2026-08-25, at the
+       user's direction. It appeared twice in one card. -->
   <!-- WAS HARDCODED to "Amazon Web Services IAD116 -> IAD117, Ashburn, Virginia" and OSM ways
        744496750 / 744496741, on every site. Written by drawAerialNote() from SITE. -->
   <p class="note" id="aerialnote" style="margin-bottom:10px">&nbsp;</p>
@@ -931,12 +931,14 @@ notice to change mode. <strong>FortyGuard</strong>'s forecast is exactly the mis
         <select id="c_img"></select>
       </div>
       <div class="tiles" id="aerialtiles"></div>
-      <p class="note">Drag to pan, scroll to zoom, double-click to reset. The wind arrow follows the
-      dial below.</p>
-      <p class="note warn"><strong>What imagery can and cannot settle.</strong> At 0.3–0.5 m it shows
-      objects, not nameplates: enough to see whether cooling equipment sits in a ground-level yard or
-      on the roof — which is what decides whether <strong>FortyGuard</strong>'s 2 m plane applies at all — and not
-      enough to certify a unit type or measure a height.</p>
+      <!-- Both the pan/zoom line and the "What imagery can and cannot settle" caveat were removed
+           2026-08-25 at the user's direction. ⚠ THE CAVEAT WAS A DISCLOSURE, and unlike the money
+           limits it has NOT been rehoused: it said imagery at 0.3-0.5 m shows objects and not
+           nameplates, which is the honest bound on the screening gate that refused two whole
+           metros. The gate itself is still visible -- the picker greys refused sites and carries
+           their verdict, and sites.json's screening_note records the refusals -- but the
+           RESOLUTION limit is no longer stated anywhere a reader will see. Noted here so it is a
+           known gap rather than an accident. -->
     </div>
   </div>
 </div>
@@ -953,8 +955,7 @@ notice to change mode. <strong>FortyGuard</strong>'s forecast is exactly the mis
   <h2>The plume, solved — turn the wind and watch the exhaust move</h2>
   <p class="note" id="plumeabsent" hidden></p>
   <p class="note">The field the solver computes, cell by cell, on the rasterised OpenStreetMap
-  footprints — the same <code>solve()</code> behind every rise figure here.
-  <strong>Drag the dial below</strong> to turn the wind.</p>
+  footprints. <strong>Drag the dial below</strong> to turn the wind.</p>
   <!-- A <details> here is a DIRECT CHILD of #plumecard on purpose. cardSetAbsent()/cardSetPresent()
        iterate the card's direct children and toggle everything except the <h2> and the message
        slot, so a disclosure at this level collapses with the rest of the panel at a site where no
@@ -1741,11 +1742,14 @@ function drawField(){
       C.add(Math.round((dx*ux+dy*uy)/uu)); R.add(Math.round((dx*vx+dy*vy)/vv));
     }
     const full=R.size*C.size, absent=full-n;
+    /* The provenance tail was removed 2026-08-25 at the user's direction: "drawn exactly as their
+       API returned it -- N tiles ... nothing here is interpolated, smoothed or invented by us".
+       The tile COUNT survives because it is the only measured figure that sentence carried; the
+       rest was assertion about ourselves, and the field card's own tiles already say
+       "Tiles, one call" and "Live API calls: replayed from a saved response". */
     $('#latticenote').innerHTML = `Every cell on this map is <strong>FortyGuard's own measured
-      temperature field</strong>, drawn exactly as their API returned it —
-      <strong>${int(n)}</strong> tiles across the site and its surroundings. Nothing here is
-      interpolated, smoothed or invented by us: this is the vendor's measurement, and the
-      agent's first decision is made on it.`;
+      temperature field</strong> — <strong>${int(n)}</strong> tiles across the site and its
+      surroundings.`;
   } else {
     $('#latticenote').innerHTML = 'This field file predates the tile-shape export, so cells are '
       + 'drawn as squares and the edge is a staircase.';
@@ -3108,9 +3112,11 @@ function drawSiteNotes(){
       : 'Imagery: ESRI World Imagery <strong>and</strong> USGS The National Map — two independent sources.';
   const an = $('#aerialnote');
   if(an) an.innerHTML = '<strong>' + pair + '</strong>, ' + (SITE ? SITE.label : '') + '. '
-    + 'Footprints are ' + ways + ', drawn as the rotated minimum-area rectangles the solver '
-    + 'actually rasterises — not axis-aligned boxes, which misdescribe these halls badly '
-    + 'enough to make them overlap by 28 m. ' + imgline;
+    /* The rotated-rectangle justification ("not axis-aligned boxes, which misdescribe these halls
+       badly enough to make them overlap by 28 m") was removed 2026-08-25 at the user's direction.
+       The rectangles are still rotated and min-area -- that is fetch_geometry.min_area_rect, whose
+       own docstring carries the fill-ratio argument -- it is simply no longer explained on screen. */
+    + 'Footprints are ' + ways + '. ' + imgline;
 
   const fp = $('#fieldpairnote');
   if(fp) fp.innerHTML = 'The committed site sits inside one of these tiles — ' + ways.replace(
