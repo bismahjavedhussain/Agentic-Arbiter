@@ -2720,30 +2720,29 @@ function drawMoney(){
   const worst = MN.cells.filter(c=>c.family==='12-axis sensitivity')
     .reduce((a,c)=>c.usd_per_mw_it_per_year<a.usd_per_mw_it_per_year?c:a,
             {usd_per_mw_it_per_year:Infinity});
-  /* "every ladder and sensitivity row" describes the SWEEP, not the table -- and the table above
-     now shows the anchored steps only, so the sentence says which is which. Without that clause a
-     reader counts four rows beside the word "every" and is entitled to conclude something is
-     hidden. The sweep itself is untouched: all 608 cells are still computed and money.json still
-     holds every one of them, including the negative ones. */
-  $('#mnote').innerHTML = '<strong>'+int(MN.cells.length)+' cells</strong> — every ladder and '
-    + 'sensitivity row × '+MN.chiller_efficiencies_swept.length+' published chiller efficiencies × '
-    + MN.electricity_prices_swept.length+' published prices, <strong>and no row is collapsed</strong>. '
-    + 'The table above shows the '+lad.length+' anchored ladder steps at the selected cell; the '
-    + 'sweep behind it is wider and includes rows that come out negative. '
-    + 'The worst cell anywhere in it is <strong>−$'
-    + int(Math.abs(Math.round(worst.usd_per_mw_it_per_year)))+'</strong> per MW of IT per year, at '
-    + '<em>'+worst.hours_label+'</em> — the refusal guard firing. A money panel that could not show '
-    + 'that number would not be worth reading.';
-
-  $('#mlimits').innerHTML = '<strong>What this is NOT — every item read from '
-    + '<code>money.json</code>, not written here:</strong><br>'
-    + MN.not_claimed.map(x=>'• '+x).join('<br>');
-
   const src = [].concat(MN.sources.electricity_price, MN.sources.chiller_efficiency,
                         MN.sources.context_only);
-  $('#msources').innerHTML = '<strong>Sources, each downloaded and parsed in the repository:</strong>'
-    + '<br>' + src.map(s=>'• <a href="'+s.url+'" target="_blank" rel="noopener">'+s.title+'</a> — '
-        + s.publisher + '. <em>' + s.how_read + '.</em>').join('<br>');
+  /* 🔴 THREE BLOCKS REMOVED FROM THIS PANEL, 2026-08-25, AT THE USER'S DIRECTION -- and NOT from
+     the repository. What used to render here was the 608-cell sweep with its worst cell, the
+     seven-item "What this is NOT", and the four parsed sources: about 400 words of provenance under
+     a four-tile figure. A results panel is for the figure.
+     WHERE IT WENT, AND WHY THAT REQUIRED WORK RATHER THAN DELETION. `money-sources.md` already
+     existed and was already linked from README, but it was hand-written on 2026-08-20 and had
+     drifted -- it carried TWO of the four sources and NONE of the seven caveats verbatim. Emptying
+     these elements would have quietly removed five sourced limitations and two citations from every
+     reader-facing surface in the project. So `src/write_money_doc.py` now GENERATES both sections
+     into that file from `money.json`, and `audit.py` asserts every item and every source title is
+     present there. The disclosure moved; it did not evaporate.
+     ONE LINE STAYS HERE, because a limit a reader cannot find is a limit that is not disclosed. */
+  $('#mnote').innerHTML =
+      'Compressor energy only, at a code-minimum chiller, on a state-average tariff — <strong>every '
+    + 'one of those makes the real number smaller</strong>, which is why this is a ceiling. '
+    + int(MN.cells.length) + ' cells are swept and none is collapsed; the worst anywhere in the '
+    + 'sweep is negative. <a href="money-sources.md" target="_blank" rel="noopener">All ' + MN.not_claimed.length
+    + ' stated limits and all ' + src.length + ' parsed sources</a> — downloaded and text-extracted '
+    + 'in the repository, not read from a search snippet.';
+  $('#mlimits').hidden = true;
+  $('#msources').hidden = true;
 }
 
 /* THE ONE LINE THAT SURVIVES WHEN THE CONFORMAL CARD IS SHUT.

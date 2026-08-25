@@ -2459,6 +2459,48 @@ def check_stage_events():
        "file says %d, scan finds %d" % (tj["templates_with_literal_digits"], len(bad)))
 
 
+def check_money_doc():
+    """The limits that LEFT the money panel must be IN money-sources.md, and in both copies.
+
+    🔴 A DISCLOSURE THAT MOVES IS ONLY MOVED IF IT ARRIVES. Three blocks came off the money card on
+    2026-08-25 -- the 608-cell sweep with its worst cell, the seven-item "What this is NOT", and the
+    four parsed sources. `money-sources.md` already existed and was already linked from README, and
+    it had drifted: hand-written on 2026-08-20, it carried TWO of the four sources and NONE of the
+    seven caveats verbatim. Emptying those elements without this check would have removed five
+    sourced limitations and two citations from every reader-facing surface in the project, silently.
+
+    So each item is matched as a string, whitespace-insensitively because markdown wraps. And BOTH
+    copies are checked: `demo/money-sources.md` is what the panel's link actually serves (the demo's
+    document root is `demo/`, so a link to the repository root 404s), and a served copy that has
+    fallen behind the root one is exactly the drift this check exists to catch.
+    """
+    print("\n12. THE MONEY DISCLOSURES, moved off the panel and therefore checked in the document")
+    mn = jload(os.path.join(DEMO, "money.json"))
+    squeeze = lambda s: re.sub(r"\s+", " ", s).strip()
+    for label, path in (("root", os.path.join(ROOT, "money-sources.md")),
+                        ("served", os.path.join(DEMO, "money-sources.md"))):
+        if not os.path.exists(path):
+            ck("money-sources.md exists (%s copy)" % label, False, path)
+            continue
+        txt = squeeze(open(path, encoding="utf-8").read())
+        miss = [x for x in mn["not_claimed"] if squeeze(x) not in txt]
+        ck("%-6s copy carries all %d stated limits" % (label, len(mn["not_claimed"])),
+           not miss, "all present" if not miss
+           else "MISSING %d: %s" % (len(miss), miss[0][:70]))
+        srcs = (mn["sources"]["electricity_price"] + mn["sources"]["chiller_efficiency"]
+                + mn["sources"]["context_only"])
+        smiss = [s["title"] for s in srcs if squeeze(s["title"]) not in txt]
+        ck("%-6s copy carries all %d sources" % (label, len(srcs)),
+           not smiss, "all present" if not smiss
+           else "MISSING %d: %s" % (len(smiss), smiss[0][:70]))
+    a = os.path.join(ROOT, "money-sources.md")
+    b = os.path.join(DEMO, "money-sources.md")
+    if os.path.exists(a) and os.path.exists(b):
+        same = open(a, encoding="utf-8").read() == open(b, encoding="utf-8").read()
+        ck("the served copy is byte-identical to the root one", same,
+           "identical" if same else "THEY DIFFER -- run src/write_money_doc.py")
+
+
 def check_live_chain():
     """THE LIVE PATH MUST BE VERIFIABLE WITHOUT THE NETWORK, or it cannot be in the audit at all.
 
@@ -2914,6 +2956,7 @@ def main():
     check_cross_language()
     check_api_spend()
     check_live_chain()
+    check_money_doc()
     check_front_door_figures()          # LAST: it counts every check above it, including its own
     print("\n" + "=" * 78)
     print("AUDIT: %d passed, %d warnings, %d FAILURES" % (len(PASSES), len(WARNS), len(FAILS)))
