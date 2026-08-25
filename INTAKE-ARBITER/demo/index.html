@@ -4416,8 +4416,6 @@ function drawLadder(){
   const sk0 = sk.find(r=>+r.value===0), skb = sk.find(r=>r.is_base);
   const fgShare = (sk0 && skb && skb.gain_h_per_year)
     ? (skb.gain_h_per_year - sk0.gain_h_per_year) / skb.gain_h_per_year : null;
-  const nt = ((BT.sensitivity||{}).rows||[]).filter(r=>r.axis==='notice_h')
-              .sort((a,b)=>(+a.value)-(+b.value));
   /* THE MEASURED FORECAST SKILL, READ FROM trace.json. DIAG-57 measured FortyGuard's error against
      persistence at five leads and `standing_results_quoted_elsewhere.forecast_skill_vs_persistence`
      has carried the result all along -- the panel had never quoted it, and instead labelled the
@@ -4463,23 +4461,6 @@ function drawLadder(){
        from <strong>${(skb.gain_h_per_year>0?'+':'')+fmt(skb.gain_h_per_year,1)}</strong> to
        <strong>${(sk0.gain_h_per_year>0?'+':'')+fmt(sk0.gain_h_per_year,1)} h/year</strong> —
        every other setting unchanged.</p>` : '')
-    /* THE MEASURED SKILL, READ FROM THE ARTEFACT. `standing_results_quoted_elsewhere
-       .forecast_skill_vs_persistence` already carried it; the panel had never quoted it and
-       instead described the shipped 0.50 as "no perfect forecast", which undersold a measured
-       result. 0.50 is what the five-year hours are PRICED at, and saying both is the honest
-       version of not underselling: the published number is the conservative one. */
-    + (fgSkill !== null
-    /* PLAIN PROSE. Every figure in here was wrapped in <strong> and the paragraph rendered as one
-       shouty block -- when everything is emphasised nothing is. The single exception is the
-       anchored skill, which is the one number this paragraph exists to deliver. */
-    ? `<p class="note">Measured skill ${fmt(fgSkill,3)} at the ${fgSkillLead} lead the plant
-       runs on${fgAnch!==null ? `, and <strong>${fmt(fgAnch,3)}</strong> once one on-site reading
-       removes the level offset` : ''}. The hours are priced at 0.50 because that
-       measurement is <em>one day</em> and the ladder spans 913 — an assumption below the
-       measurement, not a claim resting on it. Value tracks the lead: `
-       + nt.map(r=>`${fmt(+r.value,0)} h →
-       ${(r.gain_h_per_year>0?'+':'')+fmt(r.gain_h_per_year,1)}`).join(' · ')
-       + ` h/year — a thermometer gives zero notice, always.</p>` : '')
     + `<details><summary>What each component is worth, measured by removing it</summary>`;
   /* CUT TO THE ONE FACT THAT MATTERS. This paragraph used to explain the level-offset mechanism
      -- right shape in the wrong place, 561.7 h/year, coverage climbing to 0.9865 -- which is true,
