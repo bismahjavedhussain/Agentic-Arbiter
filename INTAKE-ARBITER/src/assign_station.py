@@ -64,7 +64,22 @@ import fetch_weather as W                                            # noqa: E40
 # How many ranked candidates to MEASURE before giving up. Not a quality threshold -- a spend cap on
 # a free but shared service: each candidate costs up to 60 requests. A facility that exhausts it is
 # recorded as unassigned WITH the candidates tried, never assigned to the least-bad one.
-MAX_CANDIDATES = 4
+#
+# 4 -> 6, 2026-08-25. THE CAP WAS BEING SPENT ON SMALL MUNICIPAL FIELDS AND NEVER REACHING THE
+# MAJOR AIRPORT. Measured on the first national run: AZ_way_938592711 has 27 stations inside 200 km
+# and 24 viable on metadata, but its four nearest are GYR (0.6351), LUF (0.9486), GEU (0.4307) and
+# BXK (0.9276) -- all under the 0.95 floor -- so it exhausted the cap and recorded UNASSIGNED while
+# PHOENIX/SKY HARBOR sat FIFTH at 33.9 km, never fetched. Every Phoenix-area facility failed the
+# same way, in 0.7 s each, because all four were already on disk and already known to be short.
+#
+# This does NOT relax a quality rule. `MIN_WEATHER_COVERAGE` is untouched and candidates are still
+# ranked nearest-first, so a facility still takes the CLOSEST station that clears the floor; the cap
+# only decides how far down that ranked list the search is allowed to look. Raising it converts
+# outright failures into assignments and cannot degrade an assignment that already succeeded --
+# a facility that found a station within four candidates never reaches candidate five.
+# The extra spend is bounded and falls only on facilities that would otherwise have failed: at most
+# two additional candidates, and only after four have already been measured and rejected.
+MAX_CANDIDATES = 6
 # Beyond this there is no honest claim that a station represents the site's air at all. Chosen to be
 # generous rather than tuned: the widest accepted separation in the hand-built registry is KFFZ at
 # 16.7 km, and this is an order of magnitude past it, so it excludes only the absurd.

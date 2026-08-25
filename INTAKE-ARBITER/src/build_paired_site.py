@@ -74,10 +74,12 @@ from fetch_geometry import (PAIR_MAX_M, PAIR_MIN_M, centroid,             # noqa
                             min_area_rect, oriented_extent, poly_area, to_metres)
 # `facility()` is deliberately NOT imported from build_standalone_site: that one REFUSES any kind
 # but `standalone`, which is correct for the no-neighbour path and is exactly the opposite of the
-# gate this driver needs. `rings_for`, `direction_table` and `wind_block` are kind-agnostic and are
+# gate this driver needs. `rings_for` and `wind_block` ARE kind-agnostic and are
 # reused as-is -- the rings loader already excludes parcels and sorts by real footprint area.
-from build_standalone_site import (GEOM, direction_table, rings_for,       # noqa: E402
-                                   wind_block)
+# NOT `direction_table`: it returns a hardcoded standalone table (worst=None, every row zero,
+# verdicts `not_applicable_no_intake`). A paired facility runs `direction_sweep.py` instead, which
+# actually measures the refusal surface. Importing it here is how it got called by mistake.
+from build_standalone_site import rings_for, wind_block                 # noqa: E402
 
 PAIRED_KINDS = ("paired_clear", "paired_advisory")
 
@@ -234,14 +236,21 @@ def write_candidates(key, f, blds):
     return p, len(bs)
 
 
-def run_step(label, args, key, extra_env=None):
-    """One existing tool, driven for this facility. Its stdout is shown only when it fails."""
+def run_step(label, args, key, extra_env=None, ok_codes=(0,)):
+    """One existing tool, driven for this facility. Its stdout is shown only when it fails.
+
+    `ok_codes` exists because a non-zero exit is not always a failure in this repository.
+    `direction_sweep.py` returns 1 whenever any pre-registered verdict fails, and at a
+    DELIBERATELY CLEAR site P1 ("non-degenerate refusal") failing is the CORRECT answer -- Ashburn's
+    own sweep exits 1 for exactly that reason and its table is the one `audit.py` reads. Treating
+    the code as the gate would refuse every clear site; the artefact is checked instead.
+    """
     env = dict(os.environ, METRO=key)
     if extra_env:
         env.update(extra_env)
     r = subprocess.run([sys.executable] + args, cwd=HERE, env=env,
                        capture_output=True, text=True, timeout=3600)
-    ok = r.returncode == 0
+    ok = r.returncode in ok_codes
     print("   %-42s %s" % (label, "OK" if ok else "FAILED"))
     if not ok:
         # 24 LINES, NOT 6, AND THE COUNT IS THE WHOLE LESSON. `select_site.py`'s SELECTION FUNNEL
@@ -311,11 +320,49 @@ def main(argv):
             print("   STOPPED. build_site.py refuses to write when its rasteriser checks fail.")
             return 6
 
-    ring_m = candidate_buildings(blds, f["centre"][0], f["centre"][1])[0]["ring_m"]
-    dp = M.geom_path("direction_table.json", key)
-    json.dump(direction_table(key, [tuple(x) for x in ring_m], u_med),
-              open(dp, "w", encoding="utf-8"), allow_nan=False)
-    print("   %-42s OK" % "this facility's own 72-bearing wind table")
+    # 🔴 THE REAL N-54 SWEEP, NOT build_standalone_site.direction_table().
+    # This called that helper, under a comment at the top of this file claiming it was
+    # "kind-agnostic". It is the opposite: it returns a hardcoded STANDALONE table --
+    # `"test": "N-54 refusal surface -- NOT RUN, no receptor intake exists"`, every row zero,
+    # `n_downwind: 0`, `worst: None`, and all three pre-registered verdicts recorded as
+    # `not_applicable_no_intake`. Correct for a facility with no receptor, and a fabrication for a
+    # paired one, which HAS an intake and whose refusal surface is the whole point of the gate.
+    #
+    # It failed loudly two steps later rather than shipping quietly, which is the one mercy here:
+    # `ticker.py` rederives `solve.worst/worst_bearing` from
+    # trace.direction_table.modes.longest.worst.bearing and raised
+    # "'NoneType' object is not subscriptable". A zero table would otherwise have published a
+    # paired site claiming it had measured a refusal surface it never swept.
+    #
+    # `direction_sweep.py` is already per-metro -- it reads `solver_site_<mode>.json`, which the
+    # two build_site.py runs above have just written for THIS key, and writes
+    # `<key>_direction_table.json`. So the fix is to run the tool that does the measurement.
+    # EXIT 1 IS ACCEPTED, AND THE ARTEFACT IS GATED INSTEAD -- see run_step's docstring. Ashburn's
+    # own sweep exits 1 with "P1 non-degenerate refusal: FAIL, refused 0.0 % of bearings", because
+    # the committed pair was RE-SELECTED for a clear plume path and 0 % is the right answer at such
+    # a site. Gating on the code would refuse exactly the sites the selection rule is trying to find.
+    if not run_step("this facility's own 72-bearing refusal sweep", ["direction_sweep.py"], key,
+                    ok_codes=(0, 1)):
+        print("   STOPPED. The N-54 refusal sweep crashed rather than reporting a verdict.")
+        return 7
+
+    # WHAT THE CHAIN ACTUALLY NEEDS FROM THAT TABLE, checked here rather than five steps later.
+    # `ticker.py` rederives `solve.worst/worst_bearing` from
+    # modes.<mode>.worst.bearing and raises "'NoneType' object is not subscriptable" on a null --
+    # which is how the standalone stub's `worst: None` was caught. Failing at the step that WRITES
+    # the value is worth a few lines of duplication.
+    dt = json.load(open(M.geom_path("direction_table.json", key), encoding="utf-8"))
+    nullw = [m for m in ("longest", "facing")
+             if not ((dt.get("modes") or {}).get(m) or {}).get("worst")]
+    if nullw:
+        print("   STOPPED. The direction table has a NULL `worst` for %s, so no worst bearing was "
+              "found. ticker.py rederives that field and would fail on it five steps from here."
+              % ", ".join(nullw))
+        return 8
+    print("   worst bearing      : %s"
+          % ",  ".join("%s %s deg at %+.4f C" % (m, dt["modes"][m]["worst"]["bearing"],
+                                                 dt["modes"][m]["worst"]["rise_c"])
+                       for m in ("longest", "facing")))
 
     print()
     print("   The rise tables are NOT written here. `agent.rise_table()` solves 576 real dispersion")

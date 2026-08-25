@@ -10472,8 +10472,8 @@
    "site_kind": "paired_clear",
    "plume_modelled": false,
    "unscreened_caveat": "This facility has NOT been screened from aerial imagery. The screening gate asks whether the cooling plant sits at ground level, where FortyGuard's 2 m field applies -- and it has refused two of the five hand-built metros, one for roof-mounted plant and one for never having been built. Until this facility is screened, that question is OPEN for it: if its plant is roof-mounted, this model does not describe it. Every other number here is its own.",
-   "offerable": false,
-   "not_offerable_because": "6 of 6 chain artefacts missing (trace, backtest, rolling, money, explanations, ticker) -- re-run the build_sites chain",
+   "offerable": true,
+   "not_offerable_because": null,
    "n_buildings": 6,
    "n_tagged_dc": 6,
    "n_dc_to_dc_pairs": null,
@@ -10504,7 +10504,15 @@
     "note": "no screening frame matches the committed pair 1010260677 -> 1533350872"
    },
    "plume_field_file": null,
-   "artefacts": {},
+   "artefacts": {
+    "trace": "TX_way_1533350872_trace.json",
+    "backtest": "TX_way_1533350872_backtest.json",
+    "rolling": "TX_way_1533350872_rolling.json",
+    "money": "TX_way_1533350872_money.json",
+    "explanations": "TX_way_1533350872_explanations.json",
+    "ticker": "TX_way_1533350872_ticker.json",
+    "report": "TX_way_1533350872_report.pdf"
+   },
    "has_own_fortyguard_field": true,
    "fortyguard_day_pairs": 0,
    "verdicts": []

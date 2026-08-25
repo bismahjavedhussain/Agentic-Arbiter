@@ -965,6 +965,42 @@ def _selftest_agreement_rule():
        "different stations -> caught; same station -> allowed")
 
 
+def _cross_station_collisions(rows):
+    """THE SAME RULE AS `_unexplained_agreements`, APPLIED TO WHOLE FILES INSTEAD OF TWO FIGURES.
+
+    `rows` is a list of (site key, station, digest). Returns the groups that share one digest across
+    MORE THAN ONE station -- the only shape that is a defect. Two facilities on one station can
+    legitimately produce the same artefact once the plume term is zero, because then the stage's
+    inputs are the same array; two facilities on different stations cannot, because no shared input
+    exists that could make them agree. Argued in full at the call site in 6d.
+    """
+    by_digest = {}
+    for key, station, digest in rows:
+        by_digest.setdefault(digest, []).append((key, station))
+    return [ks for ks in by_digest.values()
+            if len(ks) > 1 and len(set(st for _, st in ks)) > 1]
+
+
+def _selftest_collision_rule():
+    """A PERMISSIVE RULE NEEDS ITS OWN CONTROL, for the reason `_selftest_agreement_rule` states:
+    this is an assertion that can pass by accident, so it has to be shown failing on the defect it
+    exists for and staying quiet on the coincidence that is real. Both cases, every run."""
+    defect = _cross_station_collisions([                     # gotcha #132's shape, whole-file
+        ("ashburn", "KIAD", "d1"),
+        ("chicago", "KORD", "d1")])
+    real = _cross_station_collisions([                       # two standalone sites on one station
+        ("AZ_a", "KFFZ", "d2"),
+        ("AZ_b", "KFFZ", "d2")])
+    mixed = _cross_station_collisions([                      # a real pair AND a defect together
+        ("AZ_a", "KFFZ", "d3"),
+        ("AZ_b", "KFFZ", "d3"),
+        ("ashburn", "KIAD", "d4"),
+        ("chicago", "KORD", "d4")])
+    ck("the artefact-collision rule fires across stations and not within one",
+       bool(defect) and not real and len(mixed) == 1,
+       "different stations -> caught; same station -> allowed; mixed -> only the cross-station pair")
+
+
 def check_sites_actually_differ():
     """EVERY OFFERABLE SITE MUST HAVE ITS OWN NUMBERS, and this check exists because they did not.
 
@@ -1385,6 +1421,9 @@ def check_panels_are_per_site():
     # The scanner decides what this whole check is able to see, so it is tested first and its
     # result is a REGISTERED ASSERTION -- not a comment claiming it was tested once.
     _selftest_js_scanner()
+    # Same standard for the artefact-collision rule below: it is permissive by design, so its
+    # control is registered rather than asserted in prose.
+    _selftest_collision_rule()
     page = open(os.path.join(DEMO, "index.html"), encoding="utf-8").read()
     sites = jload(os.path.join(DEMO, "sites.json"))["sites"]
     offer = [s for s in sites if s.get("offerable")]
@@ -1475,25 +1514,54 @@ def check_panels_are_per_site():
     # ---- 3. the artefacts behind those globals actually differ -------------------------
     # Reading `BT` proves a panel asked for the backtest. It does not prove the three backtests are
     # three different files -- which is exactly what was wrong before the per-site rework.
+    # ⚠ AMENDED 2026-08-25, and it is the SAME amendment 6c already carries.
+    #
+    # The rule was `len(digests) == len(paths)` -- every offerable site's artefact must be a
+    # distinct file, full stop. That was correct at three hand-built metros and it is wrong at
+    # three hundred national facilities, for exactly the reason `check_sites_actually_differ`
+    # records one section above: "its premise stops holding once the plume term is zero, because
+    # then two facilities on the same station in the same state produce identical numbers
+    # legitimately." 6c was rewritten for that on 2026-08-24. This check was not, so the premise
+    # survived here alone and fired on the first pair of facilities that met it.
+    #
+    # THE PAIR THAT FOUND IT: AZ_way_1015704066 and AZ_way_567575425. Both standalone, both with
+    # `plume_modelled: false`, both on KFFZ, both with 41919 hours -- and their traces carry
+    # byte-identical `temp_c`, `dewpoint_c` and `twb_c`. The explanation stage reads temperature,
+    # dew point, wet-bulb and plume rise. With no plume term, its inputs at those two sites are the
+    # same array, so identical explanations are the CORRECT output. Demanding that they differ
+    # would be demanding a difference the physics does not contain -- which is the one thing this
+    # file exists to prevent, pointed the wrong way.
+    #
+    # So the test becomes the one 6c uses via `_unexplained_agreements`: a digest collision is a
+    # defect only when it CROSSES A WEATHER STATION. Two sites on one station may agree; two sites
+    # on different stations may not, because there is no shared input that could make them.
+    # Gotcha #132's shape -- Chicago wearing Ashburn's numbers -- still fails, which is the whole
+    # point of keeping the check at all.
     if len(offer) > 1:
-        differing, identical = [], []
+        differing, identical, detail = [], [], []
         for g, art in sorted(PER_SITE_GLOBALS.items()):
-            paths = []
+            pairs = []                               # (site key, station, path)
             for s in offer:
                 nm = (s.get("artefacts") or {}).get(art)
                 if nm:
-                    paths.append(os.path.join(DEMO, nm))
-            if len(paths) < 2:
+                    pairs.append((s["key"], s.get("station"), os.path.join(DEMO, nm)))
+            if len(pairs) < 2:
                 continue                             # PF/SITE/FIELD are not `artefacts` entries
-            digests = set()
-            for path in paths:
+            rows = []
+            for key, station, path in pairs:
                 if os.path.exists(path):
                     with open(path, "rb") as f:
-                        digests.add(hashlib.md5(f.read()).hexdigest())
-            (differing if len(digests) == len(paths) else identical).append(g)
-        ck("every per-site artefact is a DIFFERENT file for every site", not identical,
-           "%s all differ across %d sites" % (", ".join(differing), len(offer)) if not identical
-           else "IDENTICAL across sites: %s" % ", ".join(identical))
+                        rows.append((key, station, hashlib.md5(f.read()).hexdigest()))
+            crossed = _cross_station_collisions(rows)
+            if crossed:
+                identical.append(g)
+                for ks in crossed:
+                    detail.append("%s: %s" % (g, " = ".join("%s(%s)" % (k, st) for k, st in ks)))
+            else:
+                differing.append(g)
+        ck("no per-site artefact is shared by two sites on DIFFERENT stations", not identical,
+           "%s: no cross-station collision across %d sites" % (", ".join(differing), len(offer))
+           if not identical else "CROSS-STATION COLLISION -- %s" % "; ".join(detail))
 
     # ---- 4. no site-identifying literal in the page's code ---------------------------
     # THE ONE THAT WOULD HAVE CAUGHT #98. Comments are stripped first, deliberately: the retraction
@@ -1606,11 +1674,61 @@ def check_wind_is_this_sites_own():
             continue
         st = jload(os.path.join(DEMO, art))["site"]
         ident[s["key"]] = (st.get("osm_source"), st.get("osm_receptor"), st.get("operator"))
-    for i, field in enumerate(("osm_source", "osm_receptor", "operator")):
+    # 🔴 AN ABSENT RECEPTOR IS NOT A COLLIDING ONE, and this is the THIRD check in this file to meet
+    # that distinction. `osm_receptor` is null at every standalone facility -- there is no second
+    # building -- so two of them both read `None` and a pairwise-distinctness test calls that a
+    # fallback. It is the opposite: it is the honest record of an absence, and the value that must
+    # be unique is the one that identifies the plant, `osm_source`.
+    # So nulls are EXCLUDED from the comparison and asserted separately as nulls. Skipping them
+    # silently would be the danger; counting them as duplicates is merely wrong.
+    # THE TWO ID FIELDS KEEP THE UNIQUENESS RULE, because the premise holds for them exactly: an
+    # OSM way id names one building, so two sites reporting the same id is proof of a fallback and
+    # cannot be anything else.
+    for i, field in enumerate(("osm_source", "osm_receptor")):
         vals = {k: v[i] for k, v in ident.items()}
+        absent = {k for k, v in vals.items() if v is None}
+        if absent:
+            ck("%s is NULL at %d facility(ies) with no receptor, not duplicated" % (field,
+                                                                                   len(absent)),
+               all(vals[k] is None for k in absent),
+               "null at %s -- one building, so there is no second id to name"
+               % ", ".join(sorted(absent)))
+            vals = {k: v for k, v in vals.items() if k not in absent}
+        if len(vals) < 2:
+            continue
         ck("every site names its OWN %s" % field,
            len(set(vals.values())) == len(vals),
            " | ".join("%s=%s" % (k, str(v)[:26]) for k, v in vals.items()))
+
+    # 🔴 `operator` WAS IN THE LOOP ABOVE, AND UNIQUENESS IS THE WRONG TEST FOR A NAME.
+    # It failed the moment the national tier reached a second Google facility: NE_way_1422101116
+    # (way 1422101116, Nebraska) and OH_way_1281982556 (way 1252196814, Ohio) are two different
+    # buildings about 1,100 km apart, and OpenStreetMap tags both `name=Google`. That is OSM telling
+    # the truth -- one operator runs many halls -- not a fallback. Demanding distinct operator
+    # strings would force a FABRICATED difference into the trace and onto page 1 of two PDFs, which
+    # is this section's own failure mode pointed the wrong way.
+    # The defect it was written for is narrower and is still asserted below: a non-default site
+    # carrying the DEFAULT site's operator string, which is how Chicago's trace came to identify its
+    # plant as two AWS halls in Virginia. The strong general guarantee is the OSM-id uniqueness
+    # above -- an id cannot be legitimately shared, a name can.
+    import metros as _MO                                                  # noqa: PLC0415
+    ops = {k: v[2] for k, v in ident.items() if v[2] is not None}
+    default_op = ops.get(_MO.DEFAULT_METRO)
+    if default_op and len(ops) > 1:
+        borrowed = sorted(k for k, v in ops.items()
+                          if k != _MO.DEFAULT_METRO and v == default_op)
+        ck("no site wears the reference site's operator", not borrowed,
+           "%d site(s) checked against %r" % (len(ops) - 1, default_op) if not borrowed
+           else "BORROWED by %s" % ", ".join(borrowed))
+    # AND A FALLBACK LABEL MUST STILL BE UNIQUE. "OSM way N" is derived from the id, so two sites
+    # showing the same one would mean the id itself was shared -- forbidden above. This reads that
+    # same guarantee back through the operator string, which is the field a reader actually sees,
+    # and it is the assertion that would have caught the bare word "unnamed" shared by four sites.
+    fb = {k: v for k, v in ops.items() if v.startswith("OSM way ")}
+    if fb:
+        ck("every derived operator label is unique, not a shared placeholder",
+           len(set(fb.values())) == len(fb),
+           "%d unnamed building(s), each identified by its own way id" % len(fb))
     # AND IT MUST MATCH THE MANIFEST, which reads the same committed file by a different path. Equal
     # values from two readers is the check; the trace agreeing with itself would prove nothing.
     for s in sites:

@@ -56,7 +56,7 @@ from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import (banner, box_aoi, classify_vendor, credits_remaining, HEATMAP_CREDITS,
-                    is_billed, load_key, RESULTS, submit_poll, utc_now, verdict)
+                    is_billed, load_key, RESULTS, submit_poll, utc_now, vendor_rec, verdict)
 import buy_national_fields as BNF
 
 STATE_FILE = os.path.join(RESULTS, "national_recovery_state.json")
@@ -133,7 +133,13 @@ def do_one_probe(key):
                     max_s=480, require_data=True)
     after = credits_remaining(key)
     feats = (((r.get("result") or {}).get("map_data") or {}).get("features") or [])
-    cls = classify_vendor(r)
+    # 🔴 `classify_vendor(r)` ON THE RAW RETURN MEANT THIS WATCHER COULD NEVER SEE RECOVERY.
+    # The classifier reads `rec["tiles"]`; a common.submit_poll return has no such key and carries
+    # the payload at `result.map_data.features`. So `cls` was permanently "completed_but_empty",
+    # `ok = cls == "ok" and ...` was permanently False, and the watcher would have reported the
+    # vendor down while holding real tiles in `feats` on the very same line. `vendor_rec()` is the
+    # converter that exists for exactly this, and it reads submit_poll's own key names.
+    cls = classify_vendor(vendor_rec(r))
     billed = is_billed(cls)
     ok = cls == "ok" and len(feats) > 0
     print("   probe window %s %s-%s %s  ->  class=%s  tiles=%d  credits %s -> %s"

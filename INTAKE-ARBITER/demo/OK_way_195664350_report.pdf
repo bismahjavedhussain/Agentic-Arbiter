@@ -1,0 +1,298 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold /Encoding /WinAnsiEncoding >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Pages /Kids [7 0 R 9 0 R 11 0 R 13 0 R] /Count 4 >>
+endobj
+6 0 obj
+<< /Length 7365 >>
+stream
+BT /FHB 11.40 Tf 0.070 0.150 0.270 rg 1 0 0 1 42.00 799.89 Tm (INTAKE-ARBITER  --  FREE-COOLING DECISION REPORT) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 788.69 Tm (An agent that decides, hour by hour, whether outside air can cool a data centre.) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 777.49 Tm (=======================================================================================================) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 760.69 Tm (THE SITE) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 749.49 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 738.29 Tm (Location        Cherokee Data Center, OK -- station KJLN, America/Chicago) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 727.09 Tm (Building        OSM 195664350) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 715.89 Tm (                Cherokee Data Center) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 704.69 Tm (Facade gap      not applicable -- one building, no second facade) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 693.49 Tm (Weather record  43,684 real hourly records from KJLN) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 682.29 Tm (Plume physics   NOT MODELLED. No other tagged data centre lies inside the solver's validated range, so) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 671.09 Tm (                there is no neighbour intake for a plume to arrive at: the quantity does not exist here) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 659.89 Tm (                rather than being unmeasured. This is a statement about the model's domain, not a claim) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 648.69 Tm (                that recirculation here is zero. A building's own exhaust re-entering its own intake is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 637.49 Tm (                not modelled at any site in this project.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 621.81 Tm (FortyGuard data: weather and geometry are this site's own; the four measured FortyGuard level offsets) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 610.61 Tm (  and the N-26 coverage record are Ashburn's, because only Ashburn has forecast/outcome day pairs.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 599.41 Tm (  Quote the hours for this site; quote the coverage for Ashburn.) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 582.61 Tm (THIS REPORT IS A SNAPSHOT, NOT THE LIVE PAGE) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 571.41 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 560.21 Tm (The interface recomputes the decision for whatever configuration a reader selects. This file was) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 549.01 Tm (  generated at build time for the ONE configuration named below, chosen because it is the configuration) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 537.81 Tm (  in which this site's agent does the most while still changing mode at least once. If the numbers on) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 526.61 Tm (  screen differ from the numbers here, the configuration differs -- compare the two lists before) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 515.41 Tm (  concluding anything else.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 499.73 Tm (Day                    2024-02-27   \(crossing\)) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 488.53 Tm (Plant limit            21.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 477.33 Tm (Notice required        3 h) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 466.13 Tm (Forecast skill         0.50 relative to persistence) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 454.93 Tm (Level anchor           sensor) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 443.73 Tm (Condenser bank         longest facade) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 432.53 Tm (Switch budget          2 mode changes per day) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 421.33 Tm (Minimum dwell          3 h) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 410.13 Tm (Max dew point          15.0 C  \(Green Grid WP#46 p.6\)) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 393.33 Tm (WHAT THE AGENT DID ON THIS DAY) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 382.13 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 370.93 Tm (The agent ran free cooling for 5 of 24 hours with 1 mode change. That is 3 more than the reactive) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 359.73 Tm (  incumbent, at 0 unsafe hours against its 0. 4 hours were safe but still ran chillers, because the) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 348.53 Tm (  schedule could not afford them.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 332.85 Tm (Agent       5 of 24 hours free cooling, 1 mode change\(s\), 0 unsafe hour\(s\)) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 321.65 Tm (Incumbent   2 of 24 hours free cooling, 1 mode change\(s\), 0 unsafe hour\(s\)) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 310.45 Tm (           4 hour\(s\) passed every gate and still ran chillers, because the schedule could not afford) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 299.25 Tm (           them) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 282.45 Tm (EVERY HOUR, AND THE REASON FOR IT) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 271.25 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
+BT /FB 8.20 Tf 0.250 0.280 0.320 rg 1 0 0 1 42.00 260.05 Tm (hh  mode        safe binding        bound   limit  actual  margin) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 248.85 Tm (00  mechanical  yes  -               20.810    21.0  20.560   0.993) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 237.65 Tm (01  mechanical  no   dry-bulb        21.110    21.0  21.110   0.927) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 226.45 Tm (02  mechanical  no   dry-bulb        21.115    21.0  21.110   0.876) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 215.25 Tm (03  mechanical  yes  -               20.840    21.0  20.560   0.822) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 204.05 Tm (04  mechanical  no   dry-bulb        21.115    21.0  20.560   0.779) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 192.85 Tm (05  mechanical  yes  -               20.555    21.0  19.440   0.736) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 181.65 Tm (06  mechanical  yes  -               20.555    21.0  19.440   0.888) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 170.45 Tm (07  mechanical  no   dry-bulb        21.950    21.0  20.560   1.145) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 159.25 Tm (08  mechanical  no   dry-bulb        23.330    21.0  21.110   1.761) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 148.05 Tm (09  mechanical  no   dry-bulb        24.725    21.0  21.670   1.991) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 136.85 Tm (10  mechanical  no   dry-bulb        26.670    21.0  23.890   1.975) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 125.65 Tm (11  mechanical  no   dry-bulb        27.225    21.0  26.110   1.491) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 114.45 Tm (12  mechanical  no   dry-bulb        27.225    21.0  26.670   1.312) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 103.25 Tm (13  mechanical  no   dry-bulb        28.335    21.0  27.780   1.152) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 92.05 Tm (14  mechanical  no   dry-bulb        28.335    21.0  26.670   0.968) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 80.85 Tm (15  mechanical  no   dry-bulb        27.780    21.0  26.110   0.856) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /FR 1 0 R /FB 2 0 R /FH 3 0 R /FHB 4 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 7639 >>
+stream
+BT /FR 8.20 Tf 1 0 0 1 42.00 799.89 Tm (16  mechanical  no   dry-bulb        27.505    21.0  25.560   0.845) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 788.69 Tm (17  mechanical  no   dry-bulb        25.835    21.0  23.890   1.173) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 777.49 Tm (18  mechanical  no   dry-bulb        24.445    21.0  22.780   1.186) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 766.29 Tm (19  FREE        yes  -               18.610    21.0  12.220   1.382) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 755.09 Tm (20  FREE        yes  -               15.830    21.0   8.330   1.554) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 743.89 Tm (21  FREE        yes  -               13.615    21.0   5.000   1.384) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 732.69 Tm (22  FREE        yes  -                7.220    21.0   2.220   1.247) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 721.49 Tm (23  FREE        yes  -                4.445    21.0   0.560   0.905) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 703.57 Tm (bound  = the agent's 90 %-nominal upper bound on intake air, forecast plus margin) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 692.37 Tm (actual = what the intake temperature turned out to be, from the station record) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 681.17 Tm (margin = group-conditional forecast error for that hour of day, plus plume spread) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 664.37 Tm (THE REASONING, HOUR BY HOUR) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 653.17 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 639.17 Tm (00:00  MECHANICAL) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 627.97 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 20.810 C against a 21.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 616.77 Tm (  limit. The schedule is what forbids it: no relaxation of either the switch budget or the dwell) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 605.57 Tm (  would free it, so the surrounding hours are worth more. This is the one explanation a thermostat) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 594.37 Tm (  cannot give, because a thermostat has no plan to be constrained by. It is also why the decision is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 583.17 Tm (  a schedule and not a comparison: spending a mode change here would cost a better one later.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 569.17 Tm (01:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 557.97 Tm (Mechanical. The upper bound on intake air is 21.110 C against a 21.0 C limit, so it fails by 0.110 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 546.77 Tm (  It would take a limit 0.110 C higher, or a bound 0.110 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 532.77 Tm (02:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 521.57 Tm (Mechanical. The upper bound on intake air is 21.115 C against a 21.0 C limit, so it fails by 0.115 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 510.37 Tm (  It would take a limit 0.115 C higher, or a bound 0.115 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 496.37 Tm (03:00  MECHANICAL) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 485.17 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 20.840 C against a 21.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 473.97 Tm (  limit. The schedule is what forbids it: no relaxation of either the switch budget or the dwell) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 462.77 Tm (  would free it, so the surrounding hours are worth more. This is the one explanation a thermostat) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 451.57 Tm (  cannot give, because a thermostat has no plan to be constrained by. It is also why the decision is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 440.37 Tm (  a schedule and not a comparison: spending a mode change here would cost a better one later.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 426.37 Tm (04:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 415.17 Tm (Mechanical. The upper bound on intake air is 21.115 C against a 21.0 C limit, so it fails by 0.115 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 403.97 Tm (  It would take a limit 0.115 C higher, or a bound 0.115 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 389.97 Tm (05:00  MECHANICAL) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 378.77 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 20.555 C against a 21.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 367.57 Tm (  limit. The schedule is what forbids it: no relaxation of either the switch budget or the dwell) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 356.37 Tm (  would free it, so the surrounding hours are worth more. This is the one explanation a thermostat) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 345.17 Tm (  cannot give, because a thermostat has no plan to be constrained by. It is also why the decision is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 333.97 Tm (  a schedule and not a comparison: spending a mode change here would cost a better one later.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 319.97 Tm (06:00  MECHANICAL) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 308.77 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 20.555 C against a 21.0 C) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 297.57 Tm (  limit. The schedule is what forbids it: no relaxation of either the switch budget or the dwell) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 286.37 Tm (  would free it, so the surrounding hours are worth more. This is the one explanation a thermostat) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 275.17 Tm (  cannot give, because a thermostat has no plan to be constrained by. It is also why the decision is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 263.97 Tm (  a schedule and not a comparison: spending a mode change here would cost a better one later.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 249.97 Tm (07:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 238.77 Tm (Mechanical. The upper bound on intake air is 21.950 C against a 21.0 C limit, so it fails by 0.950 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 227.57 Tm (  It would take a limit 0.950 C higher, or a bound 0.950 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 213.57 Tm (08:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 202.37 Tm (Mechanical. The upper bound on intake air is 23.330 C against a 21.0 C limit, so it fails by 2.330 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 191.17 Tm (  It would take a limit 2.330 C higher, or a bound 2.330 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 177.17 Tm (09:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 165.97 Tm (Mechanical. The upper bound on intake air is 24.725 C against a 21.0 C limit, so it fails by 3.725 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 154.77 Tm (  It would take a limit 3.725 C higher, or a bound 3.725 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 140.77 Tm (10:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 129.57 Tm (Mechanical. The upper bound on intake air is 26.670 C against a 21.0 C limit, so it fails by 5.670 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 118.37 Tm (  It would take a limit 5.670 C higher, or a bound 5.670 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 104.37 Tm (11:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 93.17 Tm (Mechanical. The upper bound on intake air is 27.225 C against a 21.0 C limit, so it fails by 6.225 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 81.97 Tm (  It would take a limit 6.225 C higher, or a bound 6.225 C tighter, to change this hour.) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /FR 1 0 R /FB 2 0 R /FH 3 0 R /FHB 4 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 7336 >>
+stream
+BT /FB 8.20 Tf 1 0 0 1 42.00 799.89 Tm (12:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 788.69 Tm (Mechanical. The upper bound on intake air is 27.225 C against a 21.0 C limit, so it fails by 6.225 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 777.49 Tm (  It would take a limit 6.225 C higher, or a bound 6.225 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 763.49 Tm (13:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 752.29 Tm (Mechanical. The upper bound on intake air is 28.335 C against a 21.0 C limit, so it fails by 7.335 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 741.09 Tm (  It would take a limit 7.335 C higher, or a bound 7.335 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 727.09 Tm (14:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 715.89 Tm (Mechanical. The upper bound on intake air is 28.335 C against a 21.0 C limit, so it fails by 7.335 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 704.69 Tm (  It would take a limit 7.335 C higher, or a bound 7.335 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 690.69 Tm (15:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 679.49 Tm (Mechanical. The upper bound on intake air is 27.780 C against a 21.0 C limit, so it fails by 6.780 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 668.29 Tm (  It would take a limit 6.780 C higher, or a bound 6.780 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 654.29 Tm (16:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 643.09 Tm (Mechanical. The upper bound on intake air is 27.505 C against a 21.0 C limit, so it fails by 6.505 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 631.89 Tm (  It would take a limit 6.505 C higher, or a bound 6.505 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 617.89 Tm (17:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 606.69 Tm (Mechanical. The upper bound on intake air is 25.835 C against a 21.0 C limit, so it fails by 4.835 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 595.49 Tm (  It would take a limit 4.835 C higher, or a bound 4.835 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 581.49 Tm (18:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 570.29 Tm (Mechanical. The upper bound on intake air is 24.445 C against a 21.0 C limit, so it fails by 3.445 C.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 559.09 Tm (  It would take a limit 3.445 C higher, or a bound 3.445 C tighter, to change this hour.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 545.09 Tm (19:00  FREE-COOLING) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 533.89 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 18.610 C, which is 2.390 C under the 21.0) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 522.69 Tm (  C plant limit. That bound is the forecast plus a margin of 1.382 C, and the margin is measured, not) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 511.49 Tm (  chosen: 1.382 C of group-conditional forecast error for this hour of day, plus 0.0000 C for how) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 500.29 Tm (  much the plume could move if the wind direction is off by the amount FortyGuard's forecast is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 489.09 Tm (  actually off by.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 475.09 Tm (20:00  FREE-COOLING) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 463.89 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 15.830 C, which is 5.170 C under the 21.0) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 452.69 Tm (  C plant limit. That bound is the forecast plus a margin of 1.554 C, and the margin is measured, not) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 441.49 Tm (  chosen: 1.554 C of group-conditional forecast error for this hour of day, plus 0.0000 C for how) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 430.29 Tm (  much the plume could move if the wind direction is off by the amount FortyGuard's forecast is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 419.09 Tm (  actually off by.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 405.09 Tm (21:00  FREE-COOLING) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 393.89 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 13.615 C, which is 7.385 C under the 21.0) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 382.69 Tm (  C plant limit. That bound is the forecast plus a margin of 1.384 C, and the margin is measured, not) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 371.49 Tm (  chosen: 1.384 C of group-conditional forecast error for this hour of day, plus 0.0000 C for how) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 360.29 Tm (  much the plume could move if the wind direction is off by the amount FortyGuard's forecast is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 349.09 Tm (  actually off by.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 335.09 Tm (22:00  FREE-COOLING) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 323.89 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 7.220 C, which is 13.780 C under the 21.0) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 312.69 Tm (  C plant limit. That bound is the forecast plus a margin of 1.247 C, and the margin is measured, not) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 301.49 Tm (  chosen: 1.247 C of group-conditional forecast error for this hour of day, plus 0.0000 C for how) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 290.29 Tm (  much the plume could move if the wind direction is off by the amount FortyGuard's forecast is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 279.09 Tm (  actually off by.) Tj ET
+BT /FB 8.20 Tf 1 0 0 1 42.00 265.09 Tm (23:00  FREE-COOLING) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 253.89 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 4.445 C, which is 16.555 C under the 21.0) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 242.69 Tm (  C plant limit. That bound is the forecast plus a margin of 0.905 C, and the margin is measured, not) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 231.49 Tm (  chosen: 0.905 C of group-conditional forecast error for this hour of day, plus 0.0000 C for how) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 220.29 Tm (  much the plume could move if the wind direction is off by the amount FortyGuard's forecast is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 56.00 209.09 Tm (  actually off by.) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 192.29 Tm (WHAT IT IS WORTH OVER FIVE REAL YEARS, AT THIS SITE) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 181.09 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 169.89 Tm (Held-out days simulated   913 -- the agent never calibrates on a day it is scored on) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 158.69 Tm (Free cooling delivered    13.26 h/day, i.e. 4,844 h/yr) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 147.49 Tm (Chiller-hours avoided     +344.0 h/yr against a tuned reactive incumbent) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 136.29 Tm (12-hour plan stability    93.9 % of 21,809 re-plans change nothing at all) Tj ET
+BT /FB 8.20 Tf 0.250 0.280 0.320 rg 1 0 0 1 42.00 119.49 Tm (The ladder, one constraint at a time:) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 108.29 Tm (   N-56-like: notice 0, skill 1.00, no constraint    +43.6 h/yr) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 97.09 Tm (   + switch budget 2, min dwell 3 h                  +59.2 h/yr) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 85.89 Tm (   + dew-point gate 15 C \(Green Grid WP#46 p.6\)     +115.2 h/yr) Tj ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /FR 1 0 R /FB 2 0 R /FH 3 0 R /FHB 4 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 5177 >>
+stream
+BT /FR 8.20 Tf 1 0 0 1 42.00 799.89 Tm (   + notice 3 h, skill 0.50 \(no perfect forecast\)   +344.0 h/yr) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 788.69 Tm (   + unanchored, 4 measured FG offsets rotated      -160.8 h/yr) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 771.89 Tm (PRICED, IN THIS STATE'S OWN ELECTRICITY TARIFF) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 760.69 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 749.49 Tm (Chiller power         156.1 kW per MW of IT load \(0.549 kW/ton, the ASHRAE 90.1-2019 minimum\)) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 738.29 Tm (Electricity           8.72 cents/kWh \(Virginia commercial, 2024 annual\)) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 727.09 Tm (Energy avoided        53,708 kWh per MW of IT load per year) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 715.89 Tm (Value                 $4,683 per MW of IT load per year) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 700.21 Tm (Everything above is PER MEGAWATT OF IT LOAD. This project has never measured a data centre's size and) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 689.01 Tm (  will not invent one; a reader who knows their own IT load multiplies once.) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 672.21 Tm (WHAT IS NOT CLAIMED) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 661.01 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 649.81 Tm (- The chiller COMPRESSOR only. Fans, chilled-water pumps, condenser pumps and cooling-tower fans keep) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 638.61 Tm (  running, and an airside economizer moves MORE air, so fan power can rise. The unmeasured term has the) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 627.41 Tm (  OPPOSITE SIGN, so this is an upper bound.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 614.53 Tm (- Code-minimum chiller efficiency is the OPTIMISTIC end: Standard 90.1 is a floor, hyperscale plants) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 603.33 Tm (  beat it, and a better chiller saves less per hour switched off.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 590.45 Tm (- Full-load kW/ton OVERSTATES the draw at the moment free cooling is available, because free cooling) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 579.25 Tm (  happens when it is cool and a chiller at a cool condenser runs below its rating. IPLV is the lower) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 568.05 Tm (  published number but is an annual-weighted metric under AHRI's assumed load profile, not the) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 556.85 Tm (  part-load point free-cooling weather sits at.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 543.97 Tm (- The heat rejected is APPROXIMATED by the IT load. UPS, PDU and lighting losses inside the envelope) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 532.77 Tm (  add to it; some overhead sits outside the cooled space, so scaling by full PUE would overshoot. No) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 521.57 Tm (  PUE multiplier is applied.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 508.69 Tm (- EIA STATE-SECTOR AVERAGES, not the site's tariff. A Loudoun County campus buys on a) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 497.49 Tm (  large-general-service contract that is not public.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 484.61 Tm (- No carbon, no water, no maintenance and no demand charges. Tower water use moves the OTHER way when) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 473.41 Tm (  the chiller runs less.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 460.53 Tm (- Every caveat on the hours is inherited: the headline is conditional on the bank sitting on the long) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 449.33 Tm (  facade \(the refusal guard is priced at -3,124 h/yr where it fires\) and the unanchored row is) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 438.13 Tm (  NEGATIVE. Those rows appear here with their signs intact.) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 419.65 Tm (HOW TO REPRODUCE EVERY NUMBER IN THIS REPORT) Tj ET
+BT /FR 8.20 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 408.45 Tm (-------------------------------------------------------------------------------------------------------) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 397.25 Tm (   cd INTAKE-ARBITER/src && python run_all.py) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 381.57 Tm (That rebuilds every artefact from saved data and then audits it: 39 checks, 68 published figures) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 370.37 Tm (  re-read out of the files the code itself wrote, and it exits non-zero on any failure. It makes ZERO) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 359.17 Tm (  API calls -- every input is a saved FortyGuard response, a committed geometry file, or the station's) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 347.97 Tm (  own hourly record.) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 332.29 Tm (Generated by INTAKE-ARBITER/src/report.py. Verified by being read back: the file was reopened after) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 321.09 Tm (  writing and every hour of the schedule, the headline counts and this site's own name were confirmed) Tj ET
+BT /FR 8.20 Tf 1 0 0 1 42.00 309.89 Tm (  present.) Tj ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /FR 1 0 R /FB 2 0 R /FH 3 0 R /FHB 4 0 R >> >> /Contents 12 0 R >>
+endobj
+14 0 obj
+<< /Type /Catalog /Pages 5 0 R >>
+endobj
+xref
+0 15
+0000000000 65535 f 
+0000000009 00000 n 
+0000000104 00000 n 
+0000000204 00000 n 
+0000000301 00000 n 
+0000000403 00000 n 
+0000000480 00000 n 
+0000007897 00000 n 
+0000008060 00000 n 
+0000015751 00000 n 
+0000015914 00000 n 
+0000023303 00000 n 
+0000023468 00000 n 
+0000028698 00000 n 
+0000028863 00000 n 
+trailer
+<< /Size 15 /Root 14 0 R >>
+startxref
+28913
+%%EOF

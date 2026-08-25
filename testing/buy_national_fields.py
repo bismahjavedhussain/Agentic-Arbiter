@@ -88,7 +88,12 @@ TARGET_HOUR_LOCAL = 14           # same convention as the existing single-site p
 V1 = "https://api.fortyguard.com/v1"
 
 CHUNK_SIZE = 20                  # a deliberate checkpoint interval, not the disputed "30/day" cap
-SUBMIT_STAGGER_S = 0.4           # matches live.py -- a burst of identical-shape submits triggered
+# 0.4 -> 3.0 s, 2026-08-25, at the user's explicit instruction: "keep a few seconds of interval
+# between calls so they don't crash again". 0.4 s is a burst, not an interval -- twenty submits went
+# out inside eight seconds. The cost of spacing them is trivial next to the cost of provoking the
+# vendor: 3 s x 40 calls is two minutes, against a run that already takes ~25 s per call to poll.
+# Kept as one constant so the pacing is a stated policy rather than a scatter of sleeps.
+SUBMIT_STAGGER_S = 3.0           # matches live.py -- a burst of identical-shape submits triggered
                                  # one submit_rejected in twelve (gotcha #124); this is the same
                                  # insurance, same value, reused rather than re-derived
 SUBMIT_RETRY_WAIT_S = 3.0
@@ -203,9 +208,18 @@ def append_ledger_one(entry):
 
 def finalize_job(job, rec):
     """Classify ONE resolved job, save its field if real, and ledger it -- all before returning."""
-    cls = classify_vendor(rec)
-    billed = is_billed(cls)
+    # 🔴 COUNT THE FEATURES BEFORE CLASSIFYING, AND HAND THE COUNT TO THE CLASSIFIER.
+    # `classify_vendor` reads `rec["tiles"]`. This module polls the vendor itself rather than through
+    # common.submit_poll, so its record carries `result` and `activity_id` and has NO `tiles` key --
+    # which made `rec.get("tiles")` always None, so `cls` was ALWAYS "completed_but_empty" and
+    # `ok` was ALWAYS False. Every AOI this script ever bought was discarded on arrival and billed.
+    # Measured 2026-08-25 on rank #1 (VA_1, 111 tagged buildings): 17,383 real features returned,
+    # labelled empty, field not written, 4,220 credits charged.
+    # `vendor_rec()` is NOT the right converter here -- it reads the activity id from `aid`, which is
+    # common.submit_poll's key, not this module's. Passing the count explicitly is.
     feats = ((rec.get("result") or {}).get("map_data") or {}).get("features") or []
+    cls = classify_vendor(dict(rec, tiles=len(feats)))
+    billed = is_billed(cls)
     ok = cls == "ok" and len(feats) > 0
     if ok:
         out_path = os.path.join(FIELDS_DIR, "%s.json" % job["aoi_key"])

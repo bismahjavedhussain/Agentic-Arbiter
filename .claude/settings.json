@@ -17,7 +17,23 @@
       "Bash(python testing/verify_map_hover.py)",
       "Bash(curl -s -o /dev/null -w \"sites.json -> HTTP %{http_code}\\\\n\" http://127.0.0.1:8000/sites.json)",
       "Bash(curl -s -o /dev/null -w \"unified_sites.json -> HTTP %{http_code}\\\\n\" http://127.0.0.1:8000/unified_sites.json)",
-      "Bash(curl -s http://127.0.0.1:8000/index.html)"
+      "Bash(curl -s http://127.0.0.1:8000/index.html)",
+      "Bash(node -e ' *)",
+      "Read(//c/Users/bisma/.claude/plugins/marketplaces/claude-plugins-official/plugins/frontend-design/skills/frontend-design/**)",
+      "Bash(cat /c/Users/bisma/.claude/plugins/config.json 2>/dev/null | head -60; echo \"=== settings enabledPlugins ===\"; grep -i -A5 \"plugin\" /c/Users/bisma/.claude/settings.json 2>/dev/null | head -20)",
+      "Read(//c/Users/bisma/.claude/plugins/**)",
+      "Read(//c/Users/bisma/.claude/**)",
+      "Bash(echo \"REAL EXIT CODE: $?\")",
+      "Bash(git -C /d/FGHackathon status --short -- INTAKE-ARBITER/demo/IA_way_191655977_explanations.json)",
+      "Bash(git -C /d/FGHackathon log --oneline -1 -- INTAKE-ARBITER/demo/IA_way_191655977_explanations.json)",
+      "Bash(grep -n \"^\\\\*{box-sizing\\\\|^html,body\\\\|^body{\\\\|^\\\\.viz-root\\\\|^h1{\\\\|^h2{\\\\|^h3{\\\\|^\\\\.sub{\\\\|^\\\\.card{\\\\|^\\\\.note{\\\\|^\\\\.warn{\\\\|^\\\\.crit{\\\\|^\\\\.ok  {\\\\|^\\\\.tiles{\\\\|^\\\\.tile{\\\\|^\\\\.tile \\\\|^\\\\.legend\\\\|^table{\\\\|^th,td{\\\\|^th:first-child\\\\|^th{\\\\|^canvas{\\\\|^\\\\.row{\\\\|^\\\\.grow{\\\\|^\\\\.tt{\\\\|^\\\\.muted{\\\\|^select,button,input{\\\\|^button{\\\\|^input::placeholder\\\\|^\\\\.pill{\\\\|^\\\\.err{\\\\|^details{\\\\|^summary{\" index.html)",
+      "Bash(python verify_map_hover.py)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(python verify_site_panels.py)",
+      "Bash(echo \"hover exit: $?\")",
+      "Bash(echo \"panels exit: $?\")",
+      "Bash(grep -E \"balanced|id is used twice|inline script parses|panel list|renders the selected site|retracted claim appears|browser agrees|the browser|defined and referenced nowhere\" /tmp/full.txt | head -20)",
+      "Bash(grep -E \"VERDICT|panel\\\\\\(s\\\\\\) differ|IDENTICAL|non-determin\" /tmp/p3.txt)"
     ]
   }
 }

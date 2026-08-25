@@ -90,7 +90,45 @@ def offerable_sites():
     p = os.path.join(DEMO, "sites.json")
     if not os.path.exists(p):
         raise SystemExit("demo/sites.json missing -- run `python metros.py --manifest` first")
-    return [s["key"] for s in json.load(open(p, encoding="utf-8"))["sites"] if s.get("offerable")]
+    # 🔴 `data_ready` OR `offerable`, NOT `offerable` ALONE.
+    # `offerable` means "the interface may show this site", which requires its artefacts to already
+    # exist. Gating a BUILD on it is circular -- a facility could never be built because it had not
+    # been built. `data_ready` is the question that actually applies here: does this facility have
+    # its own geometry and its own >= 95 % weather record, so that building it would produce an
+    # honest result? `offerable` is kept in the test so the five hand-built metros, which predate
+    # the distinction, behave exactly as before.
+    # 🔴 A SCREENED REFUSAL IS NOT A BUILD TARGET, AND THIS GATE LET TWO OF THEM THROUGH.
+    # `data_ready` asks only whether the DATA exists -- geometry, its own weather, a runnable kind.
+    # It says nothing about the imagery scope gate, and `phoenix` (NOT BUILT) and `santaclara`
+    # (ROOFTOP) both satisfy it: they have candidate geometry and a full weather record, and they
+    # were refused for a reason no amount of data changes. So `--others` handed them to the chain,
+    # which died on the first step with FileNotFoundError on `phoenix_solver_site_longest.json` --
+    # a file that does not exist precisely BECAUSE the site was refused before geometry was solved.
+    # run_all step 13 has been failing on this, which is why the rebuild could not go green.
+    #
+    # THE DISTINCTION IS THE ONE metros.py ALREADY DRAWS, and it is load-bearing: "A screened
+    # refusal and an unscreened unknown are different facts and the manifest keeps them different."
+    #   GRADE         assessed, plant at ground level      -> build it
+    #   NOT SCREENED  no verdict recorded yet              -> build it, and it ships saying so
+    #   ROOFTOP       assessed and REFUSED                 -> never build it
+    #   NOT BUILT     assessed and REFUSED                 -> never build it
+    # So this filters on the RECORDED REFUSAL, not on `scope_ok` -- every one of the national
+    # facilities is `scope_ok: false` because it is unscreened, and gating on that flag would refuse
+    # the entire national tier.
+    REFUSED_VERDICTS = ("ROOFTOP", "NOT BUILT")
+    out = []
+    for s in json.load(open(p, encoding="utf-8"))["sites"]:
+        if not (s.get("offerable") or s.get("data_ready")):
+            continue
+        if s.get("scope_verdict") in REFUSED_VERDICTS:
+            continue
+        # AND A MECHANICAL PRECONDITION, independent of any verdict: the chain's first step solves
+        # the rise table, which loads `<key>_solver_site_longest.json`. Without it the build cannot
+        # start, so skipping here turns a traceback 60 s in into a stated skip now.
+        if not os.path.exists(M.geom_path("solver_site_longest.json", s["key"])):
+            continue
+        out.append(s["key"])
+    return out
 
 
 def main():

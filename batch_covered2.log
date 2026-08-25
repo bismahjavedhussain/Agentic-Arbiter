@@ -1,0 +1,52 @@
+facilities with a purchased field : 157
+   already offerable              : 37
+   to complete in this run        : 120
+
+measured pace is ~7.8 min/facility (a station fetch dominates), so ~15.6 h to finish all 120.
+Last night 28 of 167 (17%%) ended `no_station` because no station cleared the 95%% floor,
+so expect roughly 100 to complete and the rest to be recorded UNASSIGNED, honestly.
+
+launching: build_national_batch.py run --hours 14 --keys <120 keys>
+==============================================================================
+NATIONAL BATCH RUN -- 117 facility(ies). One at a time, on purpose.
+==============================================================================
+
+[1/117] TX_way_1533350872      TX  Microsoft TRP3 (SAT46), Microsoft, M  (0.0 h elapsed)
+      manifest refresh                   OK       14.8s  
+      the 8-step agent chain             FAILED    0.2s  
+         ERR not offerable: TX_way_1533350872. Offerable: ashburn, chicago, dulles, AL_way_1540172608, AZ_way_1015704
+      manifest re-read                   OK       14.5s  
+      -> chain_failed
+
+[2/117] TX_way_850965775       TX  Compass Data Center, Compass Data Ce  (0.0 h elapsed)
+      manifest refresh                   OK        9.5s  
+      the 8-step agent chain             FAILED    0.1s  
+         ERR not offerable: TX_way_850965775. Offerable: ashburn, chicago, dulles, AL_way_1540172608, AZ_way_10157040
+      manifest re-read                   OK        8.7s  
+      -> chain_failed
+
+[3/117] TX_way_1426525221      TX  Google, Compass Data Center, Compass  (0.0 h elapsed)
+      manifest refresh                   OK       10.3s  
+      the 8-step agent chain             FAILED    0.2s  
+         ERR not offerable: TX_way_1426525221. Offerable: ashburn, chicago, dulles, AL_way_1540172608, AZ_way_1015704
+      manifest re-read                   OK        9.9s  
+      -> chain_failed
+
+[4/117] WY_way_537172528       WY  CYS41 Datacenter, CYS42 Datacenter,   (0.0 h elapsed)
+      manifest refresh                   OK       11.5s  
+      the 8-step agent chain             FAILED    0.2s  
+         ERR not offerable: WY_way_537172528. Offerable: ashburn, chicago, dulles, AL_way_1540172608, AZ_way_10157040
+      manifest re-read                   OK       10.0s  
+      -> chain_failed
+
+[5/117] VA_way_1333205263      VA  (unnamed)  (0.0 h elapsed)
+      manifest refresh                   OK        9.9s  
+      the 8-step agent chain             FAILED    0.2s  
+         ERR not offerable: VA_way_1333205263. Offerable: ashburn, chicago, dulles, AL_way_1540172608, AZ_way_1015704
+      manifest re-read                   OK       10.1s  
+      -> chain_failed
+
+[6/117] IA_way_1454813846      IA  (unnamed)  (0.0 h elapsed)
+      manifest refresh                   OK       10.0s  
+      the 8-step agent chain             FAILED    0.2s  
+         ERR not offerable: IA_way_1454813846. Offerable: ashburn, chicago, dulles, AL_way_1540172608, AZ_way_1015704

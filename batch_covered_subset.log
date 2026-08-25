@@ -1,0 +1,24 @@
+facilities with a purchased field : 157
+   already offerable              : 30
+   to complete in this run        : 127
+
+measured pace is ~7.8 min/facility (a station fetch dominates), so ~16.5 h to finish all 127.
+Last night 28 of 167 (17%%) ended `no_station` because no station cleared the 95%% floor,
+so expect roughly 105 to complete and the rest to be recorded UNASSIGNED, honestly.
+
+launching: build_national_batch.py run --hours 17 --keys <127 keys>
+==============================================================================
+NATIONAL BATCH RUN -- 10 facility(ies). One at a time, on purpose.
+==============================================================================
+
+[1/10] CA_way_1460847458      CA  EdgeCore Silicon Valley  (0.0 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[2/10] CA_way_888253616       CA  NTT Silicon Valley SV1 Data Center  (0.0 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[3/10] NY_way_1109643936      NY  (unnamed)  (0.0 h elapsed)

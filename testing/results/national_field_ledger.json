@@ -404,5 +404,837 @@
   "error": "timed out after 5 polls",
   "credits_charged": 4220,
   "bought_at_utc": "2026-08-23T17:57:59.330389+00:00"
+ },
+ {
+  "aoi_key": "VA_1",
+  "rank": 1,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 111,
+  "entries": [
+   "VA_390_-775"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "completed_but_empty",
+  "billed": true,
+  "n_tiles": 17383,
+  "activity_id": "0bd76dc7-8f11-4da7-b73b-14681230af5b",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:32:23.876302+00:00"
+ },
+ {
+  "aoi_key": "VA_1",
+  "rank": 1,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 111,
+  "entries": [
+   "VA_390_-775"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17383,
+  "activity_id": "869a4ca1-42e2-4bcf-b64a-c4c75fe45493",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:42:32.422805+00:00"
+ },
+ {
+  "aoi_key": "VA_2",
+  "rank": 2,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 53,
+  "entries": [
+   "VA_387_-776"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17283,
+  "activity_id": "a9a0d164-1dc3-46fe-9666-8ef328542ad8",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:42:47.820218+00:00"
+ },
+ {
+  "aoi_key": "CA_3",
+  "rank": 3,
+  "state": "CA",
+  "category": "cluster",
+  "n_tagged": 53,
+  "entries": [
+   "CA_373_-1220"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Los_Angeles",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17387,
+  "activity_id": "404d9cbf-799d-46d7-85e6-8f815d49d97d",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:43:10.937348+00:00"
+ },
+ {
+  "aoi_key": "VA_4",
+  "rank": 4,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 42,
+  "entries": [
+   "VA_389_-775"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17769,
+  "activity_id": "e4372534-0a08-44ce-a410-7597715723fb",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:43:28.862644+00:00"
+ },
+ {
+  "aoi_key": "VA_5",
+  "rank": 5,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 42,
+  "entries": [
+   "VA_389_-775"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17885,
+  "activity_id": "c14ab8d1-5676-4f94-a4d0-5bc7dd81b655",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:44:05.379417+00:00"
+ },
+ {
+  "aoi_key": "TX_6",
+  "rank": 6,
+  "state": "TX",
+  "category": "mixed",
+  "n_tagged": 40,
+  "entries": [
+   "TX_325_-998",
+   "TX_324_-998"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17825,
+  "activity_id": "3b240660-0011-4c7f-b4f6-f4eb2d175b28",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:44:32.991237+00:00"
+ },
+ {
+  "aoi_key": "TX_7",
+  "rank": 7,
+  "state": "TX",
+  "category": "cluster",
+  "n_tagged": 39,
+  "entries": [
+   "TX_294_-987"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17152,
+  "activity_id": "ecf9c7e8-4446-4a32-a806-98eb6fc08e83",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:45:01.568970+00:00"
+ },
+ {
+  "aoi_key": "OH_8",
+  "rank": 8,
+  "state": "OH",
+  "category": "mixed",
+  "n_tagged": 33,
+  "entries": [
+   "OH_400_-828",
+   "OH_401_-828"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17476,
+  "activity_id": "887200f1-fb43-454e-bb56-0457a9066d89",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:45:18.993432+00:00"
+ },
+ {
+  "aoi_key": "WA_9",
+  "rank": 9,
+  "state": "WA",
+  "category": "cluster",
+  "n_tagged": 33,
+  "entries": [
+   "WA_472_-1199"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Los_Angeles",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17885,
+  "activity_id": "2d05d5b7-ed4b-4cbb-84f2-7aa87ab00f97",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:45:47.589620+00:00"
+ },
+ {
+  "aoi_key": "OR_10",
+  "rank": 10,
+  "state": "OR",
+  "category": "cluster",
+  "n_tagged": 32,
+  "entries": [
+   "OR_458_-1197"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Los_Angeles",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17940,
+  "activity_id": "b85ef92f-c37e-4a27-b132-d791ce40ea89",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:46:22.408932+00:00"
+ },
+ {
+  "aoi_key": "PA_11",
+  "rank": 11,
+  "state": "PA",
+  "category": "cluster",
+  "n_tagged": 32,
+  "entries": [
+   "PA_412_-799"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17780,
+  "activity_id": "92b256f3-a7dc-409b-a36c-de5d5b482d80",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:46:51.736970+00:00"
+ },
+ {
+  "aoi_key": "OR_12",
+  "rank": 12,
+  "state": "OR",
+  "category": "cluster",
+  "n_tagged": 24,
+  "entries": [
+   "OR_455_-1230"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Los_Angeles",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17800,
+  "activity_id": "0bd83ac2-6b90-46d8-a1bc-c773e8e62ee7",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:47:07.455020+00:00"
+ },
+ {
+  "aoi_key": "VA_13",
+  "rank": 13,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 22,
+  "entries": [
+   "VA_389_-776"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17810,
+  "activity_id": "fc136ecd-4c25-4854-aac2-6e52ecd38fbe",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:47:43.765969+00:00"
+ },
+ {
+  "aoi_key": "VA_14",
+  "rank": 14,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 20,
+  "entries": [
+   "VA_390_-776"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17194,
+  "activity_id": "30c3bb11-9fba-477b-aae2-e1b3c6ed1ce4",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:48:06.450089+00:00"
+ },
+ {
+  "aoi_key": "VA_15",
+  "rank": 15,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 18,
+  "entries": [
+   "VA_366_-784"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17953,
+  "activity_id": "0b94ca51-c8c2-4deb-945a-d29b77b61f72",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:48:46.740068+00:00"
+ },
+ {
+  "aoi_key": "VA_16",
+  "rank": 16,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 17,
+  "entries": [
+   "VA_374_-773"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17814,
+  "activity_id": "ab7ea8db-d495-4fad-8eb2-acaa3cb243f5",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:49:02.438541+00:00"
+ },
+ {
+  "aoi_key": "IA_17",
+  "rank": 17,
+  "state": "IA",
+  "category": "mixed",
+  "n_tagged": 16,
+  "entries": [
+   "IA_411_-959",
+   "IA_411_-958"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17677,
+  "activity_id": "9b30aafd-22ce-4118-9e8d-93c80be5f4b0",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:49:23.230508+00:00"
+ },
+ {
+  "aoi_key": "OR_18",
+  "rank": 18,
+  "state": "OR",
+  "category": "cluster",
+  "n_tagged": 16,
+  "entries": [
+   "OR_459_-1193"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Los_Angeles",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17373,
+  "activity_id": "517242c1-61cf-43fc-8dbd-9143f2b7952c",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:49:51.934886+00:00"
+ },
+ {
+  "aoi_key": "WA_19",
+  "rank": 19,
+  "state": "WA",
+  "category": "mixed",
+  "n_tagged": 13,
+  "entries": [
+   "WA_474_-1202",
+   "WA_474_-1203",
+   "WA_473_-1203"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Los_Angeles",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17706,
+  "activity_id": "932e71cd-9fa1-40c9-9e47-a7d021ef0981",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:50:17.619451+00:00"
+ },
+ {
+  "aoi_key": "WY_20",
+  "rank": 20,
+  "state": "WY",
+  "category": "mixed",
+  "n_tagged": 13,
+  "entries": [
+   "WY_411_-1049",
+   "WY_411_-1050"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Denver",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17452,
+  "activity_id": "3ea63336-0bc5-41f1-850b-8133787c54ca",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:50:41.421177+00:00"
+ },
+ {
+  "aoi_key": "IL_21",
+  "rank": 21,
+  "state": "IL",
+  "category": "mixed",
+  "n_tagged": 12,
+  "entries": [
+   "IL_420_-880",
+   "IL_419_-881"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17853,
+  "activity_id": "396f9eaf-8b98-44ab-9569-9edaa6afd242",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:52:09.029615+00:00"
+ },
+ {
+  "aoi_key": "TX_22",
+  "rank": 22,
+  "state": "TX",
+  "category": "mixed",
+  "n_tagged": 12,
+  "entries": [
+   "TX_325_-969",
+   "TX_325_-968"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17850,
+  "activity_id": "1897bf6a-6be0-4a9b-934e-95fc0e0a4805",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:52:28.828477+00:00"
+ },
+ {
+  "aoi_key": "OH_23",
+  "rank": 23,
+  "state": "OH",
+  "category": "mixed",
+  "n_tagged": 12,
+  "entries": [
+   "OH_401_-832",
+   "OH_401_-833"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17889,
+  "activity_id": "4baab147-975f-402b-bd2e-22f2fec2fa1d",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:52:53.660972+00:00"
+ },
+ {
+  "aoi_key": "IA_24",
+  "rank": 24,
+  "state": "IA",
+  "category": "cluster",
+  "n_tagged": 12,
+  "entries": [
+   "IA_415_-938"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17684,
+  "activity_id": "2702cdf4-bf39-40b3-b8b0-abef2e58328a",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:53:19.619770+00:00"
+ },
+ {
+  "aoi_key": "NY_25",
+  "rank": 25,
+  "state": "NY",
+  "category": "cluster",
+  "n_tagged": 12,
+  "entries": [
+   "NY_430_-791"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17614,
+  "activity_id": "e6c2840d-7f2f-44a4-b2ae-ef73361f747c",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:53:44.515510+00:00"
+ },
+ {
+  "aoi_key": "OR_26",
+  "rank": 26,
+  "state": "OR",
+  "category": "mixed",
+  "n_tagged": 11,
+  "entries": [
+   "OR_442_-1209",
+   "OR_443_-1209"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Los_Angeles",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17909,
+  "activity_id": "4cd22f79-fbc3-4767-8eee-f497efb648a0",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:54:04.492164+00:00"
+ },
+ {
+  "aoi_key": "NV_27",
+  "rank": 27,
+  "state": "NV",
+  "category": "cluster",
+  "n_tagged": 11,
+  "entries": [
+   "NV_395_-1196"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Los_Angeles",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17882,
+  "activity_id": "0beb5193-79ff-4262-9d49-7fac2d6b8362",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:54:31.061901+00:00"
+ },
+ {
+  "aoi_key": "TX_28",
+  "rank": 28,
+  "state": "TX",
+  "category": "cluster",
+  "n_tagged": 11,
+  "entries": [
+   "TX_294_-988"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17743,
+  "activity_id": "bdc097e7-4e25-4115-b6e1-38d50f008212",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:54:57.096430+00:00"
+ },
+ {
+  "aoi_key": "AZ_29",
+  "rank": 29,
+  "state": "AZ",
+  "category": "cluster",
+  "n_tagged": 10,
+  "entries": [
+   "AZ_333_-1117"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Phoenix",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17396,
+  "activity_id": "9835208f-9a8a-4e2a-9efa-975bc8fe4cd3",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:55:22.676630+00:00"
+ },
+ {
+  "aoi_key": "AZ_30",
+  "rank": 30,
+  "state": "AZ",
+  "category": "cluster",
+  "n_tagged": 10,
+  "entries": [
+   "AZ_332_-1119"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Phoenix",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17117,
+  "activity_id": "91345a9b-fcfe-4aad-91a5-bab563f346ae",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:55:42.402012+00:00"
+ },
+ {
+  "aoi_key": "NV_31",
+  "rank": 31,
+  "state": "NV",
+  "category": "cluster",
+  "n_tagged": 10,
+  "entries": [
+   "NV_360_-1153"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Los_Angeles",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17431,
+  "activity_id": "da210eb7-1f54-449f-8774-44fbecce0550",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:56:02.056591+00:00"
+ },
+ {
+  "aoi_key": "TX_32",
+  "rank": 32,
+  "state": "TX",
+  "category": "cluster",
+  "n_tagged": 10,
+  "entries": [
+   "TX_294_-989"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17556,
+  "activity_id": "1e398fa1-35b4-4a7a-a1b8-4aba5cb6887d",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:56:29.336016+00:00"
+ },
+ {
+  "aoi_key": "NE_33",
+  "rank": 33,
+  "state": "NE",
+  "category": "cluster",
+  "n_tagged": 10,
+  "entries": [
+   "NE_411_-962"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17467,
+  "activity_id": "4a003322-f38e-4c8c-90f7-00a1ba3b908d",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:57:00.490486+00:00"
+ },
+ {
+  "aoi_key": "ND_34",
+  "rank": 34,
+  "state": "ND",
+  "category": "cluster",
+  "n_tagged": 10,
+  "entries": [
+   "ND_460_-986"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17901,
+  "activity_id": "cfbc503f-92aa-4895-96e6-7603cf92c830",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:57:20.178530+00:00"
+ },
+ {
+  "aoi_key": "SC_35",
+  "rank": 35,
+  "state": "SC",
+  "category": "cluster",
+  "n_tagged": 10,
+  "entries": [
+   "SC_330_-801"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17894,
+  "activity_id": "e9dcee81-a274-4f22-a53e-e645e865c359",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:57:46.213262+00:00"
+ },
+ {
+  "aoi_key": "TX_36",
+  "rank": 36,
+  "state": "TX",
+  "category": "mixed",
+  "n_tagged": 9,
+  "entries": [
+   "TX_302_-978",
+   "TX_301_-978"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17484,
+  "activity_id": "163f9ccb-d929-4004-9e93-4723b634b422",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:58:10.602081+00:00"
+ },
+ {
+  "aoi_key": "GA_37",
+  "rank": 37,
+  "state": "GA",
+  "category": "mixed",
+  "n_tagged": 9,
+  "entries": [
+   "GA_340_-843",
+   "GA_341_-843"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17808,
+  "activity_id": "0e028c6b-2962-42db-a793-5ec2743699b0",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:58:36.275825+00:00"
+ },
+ {
+  "aoi_key": "VA_38",
+  "rank": 38,
+  "state": "VA",
+  "category": "cluster",
+  "n_tagged": 9,
+  "entries": [
+   "VA_388_-777"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/New_York",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17235,
+  "activity_id": "14349903-9f23-44a8-b7de-734230bab55b",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:59:00.186684+00:00"
+ },
+ {
+  "aoi_key": "TX_39",
+  "rank": 39,
+  "state": "TX",
+  "category": "cluster",
+  "n_tagged": 9,
+  "entries": [
+   "TX_328_-969"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17369,
+  "activity_id": "c5853a16-4d9e-4221-898b-c3bf4490d813",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T08:59:32.496163+00:00"
+ },
+ {
+  "aoi_key": "TX_40",
+  "rank": 40,
+  "state": "TX",
+  "category": "cluster",
+  "n_tagged": 9,
+  "entries": [
+   "TX_329_-968"
+  ],
+  "window_local": "2026-08-24 14:00-16:00 America/Chicago",
+  "class": "ok",
+  "billed": true,
+  "n_tiles": 17610,
+  "activity_id": "1507b19d-8d78-4c77-bfc1-6db7f8d76af2",
+  "terminal_status": "completed",
+  "submit_http": 200,
+  "error": null,
+  "credits_charged": 4220,
+  "bought_at_utc": "2026-08-25T09:00:04.595309+00:00"
  }
 ]

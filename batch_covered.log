@@ -1,0 +1,882 @@
+facilities with a purchased field : 157
+   already offerable              : 30
+   to complete in this run        : 127
+
+measured pace is ~7.8 min/facility (a station fetch dominates), so ~16.5 h to finish all 127.
+Last night 28 of 167 (17%%) ended `no_station` because no station cleared the 95%% floor,
+so expect roughly 105 to complete and the rest to be recorded UNASSIGNED, honestly.
+
+launching: build_national_batch.py run --hours 18 --keys <127 keys>
+==============================================================================
+NATIONAL BATCH RUN -- 124 facility(ies). One at a time, on purpose.
+==============================================================================
+
+[1/124] TX_way_1533350872      TX  Microsoft TRP3 (SAT46), Microsoft, M  (0.0 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK        6.8s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[2/124] TX_way_850965775       TX  Compass Data Center, Compass Data Ce  (0.0 h elapsed)
+      weather: assign a station          OK      367.7s  
+      imagery: one aerial frame          OK        7.4s  
+      paired geometry: commit a pair and solve FAILED    3.1s  
+         ERR 
+      -> no_geometry
+
+[3/124] TX_way_1426525221      TX  Google, Compass Data Center, Compass  (0.1 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK        6.6s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[4/124] WY_way_537172528       WY  CYS41 Datacenter, CYS42 Datacenter,   (0.1 h elapsed)
+      weather: assign a station          OK      165.6s  
+      imagery: one aerial frame          OK        6.4s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[5/124] VA_way_1333205263      VA  (unnamed)  (0.2 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.8s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[6/124] IA_way_1454813846      IA  (unnamed)  (0.2 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.1s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[7/124] VA_way_897226575       VA  Microsoft IAD11, Microsoft Data Cent  (0.2 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        8.9s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[8/124] WA_way_1173537117      WA  Microsoft EAT02, Microsoft EAT03, Mi  (0.2 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        8.6s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[9/124] TX_way_1533392814      TX  Microsoft SAT 80, Microsoft SAT 81,   (0.2 h elapsed)
+      weather: assign a station          OK      744.5s  
+      imagery: one aerial frame          OK       12.7s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[10/124] NE_way_942557184       NE  Meta Sarpy Data center, Meta Sarpy D  (0.4 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.7s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[11/124] OH_way_802160675       OH  NAO 1/NAO 2, NAO 3  (0.4 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.4s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[12/124] OR_way_772827597       OR  Meta, Meta, Meta, Meta  (0.4 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.4s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[13/124] OR_way_772827601       OR  Meta, Meta, Meta  (0.4 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        7.1s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[14/124] VA_way_1493516633      VA  Meta Henrico Data Center, DC6, DC5,   (0.4 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.4s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[15/124] AZ_way_1456975949      AZ  (unnamed)  (0.4 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.0s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[16/124] OH_way_1427613543      OH  Google NBY-2, Google NBY-3, Google N  (0.4 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        9.7s  
+      paired geometry: commit a pair and solve FAILED    2.1s  
+         ERR 
+      -> no_geometry
+
+[17/124] NE_way_1253282102      NE  Meta Sarpy Data center, Meta Sarpy D  (0.4 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        9.3s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[18/124] OR_way_706759844       OR  Apple, Apple, Apple, Apple  (0.4 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        7.3s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[19/124] VA_way_701923203       VA  QTS Ashburn-Shellhorn DC1, Amazon We  (0.4 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        5.8s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[20/124] OR_way_471691757       OR  Flexential Portland - Hillsboro 4 Ex  (0.4 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        8.3s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[21/124] VA_way_1543296494      VA  Digital Realty Northern Virginia IAD  (0.4 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       48.6s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[22/124] NV_way_984796364       NV  Switch Edge 1, Switch Las Vegas 12,   (0.4 h elapsed)
+      weather: assign a station          OK      326.0s  
+      imagery: one aerial frame          OK        6.1s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[23/124] VA_way_989735624       VA  Amazon IAD150, Amazon IAD152, Amazon  (0.5 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.7s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[24/124] VA_way_996723587       VA  Iron Mountain VA-3, Iron Mountain VA  (0.5 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       16.3s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[25/124] VA_way_954433119       VA  Amazon Web Services, Amazon Web Serv  (0.6 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.7s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[26/124] OR_way_914616810       OR  Amazon Web Services, Amazon Web Serv  (0.6 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.9s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[27/124] VA_way_996899488       VA  Amazon IAD103, Amazon IAD102, Amazon  (0.6 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       20.5s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[28/124] OR_way_914616809       OR  Amazon Web Services, Amazon Web Serv  (0.6 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK       10.5s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[29/124] VA_way_460175664       VA  Digital Realty IAD42 (Building R), Q  (0.6 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        8.4s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[30/124] WA_way_807374322       WA  Microsoft, Microsoft, Microsoft, Mic  (0.6 h elapsed)
+      weather: assign a station          OK      292.3s  
+      imagery: one aerial frame          OK        6.8s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[31/124] OH_way_1386016636      OH  Amazon Web Services, Amazon Web Serv  (0.7 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        5.8s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[32/124] OR_way_1280344151      OR  Amazon Web Services, Amazon Web Serv  (0.7 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        6.3s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[33/124] VA_way_1252196825      VA  AWS IAD105, AWS IAD104, AWS IAD106,   (0.7 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.6s  
+      paired geometry: commit a pair and solve FAILED    2.1s  
+         ERR 
+      -> no_geometry
+
+[34/124] VA_way_990537858       VA  Amazon IAD120, Amazon IAD121, Amazon  (0.7 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        8.3s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[35/124] VA_way_714622339       VA  Google: Arcola 2, Amazon Web Service  (0.7 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.8s  
+      paired geometry: commit a pair and solve FAILED    2.1s  
+         ERR 
+      -> no_geometry
+
+[36/124] NV_way_1421212901      NV  Switch Las Vegas 14  (0.7 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.2s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[37/124] VA_way_844374689       VA  Stonewall Creek Business Park, Googl  (0.7 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.1s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[38/124] VA_way_1464257783      VA  Google, Google, Google  (0.7 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK       11.0s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[39/124] NE_way_844394357       NE  Google, Google, Google, Google  (0.7 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.0s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[40/124] IA_way_1287260561      IA  Google, Google  (0.7 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.8s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[41/124] VA_way_1074595310      VA  (unnamed)  (0.7 h elapsed)
+      weather: assign a station          OK      214.6s  
+      imagery: one aerial frame          OK        6.2s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[42/124] OH_way_1425043213      OH  QTS NAL 2 DC1, QTS NAL 2 DC2  (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        9.0s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[43/124] VA_way_224100721       VA  Amazon Web Services, Amazon Web Serv  (0.8 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        9.0s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[44/124] OH_way_1386016635      OH  LCO 1, LCO 2  (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       10.6s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[45/124] VA_way_909455922       VA  42311 THUNDERBALL DR, 42255 THUNDERB  (0.8 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        6.8s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[46/124] OR_way_697415323       OR  Amazon Web Services, Amazon Web Serv  (0.8 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        8.5s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[47/124] WA_way_499403698       WA  NTT Data Quincy  (0.8 h elapsed)
+      weather: assign a station          OK        0.2s  
+      imagery: one aerial frame          OK        5.9s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[48/124] OH_way_1427613546      OH  Amazon Web Services  CMH53, Amazon W  (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.2s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[49/124] OH_way_821081358       OH  Amazon Web Services, Amazon Web Serv  (0.8 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       12.8s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[50/124] VA_way_986829280       VA  Microsoft, Microsoft  (0.8 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        5.5s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[51/124] TX_way_509611432       TX  Vantage Data Centers TX22, Vantage D  (0.8 h elapsed)
+      weather: assign a station          OK        0.9s  
+      imagery: one aerial frame          OK        9.5s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[52/124] VA_way_1464257784      VA  QTS Manassas DC5, QTS Manassas DC1,   (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.9s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[53/124] OR_way_697413741       OR  Amazon Web Services, Amazon Web Serv  (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        8.3s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[54/124] VA_way_828135845       VA  Amazon Web Services, Amazon Web Serv  (0.8 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        6.7s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[55/124] OR_way_697415321       OR  Amazon Web Services, Amazon Web Serv  (0.8 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.2s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[56/124] VA_way_701924669       VA  Amazon IAD90, Amazon IAD91, Amazon I  (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.2s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[57/124] VA_way_490997244       VA  Amazon IAD601, Amazon IAD73, Amazon   (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.4s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[58/124] VA_way_701931819       VA  Amazon IAD86, Amazon Web Services, A  (0.8 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK        7.5s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[59/124] IL_way_1219083554      IL  T5 Chicago II  (0.8 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.1s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[60/124] VA_way_701930930       VA  Amazon IAD114, Amazon IAD115  (0.8 h elapsed)
+      weather: assign a station          OK        0.8s  
+      imagery: one aerial frame          OK        5.1s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[61/124] VA_way_983627455       VA  Amazon IAD601, Amazon IAD10, Amazon   (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       14.3s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[62/124] TX_way_1432637062      TX  (unnamed)  (0.8 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK        9.1s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[63/124] VA_way_696992451       VA  Amazon IAD14, Amazon IAD59, Amazon I  (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.9s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[64/124] IL_way_863162820       IL  Digital Realty CH1, EdgeConneX CHI01  (0.8 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.7s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[65/124] OR_way_734323663       OR  Digital Realty PDX11 Data Center, QT  (0.9 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        5.2s  
+      paired geometry: commit a pair and solve FAILED    2.2s  
+         ERR 
+      -> no_geometry
+
+[66/124] VA_way_1544103416      VA  (unnamed)  (0.9 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK        6.1s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[67/124] VA_way_744496750       VA  Centersquare IAD1-B, Centersquare IA  (0.9 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       10.6s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[68/124] IA_way_1073720221      IA  Google, Google, Google, Google, Goog  (0.9 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       12.9s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[69/124] VA_way_258520532       VA  Digital Realty  (0.9 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.8s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[70/124] VA_way_45776988        VA  Amazon IAD11, Amazon IAD24, Amazon I  (0.9 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        8.6s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[71/124] TX_way_713411279       TX  CyrusOne Austin Data Center II, Cyru  (0.9 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        9.6s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[72/124] SC_way_1069388211      SC  Google, Google, Google, Google, Goog  (0.9 h elapsed)
+      weather: assign a station          OK      241.4s  
+      imagery: one aerial frame          OK        8.7s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[73/124] VA_way_262058094       VA  Amazon IAD-165, Amazon IAD-166, Amaz  (1.0 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       14.9s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[74/124] VA_way_1287260555      VA  Amazon Web Services, Amazon Web Serv  (1.0 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.2s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[75/124] VA_way_1510517639      VA  Amazon Web Services, Amazon Web Serv  (1.0 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       10.3s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[76/124] WA_way_694602725       WA  Vantage WA13, Vantage WA11, Vantage   (1.0 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.4s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[77/124] VA_way_1521913707      VA  Amazon IAD-500  (1.0 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        5.6s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[78/124] TX_way_577628941       TX  LightEdge Austin II, Lumen Austin 1,  (1.0 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK       11.3s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[79/124] VA_way_984953814       VA  Amazon IAD163, Amazon IAD174, Amazon  (1.0 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.8s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[80/124] IL_way_1446350370      IL  NTT Chicago CH1, NTT Chicago CH2, NT  (1.0 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        5.6s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[81/124] NV_way_775412073       NV  (unnamed)  (1.0 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        9.8s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[82/124] WA_way_460167190       WA  Intergate Columbia D, Intergate Colu  (1.0 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK       17.2s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[83/124] WA_way_499403699       WA  (unnamed)  (1.0 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        5.4s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[84/124] CA_way_58708529        CA  Csquare SFO2, Csquare SFO2, QTS Sant  (1.0 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[85/124] VA_way_258343749       VA  Amazon Web Services, Amazon Web Serv  (1.0 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.9s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[86/124] AZ_way_300959969       AZ  CyrusOne PHX8, CyrusOne PHX3, CyrusO  (1.0 h elapsed)
+      weather: assign a station          OK      126.5s  
+      imagery: one aerial frame          OK        7.5s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[87/124] CA_way_40608200        CA  STACK SVY02, SV Colo, Cologix Santa   (1.0 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[88/124] TX_way_379205427       TX  Digital Realty Austin AUS11, Data Fo  (1.0 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        8.1s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[89/124] TX_way_1533349844      TX  CyrusOne SAT10 & SAT11, Vantage San   (1.0 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK       13.4s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[90/124] CA_way_460159928       CA  CoreSite SV7, CoreSite SV4, Digital   (1.1 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[91/124] OR_way_471691760       OR  EdgeConneX - Portland, Flexential Po  (1.1 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.3s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[92/124] TX_way_597876798       TX  Rackspace Richardson DFW3, Digital R  (1.1 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK        6.1s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[93/124] TX_way_465032380       TX  Prime DFW01-01, Prime DFW01-01  (1.1 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       22.0s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[94/124] OR_way_1386017494      OR  Amazon Web Services, Amazon Web Serv  (1.1 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.4s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[95/124] OR_way_1501436324      OR  Amazon Web Services, Amazon Web Serv  (1.1 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.3s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[96/124] OH_way_1386016639      OH  Amazon Web Services, Amazon Web Serv  (1.1 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       10.8s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[97/124] OR_way_1280344155      OR  Amazon Web Services, Amazon Web Serv  (1.1 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.8s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[98/124] OH_way_1386016631      OH  Amazon Web Services, Amazon Web Serv  (1.1 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       14.6s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[99/124] CA_way_358455179       CA  Vantage Santa Clara CA2, Microsoft,   (1.1 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[100/124] CA_way_209117217       CA  Amazon, Evocative Santa Clara SJC11  (1.1 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[101/124] CA_way_209087373       CA  Digital Realty Silicon Valley SJC37,  (1.1 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[102/124] CA_way_1460847458      CA  EdgeCore Silicon Valley  (1.1 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[103/124] GA_way_615593145       GA  Strategic Datasphere, Mapletree Indu  (1.1 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       11.0s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[104/124] ND_way_1422191477      ND  (unnamed)  (1.1 h elapsed)
+      weather: assign a station          OK      271.7s  
+      imagery: one aerial frame          OK        6.3s  
+      paired geometry: commit a pair and solve FAILED    2.0s  
+         ERR 
+      -> no_geometry
+
+[105/124] TX_way_1530966395      TX  (unnamed)  (1.2 h elapsed)
+      weather: assign a station          OK      180.6s  
+      imagery: one aerial frame          OK        8.1s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[106/124] TX_way_509611439       TX  CyrusOne San Antonio IV, Stream San   (1.2 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       15.4s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[107/124] CA_way_37877544        CA  Equinix SV15, Equinix SV16, Equinix   (1.2 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[108/124] IA_way_830881745       IA  Microsoft, Microsoft, Microsoft, Mic  (1.2 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK       12.2s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[109/124] TX_way_1537390751      TX  Amazon, Texas Cryptologic Center  (1.2 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        9.1s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[110/124] CA_way_888253616       CA  NTT Silicon Valley SV1 Data Center  (1.3 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[111/124] TX_way_465032631       TX  CoreSpace Dallas, DataBank Dallas Em  (1.3 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       11.1s  
+      paired geometry: commit a pair and solve FAILED    1.7s  
+         ERR 
+      -> no_geometry
+
+[112/124] OR_way_328703599       OR  TGN Hillsboro, Stack Infrastructure   (1.3 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        5.8s  
+      paired geometry: commit a pair and solve FAILED    1.8s  
+         ERR 
+      -> no_geometry
+
+[113/124] NY_way_1109643936      NY  (unnamed)  (1.3 h elapsed)
+      weather: assign a station          OK      556.4s  
+      imagery: one aerial frame          OK        9.5s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK       19.7s  
+      the 8-step agent chain             OK       72.7s  
+      manifest re-read                   OK        9.8s  
+      -> built
+
+[114/124] WA_way_814061071       WA  (unnamed)  (1.4 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.7s  
+      paired geometry: commit a pair and solve FAILED    1.9s  
+         ERR 
+      -> no_geometry
+
+[115/124] VA_way_45583050        VA  Equinix DC14  (1.5 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       10.5s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        9.8s  
+      the 8-step agent chain             OK       65.8s  
+      manifest re-read                   OK       10.1s  
+      -> built
+
+[116/124] CA_way_1351049826      CA  DataBank Santa Clara SFO1  (1.5 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[117/124] TX_way_548184239       TX  Flexential Dallas - Richardson  (1.5 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        6.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        9.4s  
+      the 8-step agent chain             OK       64.4s  
+      manifest re-read                   OK       10.2s  
+      -> built
+
+[118/124] TX_way_379199519       TX  Lumen Austin 3, Alpheus DataCenter  (1.5 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.4s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[119/124] AZ_way_152163722       AZ  L3Harris Technologies Inc, AZ Labs  (1.5 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.2s  
+      paired geometry: commit a pair and solve FAILED    1.6s  
+         ERR 
+      -> no_geometry
+
+[120/124] TX_way_465042594       TX  TierPoint Dallas Data Center  (1.5 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.6s  
+      standalone geometry                OK        1.0s  
+      manifest refresh                   OK        8.3s  
+      the 8-step agent chain             OK       62.7s  
+      manifest re-read                   OK       12.5s  
+      -> built
+
+[121/124] NY_way_832658041       NY  Blockfusion Niagra Falls, Blockfusio  (1.5 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[122/124] OR_way_331132308       OR  Verizon Hillsboro (Tanasbourne) Data  (1.5 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.6s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK       10.9s  
+      the 8-step agent chain             OK       67.1s  
+      manifest re-read                   OK       14.3s  
+      -> built
+
+[123/124] TX_way_465032487       TX  Digital Realty DFW36  (1.6 h elapsed)
+      weather: assign a station          OK        0.8s  
+      imagery: one aerial frame          OK        5.4s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK       14.6s  
+      the 8-step agent chain             OK       61.8s  
+      manifest re-read                   OK       15.5s  
+      -> built
+
+[124/124] TX_way_465032484       TX  Lumen Dallas 6  (1.6 h elapsed)
+      weather: assign a station          OK        0.8s  
+      imagery: one aerial frame          OK       14.9s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        9.4s  
+      the 8-step agent chain             OK       62.1s  
+      manifest re-read                   OK       15.0s  
+      -> built
+
+==============================================================================
+BATCH DONE in 1.63 h
+   built            7
+   no_geometry      106
+   no_station       11
+   Re-run to continue: every step asks the disk whether it already ran, so nothing
+   below is repeated and at most the facility in flight is lost.
+   NEXT, and it needs a person: read each frame and record a screening verdict.
+==============================================================================

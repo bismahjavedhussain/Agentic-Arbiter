@@ -238,13 +238,35 @@ def simulate(st, lb, day_keys, cfg, horizon=HORIZON_H, plume=None):
     truth_ok = []
     switches_used = 0
 
+    n_discontinuities = 0
     for t in range(t0, t1):
         if st["day"][t] != cur_day:              # midnight: the daily switch budget resets
             cur_day = st["day"][t]
             switches_today = 0
         idx, safe, ub, leads = rolling_safety(st, lb, t, horizon, cfg, rise, plume)
         if len(idx) == 0:
-            break
+            # 🔴 A DATA OUTAGE IS NOT THE END OF THE RECORD, AND THIS USED TO `break`.
+            # `rolling_safety` returns nothing when no record falls inside the horizon -- i.e. the
+            # next observation is more than `horizon` hours away. On KIAD that never happens: its
+            # largest gap is 5 h, which is why the comment below the loop asserted the loop "can
+            # never break early" and treated the step count as an exact identity. That is a property
+            # of ONE STATION, and it does not generalise.
+            #
+            # MEASURED across the stations assigned so far: KIAD max gap 5 h (0 over horizon),
+            # KDSM 3 h (0), KLCK 16 h (2), KFTY 23 h (3), KMRN **330 h** (15). KMRN passes the 95 %
+            # coverage floor at 96.52 % and still contains a continuous two-week hole -- so a
+            # coverage FRACTION is not a measure of CONTINUITY, and the floor cannot catch this.
+            # With `break`, KMRN's five-year rolling result was computed from 400 of 21,111 hours
+            # and would have been published as a five-year figure.
+            #
+            # A deployed controller does not stop forever when its feed drops: it resumes, with no
+            # memory of a mode it can no longer verify. So the sweep skips the unplannable hour and
+            # RESETS the carried state -- mode, dwell owed, and the day's switch budget -- because
+            # carrying them across a gap would assert continuity that did not exist. The
+            # discontinuity is COUNTED and published, never silently absorbed.
+            n_discontinuities += 1
+            mode, dwell_owed, switches_today = MODE_MECH, 0, 0
+            continue
         # REALISED COVERAGE OF THE ROLLING BOUND, per lead. The bound is constructed at 90 % for
         # every lead separately, so this is the check that the construction survives contact with
         # held-out weather -- and it is the number the UI should show, because "the conformal
@@ -280,10 +302,14 @@ def simulate(st, lb, day_keys, cfg, horizon=HORIZON_H, plume=None):
                                   or st["Td"][idx[0]] <= cfg["dewpoint_limit_c"])))
     return {"plans": plans, "executed": executed, "truth_ok": truth_ok,
             "switches_used": switches_used,
-            # one step per selected record, minus the last hour which has no successor to act on.
-            # The largest gap in the record is 5 h, well inside the 12 h horizon, so the loop can
-            # never break early -- making this an exact expectation rather than an approximate one.
-            "hours_run_expected": len(idx_all) - 1,
+            # ONE STEP PER SELECTED RECORD, minus the last hour (no successor to act on) and minus
+            # every hour whose next observation lies beyond the horizon, which cannot be planned
+            # from at all. Still an EXACT identity -- the point of this guard -- but now derived from
+            # THIS record's own discontinuities instead of from KIAD's happening to have none.
+            # `n_discontinuities` is published so a reader can see how much of the record the
+            # controller could actually be swept across, rather than inferring it from a total.
+            "hours_run_expected": len(idx_all) - 1 - n_discontinuities,
+            "n_discontinuities": n_discontinuities,
             "coverage_by_lead": {str(k): (v[0] / v[1]) for k, v in sorted(cov.items())},
             "coverage_n_by_lead": {str(k): v[1] for k, v in sorted(cov.items())}}
 
@@ -336,6 +362,10 @@ def summarise(sim, cfg):
     safe_free = sum(1 for (i, m), ok in zip(ex, sim["truth_ok"]) if m == MODE_FREE and ok)
     breach = free - safe_free
     return {"hours_run": len(ex), "hours_run_expected": sim["hours_run_expected"],
+            # CARRIED THROUGH to the emitted artefact. A site whose controller was swept across
+            # discontinuities must publish how many, or "5,375 free hours a year" silently means
+            # something different at that site than at one with an unbroken record.
+            "n_discontinuities": sim.get("n_discontinuities", 0),
             "executed_free_h": free, "executed_safe_free_h": safe_free,
             "executed_breach_h": breach, "switches": sim["switches_used"],
             "breach_per_1000_free_h": (1000.0 * breach / free) if free else 0.0}

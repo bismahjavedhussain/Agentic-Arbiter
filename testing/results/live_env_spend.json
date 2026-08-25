@@ -72,6 +72,16 @@
    "n_fields": 0,
    "n_values": 0,
    "purpose": "date-matched environmental data so a replay of the 2026-08-24 heatmap is consistent"
+  },
+  {
+   "requested_day_site_local": "2026-08-25",
+   "class": "ok",
+   "credits": 2900,
+   "activity_id": "1a70630c-fbe0-4663-b7e4-3075853b8253",
+   "credits_before": 1251220,
+   "credits_after": 1248320,
+   "n_fields": 0,
+   "n_hours": null
   }
  ]
 }

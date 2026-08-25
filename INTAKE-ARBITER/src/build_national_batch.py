@@ -3,7 +3,8 @@
 
     python build_national_batch.py plan                     # FREE. What it would do, in order.
     python build_national_batch.py run                      # the whole standalone tier
-    python build_national_batch.py run --limit 40           # bounded
+    python build_national_batch.py run --limit 40           # bounded by COUNT
+    python build_national_batch.py run --hours 9            # bounded by TIME, stops between sites
     python build_national_batch.py run --keys A B C         # named facilities
     python build_national_batch.py status                   # what is done. No network.
 
@@ -91,11 +92,18 @@ def state_of(key, reg, asn):
         "weather": bool(wx),
         "frame": os.path.exists(os.path.join(M.imagery_dir(key), "screen_manifest.json")),
         "geometry": os.path.exists(M.geom_path("selected_site.json", key)),
-        "built": os.path.exists(M.demo_path("trace.json", key)),
+        # NOT trace.json alone: that is the first of six artefacts, and testing it made an
+        # interrupted chain permanently indistinguishable from a finished one.
+        "built": all(os.path.exists(M.demo_path(n + ".json", key))
+                     for n in M.REQUIRED_ARTEFACTS),
     }
 
 
-def eligible(reg, kinds=("standalone",), keys=None, limit=None):
+# KINDS WIDENED 2026-08-25, once build_paired_site.py existed. This defaulted to ("standalone",)
+# because that was the only path with a geometry builder -- so a run given 127 paired keys silently
+# reduced to the 10 standalone ones and reported success over a tenth of the work. The paired kinds
+# are admitted now; `do_facility` routes each to the builder that fits it.
+def eligible(reg, kinds=("standalone", "paired_clear", "paired_advisory"), keys=None, limit=None):
     """Which facilities this driver will touch, in a DETERMINISTIC, impact-ordered sequence.
 
     Ordered by longest facade -- the measured proxy for plant size, and therefore for how much a
@@ -108,6 +116,14 @@ def eligible(reg, kinds=("standalone",), keys=None, limit=None):
         ks = [k for k in ks if k in want]
     ks.sort(key=lambda k: -(reg[k].get("longest_facade_m") or 0))
     return ks[:limit] if limit else ks
+
+
+def reg_kind(key):
+    """This facility's classification, read from the registry rather than inferred from its key."""
+    try:
+        return (registry().get(key) or {}).get("kind")
+    except Exception:                                                # noqa: BLE001
+        return None
 
 
 def step(label, cmd, env, quiet=True):
@@ -134,13 +150,36 @@ def do_facility(key, st):
     if not st["frame"]:
         step("imagery: one aerial frame", ["fetch_facility_imagery.py", key], env)
     if not st["geometry"]:
-        if not step("standalone geometry", ["build_standalone_site.py", key], env):
+        # ROUTE BY KIND. A standalone facility has no receptor, so its rise table is identically zero
+        # and `build_standalone_site.py` writes it directly. A paired facility has a real neighbour,
+        # so it goes through the same funnel Ashburn did -- select the committed pair against the
+        # three published gates, rasterise both rings, place the bank and the intake -- and its rise
+        # table is SOLVED rather than written. Choosing the wrong builder here would either invent a
+        # receptor or throw a real one away, so it is keyed off the registry's own classification.
+        kind = (reg_kind(key) or "standalone")
+        if kind in ("paired_clear", "paired_advisory"):
+            if not step("paired geometry: commit a pair and solve", ["build_paired_site.py", key],
+                        env):
+                return "no_geometry"
+        elif not step("standalone geometry", ["build_standalone_site.py", key], env):
             return "no_geometry"
     if not st["built"]:
         # `metros --manifest` FIRST: build_sites.py reads sites.json to decide what is offerable, and
         # a facility that has just become buildable is not in it yet.
         step("manifest refresh", ["metros.py", "--manifest"], env)
-        if not step("the 8-step agent chain", ["build_sites.py", key], env):
+        ok = step("the 8-step agent chain", ["build_sites.py", key], env)
+        # AND AGAIN AFTERWARDS, WHICH MATTERS MOST WHEN THE CHAIN FAILED.
+        # The refresh above marks this facility offerable the moment it becomes buildable. If the
+        # chain then dies partway -- and across 340 facilities on 335 new weather stations, some
+        # will -- the manifest is left OFFERING a site whose later artefacts were never written, and
+        # every audit run for the rest of the night fails on it. That is exactly how three
+        # facilities (CO_way_1273968634, IA_way_191655977, OH_way_1281982556) came to be listed as
+        # offerable with four artefacts missing each.
+        # Re-reading the manifest after the attempt puts the facility back where it belongs, with
+        # `not_offerable_because` naming what is absent. An unattended run must leave the build
+        # GREEN when a facility fails, not red -- otherwise one bad station poisons the morning.
+        step("manifest re-read", ["metros.py", "--manifest"], env)
+        if not ok:
             return "chain_failed"
     return "built"
 
@@ -150,6 +189,16 @@ def main(argv):
     lim = None
     if "--limit" in argv:
         lim = int(argv[argv.index("--limit") + 1])
+    # A TIME BUDGET, CHECKED BETWEEN FACILITIES AND NEVER INSIDE ONE.
+    # `--limit` bounds the run by COUNT, which is the wrong unit for "run this overnight and stop
+    # before I need the machine": a facility takes 1.5 min if its station is already cached and
+    # about 7 if it is not, so any count is a guess at the wall clock. The check happens before a
+    # facility STARTS, so the run always stops on a clean boundary -- killing it on a timer instead
+    # would land mid-fetch and lose the facility in flight, which is the one thing this driver's
+    # resumability is built to avoid.
+    hours = None
+    if "--hours" in argv:
+        hours = float(argv[argv.index("--hours") + 1])
     keys = None
     if "--keys" in argv:
         keys = [a for a in argv[argv.index("--keys") + 1:] if not a.startswith("--")]
@@ -215,8 +264,14 @@ def main(argv):
     except Exception:                                                # noqa: BLE001
         pass
 
-    tally, t0 = {}, time.time()
+    tally, t0, stopped_early = {}, time.time(), None
     for i, k in enumerate(rem, 1):
+        if hours is not None and (time.time() - t0) >= hours * 3600.0:
+            stopped_early = i - 1
+            print("\n   TIME BUDGET REACHED -- %.2f h of %.2f h used, stopping BEFORE facility "
+                  "%d of %d rather than interrupting it."
+                  % ((time.time() - t0) / 3600.0, hours, i, len(rem)), flush=True)
+            break
         f = reg[k]
         print("\n[%d/%d] %-22s %-3s %s  (%.1f h elapsed)"
               % (i, len(rem), k, f["state"],
@@ -235,7 +290,11 @@ def main(argv):
             time.sleep(PAUSE_S)
 
     print("\n" + "=" * 78)
-    print("BATCH DONE in %.1f h" % ((time.time() - t0) / 3600.0))
+    print("BATCH DONE in %.2f h" % ((time.time() - t0) / 3600.0))
+    if stopped_early is not None:
+        print("   STOPPED ON THE TIME BUDGET, not because the work ran out:")
+        print("      %d facility(ies) attempted, %d of %d still to do."
+              % (stopped_early, len(rem) - stopped_early, len(rem)))
     for kk in sorted(tally):
         print("   %-16s %d" % (kk, tally[kk]))
     print("   Re-run to continue: every step asks the disk whether it already ran, so nothing")

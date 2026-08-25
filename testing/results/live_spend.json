@@ -801,6 +801,174 @@
      "elapsed_s": 2168.4
     }
    ]
+  },
+  {
+   "test": "live.py ashburn 2026-08-25T09:00:00-04:00",
+   "utc": "2026-08-25T12:32:43.854161+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1251220,
+   "credits_after": 1197680,
+   "api_calls_made": 12,
+   "cache_hits": 0,
+   "windows": [
+    {
+     "window_start_site_local": "2026-08-25 09:00",
+     "lead_h_at_request": 0.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "00ab7863-17c2-4f32-8848-d65b17e95569",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 28.1
+    },
+    {
+     "window_start_site_local": "2026-08-25 10:00",
+     "lead_h_at_request": 1.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "51b58396-a9e7-4465-853d-e0bb4d6cc475",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 59.4
+    },
+    {
+     "window_start_site_local": "2026-08-25 11:00",
+     "lead_h_at_request": 2.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "541832d0-d4af-4971-b577-deb0a36c1f87",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 93.8
+    },
+    {
+     "window_start_site_local": "2026-08-25 12:00",
+     "lead_h_at_request": 3.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "8b7283ad-dfaa-49f9-bf7e-aac896405859",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 124.7
+    },
+    {
+     "window_start_site_local": "2026-08-25 13:00",
+     "lead_h_at_request": 4.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "85e54514-201f-47ba-ba37-bca74cab1d42",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 146.6
+    },
+    {
+     "window_start_site_local": "2026-08-25 14:00",
+     "lead_h_at_request": 5.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "83d7a21c-1d46-41de-aec4-27f38b6c324a",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 165.1
+    },
+    {
+     "window_start_site_local": "2026-08-25 15:00",
+     "lead_h_at_request": 6.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "8ba85a88-9ca5-4dc3-afab-6eb784a73025",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 188.8
+    },
+    {
+     "window_start_site_local": "2026-08-25 16:00",
+     "lead_h_at_request": 7.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "5cc0537d-6cd9-49d5-a907-15a6668bd37d",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 217.6
+    },
+    {
+     "window_start_site_local": "2026-08-25 17:00",
+     "lead_h_at_request": 8.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "8d8d790f-c804-4d8b-906c-cd0161e00aee",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 244.2
+    },
+    {
+     "window_start_site_local": "2026-08-25 18:00",
+     "lead_h_at_request": 9.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "d109dc81-f171-4602-a8b1-cb678059ab29",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 277.5
+    },
+    {
+     "window_start_site_local": "2026-08-25 19:00",
+     "lead_h_at_request": 10.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "ce403be7-b0ff-45e6-9e60-2cc185d6d8f3",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 303.9
+    },
+    {
+     "window_start_site_local": "2026-08-25 20:00",
+     "lead_h_at_request": 11.454,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "e6f5c7c5-7923-41b1-8d35-5394a5e0eec3",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 331.7
+    }
+   ]
   }
  ]
 }

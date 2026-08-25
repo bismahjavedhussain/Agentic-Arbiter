@@ -361,6 +361,30 @@ def classify_vendor(rec):
     issued an activity id, answered 45 status polls, and simply never finished the job. Different
     fault, different owner, different message to the operator.
     """
+    # 🔴 AN UNCONVERTED RECORD IS NOT CLASSIFIABLE, AND ACCEPTING ONE SILENTLY COST REAL MONEY AND
+    # FIVE DAYS OF A WRONG DIAGNOSIS.
+    # This function reads `rec["tiles"]`. A raw submit-and-poll return does not have that key -- it
+    # carries the payload at `result.map_data.features` -- and `vendor_rec()` below exists precisely
+    # to convert one into the other. Three callers skipped it: buy_national_fields.py,
+    # national_recovery_watch.py and diag67. For those, `rec.get("tiles")` was ALWAYS None, so this
+    # function could never return "ok", so every completed job was labelled `completed_but_empty`
+    # no matter what the vendor sent. Measured 2026-08-25: one authorised AOI purchase returned
+    # 17,383 real features at `result.map_data.features`, was labelled empty, had its field
+    # discarded by `ok = cls == "ok" and ...`, and was billed 4,220 credits. The same shape explains
+    # the "20-for-20 completed_but_empty across nine states" run that was read as a vendor outage --
+    # a simultaneous 100 % failure across VA, CA, TX, OH, WA, OR, PA, IA and WY is far more
+    # consistent with one client-side bug than with nine regions failing at once.
+    # Worse, `national_recovery_watch.py` had the same defect, so THE THING WATCHING FOR RECOVERY
+    # COULD NEVER SEE IT: it probed, received real tiles, classified them empty, and reported the
+    # vendor still down.
+    # So an unrecognised shape now RAISES instead of resolving to the most pessimistic class. A
+    # loud failure costs one traceback; a silent one cost a plan-sized misreading.
+    if "tiles" not in rec and "result" in rec:
+        raise TypeError(
+            "classify_vendor() was handed a RAW submit/poll return (it has 'result' and no "
+            "'tiles'). Convert it first -- vendor_rec(r) for a common.submit_poll return, or "
+            "dict(rec, tiles=len(features)) if the caller polled the vendor itself. Classifying "
+            "the raw shape silently reports every completed job as empty.")
     if rec.get("submit_http") != 200:
         return "submit_rejected"
     if not rec.get("activity_id"):

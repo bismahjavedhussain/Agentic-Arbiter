@@ -1,0 +1,96 @@
+127.0.0.1 - - [25/Aug/2026 13:14:47] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:14:47] "GET /sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:14:48] "GET /trace.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:14:48] "GET /unified_sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /_probe.html HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /rolling.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /backtest.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /ticker.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /money.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /trace.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /explanations.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /plume_field_ashburn_longest.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /unified_sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:05] "GET /api/health HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 13:15:21] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:21] "GET /sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:21] "GET /trace.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:22] "GET /rolling.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:22] "GET /money.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:22] "GET /ticker.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:22] "GET /plume_field_ashburn_longest.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 13:15:22] "GET /backtest.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:22] "GET /explanations.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:22] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 13:15:22] "GET /unified_sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:15:22] "GET /api/health HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 13:23:34] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 13:23:34] "GET /sites.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 13:23:34] "GET /explanations.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 13:23:34] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 13:23:34] "GET /api/health HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 13:23:42] "GET /field_2026-08-16_forecast.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:26:13] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 13:26:13] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 13:26:13] "GET /api/health HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 13:47:51] "GET /explanations.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 13:47:59] "GET /site_aerial.png HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:02:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:02:03] "GET /sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:02:03] "GET /explanations.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:02:03] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 14:02:03] "GET /api/health HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /_ord.html HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /trace.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /rolling.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /money.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /backtest.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /ticker.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /explanations.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /plume_field_ashburn_longest.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /api/health HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 14:29:27] "GET /unified_sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:29] "GET /field_2026-08-16_forecast.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:29:29] "GET /site_aerial.png HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:35:14] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:35:15] "GET /sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:35:15] "GET /trace.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:35:15] "GET /backtest.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:35:15] "GET /rolling.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:35:15] "GET /money.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:35:15] "GET /explanations.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:35:15] "GET /ticker.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:35:15] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 14:35:15] "GET /api/health HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 14:35:15] "GET /unified_sites.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:35:23] "GET /field_2026-08-16_forecast.json HTTP/1.1" 304 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /_p2.html HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /trace.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /backtest.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /rolling.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /money.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /ticker.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /explanations.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /plume_field_ashburn_longest.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /unified_sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:03] "GET /api/health HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 14:53:05] "GET /field_2026-08-16_forecast.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:53:05] "GET /site_aerial.png HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:54:22] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:54:22] "GET /sites.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:54:22] "GET /explanations.json HTTP/1.1" 200 -
+127.0.0.1 - - [25/Aug/2026 14:54:23] code 404, message File not found
+127.0.0.1 - - [25/Aug/2026 14:54:23] "GET /api/health HTTP/1.1" 404 -
+127.0.0.1 - - [25/Aug/2026 14:54:25] "GET /explanations.json HTTP/1.1" 304 -

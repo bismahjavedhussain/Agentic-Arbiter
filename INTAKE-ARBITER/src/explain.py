@@ -92,23 +92,44 @@ def flip_distance(st, h, cfg, gate):
     return float("nan")
 
 
+def _num(v, nd):
+    """A MEASUREMENT OR NOTHING, NEVER A NaN.
+
+    🔴 THIS FUNCTION EXISTS BECAUSE ONE MISSING DEW POINT TRUNCATED AN ARTEFACT.
+    ASOS records have occasional gaps in the humidity channel -- KCBF is missing 2 hours of
+    `dewpoint_c`/`twb_c`/`rh_pct`, the Lockbourne station 6 -- and `agent.py` carries a gap through
+    as JSON `null`, which is the right thing and what the trace stores. `np.array(x, dtype=float)`
+    then turns that null into a NaN on the way in here, and every numeric field below used to go out
+    as `round(float(x), n)`. So a NaN reached `json.dump`, which -- correctly, and by this project's
+    own policy, asserted by audit.py's "no NaN/Infinity in any emitted JSON" -- refused to write it
+    and raised. `json.dump` streams, so the file it had already half-written stayed on disk:
+    `IA_way_191655977_explanations.json`, 4,300 bytes, cut off mid-value. Two national facilities
+    could not finish their chain and the failure surfaced four checks away from its cause.
+    `null` is what the trace uses for a missing reading and what the no-NaN rule permits, so that is
+    what goes out here. The DECISION for such an hour was never in doubt: `nan <= limit` is False in
+    numpy, so a missing dew point fails the humidity gate closed and the hour runs mechanical.
+    """
+    f = float(v)
+    return None if math.isnan(f) or math.isinf(f) else round(f, nd)
+
+
 def explain_hour(st, h, cfg, modes, safe):
     """One hour, one reason, with the binding constraint named and a checkable counterfactual."""
     g = gates_for_hour(st, h, cfg)
     free = modes[h] == MODE_FREE
     e = {"hour": st["hours"][h], "index": h, "mode": "FREE-COOLING" if free else "MECHANICAL",
          "safe": bool(safe[h]),
-         "ambient_c": round(float(st["temp"][h]), 3),
-         "dewpoint_c": round(float(st["dew"][h]), 3),
-         "plume_rise_c": round(float(st["rise"][h]), 4),
-         "bound_c": round(float(st["ub_dry"][h]), 4),
+         "ambient_c": _num(st["temp"][h], 3),
+         "dewpoint_c": _num(st["dew"][h], 3),
+         "plume_rise_c": _num(st["rise"][h], 4),
+         "bound_c": _num(st["ub_dry"][h], 4),
          "limit_c": cfg["limit_c"],
-         "margin_total_c": round(float(st["marg_total"][h]), 4),
+         "margin_total_c": _num(st["marg_total"][h], 4),
          "margin_parts": {
-             "level": round(float(st["marg_level"]), 4),
-             "shape_group_conditional": round(float(st["marg_shape"][h]), 4),
-             "plume_from_ensemble_spread": round(float(st["marg_plume"][h]), 5)},
-         "actual_intake_c": round(float(st["truth"][h]), 4)}
+             "level": _num(st["marg_level"], 4),
+             "shape_group_conditional": _num(st["marg_shape"][h], 4),
+             "plume_from_ensemble_spread": _num(st["marg_plume"][h], 5)},
+         "actual_intake_c": _num(st["truth"][h], 4)}
 
     if free:
         e["binding"] = None
@@ -146,12 +167,30 @@ def explain_hour(st, h, cfg, modes, safe):
         # bound, so verify() reported 328 false failures -- the identical mistake that broke the
         # browser's decisions the same day (PLAN 8k.4). A number a comparison depends on is not a
         # display number. Rounding happens in the sentence below, never in the field.
-        e["flip_needs"] = float(d)
+        # A MISSING MEASUREMENT HAS NO FLIP DISTANCE, and `None` is already the sentinel for that --
+        # verify() below skips any row whose flip_needs is None. No change to the plant limit makes
+        # an hour with no dew point certifiable: the reading is ABSENT, not high. So there is no
+        # counterfactual to state, and a NaN must not be invented as one. Still unrounded on the
+        # finite path, for the reason above.
+        e["flip_needs"] = float(d) if math.isfinite(float(d)) else None
         if binding == GATE_DRY:
             e["why"] = ("Mechanical. The upper bound on intake air is %.3f C against a %.1f C "
                         "limit, so it fails by %.3f C. It would take a limit %.3f C higher, or a "
                         "bound %.3f C tighter, to change this hour."
                         % (st["ub_dry"][h], cfg["limit_c"], d, d, d))
+        elif binding == GATE_DEW and not math.isfinite(float(st["ub_dp"][h])):
+            # A MISSING READING IS NOT A HIGH READING, and the explanation must not read as though
+            # it were. This hour has no dew point in the station record, so `nan <= limit` is False
+            # and the humidity gate fails closed -- the correct outcome, reached for a different
+            # reason than a humid hour. Formatting the NaN through the branch below produced "the
+            # dew-point bound is nan C ... failing by nan C", which is the kind of sentence that
+            # makes a reader distrust every other number on the page.
+            e["why"] = ("Mechanical, and the reason is a MISSING MEASUREMENT rather than a humid "
+                        "hour. The station record has no dew point for this hour, so the humidity "
+                        "gate cannot be evaluated and the agent declines to certify the hour -- the "
+                        "same rule it applies to a wind bearing whose plume it cannot solve. The "
+                        "dry-bulb bound of %.3f C would have passed on temperature alone."
+                        % st["ub_dry"][h])
         elif binding == GATE_DEW:
             e["why"] = ("Mechanical, and TEMPERATURE IS NOT THE REASON -- the dry-bulb bound of "
                         "%.3f C would have passed. The outside air is too HUMID: the dew-point "

@@ -1,0 +1,206 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 4,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 1,
+  "facade_faces_away": 0,
+  "facade_too_short": 0,
+  "survived": 3
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "1454813846",
+  "receptor_osm_id": "1368776076",
+  "separation_m": 238.0,
+  "bearing_a_to_b_deg": 22.6,
+  "source_area_m2": 24486.7,
+  "receptor_area_m2": 24486.4,
+  "combined_area_m2": 48973.1,
+  "source_name": null,
+  "receptor_name": null,
+  "critical_wind_from_deg": 202.6,
+  "wind_exposure": 0.18044,
+  "dilution_factor": 1.261,
+  "exposure_x_dilution": 0.22744,
+  "true_gap_m": 175.6,
+  "longest_facade_m": 392.9,
+  "path_clearance": 1.0
+ },
+ "source_building": {
+  "osm_id": "1454813846",
+  "area_m2": 24486.7,
+  "centre_m": [
+   -101.8,
+   -143.7
+  ],
+  "width_m": 386.8,
+  "height_m": 208.1,
+  "rot_rect_long_m": 392.9,
+  "rot_rect_short_m": 62.3,
+  "rot_rect_angle_deg": 157.5,
+  "ring_m": [
+   [
+    -237.4,
+    -60.4
+   ],
+   [
+    125.5,
+    -211.0
+   ],
+   [
+    101.6,
+    -268.6
+   ],
+   [
+    -261.3,
+    -118.0
+   ],
+   [
+    -237.4,
+    -60.4
+   ]
+  ],
+  "name": null,
+  "operator": null,
+  "building_tag": "data_center",
+  "telecom_tag": "data_center",
+  "n_vertices": 5,
+  "centre_latlon": [
+   41.514075,
+   -93.721817
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "1368776076",
+  "area_m2": 24486.4,
+  "centre_m": [
+   -10.5,
+   76.1
+  ],
+  "width_m": 386.8,
+  "height_m": 208.1,
+  "rot_rect_long_m": 392.9,
+  "rot_rect_short_m": 62.3,
+  "rot_rect_angle_deg": 157.5,
+  "ring_m": [
+   [
+    -146.1,
+    159.3
+   ],
+   [
+    216.8,
+    8.8
+   ],
+   [
+    192.9,
+    -48.8
+   ],
+   [
+    -170.0,
+    101.8
+   ],
+   [
+    -146.1,
+    159.3
+   ]
+  ],
+  "name": null,
+  "operator": null,
+  "building_tag": "data_center",
+  "telecom_tag": "data_center",
+  "n_vertices": 5,
+  "centre_latlon": [
+   41.516051,
+   -93.72072
+  ]
+ },
+ "runner_up": {
+  "source_osm_id": "1454813845",
+  "receptor_osm_id": "1368776077",
+  "separation_m": 241.8,
+  "bearing_a_to_b_deg": 22.7,
+  "source_area_m2": 24486.4,
+  "receptor_area_m2": 23014.4,
+  "combined_area_m2": 47500.8,
+  "source_name": null,
+  "receptor_name": null,
+  "critical_wind_from_deg": 202.7,
+  "wind_exposure": 0.18028,
+  "dilution_factor": 1.241,
+  "exposure_x_dilution": 0.22368,
+  "true_gap_m": 181.5,
+  "longest_facade_m": 392.9,
+  "path_clearance": 1.0
+ },
+ "survivors": [
+  {
+   "source_osm_id": "1454813846",
+   "receptor_osm_id": "1368776076",
+   "separation_m": 238.0,
+   "bearing_a_to_b_deg": 22.6,
+   "source_area_m2": 24486.7,
+   "receptor_area_m2": 24486.4,
+   "combined_area_m2": 48973.1,
+   "source_name": null,
+   "receptor_name": null,
+   "critical_wind_from_deg": 202.6,
+   "wind_exposure": 0.18044,
+   "dilution_factor": 1.261,
+   "exposure_x_dilution": 0.22744,
+   "true_gap_m": 175.6,
+   "longest_facade_m": 392.9,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "1454813845",
+   "receptor_osm_id": "1368776077",
+   "separation_m": 241.8,
+   "bearing_a_to_b_deg": 22.7,
+   "source_area_m2": 24486.4,
+   "receptor_area_m2": 23014.4,
+   "combined_area_m2": 47500.8,
+   "source_name": null,
+   "receptor_name": null,
+   "critical_wind_from_deg": 202.7,
+   "wind_exposure": 0.18028,
+   "dilution_factor": 1.241,
+   "exposure_x_dilution": 0.22368,
+   "true_gap_m": 181.5,
+   "longest_facade_m": 392.9,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "1454813846",
+   "receptor_osm_id": "1368776077",
+   "separation_m": 357.7,
+   "bearing_a_to_b_deg": 22.5,
+   "source_area_m2": 24486.7,
+   "receptor_area_m2": 23014.4,
+   "combined_area_m2": 47501.1,
+   "source_name": null,
+   "receptor_name": null,
+   "critical_wind_from_deg": 202.5,
+   "wind_exposure": 0.18059,
+   "dilution_factor": 0.839,
+   "exposure_x_dilution": 0.15146,
+   "true_gap_m": 297.3,
+   "longest_facade_m": 392.9,
+   "path_clearance": 1.0
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

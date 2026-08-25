@@ -59,6 +59,13 @@ MARGIN = 42.0
 # Courier: every glyph is 600/1000 em. This ONE fact is why wrapping here is exact.
 COURIER_EM = 0.600
 BODY_PT = 8.2
+HEAD_PT = 11.0                         # section headings, Helvetica-Bold
+TITLE_PT = BODY_PT + 3.2               # unchanged -- the one document title
+# Print-safe ink. Dark enough to photocopy, coloured enough to give the page a hierarchy.
+RGB_TITLE = (0.07, 0.15, 0.27)         # near-navy
+RGB_HEAD = (0.05, 0.36, 0.51)          # teal-blue, the section voice
+RGB_RULE = (0.72, 0.76, 0.80)          # light grey: a divider, not a barrier
+RGB_SUB = (0.25, 0.28, 0.32)           # dark grey for bold sub-labels
 LEAD = 11.2                            # baseline-to-baseline
 
 
@@ -135,9 +142,13 @@ class Pdf:
             return True
         return False
 
-    def line(self, text="", size=BODY_PT, bold=False, x=MARGIN, gap=1.0):
+    def line(self, text="", size=BODY_PT, bold=False, x=MARGIN, gap=1.0,
+             face="C", rgb=None):
+        """Place one string. `face` is "C" (Courier, the default and the only safe choice for
+        anything whose width is measured or whose columns are padded) or "H" (Helvetica, for
+        short headings). `rgb` is a 0-1 triple, or None for black."""
         self._room()
-        self.pages[-1].append((x, self.y, size, bold, esc(text)))
+        self.pages[-1].append((x, self.y, size, bold, esc(text), face, rgb))
         self.y -= LEAD * gap
 
     def para(self, text, size=BODY_PT, bold=False, x=MARGIN, indent="  "):
@@ -157,13 +168,16 @@ class Pdf:
         for i, ln in enumerate(wrap(value, avail)):
             self.line(("%-*s%s" % (width, label, ln)) if i == 0 else pad + ln)
 
-    def rule(self, ch="-"):
-        self.line(ch * cols_at(BODY_PT), BODY_PT)
+    def rule(self, ch="-", rgb=RGB_RULE):
+        self.line(ch * cols_at(BODY_PT), BODY_PT, rgb=rgb)
 
     def heading(self, text):
+        """A section heading. Text is UNCHANGED -- still uppercased, same words -- so the
+        read-back verifier sees exactly the same characters it always did. Only the face, the
+        size and the ink change."""
         self.space(0.5)
         self._room(3)
-        self.line(text.upper(), BODY_PT + 1.4, True)
+        self.line(text.upper(), HEAD_PT, True, face="H", rgb=RGB_HEAD)
         self.rule()
 
     def bytes(self):
@@ -177,19 +191,30 @@ class Pdf:
                      "/Encoding /WinAnsiEncoding >>")
         font_b = add("<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold "
                      "/Encoding /WinAnsiEncoding >>")
+        font_h = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica "
+                     "/Encoding /WinAnsiEncoding >>")
+        font_hb = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold "
+                      "/Encoding /WinAnsiEncoding >>")
         pages_id = add(None)          # placeholder, filled once the kids are known
         kids = []
         for items in self.pages:
             parts = []
-            for (x, y, size, bold, text) in items:
-                parts.append("BT /%s %.2f Tf 1 0 0 1 %.2f %.2f Tm (%s) Tj ET"
-                             % ("FB" if bold else "FR", size, x, y, text))
+            for (x, y, size, bold, text, face, rgb) in items:
+                if face == "H":
+                    fk = "FHB" if bold else "FH"
+                else:
+                    fk = "FB" if bold else "FR"
+                ink = "" if not rgb else ("%.3f %.3f %.3f rg " % rgb)
+                parts.append("BT /%s %.2f Tf %s1 0 0 1 %.2f %.2f Tm (%s) Tj ET"
+                             % (fk, size, ink, x, y, text))
             stream = "\n".join(parts)
             cid = add("<< /Length %d >>\nstream\n%s\nendstream" % (len(stream), stream))
             kids.append(add("<< /Type /Page /Parent %d 0 R /MediaBox [0 0 %.2f %.2f] "
-                            "/Resources << /Font << /FR %d 0 R /FB %d 0 R >> >> "
+                            "/Resources << /Font << /FR %d 0 R /FB %d 0 R "
+                            "/FH %d 0 R /FHB %d 0 R >> >> "
                             "/Contents %d 0 R >>"
-                            % (pages_id, PAGE_W, PAGE_H, font_r, font_b, cid)))
+                            % (pages_id, PAGE_W, PAGE_H, font_r, font_b,
+                               font_h, font_hb, cid)))
         objs[pages_id - 1] = ("<< /Type /Pages /Kids [%s] /Count %d >>"
                               % (" ".join("%d 0 R" % k for k in kids), len(kids)))
         root = add("<< /Type /Catalog /Pages %d 0 R >>" % pages_id)
@@ -276,7 +301,8 @@ def build(metro_key=None):
             and c["hours_label"].startswith("bank_mode")]
 
     d = Pdf()
-    d.line("INTAKE-ARBITER  --  FREE-COOLING DECISION REPORT", BODY_PT + 3.2, True)
+    d.line("INTAKE-ARBITER  --  FREE-COOLING DECISION REPORT", TITLE_PT, True,
+           face="H", rgb=RGB_TITLE)
     d.line("An agent that decides, hour by hour, whether outside air can cool a data centre.",
            BODY_PT)
     d.rule("=")
@@ -359,7 +385,8 @@ def build(metro_key=None):
                 "could not afford them" % summ["safe_but_mechanical_h"], 11)
 
     d.heading("Every hour, and the reason for it")
-    d.line("hh  mode        safe binding        bound   limit  actual  margin", BODY_PT, True)
+    d.line("hh  mode        safe binding        bound   limit  actual  margin", BODY_PT, True,
+           rgb=RGB_SUB)
     for r in hours:
         d.line("%s  %-11s %-4s %-14s %7.3f %7.1f %7.3f %7.3f"
                % (r["hour"], "FREE" if r["mode"] == "FREE-COOLING" else "mechanical",
@@ -393,7 +420,7 @@ def build(metro_key=None):
     d.field("12-hour plan stability", "%.1f %% of %s re-plans change nothing at all"
             % (100 * rb["replans_with_zero_change"], format(rb["replans"], ",")), 26)
     d.space(0.5)
-    d.line("The ladder, one constraint at a time:", BODY_PT, True)
+    d.line("The ladder, one constraint at a time:", BODY_PT, True, rgb=RGB_SUB)
     for r in lad:
         d.line("   %-46s %+8.1f h/yr" % (r["step"][2:][:46], r["gain_h_per_year"]))
 
@@ -447,7 +474,7 @@ def verify(path, meta):
     # substitute that actually catches the failure that matters: text running off the paper. Every
     # placed string's right edge and baseline are recomputed from the items the writer emitted.
     for pi, items in enumerate(meta.get("placed", []), 1):
-        for (x, y, size, _bold, txt) in items:
+        for (x, y, size, _bold, txt, _face, _rgb) in items:
             right = x + len(txt) * char_width(size)
             if right > PAGE_W - MARGIN + 0.5:
                 fails.append("page %d: a line runs %.1f pt past the right margin (%r)"
@@ -459,10 +486,21 @@ def verify(path, meta):
     for h in meta["hours"]:
         if ("%s  " % h["hour"]) not in text and ("%s:00" % h["hour"]) not in text:
             fails.append("hour %s missing from the rendered text" % h["hour"])
+    # 🔴 WHITESPACE-INSENSITIVE, BECAUSE OSM NAMES CONTAIN RUNS OF SPACES AND THE EXTRACTOR DOES NOT
+    # PRESERVE THEM. `TX_way_483286527` is tagged "Aligned  DFW-02" -- two spaces after "Aligned" --
+    # so the literal substring match failed against text extracted as "Aligned DFW-02" and the PDF
+    # was reported broken when it was correct. That was the only chain failure in a 137-facility
+    # overnight run, and it will recur on every facility whose operator typed a double space.
+    # `text` itself is deliberately NOT squeezed: the hour check just above searches for
+    # "<hour>  " with two spaces on purpose, and collapsing them would break it. Same reasoning as
+    # audit.py's front-door check, which matches README figures whitespace-insensitively "because
+    # markdown wraps".
+    squeeze = lambda s: re.sub(r"\s+", " ", s).strip()
+    text_sq = squeeze(text)
     for label, needle in (("site name", meta["site_label"].split(",")[0]),
                           ("case day", meta["summary"]["day"]),
                           ("free-hours count", str(meta["summary"]["agent_free_h"]))):
-        if needle not in text:
+        if squeeze(needle) not in text_sq:
             fails.append("%s (%r) missing" % (label, needle))
     # A SUBSTRING MATCH ON "nan" FIRES ON "maintenance", which is in the limits list -- so this
     # check reported three failures on three perfectly good PDFs. Match the standalone TOKEN, which

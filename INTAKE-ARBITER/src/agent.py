@@ -241,11 +241,27 @@ def field_by_key(result):
     return {(round(la, 5), round(lo, 5)): v for la, lo, v in tile_centroids(result)}
 
 
+NATIONAL_FIELDS = os.path.join(IA, "data", "national_fields")
+
+
 def load_fixture(tag):
+    """One saved FortyGuard response, by tag, from either place a paid field can live.
+
+    TWO LOCATIONS, ONE LOADER. The hand-bought metro fields are saved as bare vendor responses in
+    `testing/results/fixtures/`. The national AOI purchases are saved by
+    `testing/buy_national_fields.py` into `data/national_fields/<AOI>.json`, which WRAPS the same
+    response under `raw_result` alongside the AOI's provenance (rank, state, window, activity id).
+    Looking in one place only is why 40 paid AOI fields sat on disk reaching no site at all: nothing
+    in the pipeline read that directory. Unwrapping here rather than duplicating 7 MB per AOI into
+    the fixtures directory keeps one copy of every field that was paid for.
+    """
     p = os.path.join(FIXTURES, "%s.json" % tag)
-    if not os.path.exists(p):
-        return None
-    return json.load(open(p, encoding="utf-8"))
+    if os.path.exists(p):
+        return json.load(open(p, encoding="utf-8"))
+    q = os.path.join(NATIONAL_FIELDS, "%s.json" % tag)
+    if os.path.exists(q):
+        return (json.load(open(q, encoding="utf-8")) or {}).get("raw_result")
+    return None
 
 
 def perceive_fortyguard():
@@ -910,14 +926,45 @@ CASE_SPECS = [
 ]
 
 
-def select_cases(keys, temp, drct, sknt, tab):
+def _building_label(b):
+    """WHO THIS BUILDING IS, and never the same answer for two different buildings.
+
+    The mirror of `buildingOf()` in demo/index.html. A name if OSM carries one; otherwise the way
+    id, which is unique by construction and which a reader can look up. The bare word "unnamed" is
+    not an identifier -- it collides with every other unnamed building, and audit.py's identity
+    check correctly reads that collision as a fallback masquerading as a measurement.
+    """
+    nm = b.get("name")
+    if nm:
+        return nm
+    osm = b.get("osm_id")
+    return ("OSM way %s" % osm) if osm is not None else "unnamed building"
+
+
+def select_cases(keys, temp, dewp, drct, sknt, tab):
     """Pick real days from the 43,763-hour record by PRINTED criteria, then report what was
     picked. These are not invented days -- every one is a date that happened at KIAD.
     """
     days = {}
     for i, k in enumerate(keys):
         days.setdefault(k[:10], []).append(i)
-    full = {d: ix for d, ix in days.items() if len(ix) >= 20 and not np.isnan(temp[ix]).any()}
+    # 🔴 "COMPLETE DAY" HAS TO MEAN EVERY CHANNEL A GATE READS, NOT JUST TEMPERATURE.
+    # This filter checked `temp` alone. The agent gates on three things -- dry bulb, humidity and
+    # contamination -- so a day with a full temperature record and a hole in the dew point is not a
+    # complete day for this purpose, and it is a poor worked example: `nan <= limit` is False in
+    # numpy, so the humidity gate fails CLOSED and the hour runs mechanical for want of a reading
+    # rather than for a reason about the weather. Correct as a decision, useless as an illustration.
+    # It also broke the build. Two national facilities -- KCBF missing 2 hours of dew point, the
+    # Lockbourne station 6 -- had one of those hours land inside a selected case day, and every
+    # downstream consumer that formats a per-hour number hit the resulting null in turn:
+    # explain.py's json.dump refused it and left a truncated 4,300-byte artefact behind, then
+    # ticker.py raised on float(None). Both of those are now honest about an absent value in their
+    # own right, but the real defect was upstream and is here: the case set should never have
+    # offered a day whose humidity gate cannot be evaluated.
+    # The five-year backtest is untouched by this and still scores ALL hours, gaps included -- this
+    # narrows only the five named days chosen as worked examples, which is exactly what it should do.
+    full = {d: ix for d, ix in days.items()
+            if len(ix) >= 20 and not np.isnan(temp[ix]).any() and not np.isnan(dewp[ix]).any()}
     worst_rise = float(tab.max())
     # 🔴 argmax OF AN ALL-ZERO TABLE RETURNS INDEX 0, AND INDEX 0 IS DUE NORTH.
     # A standalone facility's rise table is identically zero -- there is no neighbour intake for a
@@ -1079,7 +1126,7 @@ def run_cases(fg_offsets, extra_note=""):
         tabs[mode] = rise_table(mode)
     tab_primary = tabs["longest"][0]
 
-    picks, worst_rise, worst_bearing = select_cases(keys, temp, drct, sknt, tab_primary)
+    picks, worst_rise, worst_bearing = select_cases(keys, temp, dewp, drct, sknt, tab_primary)
     say("\n   case selection, by the criteria printed here, over %d complete days:"
         % len({k[:10] for k in keys}))
     for name, crit in CASE_SPECS:
@@ -1955,10 +2002,21 @@ def run_all():
                  # "Apple / unnamed" for a standalone facility, and this string is printed on page 1
                  # of the downloadable PDF as the reader's check that they are looking at the right
                  # plant -- so a phantom second hall in it is worse than cosmetic.
-                 "operator": ("%s / %s" % (_committed["source_building"].get("name") or "unnamed",
-                                           _committed["receptor_building"].get("name") or "unnamed")
+                 # 🔴 "unnamed" IS NOT AN IDENTIFIER, AND FOUR FACILITIES WERE SHARING IT.
+                 # The fallback for a building with no OSM `name` tag was the bare word "unnamed",
+                 # so AL_way_1540172608, IA_way_191655977, NC_way_844372538 and WI_way_1510420026
+                 # all published `operator: "unnamed"` -- and audit.py's identity check reads
+                 # equality here as proof of an Ashburn-style fallback, which is exactly what it
+                 # was. Its own premise names the remedy: "two different buildings cannot share an
+                 # OSM id". So an unnamed building is identified by its way id, which is real,
+                 # unique, and something a reader can actually look up -- and it is printed on page
+                 # 1 of the PDF, where "unnamed" told them nothing at all.
+                 # This is `buildingOf()` from demo/index.html, in Python: one convention for
+                 # "who is this building", in both languages, rather than two that drift.
+                 "operator": ("%s / %s" % (_building_label(_committed["source_building"]),
+                                           _building_label(_committed["receptor_building"]))
                               if _committed["receptor_building"].get("osm_id") is not None
-                              else (_committed["source_building"].get("name") or "unnamed")),
+                              else _building_label(_committed["source_building"])),
                  "facade_gap_m": site_geom["longest"]["facade_gap_m"],
                  # 🔴 `bank_length_m` AND `facade_length_m` ARE PUBLISHED BECAUSE THE PAGE WAS
                  # ASSERTING THEM AS LITERALS. `demo/index.html`'s wind-dial note read "The

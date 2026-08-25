@@ -20,7 +20,17 @@ from datetime import datetime, timedelta, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 LOG = os.path.join(HERE, "results", "n26_driver.log")
 SLOT_UTC_H, SLOT_UTC_M = 8, 30
-DEADLINE = datetime(2026, 8, 19, 0, 0, tzinfo=timezone.utc)
+# DEADLINE EXTENDED 2026-08-25. It read 2026-08-19, which had passed -- so the driver exited
+# immediately and no pair had been collected since the vendor outage began on the 18th.
+# Four days were lost to that outage (08-18 zero tiles, 08-19 and 08-21 completed-but-never-
+# populated, 08-20 failed), and the cause turned out to be a client-side classifier bug, fixed
+# today. The bound needs 9 calibration days and holds 4, so 6 more pairs are required and one pair
+# is one elapsed day: this runs to 2026-09-02, which is 8 slots for 6 needed pairs -- two spare, so
+# a single missed or refused day does not cost the target.
+# ONE RUN A DAY IS ENOUGH FOR BOTH LEGS. `collect` does only what is due, so the 08:30 UTC slot
+# fetches the previous day's OUTCOME (its window has long since elapsed) and the new day's FORECAST
+# in the same run, and costs nothing for a leg already on disk.
+DEADLINE = datetime(2026, 9, 2, 0, 0, tzinfo=timezone.utc)
 
 
 def log(msg):

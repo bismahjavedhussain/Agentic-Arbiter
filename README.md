@@ -63,7 +63,7 @@ assumed, every term defined before it is used.
 error. Any static host serves the demo as-is — there is no build step and no server side.
 
 **If `run_all.py` is not green, do not believe a number on the page.** It re-reads **77 published
-figures** from the files the code actually wrote and runs **1475 audit checks**, including five that
+figures** from the files the code actually wrote and runs **1482 audit checks**, including five that
 re-derive the browser's own arithmetic against Python and one that drives a real browser to render
 every site and diff the panels a reader would look at.
 
@@ -225,7 +225,7 @@ A reasoning tape whose **32 templates contain not one literal digit**, checked a
 **Three sites live on their own geometry, weather, bound and tariff — and two more were refused on
 aerial evidence.**
 
-**On the size of the verification surface**, because it is fair to ask: **1475 audit checks and a
+**On the size of the verification surface**, because it is fair to ask: **1482 audit checks and a
 gotcha log running to #185 exist because every entry in it actually bit** — a NaN that
 was legal Python JSON and illegal standard JSON, a rounded array that flipped decisions at gate
 boundaries, an invented constant that outlived its own retraction by a day, a site picker that
@@ -287,7 +287,7 @@ python testing/test_n26_coverage.py selftest  # its retry budget, against all 5 
 python testing/n26_recovery_watch.py plan     # what the recovery watcher would spend today; spends 0
 python testing/n26_chicago_offset.py dryrun    # Chicago's own level offset: window, lead, cost. Spends 0
 python testing/verify_site_panels.py          # renders every site in real Chrome and diffs the panels
-cd INTAKE-ARBITER/src && python audit.py      # 1475 checks, 77 published numbers re-read
+cd INTAKE-ARBITER/src && python audit.py      # 1482 checks, 77 published numbers re-read
 cd INTAKE-ARBITER/src && python report.py     # the per-site PDF, verified by being reopened
 ```
 

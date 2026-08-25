@@ -1,0 +1,1405 @@
+==============================================================================
+NATIONAL BATCH RUN -- 339 facility(ies). One at a time, on purpose.
+==============================================================================
+
+[1/339] AZ_way_938592711       AZ  (unnamed)  (0.0 h elapsed)
+      weather: assign a station          FAILED    0.6s  
+         ERR 
+      -> no_station
+
+[2/339] AZ_way_468707940       AZ  Stream Data Centers PHX-1  (0.0 h elapsed)
+      weather: assign a station          FAILED    0.6s  
+         ERR 
+      -> no_station
+
+[3/339] IL_way_383545769       IL  Skybox Chicago I  (0.0 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        6.2s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        1.6s  
+      the 8-step agent chain             OK       65.4s  
+      manifest re-read                   OK        1.6s  
+      -> built
+
+[4/339] MI_way_1545590995      MI  (unnamed)  (0.0 h elapsed)
+      weather: assign a station          OK      142.0s  
+      imagery: one aerial frame          OK        5.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        1.7s  
+      the 8-step agent chain             OK       65.7s  
+      manifest re-read                   OK        1.6s  
+      -> built
+
+[5/339] VA_way_1443922535      VA  (unnamed)  (0.1 h elapsed)
+      weather: assign a station          OK      206.2s  
+      imagery: one aerial frame          OK       10.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        1.9s  
+      the 8-step agent chain             OK       63.4s  
+      manifest re-read                   OK        1.7s  
+      -> built
+
+[6/339] NJ_way_204316962       NJ  IO Datacenter  (0.2 h elapsed)
+      imagery: one aerial frame          OK        5.7s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        1.8s  
+      the 8-step agent chain             OK       64.8s  
+      manifest re-read                   OK        1.7s  
+      -> built
+
+[7/339] OR_way_1114969101      OR  Aligned DC - PDX-01  (0.2 h elapsed)
+      weather: assign a station          OK      197.4s  
+      imagery: one aerial frame          OK        8.0s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        2.1s  
+      the 8-step agent chain             OK       67.0s  
+      manifest re-read                   OK        1.7s  
+      -> built
+
+[8/339] VA_way_1447029365      VA  Microsoft Data Center 2  (0.3 h elapsed)
+      weather: assign a station          OK      198.1s  
+      imagery: one aerial frame          OK        7.8s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        1.9s  
+      the 8-step agent chain             OK       64.8s  
+      manifest re-read                   OK        1.9s  
+      -> built
+
+[9/339] VA_way_996899489       VA  CloudHQ MCC2  (0.3 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.9s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        1.9s  
+      the 8-step agent chain             OK       63.4s  
+      manifest re-read                   OK        1.9s  
+      -> built
+
+[10/339] OH_way_95349317        OH  CyrusOne Cincinnati-Lebanon  (0.4 h elapsed)
+      weather: assign a station          OK      281.3s  
+      imagery: one aerial frame          OK        7.0s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        2.0s  
+      the 8-step agent chain             OK       62.8s  
+      manifest re-read                   OK        1.9s  
+      -> built
+
+[11/339] WA_way_813688320       WA  Actapio  (0.5 h elapsed)
+      weather: assign a station          OK      416.2s  
+      imagery: one aerial frame          OK        7.8s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        2.3s  
+      the 8-step agent chain             OK       66.3s  
+      manifest re-read                   OK        2.0s  
+      -> built
+
+[12/339] GA_way_975064004       GA  Google Datacenter - Douglas County,   (0.6 h elapsed)
+      imagery: one aerial frame          OK        6.1s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        2.1s  
+      the 8-step agent chain             OK       63.3s  
+      manifest re-read                   OK        1.9s  
+      -> built
+
+[13/339] TX_way_487170215       TX  (unnamed)  (0.6 h elapsed)
+      weather: assign a station          OK      880.7s  
+      imagery: one aerial frame          OK        6.4s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        2.5s  
+      the 8-step agent chain             OK       60.8s  
+      manifest re-read                   OK        1.9s  
+      -> built
+
+[14/339] MO_way_118650988       MO  (unnamed)  (0.9 h elapsed)
+      weather: assign a station          OK      188.2s  
+      imagery: one aerial frame          OK       10.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        2.4s  
+      the 8-step agent chain             OK       63.0s  
+      manifest re-read                   OK        2.3s  
+      -> built
+
+[15/339] TX_way_1498670679      TX  (unnamed)  (1.0 h elapsed)
+      weather: assign a station          OK      619.2s  
+      imagery: one aerial frame          OK        7.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        2.6s  
+      the 8-step agent chain             OK       62.1s  
+      manifest re-read                   OK        2.2s  
+      -> built
+
+[16/339] GA_way_39083830        GA  Secure Data Center  (1.2 h elapsed)
+      weather: assign a station          OK      213.1s  
+      imagery: one aerial frame          OK        6.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        2.4s  
+      the 8-step agent chain             OK       64.1s  
+      manifest re-read                   OK        2.3s  
+      -> built
+
+[17/339] SD_way_545895086       SD  ADP South Dakota  (1.2 h elapsed)
+      weather: assign a station          OK      166.6s  
+      imagery: one aerial frame          OK        8.6s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        2.6s  
+      the 8-step agent chain             OK       65.2s  
+      manifest re-read                   OK        2.3s  
+      -> built
+
+[18/339] NJ_way_472761713       NJ  NYSE Data Center  (1.3 h elapsed)
+      weather: assign a station          OK      700.4s  
+      imagery: one aerial frame          OK        8.7s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        2.4s  
+      the 8-step agent chain             OK       63.8s  
+      manifest re-read                   OK        2.3s  
+      -> built
+
+[19/339] TX_way_1493169641      TX  Switch: The Rock  (1.5 h elapsed)
+      weather: assign a station          OK      351.3s  
+      imagery: one aerial frame          OK        6.7s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        2.5s  
+      the 8-step agent chain             OK       59.3s  
+      manifest re-read                   OK        2.4s  
+      -> built
+
+[20/339] PA_way_1334234458      PA  Amazon AWS PHL  (1.7 h elapsed)
+      weather: assign a station          OK      136.9s  
+      imagery: one aerial frame          OK        9.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        2.6s  
+      the 8-step agent chain             OK       64.2s  
+      manifest re-read                   OK        2.5s  
+      -> built
+
+[21/339] IL_way_530024353       IL  Centersquare Lisle ORD4 Data Center  (1.7 h elapsed)
+      weather: assign a station          OK      147.6s  
+      imagery: one aerial frame          OK        8.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        2.6s  
+      the 8-step agent chain             OK       65.2s  
+      manifest re-read                   OK        2.7s  
+      -> built
+
+[22/339] TN_way_1210515186      TN  Flexential Nashville - Cool Springs  (1.8 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        8.0s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        2.7s  
+      the 8-step agent chain             OK       62.8s  
+      manifest re-read                   OK        2.6s  
+      -> built
+
+[23/339] AZ_way_155739337       AZ  Aligned Energy Data Center  (1.8 h elapsed)
+      weather: assign a station          OK      181.2s  
+      imagery: one aerial frame          OK        7.9s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        2.8s  
+      the 8-step agent chain             OK       61.5s  
+      manifest re-read                   OK        2.6s  
+      -> built
+
+[24/339] UT_way_729696933       UT  Flexential Salt Lake City - Downtown  (1.9 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[25/339] VA_way_1252196826      VA  Amazon Web Services  (1.9 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        9.7s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        2.7s  
+      the 8-step agent chain             OK       64.8s  
+      manifest re-read                   OK        2.8s  
+      -> built
+
+[26/339] FL_way_523886201       FL  Cyxtera Tampa TP1  (1.9 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[27/339] NE_way_1235150788      NE  Yahoo  (1.9 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        8.4s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        2.9s  
+      the 8-step agent chain             OK       63.7s  
+      manifest re-read                   OK        2.8s  
+      -> built
+
+[28/339] NV_way_746278786       NV  Flexential Las Vegas - North  (1.9 h elapsed)
+      weather: assign a station          OK      282.3s  
+      imagery: one aerial frame          OK        6.0s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        3.2s  
+      the 8-step agent chain             OK       63.4s  
+      manifest re-read                   OK        2.7s  
+      -> built
+
+[29/339] NJ_way_818790301       NJ  Credit Suisse: Clifton Data Center  (2.0 h elapsed)
+      weather: assign a station          OK      157.7s  
+      imagery: one aerial frame          OK        7.2s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        3.0s  
+      the 8-step agent chain             OK       66.8s  
+      manifest re-read                   OK        2.8s  
+      -> built
+
+[30/339] TX_way_1081973944      TX  QTS San Antonio II  (2.1 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        5.7s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.0s  
+      the 8-step agent chain             OK       61.1s  
+      manifest re-read                   OK        2.9s  
+      -> built
+
+[31/339] TN_way_1381264361      TN  xAI Colossus  (2.1 h elapsed)
+      imagery: one aerial frame          OK        5.3s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.1s  
+      the 8-step agent chain             OK       63.9s  
+      manifest re-read                   OK        2.7s  
+      -> built
+
+[32/339] VA_way_1536981894      VA  Amazon Web Services  (2.1 h elapsed)
+      weather: assign a station          OK      126.0s  
+      imagery: one aerial frame          OK       10.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        2.9s  
+      the 8-step agent chain             OK       62.9s  
+      manifest re-read                   OK        3.0s  
+      -> built
+
+[33/339] GA_way_1282332209      GA  UPS Data Center  (2.2 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        7.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.2s  
+      the 8-step agent chain             OK       62.6s  
+      manifest re-read                   OK        3.4s  
+      -> built
+
+[34/339] NJ_way_612045611       NJ  Goldman Sachs  (2.2 h elapsed)
+      weather: assign a station          OK      138.5s  
+      imagery: one aerial frame          OK        9.4s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.2s  
+      the 8-step agent chain             OK       65.6s  
+      manifest re-read                   OK        3.0s  
+      -> built
+
+[35/339] PA_way_334264478       PA  Terminal Commerce Building  (2.3 h elapsed)
+      weather: assign a station          OK      172.9s  
+      imagery: one aerial frame          OK        6.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.7s  
+      the 8-step agent chain             OK       65.7s  
+      manifest re-read                   OK        3.2s  
+      -> built
+
+[36/339] TX_way_744177375       TX  (unnamed)  (2.3 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.3s  
+      the 8-step agent chain             OK       59.8s  
+      manifest re-read                   OK        3.1s  
+      -> built
+
+[37/339] IL_way_209786637       IL  QTS Chicago  (2.4 h elapsed)
+      weather: assign a station          OK      575.7s  
+      imagery: one aerial frame          OK        8.6s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        3.2s  
+      the 8-step agent chain             OK       64.6s  
+      manifest re-read                   OK        3.1s  
+      -> built
+
+[38/339] CA_way_31800424        CA  LightEdge SAN1  (2.6 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[39/339] IL_way_1316005112      IL  (unnamed)  (2.6 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.5s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        3.1s  
+      the 8-step agent chain             OK       66.2s  
+      manifest re-read                   OK        3.2s  
+      -> built
+
+[40/339] AZ_way_131891022       AZ  Iron Mountain Records Storage  (2.6 h elapsed)
+      weather: assign a station          OK      512.2s  
+      imagery: one aerial frame          OK        8.3s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        3.8s  
+      the 8-step agent chain             OK       62.6s  
+      manifest re-read                   OK        3.3s  
+      -> built
+
+[41/339] VA_way_46831933        VA  VA 4  (2.7 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.7s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.7s  
+      the 8-step agent chain             OK       62.9s  
+      manifest re-read                   OK        3.4s  
+      -> built
+
+[42/339] NC_way_186515922       NC  (unnamed)  (2.8 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        6.7s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        3.6s  
+      the 8-step agent chain             OK       61.7s  
+      manifest re-read                   OK        3.5s  
+      -> built
+
+[43/339] TN_way_894425613       TN  Tennessee Processing Center LLC  (2.8 h elapsed)
+      imagery: one aerial frame          OK        9.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.7s  
+      the 8-step agent chain             OK       64.0s  
+      manifest re-read                   OK        3.6s  
+      -> built
+
+[44/339] GA_way_891031651       GA  T5 Data Center  (2.8 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        5.8s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.9s  
+      the 8-step agent chain             OK       63.3s  
+      manifest re-read                   OK        3.6s  
+      -> built
+
+[45/339] VA_way_273895868       VA  Centersquare IAD3  (2.8 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        8.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.8s  
+      the 8-step agent chain             OK       67.4s  
+      manifest re-read                   OK        3.6s  
+      -> built
+
+[46/339] AZ_way_1283734104      AZ  Vantage Data Centers  (2.9 h elapsed)
+      weather: assign a station          FAILED    0.7s  
+         ERR 
+      -> no_station
+
+[47/339] TX_way_25706343        TX  Cyxtera Dallas-Fort Worth Data Cente  (2.9 h elapsed)
+      weather: assign a station          OK     1104.3s  
+      imagery: one aerial frame          OK       10.7s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.1s  
+      the 8-step agent chain             OK       62.6s  
+      manifest re-read                   OK        3.7s  
+      -> built
+
+[48/339] CA_way_190868312       CA  RagingWire CA3  (3.2 h elapsed)
+      weather: assign a station          OK      193.3s  
+      imagery: one aerial frame          OK        5.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.2s  
+      the 8-step agent chain             OK       67.4s  
+      manifest re-read                   OK        3.7s  
+      -> built
+
+[49/339] OK_way_1387080629      OK  (unnamed)  (3.3 h elapsed)
+      weather: assign a station          OK      141.6s  
+      imagery: one aerial frame          OK        6.0s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        3.9s  
+      the 8-step agent chain             OK       64.1s  
+      manifest re-read                   OK        4.3s  
+      -> built
+
+[50/339] CO_way_426586135       CO  Google - Thornton  (3.3 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        6.1s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        3.8s  
+      the 8-step agent chain             OK       67.4s  
+      manifest re-read                   OK        4.4s  
+      -> built
+
+[51/339] VA_way_429040021       VA  (unnamed)  (3.4 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        8.5s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        4.2s  
+      the 8-step agent chain             OK       63.0s  
+      manifest re-read                   OK        3.7s  
+      -> built
+
+[52/339] OR_way_1510517629      OR  (unnamed)  (3.4 h elapsed)
+      weather: assign a station          OK      303.3s  
+      imagery: one aerial frame          OK        7.1s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        4.1s  
+      the 8-step agent chain             OK       65.4s  
+      manifest re-read                   OK        4.1s  
+      -> built
+
+[53/339] NY_way_253670255       NY  Greenidge Power Plant and Data Cente  (3.5 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[54/339] NC_way_838817907       NC  TierPoint - Charlotte Data Center  (3.5 h elapsed)
+      weather: assign a station          OK      740.2s  
+      imagery: one aerial frame          OK        5.9s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        4.4s  
+      the 8-step agent chain             OK       64.3s  
+      manifest re-read                   OK        4.2s  
+      -> built
+
+[55/339] FL_way_435518280       FL  NAP of the Americas  (3.7 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[56/339] OH_way_1411056682      OH  (unnamed)  (3.7 h elapsed)
+      weather: assign a station          OK      172.0s  
+      imagery: one aerial frame          OK        6.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.2s  
+      the 8-step agent chain             OK       65.2s  
+      manifest re-read                   OK        4.1s  
+      -> built
+
+[57/339] OR_way_1501456882      OR  Amazon Web Services  (3.8 h elapsed)
+      weather: assign a station          OK      138.5s  
+      imagery: one aerial frame          OK        7.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.4s  
+      the 8-step agent chain             OK       65.9s  
+      manifest re-read                   OK        4.1s  
+      -> built
+
+[58/339] NC_way_233888384       NC  Segra Data Center  (3.9 h elapsed)
+      weather: assign a station          OK      369.6s  
+      imagery: one aerial frame          OK        8.0s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        4.3s  
+      the 8-step agent chain             OK       63.9s  
+      manifest re-read                   OK        4.1s  
+      -> built
+
+[59/339] VA_way_1509985717      VA  (unnamed)  (4.0 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.1s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        4.1s  
+      the 8-step agent chain             OK       63.7s  
+      manifest re-read                   OK        4.3s  
+      -> built
+
+[60/339] GA_way_269166415       GA  Cox Data Center  (4.0 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK       10.9s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        4.6s  
+      the 8-step agent chain             OK       63.7s  
+      manifest re-read                   OK        4.4s  
+      -> built
+
+[61/339] NY_way_1238955733      NY  fifteenfortyseven CSR ORNY1  (4.0 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       12.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.3s  
+      the 8-step agent chain             OK       66.0s  
+      manifest re-read                   OK        4.2s  
+      -> built
+
+[62/339] CA_way_409027020       CA  Equinix  (4.1 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[63/339] AZ_way_808979618       AZ  EdgeCore  (4.1 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.6s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.4s  
+      the 8-step agent chain             OK       59.7s  
+      manifest re-read                   OK        4.0s  
+      -> built
+
+[64/339] NE_way_166431620       NE  Union Pacific Jack Koraleski Technol  (4.1 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        5.0s  
+      the 8-step agent chain             OK       66.8s  
+      manifest re-read                   OK        4.5s  
+      -> built
+
+[65/339] IL_way_1481581948      IL  Edged Chicago ORD01  (4.1 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        6.4s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.7s  
+      the 8-step agent chain             OK       64.4s  
+      manifest re-read                   OK        4.6s  
+      -> built
+
+[66/339] MA_way_29827954        MA  CoreSite BO1  (4.1 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[67/339] CA_way_1460847458      CA  EdgeCore Silicon Valley  (4.1 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[68/339] MD_way_93210344        MD  Lincoln Rackhouse Maryland  (4.1 h elapsed)
+      weather: assign a station          OK      153.6s  
+      imagery: one aerial frame          OK        7.4s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        4.6s  
+      the 8-step agent chain             OK       64.0s  
+      manifest re-read                   OK        4.3s  
+      -> built
+
+[69/339] NJ_way_460182320       NJ  CyrusOne Somerset  (4.2 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.7s  
+      the 8-step agent chain             OK       66.1s  
+      manifest re-read                   OK        4.6s  
+      -> built
+
+[70/339] TX_way_483286527       TX  Aligned  DFW-02, Aligned  DFW-01  (4.2 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       15.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.8s  
+      the 8-step agent chain             FAILED   61.2s  
+         ERR 
+      manifest re-read                   OK        4.4s  
+      -> chain_failed
+
+[71/339] IL_way_156520409       IL  Lakeside Technology Center  (4.2 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.3s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.5s  
+      the 8-step agent chain             OK       65.6s  
+      manifest re-read                   OK        4.8s  
+      -> built
+
+[72/339] OK_way_195664350       OK  Cherokee Data Center  (4.3 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        8.8s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        5.0s  
+      the 8-step agent chain             OK       64.1s  
+      manifest re-read                   OK        5.1s  
+      -> built
+
+[73/339] OH_way_491914767       OH  H5 Data Center  (4.3 h elapsed)
+      weather: assign a station          OK      395.4s  
+      imagery: one aerial frame          OK        6.8s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        5.0s  
+      the 8-step agent chain             OK       65.9s  
+      manifest re-read                   OK        4.8s  
+      -> built
+
+[74/339] FL_way_609126465       FL  (unnamed)  (4.4 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[75/339] VA_way_260996040       VA  (unnamed)  (4.4 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        4.8s  
+      the 8-step agent chain             OK       62.3s  
+      manifest re-read                   OK        4.9s  
+      -> built
+
+[76/339] NE_way_405034584       NE  Verizon, Verizon  (4.5 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.9s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        5.2s  
+      the 8-step agent chain             OK       63.4s  
+      manifest re-read                   OK        4.5s  
+      -> built
+
+[77/339] NJ_way_362662493       NJ  QTS Piscataway Data Center  (4.5 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.9s  
+      standalone geometry                OK        1.0s  
+      manifest refresh                   OK        5.0s  
+      the 8-step agent chain             OK       64.6s  
+      manifest re-read                   OK        5.1s  
+      -> built
+
+[78/339] TX_way_465032201       TX  Lumen Dallas - 3180 Irving Blvd.  (4.5 h elapsed)
+      weather: assign a station          OK      361.6s  
+      imagery: one aerial frame          OK        9.1s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        5.0s  
+      the 8-step agent chain             OK       63.2s  
+      manifest re-read                   OK        5.1s  
+      -> built
+
+[79/339] CA_way_441502816       CA  Lumen Technologies  (4.6 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[80/339] IL_way_1481581947      IL  CyrusOne CHI3  (4.6 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.8s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        4.9s  
+      the 8-step agent chain             OK       66.3s  
+      manifest re-read                   OK        5.4s  
+      -> built
+
+[81/339] CA_way_299388896       CA  CoreSite SV2  (4.7 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[82/339] NJ_way_95782052        NJ  Equinix NY7 Data Center  (4.7 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.0s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        5.3s  
+      the 8-step agent chain             OK       66.0s  
+      manifest re-read                   OK        5.2s  
+      -> built
+
+[83/339] PA_way_296374269       PA  Flexential Allentown Data Center  (4.7 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        5.8s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        5.2s  
+      the 8-step agent chain             OK       63.3s  
+      manifest re-read                   OK        5.3s  
+      -> built
+
+[84/339] PA_way_1109881281      PA  TierPoint Valley Forge  (4.7 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        6.7s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        5.3s  
+      the 8-step agent chain             OK       64.5s  
+      manifest re-read                   OK        6.3s  
+      -> built
+
+[85/339] MN_way_63619642        MN  Minnesota Gateway Data Center  (4.7 h elapsed)
+      weather: assign a station          OK      134.9s  
+      imagery: one aerial frame          OK        6.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        5.6s  
+      the 8-step agent chain             OK       64.1s  
+      manifest re-read                   OK        5.3s  
+      -> built
+
+[86/339] WA_way_396296733       WA  Centersquare Lynnwood SE1  (4.8 h elapsed)
+      weather: assign a station          OK      177.4s  
+      imagery: one aerial frame          OK        6.6s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        5.6s  
+      the 8-step agent chain             OK       68.6s  
+      manifest re-read                   OK        5.5s  
+      -> built
+
+[87/339] TX_way_1221574918      TX  Cortex supercomputer  (4.9 h elapsed)
+      weather: assign a station          OK      218.8s  
+      imagery: one aerial frame          OK        7.4s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        5.6s  
+      the 8-step agent chain             OK       62.6s  
+      manifest re-read                   OK        5.4s  
+      -> built
+
+[88/339] TX_way_1535715798      TX  Data Foundry  (4.9 h elapsed)
+      weather: assign a station          OK      478.4s  
+      imagery: one aerial frame          OK        5.6s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        5.6s  
+      the 8-step agent chain             OK       61.7s  
+      manifest re-read                   OK        5.5s  
+      -> built
+
+[89/339] IN_way_978934687       IN  Digital Crossroad  (5.1 h elapsed)
+      weather: assign a station          OK      149.6s  
+      imagery: one aerial frame          OK        7.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        5.9s  
+      the 8-step agent chain             OK       64.4s  
+      manifest re-read                   OK        5.7s  
+      -> built
+
+[90/339] VA_way_380282154       VA  VISA Data Center  (5.2 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.6s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        5.7s  
+      the 8-step agent chain             OK       64.8s  
+      manifest re-read                   OK        5.8s  
+      -> built
+
+[91/339] IA_way_1226436457      IA  CyrusOne OCB1 Council Bluffs  (5.2 h elapsed)
+      weather: assign a station          OK      123.7s  
+      imagery: one aerial frame          OK        7.2s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        6.1s  
+      the 8-step agent chain             OK       66.0s  
+      manifest re-read                   OK        6.1s  
+      -> built
+
+[92/339] NJ_way_452116337       NJ  BT Radianz: 492 River Road  (5.3 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       11.6s  
+      standalone geometry                OK        1.0s  
+      manifest refresh                   OK        5.7s  
+      the 8-step agent chain             OK       64.8s  
+      manifest re-read                   OK        5.6s  
+      -> built
+
+[93/339] MA_way_214321737       MA  Markley Data Center  (5.3 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[94/339] ME_way_667796922       ME  Oxford Networks  (5.3 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[95/339] MD_way_1143804764      MD  (unnamed)  (5.3 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        9.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        5.5s  
+      the 8-step agent chain             OK       65.9s  
+      manifest re-read                   OK        5.4s  
+      -> built
+
+[96/339] GA_way_284044002       GA  CoreSite AT2 - Marietta Data Center  (5.3 h elapsed)
+      weather: assign a station          OK      142.4s  
+      imagery: one aerial frame          OK        7.7s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        6.2s  
+      the 8-step agent chain             OK       61.9s  
+      manifest re-read                   OK        5.8s  
+      -> built
+
+[97/339] SC_way_1320038649      SC  DC BLOX Myrtle Beach Cable Landing S  (5.4 h elapsed)
+      weather: assign a station          OK      137.9s  
+      imagery: one aerial frame          OK        6.3s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        5.9s  
+      the 8-step agent chain             OK       61.3s  
+      manifest re-read                   OK        5.9s  
+      -> built
+
+[98/339] TX_way_1460861317      TX  Amazon AWS SAT - 12807 Donop  (5.4 h elapsed)
+      weather: assign a station          OK      160.1s  
+      imagery: one aerial frame          OK        4.9s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        5.9s  
+      the 8-step agent chain             OK       61.4s  
+      manifest re-read                   OK        6.5s  
+      -> built
+
+[99/339] NC_way_830138727       NC  BB&T Data Center  (5.5 h elapsed)
+      weather: assign a station          OK      140.3s  
+      imagery: one aerial frame          OK       10.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        6.0s  
+      the 8-step agent chain             OK       66.9s  
+      manifest re-read                   OK        6.1s  
+      -> built
+
+[100/339] IL_way_138260136       IL  NCSA Petascale Computing Facility  (5.6 h elapsed)
+      weather: assign a station          OK      362.3s  
+      imagery: one aerial frame          OK       10.5s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        6.3s  
+      the 8-step agent chain             OK       64.4s  
+      manifest re-read                   OK        6.1s  
+      -> built
+
+[101/339] MN_way_1343100173      MN  DataBank  (5.7 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK       11.7s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        6.3s  
+      the 8-step agent chain             OK       64.4s  
+      manifest re-read                   OK        6.0s  
+      -> built
+
+[102/339] TX_way_1457383500      TX  (unnamed)  (5.7 h elapsed)
+      weather: assign a station          OK      358.9s  
+      imagery: one aerial frame          FAILED   18.5s  
+         ERR 
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        6.9s  
+      the 8-step agent chain             OK       64.0s  
+      manifest re-read                   OK        6.2s  
+      -> built
+
+[103/339] NJ_way_808909814       NJ  Wall Township Cable Landing Station  (5.8 h elapsed)
+      weather: assign a station          OK      834.6s  
+      imagery: one aerial frame          OK        7.3s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        6.6s  
+      the 8-step agent chain             OK       63.8s  
+      manifest re-read                   OK        5.8s  
+      -> built
+
+[104/339] MD_way_610845529       MD  TierPoint Baltimore BWI  (6.1 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        6.1s  
+      standalone geometry                OK        1.0s  
+      manifest refresh                   OK        5.9s  
+      the 8-step agent chain             OK       65.4s  
+      manifest re-read                   OK        6.5s  
+      -> built
+
+[105/339] IN_way_203432103       IN  IU Data Center  (6.1 h elapsed)
+      weather: assign a station          OK      570.4s  
+      imagery: one aerial frame          OK       13.4s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        6.3s  
+      the 8-step agent chain             OK       63.2s  
+      manifest re-read                   OK        6.4s  
+      -> built
+
+[106/339] VA_way_221897579       VA  Equinix DC97  (6.3 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        6.3s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        6.8s  
+      the 8-step agent chain             OK       65.9s  
+      manifest re-read                   OK        6.5s  
+      -> built
+
+[107/339] TN_way_819981891       TN  HCA Information Technology & Service  (6.3 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        6.6s  
+      the 8-step agent chain             OK       63.9s  
+      manifest re-read                   OK        6.5s  
+      -> built
+
+[108/339] CT_way_571010571       CT  CyrusOne Norwalk  (6.4 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        8.7s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        6.5s  
+      the 8-step agent chain             OK       66.7s  
+      manifest re-read                   OK        6.5s  
+      -> built
+
+[109/339] CA_way_531709017       CA  AT&T Center  (6.4 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[110/339] AZ_way_157362579       AZ  Flexential Phoenix - Deer Valley  (6.4 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        5.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        7.1s  
+      the 8-step agent chain             OK       63.5s  
+      manifest re-read                   OK        7.4s  
+      -> built
+
+[111/339] GA_way_278560778       GA  Digital Realty Data Center  (6.4 h elapsed)
+      weather: assign a station          OK      163.1s  
+      imagery: one aerial frame          OK        6.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        6.5s  
+      the 8-step agent chain             OK       61.1s  
+      manifest re-read                   OK        6.6s  
+      -> built
+
+[112/339] OH_way_1319724559      OH  (unnamed)  (6.5 h elapsed)
+      weather: assign a station          OK      151.7s  
+      imagery: one aerial frame          OK        9.3s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        7.1s  
+      the 8-step agent chain             OK       63.7s  
+      manifest re-read                   OK        6.9s  
+      -> built
+
+[113/339] CA_way_888253616       CA  NTT Silicon Valley SV1 Data Center  (6.6 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[114/339] TX_way_1227550179      TX  Novartis  (6.6 h elapsed)
+      weather: assign a station          OK      459.5s  
+      imagery: one aerial frame          OK        8.0s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        6.7s  
+      the 8-step agent chain             OK       63.6s  
+      manifest re-read                   OK        7.0s  
+      -> built
+
+[115/339] CA_way_464371693       CA  Kaiser Data Center  (6.7 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[116/339] TX_way_28544618        TX  Equinix Infomart  (6.7 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        7.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        6.6s  
+      the 8-step agent chain             OK       64.2s  
+      manifest re-read                   OK        6.9s  
+      -> built
+
+[117/339] IL_way_841813139       IL  CoreSite Chicago Data Center (CH2)  (6.7 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        8.0s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        7.2s  
+      the 8-step agent chain             OK       66.4s  
+      manifest re-read                   OK        7.4s  
+      -> built
+
+[118/339] MN_way_52227492        MN  Flexential Minneapolis - Chaska  (6.8 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        6.8s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        7.3s  
+      the 8-step agent chain             OK       65.9s  
+      manifest re-read                   OK        6.5s  
+      -> built
+
+[119/339] NJ_way_607483487       NJ  (unnamed)  (6.8 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        6.2s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        7.5s  
+      the 8-step agent chain             OK       65.1s  
+      manifest re-read                   OK        6.9s  
+      -> built
+
+[120/339] OH_way_138643160       OH  LexisNexus Springfield  (6.8 h elapsed)
+      weather: assign a station          OK      286.2s  
+      imagery: one aerial frame          OK        5.7s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        7.4s  
+      the 8-step agent chain             OK       65.6s  
+      manifest re-read                   OK        7.3s  
+      -> built
+
+[121/339] PA_way_1178609569      PA  Flexential Philadelphia - Collegevil  (6.9 h elapsed)
+      weather: assign a station          OK      148.0s  
+      imagery: one aerial frame          OK        6.4s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        7.3s  
+      the 8-step agent chain             OK       66.3s  
+      manifest re-read                   OK        7.0s  
+      -> built
+
+[122/339] FL_way_497151852       FL  Cologix Jacksonville JAX1  (7.0 h elapsed)
+      weather: assign a station          OK      260.6s  
+      imagery: one aerial frame          OK        8.6s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        7.5s  
+      the 8-step agent chain             OK       60.1s  
+      manifest re-read                   OK        7.0s  
+      -> built
+
+[123/339] NM_way_1519367009      NM  Information Systems Facility  (7.1 h elapsed)
+      weather: assign a station          OK      632.1s  
+      imagery: one aerial frame          OK        5.8s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        7.7s  
+      the 8-step agent chain             OK       64.7s  
+      manifest re-read                   OK        7.1s  
+      -> built
+
+[124/339] CA_way_460076753       CA  Equinix San Jose SV3  (7.3 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[125/339] CA_way_224139416       CA  Dell 350 Holger Way  (7.3 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[126/339] OH_way_1210421871      OH  Carrier Services Group  (7.3 h elapsed)
+      weather: assign a station          OK      159.3s  
+      imagery: one aerial frame          OK        5.7s  
+      standalone geometry                OK        1.4s  
+      manifest refresh                   OK        7.8s  
+      the 8-step agent chain             OK       67.0s  
+      manifest re-read                   OK        6.8s  
+      -> built
+
+[127/339] CA_way_289620443       CA  Digital Realty San Francisco SFO10  (7.4 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[128/339] NC_way_516686211       NC  Spectrum Charlotte National Data Cen  (7.4 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        6.5s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        6.8s  
+      the 8-step agent chain             OK       63.7s  
+      manifest re-read                   OK        7.4s  
+      -> built
+
+[129/339] FL_way_741629998       FL  Flexential Fort Lauderdale  (7.4 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[130/339] VA_way_257581364       VA  Flexential - Richmond  (7.4 h elapsed)
+      weather: assign a station          OK      151.8s  
+      imagery: one aerial frame          OK        6.2s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        7.9s  
+      the 8-step agent chain             OK       64.9s  
+      manifest re-read                   OK        7.3s  
+      -> built
+
+[131/339] MN_way_1391966326      MN  Encompass Minneapolis Facility  (7.4 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        7.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        7.8s  
+      the 8-step agent chain             OK       63.6s  
+      manifest re-read                   OK        7.4s  
+      -> built
+
+[132/339] NJ_way_1189426328      NJ  (unnamed)  (7.5 h elapsed)
+      weather: assign a station          OK        0.8s  
+      imagery: one aerial frame          OK        7.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        7.8s  
+      the 8-step agent chain             OK       64.1s  
+      manifest re-read                   OK        7.4s  
+      -> built
+
+[133/339] TX_way_509611436       TX  Valero Wiserman  (7.5 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        5.8s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        8.1s  
+      the 8-step agent chain             OK       62.5s  
+      manifest re-read                   OK        7.0s  
+      -> built
+
+[134/339] IL_way_409296605       IL  Digital Realty Chicago ORD12  (7.5 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.5s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        7.5s  
+      the 8-step agent chain             OK       67.0s  
+      manifest re-read                   OK        7.7s  
+      -> built
+
+[135/339] OR_way_653416730       OR  US Signal - OR01 Bend  (7.5 h elapsed)
+      weather: assign a station          OK      140.6s  
+      imagery: one aerial frame          OK        5.3s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        8.3s  
+      the 8-step agent chain             OK       65.5s  
+      manifest re-read                   OK        7.3s  
+      -> built
+
+[136/339] VA_way_79818498        VA  CoreSite Reston VA3  (7.6 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       13.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        7.7s  
+      the 8-step agent chain             OK       64.5s  
+      manifest re-read                   OK        7.3s  
+      -> built
+
+[137/339] CA_way_99813512        CA  Equinix SV4  (7.6 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[138/339] TX_way_549418041       TX  Experian McKinney Data Center  (7.6 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        5.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        8.2s  
+      the 8-step agent chain             OK       61.9s  
+      manifest re-read                   OK        7.8s  
+      -> built
+
+[139/339] NJ_way_729376485       NJ  (unnamed)  (7.7 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK       11.1s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        7.7s  
+      the 8-step agent chain             OK       65.0s  
+      manifest re-read                   OK        7.9s  
+      -> built
+
+[140/339] PA_way_777196805       PA  Allentown-TekPark  (7.7 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        6.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        8.7s  
+      the 8-step agent chain             OK       66.4s  
+      manifest re-read                   OK        8.4s  
+      -> built
+
+[141/339] FL_way_429782814       FL  UF Research Computing Center  (7.7 h elapsed)
+      weather: assign a station          OK      823.2s  
+      imagery: one aerial frame          OK        6.0s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        9.0s  
+      the 8-step agent chain             OK       61.9s  
+      manifest re-read                   OK        8.1s  
+      -> built
+
+[142/339] GA_way_39083797        GA  Flexential Atlanta - Alpharetta Data  (8.0 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        4.9s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        8.5s  
+      the 8-step agent chain             OK       63.7s  
+      manifest re-read                   OK        8.3s  
+      -> built
+
+[143/339] NJ_way_387208881       NJ  165 Halsey / Equinix NY1 / Databank   (8.0 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK        6.5s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        7.8s  
+      the 8-step agent chain             OK       66.1s  
+      manifest re-read                   OK        9.1s  
+      -> built
+
+[144/339] MI_way_545060574       MI  Liquid Web, Inc  (8.0 h elapsed)
+      weather: assign a station          OK      169.2s  
+      imagery: one aerial frame          OK        5.4s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        8.5s  
+      the 8-step agent chain             OK       73.8s  
+      manifest re-read                   OK       12.4s  
+      -> built
+
+[145/339] OH_way_1382205749      OH  T5@Cleveland, T5@Cleveland  (8.1 h elapsed)
+      imagery: one aerial frame          OK        5.5s  
+      standalone geometry                OK        1.6s  
+      manifest refresh                   OK       10.3s  
+      the 8-step agent chain             OK       66.3s  
+      manifest re-read                   OK        8.3s  
+      -> built
+
+[146/339] AZ_way_244490839       AZ  PhoenixNAP  (8.1 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        6.4s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        8.5s  
+      the 8-step agent chain             OK       62.7s  
+      manifest re-read                   OK        8.4s  
+      -> built
+
+[147/339] GA_way_958153770       GA  DLI ONE  (8.2 h elapsed)
+      weather: assign a station          OK      266.7s  
+      imagery: one aerial frame          OK        6.2s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        8.7s  
+      the 8-step agent chain             OK       62.5s  
+      manifest re-read                   OK        8.3s  
+      -> built
+
+[148/339] MI_way_377585075       MI  EdgeConneX Detroit DET01  (8.3 h elapsed)
+      weather: assign a station          OK      166.9s  
+      imagery: one aerial frame          OK        7.6s  
+      standalone geometry                OK        1.1s  
+      manifest refresh                   OK        8.6s  
+      the 8-step agent chain             OK       68.6s  
+      manifest re-read                   OK       14.0s  
+      -> built
+
+[149/339] SD_way_239032142       SD  TierPoint Sioux Falls West Data Cent  (8.3 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        5.7s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK       10.6s  
+      the 8-step agent chain             OK       68.7s  
+      manifest re-read                   OK       10.1s  
+      -> built
+
+[150/339] TX_way_587103676       TX  (unnamed)  (8.4 h elapsed)
+      weather: assign a station          OK      286.7s  
+      imagery: one aerial frame          OK        7.0s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK       12.4s  
+      the 8-step agent chain             OK       63.3s  
+      manifest re-read                   OK        8.1s  
+      -> built
+
+[151/339] CA_way_30666790        CA  USPO Terminal Annex  (8.5 h elapsed)
+      weather: assign a station          FAILED    0.3s  
+         ERR 
+      -> no_station
+
+[152/339] IL_way_210222970       IL  Iron Mountain Data & Record Storage  (8.5 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       14.6s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        8.6s  
+      the 8-step agent chain             OK       67.2s  
+      manifest re-read                   OK        9.3s  
+      -> built
+
+[153/339] CA_way_460085343       CA  360 Spear Street Data Center, 365 Ma  (8.5 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[154/339] OH_way_31250931        OH  CyrusOne Cincinnati-Mason CIN3  (8.5 h elapsed)
+      weather: assign a station          OK      241.8s  
+      imagery: one aerial frame          OK        6.5s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        9.2s  
+      the 8-step agent chain             OK       67.2s  
+      manifest re-read                   OK       12.3s  
+      -> built
+
+[155/339] MD_way_178331621       MD  (unnamed)  (8.6 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        7.7s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK        9.0s  
+      the 8-step agent chain             OK       67.2s  
+      manifest re-read                   OK       12.9s  
+      -> built
+
+[156/339] IA_way_342664739       IA  Geneseo Communications Inc  (8.6 h elapsed)
+      weather: assign a station          OK      262.6s  
+      imagery: one aerial frame          OK        6.1s  
+      standalone geometry                OK        1.4s  
+      manifest refresh                   OK        9.5s  
+      the 8-step agent chain             OK       66.8s  
+      manifest re-read                   OK        8.9s  
+      -> built
+
+[157/339] IL_way_152449872       IL  Serverfarm CH1  (8.7 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK        6.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        8.4s  
+      the 8-step agent chain             OK       66.9s  
+      manifest re-read                   OK        9.0s  
+      -> built
+
+[158/339] UT_way_1056658555      UT  Flexential Salt Lake City - Millcree  (8.7 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[159/339] CO_way_52958203        CO  Pearl Plaza Office Building  (8.7 h elapsed)
+      weather: assign a station          OK        0.3s  
+      imagery: one aerial frame          OK        5.7s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        9.2s  
+      the 8-step agent chain             OK       68.5s  
+      manifest re-read                   OK       14.3s  
+      -> built
+
+[160/339] TX_way_382785871       TX  LightEdge Austin I  (8.8 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK       22.2s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        9.6s  
+      the 8-step agent chain             OK       63.2s  
+      manifest re-read                   OK        8.7s  
+      -> built
+
+[161/339] NM_way_706081342       NM  (unnamed)  (8.8 h elapsed)
+      weather: assign a station          FAILED    0.2s  
+         ERR 
+      -> no_station
+
+[162/339] TX_way_30827429        TX  DataBank  (8.8 h elapsed)
+      weather: assign a station          OK        0.6s  
+      imagery: one aerial frame          OK        9.3s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        8.4s  
+      the 8-step agent chain             OK       63.5s  
+      manifest re-read                   OK       13.5s  
+      -> built
+
+[163/339] TX_way_650412346       TX  Flexential Dallas - Plano  (8.8 h elapsed)
+      weather: assign a station          OK        0.7s  
+      imagery: one aerial frame          OK        7.4s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        9.5s  
+      the 8-step agent chain             OK       66.0s  
+      manifest re-read                   OK       13.9s  
+      -> built
+
+[164/339] NC_way_215630401       NC  Flexential Charlotte - South  (8.9 h elapsed)
+      weather: assign a station          OK        0.4s  
+      imagery: one aerial frame          OK        6.1s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        9.6s  
+      the 8-step agent chain             OK       65.1s  
+      manifest re-read                   OK        9.1s  
+      -> built
+
+[165/339] TX_way_1310628998      TX  (unnamed)  (8.9 h elapsed)
+      weather: assign a station          OK        0.9s  
+      imagery: one aerial frame          OK        7.0s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK        9.7s  
+      the 8-step agent chain             OK       63.7s  
+      manifest re-read                   OK       15.5s  
+      -> built
+
+[166/339] CO_way_916046040       CO  (unnamed)  (8.9 h elapsed)
+      weather: assign a station          OK        0.5s  
+      imagery: one aerial frame          OK       10.5s  
+      standalone geometry                OK        1.3s  
+      manifest refresh                   OK       10.0s  
+      the 8-step agent chain             OK       71.0s  
+      manifest re-read                   OK        9.9s  
+      -> built
+
+[167/339] MI_way_773848531       MI  (unnamed)  (8.9 h elapsed)
+      weather: assign a station          OK      250.3s  
+      imagery: one aerial frame          OK       12.3s  
+      standalone geometry                OK        1.2s  
+      manifest refresh                   OK       14.4s  
+      the 8-step agent chain             OK       70.6s  
+      manifest re-read                   OK       12.3s  
+      -> built
+
+   TIME BUDGET REACHED -- 9.05 h of 9.00 h used, stopping BEFORE facility 168 of 339 rather than interrupting it.
+
+==============================================================================
+BATCH DONE in 9.05 h
+   STOPPED ON THE TIME BUDGET, not because the work ran out:
+      167 facility(ies) attempted, 172 of 339 still to do.
+   built            138
+   chain_failed     1
+   no_station       28
+   Re-run to continue: every step asks the disk whether it already ran, so nothing
+   below is repeated and at most the facility in flight is lost.
+   NEXT, and it needs a person: read each frame and record a screening verdict.
+==============================================================================

@@ -504,7 +504,7 @@
     "refused": false,
     "rise_c": 0.35477
    },
-   "solve_seconds": 44.1,
+   "solve_seconds": 42.7,
    "wind_weighted": {
     "all_hours": {
      "n_hours": 34200,
@@ -1023,7 +1023,7 @@
     "refused": false,
     "rise_c": 0.0
    },
-   "solve_seconds": 20.5,
+   "solve_seconds": 20.4,
    "wind_weighted": {
     "all_hours": {
      "n_hours": 34200,
