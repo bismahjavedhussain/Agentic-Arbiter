@@ -90,14 +90,10 @@ def _geometry_done(key, kind):
         return False
     if kind == "standalone":
         return True
-    p = M.geom_path("direction_table.json", key)
-    if not os.path.exists(p):
-        return False
-    try:
-        modes = (json.load(open(p, encoding="utf-8")).get("modes") or {})
-    except (ValueError, OSError):
-        return False                      # unreadable or half-written: rebuild it
-    return all((modes.get(m) or {}).get("worst") for m in ("longest", "facing"))
+    # THE SAME TEST THE MANIFEST USES, imported rather than restated. Two copies of this disagreed
+    # for an hour and published a site backed by a standalone stub -- see
+    # `metros.paired_geometry_ready`'s docstring for what that cost.
+    return M.paired_geometry_ready(key)
 
 
 def state_of(key, reg, asn):

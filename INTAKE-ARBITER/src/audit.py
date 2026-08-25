@@ -2755,6 +2755,22 @@ def check_front_door_figures():
     tk = jload(os.path.join(DEMO, "ticker.json"))
     rb = rl["configs"][0]
     C = [r for r in bt["n56_audit"] if r["step"].startswith("C ")]
+    # ANCHOR-BASED, NOT INDEX-BASED. The shipped row used to be addressed as `C[-2]` and the
+    # unanchored stress test as `C[-1]`, which silently encoded "the unanchored row is last". It is
+    # a field on the row, so ask for it: adding a rung to the ladder would otherwise re-point both
+    # registrations at the wrong configurations without any check noticing.
+    C_SHIP = [r for r in C if r["anchor"] != "none"][-1]
+    C_UNANCH = [r for r in C if r["anchor"] == "none"]
+    # THE FORECAST'S OWN SHARE, derived exactly as drawLadder() derives it for the page, so the
+    # README, the panel and this check cannot disagree. Measured by REMOVING the forecast: at skill
+    # 0 the agent has nothing beyond debiased persistence, so the difference is what FortyGuard
+    # contributes. Registered because it is now the README's headline claim about the vendor.
+    SK = [r for r in bt["sensitivity"]["rows"] if r["axis"] == "skill"]
+    SK0 = [r for r in SK if float(r["value"]) == 0.0][0]
+    SKB = [r for r in SK if r.get("is_base")][0]
+    FG_SHARE = (SKB["gain_h_per_year"] - SK0["gain_h_per_year"]) / SKB["gain_h_per_year"]
+    NT = sorted((r for r in bt["sensitivity"]["rows"] if r["axis"] == "notice_h"),
+                key=lambda r: float(r["value"]))
     mn = jload(os.path.join(DEMO, "money.json"))
     MONEY_ROW = [c["usd_per_mw_it_per_year"] for c in mn["cells"]
                  if c["hours_label"].startswith("+ notice 3 h")]
@@ -2764,8 +2780,27 @@ def check_front_door_figures():
         ("free cooling delivered",  "%s h/yr" % format(round(rb["executed_free_h_per_day"]
                                                              * 365.25), ",")),
         ("held-out days",           "%s held-out days" % format(rl["held_out_days_simulated"], ",")),
-        ("chiller-hours avoided",   "+%d h/yr" % round(C[-2]["gain_h_per_year"])),
-        ("the unanchored LOSS",     "−%d h/yr" % round(abs(C[-1]["gain_h_per_year"]))),
+        ("chiller-hours avoided",   "+%d h/yr" % round(C_SHIP["gain_h_per_year"])),
+        # THE UNANCHORED LOSS IS NO LONGER A README HEADLINE, and that is a deliberate editorial
+        # change rather than a figure going unchecked. The measurement is untouched in
+        # backtest.json and four other registrations below still re-derive it (-156.0 h/yr, its
+        # 0.9865 coverage, its per-day gain, and the 561.7 h/yr difference). What was dropped is the
+        # REQUIREMENT that the README quote it as a top-line result: it rotates four measured
+        # forecast-vs-history LEVEL differences across five years of KIAD ASOS, and this project's
+        # own finding is that the difference reads as an offset between two endpoints rather than as
+        # forecast error. Headlining it therefore attributed an integration detail to forecast
+        # quality. It now lives in the panel's disclosure with that attribution stated.
+        ("the forecast's share",    "%.1f %%" % (100 * FG_SHARE)),
+        ("gain with NO forecast",   "+%.1f h/yr" % SK0["gain_h_per_year"]),
+        # ONE ENTRY PER RUNG, IN PLAIN ASCII. The first version registered the whole rendered
+        # string, arrows and middots included -- and a FAILING check would then have tried to print
+        # U+2192 to this repo's cp1252 console and died inside its own error path, which is the
+        # bug `bump_spend_docs` already carries a scar for. Per-rung is also more precise: it names
+        # which lead time drifted instead of failing on the whole sentence.
+        ("notice 0 h",              "+%.1f" % NT[0]["gain_h_per_year"]),
+        ("notice 1 h",              "+%.1f" % NT[1]["gain_h_per_year"]),
+        ("notice 3 h",              "+%.1f" % NT[2]["gain_h_per_year"]),
+        ("notice 6 h",              "+%.1f" % NT[3]["gain_h_per_year"]),
         ("plan stability",          "%.1f %%" % (100 * rb["replans_with_zero_change"])),
         ("re-plan count",           "%s re-plans" % format(rb["replans"], ",")),
         ("coverage, and its FAILURE", "%.1f %%" % (100 * t["cycle"]["pooled_coverage"])),

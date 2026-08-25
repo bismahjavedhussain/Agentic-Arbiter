@@ -296,6 +296,43 @@ def national_registry():
     return _NATIONAL_CACHE[0]
 
 
+PAIRED_READY_ARTEFACTS = ("solver_site_longest.json", "solver_site_facing.json",
+                          "direction_table.json")
+
+
+def _missing_paired(k):
+    """Which of the paired geometry files are absent. Empty means all three are on disk -- which is
+    NOT the same as ready; see `paired_geometry_ready`."""
+    return [nm for nm in PAIRED_READY_ARTEFACTS if not os.path.exists(geom_path(nm, k))]
+
+
+def paired_geometry_ready(k):
+    """Is this PAIRED facility's geometry complete -- files present AND the sweep actually run?
+
+    🔴 ONE QUESTION, ONE ANSWER, BECAUSE TWO NEARLY-IDENTICAL TESTS ALREADY DISAGREED.
+    This existed in two places for about an hour: `national_entry` tested only that the three files
+    EXIST, while `build_national_batch._geometry_done` also required a real worst bearing. So a
+    facility still carrying the standalone STUB direction table -- `"N-54 refusal surface -- NOT RUN,
+    no receptor intake exists"`, `worst: None` -- was called ready by the manifest and not-done by
+    the batch. TX_way_850965775 went offerable on a stub whose wind counts summed to Ashburn's
+    43,763 hours against its own 42,375 at KLNC, and `audit.py` caught it as a partition failure
+    three steps downstream.
+
+    The existence of a file says a stage STARTED. The presence of a worst bearing says it FINISHED.
+    Same lesson as `built` testing `trace.json` alone, and as `state_of` testing `selected_site.json`
+    alone -- this file already carries both scars, which is why the test lives here now and
+    `_geometry_done` calls it rather than restating it.
+    """
+    if not all(os.path.exists(geom_path(nm, k)) for nm in PAIRED_READY_ARTEFACTS):
+        return False
+    try:
+        modes = json.load(open(geom_path("direction_table.json", k),
+                               encoding="utf-8")).get("modes") or {}
+    except (ValueError, OSError):
+        return False                            # unreadable or half-written: not ready
+    return all((modes.get(m) or {}).get("worst") for m in ("longest", "facing"))
+
+
 def national_entry(k):
     """A METROS-shaped record for one national facility, built from its MEASURED fields.
 
@@ -690,12 +727,10 @@ def national_readiness(k, m):
     # loads. `standalone` keeps its old meaning exactly -- a zero rise table is correct for it and
     # `build_standalone_site.py` never writes a `facing` placement -- so the three shipped metros
     # and every already-built national site are unaffected.
-    PAIRED_READY_ARTEFACTS = ("solver_site_longest.json", "solver_site_facing.json",
-                              "direction_table.json")
     if kind == "standalone":
         kind_ready = True
     elif kind in ("paired_clear", "paired_advisory"):
-        kind_ready = all(os.path.exists(geom_path(nm, k)) for nm in PAIRED_READY_ARTEFACTS)
+        kind_ready = paired_geometry_ready(k)
     else:
         kind_ready = False                      # boundary_only and anything unrecognised
     out["kind_ready"] = kind_ready
@@ -719,10 +754,17 @@ def national_readiness(k, m):
             # not been run at national scale yet" -- a statement about the PROJECT that stayed on
             # disk after `build_paired_site.py` made it false, and so described working facilities
             # as unsupported ones.
-            "kind is %r and its pairwise geometry is incomplete (%s missing) -- run "
-            "build_paired_site.py %s. NOT a refusal: nothing about it has been rejected"
-            % (kind, ", ".join(os.path.splitext(nm)[0] for nm in PAIRED_READY_ARTEFACTS
-                               if not os.path.exists(geom_path(nm, k))) or "none", k)
+            # NAME WHICH HALF FAILED. This said "(none missing)" whenever all three files existed
+            # but the sweep had not produced a worst bearing -- i.e. in the one case it was written
+            # to explain. A file list cannot describe a stage that started and did not finish.
+            "kind is %r and its pairwise geometry is incomplete: %s -- run build_paired_site.py %s."
+            " NOT a refusal: nothing about it has been rejected"
+            % (kind,
+               ("%s not written" % ", ".join(os.path.splitext(nm)[0] for nm in _missing_paired(k)))
+               if _missing_paired(k) else
+               "the refusal sweep left no worst bearing, so the direction table is a standalone "
+               "stub rather than a measured surface",
+               k)
             if kind in ("paired_clear", "paired_advisory") else
             "kind is %r: only standalone and paired facilities can be built. A boundary-only "
             "facility has no building footprint to place a plant on" % kind)

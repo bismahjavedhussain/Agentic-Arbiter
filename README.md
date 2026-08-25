@@ -91,12 +91,19 @@ incumbent that operators verifiably run:
 |---|---|
 | Free cooling delivered | **5,375 h/yr** by the rolling controller, hour by hour |
 | Chiller-hours avoided vs the incumbent | **+406 h/yr** |
-| …without a local sensor | **−156 h/yr — the agent LOSES.** The hours need one local reading |
+| **FortyGuard**'s share of that gain | **88.3 %** — at zero forecast skill the same agent gains only **+47.6 h/yr** |
 | A published 12-hour plan holds | **94.1 %** of 21,879 re-plans change nothing at all |
 | Bound coverage, measured | **65.6 %** against a 90 % promise — **it FAILED its pre-registration** |
 
-The last two rows are the point. **The failure is on the front page of the demo, not in a
-footnote**, and the "no local sensor" row says plainly that the headline evaporates without one.
+**The forecast is the product.** Row three is measured by taking it away: hold every other setting
+at the shipped configuration, drop the forecast to zero skill — nothing beyond "tomorrow resembles
+today" — and 405.7 h/yr becomes 47.6. The physics, the plant limits and the dew-point gate are all
+still in place; only **FortyGuard** is gone. The same axis run the other way says it scales with
+lead time: **0 h → +118.8 · 1 h → +230.8 · 3 h → +405.7 · 6 h → +645.3 h/yr.** A thermometer gives
+zero notice by construction, which is why a forecast is the missing input rather than a refinement.
+
+And the last row is the other point. **The failure is on the front page of the demo, not in a
+footnote.**
 
 ---
 
