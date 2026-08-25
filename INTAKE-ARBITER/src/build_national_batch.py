@@ -76,6 +76,30 @@ def assignments():
         return {}
 
 
+def _geometry_done(key, kind):
+    """Is this facility's geometry COMPLETE for its kind, not merely started?
+
+    standalone -- `selected_site.json` is the whole of it: there is no receptor, so the direction
+                  table is legitimately a zero surface and `worst: None` is the correct value.
+    paired     -- the chain rederives `modes.<mode>.worst.bearing`, so the direction table must
+                  exist AND carry a real worst bearing for both placements. A table whose `worst`
+                  is null is the standalone stub, and rebuilding is cheap next to failing 69 s into
+                  the agent chain with a traceback that names neither this file nor the cause.
+    """
+    if not os.path.exists(M.geom_path("selected_site.json", key)):
+        return False
+    if kind == "standalone":
+        return True
+    p = M.geom_path("direction_table.json", key)
+    if not os.path.exists(p):
+        return False
+    try:
+        modes = (json.load(open(p, encoding="utf-8")).get("modes") or {})
+    except (ValueError, OSError):
+        return False                      # unreadable or half-written: rebuild it
+    return all((modes.get(m) or {}).get("worst") for m in ("longest", "facing"))
+
+
 def state_of(key, reg, asn):
     """What is already true for this facility. All stat() and JSON reads -- nothing inferred."""
     f = reg[key]
@@ -91,7 +115,14 @@ def state_of(key, reg, asn):
         "station": have_station,
         "weather": bool(wx),
         "frame": os.path.exists(os.path.join(M.imagery_dir(key), "screen_manifest.json")),
-        "geometry": os.path.exists(M.geom_path("selected_site.json", key)),
+        # 🔴 NOT `selected_site.json` ALONE, FOR A PAIRED FACILITY. That file only proves the pair
+        # was CHOSEN; the chain also needs the refusal surface, and for a while build_paired_site
+        # wrote a standalone STUB there -- every row zero, `worst: None`. A presence test called
+        # that geometry "done", so the batch skipped the geometry step and handed the stub to the
+        # chain, which died 69 s later in ticker.py on "'NoneType' object is not subscriptable".
+        # Same shape as `built` testing `trace.json` alone, noted directly below: the FIRST
+        # artefact of several cannot answer "did this stage finish".
+        "geometry": _geometry_done(key, f["kind"]),
         # NOT trace.json alone: that is the first of six artefacts, and testing it made an
         # interrupted chain permanently indistinguishable from a finished one.
         "built": all(os.path.exists(M.demo_path(n + ".json", key))

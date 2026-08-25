@@ -189,8 +189,22 @@ def main():
                      time.time() - t, (tail[0].strip()[:60] if tail else "")))
             if r.returncode != 0:
                 failed.append("%s/%s" % (k, label))
-                for l in (r.stderr or "").strip().split("\n")[-4:]:
-                    print("      ERR %s" % l[:110])
+                # 🔴 STDOUT TOO, AND ENOUGH OF IT. This printed the last 4 lines of STDERR only, so
+                # a child that refuses CLEANLY -- writing its reason to stdout and nothing to
+                # stderr -- produced a bare "ERR" with no text after it. Three failures in one day
+                # were diagnosed only by re-running the child by hand: plume_uncertainty's
+                # hard-quartile assertion, ticker's "'NoneType' object is not subscriptable", and
+                # the direction-table stub behind it. The reason was on screen every time, in the
+                # stream this did not print.
+                out = [l for l in (r.stdout or "").strip().split("\n") if l.strip()]
+                for l in out[-20:]:
+                    print("      %s" % l[:150])
+                err = [l for l in (r.stderr or "").strip().split("\n") if l.strip()]
+                for l in err[-6:]:
+                    print("      ERR %s" % l[:150])
+                if not err:
+                    print("      ERR (stderr empty -- refused cleanly with exit %d; the reason is "
+                          "in the output above)" % r.returncode)
                 break
 
     print("\n" + "=" * 78)
