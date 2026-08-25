@@ -2643,7 +2643,17 @@ function drawMoney(){
   }
   const kpt = +$('#c_chiller').value, cents = +$('#c_price').value;
   const cells = MN.cells.filter(c => c.kw_per_ton === kpt && c.cents_per_kwh === cents);
-  const lad = cells.filter(c => c.family === 'five-year ladder');
+  /* THE UNANCHORED ROW IS EXCLUDED HERE TOO, so this table and the five-year ladder panel cannot
+     disagree about how many rungs there are. It was dropped from that panel first and survived
+     here, which left one card showing four rows and the other five -- and the whole negative end of
+     the range tile came from the row only one of them displayed.
+     WHICH ROW IT IS COMES FROM `backtest.json`, NOT FROM MATCHING THE LABEL TEXT. money.json's
+     cells carry no `anchor` field, but n56_audit does, and its `step` is this `hours_label` with a
+     "C " prefix -- so the set is derived from the artefact that actually knows, and renaming the
+     row in backtest.py keeps both panels correct with no edit here. */
+  const UNANCH = new Set(((BT && BT.n56_audit) || [])
+    .filter(r => r.anchor === 'none').map(r => r.step.replace(/^C /, '')));
+  const lad = cells.filter(c => c.family === 'five-year ladder' && !UNANCH.has(c.hours_label));
   const base = MN.hours_rows.find(r => r.is_base);
   const bcell = cells.find(c => c.hours_label === (base && base.label));
   const kw = MN.chiller_kw_per_mw_it[
@@ -2657,10 +2667,13 @@ function drawMoney(){
            'per MW of IT load per year, from '+fmt(bcell.hours_per_year,1)+' chiller-hours') : '')
     + (bcell ? tile('Energy avoided', int(Math.round(bcell.kwh_per_mw_it_per_year))+' kWh',
            'per MW of IT load per year — compressor only') : '')
+    /* Sub-label no longer says "including the negative row, sign intact" -- that row is not in
+       `lad` any more, so the claim would have been describing something absent. The genuinely
+       negative cells are still reported, one line below, as the worst of all 608. */
     + tile('Range across the whole ladder',
            '$'+int(Math.round(Math.min(...lad.map(c=>c.usd_per_mw_it_per_year))))+' to $'
            + int(Math.round(Math.max(...lad.map(c=>c.usd_per_mw_it_per_year)))),
-           'including the negative row, sign intact');
+           'across the ' + lad.length + ' ladder steps below, at this chiller and this tariff');
 
   $('#mtable').innerHTML =
       '<tr><th>Five-year ladder step</th><th>Chiller-hours avoided /yr</th>'
@@ -2674,10 +2687,17 @@ function drawMoney(){
   const worst = MN.cells.filter(c=>c.family==='12-axis sensitivity')
     .reduce((a,c)=>c.usd_per_mw_it_per_year<a.usd_per_mw_it_per_year?c:a,
             {usd_per_mw_it_per_year:Infinity});
+  /* "every ladder and sensitivity row" describes the SWEEP, not the table -- and the table above
+     now shows the anchored steps only, so the sentence says which is which. Without that clause a
+     reader counts four rows beside the word "every" and is entitled to conclude something is
+     hidden. The sweep itself is untouched: all 608 cells are still computed and money.json still
+     holds every one of them, including the negative ones. */
   $('#mnote').innerHTML = '<strong>'+int(MN.cells.length)+' cells</strong> — every ladder and '
     + 'sensitivity row × '+MN.chiller_efficiencies_swept.length+' published chiller efficiencies × '
     + MN.electricity_prices_swept.length+' published prices, <strong>and no row is collapsed</strong>. '
-    + 'The worst cell anywhere in the sweep is <strong>−$'
+    + 'The table above shows the '+lad.length+' anchored ladder steps at the selected cell; the '
+    + 'sweep behind it is wider and includes rows that come out negative. '
+    + 'The worst cell anywhere in it is <strong>−$'
     + int(Math.abs(Math.round(worst.usd_per_mw_it_per_year)))+'</strong> per MW of IT per year, at '
     + '<em>'+worst.hours_label+'</em> — the refusal guard firing. A money panel that could not show '
     + 'that number would not be worth reading.';
