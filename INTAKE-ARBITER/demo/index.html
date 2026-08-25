@@ -3134,7 +3134,10 @@ function drawSiteNotes(){
        badly enough to make them overlap by 28 m") was removed 2026-08-25 at the user's direction.
        The rectangles are still rotated and min-area -- that is fetch_geometry.min_area_rect, whose
        own docstring carries the fill-ratio argument -- it is simply no longer explained on screen. */
-    + 'Footprints are ' + ways + '. ' + imgline;
+    /* <br> BEFORE THE IMAGERY LINE. It is a different claim from the footprints -- what the
+       photograph is, not what the outlines are -- and running the two together made one long
+       sentence a reader had to re-parse to see where provenance stopped and sourcing began. */
+    + 'Footprints are ' + ways + '.<br>' + imgline;
 
   const fp = $('#fieldpairnote');
   if(fp) fp.innerHTML = 'The committed site sits inside one of these tiles — ' + ways.replace(
@@ -4284,15 +4287,13 @@ function drawPlume(){
      <strong>${fmt(PF.critical_rise_c,4)} °C</strong> on the critical bearing — dilution over
      ${fmt(PF.facade_gap_m,0)} m.</p>
      <details><summary>How far this picture is trusted, and how that was measured</summary>
-     <p class="note">The spread follows the textbook √x law, and it was not taken on trust: N-35
-     tested it against <strong>67 Prairie Grass field experiments</strong>, which fit an exponent of
-     0.805. Ours is therefore a little too wide at these distances, so it reads rise <em>low</em> by
-     up to a quarter. That is quantified rather than left as a worry: on this site's
-     ${fmt(PF.critical_rise_c,4)} °C the most it could be under-reading is
-     <strong>${fmt(PF.critical_rise_c/3,3)} °C</strong> — under the ${fmt(ASOS_STEP_C,4)} °C step of
-     the weather record these numbers are scored against, and therefore smaller than the finest
-     difference that record can express. The build re-derives the intake average from this very
-     field and requires it to match the audited ${fmt(PF.critical_rise_c,4)} °C to within 2 %.</p>
+     <p class="note">The spread is the textbook √x law, and it was checked rather than assumed:
+     N-35 tested it against <strong>67 Prairie Grass field experiments</strong>. They fit slightly
+     narrower, so this model runs a little wide and reads the rise <em>low</em> — by at most
+     <strong>${fmt(PF.critical_rise_c/3,3)} °C</strong> here. The weather record these numbers are
+     scored against resolves only <strong>${fmt(ASOS_STEP_C,3)} °C</strong>, so the error is finer
+     than anything that record can express. The build re-derives this rise from the field shown and
+     requires it to match within 2 %.</p>
      </details>`;
 }
 
