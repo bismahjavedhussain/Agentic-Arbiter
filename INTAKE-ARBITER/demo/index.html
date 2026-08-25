@@ -1249,7 +1249,7 @@ function setStage(next){
 
 async function boot(){
   try{
-    SITES = await (await fetch('sites.json')).json();
+    SITES = await (await fetch('sites.json', {cache:'no-cache'})).json();   // revalidate: see loadSite
   }catch(e){
     $('#loading').innerHTML = '<span class="err">Could not load <code>sites.json</code>. '
       + 'Run <code>python src/run_all.py</code> and serve this folder over HTTP '
@@ -1538,7 +1538,7 @@ function syncOffday(){
 /* ---------- Screen zero: the 17,862-tile field ---------- */
 async function loadField(){
   const key=$('#c_field').value; const meta=T.fields[key]; if(!meta) return;
-  try{ FIELD = await (await fetch(meta.file)).json(); }catch(e){ FIELD=null; }
+  try{ FIELD = await (await fetch(meta.file, {cache:'no-cache'})).json(); }catch(e){ FIELD=null; }
 }
 /* ---- COLLAPSE A CARD TO ITS REASON -------------------------------------------------------------
    A panel with nothing in it is worse than no panel: the reader scrolls a screenful of empty canvas
@@ -3849,7 +3849,7 @@ async function drawUnifiedMap(){
   // `US` and `NATBYKEY` are the module-scope globals declared beside the per-site ones, not locals:
   // the hover readout runs from the map's own event handlers and needs the whole row.
   natReadout(null);                       // resting message, before anything can be hovered
-  try{ const r = await fetch('unified_sites.json'); if(!r.ok) throw new Error('HTTP '+r.status);
+  try{ const r = await fetch('unified_sites.json', {cache:'no-cache'}); if(!r.ok) throw new Error('HTTP '+r.status);
     US = await r.json(); }
   catch(e){ mapFallback('unified_sites.json did not load ('+e.message+')'); return; }
   NATBYKEY = Object.fromEntries(US.sites.map(s => [s.key, s]));
@@ -4017,7 +4017,18 @@ async function loadSite(key){
   if(!s) return false;
   const a = s.artefacts || {};
   const j = async (f) => { if(!f) return null;
-    try{ const r = await fetch(f); return r.ok ? await r.json() : null; }catch(e){ return null; } };
+    /* 🔴 `cache:'no-cache'` AND NOT THE DEFAULT, because the default cost an hour of false
+       diagnosis. A bare fetch() uses the HTTP cache, these artefacts are served with no
+       Cache-Control by http.server, and a fetch ISSUED FROM SCRIPT AFTER LOAD is not covered by
+       the browser's hard-reload bypass -- that only applies to the document and the subresources
+       of that navigation. So Ctrl+Shift+R updated index.html and left trace.json stale, the page
+       rendered new prose against an old artefact, and a clause plus an entire paragraph guarded on
+       a new field silently vanished. The page looked broken and was correct.
+       `no-cache` means REVALIDATE, not "do not store": the answer is normally a 304 with no body.
+       Client-side ON PURPOSE -- it holds on any static host, not only on the one server whose
+       headers we control. */
+    try{ const r = await fetch(f, {cache:'no-cache'});
+         return r.ok ? await r.json() : null; }catch(e){ return null; } };
   const gen = ++LOAD_GEN;
   const [t, bt, rl, mn, tk, ex, pf] = await Promise.all([
     j(a.trace), j(a.backtest), j(a.rolling), j(a.money), j(a.ticker), j(a.explanations),
