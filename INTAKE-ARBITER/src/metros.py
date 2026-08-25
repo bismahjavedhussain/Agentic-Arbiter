@@ -203,9 +203,20 @@ METROS = {
 
 DEFAULT_METRO = "ashburn"
 
-# Below this share of the 43,800 hours in five years, a station record is too gappy to fit 24
+# Below this share of the 43,824 hours in five years (2024 is a leap year -- §10 #167), a
+# station record is too gappy to fit 24
 # hour-of-day conformal quantiles on. Measured consequence, not a preference: see readiness().
 MIN_WEATHER_COVERAGE = 0.95
+
+# WHAT "THE CHAIN HAS FINISHED" MEANS, in one place, because it was answered in two and they
+# disagreed. `build_national_batch.state_of()` tested `trace.json` alone -- the FIRST artefact
+# the chain writes -- so a facility interrupted after step 1 was recorded as built FOREVER,
+# skipped on every resume, counted complete by `status`, and still offered by the manifest with
+# four of its panels missing. Measured: 1 of the first 7 national facilities (WI_way_1510420026)
+# was orphaned exactly that way. These six are the set `audit.py` requires of any offerable
+# site; the audit states its own copy deliberately, so a check asserts the two agree rather
+# than the audit importing the code it audits.
+REQUIRED_ARTEFACTS = ("trace", "backtest", "rolling", "money", "ticker", "explanations")
 
 
 # ---------------------------------------------------------------------------------------------
@@ -229,6 +240,31 @@ MIN_WEATHER_COVERAGE = 0.95
 # mistake. So the validation still happens; it now consults two registries instead of one.
 _NATIONAL_CACHE = [None]
 _ASSIGN_CACHE = [None]
+_FIELD_CACHE = [None]
+
+
+def field_assignments():
+    """facility key -> the purchased FortyGuard AOI field that COVERS it, or {} if S7b has not run.
+
+    A SIDE-CAR, FOR THE SAME REASON `station_assignments()` IS ONE, and the reason is money.
+    `build_national_registry.py` is pure computation over geometry and is re-run whenever a
+    classification rule changes -- it writes `fortyguard_field: null` for every facility by design.
+    A field assignment represents a real 4,220-credit purchase, so it lives in its own file where a
+    geometry rebuild cannot destroy it. `wire_national_fields.py` writes it.
+
+    WHY AN ASSIGNMENT AND NOT A PURCHASE PER SITE: a heatmap AOI is 8x8 km and the tagged estate is
+    clustered, so one field genuinely covers many facilities -- AOI rank #1 covers 111 of them. The
+    assignment records WHICH field a facility is reading and how far its centre sits from that
+    field's centre, so the page can state a shared field as shared rather than implying each site
+    was bought its own.
+    """
+    if _FIELD_CACHE[0] is None:
+        p = os.path.join(GEOM, "national_field_assignments.json")
+        try:
+            _FIELD_CACHE[0] = json.load(open(p, encoding="utf-8"))["assignments"]
+        except (IOError, OSError, ValueError, KeyError):
+            _FIELD_CACHE[0] = {}
+    return _FIELD_CACHE[0]
 
 
 def station_assignments():
@@ -284,6 +320,7 @@ def national_entry(k):
     # KIWA at 2.7 km. A facility with no measured assignment has `station: None`, and
     # `weather_file()` refuses rather than composing a filename around it.
     asn = station_assignments().get(k) or {}
+    fga = field_assignments().get(k) or {}
     return {
         "state": f.get("state"),
         "label": label,
@@ -301,8 +338,21 @@ def national_entry(k):
         "candidates_file": "%s_candidates.json" % k,
         "basis": "national OSM discovery: %d tagged building(s), %s. Classified %s."
                  % (f.get("n_buildings", 0), ", ".join(f.get("members", [])[:3]), f.get("kind")),
-        "fortyguard_field": None,
-        "fortyguard_field_fixture": None,
+        # 🔴 THESE WERE HARD `None`, WHICH IS WHY 40 PAID FIELDS REACHED NOTHING.
+        # `build_national_registry.py:53` says of its own null: "ABSENT, explicitly, so a later
+        # stage fills them in" -- and that later stage did not exist, so every national facility
+        # reported `has_own_fortyguard_field: false` no matter what had been bought for it. Exactly
+        # the Chicago defect recorded further down, where a purchased field sat unused while the
+        # page told the reader the site had none, now at national scale.
+        # Read from the side-car, exactly as `station` is, and absent when nothing covers this site.
+        "fortyguard_field": (fga.get("provenance") if fga else None),
+        "fortyguard_field_fixture": (fga.get("aoi_key") if fga else None),
+        "fortyguard_field_assignment": fga or None,
+        # STILL ZERO, AND NOT THE SAME QUESTION. A field is one elapsed window: it buys the spatial
+        # picture and the tile statistics. A day-PAIR is a forecast leg plus its own outcome, which
+        # is what a conformal residual is measured from -- and no amount of field buying produces
+        # one, because the outcome has to elapse. Keeping these separate is what stops a site with a
+        # field from claiming a calibration it does not have.
         "fortyguard_day_pairs": 0,
         "climate_note": None,
         # National-only fields, so a caller can tell the two registries apart rather than guessing
@@ -592,10 +642,66 @@ def national_readiness(k, m):
         out["coverage_frac"] = wm.get("coverage_frac")
         out["weather_ok"] = bool(out["coverage_frac"] is not None
                                  and out["coverage_frac"] >= MIN_WEATHER_COVERAGE)
-    built = os.path.exists(demo_path("trace.json", k))
+    # 🔴 `built` USED TO TEST `trace.json` ALONE, AND THE CHAIN HAS EIGHT STEPS.
+    # `trace.json` is the FIRST artefact the chain writes, so a facility whose chain died at step 6
+    # of 8 still satisfied it -- and `offerable` is `data_ready and built`, so the manifest went on
+    # OFFERING a site whose backtest, money, ticker or explanations had never been written. That is
+    # not hypothetical: CO_way_1273968634, IA_way_191655977 and OH_way_1281982556 were each listed
+    # as offerable with four artefacts missing, and audit.py failed on all three until they were
+    # rebuilt by hand. The same comment at the top of this file records the identical trap in
+    # `build_national_batch.state_of()` -- "tested `trace.json` alone, the FIRST artefact".
+    #
+    # THE NAMES HERE MATCH audit.py's OWN REQUIRED LIST exactly, which is what makes the manifest
+    # and the checker agree by construction rather than by coincidence. `scenarios.json` and
+    # `report.pdf` are deliberately NOT required: the manifest names them when they exist, but
+    # neither is read by the six-artefact contract the audit asserts.
+    #
+    # WHY THIS IS ENOUGH, AND NEEDS NO CRASH CLEANUP: the chain is ORDERED, so a failure always
+    # leaves at least one LATER artefact absent -- even when the artefact it died inside was left
+    # half-written on disk. Existence of all six is therefore a sufficient test for "this chain ran
+    # to completion", and a facility that fails overnight simply stops being offerable, with
+    # `not_offerable_because` saying so, instead of turning the whole build red until morning.
+    REQUIRED_ARTEFACTS = ("trace.json", "backtest.json", "rolling.json", "money.json",
+                          "explanations.json", "ticker.json")
+    missing_art = [nm for nm in REQUIRED_ARTEFACTS if not os.path.exists(demo_path(nm, k))]
+    built = not missing_art
     out["artefacts_built"] = built
-    out["offerable"] = bool(out["geometry"] and out["weather"] and out.get("weather_ok")
-                            and built and kind == "standalone")
+    # 🔴 TWO DIFFERENT QUESTIONS, AND CONFLATING THEM WAS A CIRCULAR DEPENDENCY.
+    #   data_ready -- may this facility BE built? geometry + its own weather + a runnable kind.
+    #   offerable  -- may the interface OFFER it? data_ready AND its artefacts actually exist.
+    # One flag answered both, so `offerable` required `trace.json` to exist while `build_sites.py`
+    # gated on `offerable` to decide what it was allowed to build. Nothing could ever be built:
+    # measured on the first live batch, three facilities in a row reported
+    # "not offerable: <key>. Offerable: ashburn, chicago, dulles, IA_way_..." AFTER their weather,
+    # imagery and geometry had all completed successfully. The single facility that did work had
+    # been built by hand before the manifest ever saw it -- which is exactly how a circular gate
+    # hides: the one case that appears to prove it works is the case that bypassed it.
+    # 🔴 THIS READ `kind == "standalone"`, AND IT WAS TRUE WHEN WRITTEN AND SILENTLY STOPPED BEING.
+    # It encoded "the pairwise plume funnel has not been run at national scale yet" -- correct until
+    # `build_paired_site.py` existed. After that it became a gate refusing the exact facilities the
+    # new driver had just made buildable: a full batch reported `chain_failed / not offerable` in
+    # 0.2 s per facility AFTER their geometry had solved successfully, and the reason string still
+    # said the funnel had not been run. A capability check spelled as an equality against one
+    # literal cannot notice that a second case now works.
+    #
+    # So it asks the mechanical question instead: does the pairwise geometry this kind needs EXIST?
+    # A paired facility is ready only once its two bank placements and its 72-bearing table are on
+    # disk, which is precisely what `build_paired_site.py` writes and what the chain's first step
+    # loads. `standalone` keeps its old meaning exactly -- a zero rise table is correct for it and
+    # `build_standalone_site.py` never writes a `facing` placement -- so the three shipped metros
+    # and every already-built national site are unaffected.
+    PAIRED_READY_ARTEFACTS = ("solver_site_longest.json", "solver_site_facing.json",
+                              "direction_table.json")
+    if kind == "standalone":
+        kind_ready = True
+    elif kind in ("paired_clear", "paired_advisory"):
+        kind_ready = all(os.path.exists(geom_path(nm, k)) for nm in PAIRED_READY_ARTEFACTS)
+    else:
+        kind_ready = False                      # boundary_only and anything unrecognised
+    out["kind_ready"] = kind_ready
+    out["data_ready"] = bool(out["geometry"] and out["weather"] and out.get("weather_ok")
+                             and kind_ready)
+    out["offerable"] = bool(out["data_ready"] and built)
     if not out["offerable"]:
         out["not_offerable_because"] = (
             "no weather station assigned yet (S5)" if not out["weather"] else
@@ -603,10 +709,23 @@ def national_readiness(k, m):
             % (out.get("coverage_frac") or 0.0, MIN_WEATHER_COVERAGE) if not out.get("weather_ok")
             else "standalone geometry artefacts not written -- run build_standalone_site.py"
             if not out["geometry"] else
-            "artefacts not built -- run the build_sites chain" if not built else
-            "kind is %r: the pairwise plume funnel has not been run at national scale yet, so this "
-            "facility is not yet offerable. NOT a refusal -- nothing about it has been rejected"
-            % kind)
+            # NAME WHAT IS ABSENT. "artefacts not built" sent a reader to re-run the whole chain to
+            # find out which step had not finished; the list says it outright, which matters most
+            # after an unattended overnight run nobody watched.
+            "%d of %d chain artefacts missing (%s) -- re-run the build_sites chain"
+            % (len(missing_art), len(REQUIRED_ARTEFACTS),
+               ", ".join(os.path.splitext(m)[0] for m in missing_art)) if not built else
+            # NAME THE MISSING GEOMETRY, not the kind. The old text said the pairwise funnel "has
+            # not been run at national scale yet" -- a statement about the PROJECT that stayed on
+            # disk after `build_paired_site.py` made it false, and so described working facilities
+            # as unsupported ones.
+            "kind is %r and its pairwise geometry is incomplete (%s missing) -- run "
+            "build_paired_site.py %s. NOT a refusal: nothing about it has been rejected"
+            % (kind, ", ".join(os.path.splitext(nm)[0] for nm in PAIRED_READY_ARTEFACTS
+                               if not os.path.exists(geom_path(nm, k))) or "none", k)
+            if kind in ("paired_clear", "paired_advisory") else
+            "kind is %r: only standalone and paired facilities can be built. A boundary-only "
+            "facility has no building footprint to place a plant on" % kind)
     return out
 
 
@@ -702,8 +821,16 @@ def export_manifest():
     # interface. Gated on `trace.json` EXISTING rather than on the registry, so this lists the
     # facilities that have artefacts and not the 639 that could have them: a picker offering a site
     # with nothing behind it is the defect §6.13 exists for.
+    # INCLUDED ONCE ITS GEOMETRY IS WRITTEN, not once it is built. Gating this on `trace.json` was
+    # the other half of the circular dependency: a facility with weather, imagery and geometry still
+    # had NO ROW in sites.json, so `build_sites.py` -- which reads this file -- could not see it and
+    # therefore could not build it, so it never got a trace, so it never got a row.
+    # `selected_site.json` is the right marker and it is one stat() per facility: it exists exactly
+    # when `build_standalone_site.py` has run, which is the point at which a facility becomes
+    # buildable. Facilities without it are simply not yet candidates and are correctly absent.
     built_national = [k for k in sorted(national_registry())
-                      if os.path.exists(demo_path("trace.json", k))]
+                      if os.path.exists(geom_path("selected_site.json", k))
+                      or os.path.exists(demo_path("trace.json", k))]
     for k in sorted(METROS) + built_national:
         r = readiness(k)
         m = metro(k)                 # was METROS[k]
@@ -818,7 +945,10 @@ def export_manifest():
             "station": ("K" + m["station"]) if m.get("station") else None,
             "tz": m["tz"],
             "bbox": list(m["bbox"]),
-            "data_ready": r["offerable"],
+            # `data_ready` MEANS "COULD BE BUILT", not "is offered". It read `r["offerable"]`, which
+            # made the two synonyms and is half of the circular gate described in
+            # `national_readiness`. `build_sites.py` reads THIS field to decide what it may build.
+            "data_ready": r.get("data_ready", r["offerable"]),
             "scope_verdict": imagery_state,
             # `scope_ok` MUST AGREE WITH `scope_verdict`. For a national facility the verdict comes
             # from its own frame, not from `architecture_verdicts.json` (which is keyed by

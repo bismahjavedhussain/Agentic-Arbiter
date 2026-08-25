@@ -300,4 +300,25 @@ def main():
 
 
 if __name__ == "__main__":
+    # 🔴 THIS SCRIPT TAKES ITS SITE FROM `METRO`, NOT FROM argv, AND SILENTLY IGNORING A POSITIONAL
+    # ARGUMENT OVERWROTE THE COMMITTED REFERENCE SITE. Running
+    #     python select_site.py TX_way_1533350872
+    # to diagnose a national facility read ASHBURN's candidates (METRO unset -> DEFAULT_METRO) and
+    # wrote ASHBURN's `selected_site.json` -- the unsuffixed filename the audited chain reads. The
+    # committed Amazon IAD116 -> IAD117 pair was replaced by a different, unscreened pair, so
+    # `scope_verdict` became NOT ASSESSED, ashburn stopped being offerable, and `live.py selftest`
+    # failed. Every symptom was three steps away from the cause.
+    #
+    # `metro_key()` already warns about exactly this shape: "a driver looping `METRO=$KEY python
+    # agent.py` with one unset variable would silently rebuild ASHBURN". The warning existed; the
+    # enforcement did not. An interface that accepts an argument it ignores is a trap, so this
+    # refuses instead -- and names the working command rather than just complaining.
+    if len(sys.argv) > 1:
+        raise SystemExit(
+            "select_site.py takes NO positional argument -- it reads the site from the METRO "
+            "environment variable, and %r was about to be IGNORED.\n"
+            "Ignoring it would have selected and overwritten %r, the reference site whose "
+            "unsuffixed artefacts the audited chain reads.\n"
+            "Run instead:  METRO=%s python select_site.py"
+            % (sys.argv[1], _M.DEFAULT_METRO, sys.argv[1]))
     sys.exit(main())
