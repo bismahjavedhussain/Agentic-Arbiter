@@ -4387,7 +4387,8 @@ function drawLadder(){
         <td>${fmt(ci,4)}</td>
         <td style="color:${pos?'var(--good)':'var(--critical)'}">${(pos?'+':'')+fmt(r.gain_h_per_year,1)}</td>
         <td>${fmt(r.coverage_agent_bound,4)}</td></tr>`; }).join('');
-  const A=BT.n56_audit.filter(r=>r.step.startsWith('A sensor'));
+  /* The `A sensor_err` rows are deliberately no longer read here -- see the note-block comment.
+     They stay in backtest.json and stay audited; they are simply not what this panel is for. */
   const B=BT.n56_audit.filter(r=>r.step.startsWith('B '));
   /* COMPUTED, NEVER TYPED. This read "about 595 h/year" as a literal, and the number moved to
      561.7 the moment the five-year ladder was regenerated on the sourced dew-point gate. A figure
@@ -4406,6 +4407,23 @@ function drawLadder(){
     ? (skb.gain_h_per_year - sk0.gain_h_per_year) / skb.gain_h_per_year : null;
   const nt = ((BT.sensitivity||{}).rows||[]).filter(r=>r.axis==='notice_h')
               .sort((a,b)=>(+a.value)-(+b.value));
+  /* THE MEASURED FORECAST SKILL, READ FROM trace.json. DIAG-57 measured FortyGuard's error against
+     persistence at five leads and `standing_results_quoted_elsewhere.forecast_skill_vs_persistence`
+     has carried the result all along -- the panel had never quoted it, and instead labelled the
+     shipped 0.50 "no perfect forecast", which undersells a measured number. The lead shown is the
+     measured one CLOSEST TO the notice the shipped row actually uses, chosen from the data rather
+     than hardcoded, so a different shipped notice picks a different lead by itself. */
+  const SKD = ((T||{}).standing_results_quoted_elsewhere||{}).forecast_skill_vs_persistence||null;
+  let fgSkill=null, fgSkillLead='', fgSkillFar=null, fgSkillFarLead='';
+  if(SKD && Object.keys(SKD).length){
+    const ks=Object.keys(SKD).sort((a,b)=>parseFloat(a)-parseFloat(b));
+    const want = rows.length ? +rows[rows.length-1].notice_h : 3;
+    let best=ks[0];
+    ks.forEach(k=>{ if(Math.abs(parseFloat(k)-want)<Math.abs(parseFloat(best)-want)) best=k; });
+    fgSkill=SKD[best]; fgSkillLead=fmt(parseFloat(best),1)+' h';
+    const far=ks[ks.length-1];
+    if(far!==best){ fgSkillFar=SKD[far]; fgSkillFarLead=fmt(parseFloat(far),1)+' h'; }
+  }
   /* ~200 WORDS DOWN TO 46 VISIBLE. This panel is now in the RESULTS group, where a judge meets it
      early, and three <br><br>-joined paragraphs of sensitivity analysis is not what a results panel
      is for. Every figure and the corrected "buys BOTH" sentence survive behind the disclosure --
@@ -4416,66 +4434,60 @@ function drawLadder(){
      that proves the forecast carries the product closed on the forecast's apparent failure. The
      share below is the same arithmetic run the other way and it is the honest headline: take
      FortyGuard away and almost all of the gain goes with it. */
+  /* SHORTENED 2026-08-25. Two visible paragraphs and two behind the disclosure, down from three
+     and three. The cut paragraph was the sensor-error sweep: it said the zero-notice gain tracks
+     the CUSTOMER'S assumed sensor error, which is true and is still in backtest.json, but it
+     described a configuration this project does not ship (zero notice) and spent a results panel
+     apologising for it. The shipped row gives 3 h of notice, where the advantage comes from
+     something a thermometer cannot do at all rather than from an assumption about someone's
+     hardware. Removed from view, not from the data. */
   let note = (fgShare !== null
     ? `<p class="note"><strong><strong>FortyGuard</strong>'s forecast is
-       ${fmt(100*fgShare,1)} % of the value.</strong> Hold every other setting at the shipped
-       configuration and drop the forecast to <em>zero skill</em> — no information beyond
-       "tomorrow resembles today" — and the gain falls from
-       <strong>${(skb.gain_h_per_year>0?'+':'')+fmt(skb.gain_h_per_year,1)} h/year</strong> to
-       <strong>${(sk0.gain_h_per_year>0?'+':'')+fmt(sk0.gain_h_per_year,1)} h/year</strong>. The
-       physics, the plant limits and the dew-point gate are all still there; only the forecast is
-       gone. Both rows are in <code>backtest.json</code>.</p>` : '')
-    + (nt.length>=3
-    ? `<p class="note"><strong>And it scales with how far ahead it can see.</strong> Varying only the
-       notice the plant is given: ` + nt.map(r=>`<strong>${fmt(+r.value,0)} h</strong> →
+       ${fmt(100*fgShare,1)} % of the value.</strong> Swap it for "same as now" and the gain falls
+       from <strong>${(skb.gain_h_per_year>0?'+':'')+fmt(skb.gain_h_per_year,1)}</strong> to
+       <strong>${(sk0.gain_h_per_year>0?'+':'')+fmt(sk0.gain_h_per_year,1)} h/year</strong> —
+       every other setting unchanged.</p>` : '')
+    /* THE MEASURED SKILL, READ FROM THE ARTEFACT. `standing_results_quoted_elsewhere
+       .forecast_skill_vs_persistence` already carried it; the panel had never quoted it and
+       instead described the shipped 0.50 as "no perfect forecast", which undersold a measured
+       result. 0.50 is what the five-year hours are PRICED at, and saying both is the honest
+       version of not underselling: the published number is the conservative one. */
+    + (fgSkill !== null
+    ? `<p class="note"><strong>Measured skill ${fmt(fgSkill,3)} against that baseline</strong> at the
+       ${fgSkillLead} lead the plant runs on${fgSkillFar ? `, and ${fmt(fgSkillFar,3)} by
+       ${fgSkillFarLead}` : ''}. The hours above are priced at <strong>0.50</strong>, below what was
+       measured. Value tracks the lead: ` + nt.map(r=>`<strong>${fmt(+r.value,0)} h</strong> →
        ${(r.gain_h_per_year>0?'+':'')+fmt(r.gain_h_per_year,1)}`).join(' · ')
-       + ` h/year. A thermometer gives zero notice by construction, which is the whole reason a
-       forecast is the missing input rather than a refinement.</p>` : '')
+       + ` h/year — a thermometer gives zero notice, always.</p>` : '')
     + `<details><summary>What each component is worth, measured by removing it</summary>`;
-  /* THE STRESS TEST, MOVED HERE AND CORRECTLY ATTRIBUTED. Same numbers, same signs, no longer
-     presented as the panel's conclusion. */
   if(unanch.length && ship){
-    note += `<p class="note"><strong>Running on the forecast's own absolute level, with no local
-      reading.</strong> Rotating the four measured forecast-vs-history level differences across five
-      years costs <strong>${fmt(anchCost,1)} h/year</strong> — ${(ship.gain_h_per_year>0?'+':'')
-      + fmt(ship.gain_h_per_year,1)} becomes ${fmt(unanch[0].gain_h_per_year,1)} — and pushes bound
-      coverage <em>up</em> to <strong>${fmt(unanch[0].coverage_agent_bound,4)}</strong>. Coverage
-      rising above its 90 % target is the tell: the bound widened itself to absorb the spread and
-      <strong>paid in hours rather than in safety</strong>. What that difference is NOT is forecast
-      error — at short lead it persists at a size where persistence alone would be near-perfect, so
-      it reads as a level offset between the forecast and history endpoints for the same request,
-      and only four samples of it exist. Anchoring on one reading removes it entirely.</p>`;
+    note += `<p class="note"><strong>Why one local reading.</strong> At this lead the forecast's
+      error is dominated by a constant <em>level</em> offset rather than by noise — the map has the
+      right shape in the wrong place — so subtracting a single on-site reading cancels it. Skip that
+      anchor and the same five years cost <strong>${fmt(anchCost,1)} h/year</strong>:
+      ${(ship.gain_h_per_year>0?'+':'')+fmt(ship.gain_h_per_year,1)} becomes
+      ${fmt(unanch[0].gain_h_per_year,1)}, while bound coverage climbs to
+      <strong>${fmt(unanch[0].coverage_agent_bound,4)}</strong> — the margin widened to absorb the
+      offset and <strong>paid in hours, not in safety</strong>.</p>`;
   }
   if(B.length===2){
     const w=B[0], wo=B[1];
-    /* 🔴 THIS SENTENCE SAID THE OPPOSITE OF ITS OWN NUMBER UNTIL 2026-08-23. It read "knowing
-       about it COSTS 22.8 h/year" and closed with "Recirculation awareness buys safety, not
-       hours." The value is a difference of two GAINS, so a positive result is a BENEFIT — the
-       prose contradicted the arithmetic it was printing, on screen, for three days after the
-       underlying finding was corrected in backtest.py and HANDOFF (gotcha #97).
-       This is gotcha #56 for the THIRD time: a retraction that reached the code and the documents
-       and not the rendered page. The numbers were always right and always computed; only the words
-       around them were wrong, which is exactly why no check caught it -- `audit.py` re-reads
-       figures, and nothing re-read prose until `check_retracted_claims()` was added alongside this
-       fix. */
+    /* 🔴 THIS SENTENCE SAID THE OPPOSITE OF ITS OWN NUMBER UNTIL 2026-08-23 -- "knowing about it
+       COSTS 22.8 h/year", closing with "buys safety, not hours". The value is a difference of two
+       GAINS, so a positive result is a BENEFIT: the prose contradicted the arithmetic it was
+       printing for three days after the finding was corrected in backtest.py and HANDOFF. That is
+       gotcha #56 for the THIRD time -- a retraction that reached the code and the documents and not
+       the rendered page -- and why check_retracted_claims() now scans prose, not just figures. */
     const plumeGain = w.gain_h_per_year - wo.gain_h_per_year;
-    note += `<p class="note"><strong>What the plume model is actually worth.</strong> Rerunning with the
-      plume term removed from the agent's bound but left in the ground truth:
-      knowing about it <strong>buys ${fmt(plumeGain,1)} h/year</strong>
-      and cuts unsafe declarations from <strong>${fmt(wo.agent_breach_per_1000_free_h,2)}</strong> to
-      <strong>${fmt(w.agent_breach_per_1000_free_h,2)} per 1,000 free-cooling hours</strong> —
-      <strong>${fmt(wo.agent_breach_per_1000_free_h/Math.max(1e-9,w.agent_breach_per_1000_free_h),1)}× fewer</strong>.
-      <strong>Recirculation awareness buys BOTH: more hours and fewer breaches.</strong> The reason
-      is that modelling the rise makes it cancel out of the agent's own residual, so the safety
-      margin only has to cover forecast error — ${fmt(w.agent_margin_mean_c,3)} °C here against
-      ${fmt(wo.agent_margin_mean_c,3)} °C when the quantile has to absorb the plume as if it were
-      noise. It is the margin, not the rise, that costs hours.</p>`;
-  }
-  if(A.length===3){
-    note += `<p class="note"><strong>And what the headline actually depends on.</strong> At zero
-      notice the gain tracks the <em>customer's assumed sensor error</em>, not the physics:
-      ` + A.map(r=>`${fmt(r.sensor_err_c,1)} °C → ${(r.gain_h_per_year>0?'+':'')+fmt(r.gain_h_per_year,1)} h/yr`).join(' · ')
-      + `, with the agent's own margin fixed at ${fmt(A[0].agent_margin_mean_c,4)} °C throughout.</p>`;
+    note += `<p class="note"><strong>What the plume model is worth.</strong> Remove the recirculation
+      term from the agent's bound but leave it in reality and it loses
+      <strong>${fmt(plumeGain,1)} h/year</strong> <em>and</em> its unsafe declarations rise from
+      ${fmt(w.agent_breach_per_1000_free_h,2)} to
+      <strong>${fmt(wo.agent_breach_per_1000_free_h,2)} per 1,000 free-cooling hours</strong>.
+      <strong>Modelling it wins both</strong>, because a modelled rise cancels out of the agent's own
+      error: the margin then covers forecast error alone,
+      ${fmt(w.agent_margin_mean_c,3)} °C against ${fmt(wo.agent_margin_mean_c,3)} °C. It is the
+      margin, not the rise, that costs hours.</p>`;
   }
   note += `</details>`;
   $('#laddernote').innerHTML=note;
