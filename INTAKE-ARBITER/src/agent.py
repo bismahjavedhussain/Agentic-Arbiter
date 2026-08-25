@@ -2095,6 +2095,19 @@ def run_all():
                                "cpu_gpu_agreement_c": 6.95e-5},
             "forecast_skill_vs_persistence": {"1.49h": 0.146, "3.49h": 0.617, "5.49h": 0.770,
                                               "7.49h": 0.777, "9.41h": 0.838},
+            # THE SAME MEASUREMENT WITH THE LEVEL OFFSET REMOVED, which is what one on-site reading
+            # does. DIAG-57 subtracts the day's mean error and re-scores against persistence:
+            # at the 3.49 h lead the agent runs on, RMSE falls 1.253 -> 0.125 C and skill goes
+            # 0.617 -> 0.962. It was measured in testing/results/diag57_forecastskill.json and the
+            # demo never loaded that file, so the strongest FortyGuard figure in the project was
+            # invisible on the page. Carried here because this block is exactly what it is for:
+            # standing results measured elsewhere and quoted with their provenance.
+            # ⚠ ONE DAY, like every DIAG-57 row. The caveat travels with it.
+            "forecast_skill_after_anchoring": {"1.49h": 0.923, "3.49h": 0.962, "5.49h": 0.980,
+                                               "7.49h": 0.982, "9.41h": 0.983},
+            "forecast_skill_source": ("DIAG-57, one day, 17,862 tiles per lead. `after_anchoring` "
+                                      "removes the day's single level offset -- what one on-site "
+                                      "reading does -- and rescores against persistence."),
             "no_dollars_or_kwh": ("the C-to-kWh conversion could not be sourced from a primary "
                                   "document, so the unit is chiller-hours avoided"),
         },

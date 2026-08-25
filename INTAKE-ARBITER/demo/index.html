@@ -4413,16 +4413,21 @@ function drawLadder(){
      shipped 0.50 "no perfect forecast", which undersells a measured number. The lead shown is the
      measured one CLOSEST TO the notice the shipped row actually uses, chosen from the data rather
      than hardcoded, so a different shipped notice picks a different lead by itself. */
-  const SKD = ((T||{}).standing_results_quoted_elsewhere||{}).forecast_skill_vs_persistence||null;
-  let fgSkill=null, fgSkillLead='', fgSkillFar=null, fgSkillFarLead='';
+  const SR  = (T||{}).standing_results_quoted_elsewhere||{};
+  const SKD = SR.forecast_skill_vs_persistence||null;
+  const SKA = SR.forecast_skill_after_anchoring||null;
+  let fgSkill=null, fgAnch=null, fgSkillLead='';
   if(SKD && Object.keys(SKD).length){
     const ks=Object.keys(SKD).sort((a,b)=>parseFloat(a)-parseFloat(b));
     const want = rows.length ? +rows[rows.length-1].notice_h : 3;
     let best=ks[0];
     ks.forEach(k=>{ if(Math.abs(parseFloat(k)-want)<Math.abs(parseFloat(best)-want)) best=k; });
     fgSkill=SKD[best]; fgSkillLead=fmt(parseFloat(best),1)+' h';
-    const far=ks[ks.length-1];
-    if(far!==best){ fgSkillFar=SKD[far]; fgSkillFarLead=fmt(parseFloat(far),1)+' h'; }
+    /* NULL WHEN ABSENT, ON PURPOSE. `forecast_skill_after_anchoring` was added to agent.py's
+       standing block on 2026-08-25, so a site whose trace.json predates that has no such key --
+       and during a national batch some sites will and some will not. Both sentences that use it
+       are guarded, so an older artefact simply omits the clause rather than rendering "undefined". */
+    if(SKA && SKA[best] !== undefined) fgAnch = SKA[best];
   }
   /* ~200 WORDS DOWN TO 46 VISIBLE. This panel is now in the RESULTS group, where a judge meets it
      early, and three <br><br>-joined paragraphs of sensitivity analysis is not what a results panel
@@ -4453,22 +4458,25 @@ function drawLadder(){
        result. 0.50 is what the five-year hours are PRICED at, and saying both is the honest
        version of not underselling: the published number is the conservative one. */
     + (fgSkill !== null
-    ? `<p class="note"><strong>Measured skill ${fmt(fgSkill,3)} against that baseline</strong> at the
-       ${fgSkillLead} lead the plant runs on${fgSkillFar ? `, and ${fmt(fgSkillFar,3)} by
-       ${fgSkillFarLead}` : ''}. The hours above are priced at <strong>0.50</strong>, below what was
-       measured. Value tracks the lead: ` + nt.map(r=>`<strong>${fmt(+r.value,0)} h</strong> →
+    ? `<p class="note"><strong>Measured skill ${fmt(fgSkill,3)} at the ${fgSkillLead} lead the plant
+       runs on${fgAnch!==null ? `, and <strong>${fmt(fgAnch,3)} once one on-site reading removes the
+       level offset</strong>` : ''}. The hours are priced at <strong>0.50</strong> because that
+       measurement is <em>one day</em> and the ladder spans 913 — an assumption below the
+       measurement, not a claim resting on it. Value tracks the lead: `
+       + nt.map(r=>`<strong>${fmt(+r.value,0)} h</strong> →
        ${(r.gain_h_per_year>0?'+':'')+fmt(r.gain_h_per_year,1)}`).join(' · ')
        + ` h/year — a thermometer gives zero notice, always.</p>` : '')
     + `<details><summary>What each component is worth, measured by removing it</summary>`;
-  if(unanch.length && ship){
-    note += `<p class="note"><strong>Why one local reading.</strong> At this lead the forecast's
-      error is dominated by a constant <em>level</em> offset rather than by noise — the map has the
-      right shape in the wrong place — so subtracting a single on-site reading cancels it. Skip that
-      anchor and the same five years cost <strong>${fmt(anchCost,1)} h/year</strong>:
-      ${(ship.gain_h_per_year>0?'+':'')+fmt(ship.gain_h_per_year,1)} becomes
-      ${fmt(unanch[0].gain_h_per_year,1)}, while bound coverage climbs to
-      <strong>${fmt(unanch[0].coverage_agent_bound,4)}</strong> — the margin widened to absorb the
-      offset and <strong>paid in hours, not in safety</strong>.</p>`;
+  /* CUT TO THE ONE FACT THAT MATTERS. This paragraph used to explain the level-offset mechanism
+     -- right shape in the wrong place, 561.7 h/year, coverage climbing to 0.9865 -- which is true,
+     and is four sentences of statistics in a results panel. The single number a reader needs is
+     what the anchor BUYS, and DIAG-57 measured it: skill 0.617 -> 0.962 at the same lead. The
+     unanchored cost stays computed above and stays in backtest.json for anyone who asks. */
+  if(fgAnch !== null && fgSkill !== null){
+    note += `<p class="note"><strong>What one local reading buys.</strong> Subtracting a single
+      on-site temperature reading removes <strong>FortyGuard</strong>'s day-level offset and takes
+      forecast skill from <strong>${fmt(fgSkill,3)}</strong> to
+      <strong>${fmt(fgAnch,3)}</strong> at the ${fgSkillLead} lead.</p>`;
   }
   if(B.length===2){
     const w=B[0], wo=B[1];
@@ -4479,15 +4487,13 @@ function drawLadder(){
        gotcha #56 for the THIRD time -- a retraction that reached the code and the documents and not
        the rendered page -- and why check_retracted_claims() now scans prose, not just figures. */
     const plumeGain = w.gain_h_per_year - wo.gain_h_per_year;
-    note += `<p class="note"><strong>What the plume model is worth.</strong> Remove the recirculation
-      term from the agent's bound but leave it in reality and it loses
+    note += `<p class="note"><strong>What the plume model is worth.</strong> Blind the agent to the
+      neighbour's exhaust and leave it in reality: it loses
       <strong>${fmt(plumeGain,1)} h/year</strong> <em>and</em> its unsafe declarations rise from
       ${fmt(w.agent_breach_per_1000_free_h,2)} to
       <strong>${fmt(wo.agent_breach_per_1000_free_h,2)} per 1,000 free-cooling hours</strong>.
-      <strong>Modelling it wins both</strong>, because a modelled rise cancels out of the agent's own
-      error: the margin then covers forecast error alone,
-      ${fmt(w.agent_margin_mean_c,3)} °C against ${fmt(wo.agent_margin_mean_c,3)} °C. It is the
-      margin, not the rise, that costs hours.</p>`;
+      Modelling it wins both, because a rise the agent can predict cancels out of its own error
+      instead of widening its margin.</p>`;
   }
   note += `</details>`;
   $('#laddernote').innerHTML=note;
