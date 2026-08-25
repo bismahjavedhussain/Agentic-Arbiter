@@ -58,7 +58,14 @@ PAGE_W, PAGE_H = 595.28, 841.89        # A4 in points, 72 pt to the inch
 MARGIN = 42.0
 # Courier: every glyph is 600/1000 em. This ONE fact is why wrapping here is exact.
 COURIER_EM = 0.600
-BODY_PT = 8.2
+# 8.2 pt WAS TOO SMALL TO READ. Courier is a thin-stroked face and at 8.2 pt it renders pale and
+# soft in every viewer -- the user's screenshot of this report was legible only when zoomed. The
+# ink was never the problem: every body line is emitted with rgb=None, which is pure black. The
+# size was. Raised to 9.4 pt, which is ~15 % larger; wrapping self-adjusts because every width
+# here is computed from `cols_at(size)` rather than assumed, and `verify()` re-checks that no
+# placed string crosses the right margin, so an overflow introduced by the larger glyphs fails
+# the build instead of shipping.
+BODY_PT = 9.4
 HEAD_PT = 11.0                         # section headings, Helvetica-Bold
 TITLE_PT = BODY_PT + 3.2               # unchanged -- the one document title
 # Print-safe ink. Dark enough to photocopy, coloured enough to give the page a hierarchy.
@@ -66,7 +73,7 @@ RGB_TITLE = (0.07, 0.15, 0.27)         # near-navy
 RGB_HEAD = (0.05, 0.36, 0.51)          # teal-blue, the section voice
 RGB_RULE = (0.72, 0.76, 0.80)          # light grey: a divider, not a barrier
 RGB_SUB = (0.25, 0.28, 0.32)           # dark grey for bold sub-labels
-LEAD = 11.2                            # baseline-to-baseline
+LEAD = 12.4                            # baseline-to-baseline; raised with BODY_PT
 
 
 def char_width(size):
@@ -408,51 +415,21 @@ def build(metro_key=None):
                BODY_PT, True)
         d.para(r["why"], BODY_PT, x=MARGIN + 14)
 
-    d.heading("What it is worth over five real years, at this site")
-    d.field("Held-out days simulated",
-            "%s -- the agent never calibrates on a day it is scored on"
-            % format(rl["held_out_days_simulated"], ","), 26)
-    d.field("Free cooling delivered", "%.2f h/day, i.e. %s h/yr"
-            % (rb["executed_free_h_per_day"],
-               format(round(rb["executed_free_h_per_day"] * 365.25), ",")), 26)
-    d.field("Chiller-hours avoided", "%+.1f h/yr against a tuned reactive incumbent"
-            % base["gain_h_per_year"], 26)
-    d.field("12-hour plan stability", "%.1f %% of %s re-plans change nothing at all"
-            % (100 * rb["replans_with_zero_change"], format(rb["replans"], ",")), 26)
-    d.space(0.5)
-    d.line("The ladder, one constraint at a time:", BODY_PT, True, rgb=RGB_SUB)
-    for r in lad:
-        d.line("   %-46s %+8.1f h/yr" % (r["step"][2:][:46], r["gain_h_per_year"]))
+    # 🔴 FOUR SECTIONS REMOVED FROM THE PDF, 2026-08-26, AT THE USER'S DIRECTION. The report now ends
+    # with the hour-by-hour reasoning, which is what it is for. Gone from here: the five-year
+    # ladder, the tariff pricing, "What is NOT claimed", and "How to reproduce every number".
+    #
+    # ⚠ TWO OF THOSE WERE DISCLOSURES AND ONE WAS A VERIFICATION ROUTE, so where they now live
+    #   matters more than the fact they left:
+    #     * the seven not_claimed items are generated into money-sources.md by
+    #       src/write_money_doc.py, and audit.py check 12 asserts every one is present in BOTH
+    #       copies of that file. That is a stronger guarantee than a PDF section had.
+    #     * "How to reproduce" is in README.md, which is where a reader looks for a command.
+    #       Its figures here were ALSO STALE -- hardcoded (39, 68) against a real 2,040 checks
+    #       and 77 published figures, a literal in a report about not writing literals.
+    #     * the five-year and tariff figures are on the demo page and in README, both audited.
 
-    if cell:
-        d.heading("Priced, in this state's own electricity tariff")
-        d.field("Chiller power", "%.1f kW per MW of IT load (%.3f kW/ton, the ASHRAE 90.1-2019 "
-                "minimum)" % (cell[0]["chiller_kw_per_mw_it"], cell[0]["kw_per_ton"]), 22)
-        d.field("Electricity", "%.2f cents/kWh (%s)"
-                % (cell[0]["cents_per_kwh"], cell[0]["price_label"]), 22)
-        d.field("Energy avoided", "%s kWh per MW of IT load per year"
-                % format(round(cell[0]["kwh_per_mw_it_per_year"]), ","), 22)
-        d.field("Value", "$%s per MW of IT load per year"
-                % format(round(cell[0]["usd_per_mw_it_per_year"]), ","), 22)
-        d.space(0.4)
-        d.para("Everything above is PER MEGAWATT OF IT LOAD. This project has never measured a "
-               "data centre's size and will not invent one; a reader who knows their own IT load "
-               "multiplies once.")
 
-    d.heading("What is NOT claimed")
-    for x in mn.get("not_claimed", []):
-        d.para("- %s" % x, BODY_PT, indent="  ")
-        d.space(0.15)
-
-    d.heading("How to reproduce every number in this report")
-    d.line("   cd INTAKE-ARBITER/src && python run_all.py")
-    d.space(0.4)
-    d.para("That rebuilds every artefact from saved data and then audits it: %d checks, %d "
-           "published figures re-read out of the files the code itself wrote, and it exits "
-           "non-zero on any failure. It makes ZERO API calls -- every input is a saved FortyGuard "
-           "response, a committed geometry file, or the station's own hourly record."
-           % (39, 68))
-    d.space(0.4)
     d.para("Generated by INTAKE-ARBITER/src/report.py. Verified by being read back: the file was "
            "reopened after writing and every hour of the schedule, the headline counts and this "
            "site's own name were confirmed present.")
@@ -475,7 +452,17 @@ def verify(path, meta):
     # placed string's right edge and baseline are recomputed from the items the writer emitted.
     for pi, items in enumerate(meta.get("placed", []), 1):
         for (x, y, size, _bold, txt, _face, _rgb) in items:
-            right = x + len(txt) * char_width(size)
+            # 🔴 MEASURE THE GLYPHS, NOT THE ESCAPES. `line()` stores text already run through
+            # `esc()`, which inserts a backslash before each of \ ( ) -- so "hour(s)" is stored as
+            # "hour\(s\)" and `len()` counted TWO CHARACTERS THAT ARE NEVER DRAWN. This check
+            # therefore overstated the width of every line containing a bracket.
+            # It went unnoticed because at 8.2 pt the right-margin slack absorbed two phantom
+            # glyphs. Raising the body size to 9.4 pt for legibility turned it into 236 failures
+            # across 236 perfectly correct reports -- every one of them the "N hour(s) passed every
+            # gate" row. The product was right and the ruler was wrong, which is thirteen times now
+            # against the product's thirteen.
+            vis = re.sub(r"\\([()\\])", r"\1", txt)
+            right = x + len(vis) * char_width(size)
             if right > PAGE_W - MARGIN + 0.5:
                 fails.append("page %d: a line runs %.1f pt past the right margin (%r)"
                              % (pi, right - (PAGE_W - MARGIN), txt[:40]))

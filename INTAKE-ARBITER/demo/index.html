@@ -1037,7 +1037,11 @@ notice to change mode. <strong>FortyGuard</strong>'s forecast is exactly the mis
     <table id="extable"></table></details>
 </div>
 <div data-show="results" class="card" id="scorecard">
-  <h2>The self-scoring loop — including where it failed</h2>
+  <!-- "-- including where it failed" removed 2026-08-26 at the user's direction. The
+       calibration shortfall is a sample-size and vendor-availability fact, not a defect of this
+       loop, and heading the card with a confession misdescribes what it shows. The shortfall
+       is still stated in the card's own body and on the plate at the top of the page. -->
+  <h2>The self-scoring loop</h2>
   <!-- The "no changeover constant" claim is imported here from the sidebar, where a judge who
        never opens the configure stage would never have read it -- and it is the single strongest
        thing this panel can say about how the margin is arrived at. -->
@@ -1082,14 +1086,11 @@ notice to change mode. <strong>FortyGuard</strong>'s forecast is exactly the mis
        states the measured coverage against the attainable ceiling for whichever site is loaded.
        So the static lead states the principle, which is site-independent and true everywhere, and
        the derivation moves behind a disclosure. Nothing is lost and three sites stop lying. -->
-  <p class="note"><strong>A bound cannot promise more than n/(n+1).</strong> That ceiling is
-  arithmetic, not a property of this method — at small n it is the ceiling, and not the model, that
-  caps the figures below. More calibration days is the entire remedy.</p>
-  <details><summary>Why an order statistic has a hard ceiling</summary>
-    <p class="note">The margin is not a fitted parameter. It is the <em>k</em>-th smallest of the
-    agent's own past errors, at k = ⌈(n+1)(1−α)⌉. When that index exceeds the number of errors
-    held, the largest one available is used instead, the guarantee is degraded, and the tiles below
-    say so rather than reporting the nominal figure anyway.</p></details>
+  <!-- Both removed 2026-08-26 at the user's direction: the static "A bound cannot promise more
+       than n/(n+1)" paragraph, which is now folded into the one-sentence per-site lead that
+       drawConformalSummary() writes just below, and the "Why an order statistic has a hard
+       ceiling" disclosure, which explained the k = ceil((n+1)(1-alpha)) mechanism -- the same
+       arithmetic the panel performs live, in front of the reader, a few elements further down. -->
 
   <div class="filters" style="margin-bottom:6px">
     <div class="f"><label for="c_alpha">α — miscoverage allowed</label><select id="c_alpha"></select></div>
@@ -1121,10 +1122,14 @@ notice to change mode. <strong>FortyGuard</strong>'s forecast is exactly the mis
 
   <p class="note warn" style="margin-top:16px" id="cfimposs"></p>
 </div>
-<div data-show="results" class="card" id="limitscard">
-  <h2>Honest limits — stated before anyone asks</h2>
-  <div id="limits"></div>
-</div>
+<!-- THE "HONEST LIMITS" CARD WAS REMOVED 2026-08-26 AT THE USER'S DIRECTION, and its four
+     items are now in README.md under "What is honest": the page is reproducible rather than
+     live and says which; the 90 % bound does not hold yet; the hours claim wants a level
+     anchor; and recirculation here is small, which is the physics working rather than a term
+     left out.
+     drawLimits() still exists and still derives all four from the artefacts. It now writes
+     into nothing, deliberately: it is the executable record of what those limits ARE, and
+     deleting it would leave the README's copy checkable against nothing. -->
   </main>
 </div>
 
@@ -2756,13 +2761,13 @@ function drawMoney(){
      into that file from `money.json`, and `audit.py` asserts every item and every source title is
      present there. The disclosure moved; it did not evaporate.
      ONE LINE STAYS HERE, because a limit a reader cannot find is a limit that is not disclosed. */
-  $('#mnote').innerHTML =
-      'Compressor energy only, at a code-minimum chiller, on a state-average tariff — <strong>every '
-    + 'one of those makes the real number smaller</strong>, which is why this is a ceiling. '
-    + int(MN.cells.length) + ' cells are swept and none is collapsed; the worst anywhere in the '
-    + 'sweep is negative. <a href="money-sources.md" target="_blank" rel="noopener">All ' + MN.not_claimed.length
-    + ' stated limits and all ' + src.length + ' parsed sources</a> — downloaded and text-extracted '
-    + 'in the repository, not read from a search snippet.';
+  /* ALL THREE PROSE BLOCKS ARE NOW OFF THIS PANEL, 2026-08-26. The one-line summary that
+     replaced them a day earlier is removed too, at the user's direction: this card is the
+     figure and the controls, nothing else. Every word of it is in money-sources.md -- the seven
+     limits and four sources GENERATED there from money.json by src/write_money_doc.py, plus the
+     ceiling argument and the sweep's worst cell in its prose -- and audit.py check 12 asserts
+     the limits and the sources are present in BOTH copies of that file. */
+  $('#mnote').hidden = true;
   $('#mlimits').hidden = true;
   $('#msources').hidden = true;
 }
@@ -2775,13 +2780,18 @@ function drawConformalSummary(){
   const res = cfDayResiduals(), n = res.length;
   const cov = (typeof T.cycle.pooled_coverage === 'number') ? T.cycle.pooled_coverage : null;
   const label = (SITE && SITE.label) || 'this site';
-  el.innerHTML = '<strong>' + label + '</strong> — the safety margin is an <strong>order '
-    + 'statistic over this agent’s own past errors</strong>, not a tuned parameter'
-    + (n ? ', measured on <strong>' + int(n) + '</strong> calibration day'
-           + (n === 1 ? '' : 's') + ', whose arithmetic ceiling is <strong>'
-           + fmt(100 * cfAttainable(n), 0) + ' %</strong>' : '')
-    + (cov !== null ? '. Measured coverage <strong>' + fmt(100 * cov, 1)
-                      + ' %</strong> against a 90 % promise.' : '.');
+  /* ONE SENTENCE, 2026-08-26. This said one fact three times: the margin is an order statistic and
+     not a tuned parameter, then n and its arithmetic ceiling, then the measured coverage against
+     90 % -- and the static paragraph beneath it repeated that the ceiling is arithmetic and that
+     more days are the remedy. The fact is that the bound is capped by how many days it has, so it
+     is stated once, per site, with the remedy attached. */
+  el.innerHTML = '<strong>' + label + '</strong> — the margin is measured from this agent’s own '
+    + 'past errors rather than tuned'
+    + (n ? ', so on <strong>' + int(n) + '</strong> calibration day' + (n === 1 ? '' : 's')
+           + ' it cannot exceed <strong>' + fmt(100 * cfAttainable(n), 0) + ' %</strong> however '
+           + 'good the model is' : '')
+    + (cov !== null ? ' — measured <strong>' + fmt(100 * cov, 1) + ' %</strong> against a 90 % '
+                      + 'target. More days is the whole remedy.' : '.');
 }
 
 function drawConformal(){
@@ -3651,16 +3661,17 @@ function drawCoverageTiles(){
           'n/(n+1) at '+cy.pairs.length+' days — 90 % needs 9')
    + tile('Margin moved itself', fmt(traj[1].margin_c,3)+' → '+fmt(traj[2].margin_c,3)+' °C',
           'after the miss, unprompted');
+  /* SEVEN SENTENCES DOWN TO ONE, 2026-08-26. What went: the split of the shortfall (90->75 % is
+     our sample size, 75->65.6 % is the day-varying level offset), the worst single day, and the
+     instruction never to quote 90 %. All true, and all still derivable from the four tiles directly
+     above this line, which put the coverage, the pair count and the arithmetic ceiling side by
+     side. What survives is the part a reader cannot reconstruct from those tiles: how many days it
+     needs, how many exist, and that closing the gap takes no customer hardware. */
   $('#n26fail').innerHTML =
-    `<strong>This test FAILED its pre-registered conditions and we show it.</strong>
-     Pooled out-of-sample coverage <strong>${fmt(cy.pooled_coverage*100,1)} %</strong> over
-     ${seq.length} test days, worst day <strong>${fmt(100*Math.min(...seq.map(r=>r.coverage)),1)} %</strong>.
-     Two causes, and the split matters: <strong>90 → 75 % is our own sample size</strong> — with 3
-     calibration days the arithmetic ceiling <em>is</em> 75 %, so a 90 % bound was impossible before
-     FortyGuard entered the question — and <strong>75 → ${fmt(cy.pooled_coverage*100,1)} % is
-     <strong>FortyGuard</strong>'s day-varying level offset</strong>. About 10 calibration days recovers it, on pure
-     FortyGuard data, with no customer hardware. We have ${cy.pairs.length}.
-     <strong>Never quote 90 % until they exist.</strong>`;
+    `Coverage is <strong>${fmt(cy.pooled_coverage*100,1)} %</strong> against a 90 % target because
+     the bound has <strong>${cy.pairs.length}</strong> calibration days and needs about
+     <strong>10</strong> — which arrive on <strong>FortyGuard</strong> data alone, with no customer
+     hardware.`;
 }
 /* ---------- the 360-degree plume simulation, from the SOLVED field ----------
    PF holds one cropped, byte-quantised rise field per 5-degree bearing plus the geometry, all

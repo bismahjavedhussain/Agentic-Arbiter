@@ -1,0 +1,278 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold /Encoding /WinAnsiEncoding >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Pages /Kids [7 0 R 9 0 R 11 0 R 13 0 R] /Count 4 >>
+endobj
+6 0 obj
+<< /Length 6393 >>
+stream
+BT /FHB 12.60 Tf 0.070 0.150 0.270 rg 1 0 0 1 42.00 799.89 Tm (INTAKE-ARBITER  --  FREE-COOLING DECISION REPORT) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 787.49 Tm (An agent that decides, hour by hour, whether outside air can cool a data centre.) Tj ET
+BT /FR 9.40 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 775.09 Tm (==========================================================================================) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 756.49 Tm (THE SITE) Tj ET
+BT /FR 9.40 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 744.09 Tm (------------------------------------------------------------------------------------------) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 731.69 Tm (Location        Centersquare IAD1-B, VA -- station KIAD, America/New_York) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 719.29 Tm (Committed pair  OSM 701930919 -> 52094270) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 706.89 Tm (                CyrusOne NVA8 / Centersquare IAD1-A) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 694.49 Tm (Facade gap      84.8 m between the two halls) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 682.09 Tm (Weather record  43,763 real hourly records from KIAD) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 669.69 Tm (Plume physics   576 steady-state solves on this site's own footprints; worst intake rise) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 657.29 Tm (                0.5421 C at 210 deg) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 639.93 Tm (FortyGuard data: weather and geometry are this site's own; the four measured FortyGuard) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 627.53 Tm (  level offsets and the N-26 coverage record are Ashburn's, because only Ashburn has) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 615.13 Tm (  forecast/outcome day pairs. Quote the hours for this site; quote the coverage for) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 602.73 Tm (  Ashburn.) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 584.13 Tm (THIS REPORT IS A SNAPSHOT, NOT THE LIVE PAGE) Tj ET
+BT /FR 9.40 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 571.73 Tm (------------------------------------------------------------------------------------------) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 559.33 Tm (The interface recomputes the decision for whatever configuration a reader selects. This) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 546.93 Tm (  file was generated at build time for the ONE configuration named below, chosen because) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 534.53 Tm (  it is the configuration in which this site's agent does the most while still changing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 522.13 Tm (  mode at least once. If the numbers on screen differ from the numbers here, the) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 509.73 Tm (  configuration differs -- compare the two lists before concluding anything else.) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 492.37 Tm (Day                    2021-09-09   \(chatter\)) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 479.97 Tm (Plant limit            21.0 C) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 467.57 Tm (Notice required        3 h) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 455.17 Tm (Forecast skill         0.50 relative to persistence) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 442.77 Tm (Level anchor           sensor) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 430.37 Tm (Condenser bank         longest facade) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 417.97 Tm (Switch budget          2 mode changes per day) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 405.57 Tm (Minimum dwell          3 h) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 393.17 Tm (Max dew point          15.0 C  \(Green Grid WP#46 p.6\)) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 374.57 Tm (WHAT THE AGENT DID ON THIS DAY) Tj ET
+BT /FR 9.40 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 362.17 Tm (------------------------------------------------------------------------------------------) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 349.77 Tm (The agent ran free cooling for 1 of 24 hours with 1 mode change. 1 hour was safe but still) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 337.37 Tm (  ran chillers, because the schedule could not afford them.) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 320.01 Tm (Agent       1 of 24 hours free cooling, 1 mode change\(s\), 0 unsafe hour\(s\)) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 307.61 Tm (Incumbent   1 of 24 hours free cooling, 1 mode change\(s\), 0 unsafe hour\(s\)) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 295.21 Tm (           1 hour\(s\) passed every gate and still ran chillers, because the schedule could) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 282.81 Tm (           not afford them) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 264.21 Tm (EVERY HOUR, AND THE REASON FOR IT) Tj ET
+BT /FR 9.40 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 251.81 Tm (------------------------------------------------------------------------------------------) Tj ET
+BT /FB 9.40 Tf 0.250 0.280 0.320 rg 1 0 0 1 42.00 239.41 Tm (hh  mode        safe binding        bound   limit  actual  margin) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 227.01 Tm (00  mechanical  no   refusal         21.348    21.0  21.110   1.094) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 214.61 Tm (01  mechanical  no   refusal         21.046    21.0  20.560   1.007) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 202.21 Tm (02  mechanical  no   refusal         21.593    21.0  21.110   1.173) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 189.81 Tm (03  mechanical  no   dew point       21.203    21.0  20.560   0.968) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 177.41 Tm (04  mechanical  no   dew point       20.478    21.0  19.440   0.993) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 165.01 Tm (05  mechanical  no   refusal         20.778    21.0  18.890   1.216) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 152.61 Tm (06  mechanical  no   dew point       20.445    21.0  18.890   0.946) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 140.21 Tm (07  mechanical  no   dew point       21.484    21.0  19.440   1.538) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 127.81 Tm (08  mechanical  no   dew point       23.640    21.0  21.117   2.095) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 115.41 Tm (09  mechanical  no   refusal         24.436    21.0  20.560   2.421) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 103.01 Tm (10  mechanical  no   dew point       24.603    21.0  20.560   2.225) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 90.61 Tm (11  mechanical  no   dry-bulb        25.136    21.0  21.670   1.740) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 78.21 Tm (12  mechanical  no   dew point       24.555    21.0  22.780   1.278) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /FR 1 0 R /FB 2 0 R /FH 3 0 R /FHB 4 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 6593 >>
+stream
+BT /FR 9.40 Tf 1 0 0 1 42.00 799.89 Tm (13  mechanical  no   refusal         24.383    21.0  23.330   1.206) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 787.49 Tm (14  mechanical  no   refusal         25.536    21.0  25.000   1.350) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 775.09 Tm (15  mechanical  no   refusal         25.685    21.0  25.000   1.171) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 762.69 Tm (16  mechanical  no   refusal         25.752    21.0  26.243   1.141) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 750.29 Tm (17  mechanical  no   refusal         26.366    21.0  26.110   1.477) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 737.89 Tm (18  mechanical  no   dry-bulb        24.368    21.0  23.330   1.339) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 725.49 Tm (19  mechanical  no   dry-bulb        23.493    21.0  21.110   1.383) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 713.09 Tm (20  mechanical  no   dry-bulb        22.907    21.0  20.000   1.495) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 700.69 Tm (21  mechanical  yes  -               20.680    21.0  17.780   1.652) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 688.29 Tm (22  mechanical  no   refusal         20.213    21.0  18.890   1.402) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 675.89 Tm (23  FREE        yes  -               18.547    21.0  16.670   1.165) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 656.05 Tm (bound  = the agent's 90 %-nominal upper bound on intake air, forecast plus margin) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 643.65 Tm (actual = what the intake temperature turned out to be, from the station record) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 631.25 Tm (margin = group-conditional forecast error for that hour of day, plus plume spread) Tj ET
+BT /FHB 11.00 Tf 0.050 0.360 0.510 rg 1 0 0 1 42.00 612.65 Tm (THE REASONING, HOUR BY HOUR) Tj ET
+BT /FR 9.40 Tf 0.720 0.760 0.800 rg 1 0 0 1 42.00 600.25 Tm (------------------------------------------------------------------------------------------) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 584.75 Tm (00:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 572.35 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 559.95 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 547.55 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 535.15 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 522.75 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 507.25 Tm (01:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 494.85 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 482.45 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 470.05 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 457.65 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 445.25 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 429.75 Tm (02:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 417.35 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 404.95 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 392.55 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 380.15 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 367.75 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 352.25 Tm (03:00  MECHANICAL  [dew point]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 339.85 Tm (Mechanical, and TEMPERATURE IS NOT THE REASON -- the dry-bulb bound of 21.203 C would) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 327.45 Tm (  have passed. The outside air is too HUMID: the dew-point bound is 19.72 C against a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 315.05 Tm (  15.0 C maximum, failing by 4.72 C. Cool but damp air condenses on cold surfaces inside) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 302.65 Tm (  the hall, which is why real economizers gate on humidity and not on temperature alone.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 287.15 Tm (04:00  MECHANICAL  [dew point]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 274.75 Tm (Mechanical, and TEMPERATURE IS NOT THE REASON -- the dry-bulb bound of 20.478 C would) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 262.35 Tm (  have passed. The outside air is too HUMID: the dew-point bound is 18.61 C against a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 249.95 Tm (  15.0 C maximum, failing by 3.61 C. Cool but damp air condenses on cold surfaces inside) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 237.55 Tm (  the hall, which is why real economizers gate on humidity and not on temperature alone.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 222.05 Tm (05:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 209.65 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 197.25 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 184.85 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 172.45 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 160.05 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 144.55 Tm (06:00  MECHANICAL  [dew point]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 132.15 Tm (Mechanical, and TEMPERATURE IS NOT THE REASON -- the dry-bulb bound of 20.446 C would) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 119.75 Tm (  have passed. The outside air is too HUMID: the dew-point bound is 18.34 C against a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 107.35 Tm (  15.0 C maximum, failing by 3.34 C. Cool but damp air condenses on cold surfaces inside) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 94.95 Tm (  the hall, which is why real economizers gate on humidity and not on temperature alone.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 79.45 Tm (07:00  MECHANICAL  [dew point]) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /FR 1 0 R /FB 2 0 R /FH 3 0 R /FHB 4 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 6596 >>
+stream
+BT /FR 9.40 Tf 1 0 0 1 56.00 799.89 Tm (Mechanical, and TEMPERATURE IS NOT THE REASON -- the dry-bulb bound of 21.484 C would) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 787.49 Tm (  have passed. The outside air is too HUMID: the dew-point bound is 17.77 C against a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 775.09 Tm (  15.0 C maximum, failing by 2.77 C. Cool but damp air condenses on cold surfaces inside) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 762.69 Tm (  the hall, which is why real economizers gate on humidity and not on temperature alone.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 747.19 Tm (08:00  MECHANICAL  [dew point]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 734.79 Tm (Mechanical, and TEMPERATURE IS NOT THE REASON -- the dry-bulb bound of 23.640 C would) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 722.39 Tm (  have passed. The outside air is too HUMID: the dew-point bound is 18.06 C against a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 709.99 Tm (  15.0 C maximum, failing by 3.06 C. Cool but damp air condenses on cold surfaces inside) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 697.59 Tm (  the hall, which is why real economizers gate on humidity and not on temperature alone.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 682.09 Tm (09:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 669.69 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 657.29 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 644.89 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 632.49 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 620.09 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 604.59 Tm (10:00  MECHANICAL  [dew point]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 592.19 Tm (Mechanical, and TEMPERATURE IS NOT THE REASON -- the dry-bulb bound of 24.603 C would) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 579.79 Tm (  have passed. The outside air is too HUMID: the dew-point bound is 18.89 C against a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 567.39 Tm (  15.0 C maximum, failing by 3.89 C. Cool but damp air condenses on cold surfaces inside) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 554.99 Tm (  the hall, which is why real economizers gate on humidity and not on temperature alone.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 539.49 Tm (11:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 527.09 Tm (Mechanical. The upper bound on intake air is 25.136 C against a 21.0 C limit, so it) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 514.69 Tm (  fails by 4.136 C. It would take a limit 4.136 C higher, or a bound 4.136 C tighter, to) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 502.29 Tm (  change this hour.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 486.79 Tm (12:00  MECHANICAL  [dew point]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 474.39 Tm (Mechanical, and TEMPERATURE IS NOT THE REASON -- the dry-bulb bound of 24.555 C would) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 461.99 Tm (  have passed. The outside air is too HUMID: the dew-point bound is 18.89 C against a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 449.59 Tm (  15.0 C maximum, failing by 3.89 C. Cool but damp air condenses on cold surfaces inside) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 437.19 Tm (  the hall, which is why real economizers gate on humidity and not on temperature alone.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 421.69 Tm (13:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 409.29 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 396.89 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 384.49 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 372.09 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 359.69 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 344.19 Tm (14:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 331.79 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 319.39 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 306.99 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 294.59 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 282.19 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 266.69 Tm (15:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 254.29 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 241.89 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 229.49 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 217.09 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 204.69 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 189.19 Tm (16:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 176.79 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 164.39 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 151.99 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 139.59 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 127.19 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 111.69 Tm (17:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 99.29 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 86.89 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /FR 1 0 R /FB 2 0 R /FH 3 0 R /FHB 4 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 4182 >>
+stream
+BT /FR 9.40 Tf 1 0 0 1 56.00 799.89 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 787.49 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 775.09 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 759.59 Tm (18:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 747.19 Tm (Mechanical. The upper bound on intake air is 24.368 C against a 21.0 C limit, so it) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 734.79 Tm (  fails by 3.368 C. It would take a limit 3.368 C higher, or a bound 3.368 C tighter, to) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 722.39 Tm (  change this hour.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 706.89 Tm (19:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 694.49 Tm (Mechanical. The upper bound on intake air is 23.493 C against a 21.0 C limit, so it) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 682.09 Tm (  fails by 2.493 C. It would take a limit 2.493 C higher, or a bound 2.493 C tighter, to) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 669.69 Tm (  change this hour.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 654.19 Tm (20:00  MECHANICAL  [dry-bulb]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 641.79 Tm (Mechanical. The upper bound on intake air is 22.908 C against a 21.0 C limit, so it) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 629.39 Tm (  fails by 1.908 C. It would take a limit 1.908 C higher, or a bound 1.908 C tighter, to) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 616.99 Tm (  change this hour.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 601.49 Tm (21:00  MECHANICAL) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 589.09 Tm (Mechanical EVEN THOUGH THIS HOUR IS SAFE. Every gate passes -- the bound is 20.680 C) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 576.69 Tm (  against a 21.0 C limit. The schedule is what forbids it: no relaxation of either the) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 564.29 Tm (  switch budget or the dwell would free it, so the surrounding hours are worth more.) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 551.89 Tm (  This is the one explanation a thermostat cannot give, because a thermostat has no plan) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 539.49 Tm (  to be constrained by. It is also why the decision is a schedule and not a comparison:) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 527.09 Tm (  spending a mode change here would cost a better one later.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 511.59 Tm (22:00  MECHANICAL  [refusal]) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 499.19 Tm (Mechanical, and the reason is a REFUSAL rather than a temperature. At this wind bearing) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 486.79 Tm (  a building sits between the condensers and the air intake. The dispersion model has no) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 474.39 Tm (  representation of a building standing in the flow, so any number it produced here) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 461.99 Tm (  would be meaningless. The agent declines to certify the hour instead of returning a) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 449.59 Tm (  figure it cannot stand behind.) Tj ET
+BT /FB 9.40 Tf 1 0 0 1 42.00 434.09 Tm (23:00  FREE-COOLING) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 421.69 Tm (Free cooling. The 90 %-nominal upper bound on intake air is 18.547 C, which is 2.453 C) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 409.29 Tm (  under the 21.0 C plant limit. That bound is the forecast plus a margin of 1.166 C, and) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 396.89 Tm (  the margin is measured, not chosen: 0.953 C of group-conditional forecast error for) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 384.49 Tm (  this hour of day, plus 0.2123 C for how much the plume could move if the wind) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 56.00 372.09 Tm (  direction is off by the amount FortyGuard's forecast is actually off by.) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 359.69 Tm (Generated by INTAKE-ARBITER/src/report.py. Verified by being read back: the file was) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 347.29 Tm (  reopened after writing and every hour of the schedule, the headline counts and this) Tj ET
+BT /FR 9.40 Tf 1 0 0 1 42.00 334.89 Tm (  site's own name were confirmed present.) Tj ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /FR 1 0 R /FB 2 0 R /FH 3 0 R /FHB 4 0 R >> >> /Contents 12 0 R >>
+endobj
+14 0 obj
+<< /Type /Catalog /Pages 5 0 R >>
+endobj
+xref
+0 15
+0000000000 65535 f 
+0000000009 00000 n 
+0000000104 00000 n 
+0000000204 00000 n 
+0000000301 00000 n 
+0000000403 00000 n 
+0000000480 00000 n 
+0000006925 00000 n 
+0000007088 00000 n 
+0000013733 00000 n 
+0000013896 00000 n 
+0000020545 00000 n 
+0000020710 00000 n 
+0000024945 00000 n 
+0000025110 00000 n 
+trailer
+<< /Size 15 /Root 14 0 R >>
+startxref
+25160
+%%EOF

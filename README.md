@@ -63,7 +63,7 @@ assumed, every term defined before it is used.
 error. Any static host serves the demo as-is — there is no build step and no server side.
 
 **If `run_all.py` is not green, do not believe a number on the page.** It re-reads **77 published
-figures** from the files the code actually wrote and runs **1482 audit checks**, including five that
+figures** from the files the code actually wrote and runs **2040 audit checks**, including five that
 re-derive the browser's own arithmetic against Python and one that drives a real browser to render
 every site and diff the panels a reader would look at.
 
@@ -236,6 +236,33 @@ ourselves — and none on reasoning we can do exactly.
 
 ## What is honest about this, and what is not
 
+**These four limits used to be a card on the demo page.** They were removed from it on 2026-08-26
+and moved here, because a results screen is for results — not because any of them stopped being
+true. `drawLimits()` in the demo still derives all four from the artefacts, so this copy stays
+checkable against something rather than becoming prose nobody re-reads.
+
+| | |
+|---|---|
+| **Reproducible rather than live, and it says which** | Every panel is computed from saved **FortyGuard** responses. N-55 re-requested a window and got **17,862 of 17,862 tiles byte-for-byte identical**, so replay is not a weaker claim than a live call — it is the same numbers, on demand. The live path exists and is labelled separately. |
+| **The 90 % bound does not hold yet** | Measured **65.6 %**. It has 4 calibration day-pairs and needs about 10. At 4, the arithmetic ceiling is 80 % — so part of that gap was never reachable. More days is the whole remedy, and they come from **FortyGuard** data alone. |
+| **The hours claim wants a level anchor** | One local reading. Unanchored, five years of data say the agent **loses**. The *safety* guarantee needs no customer hardware; the *hours* do. |
+| **Recirculation here is small, and that is the physics working** | The worst case is a fraction of one weather-station grid step. A model that reported a large rise at this geometry would be wrong, not impressive. |
+
+**Why the money figure is a ceiling and not a projection.** It counts the chiller **compressor
+only**. Fans, chilled-water pumps, condenser pumps and cooling-tower fans keep running, and an
+airside economizer moves *more* air — so the unmeasured term has the **opposite sign**. On top of
+that, the chiller is assumed at ASHRAE 90.1 code minimum, which is a legal *floor* that real
+hyperscale plants beat, and full-load kW/ton overstates the draw at exactly the cool conditions free
+cooling needs. The tariff is an EIA state-sector average, not the site's own contract. Four
+independent reasons the real number is **smaller**, none that it is larger.
+
+All **608 cells** are swept — every ladder and sensitivity row × 4 published chiller efficiencies ×
+4 published prices — and **no row is collapsed**, including the ones that come out negative. The
+worst cell anywhere in the sweep is **−$61,538 per MW-IT per year**, where the refusal guard fires.
+Every one of those limits, and all four parsed sources, are in
+[`money-sources.md`](money-sources.md), generated from `money.json` by
+`src/write_money_doc.py` and asserted present by `audit.py` check 12.
+
 Read [`INTAKE-ARBITER/PLAN.md`](INTAKE-ARBITER/PLAN.md) for the full design record — every claim
 there carries a citation and a link, verified by opening the source. The short version:
 
@@ -247,7 +274,7 @@ A reasoning tape whose **32 templates contain not one literal digit**, checked a
 **Three sites live on their own geometry, weather, bound and tariff — and two more were refused on
 aerial evidence.**
 
-**On the size of the verification surface**, because it is fair to ask: **1482 audit checks and a
+**On the size of the verification surface**, because it is fair to ask: **2040 audit checks and a
 gotcha log running to #185 exist because every entry in it actually bit** — a NaN that
 was legal Python JSON and illegal standard JSON, a rounded array that flipped decisions at gate
 boundaries, an invented constant that outlived its own retraction by a day, a site picker that
@@ -309,7 +336,7 @@ python testing/test_n26_coverage.py selftest  # its retry budget, against all 5 
 python testing/n26_recovery_watch.py plan     # what the recovery watcher would spend today; spends 0
 python testing/n26_chicago_offset.py dryrun    # Chicago's own level offset: window, lead, cost. Spends 0
 python testing/verify_site_panels.py          # renders every site in real Chrome and diffs the panels
-cd INTAKE-ARBITER/src && python audit.py      # 1482 checks, 77 published numbers re-read
+cd INTAKE-ARBITER/src && python audit.py      # 2040 checks, 77 published numbers re-read
 cd INTAKE-ARBITER/src && python report.py     # the per-site PDF, verified by being reopened
 ```
 
