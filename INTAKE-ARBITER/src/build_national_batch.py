@@ -163,8 +163,23 @@ def step(label, cmd, env, quiet=True):
           % (label, "OK    " if ok else "FAILED", time.time() - t,
              (tail[0].strip()[:56] if tail and not quiet else "")), flush=True)
     if not ok:
-        for l in (r.stderr or "").strip().split("\n")[-3:]:
-            print("         ERR %s" % l[:104], flush=True)
+        # 🔴 STDOUT TOO, AND THIS IS THE THIRD MODULE WITH THIS EXACT BUG. `build_sites.py` and
+        # `build_paired_site.py` both printed only stderr on failure, and every child in this
+        # project REFUSES CLEANLY -- it explains itself on stdout and exits non-zero with stderr
+        # empty. So the log read "FAILED" followed by a bare "ERR " with nothing after it.
+        # Measured cost: 23 chain failures in the overnight batch, every one of them logged with an
+        # empty ERR, diagnosed only by re-running a child by hand the next morning. A diagnostic
+        # that omits the stream the reason is written to is worse than no diagnostic, because it
+        # looks like the reason was absent rather than unprinted.
+        out = [l for l in (r.stdout or "").strip().split("\n") if l.strip()]
+        for l in out[-18:]:
+            print("         %s" % l[:150], flush=True)
+        err = [l for l in (r.stderr or "").strip().split("\n") if l.strip()]
+        for l in err[-4:]:
+            print("         ERR %s" % l[:150], flush=True)
+        if not err:
+            print("         ERR (stderr empty -- the child refused cleanly with exit %d; the reason "
+                  "is in the output above)" % r.returncode, flush=True)
     return ok
 
 
