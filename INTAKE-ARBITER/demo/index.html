@@ -4458,12 +4458,15 @@ function drawLadder(){
        result. 0.50 is what the five-year hours are PRICED at, and saying both is the honest
        version of not underselling: the published number is the conservative one. */
     + (fgSkill !== null
-    ? `<p class="note"><strong>Measured skill ${fmt(fgSkill,3)} at the ${fgSkillLead} lead the plant
-       runs on${fgAnch!==null ? `, and <strong>${fmt(fgAnch,3)} once one on-site reading removes the
-       level offset</strong>` : ''}. The hours are priced at <strong>0.50</strong> because that
+    /* PLAIN PROSE. Every figure in here was wrapped in <strong> and the paragraph rendered as one
+       shouty block -- when everything is emphasised nothing is. The single exception is the
+       anchored skill, which is the one number this paragraph exists to deliver. */
+    ? `<p class="note">Measured skill ${fmt(fgSkill,3)} at the ${fgSkillLead} lead the plant
+       runs on${fgAnch!==null ? `, and <strong>${fmt(fgAnch,3)}</strong> once one on-site reading
+       removes the level offset` : ''}. The hours are priced at 0.50 because that
        measurement is <em>one day</em> and the ladder spans 913 — an assumption below the
        measurement, not a claim resting on it. Value tracks the lead: `
-       + nt.map(r=>`<strong>${fmt(+r.value,0)} h</strong> →
+       + nt.map(r=>`${fmt(+r.value,0)} h →
        ${(r.gain_h_per_year>0?'+':'')+fmt(r.gain_h_per_year,1)}`).join(' · ')
        + ` h/year — a thermometer gives zero notice, always.</p>` : '')
     + `<details><summary>What each component is worth, measured by removing it</summary>`;
@@ -4487,11 +4490,12 @@ function drawLadder(){
        gotcha #56 for the THIRD time -- a retraction that reached the code and the documents and not
        the rendered page -- and why check_retracted_claims() now scans prose, not just figures. */
     const plumeGain = w.gain_h_per_year - wo.gain_h_per_year;
+    /* Body in plain prose; only the lead-in label carries weight, as in every other note here. */
     note += `<p class="note"><strong>What the plume model is worth.</strong> Blind the agent to the
-      neighbour's exhaust and leave it in reality: it loses
-      <strong>${fmt(plumeGain,1)} h/year</strong> <em>and</em> its unsafe declarations rise from
+      neighbour's exhaust and leave it in reality: it loses ${fmt(plumeGain,1)} h/year
+      <em>and</em> its unsafe declarations rise from
       ${fmt(w.agent_breach_per_1000_free_h,2)} to
-      <strong>${fmt(wo.agent_breach_per_1000_free_h,2)} per 1,000 free-cooling hours</strong>.
+      ${fmt(wo.agent_breach_per_1000_free_h,2)} per 1,000 free-cooling hours.
       Modelling it wins both, because a rise the agent can predict cancels out of its own error
       instead of widening its margin.</p>`;
   }
