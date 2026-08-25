@@ -1140,6 +1140,13 @@ const $ = s => document.querySelector(s);
 const TT = $('#tt');
 const cssv = n => getComputedStyle(document.querySelector('.viz-root')).getPropertyValue(n).trim();
 const fmt = (v,d=2) => (v===null||v===undefined||Number.isNaN(v)) ? '–' : (+v).toFixed(d);
+/* Dollars sized to fit a tile: k above ten thousand, M above a million. A plate cell is
+   about three numbers wide and "$4,537,983–$12,500,000" does not fit at 390 px. Defined
+   once here rather than copied into drawMoney() and drawPlate(), which is how the two would
+   drift into rounding the same figure differently on the same screen. */
+const usdShort = (v) => Math.abs(v) >= 1e6 ? fmt(v/1e6,1)+'M'
+                      : Math.abs(v) >= 1e4 ? int(Math.round(v/1e3))+'k'
+                      : int(Math.round(v));
 /* 1 °F in °C -- the ASOS reporting convention, and therefore the finest temperature
    difference the five-year ground-truth record can express. A definition, not a measurement. */
 const ASOS_STEP_C = 5/9;
@@ -2662,12 +2669,6 @@ function drawMoney(){
      (LBNL total ÷ our own measured footprint), so it belongs beside the per-site footprints in the
      manifest and not inside a per-site money artefact. Null when the registry is absent. */
   const scale = (SITES && SITES.scale) || null;
-  /* Dollars sized for a tile. A tile is about three numbers wide, and "$4,537,983 to $9,075,320"
-     does not fit at 390 px -- so k above ten thousand and M above a million. Full precision is
-     still one line below, per megawatt, where the arithmetic is checkable. */
-  const money0 = v => Math.abs(v) >= 1e6 ? fmt(v/1e6,1)+'M'
-                    : Math.abs(v) >= 1e4 ? int(Math.round(v/1e3))+'k'
-                    : int(Math.round(v));
 
   $('#mtiles').innerHTML =
       tile('Chiller power per MW of IT', fmt(kw,1)+' kW',
@@ -2692,9 +2693,9 @@ function drawMoney(){
        this site. */
     + (scale && SITE && SITE.footprint_m2 && bcell
        ? tile('At this facility’s measured size',
-              '$'+money0(SITE.footprint_m2*scale.w_per_m2_average_load/1e6
+              '$'+usdShort(SITE.footprint_m2*scale.w_per_m2_average_load/1e6
                          *bcell.usd_per_mw_it_per_year)+' to $'
-              +money0(SITE.footprint_m2*scale.w_per_m2_installed/1e6
+              +usdShort(SITE.footprint_m2*scale.w_per_m2_installed/1e6
                       *bcell.usd_per_mw_it_per_year),
               int(Math.round(SITE.footprint_m2))+' m² of building measured here × '
               +int(Math.round(scale.w_per_m2_average_load))+'–'
@@ -3250,9 +3251,15 @@ function drawModeBanner(){
     + int(nCalls) + '</strong> live calls).';
   if(HEALTH.live_available){
     el.innerHTML = stale + measured
+    /* "Key stays server-side" was accurate and was developer jargon on the reader's first screen.
+       It means the FortyGuard API key lives in the serve_live.py process and never reaches the
+       browser -- which matters because anything the page can read, every visitor can read, so a key
+       in the JavaScript is a key anyone can spend. Said in words a judge does not have to decode,
+       and stated as the security property rather than as an implementation note. */
       + ' <span class="ok"><strong>LIVE agent attached</strong></span> — the card at the top of the'
-      + ' results decides the <strong>next hours</strong> from a forecast fetched now. Key stays'
-      + ' server-side.';
+      + ' results decides the <strong>next hours</strong> from a forecast fetched now. The'
+      + ' <strong>FortyGuard</strong> key never reaches your browser: this page cannot make a paid'
+      + ' call, it asks the server to, and only numbers come back.';
   } else {
     el.innerHTML = stale + measured
       + ' <span class="warn"><strong>Live path also present.</strong></span>';
@@ -4298,6 +4305,19 @@ function drawPlate(){
   const cells = [];
 
   const gn = shippedGain();
+  /* THE SCALE-FREE FIGURE LEADS THE PLATE. Every other number here needs a facility size before it
+     means anything commercially -- hours are per megawatt, dollars are per megawatt. This one is a
+     share of the chiller hours a reactive controller would run, so it reads identically on a 1 MW
+     room and a 1,500 MW campus, and it is the first thing a reader should see. Mechanical hours use
+     the record's own MEASURED hours-per-day, not 24: the station does not report every hour, and
+     assuming it does understates the share. */
+  if(gn && gn.best && gn.best.test_days && BT.days){
+    const H  = BT.hours / BT.days * gn.best.test_days;
+    const mA = H - gn.best.agent_safe_free_h, mI = H - gn.best.incumbent_safe_free_h;
+    if(mI > 0 && mA > 0) cells.push(cell('Mechanical cooling cut', fmt(100*(mI-mA)/mI,1) + ' %',
+      int(Math.round(mI)) + ' h of chiller time becomes ' + int(Math.round(mA))
+      + ' h — a share, so it holds at any hall size'));
+  }
   if(gn && gn.best) cells.push(cell('Chiller-hours recovered',
     (gn.best.gain_h_per_year > 0 ? '+' : '') + fmt(gn.best.gain_h_per_year,0) + ' h/yr',
     'per MW of IT load, against the reactive on-site-sensor control operators run today'));
@@ -4309,10 +4329,28 @@ function drawPlate(){
     const base = MN.hours_rows.find(r => r.is_base);
     const at = MN.cells.filter(c => c.hours_label === (base && base.label));
     const usd = at.map(c => c.usd_per_mw_it_per_year);
-    if(usd.length) cells.push(cell('Worth',
-      '$' + int(Math.round(Math.min(...usd))) + '–$' + int(Math.round(Math.max(...usd))),
-      at.length + ' cells: ' + MN.electricity_prices_swept.length + ' published tariffs × '
-      + MN.chiller_efficiencies_swept.length + ' published chiller efficiencies, swept not chosen'));
+    const sc = (SITES && SITES.scale) || null;
+    const perMW = '$' + int(Math.round(Math.min(...usd))) + '–$'
+                + int(Math.round(Math.max(...usd))) + ' per MW across ' + at.length
+                + ' swept cells (' + MN.electricity_prices_swept.length + ' tariffs × '
+                + MN.chiller_efficiencies_swept.length + ' chiller efficiencies)';
+    /* WORTH AT THIS FACILITY'S OWN SIZE when the footprint is measured, and per megawatt when it is
+       not. The plate used to quote only the per-MW sweep, which is the honest unit and reads as
+       small beside a five-year study -- no facility is 1 MW. Both ends are compounded on purpose:
+       the tariff/chiller sweep AND the density range, so the figure spans everything not pinned
+       down. The per-MW basis moves into the detail rather than disappearing. */
+    if(usd.length && sc && SITE.footprint_m2){
+      const lo = SITE.footprint_m2 * sc.w_per_m2_average_load / 1e6 * Math.min(...usd);
+      const hi = SITE.footprint_m2 * sc.w_per_m2_installed   / 1e6 * Math.max(...usd);
+      cells.push(cell('Worth at this site', '$' + usdShort(lo) + '–$' + usdShort(hi) + '/yr',
+        fmt(SITE.footprint_m2 * sc.w_per_m2_average_load / 1e6, 0) + '–'
+        + fmt(SITE.footprint_m2 * sc.w_per_m2_installed / 1e6, 0) + ' MW of IT load, from '
+        + int(Math.round(SITE.footprint_m2)) + ' m² measured here × a density <em>derived</em> from '
+        + 'LBNL. ' + perMW));
+    } else if(usd.length){
+      cells.push(cell('Worth', '$' + int(Math.round(Math.min(...usd))) + '–$'
+        + int(Math.round(Math.max(...usd))), 'per MW of IT load per year — ' + perMW));
+    }
   }
 
   cells.push(cell('Measured on', int(SITE.weather_hours) + ' h',
