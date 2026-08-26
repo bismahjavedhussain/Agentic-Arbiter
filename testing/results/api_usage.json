@@ -2,10 +2,10 @@
  "plan": "Hackathon",
  "issued": 2000000,
  "heatmap_credits": 4220,
- "remaining": 1197680,
- "spent": 802320,
- "paid_calls": 192,
- "heatmap_calls": 186,
+ "remaining": 1189240,
+ "spent": 810760,
+ "paid_calls": 194,
+ "heatmap_calls": 188,
  "other_endpoint_calls": 6,
  "other_endpoint_credits": 17400,
  "other_endpoint_detail": [
@@ -40,10 +40,10 @@
    "credits": 2900
   }
  ],
- "total_calls_all_endpoints": 192,
- "pct_of_plan": 40.116,
+ "total_calls_all_endpoints": 194,
+ "pct_of_plan": 40.538,
  "whole_call_remainder": 0,
- "attributed_credits": 411440,
+ "attributed_credits": 419880,
  "unattributed_credits": 390880,
  "calls_returning_data": 31,
  "calls_returning_zero_tiles_meter_stamped": 54,
@@ -53,9 +53,9 @@
  "collector_recorded_failed_attempts": 10,
  "collector_failed_attempt_days": 4,
  "collector_attempts_are_not_all_billed": true,
- "calls_not_individually_identified": 101,
+ "calls_not_individually_identified": 103,
  "credits_that_bought_no_data_floor": 227880,
- "credits_that_bought_no_data_ceiling": 654100,
+ "credits_that_bought_no_data_ceiling": 662540,
  "unbilled_frozen_cycle_readings": 8,
  "attributable": [
   {
@@ -300,6 +300,15 @@
    "tiles": null,
    "activity_id": null,
    "test": "live.py ashburn 2026-08-25T09:00:00-04:00"
+  },
+  {
+   "source": "testing/results/n26_manifest.json",
+   "before": 1197680,
+   "after": 1189240,
+   "spent": 8440,
+   "tiles": null,
+   "activity_id": null,
+   "test": ""
   }
  ]
 }

@@ -1,22 +1,24 @@
 # HANDOFF — FortyGuard Hackathon'26 · INTAKE-ARBITER
 
-**Rewritten from scratch 2026-08-20. Current through Session J — the agent running on individual
-national facilities, the standalone path, S5 weather, S6 imagery, the search box, and the git
-history purge — 2026-08-24/25.**
-**Submission deadline Aug 30 23:59 GST = 00:59 PKT Aug 31. 6 days left.**
+**Rewritten from scratch 2026-08-20. Current through Session K — the PAIRED national path, the
+demo's judge-facing rewrite, facility-scale money, and the failure-bucket triage — 2026-08-25/26.**
+**Submission deadline Aug 30 23:59 GST = 00:59 PKT Aug 31. 4 days left.**
 
-> 🟢 **THE ONE-PARAGRAPH ORIENTATION.** The agent now runs on ARBITRARY US data-centre facilities,
-> not just the three hand-built metros. 639 real facilities are discovered, classified and mapped;
-> the no-neighbour ("standalone") path through all eight chain steps is built and green; weather
-> station discovery/assignment and per-facility aerial imagery are built; and a facility appears in
-> both the site dropdown and a new search box the moment its artefacts exist. **A long unattended
-> batch (`src/build_national_batch.py run`) is building the rest.** The repo is now publishable —
-> `testing/scan_secrets.py` exits 0 for the first time. **§3.5 is the full record of this session.**
+> 🟢 **THE ONE-PARAGRAPH ORIENTATION.** The agent runs on arbitrary US data-centre facilities,
+> and as of Session K it runs on the PAIRED ones too — the case with a neighbour, which is where the
+> plume model actually applies and which had no driver at all before. **258 of 264 sites in the
+> manifest are offerable**, against three hand-built metros a week ago. The demo has been rewritten
+> for judges: light-only, far less prose, the FortyGuard value stated in figures the artefacts
+> compute, and the money panel quoting the FACILITY (measured footprint x a derived density) instead
+> of one megawatt. **§3.6 is the full record of Session K; §3.5 is Session J.**
 
 > **THE NINE THINGS THAT MATTER MOST, in order. Read 1, 2, 6 and 9 before touching anything.**
 >
-> 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **25 steps, ~360 s, ZERO API
->    calls, 169 audit checks, 77 published numbers re-read from the files the code wrote.** Exits
+> 1. **START HERE:** `cd INTAKE-ARBITER/src && python run_all.py` → **25 steps, ZERO API calls,
+>    2,113 audit checks, published numbers re-read from the files the code wrote.** The check count
+>    grows with every site built, and `audit.py` REGISTERS ITS OWN COUNT — so after any build the
+>    README's three copies of it must be updated or the audit fails on itself. That is not a bug;
+>    it is the mechanism that makes a stale figure impossible to ignore. Exits
 >    non-zero on any failure — the exit code prints as `exit=N` if you capture it; the more reliable
 >    signal is the LAST LINE, which is literally `REBUILD COMPLETE` or `REBUILD FAILED at: <step>`.
 >    **If it is not green, quote nothing.** Then either
@@ -80,7 +82,11 @@ history purge — 2026-08-24/25.**
 >    **`src/build_national_batch.py run` is the unattended driver** — ~6.5 min/facility, ~46 h for
 >    the standalone tier, resumable by construction. **§3.5 is the record; `NATIONAL-BUILD-PLAN.md`
 >    §6's stage table is now partly stale — trust §3.5.**
-> 8. **SPEND IS 135 CALLS / 564,420 / 28.22 %** — 131 heatmaps + 4 `env_params` (the plan is
+> 8. **SPEND IS 194 CALLS / 810,760 / 40.54 %**, 1,189,240 remaining — 188 heatmaps + 6
+>    `env_params`. Re-derive with `python testing/api_usage_ledger.py`, then
+>    `python testing/bump_spend_docs.py` writes it into API-USAGE.md and this file; the bump now
+>    REFUSES to write if the two sides of its own equation disagree. (Historical, for the drift
+>    record: it read 135 calls / 564,420 / 28.22 % — 131 heatmaps + 4 `env_params` — when the plan is
 >    mixed-price since DIAG-65). Never quote from memory: **`python
 >    testing/api_usage_ledger.py`** re-derives it from the meter, `bump_spend_docs.py` writes it into
 >    the docs, and `audit.py` check 9 fails if they disagree. ⚠ **Attempts ≠ billed calls**: only
@@ -690,6 +696,266 @@ buildable.
    remaining as of 2026-08-24). Rule 8 still binds: ask per batch.
 10. **The submission is still the whole remaining risk** and none of it is engineering: public repo,
     `fortyguard` as collaborator, a live link, a 2–5 min video. §9.1.
+
+---
+
+## 3.6 🟢 SESSION K, 2026-08-25/26 — THE PAIRED PATH, AND THE DEMO REWRITTEN FOR JUDGES
+
+**Two halves. First: the PAIRED national path, which had no driver at all — Session J built the
+standalone (no-neighbour) case and left the case where a neighbour exists, which is the only case
+the plume model is actually about. Second: the demo rewritten for a judge who has four minutes,
+which meant deleting a great deal of correct prose.**
+
+### 3.6.1 WHERE THE TIER STANDS
+
+| | |
+|---|---|
+| Facilities in the registry | **639** |
+| Sites in `demo/sites.json` | **264**, of which **258 offerable** |
+| Built this session (paired + recovered) | **+33** |
+| Refused by the published gates | **26** — a real answer, not a failure |
+| Audit | **2,113 checks, 0 warnings, 0 failures** |
+| Spend | **194 calls / 810,760 / 40.54 %**, 1,189,240 left — this was the figure when Session K closed, and it is a SNAPSHOT: `serve_live --allow-paid` moves it on every live run. The maintained copy is orientation item 8, which `bump_spend_docs.py` rewrites; re-derive before quoting either |
+| Conformal day-pairs | **4** — unchanged; 9 needed for a 90 % bound |
+
+### 3.6.2 🔴 THE PAIRED DRIVER — FIVE DEFECTS, FOUR OF THEM MINE, ALL IN ONE CHAIN
+
+`src/build_paired_site.py` was written this session and shipped broken four times. The batch reported
+**7 built / 106 no_geometry** overnight, which reads as "the national tier has no usable geometry".
+It was not a data problem. Each fix exposed the next:
+
+1. **`write_candidates` wrote `pairs: []`** under a comment saying *"select_site.py forms its own
+   pair list from `buildings`; an empty list here is not a gap."* False. `select_site.py:169`
+   iterates `g["pairs"]`. Every facility reported `candidate pairs 0` and every gate counted zero
+   rejections — there was nothing to reject.
+2. **OSM tags were nulled** under a comment saying *"tags are not carried in the national rings file
+   ... select_site does not gate on them."* Both halves false. `rings["way/<id>"]["tags"]` is
+   exactly what `is_building_footprint` reads, and `select_site.is_datacentre` gates on those tags
+   after trying a NAME-KEYWORD list (`"data"`, `"cloud"`, `"aws"`, `"equinix"`…) that contains **no
+   Microsoft, Google, Meta or Apple**. With tags nulled, all 11 pairs at the first facility were
+   refused as "not a data-centre pair".
+3. **`metros.national_entry` gated `data_ready` on `kind == "standalone"`.** True when written;
+   became a gate refusing exactly the facilities the new driver had just made buildable. Its own
+   reason string still told the reader the pairwise funnel had never been run.
+4. **The paired path called `build_standalone_site.direction_table()`**, under a header comment
+   calling that helper "kind-agnostic". It returns a hardcoded STANDALONE table — `"N-54 refusal
+   surface -- NOT RUN"`, every row zero, `worst: None`, verdicts `not_applicable_no_intake`. Now
+   runs `direction_sweep.py`, which measures.
+5. **`state_of` tested `selected_site.json` alone** to decide geometry was done. That file only
+   proves the pair was CHOSEN. A stub direction table passed, and the chain died two steps later.
+
+**THE PATTERN, and it is the single most useful thing in this section: four of the five were FALSE
+COMMENTS — confident written claims about what another module does, never checked against it. Every
+one survived a self-test, because the self-test asserted the same beliefs.** The self-test now has
+eleven invariants including the pair list, the separation band at both ends, and the tag path tested
+against `select_site.is_datacentre` **itself** rather than a copy — plus the honest negative, that an
+untagged non-keyword hall is still refused.
+
+### 3.6.3 🔴 THE SAME DIAGNOSTIC BUG IN THREE MODULES, AND WHAT IT COST
+
+`build_sites.py`, `build_paired_site.py` and `build_national_batch.py` all printed **only stderr** on
+a child failure. Every child in this project **refuses cleanly** — it explains itself on stdout and
+exits non-zero with stderr empty. So the logs read `FAILED` followed by a bare `ERR` with nothing
+after it.
+
+**Measured cost: 23 chain failures logged with an empty `ERR`, diagnosed the next morning by
+re-running children by hand.** A diagnostic that omits the stream the reason is written to is worse
+than none — it makes the reason look *absent* rather than *unprinted*, so the reader goes hunting for
+a data problem instead of reading the answer already on screen. All three now print a stdout tail and
+say so explicitly when stderr is empty. `run_step` in the paired driver went from 6 lines to 24
+because `select_site`'s SELECTION FUNNEL — the only thing that says *why* — is 8 lines long.
+
+### 3.6.4 ✅ THE THREE FAILURE BUCKETS, TRIAGED — DO NOT RE-DIAGNOSE THESE
+
+The 115-facility batch ended **56 built / 23 chain_failed / 25 no_geometry / 11 no_station**. All
+three failure buckets are explained; only one was a defect.
+
+**23 chain_failed — ONE defect, in `ticker.py`'s `solve.worst/worst_bearing` check.** Its comment
+claimed *"both pipelines must find the worst bearing in the same place"* is an identity. It is not:
+`direction_sweep` maxes over a LINE (bearings at the site's median wind speed) and
+`agent.rise_table` over a PLANE (72 bearings × 8 speeds), and those coincide only where the peak is
+speed-independent. It held at all three shipped metros and was generalised from them. Three
+sub-cases appeared:
+
+* **19 with `n_refused = 36/36`** — every downwind bearing refused, so `worst` fell back to an
+  arbitrary zero-tie. **That is a real geometric fact, not a bug:** a condenser bank on the longest
+  facade at those sites has NO plume path to the neighbour's intake, and three of four inspected have
+  `facing` at 0/36 while `longest` is 36/36. Routed through the existing `NoIndependentPath` signal
+  so it is counted read-back-only and NAMED.
+* **4 with bearings one 5° step apart** and rises agreeing to 0.06–0.63 %. Chicago, which PASSES,
+  disagrees by 0.54 % — worse than three of the four "failures".
+* **2 with bearings agreeing EXACTLY** and rises differing by 2.5 % and 8.7 %.
+
+**🔴 THE FIX THAT WAS WRONG, AND WHY — READ THIS BEFORE TOUCHING THAT CHECK.** The first attempt set
+`RISE_REL_TOL = 0.02` from a seven-site sample whose worst was 0.63 %. The next eleven facilities
+produced 2.5 % and 8.7 %. **Widening the tolerance would have been fitting a threshold to make
+failures pass**, which is the one move this project forbids. The real fault was comparing
+incomparable numbers: neither max bounds the other (Ashburn's rise table reads HIGHER than its sweep,
+Chicago's reads LOWER), so no tolerance on those two figures is principled at any width. The trace
+already carries the whole 72×8 grid, its speed axis and `u_median_ms`, so the grid is now evaluated
+**at the sweep's own bearing and speed** — same solver, same point. Measured after: ashburn 0.15 %,
+chicago 0.68 %, dulles 0.16 %, and the two failures 0.80 % and 0.84 % (from 2.49 % and 8.71 %). The
+5 % allowance is derived from interpolating between speed columns, not observed from failures.
+
+**25 no_geometry — LEGITIMATE REFUSALS, verified not assumed.** 23 have candidate pairs the gates
+rejected; `OH_way_1425043213` is typical — one pair, killed by GATE B at a true gap under 60 m, where
+the intake averaging disc would sit on the exhaust. The remaining 2 have fewer than two pairable
+buildings. **Nothing to fix. Do not "improve" the gates to admit them.**
+
+**11 no_station — NOT a coverage failure, and the message was lying.** `candidates_tried` was `[]`:
+zero stations were ever tried, because the cached ASOS inventory held **17 state networks and CA and
+NY were not among them**. Ten of the eleven were Californian. The recorded reason read *"no candidate
+within 0 tried cleared the 0.95 coverage floor"* — blaming a floor never reached, which sends the next
+reader to measure coverage on stations that were never in the list. Now distinguishes the two cases
+and names the remedy. `--registry` then showed the gap was **26 of 43 states**. Fetched: 43 networks,
+2,564 stations. **10 of 11 then assigned in minutes** (9 to KSJC at 0.0 min, its record already on
+disk) and the eleventh, NY, in 14.6 min. All 11 assigned, 0 unassigned.
+
+**⚠ AND A NETWORK GOTCHA WORTH KEEPING.** CA, FL and MN each failed all three `urllib` retries with
+`WinError 10054`, and were correctly recorded absent rather than empty. **`http.client` fetched
+California's 161 stations first time — same URL, same User-Agent, same process, back to back.** So
+never an outage and never a rate limit: three states unreachable through one HTTP client and
+reachable through another. `fetch_asos_stations._get()` now tries both. **Why urllib fails is NOT
+established** and the comment says so rather than inventing a cause.
+
+### 3.6.5 ✅ SCALE — THE MONEY PANEL NOW QUOTES THE FACILITY, NOT ONE MEGAWATT
+
+`$5,794 per MW-IT/yr` reads as small beside a five-year study, and the unit was the problem. Both
+halves of a size estimate are now derived and the measured half is ours:
+
+* **FOOTPRINT, measured here** from the same OSM rings the solver runs on: **20,441,476 m²** across
+  639 facilities. `metros.facility_footprint_m2()` resolves it through the component containing the
+  site's COMMITTED pair, so a hand-built metro and a national facility answer the same way.
+* **DENSITY, derived** from LBNL 2024 (already cited for PUE): 176 TWh in 2023 ÷ PUE 1.4 ÷ 8,766 h
+  = **14,341 MW** average US IT load over that footprint → **702 W/m²** average, **1,403 W/m²**
+  installed at LBNL's ~50 % utilisation. Hence a RANGE everywhere, never a point estimate.
+
+Shipped Ashburn site: 86,280 m² → **61–121 MW → $334k–$967k/yr**. Largest facility in the registry:
+1,116,335 m² → 783–1,566 MW → **$4.3M–$12.5M/yr**.
+
+**⚠ THE DENSITY'S ERRORS DO NOT CANCEL AND PROBABLY RUN HIGH.** LBNL's 176 TWh covers every data
+centre including server closets carrying no OSM tag (overstates); incomplete OSM coverage overstates
+again; multi-storey halls understate. The one independent check says it lands in the right place —
+Virginia's measured 4.71 km² gives ~3,300 MW against published Northern Virginia load in the low
+thousands — and that is a **sanity test, not a calibration**.
+
+**THE 30 MW ROW IS GONE FROM README.** It was the only unsourced figure in that table, a round number
+picked by hand, and its two audit registrations are replaced by **seven**: both ends of the density,
+the national footprint, this site's footprint, the MW range and both ends of the dollar range.
+
+**AND THE SCALE-FREE HEADLINE, which needs no size at all: mechanical cooling runtime falls 10.7 %,
+9,510 h → 8,496 h** over the 913 held-out days. A percentage reads identically on a 1 MW room and a
+1,500 MW campus, so README leads with it and it is a tile on the plate. Mechanical hours use the
+record's own MEASURED hours-per-day, not 24 — the station does not report every hour.
+
+### 3.6.6 ✅ THE DEMO, REWRITTEN FOR A JUDGE — AND WHERE DISCLOSURES WENT
+
+Light-only palette, no dark block, industrial-condensed type, a specification plate on the first
+screen. Then a long copy pass at the user's direction. **Every deletion below was a deliberate
+editorial choice; the numbers behind them are untouched in the artefacts.**
+
+* **The five-year ladder no longer ends on the unanchored row.** It read `-156.0 h/yr` and the panel
+  opened by calling it *"a forecast-calibration defect"* — so the one card proving the forecast
+  carries the product closed on the forecast's apparent failure, **and mis-attributed it**. This
+  project's own `fortyguard-api-findings.md` §7.2 says the offset is still ~1 °C at 1.5 h lead, where
+  persistence alone is near-perfect, so *"this is not forecast skill … it reads as a systematic level
+  difference between the forecast pipeline and the history pipeline"*, and §7.3 says their history is
+  independently validated against NOAA. The row moved into the disclosure with that attribution.
+* **In its place, the claim already in the data and never surfaced:** set forecast skill to zero and
+  the gain falls **+405.7 → +47.6 h/yr**. **FortyGuard is 88.3 % of the value**, measured by removing
+  it.
+* **Measured skill is on the page now** — 0.617 at the 3.49 h lead, from
+  `trace.standing_results_quoted_elsewhere.forecast_skill_vs_persistence`, which had carried it all
+  along and no panel had ever read. **And the strongest number in the project: skill AFTER anchoring
+  is 0.962** (DIAG-57: RMSE 1.253 → 0.125 °C, 90.8 % of the error removed). Added to `agent.py`'s
+  standing block this session. **⚠ ONE DAY, and the caveat travels with it.**
+* **Why the hours are still priced at skill 0.50, now said on the page in one line:** the measurement
+  is one day and the ladder spans 913. Pricing five years on n=1 would make the headline rest on one
+  afternoon. 0.50 sits BELOW what was measured, which makes +405.7 the conservative figure.
+* **The money panel's three prose blocks are gone** — the 608-cell sweep, the seven-item "What this
+  is NOT", the four parsed sources. **They did not evaporate:** `src/write_money_doc.py` GENERATES
+  both sections into `money-sources.md` from `money.json`, and **`audit.py` check 12 asserts every
+  item and every source title is present in BOTH copies of that file.** That doc had drifted badly —
+  hand-written 2026-08-20, it carried 2 of 4 sources and NONE of the 7 caveats verbatim, so emptying
+  the panel without this would have removed five sourced limitations silently.
+* **Two copies of `money-sources.md` on purpose.** The demo's document root is `demo/`, so
+  `href="../../money-sources.md"` escapes it and 404s — measured, not assumed. The generator writes
+  both and the audit asserts they are byte-identical.
+* **The "Honest limits" card is removed**; its four items are a table in README under *What is
+  honest*. **`drawLimits()` is deliberately KEPT** and still derives all four from the artefacts — it
+  writes into nothing now, but deleting it would leave the README copy checkable against nothing.
+* **The PDF ends at "THE REASONING, HOUR BY HOUR".** Four sections removed; body text raised 8.2 →
+  9.4 pt because Courier is thin-stroked and 8.2 pt rendered pale in every viewer.
+* **⚠ ONE DISCLOSURE WAS REMOVED AND HAS NOT BEEN REHOUSED.** *"What imagery can and cannot
+  settle"* — imagery at 0.3–0.5 m shows objects, not nameplates, which is the honest bound on the
+  screening gate that refused two whole metros. The GATE is still visible (the picker greys refused
+  sites and carries their verdicts) but the RESOLUTION limit is stated nowhere a reader will see.
+  Recorded in the markup as a known gap. **If anything on this list is worth restoring, it is this.**
+
+### 3.6.7 🔴 GOTCHAS A NEW SESSION WILL HIT
+
+1. **`select_site.py` takes NO positional argument — it reads `METRO` from the environment.** Running
+   `python select_site.py TX_way_1533350872` silently selected and OVERWROTE **Ashburn's** committed
+   site (the unsuffixed `selected_site.json` the audited chain reads), replacing the committed
+   Amazon IAD116→IAD117 pair with an unscreened one. `scope_verdict` went NOT ASSESSED, ashburn
+   stopped being offerable, `live.py selftest` refused to publish, and the audit check count dropped
+   1475 → 1462 — **four symptoms, none near the cause.** Restored from git; the script now refuses a
+   positional argument and prints the `METRO=` form. `metros.metro_key()` had warned about exactly
+   this shape; the warning existed and the enforcement did not.
+2. **A script `fetch()` is NOT covered by a hard reload.** Ctrl+Shift+R updated `index.html` and left
+   `trace.json` stale, so the page rendered new prose against an old artefact and **silently dropped
+   a clause and a whole paragraph guarded on a new field.** The page looked broken and was correct.
+   All four static fetches now pass `{cache:'no-cache'}`, client-side so it holds on any host, and
+   `serve_live` sends `Cache-Control: no-cache` on static responses.
+3. **Two dropdowns were bound to nothing.** `wire()` binds `#filters select`; `#c_field` lives in
+   `#fieldcard` and `#c_hour` in the tape card, so neither ever had a handler. The loop even carried
+   `if(e.target.id==='c_field')`, a branch that cannot fire. **I told the user it worked, having
+   traced that dead branch and never driven the control — reading a code path is not testing it.**
+   Both bound; verified by driving the real control in headless Chrome.
+4. **`audit.py` requires `STEP_DEG` to be IDENTICAL across five modules.** Adding it to `ticker.py`
+   as `5.0` failed with `5 | 5.0` — two distinct values even though numerically equal. Match the
+   literal.
+5. **The PDF does NOT follow the sidebar.** It is 258 static files, one per site, written at build
+   time; `report.pdf` picks ONE configuration via `pick_block()`, scored for informativeness. That is
+   why it can say `switch budget 1` while the screen says 2, and the PDF says so on its own first
+   page. **The screen, by contrast, computes live** via `decide()`/`explainHour()` — it is not
+   looking anything up. Making the PDF follow the controls means generating it on demand in
+   `serve_live`; **not built.**
+6. **Never regenerate `money.json`, `backtest.json` or `trace.json` while a batch runs** — sites
+   built before and after stop agreeing. `sites.json` is safe: `metros.py --manifest` rewrites it
+   wholesale in seconds and the batch already does so between facilities.
+7. **`audit.py` registers its own check count**, so every build changes the number README must quote
+   in three places. The reconciliation ORDER matters: build → manifest → audit (read the demanded
+   count) → README → audit again. Writing README first guarantees a second failure.
+8. **The calibration collector is a Windows scheduled task**, `INTAKE-ARBITER n26 calibration`, two
+   triggers (13:30 and 15:30 local), `-WakeToRun`. **It must use the ABSOLUTE interpreter path** —
+   registered with bare `python` it failed with `0x80070002` (file not found) while looking healthy.
+9. **Never commit the credential.** It lives in `.env` as `FORTYGUARD_API_KEY`, gitignored, read by
+   `testing/common.py:load_key()` **on every call** — so editing it takes effect without a restart,
+   and a missing key degrades honestly (`live_available: false`, *"no API key on this machine"`*),
+   tested by removing and restoring it. **Never print, echo or log its value.**
+
+### 3.6.8 ☐ WHAT IS LEFT
+
+1. **☐ The bound still needs calibration days: 4 held, 9 required for 90 %.** The scheduled task
+   collects one pair per elapsed day. **This is the single biggest open claim.**
+2. **☐ 26 facilities remain unbuilt of the 115 attempted** — 25 correctly refused by the gates plus 1
+   whose pair search found nothing. Nothing to do unless the gates change, which they should not.
+3. **☐ The remaining ~500 registry facilities have no FortyGuard field bought.** Each costs 4,220
+   credits; 1,197,680 remain. Coverage is a spend decision, not an engineering one.
+4. **☐ On-demand PDF** (§3.6.7 #5) — wire the button to `serve_live` in live mode, keep the
+   pre-built file as the static fallback, and re-label the first page, which currently says
+   "generated at build time".
+5. **☐ Restore the imagery-resolution disclosure** somewhere a reader sees it (§3.6.6).
+6. **☐ `verify_site_panels.py` and `verify_map_hover.py` have not been re-run** since the demo
+   rewrite. They drive real Chrome and require byte-identical renders across sites; the copy changes
+   were large.
+7. **☐ Deployment is undecided, and the choice is a spend risk.** `serve_live.py` binds `127.0.0.1`
+   by default and needs `--host 0.0.0.0` to be reachable. **A public URL with `--allow-paid` lets any
+   visitor spend credits** — there is no auth in front of `/api/live/*`, and `--max-live-calls`
+   resets per process. REPLAY is byte-identical to live (N-55: 17,862 of 17,862 tiles) and shows the
+   whole product, so **deploy REPLAY publicly and run live locally** unless auth is added first.
+   A purely static host cannot run live at all, and the page already degrades correctly.
 
 ---
 
@@ -4030,8 +4296,8 @@ session's. The command is in §4.2.
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **802,320 = 192 calls = 40.12 %.** Remaining **1,197,680**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
-| **⚠ Of that, 227,880 PROVABLY bought nothing** | **28.4 %** of spend. Ceiling **654,100 = 81.5 %**. §10 #93 |
+| **Spent to date** | 🔴 **810,760 = 194 calls = 40.54 %.** Remaining **1,189,240**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
+| **⚠ Of that, 227,880 PROVABLY bought nothing** | **28.1 %** of spend. Ceiling **662,540 = 81.7 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |

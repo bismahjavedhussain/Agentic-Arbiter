@@ -195,6 +195,16 @@ def main():
         "**%s = %.1f %%**." % (money(floor), 100.0 * floor / spent,
                                money(ceil), 100.0 * ceil / spent),
         "HANDOFF: floor/ceiling row", misses)
+    # HANDOFF's ORIENTATION BLOCK, item 8. Added 2026-08-26 in the same edit that wrote the figure
+    # there -- and it failed the audit within the hour, because two more live calls landed while the
+    # section was being written. A spend figure in a NEW place is a new place for spend to go stale,
+    # so it is registered in the same commit that introduces it rather than the commit after.
+    t = sub_or_report(
+        t, r"\*\*SPEND IS [\d,]+ CALLS / [\d,]+ / [\d.]+ %\*\*, [\d,]+ remaining — "
+           r"\d+ heatmaps \+ \d+",
+        "**SPEND IS %d CALLS / %s / %.2f %%**, %s remaining — %d heatmaps + %d"
+        % (calls, money(spent), pct, money(rem), hm, oth),
+        "HANDOFF: orientation item 8", misses)
     io.open(p, "w", encoding="utf-8", newline="").write(t)
 
     if misses:

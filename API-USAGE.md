@@ -20,10 +20,10 @@ evidence without a test failing.
 | | |
 |---|---|
 | Plan | **`Hackathon`**, issued **2,000,000** credits, active 2026-08-18 → 2026-09-22 |
-| **Paid calls made** | **192** — 186 `heatmap` + 6 `env_params` |
-| **Credits spent** | **802,320** |
-| **Share of the plan used** | **40.12 %** |
-| Credits remaining | **1,197,680** |
+| **Paid calls made** | **194** — 188 `heatmap` + 6 `env_params` |
+| **Credits spent** | **810,760** |
+| **Share of the plan used** | **40.54 %** |
+| Credits remaining | **1,189,240** |
 | Calls at demo view time | **0 in REPLAY** (the default, and what a static host serves). **LIVE mode calls one heatmap per forecast hour** — see §6 |
 
 **The call count is bounded by the clock, not the budget**, and for two reasons that pull in
@@ -63,16 +63,16 @@ readings.
 **Two endpoints were billed, and the meter proves the split.** This section used to argue the spend
 was pure `/v1/heatmap` because 4,220 divided the total exactly. That stopped being true once the
 live agent started buying humidity and dew point, and the honest statement is now the arithmetic
-one: **186 × 4,220 + 6 × 2,900 = 802,320**, matching the lowest meter reading ever recorded to the
+one: **188 × 4,220 + 6 × 2,900 = 810,760**, matching the lowest meter reading ever recorded to the
 credit. Both prices were measured the same way, so this is a derivation and not bookkeeping — and if
 a third endpoint were ever billed, the reconciliation would **stop closing and say so** rather than
 absorbing it silently.
 
 ---
 
-## 3. The 192 calls, itemised
+## 3. The 194 calls, itemised
 
-**97 calls** saved a before/after meter pair and so are individually attributable; the remaining
+**99 calls** saved a before/after meter pair and so are individually attributable; the remaining
 **92** are visible only as gaps between readings and are counted, not named. Five of the attributable
 ones are named below as worked examples. The distinction is kept because *"11 of 13 calls returned
 zero tiles"* is only worth saying if the number is arithmetic rather than memory.
@@ -95,12 +95,12 @@ Classified by what the artefacts record:
 |---|---|---|
 | Returned a populated field, tile count saved | **37** — 31 heatmap + 6 `env_params` | 148,220 |
 | Returned `completed` with **zero** features, individually attributed | **54** | 227,880 |
-| Not individually attributable — a gap between two readings | **101** | 426,220 |
+| Not individually attributable — a gap between two readings | **103** | 434,660 |
 
-Those three rows sum to 192 and to 802,320, which is the check that keeps this table honest.
+Those three rows sum to 194 and to 810,760, which is the check that keeps this table honest.
 
-So **28.4 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
-call also failed — is **81.5 %**. The vendor record makes the ceiling far likelier than the floor:
+So **28.1 %** of spend is *proven* to have bought nothing, and the ceiling — if every unattributable
+call also failed — is **81.7 %**. The vendor record makes the ceiling far likelier than the floor:
 across 08-18…08-20 the forecast leg failed **every single time it was tried.** The collector's
 08-18 and 08-19 attempts predate the per-day attempt counter it gained on 08-19, which is why their
 individual count is not recoverable and is not claimed.
@@ -122,7 +122,7 @@ per-tile aggregate **over the window** rather than a time series. The first full
 | | |
 |---|---|
 | Calls | **11** live (one window was already cached, so it cost nothing) |
-| Spent | **46,420 credits** — **5.8 %** of this plan's spend today, in one run. It was **44 %** on the day it was made, which is the better measure of how sharp this endpoint's cost is |
+| Spent | **46,420 credits** — **5.7 %** of this plan's spend today, in one run. It was **44 %** on the day it was made, which is the better measure of how sharp this endpoint's cost is |
 | Returned a field | **3** — a real rising morning trajectory, 25.66 → 28.84 → 30.71 → 32.23 °C |
 | Returned `completed` with **no data** | **8**, and **all 8 were billed** — **33,760 credits for nothing** |
 
