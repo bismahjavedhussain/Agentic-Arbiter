@@ -82,7 +82,7 @@ demo's judge-facing rewrite, facility-scale money, and the failure-bucket triage
 >    **`src/build_national_batch.py run` is the unattended driver** — ~6.5 min/facility, ~46 h for
 >    the standalone tier, resumable by construction. **§3.5 is the record; `NATIONAL-BUILD-PLAN.md`
 >    §6's stage table is now partly stale — trust §3.5.**
-> 8. **SPEND IS 212 CALLS / 885,400 / 44.27 %**, 1,114,600 remaining — 205 heatmaps + 7
+> 8. **SPEND IS 214 CALLS / 893,840 / 44.69 %**, 1,106,160 remaining — 207 heatmaps + 7
 >    `env_params`. Re-derive with `python testing/api_usage_ledger.py`, then
 >    `python testing/bump_spend_docs.py` writes it into API-USAGE.md and this file; the bump now
 >    REFUSES to write if the two sides of its own equation disagree. (Historical, for the drift
@@ -982,6 +982,229 @@ editorial choice; the numbers behind them are untouched in the artefacts.**
    resets per process. REPLAY is byte-identical to live (N-55: 17,862 of 17,862 tiles) and shows the
    whole product, so **deploy REPLAY publicly and run live locally** unless auth is added first.
    A purely static host cannot run live at all, and the page already degrades correctly.
+
+---
+
+## 3.7 🟢 SESSION L, 2026-08-26/27 — THE SCREENING GATE REACHES THE NATIONAL TIER
+
+**Read this before touching the imagery gate, the map, the picker or the calibration count.**
+
+🟢 **THERE IS A TAGGED, SUBMITTABLE FALLBACK: `submission-safe-2026-08-27` (commit `45aa05c`).**
+Green when tagged — `audit.py` **2057 passed / 0 warnings / 0 FAILURES**, `scan_secrets.py` **CLEAN,
+0 hits in 5,676 tracked files and 6,445 history blobs**, 250 offerable sites, calibration published
+at n=4. **If anything below goes wrong, this is one command away and it is enough to submit:**
+
+```bash
+git checkout submission-safe-2026-08-27 -- INTAKE-ARBITER/
+```
+
+### 3.7.1 🔴 THE DEFECT THAT STARTED IT: THE TIER WAS OFFERING SITES THE PROJECT HAD ALREADY REFUSED
+
+The imagery scope gate that refused Phoenix and Santa Clara **was reaching only one of four
+surfaces.** `export_manifest()` did drop a refused national facility from `offerable` — that part
+worked — but nothing recorded a verdict for any of the 258, and the **map, the search box and the
+picker** never consulted one.
+
+**The proof it mattered, and it is the sharpest thing in this session:** `AZ_way_1456975949` **IS the
+Phoenix metro.** Phoenix's committed pair is OSM `1456975947 → 1456975949`, both members of that
+national facility's own building group. So the project was **refusing Phoenix by name as "not built,
+bare graded desert" while offering the same buildings as a runnable national facility with a full
+five-year backtest and a dollar figure** — the two rows sat in the same dropdown, one greyed and one
+selectable.
+
+### 3.7.2 THE DISTINCTION THAT NOW DRIVES ALL FOUR SURFACES
+
+The user's rule, verbatim in effect: *"honestly state and refuse the ones which have rooftop
+condensers or a building in the plume path, but don't claim a site to be a data centre when it
+doesn't even exist, and don't include those in the map or the search option or the choose option."*
+
+| Verdict | Map | Search | Picker | Agent |
+|---|---|---|---|---|
+| `NOT_BUILT`, `NOT_A_DATA_CENTRE` — **not an operating data centre** | **removed** | removed | removed | refused |
+| `ROOFTOP`, `MIXED_ROOF_AND_GRADE`, `PAIR_NOT_BUILT`, `NO_GROUND_PLANT_VISIBLE` — **real, outside the model's domain** | **kept, carries its reason** | kept | removed | refused |
+
+⚠ **`PAIR_NOT_BUILT` EXISTS BECAUSE A REAL CASE FORCED IT.** At `VA_way_460175664` the FACILITY is a
+live Digital Realty campus (IAD42, Building R, 22124 Broderick Drive) while the two footprints
+`select_site.py` committed to are a demolished office park mid-redevelopment. Excluding it would have
+**hidden a real, operating data centre**, which is the opposite of the rule that excludes absent ones.
+So: facility absent → remove the dot; facility real, pair unbuilt → keep the dot, refuse the agent.
+
+⚠ **THE FIVE HAND-SCREENED METROS KEEP THEIR VISIBLE REFUSALS IN THE PICKER, AND THAT EXCEPTION IS
+LOAD-BEARING.** Phoenix reads `REFUSED: NOT BUILT` and Santa Clara `REFUSED: ROOFTOP`, and those two
+rows **are** the evidence behind *"five screened, two refused"* — audit-registered, and the reason a
+judge believes the gate is real rather than decorative. Hiding them to tidy a 264-row dropdown would
+delete the proof that refusing happens. 250+ national rows are omitted; those 5 are not.
+
+⚠ **AND OMISSION HAS TWO CAUSES THAT MUST NOT BE CONFLATED.** `buildSitePicker()` counts them apart:
+**8 refused by the gate** versus **4 merely not built yet** (no weather station assigned, or the chain
+has not run). Calling the second group "refused" states a reason that is not theirs — §10 #67, which
+this page has shipped six times. Both counts are printed under the box; nothing is dropped silently.
+
+### 3.7.3 ✅ THE TWO-SOURCE METHOD — how the undated-frame problem was solved
+
+`data/geometry/architecture_verdicts.json` already carried the standard and the national tier had
+been ignoring it:
+
+> *"No verdict is recorded from a single source. **ESRI and USGS have different capture seasons, so
+> agreement between them is meaningful.**"*
+
+🔴 **THE KEYLESS ArcGIS EXPORT CARRIES NO ACQUISITION DATE.** The `World_Imagery_Metadata` service
+does not exist at that path — checked, it returns *Service not found*. So one undated frame showing
+bare ground is evidence about an **unknown moment**, and a `NOT_BUILT` verdict cannot rest on it.
+
+**New: `fetch_facility_imagery.py usgs <KEY>`** fetches a second frame from **USGS The National Map**
+(`basemap.nationalmap.gov`, free, keyless, public domain) at the ESRI frame's **exact bbox**, so the
+two are comparable pixel for pixel. Named `usgs_<esri file>`, which is the prefix
+`metros.committed_imagery()` already looks for — so the picker offers it as a source with no further
+change. **10 of 10 fetched.**
+
+**Two undated frames beat one, because the GROUND STATE orders them.** Measured on these sites, USGS
+is consistently the older capture: raw land → construction → operating halls. That ordering is what
+made three of four open questions answerable, and it is stated in each verdict as an INFERENCE from
+the ground rather than as metadata.
+
+### 3.7.4 THE EIGHT VERDICTS, ALL READ BY A HUMAN ON TWO SOURCES
+
+The user reviewed all eight from `d:\FGHackathon\IMAGERY-REVIEW\` (built by
+`scratchpad/build_review_pack.py`; the demo cannot serve this because a refused site is `disabled` in
+the picker, and its canvas is 560×440 against the frame's 1400×1050).
+
+| Site | Verdict | Evidence |
+|---|---|---|
+| `NE_way_1253282102` Meta Sarpy | `MIXED_ROOF_AND_GRADE` | **Human read SHARPENED the model's.** I called it plain ROOFTOP; the human found plant at BOTH levels. Refused because the model cannot apportion load between two planes and will not guess |
+| `AZ_way_300959969` CyrusOne PHX8 | `ROOFTOP` | Confirmed — this was the call flagged as weakest, so the confirmation is the point |
+| `OR_way_734323663` Digital Realty PDX11 | `ROOFTOP` | Arrays across nearly the whole roof of both halls |
+| `TX_way_577628941` LightEdge Austin II | `NO_GROUND_PLANT_VISIBLE` | Real operating colo at 7000 Burleson Rd; no outdoor condenser bank on either committed building — a suite in a leased unit |
+| `VA_way_460175664` Digital Realty | `PAIR_NOT_BUILT` | USGS office park → ESRI cleared pads; OSM `building=construction` on both; trade source confirms knock-down redevelopment |
+| `NV_way_984796364` "Switch LV9" | `NOT_A_DATA_CENTRE` | Semi-trailers at dock doors — warehouses. Switch LV9 is real at 7365 S Lindell Rd; **OSM put that name on a logistics building.** Date-independent |
+| `VA_way_1510517639` AWS | `NOT_BUILT` | USGS raw scrub → ESRI shell + poured foundation footings. No hall in either frame. ⚠ OSM says `building=yes`, so the tag did NOT flag it — imagery only |
+| `AZ_way_1456975949` | `NOT_BUILT` | Bare graded desert; Google Redhawk Phase 1 live July 2025, later phases 2027–2030. **Agrees with the hand-made Phoenix refusal** |
+
+**Kept after research:** `WA_way_1173537117` (Microsoft EAT) — USGS farmland → ESRI **two complete
+halls with ground-level equipment**; verdict `GRADE`, **in scope**, and its OSM `construction` tag is
+**stale**. `VA_way_1493516633` (QTS RIC2-DC6) — USGS woodland → ESRI construction, and cleanview
+records it **"Operating, 2026"**; both frames are stale, so it stays offered.
+
+⚠ **THE OSM `construction` TAG IS UNRELIABLE IN BOTH DIRECTIONS.** It confirmed `VA_way_460175664`
+and contradicted `WA_way_1173537117`, and it missed `VA_way_1510517639` entirely. §3.5.3 #4 carried
+it forward "for the imagery stage to judge" and that was the right call — **never act on the tag
+alone, in either direction.**
+
+**Result: offerable 258 → 250. Map 639 → 637. Picker 264 → 252 rows, 250 selectable.**
+
+### 3.7.5 🔴 CHICAGO'S FIRST DAY-PAIR IS UNMEASURABLE, AND THAT IS A VENDOR FINDING
+
+The transfer test (*does one site's calibration transfer to another?*) **cannot be answered at
+Chicago**, and the reason is worth more than the answer would have been.
+
+| | |
+|---|---|
+| Chicago 2026-08-26 | forecast activity `269590bf…`, 17,797 tiles · outcome activity `eb3437f1…`, 17,797 tiles |
+| `mean_d` | **+0.0000 °C, sd 0.0000, across all 17,797 tiles** |
+| The two payloads | **BYTE-IDENTICAL** — same SHA-256, same 7,366,566 bytes |
+
+**Two different activity ids: two genuinely separate jobs**, asked ~19 h apart, one BEFORE the window
+and one AFTER it elapsed, returning the same field. So this is not our bug — and the comparison that
+makes it sharp is that **Ashburn's pairs on the same dates are not identical**: 08-25 `−1.5834`
+(sd 0.1244), 08-26 `+0.0281` (sd 0.0964).
+
+**Same vendor, same days, same request shape, same granularity and analytic — Ashburn's forecast and
+archive are different products; Chicago's are the same field.** The plausible reading is that
+FortyGuard holds no independent observational archive for the Chicago AOI and serves model output for
+both, **but that is their explanation to give and must not be asserted as ours.**
+
+🟢 **THIS IS THE BEST THING LEFT TO SEND FORTYGUARD** — far more actionable than "your API is
+inconsistent", and it comes with both activity ids, both hashes, and a same-day control at another
+AOI. Add it to `fortyguard-report-2026-08-20-jobs-not-completing.md` before sending.
+
+### 3.7.6 WHERE THE CALIBRATION STANDS, AND THE SCHEDULED REBUILD
+
+**Ashburn holds 6 complete day-pairs on disk. The tree publishes 4.** Every one of the ~250 offerable
+sites embeds its own copy of `cycle.bound_day_level`, because `agent.py` reads `n26_manifest.json` on
+every run — so the tree does not partially update, and a rebuild is **all sites or none**.
+
+| | published | at n=6 | at n=7 (expected 08-28) |
+|---|---|---|---|
+| n | 4 | 6 | 7 |
+| Ceiling `n/(n+1)` | 80.00 % | 85.71 % | 87.50 % |
+| Margin | 0.152028 °C | **0.152028 — unchanged** | unchanged unless a residual exceeds +0.1520 |
+| Pairs to n=9 | 5 | 3 | 2 |
+
+The margin has held through three new pairs because each new residual sits **below** the existing
+maximum. **More evidence, a stronger guarantee, the safety number untouched** — the best shape this
+can take, and worth saying out loud in the demo.
+
+🟢 **SCHEDULED: `INTAKE-ARBITER rebuild calibration`, ONE-TIME, 2026-08-28 16:00 PKT.**
+Runs `python testing/rebuild_calibration.py run`. 16:00 is deliberate — it is **after** the
+13:30–15:30 collector window, so Ashburn's 08-27 outcome has landed and n=7 exists. `WakeToRun` +
+`StartWhenAvailable`, `ExecutionTimeLimit PT8H` against a measured ~4–5 h run (~63 s × 250 sites).
+
+**`testing/rebuild_calibration.py` is built so that failing is cheap:**
+
+```
+preflight   REFUSES unless  (a) the working tree is CLEAN -- that commit IS the rollback
+                            (b) audit.py is ALREADY green -- else you cannot tell what broke
+                            (c) it is outside 13:20-15:40 PKT -- a mid-write manifest is 3.6.7 #6
+                            (d) disk actually holds more pairs than the tree publishes
+run         run_all.py, and reads its LAST LINE (#158: a wrapper reported exit 0 on REBUILD FAILED)
+verify      audit.py must pass
+rollback    on failure: git checkout -- INTAKE-ARBITER/{demo,data}, then re-audit and say so
+```
+
+⚠ **IT COMMITS NOTHING AND BUMPS NO DOCUMENT, DELIBERATELY.** A successful rebuild moves n, the
+ceiling, the coverage and audit's own check count, so the second half of §3.6.7's two-step is left to
+a human. The script prints exactly which figures moved.
+⚠ **A FAILING CHECK 9 OR CHECK 10 AFTER A REBUILD IS NOT A BROKEN REBUILD** — it is the drift-catcher
+doing its job. The script distinguishes those from real failures and only rolls back on the latter.
+⚠ **`run --dry` does the preflight and prints the plan without rebuilding.** Use it first.
+**Log: `testing/results/rebuild_calibration.log`.** If it did not run, the preflight refused — read
+the log for which row failed.
+
+**If the rebuild succeeds, these README strings must be updated by hand** (check 10 will name them):
+`"9 calibration day-pairs; 4 exist."` · `"n/(n+1) = **80 %**"` · the audit check count in three
+places. Order: rebuild → audit → README → audit again.
+
+### 3.7.7 ⚠ OPERATIONAL FACTS A FRESH SESSION MUST KNOW
+
+1. 🔴 **A STRAY `serve_live.py --allow-paid` ON PORT 8000 SPENT 49,320 CREDITS AT 00:37 PKT ON
+   08-27.** 12 calls, meter 1,185,020 → 1,135,700; only the first two windows returned tiles and the
+   rest were `completed`-with-0-tiles, billed in full. That is the **third** time this class of
+   process has cost money (§4.0-DAY5 and twice since). **Check for it every session and kill it when
+   not demoing:**
+
+   ```powershell
+   Get-NetTCPConnection -LocalPort 8000 -State Listen        # -> OwningProcess
+   Get-CimInstance Win32_Process -Filter "ProcessId = <pid>" | Select CreationDate, CommandLine
+   Stop-Process -Id <pid> -Force                             # only after reading the command line
+   ```
+
+   ⚠ **IT WAS STILL ALIVE 41 HOURS LATER.** Found again at 14:50 PKT on 08-27 — same process,
+   `serve_live.py --port 8000 --allow-paid --max-live-calls 24`, started 08-25 21:08 — and killed
+   then. So it did not die with the terminal that launched it and it does not exit after its calls;
+   `--max-live-calls 24` caps a session, **it does not end the process.** ALWAYS read the command
+   line before killing: a plain `python -m http.server 8000` holds no key and costs nothing, and
+   killing that one only closes a preview.
+2. **THE COLLECTORS ARE LIVE AND THE MACHINE MUST BE ON 13:25–15:35 PKT DAILY.** Four tasks:
+   `INTAKE-ARBITER n26 calibration` (13:30, 15:30, Ashburn) · `FG-N26-Chicago-Offset`
+   (13:35, 14:05, 15:00) · `FG-N26-Coverage-Retry1` (13:50) · `-Retry2` (14:15). Each run settles
+   yesterday's outcome leg first, then fires today's forecast — **so no night-time wake-up is
+   needed**, but a day powered off through that window is a pair that cannot be bought back.
+   ⚠ `FG-N26-Coverage` stays **DISABLED** on purpose: its 13:30 trigger collides exactly with the
+   active Ashburn task and two processes could double-bill the same pair.
+3. **`audit.py` WILL FAIL ON THE SPEND FIGURE WHILE THE COLLECTORS RUN.** Expected, not a defect.
+   `python testing/api_usage_ledger.py --json && python testing/bump_spend_docs.py`.
+   ⚠ **The `--json` is not optional** — `bump_spend_docs.py` reads the CACHED ledger, so without it
+   the tool silently writes **stale** figures and still prints *"both documents updated"*.
+4. **`POLL_MAX_S` is now 600 s, not 300.** The vendor's own time-to-terminal-state is 604–608 s, and
+   §10 #147 records that billing happens server-side whether or not the client is still listening —
+   so a 300 s budget forfeited data already paid for and saved nothing. Observed the same day: a
+   collector leg reached a terminal answer at **613.8 s**.
+5. **`verify_site_panels.py` PASSES now** (258 sites) and **no longer leaks its scratch directory.**
+   It had leaked on every run since it was written: **88 dirs, 30.09 GB, C: down to 0.02 GB free**.
+   The project lives on `D:` and temp is on `C:`, so watch the drive nobody looks at.
+6. **The imagery review pack lives at `d:\FGHackathon\IMAGERY-REVIEW\`** with `REVIEW.md` — the
+   screening guide (ground vs roof vs generators vs loading docks) and the answer form. Rebuild it
+   any time for more sites; it copies out of `data/imagery/screen` and modifies nothing.
 
 ---
 
@@ -2473,9 +2696,13 @@ higher the limit would need to be, that it is one of the 43.7 %, and the annual 
 
 ## 9.-1 🔴 IF YOU READ NOTHING ELSE: where this stands, and what to do next
 
-**The 3-site product is built and verified. The national build is real and partial. The SUBMISSION
-is not started, and that is the only thing that can lose this.** **6 days left as of 2026-08-24**
-(deadline Aug 30 23:59 GST = 00:59 PKT Aug 31).
+**The 3-site product is built and verified. The national build is real, imagery-screened and
+offerable. The SUBMISSION is not started, and that is the only thing that can lose this.**
+**3 days left as of 2026-08-27** (deadline Aug 30 23:59 GST = 00:59 PKT Aug 31).
+
+⚠ **§3.7 IS THE NEWEST RECORD AND SUPERSEDES ANY EARLIER STATEMENT IN THIS FILE ABOUT THE VENDOR
+BEING DOWN, THE COLLECTORS BEING DISABLED, OR NOTHING BEING COMMITTED.** §4.0-NATIONAL-OUTAGE and
+§4 are kept as the dated history of a real outage — they are not the current state.
 
 **THE 60-SECOND ORIENTATION FOR A FRESH SESSION**
 
@@ -2484,13 +2711,15 @@ is not started, and that is the only thing that can lose this.** **6 days left a
    `REBUILD FAILED at: <step>`. If it is not `REBUILD COMPLETE`, quote nothing.
 2. `cd ../demo && python -m http.server 8000 --bind 127.0.0.1` → the demo in REPLAY. No key, no
    calls, no network. **The `--bind 127.0.0.1` is not optional on Windows** — §10 #156.
-3. 🔴 **THE VENDOR RECOVERED 2026-08-23 11:33 UTC, THEN RELAPSED THE SAME DAY.** §4.0-RECOVERY (12/12
-   forecast windows) → §4.0-NATIONAL-OUTAGE (the first national purchase batch, 20/20 empty, and a
-   control call at Ashburn's own proven geometry ALSO failed). **Current state: down, general, not
-   AOI-specific.** `testing/national_recovery_watch.py plan` (free) / `watch --allow-paid` (attended,
-   probes every 2 h capped at 3 billed/day, auto-fires the national buy on the first success) is
-   ready but **not running**. ⚠ **The four `FG-N26-*` collectors are ALSO still disabled** —
-   re-enabling either is a spending decision, and it is the user's alone.
+3. 🟢 **THE FORECAST WORKS AGAIN AND THE CALIBRATION COLLECTORS ARE LIVE AND SPENDING.** The
+   long outage of §4.0-NATIONAL-OUTAGE is over; forecast day-pairs have landed on 08-25 and 08-26
+   and the machine must simply be **powered on 13:25–15:35 PKT** for the next one. Four enabled
+   tasks; `FG-N26-Coverage` stays **disabled deliberately** (its trigger collides with the active
+   Ashburn task and two processes could double-bill one pair). **§3.7.6 and §3.7.7 are the current
+   record — read them before touching calibration, spend or the schedule.**
+   ⚠ **FIRST THING EVERY SESSION, CHECK PORT 8000** — a `serve_live.py --allow-paid` left listening
+   there has now cost real money three times, most recently 49,320 credits, and it survives the
+   terminal that started it. §3.7.7 #1 has the exact commands.
 4. 🟢 **THE NATIONAL BUILD (SESSION I, §3.4) is the newest major work.** 421 real US locations, one
    unified map on the front page, real geometry/pairing at national scale (90 of 1,622 buildings
    refused on evidence, the rest eligible or isolated). **Read `NATIONAL-BUILD-PLAN.md` in the repo
@@ -2501,21 +2730,24 @@ is not started, and that is the only thing that can lose this.** **6 days left a
 6. **Rule 9 is lifted (§1)** — subagents, Task tools and Workflows are permitted. Rules 6 and 8 still
    bind every subagent: no unverified claims, ask before any paid call. Treat a subagent's finding as
    a lead, not a result.
-7. **Nothing is committed.** Everything since branch head `4212b50` is in the working tree, green.
+7. 🟢 **THERE IS A TAGGED, SUBMITTABLE FALLBACK: `submission-safe-2026-08-27` (`45aa05c`)** — green
+   when tagged, audit 2057/0/0, secret scan CLEAN. One command restores it:
+   `git checkout submission-safe-2026-08-27 -- INTAKE-ARBITER/`. **So work is no longer
+   all-or-nothing: try the risky thing, and if it breaks, roll back and still submit.**
 
 **Do these, in this order:**
 
 | # | Do | Blocked on | Effort |
 |---|---|---|---|
 | 1 | **Run `run_all.py` and confirm `REBUILD COMPLETE`.** Never quote a number until it is | — | 6 min |
-| 1a | **Decide whether to run `national_recovery_watch.py watch --allow-paid`** to probe for the vendor coming back and auto-resume the national buy. It is attended-only by design — it only spends while someone has it running | 🔴 **USER** — commits spending | 2 min to start, hours to complete |
+| 1a | **The n=7 calibration rebuild is SCHEDULED for 2026-08-28 16:00 PKT** (`INTAKE-ARBITER rebuild calibration` → `testing/rebuild_calibration.py run`). Nothing to do but leave the machine on and read `testing/results/rebuild_calibration.log` afterwards. It rolls itself back on failure and commits nothing — §3.7.6 | — | 4–5 h unattended |
 | 1b | **S5 (weather stations) is the next FREE, unblocked national-build work** — Iowa State Mesonet's `<STATE>_ASOS` networks, confirmed feasible this session, not yet scripted. See §3.4.3 | — | new engineering |
 | 2 | **Send the FortyGuard emails**, updated to describe BOTH outages (the 08-18→08-22 one and this session's relapse) — a report that reads as one outage when there were two costs credibility | 🔴 **USER** — nothing here can mail | 10 min |
 | 3 | **Purge the AWS key id from git history** (§9.1b). Costs nothing today, more once a remote exists | 🔴 **USER** — it rewrites every SHA | 15 min |
 | 4 | **Go public**: rename `master`→`main`, push, add `fortyguard` as collaborator, enable Pages on `demo/` | 🔴 **USER** — rule 11 | 30 min |
 | 5 | **Record the 2–5 min video** — decide whether it shows the 3-site product, the national map, or both | 🔴 **USER** | 1 h |
 | 6 | **One conversation with one facility engineer** | 🔴 **USER** | the highest value per minute left |
-| 7 | **Re-enable the `FG-N26-*` collectors** if the vendor is confirmed back | 🔴 **USER** — commits spending | 2 min |
+| 7 | **Send FortyGuard the Chicago byte-identical finding** — two separate activity ids, ~19 h apart, identical SHA-256, with a same-day Ashburn control that differs. The single most actionable thing we can give them. §3.7.5 | 🔴 **USER** — nothing here can mail | 10 min |
 
 **⚠ Items 2, 4–6 cannot be done by a coding session.** Item 1a is a real, sizeable spend decision —
 present the numbers, do not decide it. **S5/S6 are the only open engineering work in the national
@@ -4392,8 +4624,8 @@ session's. The command is in §4.2.
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **885,400 = 212 calls = 44.27 %.** Remaining **1,114,600**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
-| **⚠ Of that, 265,860 PROVABLY bought nothing** | **30.0 %** of spend. Ceiling **725,840 = 82.0 %**. §10 #93 |
+| **Spent to date** | 🔴 **893,840 = 214 calls = 44.69 %.** Remaining **1,106,160**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
+| **⚠ Of that, 265,860 PROVABLY bought nothing** | **29.7 %** of spend. Ceiling **734,280 = 82.1 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |
