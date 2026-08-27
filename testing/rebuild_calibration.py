@@ -22,7 +22,7 @@ HANDOFF section 3.6.7 two-step ("rebuild -> audit tells you the demanded figures
 document -> audit again") is left to a human. The script prints exactly which figures moved.
 
 USAGE
-    python testing/rebuild_calibration.py preflight    # free, read-only, exits non-zero if not safe
+    python testing/rebuild_calibration.py preflight    # free, WRITES NOTHING -- what the schedule runs
     python testing/rebuild_calibration.py run          # the real thing, hours
     python testing/rebuild_calibration.py run --dry    # preflight + print the plan, no rebuild
     python testing/rebuild_calibration.py selftest    # free, instant: checks the two gates' logic
@@ -177,7 +177,15 @@ def bound_at(n):
             "attainable": n / (n + 1), "n_needed": math.ceil(1 / ALPHA) - 1}
 
 
-def preflight():
+def preflight(fix_docs=True):
+    """Every gate, read-only, EXCEPT the one repair `fix_docs` allows.
+
+    ⚠ `fix_docs=False` IS THE SCHEDULED MODE, at the user's direction: "dont proceed with the
+    rebuild without my approval even at the time it's scheduled for." A wake-up that writes nothing
+    at all is the only kind that cannot be mistaken for having started. With it False the stale
+    spend documents are REPORTED rather than synced, and the verdict says so instead of claiming
+    the tree is red.
+    """
     say("=" * 78)
     say("PREFLIGHT -- read-only. Nothing is written and nothing is spent.")
     say("=" * 78)
@@ -209,7 +217,13 @@ def preflight():
     say("   ...... running audit.py to confirm the CURRENT state is green (this takes a minute)")
     a = run_audit()
     last = audit_verdict_line(a.stdout)
-    if a.returncode != 0 and spend_only(audit_fails(a.stdout)):
+    if a.returncode != 0 and spend_only(audit_fails(a.stdout)) and not fix_docs:
+        say("   [ok  ] audit is red ONLY on the spend figure the collectors moved today, which is a")
+        say("          document lagging a number rather than a broken tree. NOT synced here --")
+        say("          this mode writes nothing. `run` syncs it before rebuilding.")
+        for l in audit_fails(a.stdout)[:4]:
+            say("          | %s" % l.strip())
+    elif a.returncode != 0 and spend_only(audit_fails(a.stdout)):
         # ⚠ THIS IS WHY THE SCHEDULED RUN WOULD OTHERWISE ALWAYS REFUSE. The collectors buy pairs
         #    at 13:30-15:30 and the rebuild is scheduled for 16:00, so by the time preflight runs,
         #    the meter has moved and the two documents quoting it are stale BY DEFINITION. That is
@@ -230,13 +244,13 @@ def preflight():
         say("   ...... re-running audit.py")
         a = run_audit()
         last = audit_verdict_line(a.stdout)
-    if a.returncode != 0:
+    if a.returncode != 0 and not (spend_only(audit_fails(a.stdout)) and not fix_docs):
         say("   [FAIL] audit.py is NOT green right now: %s" % last[0].strip())
         say("          fix that first; do not rebuild on a red tree.")
         for l in audit_fails(a.stdout)[:8]:
             say("          | %s" % l.strip())
         ok = False
-    else:
+    elif a.returncode == 0:
         say("   [ok  ] audit.py green: %s" % last[0].strip())
 
     # 3. THE COLLECTORS MUST NOT BE MID-WINDOW. HANDOFF 3.6.7 #6: never regenerate trace/backtest/
@@ -272,6 +286,10 @@ def preflight():
             % (max(0, b["n_needed"] - n_new), b["n_needed"]))
     say("")
     say("   VERDICT: %s" % ("SAFE TO RUN" if ok else "DO NOT RUN -- fix the [FAIL] rows above"))
+    if not fix_docs:
+        say("")
+        say("   THIS MODE DOES NOT REBUILD AND HAS CHANGED NOTHING. The rebuild is a human decision")
+        say("   and waits for one: `python testing/rebuild_calibration.py run`.")
     say("=" * 78)
     return 0 if ok else 1
 
@@ -421,7 +439,9 @@ def main(argv):
     say("### rebuild_calibration.py %s  at %s UTC"
         % (mode, time.strftime("%Y-%m-%d %H:%M", time.gmtime())))
     if mode == "preflight":
-        return preflight()
+        # READ-ONLY, and that is what the scheduled task runs. It reports whether a rebuild WOULD
+        # be safe and then stops, because the rebuild itself needs an explicit human yes.
+        return preflight(fix_docs=False)
     if mode == "run":
         return run(dry="--dry" in argv)
     if mode == "selftest":

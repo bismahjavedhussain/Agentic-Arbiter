@@ -83,18 +83,40 @@ def run(mkey, mode="longest"):
     # through into the file rather than discarded.
     (ex, ey), bank_c, outward, march_m = emission_point(site, d, bank)
     i0, i1, j0, j1 = crop_window(d, n, dx)
-    u = float(json.load(open(M.geom_path("direction_table.json"), encoding="utf-8"))
-              ["modes"][mode]["u_median_ms"])
+    tbl = json.load(open(M.geom_path("direction_table.json"), encoding="utf-8"))
+    u = float(tbl["modes"][mode]["u_median_ms"])
+
+    # 🔴 THE SOLVER PARAMETERS COME FROM THE TABLE THIS FIELD IS CHECKED AGAINST, NOT FROM HERE.
+    #    They used to be partly implicit -- `solver.solve(site, AMBIENT_C, u, b, downwash_uc=8.0)`
+    #    left `diffusivity` at the function's own default of 8.0 while every published rise number
+    #    is solved at the MEASURED 7.40 (N-33 median, direction_sweep.DIFFUSIVITY). A higher
+    #    diffusivity spreads the plume more, so the shipped field read LOW at every site: measured
+    #    across 26 exported fields the disc mean was below its own audited rise EVERY TIME, by
+    #    0.06 % to 2.61 %, and CA_way_209087373 and IL_way_1446350370 crossed audit's 2 % gate.
+    #    A one-signed error across 26 sites is a parameter, not noise.
+    #    Reading `parameters` closes it permanently: if the sweep is ever re-run with different
+    #    physics, the field follows automatically instead of silently disagreeing.
+    P = tbl["parameters"]
+    amb = float(P["ambient_c"])
+    if int(P["step_deg"]) != STEP_DEG:
+        raise SystemExit("direction_table was solved at %s deg, this exporter at %d -- the audited "
+                         "critical bearing may not exist in the field"
+                         % (P["step_deg"], STEP_DEG))
 
     bearings = list(range(0, 360, STEP_DEG))
     print("   %-11s %-8s  %d bearings at the MEDIAN measured wind %.2f m/s, crop %dx%d cells"
           % (mkey, mode, len(bearings), u, i1 - i0, j1 - j0))
+    print("      solved at the TABLE's own parameters: diffusivity %.2f m2/s, ambient %.1f C, "
+          "downwash uc %.1f exp %.2f"
+          % (P["diffusivity_m2s"], amb, P["downwash_uc"], P["downwash_exponent"]))
 
     t0 = time.time()
     fields, peak = {}, 0.0
     for b in bearings:
-        T = solver.solve(site, AMBIENT_C, u, float(b), downwash_uc=8.0)
-        rise = np.asarray(T)[i0:i1, j0:j1] - AMBIENT_C
+        T = solver.solve(site, amb, u, float(b), diffusivity=float(P["diffusivity_m2s"]),
+                         downwash_uc=float(P["downwash_uc"]),
+                         downwash_exponent=float(P["downwash_exponent"]))
+        rise = np.asarray(T)[i0:i1, j0:j1] - amb
         fields[b] = rise
         peak = max(peak, float(rise.max()))
     q = (peak / BYTE_MAX) if peak > 0 else 1.0
@@ -106,20 +128,26 @@ def run(mkey, mode="longest"):
         clipped += int((rise / q > 255).sum())
         out_fields[str(b)] = v.flatten().tolist()
 
-    dt = json.load(open(M.geom_path("direction_table.json"), encoding="utf-8"))["modes"][mode]
+    dt = tbl["modes"][mode]
     obj = {
         "generated_by": "INTAKE-ARBITER/src/export_plume_fields.py",
         "api_calls_made": 0,
         "metro": mkey, "metro_label": M.metro(mkey)["label"], "bank_mode": mode,
         "provenance": d["provenance"],
-        "solver": ("physics/solver.solve(), the same function and the same rasterised OSM geometry "
-                   "behind every published rise number; site rebuilt via direction_sweep.load_site "
-                   "which refuses to continue if the bank cell count disagrees with the JSON"),
+        "solver": ("physics/solver.solve(), the same function, the same rasterised OSM geometry AND "
+                   "THE SAME PARAMETERS behind every published rise number -- read from "
+                   "direction_table.json's own `parameters` block rather than restated here; site "
+                   "rebuilt via direction_sweep.load_site which refuses to continue if the bank "
+                   "cell count disagrees with the JSON"),
+        # The parameters actually used, copied from the table, so a reader can check that the field
+        # and the number it is compared against were solved the same way.
+        "solver_parameters": {k: P[k] for k in ("diffusivity_m2s", "ambient_c", "downwash_uc",
+                                                "downwash_exponent", "intake_operator")},
         "shape_caveat": ("the plume SPREAD is our sqrt(x) model, which N-35 measured as the OUTLIER "
                          "against an exponent of 0.805 from 67 Prairie Grass experiments: at these "
                          "distances our plume is too WIDE and UNDER-predicts rise by 5-25 %. This "
                          "field shows what the model computes, flaws included -- not a nicer drawing"),
-        "ambient_c": AMBIENT_C, "wind_speed_ms": u, "step_deg": STEP_DEG,
+        "ambient_c": amb, "wind_speed_ms": u, "step_deg": STEP_DEG,
         "dx_m": dx, "rows": i1 - i0, "cols": j1 - j0,
         "origin_m": [j0 * dx, i0 * dx],
         "quantisation": {"units": "rise above ambient, degrees C", "scale_c_per_byte": q,

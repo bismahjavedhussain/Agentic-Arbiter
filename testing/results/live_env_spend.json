@@ -92,6 +92,16 @@
    "credits_after": 1182120,
    "n_fields": 0,
    "n_hours": null
+  },
+  {
+   "requested_day_site_local": "2026-08-27",
+   "class": "ok",
+   "credits": 2900,
+   "activity_id": "f7365352-8d89-4300-b6bc-f0f2e94464a0",
+   "credits_before": 1106160,
+   "credits_after": 1103260,
+   "n_fields": 0,
+   "n_hours": null
   }
  ]
 }

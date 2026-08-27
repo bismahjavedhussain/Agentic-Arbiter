@@ -82,7 +82,7 @@ demo's judge-facing rewrite, facility-scale money, and the failure-bucket triage
 >    **`src/build_national_batch.py run` is the unattended driver** — ~6.5 min/facility, ~46 h for
 >    the standalone tier, resumable by construction. **§3.5 is the record; `NATIONAL-BUILD-PLAN.md`
 >    §6's stage table is now partly stale — trust §3.5.**
-> 8. **SPEND IS 214 CALLS / 893,840 / 44.69 %**, 1,106,160 remaining — 207 heatmaps + 7
+> 8. **SPEND IS 227 CALLS / 947,380 / 47.37 %**, 1,052,620 remaining — 219 heatmaps + 8
 >    `env_params`. Re-derive with `python testing/api_usage_ledger.py`, then
 >    `python testing/bump_spend_docs.py` writes it into API-USAGE.md and this file; the bump now
 >    REFUSES to write if the two sides of its own equation disagree. (Historical, for the drift
@@ -4609,6 +4609,36 @@ session's. The command is in §4.2.
     the world looks like AT THE TRIGGER TIME, not now:** the collector window, the meter, and the
     documents were all going to be different, and two of the three were going to block.
 
+196. 🔴 **THE SHIPPED PLUME FIELDS WERE SOLVED WITH DIFFERENT PHYSICS THAN THE NUMBERS THEY ARE
+    CHECKED AGAINST, AND THE CAUSE WAS AN ARGUMENT NOBODY PASSED.**
+
+    ```python
+    T = solver.solve(site, AMBIENT_C, u, float(b), downwash_uc=8.0)   # export_plume_fields.py
+    ```
+
+    No `diffusivity`, so it took `solver.solve`'s own default of **8.0** — while every published
+    rise is solved at the MEASURED **7.40** (N-33 median, `direction_sweep.DIFFUSIVITY`). Higher
+    diffusivity spreads the plume, so **every field read LOW against its own audited rise: 26 of 26,
+    one-signed, 0.06 % to 2.61 %.** Two crossed audit's 2 % gate; the five hand-built metros were
+    wrong the same way and merely sat under it (Ashburn 0.46 %, Dulles 0.71 %, Chicago 1.02 %).
+    ⚠ **A ONE-SIGNED ERROR ACROSS 26 INDEPENDENT SITES IS A PARAMETER, NOT NOISE** — that is what
+    told us it was not quantisation, and it is the fastest diagnostic in this whole file. Two wrong
+    hypotheses died on it first: truncation (the code already used `np.rint`) and crop clipping (the
+    intake disc is fully inside the crop at every site, checked).
+    Fixed by reading `direction_table.json`'s own `parameters` block — the table the field is
+    compared against — instead of restating the physics at the call site, so the two cannot diverge
+    again. `solver_parameters` is now written into every field file. **Measured after: worst case
+    0.209 % across 82 fields, median 0.036 %, and the site that failed went 2.51 % -> 0.11 %.**
+    The general lesson, which is #67 in a new costume: **a default value is a hard-coded constant
+    that nobody had to type.** `solver.solve`'s defaults exist to keep old results reproducible
+    (its docstring says so), which makes every omitted keyword a silent vote for the OLD behaviour.
+    ⚠ Audit also gained a companion fix: three sites' audited critical rise is 0.00001–0.00005 C,
+    far below the 0.0035 C display quantisation, so the RELATIVE test is 100 % forever no matter how
+    correct the physics. It now passes on 2 % **or** half a quantisation step. **That is not #65's
+    widened tolerance:** half a byte is 0.55 % of the CA site's rise and 0.25 % of Ashburn's, so it
+    rescues nothing that has a rise to get wrong — and the three sites it covers are 0.00–0.01 bytes
+    apart, not borderline. Both figures print either way.
+
 ## Carried forward, continued
 
 72. **A CSS COMMENT CAN BE UNBALANCED AND SILENT.** Successive edits left **three `*/` against one
@@ -4661,8 +4691,8 @@ session's. The command is in §4.2.
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **893,840 = 214 calls = 44.69 %.** Remaining **1,106,160**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
-| **⚠ Of that, 265,860 PROVABLY bought nothing** | **29.7 %** of spend. Ceiling **734,280 = 82.1 %**. §10 #93 |
+| **Spent to date** | 🔴 **947,380 = 227 calls = 47.37 %.** Remaining **1,052,620**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
+| **⚠ Of that, 316,500 PROVABLY bought nothing** | **33.4 %** of spend. Ceiling **784,920 = 82.9 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |

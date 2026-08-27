@@ -171,3 +171,54 @@ PREFLIGHT -- read-only. Nothing is written and nothing is spent.
 
    VERDICT: DO NOT RUN -- fix the [FAIL] rows above
 ==============================================================================
+
+### rebuild_calibration.py selftest  at 2026-08-27 11:50 UTC
+   [PASS] green audit yields no [FAIL] rows
+   [PASS] a green audit therefore never rolls back
+   [PASS] verdict line is the AUDIT line, not the separator
+   [PASS] spend-only is recognised
+   [PASS] a README drift is NOT spend-only
+   [PASS] a real failure is NOT spend-only
+   [PASS] stale documents after a rebuild are doc-only
+   [PASS] a real failure after a rebuild rolls back
+   [PASS] no failures is not doc-only
+   [PASS] this script's own log never blocks
+   [PASS] the ledger cache never blocks
+   [PASS] a demo change DOES block
+   [PASS] a src change DOES block
+
+   SELFTEST: 13 passed, 0 FAILURES
+
+### rebuild_calibration.py preflight  at 2026-08-27 11:50 UTC
+==============================================================================
+PREFLIGHT -- read-only. Nothing is written and nothing is spent.
+==============================================================================
+   [FAIL] 13 uncommitted change(s) OUTSIDE testing/results/. Commit or stash first --
+          the last commit is what a rollback restores to, and rollback overwrites
+          INTAKE-ARBITER/demo and INTAKE-ARBITER/data without asking.
+          - INTAKE-ARBITER/demo/sites.json
+          - testing/rebuild_calibration.py
+          - INTAKE-ARBITER/demo/plume_field_CA_way_209087373_longest.json
+          - INTAKE-ARBITER/demo/plume_field_CA_way_209117217_longest.json
+          - INTAKE-ARBITER/demo/plume_field_CA_way_358455179_longest.json
+          - INTAKE-ARBITER/demo/plume_field_CA_way_37877544_longest.json
+          - INTAKE-ARBITER/demo/plume_field_CA_way_40608200_longest.json
+          - INTAKE-ARBITER/demo/plume_field_CA_way_460159928_longest.json
+          ... and 5 more
+   ...... running audit.py to confirm the CURRENT state is green (this takes a minute)
+   [FAIL] audit.py is NOT green right now: AUDIT: 2079 passed, 0 warnings, 2 FAILURES
+          fix that first; do not rebuild on a red tree.
+          | [FAIL] CA_way_209087373 5 deg                 field 0.32143 vs audited 0.32972 C 2.51 % apart, 27 disc cells
+          | [FAIL] every README figure matches the emitted JSON             audit check count: expected "2081 audit checks"
+   [ok  ] 16:53 PKT is outside the collector window
+
+   published calibration : n = 4, ceiling 80.00 %, margin 0.15202845146120256
+   on disk now           : n = 6  (2026-08-12, 2026-08-13, 2026-08-15, 2026-08-16, 2026-08-25, 2026-08-26)
+   [ok  ] a rebuild would take n 4 -> 6, ceiling 80.00 % -> 85.71 %
+          3 further pair(s) would make 90 % reachable (n = 9)
+
+   VERDICT: DO NOT RUN -- fix the [FAIL] rows above
+
+   THIS MODE DOES NOT REBUILD AND HAS CHANGED NOTHING. The rebuild is a human decision
+   and waits for one: `python testing/rebuild_calibration.py run`.
+==============================================================================

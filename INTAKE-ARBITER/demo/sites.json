@@ -1671,7 +1671,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_CA_way_209087373_longest.json",
    "artefacts": {
     "trace": "CA_way_209087373_trace.json",
     "backtest": "CA_way_209087373_backtest.json",
@@ -1754,7 +1754,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_CA_way_209117217_longest.json",
    "artefacts": {
     "trace": "CA_way_209117217_trace.json",
     "backtest": "CA_way_209117217_backtest.json",
@@ -1837,7 +1837,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_CA_way_358455179_longest.json",
    "artefacts": {
     "trace": "CA_way_358455179_trace.json",
     "backtest": "CA_way_358455179_backtest.json",
@@ -1920,7 +1920,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_CA_way_37877544_longest.json",
    "artefacts": {
     "trace": "CA_way_37877544_trace.json",
     "backtest": "CA_way_37877544_backtest.json",
@@ -2003,7 +2003,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_CA_way_40608200_longest.json",
    "artefacts": {
     "trace": "CA_way_40608200_trace.json",
     "backtest": "CA_way_40608200_backtest.json",
@@ -2086,7 +2086,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_CA_way_460159928_longest.json",
    "artefacts": {
     "trace": "CA_way_460159928_trace.json",
     "backtest": "CA_way_460159928_backtest.json",
@@ -2169,7 +2169,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_CA_way_58708529_longest.json",
    "artefacts": {
     "trace": "CA_way_58708529_trace.json",
     "backtest": "CA_way_58708529_backtest.json",
@@ -3330,7 +3330,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_GA_way_615593145_longest.json",
    "artefacts": {
     "trace": "GA_way_615593145_trace.json",
     "backtest": "GA_way_615593145_backtest.json",
@@ -3644,7 +3644,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_IA_way_1073720221_longest.json",
    "artefacts": {
     "trace": "IA_way_1073720221_trace.json",
     "backtest": "IA_way_1073720221_backtest.json",
@@ -3881,7 +3881,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_IA_way_1454813846_longest.json",
    "artefacts": {
     "trace": "IA_way_1454813846_trace.json",
     "backtest": "IA_way_1454813846_backtest.json",
@@ -4118,7 +4118,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_IA_way_830881745_longest.json",
    "artefacts": {
     "trace": "IA_way_830881745_trace.json",
     "backtest": "IA_way_830881745_backtest.json",
@@ -4201,7 +4201,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_IL_way_1219083554_longest.json",
    "artefacts": {
     "trace": "IL_way_1219083554_trace.json",
     "backtest": "IL_way_1219083554_backtest.json",
@@ -4438,7 +4438,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_IL_way_1446350370_longest.json",
    "artefacts": {
     "trace": "IL_way_1446350370_trace.json",
     "backtest": "IL_way_1446350370_backtest.json",
@@ -5368,7 +5368,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_IL_way_863162820_longest.json",
    "artefacts": {
     "trace": "IL_way_863162820_trace.json",
     "backtest": "IL_way_863162820_backtest.json",
@@ -7222,7 +7222,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_ND_way_1422191477_longest.json",
    "artefacts": {
     "trace": "ND_way_1422191477_trace.json",
     "backtest": "ND_way_1422191477_backtest.json",
@@ -7759,7 +7759,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_NE_way_942557184_longest.json",
    "artefacts": {
     "trace": "NE_way_942557184_trace.json",
     "backtest": "NE_way_942557184_backtest.json",
@@ -9074,7 +9074,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_NV_way_775412073_longest.json",
    "artefacts": {
     "trace": "NV_way_775412073_trace.json",
     "backtest": "NV_way_775412073_backtest.json",
@@ -9780,7 +9780,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OH_way_1386016631_longest.json",
    "artefacts": {
     "trace": "OH_way_1386016631_trace.json",
     "backtest": "OH_way_1386016631_backtest.json",
@@ -9863,7 +9863,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OH_way_1386016635_longest.json",
    "artefacts": {
     "trace": "OH_way_1386016635_trace.json",
     "backtest": "OH_way_1386016635_backtest.json",
@@ -9946,7 +9946,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OH_way_1386016639_longest.json",
    "artefacts": {
     "trace": "OH_way_1386016639_trace.json",
     "backtest": "OH_way_1386016639_backtest.json",
@@ -10183,7 +10183,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OH_way_1427613543_longest.json",
    "artefacts": {
     "trace": "OH_way_1427613543_trace.json",
     "backtest": "OH_way_1427613543_backtest.json",
@@ -10266,7 +10266,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OH_way_1427613546_longest.json",
    "artefacts": {
     "trace": "OH_way_1427613546_trace.json",
     "backtest": "OH_way_1427613546_backtest.json",
@@ -10503,7 +10503,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OH_way_802160675_longest.json",
    "artefacts": {
     "trace": "OH_way_802160675_trace.json",
     "backtest": "OH_way_802160675_backtest.json",
@@ -10586,7 +10586,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OH_way_821081358_longest.json",
    "artefacts": {
     "trace": "OH_way_821081358_trace.json",
     "backtest": "OH_way_821081358_backtest.json",
@@ -10977,7 +10977,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_1280344151_longest.json",
    "artefacts": {
     "trace": "OR_way_1280344151_trace.json",
     "backtest": "OR_way_1280344151_backtest.json",
@@ -11060,7 +11060,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_1280344155_longest.json",
    "artefacts": {
     "trace": "OR_way_1280344155_trace.json",
     "backtest": "OR_way_1280344155_backtest.json",
@@ -11143,7 +11143,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_1386017494_longest.json",
    "artefacts": {
     "trace": "OR_way_1386017494_trace.json",
     "backtest": "OR_way_1386017494_backtest.json",
@@ -11226,7 +11226,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_1501436324_longest.json",
    "artefacts": {
     "trace": "OR_way_1501436324_trace.json",
     "backtest": "OR_way_1501436324_backtest.json",
@@ -11540,7 +11540,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_471691757_longest.json",
    "artefacts": {
     "trace": "OR_way_471691757_trace.json",
     "backtest": "OR_way_471691757_backtest.json",
@@ -11700,7 +11700,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_697413741_longest.json",
    "artefacts": {
     "trace": "OR_way_697413741_trace.json",
     "backtest": "OR_way_697413741_backtest.json",
@@ -11783,7 +11783,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_697415321_longest.json",
    "artefacts": {
     "trace": "OR_way_697415321_trace.json",
     "backtest": "OR_way_697415321_backtest.json",
@@ -11866,7 +11866,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_697415323_longest.json",
    "artefacts": {
     "trace": "OR_way_697415323_trace.json",
     "backtest": "OR_way_697415323_backtest.json",
@@ -11949,7 +11949,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_706759844_longest.json",
    "artefacts": {
     "trace": "OR_way_706759844_trace.json",
     "backtest": "OR_way_706759844_backtest.json",
@@ -12116,7 +12116,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_772827597_longest.json",
    "artefacts": {
     "trace": "OR_way_772827597_trace.json",
     "backtest": "OR_way_772827597_backtest.json",
@@ -12199,7 +12199,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_772827601_longest.json",
    "artefacts": {
     "trace": "OR_way_772827601_trace.json",
     "backtest": "OR_way_772827601_backtest.json",
@@ -12282,7 +12282,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_OR_way_914616810_longest.json",
    "artefacts": {
     "trace": "OR_way_914616810_trace.json",
     "backtest": "OR_way_914616810_backtest.json",
@@ -12827,7 +12827,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_SC_way_1069388211_longest.json",
    "artefacts": {
     "trace": "SC_way_1069388211_trace.json",
     "backtest": "SC_way_1069388211_backtest.json",
@@ -13757,7 +13757,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_1426525221_longest.json",
    "artefacts": {
     "trace": "TX_way_1426525221_trace.json",
     "backtest": "TX_way_1426525221_backtest.json",
@@ -13840,7 +13840,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_1432637062_longest.json",
    "artefacts": {
     "trace": "TX_way_1432637062_trace.json",
     "backtest": "TX_way_1432637062_backtest.json",
@@ -14443,7 +14443,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_1530966395_longest.json",
    "artefacts": {
     "trace": "TX_way_1530966395_trace.json",
     "backtest": "TX_way_1530966395_backtest.json",
@@ -14526,7 +14526,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_1533349844_longest.json",
    "artefacts": {
     "trace": "TX_way_1533349844_trace.json",
     "backtest": "TX_way_1533349844_backtest.json",
@@ -14609,7 +14609,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_1533350872_longest.json",
    "artefacts": {
     "trace": "TX_way_1533350872_trace.json",
     "backtest": "TX_way_1533350872_backtest.json",
@@ -14692,7 +14692,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_1533392814_longest.json",
    "artefacts": {
     "trace": "TX_way_1533392814_trace.json",
     "backtest": "TX_way_1533392814_backtest.json",
@@ -14852,7 +14852,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_1537390751_longest.json",
    "artefacts": {
     "trace": "TX_way_1537390751_trace.json",
     "backtest": "TX_way_1537390751_backtest.json",
@@ -15762,7 +15762,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_509611432_longest.json",
    "artefacts": {
     "trace": "TX_way_509611432_trace.json",
     "backtest": "TX_way_509611432_backtest.json",
@@ -16237,7 +16237,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_597876798_longest.json",
    "artefacts": {
     "trace": "TX_way_597876798_trace.json",
     "backtest": "TX_way_597876798_backtest.json",
@@ -16397,7 +16397,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_TX_way_713411279_longest.json",
    "artefacts": {
     "trace": "TX_way_713411279_trace.json",
     "backtest": "TX_way_713411279_backtest.json",
@@ -16621,7 +16621,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_1074595310_longest.json",
    "artefacts": {
     "trace": "VA_way_1074595310_trace.json",
     "backtest": "VA_way_1074595310_backtest.json",
@@ -16781,7 +16781,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_1252196825_longest.json",
    "artefacts": {
     "trace": "VA_way_1252196825_trace.json",
     "backtest": "VA_way_1252196825_backtest.json",
@@ -16941,7 +16941,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_1287260555_longest.json",
    "artefacts": {
     "trace": "VA_way_1287260555_trace.json",
     "backtest": "VA_way_1287260555_backtest.json",
@@ -17024,7 +17024,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_1333205263_longest.json",
    "artefacts": {
     "trace": "VA_way_1333205263_trace.json",
     "backtest": "VA_way_1333205263_backtest.json",
@@ -17261,7 +17261,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_1464257783_longest.json",
    "artefacts": {
     "trace": "VA_way_1464257783_trace.json",
     "backtest": "VA_way_1464257783_backtest.json",
@@ -17344,7 +17344,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_1464257784_longest.json",
    "artefacts": {
     "trace": "VA_way_1464257784_trace.json",
     "backtest": "VA_way_1464257784_backtest.json",
@@ -17428,7 +17428,7 @@
     },
     "two_source_cross_check": true
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_1493516633_longest.json",
    "artefacts": {
     "trace": "VA_way_1493516633_trace.json",
     "backtest": "VA_way_1493516633_backtest.json",
@@ -17749,7 +17749,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_1543296494_longest.json",
    "artefacts": {
     "trace": "VA_way_1543296494_trace.json",
     "backtest": "VA_way_1543296494_backtest.json",
@@ -17909,7 +17909,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_224100721_longest.json",
    "artefacts": {
     "trace": "VA_way_224100721_trace.json",
     "backtest": "VA_way_224100721_backtest.json",
@@ -18069,7 +18069,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_258343749_longest.json",
    "artefacts": {
     "trace": "VA_way_258343749_trace.json",
     "backtest": "VA_way_258343749_backtest.json",
@@ -18152,7 +18152,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_258520532_longest.json",
    "artefacts": {
     "trace": "VA_way_258520532_trace.json",
     "backtest": "VA_way_258520532_backtest.json",
@@ -18312,7 +18312,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_262058094_longest.json",
    "artefacts": {
     "trace": "VA_way_262058094_trace.json",
     "backtest": "VA_way_262058094_backtest.json",
@@ -18864,7 +18864,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_490997244_longest.json",
    "artefacts": {
     "trace": "VA_way_490997244_trace.json",
     "backtest": "VA_way_490997244_backtest.json",
@@ -18947,7 +18947,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_696992451_longest.json",
    "artefacts": {
     "trace": "VA_way_696992451_trace.json",
     "backtest": "VA_way_696992451_backtest.json",
@@ -19087,7 +19087,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_701931819_longest.json",
    "artefacts": {
     "trace": "VA_way_701931819_trace.json",
     "backtest": "VA_way_701931819_backtest.json",
@@ -19170,7 +19170,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_714622339_longest.json",
    "artefacts": {
     "trace": "VA_way_714622339_trace.json",
     "backtest": "VA_way_714622339_backtest.json",
@@ -19253,7 +19253,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_744496750_longest.json",
    "artefacts": {
     "trace": "VA_way_744496750_trace.json",
     "backtest": "VA_way_744496750_backtest.json",
@@ -19413,7 +19413,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_828135845_longest.json",
    "artefacts": {
     "trace": "VA_way_828135845_trace.json",
     "backtest": "VA_way_828135845_backtest.json",
@@ -19496,7 +19496,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_844374689_longest.json",
    "artefacts": {
     "trace": "VA_way_844374689_trace.json",
     "backtest": "VA_way_844374689_backtest.json",
@@ -19579,7 +19579,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_897226575_longest.json",
    "artefacts": {
     "trace": "VA_way_897226575_trace.json",
     "backtest": "VA_way_897226575_backtest.json",
@@ -19662,7 +19662,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_909455922_longest.json",
    "artefacts": {
     "trace": "VA_way_909455922_trace.json",
     "backtest": "VA_way_909455922_backtest.json",
@@ -19745,7 +19745,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_954433119_longest.json",
    "artefacts": {
     "trace": "VA_way_954433119_trace.json",
     "backtest": "VA_way_954433119_backtest.json",
@@ -19828,7 +19828,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_983627455_longest.json",
    "artefacts": {
     "trace": "VA_way_983627455_trace.json",
     "backtest": "VA_way_983627455_backtest.json",
@@ -19911,7 +19911,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_990537858_longest.json",
    "artefacts": {
     "trace": "VA_way_990537858_trace.json",
     "backtest": "VA_way_990537858_backtest.json",
@@ -19994,7 +19994,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_996723587_longest.json",
    "artefacts": {
     "trace": "VA_way_996723587_trace.json",
     "backtest": "VA_way_996723587_backtest.json",
@@ -20077,7 +20077,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_VA_way_996899488_longest.json",
    "artefacts": {
     "trace": "VA_way_996899488_trace.json",
     "backtest": "VA_way_996899488_backtest.json",
@@ -20238,7 +20238,7 @@
     },
     "two_source_cross_check": true
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_WA_way_1173537117_longest.json",
    "artefacts": {
     "trace": "WA_way_1173537117_trace.json",
     "backtest": "WA_way_1173537117_backtest.json",
@@ -20398,7 +20398,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_WA_way_499403698_longest.json",
    "artefacts": {
     "trace": "WA_way_499403698_trace.json",
     "backtest": "WA_way_499403698_backtest.json",
@@ -20481,7 +20481,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_WA_way_499403699_longest.json",
    "artefacts": {
     "trace": "WA_way_499403699_trace.json",
     "backtest": "WA_way_499403699_backtest.json",
@@ -20564,7 +20564,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_WA_way_694602725_longest.json",
    "artefacts": {
     "trace": "WA_way_694602725_trace.json",
     "backtest": "WA_way_694602725_backtest.json",
@@ -20647,7 +20647,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_WA_way_807374322_longest.json",
    "artefacts": {
     "trace": "WA_way_807374322_trace.json",
     "backtest": "WA_way_807374322_backtest.json",
@@ -20884,7 +20884,7 @@
     },
     "two_source_cross_check": false
    },
-   "plume_field_file": null,
+   "plume_field_file": "plume_field_WY_way_537172528_longest.json",
    "artefacts": {
     "trace": "WY_way_537172528_trace.json",
     "backtest": "WY_way_537172528_backtest.json",

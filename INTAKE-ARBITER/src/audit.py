@@ -440,8 +440,20 @@ def check_plume_fields():
         got = float(fld[msk].mean())
         want = d["critical_rise_c"]
         rel = abs(got - want) / max(abs(want), 1e-9)
+        # ⚠ A RELATIVE TEST ALONE IS UNDEFINED WHEN THE WHOLE RISE IS BELOW ONE BYTE, and one real
+        #    site is: IL_way_1219083554's audited critical rise is 0.00005 C -- 50 microkelvin --
+        #    against a display resolution of ~0.0035 C per byte. It quantises to zero, so `rel` is
+        #    100 % forever and no amount of correct physics can move it.
+        #    So the field must agree to 2 % OR to within half a quantisation step, which is the
+        #    finest difference the file can express at all. THIS IS NOT #65's WIDENED TOLERANCE:
+        #    half a byte is 0.55 % of CA_way_209087373's rise and 0.25 % of Ashburn's, so it rescues
+        #    nothing that has a rise to get wrong -- only fields whose entire signal is smaller than
+        #    the pixel it is drawn with. Both figures are printed either way.
+        near = abs(got - want) <= 0.5 * q
         ck("%-38s field %.5f vs audited %.5f C" % (d["metro"] + " " + b + " deg", got, want),
-           rel < 0.02, "%.2f %% apart, %d disc cells" % (100 * rel, int(msk.sum())))
+           rel < 0.02 or near,
+           "%.2f %% apart, %.2f byte(s), %d disc cells"
+           % (100 * rel, abs(got - want) / max(q, 1e-12), int(msk.sum())))
 
 
 def check_retired_constants():
