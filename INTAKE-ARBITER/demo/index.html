@@ -3546,30 +3546,18 @@ function drawLiveCost(){
       + 'minutes for the whole horizon.'
     : 'This will return a <strong>costed dry run</strong>: what it would fetch, and for how much. '
       + 'Nothing is called.';
-  /* 🔴 THE RECENT VENDOR RECORD NOW APPEARS ONLY WHEN IT IS BAD, and that is a narrowing rather
-     than a removal. It was showing "2 of 2 windows returned a field" on a healthy day, which is
-     noise beside the button. But gotchas #123 and #127 put it here for a reason that has not gone
-     away: a click can cost 50,640 credits, this vendor has had a measured 8.7 % window success rate
-     for days at a time, and #127 records that the one function whose job was to prevent spending
-     blind was itself blind in the half of the evidence that was fresh. "A product that lets a user
-     spend real money on a service with a measured 0 % success rate is not being neutral."
-     So the warning survives exactly where it protects someone and disappears where it does not. The
-     healthy case is now silent; the failing case still says so, in `err` styling, with the credits
-     already wasted. `bad` is the pre-existing partition (fewer than a quarter of windows returned a
-     field), not a new threshold invented here. */
-  const vr = HEALTH.vendor_recent;
-  if(vr && vr.windows_seen){
-    const bad = vr.returned_a_field * 4 < vr.windows_seen;
-    if(bad){
-      el.innerHTML += '<br><span class="err"><strong>Vendor, last '
-        + fmt(vr.window_hours,0) + ' h: ' + int(vr.returned_a_field) + ' of '
-        + int(vr.windows_seen) + ' windows returned a field.</strong> ' + vr.advice
-        + (vr.credits_spent_for_nothing
-            ? ' <strong>' + int(vr.credits_spent_for_nothing) + '</strong> credits already spent on '
-              + 'windows that carried no data.'
-            : '') + '</span>';
-    }
-  }
+  /* 🔴 NO PREDICTION ABOUT THE VENDOR BEFORE THE AGENT HAS ASKED IT. This card used to append the
+     recent record -- "Vendor, last 6 h: 1 of 16 windows returned a field", with the credits already
+     wasted -- whenever fewer than a quarter of recent windows carried data. It was removed at the
+     user's direction, and the reasoning is sound: a forecast of what the endpoint will do is not a
+     measurement of what it did. The agent's job is to ASK, and then to report what came back.
+     ⚠ WHAT IT PROTECTED IS NOT LOST, IT MOVED TO WHERE IT IS TRUE. `live.py` classifies every
+     window and `drawLive()` renders the verdict AFTER the calls: status `vendor_unavailable` prints
+     "No hour of the horizon returned a field, so THERE IS NO SCHEDULE. Nothing here is
+     interpolated, carried forward from a previous run, or substituted from a saved field", and
+     `ok_partial` prints "N of M hours returned a field, N did not". So the honest statement is made
+     from evidence the run itself produced, which is stronger than the warning it replaces.
+     `serve_live.py` still publishes `vendor_recent` in /api/health for anyone reading the API. */
 }
 
 /* One line per stage event, in the same visual language as the seven-stage tape -- because it is
