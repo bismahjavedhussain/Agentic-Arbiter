@@ -28,6 +28,32 @@
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 9,
    "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_694493127_410408074.jpg",
+   "source_osm_id": 694493127,
+   "receptor_osm_id": 410408074,
+   "source_name": "Microsoft",
+   "receptor_name": "Microsoft",
+   "source_latlon": [
+    47.236713,
+    -119.884372
+   ],
+   "receptor_latlon": [
+    47.238595,
+    -119.883002
+   ],
+   "bbox": [
+    -119.8862839,
+    47.2355618,
+    -119.8802544,
+    47.2397532
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
   }
  ]
 }

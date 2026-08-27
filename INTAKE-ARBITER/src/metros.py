@@ -682,9 +682,21 @@ def committed_imagery(k, committed):
     except (ValueError, OSError):
         return None
 
-    want = (committed.get("source_osm_id"), committed.get("receptor_osm_id"))
+    # 🔴 COMPARE OSM IDS AS TEXT, BECAUSE THE TWO SIDES DISAGREE ABOUT THEIR TYPE.
+    # `sites.json` carries `source_osm_id` as an INT for the five hand-built metros and as a STRING
+    # for a national facility (its committed pair is written by a different producer). The screening
+    # manifests hold ints. So `(744496750, 744496741) == (744496750, 744496741)` matched for Ashburn
+    # while `('1314010354', '1075445245') == (1314010354, 1075445245)` did NOT -- the same pair,
+    # the same buildings, no match, and an aerial panel that reported "no frame matches the
+    # committed pair" on a facility whose frame was sitting on disk.
+    # This is a NORMALISATION and not a loosening: an OSM id is an identifier, `1` and `'1'` denote
+    # the same way, and nothing else about the exact-tuple rule changes. The rule itself is
+    # load-bearing -- it is what stops one site's frame being drawn under another's overlay
+    # (gotcha #98) -- so it stays exact, on values that are now comparable.
+    _oid = lambda v: None if v is None else str(v)                            # noqa: E731
+    want = (_oid(committed.get("source_osm_id")), _oid(committed.get("receptor_osm_id")))
     cand = next((c for c in man.get("candidates", [])
-                 if (c.get("source_osm_id"), c.get("receptor_osm_id")) == want), None)
+                 if (_oid(c.get("source_osm_id")), _oid(c.get("receptor_osm_id"))) == want), None)
     if not cand or not cand.get("file"):
         # The pair was committed but never screened as a FRAME -- possible, because the refusal
         # ranking and the imagery screen are separate steps. Report the absence rather than

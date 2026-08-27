@@ -28,6 +28,32 @@
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 3,
    "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_844394339_942557184.jpg",
+   "source_osm_id": 844394339,
+   "receptor_osm_id": 942557184,
+   "source_name": "Meta Sarpy Data center",
+   "receptor_name": "Travelers Insurance",
+   "source_latlon": [
+    41.123353,
+    -96.144274
+   ],
+   "receptor_latlon": [
+    41.127711,
+    -96.14518
+   ],
+   "bbox": [
+    -96.1478,
+    41.1213531,
+    -96.14060070000001,
+    41.1295114
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
   }
  ]
 }

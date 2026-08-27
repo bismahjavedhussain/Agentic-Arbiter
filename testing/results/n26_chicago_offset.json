@@ -16,6 +16,22 @@
   },
   "2026-08-22": {
    "date": "2026-08-22"
+  },
+  "2026-08-26": {
+   "date": "2026-08-26",
+   "forecast_done": true,
+   "forecast_tag": "n26chi_f_2026-08-26",
+   "f_tag": "n26chi_f_2026-08-26",
+   "forecast_n": 17797,
+   "forecast_lead_h": 6.867,
+   "forecast_mean": 32.0996,
+   "outcome_done": true,
+   "outcome_tag": "n26chi_o_2026-08-26",
+   "outcome_n": 17797,
+   "outcome_mean": 32.0996
+  },
+  "2026-08-27": {
+   "date": "2026-08-27"
   }
  },
  "attempts": [
@@ -41,8 +57,100 @@
    "at_utc": "2026-08-22T12:39:50.808171+00:00",
    "lead_h": 6.336,
    "sentence": "FortyGuard reported the job COMPLETE and returned zero tiles, activity d559384b, after 604 s and 61 status polls."
+  },
+  {
+   "submit_http": 200,
+   "activity_id": "269590bf-302b-40cc-9d06-f87a68d33988",
+   "tiles": 17797,
+   "terminal_status": "completed",
+   "statuses_seen": [
+    "processing",
+    "completed"
+   ],
+   "elapsed_s": 51.9,
+   "polls": 4,
+   "empty_completed_polls": 0,
+   "submit_error_body": null,
+   "error": null,
+   "class": "ok",
+   "billed": true,
+   "leg": "forecast",
+   "date": "2026-08-26",
+   "tag": "n26chi_f_2026-08-26",
+   "at_utc": "2026-08-26T12:07:56.992502+00:00",
+   "lead_h": 6.868,
+   "sentence": "FortyGuard answered, activity 269590bf, after 52 s and 4 status polls."
+  },
+  {
+   "submit_http": 200,
+   "activity_id": "eb3437f1-0404-4c01-84b9-6e5f8772c4f2",
+   "tiles": 17797,
+   "terminal_status": "completed",
+   "statuses_seen": [
+    "processing",
+    "completed"
+   ],
+   "elapsed_s": 52.3,
+   "polls": 4,
+   "empty_completed_polls": 0,
+   "submit_error_body": null,
+   "error": null,
+   "class": "ok",
+   "billed": true,
+   "leg": "outcome",
+   "date": "2026-08-26",
+   "tag": "n26chi_o_2026-08-26",
+   "at_utc": "2026-08-27T08:35:57.114899+00:00",
+   "lead_h": -13.599,
+   "sentence": "FortyGuard answered, activity eb3437f1, after 52 s and 4 status polls."
+  },
+  {
+   "submit_http": 200,
+   "activity_id": "a2aff46b-8d3a-4559-9a48-2a9954a83e08",
+   "tiles": 0,
+   "terminal_status": "completed",
+   "statuses_seen": [
+    "processing",
+    "completed"
+   ],
+   "elapsed_s": 613.8,
+   "polls": 55,
+   "empty_completed_polls": 51,
+   "submit_error_body": null,
+   "error": "completed but never populated after 51 polls over 614 s",
+   "class": "completed_but_empty",
+   "billed": true,
+   "leg": "forecast",
+   "date": "2026-08-27",
+   "tag": "n26chi_f_2026-08-27",
+   "at_utc": "2026-08-27T08:46:10.956983+00:00",
+   "lead_h": 10.23,
+   "sentence": "FortyGuard reported the job COMPLETE and returned zero tiles, activity a2aff46b, after 614 s and 55 status polls."
+  },
+  {
+   "submit_http": 200,
+   "activity_id": "052b1cb7-ad0a-4945-aa22-4b3f6d2de5c3",
+   "tiles": 0,
+   "terminal_status": "completed",
+   "statuses_seen": [
+    "processing",
+    "completed"
+   ],
+   "elapsed_s": 607.0,
+   "polls": 57,
+   "empty_completed_polls": 55,
+   "submit_error_body": null,
+   "error": "completed but never populated after 55 polls over 607 s",
+   "class": "completed_but_empty",
+   "billed": true,
+   "leg": "forecast",
+   "date": "2026-08-27",
+   "tag": "n26chi_f_2026-08-27",
+   "at_utc": "2026-08-27T09:15:11.114921+00:00",
+   "lead_h": 9.747,
+   "sentence": "FortyGuard reported the job COMPLETE and returned zero tiles, activity 052b1cb7, after 607 s and 57 status polls."
   }
  ],
- "credits_last_before": 1666620,
- "credits_last_after": 1662400
+ "credits_last_before": 1114600,
+ "credits_last_after": 1110380
 }

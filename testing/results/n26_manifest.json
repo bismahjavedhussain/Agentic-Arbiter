@@ -157,7 +157,7 @@
   "2026-08-26": {
    "date": "2026-08-26",
    "forecast_done": true,
-   "outcome_done": false,
+   "outcome_done": true,
    "forecast_attempt_log": [
     {
      "submit_http": 200,
@@ -181,6 +181,28 @@
      "at_utc": "2026-08-26T08:31:04.072196+00:00",
      "lead_h": 9.498,
      "leg": "forecast"
+    },
+    {
+     "submit_http": 200,
+     "activity_id": "1e00aef3-4d5f-401a-a625-a9ac73b9d24a",
+     "tiles": 17862,
+     "terminal_status": "completed",
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "elapsed_s": 60.1,
+     "polls": 4,
+     "empty_completed_polls": 0,
+     "submit_error_body": null,
+     "error": null,
+     "class": "ok",
+     "billed": true,
+     "credits_if_billed": 4220,
+     "sentence": "FortyGuard answered, activity 1e00aef3, after 60 s and 4 status polls.",
+     "tag": "n26_h_2026-08-26",
+     "at_utc": "2026-08-27T08:41:20.694937+00:00",
+     "leg": "outcome"
     }
    ],
    "forecast_attempts": 1,
@@ -190,17 +212,102 @@
    "forecast_lead_h": 9.498,
    "forecast_n": 17862,
    "forecast_mean": 31.1451,
-   "forecast_issued_utc": "2026-08-26T08:31:04.096921+00:00"
+   "forecast_issued_utc": "2026-08-26T08:31:04.096921+00:00",
+   "outcome_tag": "n26_h_2026-08-26",
+   "outcome_n": 17862,
+   "outcome_mean": 31.1732,
+   "outcome_fetched_utc": "2026-08-27T08:41:20.722695+00:00"
+  },
+  "2026-08-27": {
+   "date": "2026-08-27",
+   "forecast_done": false,
+   "outcome_done": false,
+   "forecast_attempt_log": [
+    {
+     "submit_http": 200,
+     "activity_id": "d565dc7d-6677-4136-8ceb-55f3f66b223f",
+     "tiles": 0,
+     "terminal_status": "completed",
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "elapsed_s": 608.4,
+     "polls": 58,
+     "empty_completed_polls": 55,
+     "submit_error_body": null,
+     "error": "completed but never populated after 55 polls over 608 s",
+     "class": "completed_but_empty",
+     "billed": true,
+     "credits_if_billed": 4220,
+     "sentence": "FortyGuard reported the job COMPLETE and returned zero tiles, activity d565dc7d, after 608 s and 58 status polls.",
+     "tag": "n26_f_2026-08-27",
+     "at_utc": "2026-08-27T08:40:20.504358+00:00",
+     "lead_h": 9.497,
+     "leg": "forecast"
+    },
+    {
+     "submit_http": 200,
+     "activity_id": "71cb70fe-53ad-4a3b-9113-bf709877f82b",
+     "tiles": 0,
+     "terminal_status": "completed",
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "elapsed_s": 605.6,
+     "polls": 46,
+     "empty_completed_polls": 44,
+     "submit_error_body": null,
+     "error": "completed but never populated after 44 polls over 606 s",
+     "class": "completed_but_empty",
+     "billed": true,
+     "credits_if_billed": 4220,
+     "sentence": "FortyGuard reported the job COMPLETE and returned zero tiles, activity 71cb70fe, after 606 s and 46 status polls.",
+     "tag": "n26_f_2026-08-27",
+     "at_utc": "2026-08-27T09:00:09.939823+00:00",
+     "lead_h": 9.165,
+     "leg": "forecast"
+    },
+    {
+     "submit_http": 200,
+     "activity_id": "83ad97c2-0898-4a68-b3d9-f47595c99d60",
+     "tiles": 0,
+     "terminal_status": "completed",
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "elapsed_s": 601.4,
+     "polls": 56,
+     "empty_completed_polls": 53,
+     "submit_error_body": null,
+     "error": "completed but never populated after 53 polls over 601 s",
+     "class": "completed_but_empty",
+     "billed": true,
+     "credits_if_billed": 4220,
+     "sentence": "FortyGuard reported the job COMPLETE and returned zero tiles, activity 83ad97c2, after 601 s and 56 status polls.",
+     "tag": "n26_f_2026-08-27",
+     "at_utc": "2026-08-27T09:25:05.549285+00:00",
+     "lead_h": 8.749,
+     "leg": "forecast"
+    }
+   ],
+   "forecast_attempts": 3,
+   "forecast_billed_attempts": 3,
+   "forecast_credits_spent": 12660,
+   "forecast_error": "completed but never populated after 53 polls over 601 s"
   }
  },
  "errors": {
   "n26_f_2026-08-18": "ZERO TILES with completed status",
   "n26_f_2026-08-19": "completed but never populated after 58 polls over 607 s",
   "n26_f_2026-08-20": "failed",
-  "n26_f_2026-08-21": "completed but never populated after 59 polls over 604 s"
+  "n26_f_2026-08-21": "completed but never populated after 59 polls over 604 s",
+  "n26_f_2026-08-27": "completed but never populated after 53 polls over 601 s"
  },
- "credits_last_before": 1197680,
- "credits_last_after": 1189240,
+ "credits_last_before": 1110380,
+ "credits_last_after": 1106160,
  "off_series_observations": {
   "2026-08-19T19:00": {
    "why_not_in_days": "target hour 19:00, NOT the fixed 14:00 the series controls for. Hour-of-day dominates forecast error here (Mondrian worst group 0.7314 vs 0.8794 pooled), so mixing hours would contaminate the coverage measurement. Kept as a separate observation.",

@@ -132,7 +132,26 @@ SIDE_KM = 8.0
 GRAN = 60
 ANALYTIC = "tcm"
 HEATMAP_CREDITS = 4_220
-POLL_MAX_S = 300
+# 🔴 RAISED 300 -> 600 s ON 2026-08-27, and the argument is about BILLING, not patience.
+# ⚠ First, the arithmetic the UI was hiding: 300 s is FIVE minutes. The progress row prints
+# "300 s budget", which reads as a small number and prompted "extend it to about 4 minutes" -- which
+# would have SHORTENED it. It is now 600 s and the row says minutes as well as seconds.
+# WHY LONGER IS STRICTLY BETTER HERE, rather than a trade:
+#   * The vendor's own measured time-to-terminal-state is ~604-608 s (HANDOFF §4.0: "completed but
+#     never populated after 59 polls over 604 s", and two more at 608 s). A 300 s budget therefore
+#     abandoned jobs at HALF the time FortyGuard itself takes to finish with them.
+#   * And abandoning does not save money. Gotcha #147: "billing happens server-side the instant
+#     FortyGuard's own job completes, independent of whether the polling client is still alive."
+#     So the credits are spent either way -- giving up early forfeits the DATA we already paid for
+#     and buys nothing back. That is the whole case.
+# WHAT IT DOES NOT FIX, stated so nobody expects it to: every window that has ever returned tiles
+# did so on its FIRST status check (`polls: 1` on all 26 in live_spend.json), so a longer budget
+# captures no success that a shorter one missed. What it captures is the STALL case -- a job still
+# in `processing` at 300 s, which is unbilled today and may yet reach a terminal answer. A definite
+# answer at 9 minutes is worth more than an abandoned one at 5.
+# ⚠ COST IS WALL-CLOCK, and it is bounded: submits are batched and polled in ONE loop (#114), so
+# this is 600 s for the whole horizon, not per hour.
+POLL_MAX_S = 600
 POLL_WAIT_S = 8
 # Between submits in a batch, and before retrying one the vendor rejected.
 SUBMIT_STAGGER_S = 0.4

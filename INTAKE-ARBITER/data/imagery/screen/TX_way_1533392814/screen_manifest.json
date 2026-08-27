@@ -28,6 +28,32 @@
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 3,
    "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_1533392813_1533392812.jpg",
+   "source_osm_id": 1533392813,
+   "receptor_osm_id": 1533392812,
+   "source_name": "Microsoft SAT 81",
+   "receptor_name": "Microsoft SAT 80",
+   "source_latlon": [
+    29.42805,
+    -98.877058
+   ],
+   "receptor_latlon": [
+    29.429243,
+    -98.87706
+   ],
+   "bbox": [
+    -98.8798784,
+    29.426831,
+    -98.873429,
+    29.430357700000002
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
   }
  ]
 }

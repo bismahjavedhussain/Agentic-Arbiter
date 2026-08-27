@@ -6,8 +6,18 @@ accuracy against reality.**
 
 FortyGuard Hackathon'26 · Track 3 (Industrial & Enterprise) + Track 6 (Agentic AI)
 
-> A thermometer cannot see three hours into the future, and a cooling plant needs that much notice
-> to change mode. **FortyGuard's forecast is exactly the missing input.**
+> **Data centres over-cool, continuously, because nobody can promise them the hours ahead.** A
+> chiller plant needs hours of notice to change mode, and a thermometer only ever reports *now* — so
+> the mechanical chillers keep running through hours that outside air could have cooled for free.
+> **FortyGuard** closes that gap with heat intelligence **2 m above the ground**, the height a
+> ground-mounted condenser actually breathes. This agent turns that forecast into an hour-by-hour
+> schedule with a **calibrated safety bound**: over **913 held-out days** it cuts mechanical cooling
+> runtime **10.7 %** — 9,510 h to 8,496 h. Remove the forecast and **88.3 %** of the gain goes with
+> it.
+>
+> *No specific notice period is claimed. `notice_h` is a swept axis `[0, 1, 3, 6]` and the shipped
+> row uses 3 — a chosen configuration, not a sourced property of cooling plants. The whole sweep is
+> in `backtest.json` and on the page.*
 
 ---
 
@@ -63,7 +73,7 @@ assumed, every term defined before it is used.
 error. Any static host serves the demo as-is — there is no build step and no server side.
 
 **If `run_all.py` is not green, do not believe a number on the page.** It re-reads **77 published
-figures** from the files the code actually wrote and runs **2113 audit checks**, including five that
+figures** from the files the code actually wrote and runs **2057 audit checks**, including five that
 re-derive the browser's own arithmetic against Python and one that drives a real browser to render
 every site and diff the panels a reader would look at.
 
@@ -248,6 +258,40 @@ checkable against something rather than becoming prose nobody re-reads.
 | **The hours claim wants a level anchor** | One local reading. Unanchored, five years of data say the agent **loses**. The *safety* guarantee needs no customer hardware; the *hours* do. |
 | **Recirculation here is small, and that is the physics working** | The worst case is a fraction of one weather-station grid step. A model that reported a large rise at this geometry would be wrong, not impressive. |
 
+**What "no plume is modelled" does and does not mean.** At a facility with no other tagged data
+centre inside the solver's validated 600 m range, the quantity the rise table computes — the
+temperature rise at a *neighbour's* air intake — **does not exist** rather than being unmeasured.
+That is a statement about the model's domain, **not a claim that recirculation there is zero.** And
+one limitation applies everywhere, not just to those sites: **self-recirculation — a building's own
+exhaust re-entering its own intake — is not modelled at ANY site in this project, including the
+three shipped metros.** The solver places the condenser bank on the source building's ring and the
+intake outside the *receptor's* facing facade, so the only quantity it ever computes is the
+neighbour's exhaust arriving at my intake. That is worth stating plainly because the primary case in
+this project's own cited source, **ASHRAE Handbook Ch. 46**, is the self-recirculation one — and
+because it is what makes running the isolated facilities *consistent* with the paired ones rather
+than a concession.
+
+*These two sentences were on the demo page until 2026-08-26, where they filled a card that had
+nothing else to show. They remain verbatim in the `why_zero` field of every standalone facility's
+rise table, so the page trims the view without touching the record.*
+
+**What the safety bound does NOT claim, and cannot.** Full *conditional* coverage — being right 90 %
+of the time in **every** situation separately rather than 90 % on average — is **provably
+impossible** for any distribution-free method with finite data (Barber, Candès, Ramdas &
+Tibshirani, *The limits of distribution-free conditional predictive inference*, Information and
+Inference **10**(2), 2021). That matters because an average hides its own worst case: pooled across
+the day this bound reads a healthy **90.17 %** overall while one hour of the day sits at
+**73.14 %**, and **6 of 24** hours fall under nominal. So the agent ships the strongest thing that
+*is* achievable — **Mondrian conformal stratified by hour of day**, which calibrates each hour
+separately and lifts that worst hour to **87.94 %**, leaving **5 of 24** under nominal. Stratifying
+by hour **and** season on top was measured and **rejected**: it over-stratifies, dropping the worst
+group to **84.93 %** and putting **27 of 96** groups under nominal. The claim is group-conditional
+by hour of day, and nothing more.
+
+*This paragraph was a panel on the demo page until 2026-08-26. Its five figures are registered in
+`audit.py` check 10 and re-read from `backtest.json` on every build, so moving it off the screen did
+not turn it into prose nobody checks.*
+
 **Why the money figure is a ceiling and not a projection.** It counts the chiller **compressor
 only**. Fans, chilled-water pumps, condenser pumps and cooling-tower fans keep running, and an
 airside economizer moves *more* air — so the unmeasured term has the **opposite sign**. On top of
@@ -274,7 +318,7 @@ A reasoning tape whose **32 templates contain not one literal digit**, checked a
 **Three sites live on their own geometry, weather, bound and tariff — and two more were refused on
 aerial evidence.**
 
-**On the size of the verification surface**, because it is fair to ask: **2113 audit checks and a
+**On the size of the verification surface**, because it is fair to ask: **2057 audit checks and a
 gotcha log running to #185 exist because every entry in it actually bit** — a NaN that
 was legal Python JSON and illegal standard JSON, a rounded array that flipped decisions at gate
 boundaries, an invented constant that outlived its own retraction by a day, a site picker that
@@ -336,7 +380,7 @@ python testing/test_n26_coverage.py selftest  # its retry budget, against all 5 
 python testing/n26_recovery_watch.py plan     # what the recovery watcher would spend today; spends 0
 python testing/n26_chicago_offset.py dryrun    # Chicago's own level offset: window, lead, cost. Spends 0
 python testing/verify_site_panels.py          # renders every site in real Chrome and diffs the panels
-cd INTAKE-ARBITER/src && python audit.py      # 2113 checks, 77 published numbers re-read
+cd INTAKE-ARBITER/src && python audit.py      # 2057 checks, 77 published numbers re-read
 cd INTAKE-ARBITER/src && python report.py     # the per-site PDF, verified by being reopened
 ```
 

@@ -28,6 +28,32 @@
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 7,
    "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_701930919_52094270.jpg",
+   "source_osm_id": 701930919,
+   "receptor_osm_id": 52094270,
+   "source_name": "CyrusOne NVA8",
+   "receptor_name": "Centersquare IAD1-A",
+   "source_latlon": [
+    39.021309,
+    -77.412885
+   ],
+   "receptor_latlon": [
+    39.023292,
+    -77.413035
+   ],
+   "bbox": [
+    -77.4153639,
+    39.0193042,
+    -77.41106070000001,
+    39.0246878
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
   }
  ]
 }

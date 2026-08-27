@@ -2796,6 +2796,8 @@ def check_front_door_figures():
     ex = jload(os.path.join(DEMO, "explanations.json"))
     tk = jload(os.path.join(DEMO, "ticker.json"))
     rb = rl["configs"][0]
+    # The 3 h-notice Mondrian block, which the demo's removed "what is not claimed" panel read.
+    MOND3 = bt["mondrian"]["3"]
     C = [r for r in bt["n56_audit"] if r["step"].startswith("C ")]
     # ANCHOR-BASED, NOT INDEX-BASED. The shipped row used to be addressed as `C[-2]` and the
     # unanchored stress test as `C[-1]`, which silently encoded "the unanchored row is last". It is
@@ -2923,6 +2925,33 @@ def check_front_door_figures():
         ("GPU solve seconds", "**NVIDIA Warp in %.2f s**" % RT["solve_seconds"]),
         ("pairs needed vs held", "**9 calibration day-pairs; 4 exist.**"),
         ("attainable ceiling at n=4", "n/(n+1) = **80 %**"),
+        # THE "WHAT IS NOT CLAIMED" DISCLOSURE MOVED OFF THE DEMO PAGE 2026-08-26, and these five
+        # figures moved with it. On the page they were rendered live from backtest.json, so nothing
+        # could go stale; in a markdown file they are prose, and section 8.2 of HANDOFF says what
+        # happens to a number no test re-reads -- it has happened five times in this project. So
+        # they are registered here, re-derived from the same block the panel used to read.
+        # These are ROWS IN ONE CHECK, not checks of their own: the whole `want` list feeds a single
+        # ck() below, so adding them does not move the audit's self-reported check count.
+        ("pooled coverage looks fine on average",
+         "**%.2f %%** overall" % (100 * MOND3["pooled"]["overall"])),
+        ("the worst hour it hides",
+         "**%.2f %%**" % (100 * MOND3["pooled"]["worst_group"]["coverage"])),
+        ("pooled hours under nominal",
+         "**%d of %d**" % (MOND3["pooled"]["groups_below_target"],
+                           MOND3["mondrian_hod"]["n_groups"])),
+        ("Mondrian-by-hour lifts the worst hour",
+         "**%.2f %%**" % (100 * MOND3["mondrian_hod"]["worst_group"]["coverage"])),
+        ("Mondrian hours under nominal",
+         "**%d of %d**" % (MOND3["mondrian_hod"]["groups_below_target"],
+                           MOND3["mondrian_hod"]["n_groups"])),
+        # THE REJECTED VARIANT IS REGISTERED TOO, for the same reason the failure rows above are:
+        # "we tried the more elaborate stratification and it was worse" is only credible while the
+        # numbers that say so are still checkable.
+        ("season over-stratifies, worst group",
+         "**%.2f %%**" % (100 * MOND3["mondrian_hod_x_season"]["worst_group"]["coverage"])),
+        ("season groups under nominal",
+         "**%d of %d**" % (MOND3["mondrian_hod_x_season"]["groups_below_target"],
+                           MOND3["mondrian_hod_x_season"]["n_groups"])),
     ]
     missing = [(lbl, s) for lbl, s in want if re.sub(r"\s+", " ", s) not in txt]
     ck("every README figure matches the emitted JSON", not missing,

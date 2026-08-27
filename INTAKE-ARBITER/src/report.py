@@ -211,7 +211,20 @@ class Pdf:
                     fk = "FHB" if bold else "FH"
                 else:
                     fk = "FB" if bold else "FR"
-                ink = "" if not rgb else ("%.3f %.3f %.3f rg " % rgb)
+                # 🔴 EMIT A COLOUR FOR EVERY STRING. THIS LINE USED TO BE
+                #     ink = "" if not rgb else (... rg ...)
+                # and `line()`'s docstring said "or None for black". It was not black. Fill colour
+                # in PDF is GRAPHICS STATE and persists across BT/ET blocks in a content stream, so
+                # emitting nothing does not mean "black" -- it means "whatever the last string set".
+                # The first `rule()` on every page sets RGB_RULE (0.72 0.76 0.80, a light grey meant
+                # for divider dashes), so EVERY body line after it inherited light grey: measured
+                # ~1.75:1 contrast against white paper, against the 4.5:1 a reader needs. The whole
+                # report rendered washed out, which is what a reader calls "blurry".
+                # ⚠ AND IT EXPLAINS A FIX THAT DID NOT WORK. Body text was raised 8.2 -> 9.4 pt on
+                # 2026-08-26 "because Courier is thin-stroked and 8.2 pt rendered pale in every
+                # viewer". The paleness was never the point size; it was this. A symptom treated
+                # twice is the sign the cause was never found.
+                ink = "%.3f %.3f %.3f rg " % (rgb if rgb else (0.0, 0.0, 0.0))
                 parts.append("BT /%s %.2f Tf %s1 0 0 1 %.2f %.2f Tm (%s) Tj ET"
                              % (fk, size, ink, x, y, text))
             stream = "\n".join(parts)
@@ -310,7 +323,24 @@ def build(metro_key=None):
     d = Pdf()
     d.line("INTAKE-ARBITER  --  FREE-COOLING DECISION REPORT", TITLE_PT, True,
            face="H", rgb=RGB_TITLE)
-    d.line("An agent that decides, hour by hour, whether outside air can cool a data centre.",
+    # THE SAME HEADLINE THE PAGE LEADS WITH, and for the same reason: the old line described what
+    # the thing IS ("an agent that decides, hour by hour...") before giving anyone a reason to care.
+    # `para()` and not `line()` -- line() does NOT wrap, so a longer string runs off the paper and
+    # verify()'s bounds check would fail it (that is how the "Plume physics" row was caught, 20.1 pt
+    # past the right margin).
+    # ⚠ Same two retractions apply here as on the page: the 2 m argument is about HEIGHT, never
+    # about distance from a weather station, and spatial resolution is NOT the value proposition.
+    # ⚠ NO SPECIFIC NOTICE PERIOD. Earlier wording said "the next three hours" and "a plant needs
+    # that much notice", which reads as a sourced property of cooling plants and is not one:
+    # `notice_h` is a SWEPT AXIS [0, 1, 3, 6] and PLAN.md records the shipped row as resting on a
+    # "hand-picked notice_h = 3". The sweep is on the page and in backtest.json; the prose says
+    # "hours of notice" and leaves the number to the configuration block below, which states it.
+    d.para("Data centres over-cool, continuously, because nobody can promise them the hours ahead. "
+           "A chiller plant needs hours of notice to change mode, and a thermometer only ever "
+           "reports NOW -- so the mechanical chillers keep running through hours that outside air "
+           "could have cooled for free. FortyGuard closes that gap with heat intelligence 2 m above "
+           "the ground, the height a ground-mounted condenser actually breathes. This agent turns "
+           "that forecast into an hour-by-hour schedule carrying a calibrated safety bound.",
            BODY_PT)
     d.rule("=")
 
@@ -450,6 +480,37 @@ def verify(path, meta):
     # and eyeballed the way every HTML panel in this project was. Checking the geometry is the
     # substitute that actually catches the failure that matters: text running off the paper. Every
     # placed string's right edge and baseline are recomputed from the items the writer emitted.
+    # 🔴 INK, RE-READ FROM THE BYTES. The layout check below measures where a string sits; nothing
+    # measured whether it could be SEEN. Fill colour is graphics state that persists across BT/ET,
+    # so for months every body line inherited RGB_RULE's light grey (0.72 0.76 0.80) from the last
+    # divider -- about 1.75:1 against white paper, where a reader needs 4.5:1. The whole report
+    # rendered washed out and every existing check passed, because the text was present, correctly
+    # placed, and spelled right.
+    # Two assertions, both threshold-free: every drawn string must carry an EXPLICIT `rg`, and the
+    # colour it carries must be one this module actually declares. A future edit that reintroduces
+    # inheritance fails the first; one that invents a new pale ink fails the second.
+    raw = open(path, "rb").read().decode("latin-1")
+    declared = {"%.3f %.3f %.3f" % c for c in
+                (RGB_TITLE, RGB_HEAD, RGB_RULE, RGB_SUB, (0.0, 0.0, 0.0))}
+    n_ops = n_inked = 0
+    undeclared = set()
+    for stream in re.findall(r"stream\n(.*?)\nendstream", raw, re.S):
+        for op in stream.split("\n"):
+            if " Tj" not in op:
+                continue
+            n_ops += 1
+            m = re.search(r"([\d.]+ [\d.]+ [\d.]+) rg", op)
+            if not m:
+                continue
+            n_inked += 1
+            if m.group(1) not in declared:
+                undeclared.add(m.group(1))
+    if n_ops and n_inked != n_ops:
+        fails.append("%d of %d drawn strings carry no explicit colour, so they inherit the "
+                     "previous one -- this is how the body text went light grey"
+                     % (n_ops - n_inked, n_ops))
+    if undeclared:
+        fails.append("ink not declared in this module: %s" % ", ".join(sorted(undeclared)))
     for pi, items in enumerate(meta.get("placed", []), 1):
         for (x, y, size, _bold, txt, _face, _rgb) in items:
             # 🔴 MEASURE THE GLYPHS, NOT THE ESCAPES. `line()` stores text already run through

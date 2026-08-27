@@ -28,6 +28,32 @@
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 3,
    "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_1280340214_1287260554.jpg",
+   "source_osm_id": 1280340214,
+   "receptor_osm_id": 1287260554,
+   "source_name": "Amazon Web Services",
+   "receptor_name": "Amazon Web Services",
+   "source_latlon": [
+    38.802613,
+    -77.622436
+   ],
+   "receptor_latlon": [
+    38.801977,
+    -77.621144
+   ],
+   "bbox": [
+    -77.6243671,
+    38.8002174,
+    -77.6189834,
+    38.804537700000004
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
   }
  ]
 }

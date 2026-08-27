@@ -4,7 +4,7 @@
  "source": "ESRI World Imagery via the keyless ArcGIS REST export endpoint",
  "facility": "VA_way_1510517639",
  "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
- "architecture_verdict": "NOT YET ASSESSED",
+ "architecture_verdict": "NOT_BUILT",
  "what_would_change_this": "a recorded judgement on whether the cooling plant is at ground level (where FortyGuard's 2 m field applies) or roof-mounted (where this model does not describe the building at all)",
  "candidates": [
   {
@@ -27,7 +27,44 @@
    ],
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 2,
-   "architecture_verdict": "NOT YET ASSESSED"
+   "architecture_verdict": "NOT_BUILT",
+   "in_scope": false
+  },
+  {
+   "rank": 1,
+   "file": "01_1510517638_1510517639.jpg",
+   "source_osm_id": 1510517638,
+   "receptor_osm_id": 1510517639,
+   "source_name": "Amazon Web Services",
+   "receptor_name": "Amazon Web Services",
+   "source_latlon": [
+    38.789343,
+    -77.582199
+   ],
+   "receptor_latlon": [
+    38.789578,
+    -77.579732
+   ],
+   "bbox": [
+    -77.5842978,
+    38.7876749,
+    -77.577844,
+    38.7912367
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict",
+   "usgs_file": "usgs_01_1510517638_1510517639.jpg",
+   "second_source": "USGS The National Map, USGSImageryOnly (public domain)",
+   "architecture_verdict": "NOT_BUILT",
+   "in_scope": false
   }
- ]
+ ],
+ "in_scope": false,
+ "assessed_by": "Project owner (human read, 2 sources: ESRI + USGS) -- pack assembled by Claude (Opus 5)",
+ "assessed_utc": "2026-08-27T08:41:07Z",
+ "evidence": "Human review of both frames, 2026-08-27. Reviewer's verdict: REFUSE. AWS: USGS shows undeveloped scrub with no buildings, ESRI shows a bare shell plus poured foundation footings. No operating hall in either frame.",
+ "verdict_note": "CONFIRMED by a human on two sources. Facility removed from the map, search and picker.",
+ "limits": "Single-source reading at 0. Chillers and generators are not distinguishable at this resolution, so 'ground-level plant' is a statement about WHERE the equipment is, not about what it is. The two-source cross-check is NOT met -- the same weaker standing this project records for Dulles."
 }

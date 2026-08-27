@@ -28,6 +28,32 @@
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 8,
    "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_597876726_597876721.jpg",
+   "source_osm_id": 597876726,
+   "receptor_osm_id": 597876721,
+   "source_name": "Digital Realty Dallas DFW35",
+   "receptor_name": "Digital Realty Dallas DFW17",
+   "source_latlon": [
+    32.965206,
+    -96.71016
+   ],
+   "receptor_latlon": [
+    32.96639,
+    -96.713495
+   ],
+   "bbox": [
+    -96.7150748,
+    32.9635639,
+    -96.7085232,
+    32.9674657
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
   }
  ]
 }

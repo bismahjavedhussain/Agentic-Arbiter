@@ -969,6 +969,169 @@
      "elapsed_s": 331.7
     }
    ]
+  },
+  {
+   "test": "live.py ashburn 2026-08-26T16:00:00-04:00",
+   "utc": "2026-08-26T19:37:58.192029+00:00",
+   "metro": "ashburn",
+   "horizon_h": 12,
+   "credits_before": 1185020,
+   "credits_after": 1135700,
+   "api_calls_made": 12,
+   "cache_hits": 0,
+   "windows": [
+    {
+     "window_start_site_local": "2026-08-26 16:00",
+     "lead_h_at_request": 0.367,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "6c8f8e11-2917-4695-9b04-4e9c030f9f60",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 29.9
+    },
+    {
+     "window_start_site_local": "2026-08-26 17:00",
+     "lead_h_at_request": 1.367,
+     "class": "ok",
+     "tiles": 17785,
+     "activity_id": "1256ef4b-b240-42c6-a98b-ba5c36b3e89e",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 1,
+     "elapsed_s": 55.6
+    },
+    {
+     "window_start_site_local": "2026-08-26 18:00",
+     "lead_h_at_request": 2.367,
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "8e841d52-8495-422a-a869-949e9a06cfd7",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 8,
+     "elapsed_s": 322.3
+    },
+    {
+     "window_start_site_local": "2026-08-26 19:00",
+     "lead_h_at_request": 3.367,
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "c2660945-620e-427e-ae36-898d1843a108",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 8,
+     "elapsed_s": 322.3
+    },
+    {
+     "window_start_site_local": "2026-08-26 20:00",
+     "lead_h_at_request": 4.367,
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "ae66036d-6a2e-4526-bf7f-47e12a17e118",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 8,
+     "elapsed_s": 322.3
+    },
+    {
+     "window_start_site_local": "2026-08-26 21:00",
+     "lead_h_at_request": 5.367,
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "1bacba53-1996-4926-a99e-b901e253188a",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 8,
+     "elapsed_s": 322.3
+    },
+    {
+     "window_start_site_local": "2026-08-26 22:00",
+     "lead_h_at_request": 6.367,
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "e013b860-f59b-4071-91fe-ffd7afe8c1ef",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 8,
+     "elapsed_s": 322.3
+    },
+    {
+     "window_start_site_local": "2026-08-26 23:00",
+     "lead_h_at_request": 7.367,
+     "class": "submit_rejected",
+     "submit_http": 500,
+     "submit_error_body": "Internal Server Error",
+     "submit_retried_after": 500
+    },
+    {
+     "window_start_site_local": "2026-08-27 00:00",
+     "lead_h_at_request": 8.367,
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "031bcad0-f15b-46ac-8dd9-034225099909",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 8,
+     "elapsed_s": 322.3
+    },
+    {
+     "window_start_site_local": "2026-08-27 01:00",
+     "lead_h_at_request": 9.367,
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "97b6dc58-4880-4bed-a937-ba52bf91042b",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 8,
+     "elapsed_s": 322.3
+    },
+    {
+     "window_start_site_local": "2026-08-27 02:00",
+     "lead_h_at_request": 10.367,
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "fb9f9398-d626-48c2-97d5-ec9ed8d75b53",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 8,
+     "elapsed_s": 322.3
+    },
+    {
+     "window_start_site_local": "2026-08-27 03:00",
+     "lead_h_at_request": 11.367,
+     "class": "completed_but_empty",
+     "tiles": 0,
+     "activity_id": "2712c99d-ae0c-4ef8-9d93-845bf1b9450e",
+     "submit_http": 200,
+     "statuses_seen": [
+      "completed"
+     ],
+     "polls": 8,
+     "elapsed_s": 322.3
+    }
+   ]
   }
  ]
 }

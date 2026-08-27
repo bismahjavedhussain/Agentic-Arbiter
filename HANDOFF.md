@@ -82,7 +82,7 @@ demo's judge-facing rewrite, facility-scale money, and the failure-bucket triage
 >    **`src/build_national_batch.py run` is the unattended driver** — ~6.5 min/facility, ~46 h for
 >    the standalone tier, resumable by construction. **§3.5 is the record; `NATIONAL-BUILD-PLAN.md`
 >    §6's stage table is now partly stale — trust §3.5.**
-> 8. **SPEND IS 194 CALLS / 810,760 / 40.54 %**, 1,189,240 remaining — 188 heatmaps + 6
+> 8. **SPEND IS 212 CALLS / 885,400 / 44.27 %**, 1,114,600 remaining — 205 heatmaps + 7
 >    `env_params`. Re-derive with `python testing/api_usage_ledger.py`, then
 >    `python testing/bump_spend_docs.py` writes it into API-USAGE.md and this file; the bump now
 >    REFUSES to write if the two sides of its own equation disagree. (Historical, for the drift
@@ -927,6 +927,32 @@ editorial choice; the numbers behind them are untouched in the artefacts.**
 7. **`audit.py` registers its own check count**, so every build changes the number README must quote
    in three places. The reconciliation ORDER matters: build → manifest → audit (read the demanded
    count) → README → audit again. Writing README first guarantees a second failure.
+
+   🟢 **THE GENERAL RULE, ADOPTED 2026-08-26 — A REBUILD IS A TWO-STEP, ALWAYS.** This is not
+   special to the check count. Any figure `audit.py` registers is derived from an artefact, so
+   rebuilding the artefact moves the figure and the documents quoting it go stale in the same
+   instant. **A check-10 or check-9 failure straight after a rebuild is the drift-catcher working
+   as designed, not a regression — do not "fix" it by reverting the rebuild.** The sequence is
+   always:
+
+   ```
+   rebuild  →  audit (it FAILS, and prints the figure it now demands)
+            →  update the document to that figure
+            →  audit again (green)
+   ```
+
+   **Never write the document first from a figure you predicted**, and never quote the new number
+   before the second audit run confirms it. Two live examples of the same shape:
+   * **The calibration count.** README registers `"9 calibration day-pairs; 4 exist."` and
+     `"n/(n+1) = 80 %"` as literal strings. The 5th day-pair landed 2026-08-26, so the next
+     rebuild takes n to 5 (ceiling 83.3 %) and **check 10 will fail on both lines until they are
+     updated.** That is the mechanism catching a real change, exactly as intended.
+   * **Any paid API call.** It moves the spend figure and **check 9** fails until
+     `python testing/api_usage_ledger.py --json && python testing/bump_spend_docs.py` runs.
+     ⚠ **The `--json` is not optional:** `bump_spend_docs.py` reads the CACHED
+     `testing/results/api_usage.json`, so without a prior `--json` it silently writes **stale**
+     figures into both documents and still prints *"both documents updated"*. Observed
+     2026-08-26. Same family as §10 #106, which is the same tool being a one-shot.
 8. **The calibration collector is a Windows scheduled task**, `INTAKE-ARBITER n26 calibration`, two
    triggers (13:30 and 15:30 local), `-WakeToRun`. **It must use the ABSOLUTE interpreter path** —
    registered with bare `python` it failed with `0x80070002` (file not found) while looking healthy.
@@ -4244,6 +4270,76 @@ session's. The command is in §4.2.
     renders every manifest label and greps for those four words is a few lines, and it is the only
     reason this was found by a person rather than by the harness.
 
+## New 2026-08-26 — the conformal card, the PDF, the map, and a full disk
+
+190. 🔴 **THE VERIFICATION HARNESS LEAKED 30 GB AND FILLED THE SYSTEM DRIVE, AND A FULL DISK CAN
+    COST A PAID DAY-PAIR.** `verify_site_panels.py` calls
+    `tempfile.mkdtemp(prefix="panelverify_")` and this file contained **no `rmtree` at all** —
+    `--keep` only ever governed whether the extra DOM dumps were WRITTEN and whether the path was
+    printed, so there was nothing for it to switch off. The dump set scales with offerable sites, so
+    the leak grew with the national build. Measured: **88 leaked `panelverify_*` directories,
+    30.09 GB, largest 5.1 GB, C: at 0.02 GB free of 275 GB.** `run_all.py` runs this file on every
+    rebuild, so it leaked per rebuild.
+    **Two lessons, and the second is the serious one.** (1) At zero free space **no command can run
+    at all** — including the ones needed to diagnose it; even a tool that writes a small output file
+    fails, so the failure blocks its own investigation. (2) **The disk was never the real risk.**
+    The calibration collectors write a **7.4 MB fixture per PAID call**, and a save that fails on a
+    full disk still leaves FortyGuard's meter charged — so a leaking *test* could have destroyed a
+    real day-pair, the one thing in this project that cannot be re-bought. The cleanup now sits in
+    the existing `finally` beside the driver removal, which was already cleaned up there with a
+    comment saying never leave it behind; the scratch dir simply never got the same treatment.
+    ⚠ **The project lives on `D:` and the temp dir is on `C:`**, so a disk-space problem shows up on
+    the drive nobody is watching. Check `C:` free space, not the repo's drive.
+
+191. 🔴 **THE PDF'S BODY TEXT RENDERED AT ~1.75:1 CONTRAST FOR MONTHS, AND A PREVIOUS FIX TREATED THE
+    WRONG CAUSE.** `Pdf.bytes()` had `ink = "" if not rgb else ("… rg " % rgb)` and `line()`'s
+    docstring said *"`rgb` is a 0-1 triple, or None for black."* **It was not black.** Fill colour
+    in PDF is **graphics state** that persists across `BT`/`ET` blocks, so emitting nothing does not
+    mean black — it means *whatever the last string set*. The first `rule()` on every page sets
+    `RGB_RULE` (0.72 0.76 0.80, a light grey intended for divider dashes), so **every body line
+    after it inherited light grey**: measured 45 of 56 strings on page 1, against the 4.5:1 a reader
+    needs. The report looked washed out, which a reader calls "blurry".
+    ⚠ **AND IT EXPLAINS A FIX THAT DID NOT WORK.** Body text was raised **8.2 → 9.4 pt** on
+    2026-08-26 *"because Courier is thin-stroked and 8.2 pt rendered pale in every viewer"*. The
+    paleness was never the point size. **A symptom treated twice is the sign the cause was never
+    found** — and the second treatment made the first look reasonable.
+    Fixed by emitting a colour for **every** string. `verify()` now also re-reads the bytes and
+    asserts (a) every drawn string carries an explicit `rg`, and (b) the colour is one this module
+    declares — both threshold-free, so inheritance fails the first and an invented pale ink fails
+    the second. **The existing checks all passed throughout**: the text was present, correctly
+    placed and correctly spelled. Nothing measured whether it could be SEEN.
+
+192. 🔴 **THE MAP WAS UNCLICKABLE FOR 235 BUILT SITES BECAUSE ITS DATA FILE WAS STALE, NOT BECAUSE
+    THE HANDLER WAS WRONG.** §3.5.8 records that the click *"resolves through the MANIFEST
+    (`siteIsRunnable()`), not the map's status string, so a facility becomes clickable the moment it
+    has artefacts with no further code change."* True of the handler and false of the system: the
+    handler is `if(!siteIsRunnable(p.metro_key))`, and `p.metro_key` comes from
+    `demo/unified_sites.json`. That file had `metro_key` on **23 of 639** sites while `sites.json`
+    held **258 offerable**, because `export_unified_map.py` had not been re-run since Session K built
+    +33 facilities. So a user clicking almost anything got *"the agent cannot run on it today"* — a
+    true sentence about a stale file. Re-running the export (**free, pure computation, no network**)
+    took it to **255**, and 253 of 258 offerable sites became clickable; the other 5 are the
+    national duplicates of hand-built metros, deliberately absorbed into their metro dot by #154.
+    **The lesson is about the claim, not the code:** "resolves through the manifest" was only true
+    of the *gate*, while the *key it needs* still came from a generated file with its own staleness.
+    A derived file that feeds a gate is part of that gate. Verified by driving the click path in real
+    Chrome, not by re-reading the file: two built national sites reached `stage=results` with a real
+    narrative and 16 tape rows.
+
+193. **A HARNESS THAT ALLOWS TWO STATES CALLS A CORRECT THIRD STATE A FAILURE — third instance.**
+    `verify_site_panels.py` asserted *plume modelled ⇒ card must be FULL*. But `drawPlume()`
+    collapses for **two** distinct reasons and says which: no plume was solved, or the plume WAS
+    solved and its rendered field file did not load. The second is the NORMAL case nationally —
+    `export_plume_fields.py` costs ~2.3 min/site and is deliberately outside `run_all`, so only the
+    3 shipped metros have a `plume_field_*.json`. So the harness failed every paired national
+    facility on a page that was being honest, and **that verdict is what took `run_all.py` red**
+    (it returns 1, and `run_all` invokes it with no arguments, i.e. all sites).
+    Same lesson as §3.5.7's imagery tiers and §10 #136's `NoIndependentPath`: **three honest states,
+    not two.** Fixed by capturing `PF` — the discriminator `drawPlume()` itself branches on — and
+    demanding each state's OWN reason string, so a card that collapses for the wrong reason or
+    collapses silently still fails. **Not a widened tolerance**: #65's scar is a guard weakened
+    because it refused something; this adds a case the product always had and the checker did not.
+
 ## Carried forward, continued
 
 72. **A CSS COMMENT CAN BE UNBALANCED AND SILENT.** Successive edits left **three `*/` against one
@@ -4296,8 +4392,8 @@ session's. The command is in §4.2.
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **810,760 = 194 calls = 40.54 %.** Remaining **1,189,240**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
-| **⚠ Of that, 227,880 PROVABLY bought nothing** | **28.1 %** of spend. Ceiling **662,540 = 81.7 %**. §10 #93 |
+| **Spent to date** | 🔴 **885,400 = 212 calls = 44.27 %.** Remaining **1,114,600**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
+| **⚠ Of that, 265,860 PROVABLY bought nothing** | **30.0 %** of spend. Ceiling **725,840 = 82.0 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |

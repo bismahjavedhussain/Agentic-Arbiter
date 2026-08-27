@@ -28,6 +28,32 @@
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 6,
    "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_1426525217_1426525219.jpg",
+   "source_osm_id": 1426525217,
+   "receptor_osm_id": 1426525219,
+   "source_name": "Compass Data Center",
+   "receptor_name": "Compass Data Center",
+   "source_latlon": [
+    32.542699,
+    -96.793003
+   ],
+   "receptor_latlon": [
+    32.545321,
+    -96.79304
+   ],
+   "bbox": [
+    -96.7974531,
+    32.5413616,
+    -96.7900221,
+    32.5466128
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
   }
  ]
 }

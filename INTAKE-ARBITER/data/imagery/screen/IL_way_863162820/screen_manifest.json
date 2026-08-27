@@ -28,6 +28,32 @@
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 9,
    "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_377032061_377032058.jpg",
+   "source_osm_id": 377032061,
+   "receptor_osm_id": 377032058,
+   "source_name": "Equinix Chicago CH3",
+   "receptor_name": "EdgeConneX CHI02",
+   "source_latlon": [
+    42.001173,
+    -87.955194
+   ],
+   "receptor_latlon": [
+    42.001599,
+    -87.952628
+   ],
+   "bbox": [
+    -87.95712329999999,
+    41.9996222,
+    -87.9510392,
+    42.0029239
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
   }
  ]
 }

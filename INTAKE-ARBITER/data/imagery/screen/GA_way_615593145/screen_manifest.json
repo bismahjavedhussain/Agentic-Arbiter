@@ -28,6 +28,32 @@
    "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
    "n_buildings_framed": 2,
    "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_39083541_615593145.jpg",
+   "source_osm_id": 39083541,
+   "receptor_osm_id": 615593145,
+   "source_name": "Strategic Datasphere",
+   "receptor_name": "Mapletree Industrial",
+   "source_latlon": [
+    34.094692,
+    -84.235445
+   ],
+   "receptor_latlon": [
+    34.096629,
+    -84.237632
+   ],
+   "bbox": [
+    -84.23954359999999,
+    34.0932143,
+    -84.2337347,
+    34.0982843
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
   }
  ]
 }

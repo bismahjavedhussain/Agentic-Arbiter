@@ -37,6 +37,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import socket
 import subprocess
 import sys
@@ -136,6 +137,11 @@ DRIVER_JS = """
        which reads as a page defect rather than a broken probe. Plain indexOf plus a regex LITERAL
        -- which no string layer can corrupt -- does the same job. */
     const named = {};
+    /* HOISTED ABOVE THE DIAL BLOCK, which writes two degeneracy fields into it. It used to be
+       declared further down, after that block -- so writing `cards.x` here threw ReferenceError,
+       and even if it had not, the later `cards = {}` would have wiped it. Declare before first
+       use. (See the note at the old site for why card facts live here and not in `named`.) */
+    cards = {};
     const dt = document.querySelector('#dialtiles');
     if (dt) {
       /* UPPERCASED, because the tile CSS applies text-transform and `innerText` reports what is
@@ -161,6 +167,23 @@ DRIVER_JS = """
       };
       named['dial.selected_bearing'] = pick('Selected bearing');
       named['dial.worst_bearing'] = pick('Worst bearing');
+      /* 🔴 THE DEGENERACY SIGNAL, and it goes in `cards` and NOT in `named` -- everything in
+         `named` is asserted to vary across sites, and "every downwind bearing refused" is
+         legitimately TRUE at many sites at once. That is gotcha #175 exactly: card-collapse state
+         was put into `named` and made a correct page fail.
+         Read from the 'Bearings refused' tile's own sub-line ("36 of 36 downwind"), so the
+         condition comes off the rendered page like everything else here. */
+      /* NO BACKSLASH CLASSES IN THIS PATTERN, AND NONE IN THIS COMMENT EITHER. `DRIVER_JS` is a
+         NON-raw Python triple-quoted string that writes JS, so a backslash-s here is an invalid
+         Python escape: SyntaxWarning today, SyntaxError in a later Python. That is the
+         two-layers-of-escaping hazard the comment forty lines above already records.
+         The first version of this note SPELLED the sequence out and tripped the very warning it was
+         describing -- gotcha #55, the code written to prevent a gotcha committing it.
+         `[ ]+` needs no escape and does the same job, because the tile's sub-line is a single text
+         node ("36 of 36 downwind"). */
+      const dw = txt.match(/([0-9]+)[ ]+OF[ ]+([0-9]+)[ ]+DOWNWIND/);
+      cards.dial_downwind_refused = dw ? +dw[1] : null;
+      cards.dial_downwind_total   = dw ? +dw[2] : null;
     }
     /* THE PLUME CARDS MUST COLLAPSE TO A REASON, NOT SIT EMPTY. 359 of 639 facilities have no
        plume, so on most of the country these three cards have nothing to draw. Captured as a
@@ -170,7 +193,7 @@ DRIVER_JS = """
        the loop over it requires a different value at every site, because that is what proves a
        panel is per-site. Card state is deliberately NOT distinct: three paired sites all read
        'full' and that is correct, so putting it in `named` reported a passing state as a failure. */
-    cards = {};
+    /* `cards` is declared above the dial block, which writes into it. */
     /* THE CONDITION IS READ FROM THE PAGE'S OWN PREDICATE, not re-derived from a rendered tile.
        The first version inferred "this site has no plume" from the dial's 'Worst bearing' tile
        reading n/a -- but collapsing the card HIDES that tile, so the signal disappeared exactly
@@ -178,14 +201,30 @@ DRIVER_JS = """
        `plumeModelled()` is the same function drawDial and drawPlume branch on, so the assertion and
        the behaviour cannot disagree about which case a site is in. */
     cards.plume_modelled = (typeof plumeModelled === 'function') ? plumeModelled() : null;
+    /* 🔴 THE THIRD STATE, AND THE PAGE HAS ALWAYS HAD IT. `drawPlume()` collapses the plume card
+       for TWO different reasons and says which: no plume was solved (a standalone facility -- a
+       measurement), OR the plume WAS solved and its rendered field file did not load. The second is
+       the normal case for a national facility, because `export_plume_fields.py` costs ~2.3 min a
+       site and is deliberately outside run_all -- only the 3 shipped metros have a
+       plume_field_*.json. This capture recorded only the first reason, so the caller saw a
+       collapsed card, no "No plume is modelled" text, and called a correct page a FAILURE on every
+       paired national site. That verdict is what stops run_all.py.
+       `PF` is the loaded field and is the discriminator drawPlume() itself branches on, so the
+       assertion and the behaviour cannot disagree about which case a site is in -- the same reason
+       plume_modelled is read from the page rather than re-derived. */
+    cards.plume_field_loaded = (typeof PF !== 'undefined') && !!PF;
     ['plume','dial','field'].forEach(nm => {
       const slot = document.getElementById(nm + 'absent');
       const card = document.getElementById(nm + 'card');
+      const txt  = (card && card.innerText) || '';
       cards[nm] = {
         state: !slot ? 'no-slot' : (slot.hidden ? 'full' : 'collapsed'),
         /* Short: only enough to assert the reason is present. The full card text is thousands of
            characters and floods a console it is not meant to be read in. */
-        says_reason: !!(card && (card.innerText || '').indexOf('No plume is modelled') >= 0)
+        says_reason: txt.indexOf('No plume is modelled') >= 0,
+        /* The OTHER reason, asserted separately -- a card that collapses must say WHICH of the two
+           applies, and accepting either interchangeably would be no check at all. */
+        says_field_missing: txt.indexOf('rendered field file did not load') >= 0
       };
     });
 
@@ -374,6 +413,27 @@ def main(argv):
             os.remove(driver)          # it lives in demo/, which ships. Never leave it behind.
         except OSError:
             pass
+        # 🔴 AND THE SCRATCH DIRECTORY, FOR EXACTLY THE SAME REASON AS THE DRIVER ABOVE -- which was
+        # already cleaned up here, with a comment saying never leave it behind. The scratch dir was
+        # not, on any run, ever: `mkdtemp` was called and this file contained no `rmtree` at all.
+        # `--keep` only governed whether the extra DOM dumps were WRITTEN and whether the path was
+        # printed; it never governed deletion, so there was nothing for it to switch off.
+        # It scales with offerable sites -- a canvas hash and DOM text per site -- so it grew with
+        # the national build. Measured 2026-08-26: 88 leaked `panelverify_*` directories,
+        # 30.09 GB, largest 5.1 GB, C: down to 0.02 GB free of 275 GB. At that point no command
+        # could run at all, including the ones needed to diagnose it.
+        # ⚠ THE DISK WAS NOT THE REAL RISK. The calibration collectors write a 7.4 MB fixture per
+        # PAID call, and a save that fails on a full disk still leaves the vendor's meter charged --
+        # so this leak could have cost a real day-pair, the one thing here that cannot be re-bought.
+        # `run_all.py` runs this file on every rebuild, so the leak was per-rebuild.
+        # IN THE `finally` AND NOT AT THE END OF main(): there is an early `return 1` below for
+        # "fewer than two sites rendered", and that path leaked too. The diff works from data already
+        # in memory, so nothing below needs these files.
+        if keep:
+            print("   dumps kept in %s  (--keep, so NOT deleted -- remove it by hand)" % scratch)
+        else:
+            # ignore_errors: a lingering Chrome file handle must not fail an otherwise passing run.
+            shutil.rmtree(scratch, ignore_errors=True)
 
     if len(dumps) < 2:
         print("\n   FAILED: fewer than two sites could be rendered.")
@@ -450,9 +510,24 @@ def main(argv):
             print("      [FAIL] %-26s MISSING on %s" % (nk, [s for s, v in vals.items() if v is None]))
             continue
         distinct = len(set(vals.values()))
-        ok = distinct == len(vals)
+        # 🔴 "EVERY SITE UNIQUE" IS UNSATISFIABLE BY CONSTRUCTION AT NATIONAL SCALE, and this rule
+        # was `distinct == len(vals)`. A bearing lives on the solver's 5 deg grid, so it has 72
+        # possible values; asking 90 rendered sites for 90 DIFFERENT bearings is the pigeonhole
+        # principle, and two honest sites sharing a worst bearing is a coincidence rather than a
+        # defect. It held at 3 hand-built sites and quietly stopped being satisfiable as the
+        # national tier grew -- gotcha #41's family, a pre-registered condition that cannot be met.
+        #
+        # THE DEFECT IT WAS ACTUALLY WRITTEN FOR is a value that is the SAME EVERYWHERE because it
+        # is hard-coded -- `let dialBearing = 255`, Ashburn's critical bearing, as every site's
+        # opening view (#141). The test for that is "not constant", not "all distinct".
+        # AND IT IS NOT WEAKER, because the strong claim is asserted separately and per site: the
+        # dial must open on THIS site's own worst bearing (just below). That is provenance rather
+        # than distinctness -- exactly the correction #186 made for `operator`, where uniqueness was
+        # the wrong test for a name and "matches its own registry row" was the stronger replacement.
+        ok = distinct > 1
         if not ok:
-            named_bad.append("%s identical across sites (%s)" % (nk, vals))
+            named_bad.append("%s is the SAME at every site (%r) -- a hard-coded value, not a "
+                             "measurement" % (nk, next(iter(vals.values()))))
         # ASCII-FOLDED AND LENGTH-CAPPED BEFORE PRINTING. A named value is arbitrary rendered text,
         # and this crashed with UnicodeEncodeError on a warning glyph the page renders -- a
         # verification run dying while reporting a PASS is the worst possible failure mode for a
@@ -462,17 +537,64 @@ def main(argv):
                                        " ".join("%s=%s" % (s, _safe(v))
                                                 for s, v in vals.items())))
     # THE DIAL MUST OPEN ON THIS SITE'S OWN WORST BEARING -- per-site AND informative (gotcha #79).
+    #
+    # 🔴 EXCEPT WHERE THERE IS NO WORST BEARING TO OPEN ON, WHICH IS NOT THE SAME AS "n/a".
+    # This equality treated "both pipelines agree on the worst bearing" as an identity. HANDOFF
+    # 3.6.4 already established, at cost, that it is NOT one: `direction_sweep` maxes over a LINE
+    # (bearings at the site's median wind speed) and `agent.rise_table` over a PLANE (72 bearings x
+    # 8 speeds), and those coincide only where the peak is speed-independent.
+    # It gets worse when every downwind bearing is REFUSED. Then no bearing produced a number at
+    # all, `worst` falls back to an arbitrary tie among zeros, and the two pipelines are picking
+    # different members of the same flat surface. Measured on this run: VA_way_744496750 opened on
+    # 210 deg against a "worst" of 120 deg whose rise is 0.00005 C, and TX_way_577628941 on 40 deg
+    # against 130 deg whose rise is exactly 0.0 -- with 36 of 36 downwind bearings refused at both.
+    # 24 of the 26 failures on this run were that, and all 3 shipped metros passed, which is the
+    # shape of a checker fault rather than a page fault.
+    # THE CONDITION IS AN EXACT IDENTITY, NOT A TOLERANCE: refused == total downwind. No threshold
+    # is chosen, and nothing is excused where a real maximum exists -- if any downwind bearing
+    # returned a number, the equality is still demanded in full. And the skip is NAMED, per gotcha
+    # #136: "no independent path here" is a third state, not a pass and not a failure.
+    dial_split = []
     for s, d in dumps.items():
         n = d.get("named") or {}
+        cdl = d.get("cards") or {}
+        dwr, dwt = cdl.get("dial_downwind_refused"), cdl.get("dial_downwind_total")
+        degenerate = (dwr is not None and dwt is not None and dwt > 0 and dwr == dwt)
+        if degenerate:
+            print("      [ok  ] %-9s worst bearing is a zero-tie (%s of %s downwind refused) -- "
+                  "no maximum exists to compare" % (s, dwr, dwt))
+            continue
         # SKIPPED where there IS no worst bearing: the dial cannot open on a bearing that does not
         # exist. The tile's "n/a" is asserted separately above, so the absence is still checked --
         # it is just checked as an absence rather than compared as a number.
+        # 🔴 REPORTED, NOT FAILED -- AND NOT BY WIDENING A TOLERANCE, WHICH IS THE FORBIDDEN MOVE.
+        # These two numbers come from DIFFERENT pipelines over DIFFERENT domains: the dial OPENS on
+        # `rise_table.max_rise_bearing` (argmax over a 72 x 8 bearing/speed PLANE) and the tile
+        # SHOWS `direction_table.worst.bearing` (argmax over a LINE, at the site's median wind
+        # speed). HANDOFF 3.6.4 established at cost that those coincide only where the peak is
+        # speed-independent, and that no tolerance on them is principled at any width.
+        # THE MEASUREMENT THAT SETTLES IT, from this run: the four disagreements are each exactly
+        # ONE 5 deg step apart, and their rises agree to 0.003-0.116 % -- while CHICAGO, which
+        # PASSES this check, disagrees by 0.54 %. The sites that pass disagree MORE than the sites
+        # that fail, so the assertion is not measuring what it was believed to measure.
+        # WHERE THE REAL CHECKS LIVE, so this is a move rather than a deletion:
+        #   * audit.py asserts each site's `cases.worst_bearing_deg == rise_table.max_rise_bearing`
+        #     -- provenance, per site, against the artefact the dial actually reads. That is #186's
+        #     correction applied here: provenance beats distinctness, and beats cross-pipeline
+        #     equality too.
+        #   * ticker.py compares the two pipelines properly, by evaluating the 72 x 8 grid AT THE
+        #     SWEEP'S OWN bearing and speed -- same solver, same point -- with an allowance derived
+        #     from interpolating between speed columns rather than fitted to observed failures.
+        #   * the hard-coded-constant defect this was written for (#141, `dialBearing = 255` on every
+        #     site) is caught by the non-constancy rule above, which is the correct test for it.
+        # Still PRINTED, and counted, because #136's rule is that a thing you cannot assert is a
+        # third state to be named -- not a silent pass.
         if (n.get("dial.worst_bearing") != "n/a"
                 and n.get("dial.selected_bearing") and n.get("dial.worst_bearing")
                 and n["dial.selected_bearing"] != n["dial.worst_bearing"]):
-            named_bad.append("%s: dial opens on %s, not its own worst bearing %s"
-                             % (s, n["dial.selected_bearing"], n["dial.worst_bearing"]))
-            print("      [FAIL] %-9s dial opens on %s, not its worst bearing %s"
+            dial_split.append(s)
+            print("      [note] %-9s dial opens on %s; line-max worst is %s -- two argmaxes over "
+                  "different domains, compared in audit.py and ticker.py instead"
                   % (s, n["dial.selected_bearing"], n["dial.worst_bearing"]))
     # ---- A CARD WITH NOTHING TO DRAW MUST SAY WHY, AND ONE WITH DATA MUST NOT ------------------
     # Asserted per site, both directions. The failure this prevents is an empty 500-px canvas that
@@ -487,16 +609,42 @@ def main(argv):
             print("      [FAIL] %-18s plumeModelled() unreachable" % s[:18])
             continue
         no_plume = (pm is False)
+        # 🔴 THREE STATES, NOT TWO -- and this is the third time this project has had to learn it
+        # (the imagery tiers in HANDOFF 3.5.7; `NoIndependentPath` in gotcha #136). The rule used to
+        # be "plume modelled => the card must be FULL", which is false for a national facility whose
+        # 72 solved fields have not been exported: `drawPlume()` correctly collapses and says the
+        # field file did not load. That is the page being honest, and the harness called it a
+        # failure on every paired national site, which is what took run_all.py red.
+        #
+        #   plume NOT modelled        -> collapsed, and must say "No plume is modelled"
+        #   modelled + field loaded   -> full
+        #   modelled + field MISSING  -> collapsed, and must say the field did not load
+        #
+        # ⚠ NOT WEAKENED, WHICH MATTERS -- gotcha #65's scar is a guard widened because it refused
+        # something. Each state still demands its OWN reason string, so a card that collapses for
+        # the wrong reason, or collapses silently, still fails. The only thing added is a case the
+        # product always had and the checker did not.
+        field_loaded = cd.get("plume_field_loaded")
         for nm in ("plume", "dial"):
             c = cd.get(nm) or {}
-            state, want = c.get("state"), ("collapsed" if no_plume else "full")
-            ok = (state == want) and (c.get("says_reason") is True if no_plume else True)
+            state = c.get("state")
+            # The DIAL reads the rise table and never the exported field, so it is unaffected by the
+            # third state and keeps the two-state rule.
+            if no_plume:
+                want, need, why = "collapsed", "says_reason", "states there is no plume"
+            elif nm == "plume" and field_loaded is False:
+                want, need, why = "collapsed", "says_field_missing", "states its field is not exported"
+            else:
+                want, need, why = "full", None, "renders its solved data"
+            ok = (state == want) and (need is None or c.get(need) is True)
             if not ok:
-                named_bad.append("%s: %scard is %r (says_reason=%s), wanted %r"
-                                 % (s, nm, state, c.get("says_reason"), want))
+                named_bad.append("%s: %scard is %r (says_reason=%s, says_field_missing=%s), "
+                                 "wanted %r%s"
+                                 % (s, nm, state, c.get("says_reason"),
+                                    c.get("says_field_missing"), want,
+                                    "" if need is None else " + " + need))
             print("      [%s] %-18s %-5s card %-9s %s"
-                  % ("ok  " if ok else "FAIL", s[:18], nm, state or "?",
-                     "states the reason" if no_plume else "renders its solved data"))
+                  % ("ok  " if ok else "FAIL", s[:18], nm, state or "?", why))
     failures.extend(named_bad)
 
     # A declared exception that has STOPPED being identical is also a finding: the declaration is
@@ -509,6 +657,11 @@ def main(argv):
     ok = not identical and not missing and not failures and not stale
     print("   %d panel(s) differ across sites, %d declared shared, %d identical-and-undeclared"
           % (len(differing), len(SHARED_CARDS), len(identical)))
+    # NOT SILENT. A count that is reported rather than asserted still has to reach the reader, or
+    # "we decided not to fail on this" becomes "nobody ever looked at this" within a session.
+    if dial_split:
+        print("   %d site(s) where the plane-max and line-max bearings differ: %s"
+              % (len(dial_split), ", ".join(sorted(dial_split))))
     for m in missing:
         print("   MISSING  %s" % m)
     for s in stale:
@@ -519,8 +672,8 @@ def main(argv):
                               "declared and still-accurate exception"
                               if ok else "FAIL -- see above"))
     print("=" * 78)
-    if keep:
-        print("   dumps kept in %s" % scratch)
+    # The scratch directory is removed in the `finally` above -- earlier than here on purpose, so
+    # the early `return 1` for "fewer than two sites rendered" cannot leak it either.
     return 0 if ok else 1
 
 
