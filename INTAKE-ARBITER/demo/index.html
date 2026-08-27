@@ -677,10 +677,6 @@ body[data-stage="results"] .secgroup{display:block;margin:var(--sp-7) 0 0;
       <select id="c_site"></select></div>
   </div>
   <p class="note" id="pickinfo"></p>
-  <!-- What the screening gate removed from the list above. Written by buildSitePicker(); see the
-       comment there for why the five hand-screened metros keep their visible refusals and the
-       national tier does not. -->
-  <p class="note warn" id="pickrefused"></p>
   <button id="pickgo" class="btn btn-go">Configure the plant &rarr;</button>
 </div>
 
@@ -4419,7 +4415,6 @@ function buildSitePicker(){
   const sel=$('#c_site'); if(!sel) return;
   if(!SITES){ sel.innerHTML='<option>sites.json not loaded</option>'; sel.disabled=true; return; }
   sel.innerHTML='';
-  let hiddenRefused = 0, hiddenUnready = 0;
   for(const s of SITES.sites){
     /* 🔴 A REFUSED NATIONAL FACILITY IS OMITTED FROM THIS LIST ENTIRELY, at the user's direction:
        "dont include them in the map or in the search option or choose option". It was already gone
@@ -4431,19 +4426,14 @@ function buildSitePicker(){
        project, audit-registered, and the reason a judge believes the gate is real rather than
        decorative. Hiding them to tidy a dropdown would delete the proof that refusing happens.
        So: 5 curated rows keep their visible refusals; 250+ national rows do not clutter the list
-       with entries nobody can select. The count of what was hidden is printed below the box, so the
-       omission is visible rather than silent (#176: a change with no visible effect is decoration). */
-    /* TWO REASONS A NATIONAL ROW IS OMITTED, AND THEY ARE NOT THE SAME CLAIM.
-       A site the imagery gate REFUSED carries an assessed verdict. A site that is merely NOT READY
-       -- no weather station assigned yet, or its chain artefacts have not been built -- carries
-       `NOT SCREENED` and has been refused nothing. Counting the second as "refused by the screening
-       gate" would state a reason that is not that site's reason, which is gotcha #67 and the exact
-       defect this page has shipped six times. Measured here: 8 refused, 4 merely unbuilt. */
-    if(s.national && !s.offerable){
-      const refused = s.scope_verdict && s.scope_verdict !== 'NOT SCREENED';
-      if(refused) hiddenRefused++; else hiddenUnready++;
-      continue;
-    }
+       with entries nobody can select.
+       ⚠ THE COUNT OF WHAT WAS HIDDEN USED TO BE PRINTED BELOW THIS BOX AND IS NOT ANY MORE, at the
+       user's direction -- it was four lines of taxonomy on the first screen a judge sees. The
+       omission is still not silent, it just states itself somewhere better suited to it: every
+       refused site keeps its dot on the map CARRYING ITS OWN REASON, the five curated refusals stay
+       visible in this very dropdown, and the counts with their evidence are in README.md and
+       HANDOFF.md 3.7.2. #176 asks that a removal be visible, not that it be visible HERE. */
+    if(s.national && !s.offerable) continue;
     const o=document.createElement('option');
     o.value=s.key;
     const c=s.committed;
@@ -4454,21 +4444,6 @@ function buildSitePicker(){
     o.disabled = !s.offerable;
     sel.appendChild(o);
   }
-  /* NAMED, NOT SILENT. A list that quietly got shorter is indistinguishable from one that never had
-     those rows, and a reader is entitled to know the gate removed them rather than that they never
-     existed. The note element is optional so an older page still works. */
-  const rn = $('#pickrefused');
-  const bits = [];
-  if(hiddenRefused) bits.push('<strong>' + int(hiddenRefused) + '</strong> were <strong>refused by '
-    + 'the imagery screening gate</strong> — roof-mounted plant, plant split between roof and '
-    + 'grade, no ground-level plant, a committed pair that is not built, or not a data centre at '
-    + 'all. A refused site keeps its dot on the map with its reason; one where <em>no data centre '
-    + 'exists</em> is removed from the map as well, because a dot there would claim one does.');
-  if(hiddenUnready) bits.push('<strong>' + int(hiddenUnready) + '</strong> are simply <strong>not '
-    + 'built yet</strong> — no weather station assigned, or the agent chain has not been run. '
-    + 'Nothing has been refused about them.');
-  if(rn) rn.innerHTML = bits.length
-    ? 'Not listed above: ' + bits.join(' ') : '';
   const first=SITES.sites.find(x=>x.offerable);
   if(first) sel.value=(PF&&PF.metro)||first.key;
   /* 🔴 THIS FUNCTION USED TO END WITH ITS OWN HANDLER:

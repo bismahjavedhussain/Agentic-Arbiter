@@ -151,3 +151,23 @@ PREFLIGHT -- read-only. Nothing is written and nothing is spent.
 
    VERDICT: DO NOT RUN -- fix the [FAIL] rows above
 ==============================================================================
+
+### rebuild_calibration.py run  at 2026-08-27 10:24 UTC
+==============================================================================
+PREFLIGHT -- read-only. Nothing is written and nothing is spent.
+==============================================================================
+   [ok  ] nothing uncommitted that a rollback would touch; target is 533aa67
+          (1 output file(s) under testing/results/ differ -- this log, the ledger
+           cache, collector fixtures. Rollback does not touch them.)
+   ...... running audit.py to confirm the CURRENT state is green (this takes a minute)
+   [ok  ] audit.py green: AUDIT: 2057 passed, 0 warnings, 0 FAILURES
+   [FAIL] it is 15:27 PKT -- inside the 13:30-15:30 collector window.
+          a rebuild here can read a manifest mid-write. Start after 15:40 PKT.
+
+   published calibration : n = 4, ceiling 80.00 %, margin 0.15202845146120256
+   on disk now           : n = 6  (2026-08-12, 2026-08-13, 2026-08-15, 2026-08-16, 2026-08-25, 2026-08-26)
+   [ok  ] a rebuild would take n 4 -> 6, ceiling 80.00 % -> 85.71 %
+          3 further pair(s) would make 90 % reachable (n = 9)
+
+   VERDICT: DO NOT RUN -- fix the [FAIL] rows above
+==============================================================================
