@@ -36,8 +36,21 @@
      circulation. The cool cast also buys real separation between page and card -- #f9f9f7 against
      #fcfcfb was three points apart and read as one flat surface. */
   --page:#e8ece9; --surface-1:#f7f9f7; --surface-2:#eef2ef;
-  --text-primary:#14181a; --text-secondary:#4b5450; --muted:#7e8783;
-  --grid:#d5dcd7; --axis:#a9b2ad; --border:rgba(20,24,26,.12);
+  --text-primary:#14181a; --text-secondary:#4b5450;
+  /* 🔴 --muted AND --axis WERE BELOW THE CONTRAST FLOOR AND THIS IS MEASURED, NOT JUDGED.
+     Computed against all three surfaces (--page #e8ece9 is the worst case), WCAG 2.1 relative
+     luminance:
+         --muted  #7e8783 -> 3.10:1   and it carries `.tile .k` and `.plate-cell .pk`,
+                                      10.5px uppercase labels. AA wants 4.5:1 for that.
+         --axis   #a9b2ad -> 1.82:1   chart axes and `.btn` borders. Non-text graphics want 3:1.
+     Both are now the SMALLEST darkening of the same hue that clears the floor, found by walking
+     HLS lightness down in 1 % steps and re-measuring, so the greys stay the same greys:
+         --muted  #656c69 -> 4.51:1 worst, 5.09:1 best
+         --axis   #7b8981 -> 3.07:1 worst, 3.46:1 best
+     ⚠ --series-1 AND --series-2 ARE UNTOUCHED. The CVD dE figures quoted at the top of this file
+     were measured on that exact pair and `data-palette` records it; this fix is in the chrome. */
+  --muted:#656c69;
+  --grid:#d5dcd7; --axis:#7b8981; --border:rgba(20,24,26,.12);
   /* --surface-2 IS NEW AND IT FIXES A DEAD RULE. `.srchrow:hover,.srchrow:focus` has referenced
      var(--surface-2) since the search panel shipped, and nothing ever declared it, so the
      background resolved invalid-at-computed-value-time and search results had no hover or focus
@@ -55,7 +68,11 @@
   /* Status tokens deepened for the lighter paper. Each still ships with a text label, so none of
      them is the sole carrier of a meaning. --serious was removed: it was declared here and
      consumed nowhere, in CSS or in JS. */
-  --good:#0b7a3b; --warning:#c98a08; --critical:#b62d2d;
+  /* --warning was #c98a08 -- 2.47:1 on --page, the worst text contrast in the file, and it was
+     not decoration: `.plate-cell.plate-refused .pv` paints the REFUSAL FIGURE with it, at
+     --fs-plate. The one number a judge is meant to read on a refused site was the least legible
+     thing on the page. #8d6106 is the same ochre one step down: 4.58:1 worst, 5.16:1 best. */
+  --good:#0b7a3b; --warning:#8d6106; --critical:#b62d2d;
 
   /* ACTION BLUE IS SEPARATE FROM SERIES BLUE, and that separation is the point. .btn-go used to
      paint white text on --series-1 (#2a78d6), which is 4.46:1 -- under AA for 12.5px semibold.
@@ -216,7 +233,7 @@ input::placeholder{color:var(--muted);opacity:1}
 .tile{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
   padding:var(--sp-3) var(--sp-4)}
 .tile .v{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
-  font-size:var(--fs-tile);line-height:1.14;letter-spacing:-.02em}
+  font-size:var(--fs-tile);line-height:1.14;letter-spacing:-.02em;font-weight:600}
 .tile .k{font-family:var(--font-display);font-size:var(--fs-micro);color:var(--muted);
   font-weight:600;text-transform:uppercase;letter-spacing:var(--tr-wide);margin-bottom:var(--sp-1)}
 .tile .d{font-size:var(--fs-small);color:var(--text-secondary);margin-top:var(--sp-1)}
@@ -352,8 +369,13 @@ body[data-stage="results"] #plate{display:none}
 .plate-cell.plate-refused .pv{color:var(--warning)}
 .plate-cell .pk{font-family:var(--font-display);font-size:var(--fs-micro);font-weight:600;
   text-transform:uppercase;letter-spacing:var(--tr-wide);color:var(--muted)}
+/* WEIGHT, NOT SIZE, IS WHAT MAKES THE READING DOMINANT HERE. --fs-tile and --fs-plate are both
+   measured to fit a value like $5,522-$7,990 on one line inside their grid cell, so raising them
+   would wrap the figure and lose more than it gains. 600 on the mono face darkens the stroke
+   without changing a single box: the label stays quiet, the number carries. */
 .plate-cell .pv{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
-  font-size:var(--fs-plate);line-height:1.1;letter-spacing:-.03em;margin-top:var(--sp-1)}
+  font-size:var(--fs-plate);line-height:1.1;letter-spacing:-.03em;margin-top:var(--sp-1);
+  font-weight:600}
 .plate-cell .pd{font-size:var(--fs-small);color:var(--text-secondary);margin-top:var(--sp-2);
   line-height:1.45}
 /* The admission is marked, not hidden, and it is the same size as the wins beside it. */
@@ -375,7 +397,7 @@ body[data-stage="results"] #secnav{display:block;margin:0 0 var(--sp-5);
 #secnav .eyebrow{margin:0 0 var(--sp-2)}
 #secnav a{display:block;padding:var(--sp-1) 0 var(--sp-1) var(--sp-2);
   font-size:var(--fs-note);color:var(--text-secondary);text-decoration:none;
-  border-left:2px solid var(--grid);transition:border-color .12s,color .12s}
+  border-left:2px solid var(--grid);transition:border-color .18s,color .18s}
 #secnav a:hover{color:var(--action);border-left-color:var(--action)}
 /* :target is free and stateless. An IntersectionObserver scroll-spy would be the richer version
    and is deliberately not used: the render driver runs under a compressed virtual clock, so
@@ -505,7 +527,7 @@ body[data-stage="results"] .secgroup{display:block;margin:var(--sp-7) 0 0;
 .btn{display:inline-block;font-family:var(--font-display);font-size:var(--fs-note);font-weight:600;
   letter-spacing:.02em;padding:var(--sp-2) var(--sp-4);border-radius:5px;
   border:1px solid var(--axis);background:var(--surface-1);color:var(--text-primary);
-  text-decoration:none;cursor:pointer;transition:border-color .12s,color .12s,background .12s}
+  text-decoration:none;cursor:pointer;transition:border-color .18s,color .18s,background .18s}
 .btn:hover{border-color:var(--action);color:var(--action);background:var(--surface-2)}
 .btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
 .btn-go{background:var(--action);border-color:var(--action);color:var(--action-ink)}
