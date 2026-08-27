@@ -1156,6 +1156,15 @@ ceiling, the coverage and audit's own check count, so the second half of §3.6.7
 a human. The script prints exactly which figures moved.
 ⚠ **A FAILING CHECK 9 OR CHECK 10 AFTER A REBUILD IS NOT A BROKEN REBUILD** — it is the drift-catcher
 doing its job. The script distinguishes those from real failures and only rolls back on the latter.
+🔴 **BOTH OF ITS GATES WERE BROKEN WHEN FIRST WRITTEN, AND NEITHER SHOWED UP IN A DRY RUN — #194.**
+It rolled back on SUCCESS (a loose `"FAIL"` substring matched the summary line `0 FAILURES`), and it
+refused its own scheduled run (its own log line made the tree dirty before preflight read it). A
+third, #195: it demanded a green audit at 16:00 on a day whose collectors move the meter at
+13:30–15:30, so the spend documents were stale **by definition** — a spend-only failure is now
+repaired in place with `api_usage_ledger.py --json` then `bump_spend_docs.py`, and anything else
+still refuses. **`python testing/rebuild_calibration.py selftest` re-checks all 13 of those
+decisions in under a second — run it after any edit to that file.**
+
 ⚠ **`run --dry` does the preflight and prints the plan without rebuilding.** Use it first.
 **Log: `testing/results/rebuild_calibration.log`.** If it did not run, the preflight refused — read
 the log for which row failed.
@@ -4571,6 +4580,34 @@ session's. The command is in §4.2.
     demanding each state's OWN reason string, so a card that collapses for the wrong reason or
     collapses silently still fails. **Not a widened tolerance**: #65's scar is a guard weakened
     because it refused something; this adds a case the product always had and the checker did not.
+
+194. 🔴 **THE SAFETY WRAPPER WAS THE MOST DANGEROUS FILE IN THE PROJECT, AND BOTH DEFECTS WERE IN ITS
+    GATES RATHER THAN IN ITS WORK.** `rebuild_calibration.py` exists so a 4–5 hour rebuild can fail
+    cheaply. Two things in it, neither reachable by a dry run:
+    * **It rolled back on SUCCESS.** `fails = [l for l in aout if "FAIL" in l]` — and audit's summary
+      line reads `AUDIT: 2057 passed, 0 warnings, 0 FAILURES`. Measured on the green tree: the loose
+      test finds **1** line, `[FAIL]` finds **0**. That one line matches no document pattern, so
+      `doc_only` came out False and a perfect rebuild would have been reverted, four and a half hours
+      gone, with the log saying it had failed. **Match the bracketed token, never the word.**
+    * **It refused its own scheduled run.** The gate demanded a clean tree, and `say()` appends the
+      run header to `testing/results/rebuild_calibration.log` **before** preflight reads `git
+      status`. Every run was dirty by its own first line of output. And the collectors rewrite
+      `testing/results/api_usage.json`, so the gate could never pass on a day a pair actually
+      landed. Now only paths OUTSIDE `testing/results/` block, which is exactly the set rollback
+      would overwrite; the churn is named and printed instead.
+    Same shape as #58's *measure the measurement*: **a guard has to be verified against its own
+    output, not read.** `python testing/rebuild_calibration.py selftest` now checks 13 of these
+    decisions in under a second, including "a green audit never rolls back" as a named case.
+
+195. **A GATE THAT REFUSES ON A CONDITION IT CREATES IS NOT SAFE, IT IS INERT — and this one would
+    have been silent.** Preflight also demanded a green audit at 16:00, on a day whose collectors
+    buy credits at 13:30–15:30, which makes the two spend documents stale **by definition**. The
+    scheduled task would have run, refused, exited, and left a log nobody reads until the deadline.
+    A spend-figure-only failure is now repaired in place — `api_usage_ledger.py --json` then
+    `bump_spend_docs.py`, in that order (#3.7.7 #3: the wrong order writes stale figures and still
+    reports success) — and anything else still refuses. **When scheduling unattended work, ask what
+    the world looks like AT THE TRIGGER TIME, not now:** the collector window, the meter, and the
+    documents were all going to be different, and two of the three were going to block.
 
 ## Carried forward, continued
 

@@ -25,6 +25,7 @@ USAGE
     python testing/rebuild_calibration.py preflight    # free, read-only, exits non-zero if not safe
     python testing/rebuild_calibration.py run          # the real thing, hours
     python testing/rebuild_calibration.py run --dry    # preflight + print the plan, no rebuild
+    python testing/rebuild_calibration.py selftest    # free, instant: checks the two gates' logic
 """
 import json
 import math
@@ -45,6 +46,16 @@ LOG = os.path.join(HERE, "results", "rebuild_calibration.log")
 # rather than `git reset --hard`, which would also throw away anything else in the working tree.
 RESTORE = ["INTAKE-ARBITER/demo", "INTAKE-ARBITER/data"]
 
+# Paths a rebuild neither reads as input nor restores on rollback: this script's own log, the ledger
+# cache audit.py rewrites, and the paid fixtures a collector drops in.
+#
+# ⚠ THE GATE MUST EXEMPT THESE OR IT CAN NEVER PASS. `say()` appends the run header to the log
+# BEFORE preflight starts, so the tree is already dirty by the time the check reads it -- a strict
+# check refuses its own scheduled run, every time. Found by running `run --dry` twice: the second
+# run failed on the first run's log line. Everything OUTSIDE this prefix still blocks, because
+# rollback does `git checkout -- INTAKE-ARBITER/{demo,data}` and would destroy uncommitted work there.
+OUTPUT_ONLY = ("testing/results/",)
+
 ALPHA = 0.10
 
 
@@ -60,6 +71,26 @@ def say(msg=""):
 def git(*args):
     return subprocess.run(["git"] + list(args), cwd=ROOT, capture_output=True, text=True,
                           encoding="utf-8", errors="replace")
+
+
+def dirty_paths():
+    """Uncommitted paths, split into (blocking, output-only churn).
+
+    Porcelain's path field starts at column 3; a rename prints `old -> new` and only the new name
+    matters. Paths with spaces or non-ASCII come back quoted, so the quotes are stripped -- the
+    prefix test is on the git-reported forward-slash form, not an OS path.
+    """
+    out = git("status", "--porcelain").stdout.splitlines()
+    blocking, churn = [], []
+    for line in out:
+        if not line.strip():
+            continue
+        path = line[3:].strip()
+        if " -> " in path:
+            path = path.split(" -> ", 1)[1].strip()
+        path = path.strip('"')
+        (churn if path.startswith(OUTPUT_ONLY) else blocking).append(path)
+    return blocking, churn
 
 
 def pairs_on_disk():
@@ -81,6 +112,36 @@ def pairs_on_disk():
         if os.path.exists(fp) and os.path.exists(hp) and os.path.getsize(fp) > 100000:
             res.append(iso)
     return res
+
+
+def run_audit():
+    return subprocess.run([sys.executable, "audit.py"], cwd=SRC, capture_output=True, text=True,
+                          encoding="utf-8", errors="replace")
+
+
+def audit_fails(out):
+    return [l for l in (out or "").splitlines() if "[FAIL]" in l]
+
+
+# The four checks `bump_spend_docs.py` exists to satisfy, by their audit.py labels. Kept as one
+# named tuple so preflight (before the rebuild) and verify (after it) agree on what "the documents
+# are merely lagging" means, instead of two hand-copied lists drifting apart.
+SPEND_LABELS = ("quotes the current spend", "OTHER call count", "superseded figure")
+
+
+def spend_only(fails):
+    return bool(fails) and all(any(k in l for k in SPEND_LABELS) for l in fails)
+
+
+def doc_only(fails):
+    """True when every audit failure is a DOCUMENT lagging a figure the rebuild just moved.
+
+    A rebuild changes n, the ceiling, the coverage and audit's own check count, so README and the
+    two spend documents go stale in the same instant the rebuild succeeds -- that is the drift
+    catcher working, not breakage. Anything else in the list means roll back.
+    """
+    return bool(fails) and all(("README figure" in l) or any(k in l for k in SPEND_LABELS)
+                               for l in fails)
 
 
 def audit_verdict_line(out):
@@ -124,26 +185,56 @@ def preflight():
 
     # 1. THE TREE MUST ALREADY BE COMMITTED, because that commit IS the rollback. Refusing here is
     #    the difference between a bounded failure and an afternoon of forensics.
-    st = git("status", "--porcelain")
-    dirty = [l for l in st.stdout.splitlines() if l.strip()]
-    if dirty:
-        say("   [FAIL] working tree has %d uncommitted change(s). Commit or stash first --"
-            % len(dirty))
-        say("          the last commit is what a rollback restores to.")
+    blocking, churn = dirty_paths()
+    if blocking:
+        say("   [FAIL] %d uncommitted change(s) OUTSIDE testing/results/. Commit or stash first --"
+            % len(blocking))
+        say("          the last commit is what a rollback restores to, and rollback overwrites")
+        say("          INTAKE-ARBITER/demo and INTAKE-ARBITER/data without asking.")
+        for q in blocking[:8]:
+            say("          - %s" % q)
+        if len(blocking) > 8:
+            say("          ... and %d more" % (len(blocking) - 8))
         ok = False
     else:
         head = git("rev-parse", "--short", "HEAD").stdout.strip()
-        say("   [ok  ] tree is clean; rollback target is %s" % head)
+        say("   [ok  ] nothing uncommitted that a rollback would touch; target is %s" % head)
+        if churn:
+            say("          (%d output file(s) under testing/results/ differ -- this log, the ledger"
+                % len(churn))
+            say("           cache, collector fixtures. Rollback does not touch them.)")
 
     # 2. IT MUST ALREADY BE GREEN. Rebuilding on top of a red tree cannot tell you whether the
     #    rebuild broke something or it was already broken -- and that is the question that matters.
     say("   ...... running audit.py to confirm the CURRENT state is green (this takes a minute)")
-    a = subprocess.run([sys.executable, "audit.py"], cwd=SRC, capture_output=True, text=True,
-                       encoding="utf-8", errors="replace")
+    a = run_audit()
     last = audit_verdict_line(a.stdout)
+    if a.returncode != 0 and spend_only(audit_fails(a.stdout)):
+        # ⚠ THIS IS WHY THE SCHEDULED RUN WOULD OTHERWISE ALWAYS REFUSE. The collectors buy pairs
+        #    at 13:30-15:30 and the rebuild is scheduled for 16:00, so by the time preflight runs,
+        #    the meter has moved and the two documents quoting it are stale BY DEFINITION. That is
+        #    a document lagging a number, not a red tree -- and refusing on it would mean the
+        #    rebuild never happens on any day a pair actually lands.
+        say("   ...... audit is red ONLY on the spend figure, which the collectors moved today.")
+        say("          refreshing the ledger and re-bumping the two documents that quote it.")
+        for tool, extra in (("api_usage_ledger.py", ["--json"]), ("bump_spend_docs.py", [])):
+            # THE --json IS NOT OPTIONAL and its order is not either: bump_spend_docs reads the
+            # CACHED ledger, so without a refresh first it writes STALE figures and still reports
+            # success. HANDOFF 3.7.7 #3.
+            r = subprocess.run([sys.executable, os.path.join(HERE, tool)] + extra, cwd=ROOT,
+                               capture_output=True, text=True, encoding="utf-8", errors="replace")
+            say("          %-22s exit %d" % (tool, r.returncode))
+            if r.returncode != 0:
+                say("          | %s" % (r.stderr or r.stdout or "").strip()[-300:])
+                break
+        say("   ...... re-running audit.py")
+        a = run_audit()
+        last = audit_verdict_line(a.stdout)
     if a.returncode != 0:
         say("   [FAIL] audit.py is NOT green right now: %s" % last[0].strip())
         say("          fix that first; do not rebuild on a red tree.")
+        for l in audit_fails(a.stdout)[:8]:
+            say("          | %s" % l.strip())
         ok = False
     else:
         say("   [ok  ] audit.py green: %s" % last[0].strip())
@@ -241,21 +332,21 @@ def run(dry=False):
             say("      | %s" % l)
         return rollback("run_all.py did not finish: %s" % last)
 
-    a = subprocess.run([sys.executable, "audit.py"], cwd=SRC, capture_output=True, text=True,
-                       encoding="utf-8", errors="replace")
-    aout = (a.stdout or "").splitlines()
-    alast = [l for l in aout if l.strip()][-1:] or [""]
-    say("   audit.py              : %s" % alast[0].strip())
-    fails = [l for l in aout if "FAIL" in l]
+    a = run_audit()
+    say("   audit.py              : %s" % audit_verdict_line(a.stdout)[0].strip())
+
+    # ⚠ MATCH "[FAIL]", NOT "FAIL". The summary line reads "0 warnings, 0 FAILURES", so a loose
+    #    substring test finds one "failure" on a PERFECTLY GREEN audit -- and since that line
+    #    matches none of the document patterns below, `doc_only` came out False and this function
+    #    rolled back a successful rebuild. Measured on the green tree: loose match 1 line, strict
+    #    match 0. Four and a half hours of work, discarded by a missing pair of brackets.
+    fails = audit_fails(a.stdout)
 
     # 🔴 A FAILING check 9 or check 10 IS EXPECTED HERE AND IS *NOT* A BROKEN REBUILD.
     # Section 3.6.7's two-step: the rebuild moves the figures, so the documents quoting them go
     # stale in the same instant and the audit says so. Only failures OUTSIDE those two checks mean
     # the rebuild actually broke something.
-    doc_only = fails and all(("README figure" in l) or ("quotes the current spend" in l)
-                             or ("OTHER call count" in l) or ("superseded figure" in l)
-                             for l in fails)
-    if fails and not doc_only:
+    if fails and not doc_only(fails):
         for l in fails[:12]:
             say("      | %s" % l.strip())
         return rollback("audit.py failed on something other than a stale document figure")
@@ -284,6 +375,46 @@ def run(dry=False):
     return 0
 
 
+def selftest():
+    """Check the two decisions that can silently destroy a good rebuild, WITHOUT a 4.5-hour run.
+
+    Both were real defects in this file, and neither would have shown up in a dry run:
+      * a loose "FAIL" substring matched the summary line "0 FAILURES" on a GREEN audit, so the
+        rollback fired after a successful rebuild;
+      * the dirty-tree gate counted this script's own log line, so the scheduled run refused itself.
+    """
+    GREEN = "AUDIT: 2057 passed, 0 warnings, 0 FAILURES"
+    SPEND = "   [FAIL] API-USAGE.md           quotes the current spend          missing 893,840"
+    OTHERC = "   [FAIL] HANDOFF.md            quotes no OTHER call count or plan percentage"
+    README = "   [FAIL] every README figure matches the emitted JSON             3 of 45 differ"
+    REAL = "   [FAIL] the served copy is byte-identical to the root one        differs"
+
+    cases = [
+        ("green audit yields no [FAIL] rows", audit_fails(GREEN) == []),
+        ("a green audit therefore never rolls back", not (audit_fails(GREEN) and True)),
+        ("verdict line is the AUDIT line, not the separator",
+         audit_verdict_line(chr(10).join(["=" * 78, GREEN, "=" * 78]))[0] == GREEN),
+        ("spend-only is recognised", spend_only([SPEND, OTHERC]) is True),
+        ("a README drift is NOT spend-only", spend_only([SPEND, README]) is False),
+        ("a real failure is NOT spend-only", spend_only([SPEND, REAL]) is False),
+        ("stale documents after a rebuild are doc-only", bool(doc_only([SPEND, README, OTHERC]))),
+        ("a real failure after a rebuild rolls back", not doc_only([README, REAL])),
+        ("no failures is not doc-only", not doc_only([])),
+        ("this script's own log never blocks", "testing/results/rebuild_calibration.log"
+         .startswith(OUTPUT_ONLY)),
+        ("the ledger cache never blocks", "testing/results/api_usage.json".startswith(OUTPUT_ONLY)),
+        ("a demo change DOES block", not "INTAKE-ARBITER/demo/trace.json".startswith(OUTPUT_ONLY)),
+        ("a src change DOES block", not "INTAKE-ARBITER/src/agent.py".startswith(OUTPUT_ONLY)),
+    ]
+    bad = 0
+    for name, passed in cases:
+        say("   [%s] %s" % ("PASS" if passed else "FAIL", name))
+        bad += 0 if passed else 1
+    say("")
+    say("   SELFTEST: %d passed, %d FAILURES" % (len(cases) - bad, bad))
+    return 0 if bad == 0 else 1
+
+
 def main(argv):
     mode = (argv[0] if argv else "preflight").lower()
     say("")
@@ -293,6 +424,8 @@ def main(argv):
         return preflight()
     if mode == "run":
         return run(dry="--dry" in argv)
+    if mode == "selftest":
+        return selftest()
     raise SystemExit(__doc__)
 
 

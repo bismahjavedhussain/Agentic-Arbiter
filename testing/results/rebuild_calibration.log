@@ -56,3 +56,98 @@ PREFLIGHT -- read-only. Nothing is written and nothing is spent.
 
    VERDICT: DO NOT RUN -- fix the [FAIL] rows above
 ==============================================================================
+
+### rebuild_calibration.py run  at 2026-08-27 10:02 UTC
+==============================================================================
+PREFLIGHT -- read-only. Nothing is written and nothing is spent.
+==============================================================================
+   [FAIL] working tree has 1 uncommitted change(s). Commit or stash first --
+          the last commit is what a rollback restores to.
+   ...... running audit.py to confirm the CURRENT state is green (this takes a minute)
+   [ok  ] audit.py green: AUDIT: 2057 passed, 0 warnings, 0 FAILURES
+   [FAIL] it is 15:05 PKT -- inside the 13:30-15:30 collector window.
+          a rebuild here can read a manifest mid-write. Start after 15:40 PKT.
+
+   published calibration : n = 4, ceiling 80.00 %, margin 0.15202845146120256
+   on disk now           : n = 6  (2026-08-12, 2026-08-13, 2026-08-15, 2026-08-16, 2026-08-25, 2026-08-26)
+   [ok  ] a rebuild would take n 4 -> 6, ceiling 80.00 % -> 85.71 %
+          3 further pair(s) would make 90 % reachable (n = 9)
+
+   VERDICT: DO NOT RUN -- fix the [FAIL] rows above
+==============================================================================
+
+### rebuild_calibration.py run  at 2026-08-27 10:06 UTC
+==============================================================================
+PREFLIGHT -- read-only. Nothing is written and nothing is spent.
+==============================================================================
+   [FAIL] 1 uncommitted change(s) OUTSIDE testing/results/. Commit or stash first --
+          the last commit is what a rollback restores to, and rollback overwrites
+          INTAKE-ARBITER/demo and INTAKE-ARBITER/data without asking.
+          - testing/rebuild_calibration.py
+   ...... running audit.py to confirm the CURRENT state is green (this takes a minute)
+   [ok  ] audit.py green: AUDIT: 2057 passed, 0 warnings, 0 FAILURES
+   [FAIL] it is 15:08 PKT -- inside the 13:30-15:30 collector window.
+          a rebuild here can read a manifest mid-write. Start after 15:40 PKT.
+
+   published calibration : n = 4, ceiling 80.00 %, margin 0.15202845146120256
+   on disk now           : n = 6  (2026-08-12, 2026-08-13, 2026-08-15, 2026-08-16, 2026-08-25, 2026-08-26)
+   [ok  ] a rebuild would take n 4 -> 6, ceiling 80.00 % -> 85.71 %
+          3 further pair(s) would make 90 % reachable (n = 9)
+
+   VERDICT: DO NOT RUN -- fix the [FAIL] rows above
+==============================================================================
+
+### rebuild_calibration.py selftest  at 2026-08-27 10:13 UTC
+   [PASS] green audit yields no [FAIL] rows
+   [PASS] a green audit therefore never rolls back
+   [PASS] verdict line is the AUDIT line, not the separator
+   [PASS] spend-only is recognised
+   [PASS] a README drift is NOT spend-only
+   [PASS] a real failure is NOT spend-only
+   [PASS] stale documents after a rebuild are doc-only
+   [PASS] a real failure after a rebuild rolls back
+   [PASS] no failures is not doc-only
+   [PASS] this script's own log never blocks
+   [PASS] the ledger cache never blocks
+   [PASS] a demo change DOES block
+   [PASS] a src change DOES block
+
+   SELFTEST: 13 passed, 0 FAILURES
+
+### rebuild_calibration.py selftest  at 2026-08-27 10:14 UTC
+   [PASS] green audit yields no [FAIL] rows
+   [PASS] a green audit therefore never rolls back
+   [PASS] verdict line is the AUDIT line, not the separator
+   [PASS] spend-only is recognised
+   [PASS] a README drift is NOT spend-only
+   [PASS] a real failure is NOT spend-only
+   [PASS] stale documents after a rebuild are doc-only
+   [PASS] a real failure after a rebuild rolls back
+   [PASS] no failures is not doc-only
+   [PASS] this script's own log never blocks
+   [PASS] the ledger cache never blocks
+   [PASS] a demo change DOES block
+   [PASS] a src change DOES block
+
+   SELFTEST: 13 passed, 0 FAILURES
+
+### rebuild_calibration.py run  at 2026-08-27 10:14 UTC
+==============================================================================
+PREFLIGHT -- read-only. Nothing is written and nothing is spent.
+==============================================================================
+   [FAIL] 1 uncommitted change(s) OUTSIDE testing/results/. Commit or stash first --
+          the last commit is what a rollback restores to, and rollback overwrites
+          INTAKE-ARBITER/demo and INTAKE-ARBITER/data without asking.
+          - testing/rebuild_calibration.py
+   ...... running audit.py to confirm the CURRENT state is green (this takes a minute)
+   [ok  ] audit.py green: AUDIT: 2057 passed, 0 warnings, 0 FAILURES
+   [FAIL] it is 15:16 PKT -- inside the 13:30-15:30 collector window.
+          a rebuild here can read a manifest mid-write. Start after 15:40 PKT.
+
+   published calibration : n = 4, ceiling 80.00 %, margin 0.15202845146120256
+   on disk now           : n = 6  (2026-08-12, 2026-08-13, 2026-08-15, 2026-08-16, 2026-08-25, 2026-08-26)
+   [ok  ] a rebuild would take n 4 -> 6, ceiling 80.00 % -> 85.71 %
+          3 further pair(s) would make 90 % reachable (n = 9)
+
+   VERDICT: DO NOT RUN -- fix the [FAIL] rows above
+==============================================================================
