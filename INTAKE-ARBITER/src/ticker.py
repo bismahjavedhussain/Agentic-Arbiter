@@ -366,7 +366,13 @@ SHORT_TEMPLATES = {
     "decide.days_vacuous": "declaring {n_free:,} of {n_dec:,} free -- too hot for any controller",
     "act.commands": "emitting {n_rows:,} command rows, each carrying its bound",
     "score.sequential": "scoring itself: {cov_pct:.1f} % coverage on held-out days",
-    "score.verdict": "pre-registered verdict: {verdict}",
+    # THE WORDING IS "MET / NOT MET", NOT "PASS / FAIL", AND THE MEANING IS IDENTICAL. Three
+    # conditions were fixed in writing before any outcome existed; this says whether they were met.
+    # "NOT MET" is the same claim as "FAIL" -- it does not soften it, and the three conditions are
+    # still printed individually as yes/no beside it in the long form, so a reader can see WHICH one
+    # failed rather than only that something did. Do not change it back: on a status line the bare
+    # word FAIL reads as the agent crashing, which is a different and untrue statement.
+    "score.verdict": "pre-registered test: {verdict}",
     "recalibrate.moved": "widening its own margin by {delta_c:+.4f} C, unprompted",
     "recalibrate.online": "recalibrating online over {rounds:,} rounds",
 }
@@ -757,7 +763,7 @@ def system_stream(trace, backtest, rolling):
         event("score.sequential", cov_pct=100.0 * cyc["pooled_coverage"], n_test=len(seq),
               worst_pct=100.0 * min(r["coverage"] for r in seq)),
         event("score.verdict", p1_pct=85.0, p1=p1, p2_pct=60.0, p2=p2, p3_n=3, p3=p3,
-              verdict="PASS" if (p1 and p2 and p3) else "FAIL"),
+              verdict="MET" if (p1 and p2 and p3) else "NOT MET"),
         event("recalibrate.moved", trigger_date=trig,
               before_c=traj[i_best]["margin_c"], before_days=traj[i_best]["after_days"],
               after_c=traj[i_best + 1]["margin_c"], after_days=traj[i_best + 1]["after_days"],
