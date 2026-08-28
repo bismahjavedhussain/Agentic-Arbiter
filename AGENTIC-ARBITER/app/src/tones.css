@@ -137,8 +137,19 @@ select option { background: var(--w-3); color: var(--w-ink); }
 /* ---- 6. 🔴 THE REACT POPOVER, WHICH IS THE ONE THE MASTHEAD ACTUALLY USES.
    Info.tsx renders `role="note"` with `className="glass ..."`. My previous rule styled the ENGINE's
    `.info-bub`, a different element, which is why the transparency survived two "fixes". ---- */
+/* 🔴 EVERY FLOATING SURFACE, and there turned out to be FOUR kinds, not one.
+   Each was found separately, which is why this list grew three times:
+     .info-bub          the engine's own tooltip, in the lifted markup
+     [role='note']      React's Info.tsx, which is what the masthead actually uses
+     [role='listbox']   the Combo dropdown (above, and it needs its own text rule)
+     [role='dialog']    the DetailModal that opens from "What a live run costs" and the folded prose
+   All four carried `.glass`, so all four showed the page through them. Naming them together here
+   means the next one added inherits the treatment instead of being a fifth discovery. */
 [role='note'],
-[role='note'].glass {
+[role='note'].glass,
+[role='dialog'],
+[role='dialog'].glass,
+.info-bub {
   background: var(--fg-pop) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -147,8 +158,30 @@ select option { background: var(--w-3); color: var(--w-ink); }
   color: var(--fg-pop-dim) !important;
   z-index: 300 !important;
 }
-[role='note'] strong,
-[role='note'] b { color: var(--fg-pop-ink) !important; }
+[role='note'] strong, [role='note'] b,
+[role='dialog'] strong, [role='dialog'] b,
+[role='dialog'] h3, [role='dialog'] h4,
+.info-bub strong, .info-bub b { color: var(--fg-pop-ink) !important; }
+/* Body prose, code and list items inside a dialog: the modal is tall, so its text has to be as
+   readable as a panel's rather than as quiet as a tooltip's. */
+[role='dialog'] p,
+[role='dialog'] li,
+[role='dialog'] .aa-detail { color: var(--fg-pop-dim) !important; }
+[role='dialog'] code {
+  background: color-mix(in oklab, var(--fg-bright) 14%, transparent) !important;
+  color: var(--fg-pop-ink) !important;
+  border-radius: 4px;
+  padding: 0 3px;
+}
+/* Its Close button, which was a hairline box on glass. */
+[role='dialog'] button {
+  border-color: color-mix(in oklab, var(--fg-bright) 34%, transparent) !important;
+  color: var(--fg-pop-ink) !important;
+  background: color-mix(in oklab, var(--fg-bright) 12%, transparent) !important;
+}
+/* The scrim behind it, so the page reads as dimmed rather than as showing through. */
+[role='presentation']:has(> [role='dialog']),
+[role='presentation'][class*='fixed'] { background: rgba(4, 9, 16, 0.62) !important; }
 
 /* ---- 7. EVERY CALL TO ACTION IN BRAND BLUE.
    MEASURED: "Configure this plant" rendered black in light theme and "Run the agent on this site"

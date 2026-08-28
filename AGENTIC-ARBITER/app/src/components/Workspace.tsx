@@ -44,7 +44,9 @@ const ICONS: Record<TabId, typeof SlidersHorizontal> = {
 const GROUPS: { label: string; ids: TabId[] }[] = [
   { label: 'Setup', ids: ['config'] },
   { label: 'The run', ids: ['live'] },
-  { label: 'What it found', ids: ['schedule', 'money', 'plume', 'calib'] },
+  /* "What the agent found", not "What it found": the subject of every one of these tabs is the
+     agent, and the shorter form left a judge to guess what "it" was. */
+  { label: 'What the agent found', ids: ['schedule', 'money', 'plume', 'calib'] },
 ]
 
 /**
