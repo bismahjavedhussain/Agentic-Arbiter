@@ -401,6 +401,35 @@ commands and exit-code contracts are in `03-VERIFICATION.md`.
 
 ## 3. Change log
 
+### 2026-08-28 - Deployment prep, and the prose the UI stopped showing
+
+**Deployment shape chosen by the user:** both the static demo and the live API on ONE Python host, so
+`fetch('api/live/...')` stays same-origin and needs no code change, plus a static replay-only mirror on
+GitHub Pages as the always-up fallback. `serve_live.py` already serves `demo/` statically and answers
+`/api/*`, so the single-host option needs nothing written.
+
+**Tracked bytes: 1,823 MB to 962 MB**, inside GitHub's recommended 1 GB. Nothing exceeded the 100 MB
+per-file hard limit (largest is `scenarios.json` at 30 MB), so size was a repository problem rather than
+a file problem.
+
+| Removed | Size | Why it was safe |
+|---|---|---|
+| `AGENTIC-ARBITER/data/` | 1,039 MB, 2,120 files | never fetched at runtime; moved to `D:/FGHackathon-data` with a DIRECTORY JUNCTION at the old path so all twelve scripts keep working |
+| unoffered artefacts | 28.3 MB, 153 files | the 14 sites `sites.json` marks not offerable; `#c_site` only ever holds an offerable key |
+
+⚠ THE COST, STATED: a fresh clone cannot regenerate the pipeline without fetching the data folder
+separately. That was the accepted trade.
+
+**README migration, the brief's last unfinished item.** "Strip all other verbose, explanatory paragraphs
+from the UI entirely and compile them into a well-structured README.md file." A new section, *Reading the
+results stage, panel by panel*, 1,192 words, one subsection per panel, so nothing on screen is reachable
+only by clicking.
+
+🔴 IT DELIBERATELY QUOTES NO SITE-SPECIFIC FIGURE. The folded prose contains runtime numbers that change
+with the selected site and the controls. Copying them into a static document would manufacture exactly
+the class of claim `audit.py` exists to prevent: a figure no test re-reads. So the section explains what
+each panel is FOR and what its arithmetic means, and leaves every number to the artefacts.
+
 ### 2026-08-28 - The results stage stopped being a report you scroll through
 
 **The user, on the screen they cared most about:** "by the time user reaches the 'read the decision'

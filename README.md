@@ -377,6 +377,128 @@ problem we have deliberately not solved yet.**
 
 ---
 
+## Reading the results stage, panel by panel
+
+The interface deliberately shows very little prose. Each panel carries a one line lead, its numbers and
+its graph, and a single button that opens the detail. This section is the long form of that detail, so
+nothing on the screen is reachable only by clicking.
+
+Panels appear in this order once you press **Run the agent**. Every figure named below is recomputed
+from the artefacts whenever you change a control; the words here explain what a panel is for, not what
+its numbers happen to be today.
+
+### The agent, working
+Seven named stages, streamed as they run: perceive, solve, bound, decide, act, score, recalibrate.
+Every number anywhere else on the page is produced in these steps, and each line is a claim you can
+check. **No language model is involved**, and that is a design decision rather than a limitation: this
+stage reports numbers the agent already computed, which is the one place a model would be most likely
+to be wrong and least excusable. The **Download the decision report** button writes a PDF snapshot of
+one named configuration.
+
+### The decision: a schedule, not a thermostat
+One day, hour by hour, in two rows: what the agent chose, and what the reactive controller operators
+actually run chose. Hours are maximised **subject to** three constraints at once, which is what makes
+it a schedule rather than a setpoint:
+
+- a hard safety bound on intake temperature,
+- a **switch budget**, a limit on how many times a day the plant may change mode,
+- a **minimum dwell**, the least time it must stay in a mode once it is there.
+
+The line chart beneath shows, for each hour, the agent's upper bound on intake against the plant limit
+and against what actually happened. Where the bound crosses the limit, the agent does not switch.
+
+### What it is worth here, over five real years
+The site's own recorded weather, priced. Delivered is what the rolling controller actually ran, hour by
+hour on a twelve hour horizon, each hour bounded at its own forecast lead. Avoided is the difference
+against the incumbent.
+
+**On a large share of settings the honest answer is that there is no free cooling to win, and that is
+reported rather than hidden.** A tool that claims a saving everywhere is not measuring anything.
+
+### Five years of real hours
+A ladder: take one input away at a time, leave everything else in reality, and measure what the loss
+costs. That is how you find out what each part of the agent is actually worth rather than asserting it.
+
+- Blind it to the neighbour's exhaust and it loses hours **and** its unsafe declarations rise.
+- Remove the single on site temperature reading and forecast skill falls, because that reading is what
+  removes the day level offset.
+
+### What it is worth in money, and why it is a ceiling
+Four published electricity tariffs by four published chiller efficiencies, sixteen cells, cheapest to
+dearest. **A sweep, not a projection, and not a confidence interval.** The result is quoted per MW of
+IT load per year and multiplied by this site's own measured footprint.
+
+It is a **ceiling** because it prices compressor energy only. Real plants also spend on fans, pumps and
+maintenance, and those are not counted, so the true saving on the cooling bill is smaller than the
+compressor term alone.
+
+### Screen zero: FortyGuard's field, doing the work first
+The vendor's own forecast field for the tile this site sits in, at roughly two metres above ground. The
+reason that height matters is the whole premise: a satellite skin temperature and a ten metre weather
+mast both measure air the equipment never touches, while a ground mounted condenser breathes at about
+two metres.
+
+### The site, on real imagery
+The building footprints the solver actually used, taken from OpenStreetMap, drawn over aerial imagery so
+you can see they are the real buildings and not a sketch. Drag to pan, scroll to zoom.
+
+### The plume, solved
+The neighbour's hot exhaust, solved on this site's real geometry rather than drawn as a cone. Turn the
+wind and watch the intake heat up.
+
+The spread follows the textbook square root law, and it was **checked rather than assumed**: it was
+tested against 67 Prairie Grass field experiments. Orange is rise above ambient. The dashed circle is
+the thirty metre intake averaging disc; the orange strip is the condenser bank.
+
+### Turn the wind: 72 bearings on the real geometry
+Every wind direction, solved, not sampled: 72 bearings at five degree steps, 576 GPU solves per
+placement, on the committed footprints.
+
+**Bearings the solver refuses are marked, and refusal is a feature.** Where a building sits on the line
+from the source to the intake, the validated model does not apply, so the agent declines the hour
+instead of guessing. An agent that always has an answer is not being careful.
+
+### Why: the agent's own reasoning, checkable
+The agent's reasoning for a single hour, in its own words, and then checked by running the agent again
+and comparing. It is deterministic prose generated from the numbers, which is why it can be verified at
+all.
+
+### The self-scoring loop
+The agent grades its own promise against what happened, and widens its own margin when it was wrong,
+unprompted. Coverage is also broken out by hour of day, because **one pooled number is not enough**: a
+bound can look fine on average and fail badly in the hard hours.
+
+### How the bound is built
+The safety margin is **not chosen**. It is an order statistic over the agent's own past errors, and
+there is no changeover temperature anywhere in the source. This panel runs that arithmetic in front of
+you, with the two parameters exposed:
+
+- **alpha**, the miscoverage you are willing to allow,
+- **n**, how many calibration points there are.
+
+The ceiling matters and it is arithmetic, not modelling: with **n** calibration day pairs the best
+coverage anyone can attain is **n/(n+1)**. A small **n** caps coverage well below 90 % before any
+modelling error enters. The same machinery is then shown at five year sample sizes across twelve
+separate bounds, one per forecast lead, because **a bound calibrated at one lead is not valid at
+another**.
+
+### Run the agent live for the next hours
+The next hours decided on a forecast bought at that moment rather than on saved responses, bounded by
+the agent's own measured track record and scheduled under the same switch budget and dwell limit.
+
+Served statically there is no live agent, the card says so, and the button is disabled. That is the
+honest state and not a failure. To attach one:
+
+```bash
+python AGENTIC-ARBITER/src/serve_live.py --allow-paid
+```
+
+It runs as a separate process because FortyGuard authenticates with a secret key, and anything a web
+page can read, every visitor of that page can read. **A live run costs 4,220 credits per hourly
+window**, so it needs both that flag on the server and the request itself to ask for it.
+
+---
+
 ## Where things are
 
 | Path | What is there |
