@@ -19,9 +19,16 @@ WHAT IT ASSERTS
   1. `/` is a redirect to `/app/`, and exactly one Cache-Control header comes with it
   2. `/app/` is the React bundle: <div id="root"> plus its hashed js and css
   3. every asset the bundle references resolves at that depth, including ../fonts and ART = '../'
-  4. `/index.html` STILL serves the single-file page with #livecard and #livego intact
+  4. the keep-alive surface: `/api/ping` is tiny, and HEAD works on it as well as GET
+  5. `/index.html` STILL serves the single-file page with #livecard and #livego intact
 
-Point 4 is not decoration. CLAUDE.md makes the live agent permanent and calls demo/index.html
+Point 4 is here because a free Render instance sleeps after 15 minutes without traffic, so an external
+pinger hits one URL every 10 minutes indefinitely. Monitors commonly send HEAD, and
+SimpleHTTPRequestHandler implements do_HEAD for FILES only: every /api/* path used to answer 404 to a
+HEAD request while answering 200 to GET. A pinger that gets a 404 is worse than none, because the
+service still sleeps and the monitor also starts reporting an outage.
+
+Point 5 is not decoration either. CLAUDE.md makes the live agent permanent and calls demo/index.html
 canonical, so a future change that made `/app/` the root by MOVING or DELETING the old page would be a
 different and worse defect than the one this file exists to catch.
 
@@ -75,16 +82,24 @@ def free_port():
     return p
 
 
-def get(port, path):
-    """One GET, redirects NOT followed, which is the whole point of the first check."""
+def req(port, method, path):
+    """One request, redirects NOT followed, which is the whole point of the first check."""
     c = http.client.HTTPConnection("127.0.0.1", port, timeout=30)
     try:
-        c.request("GET", path)
+        c.request(method, path)
         r = c.getresponse()
         body = r.read()
         return r.status, r.getheaders(), body
     finally:
         c.close()
+
+
+def get(port, path):
+    return req(port, "GET", path)
+
+
+def HEAD(port, path):
+    return req(port, "HEAD", path)
 
 
 def snapshot():
@@ -96,7 +111,7 @@ def snapshot():
 
 
 print("=" * 78)
-print("the root URL: does a visitor get the React app, or the page it replaced?")
+print("the deployed HTTP surface: the root page, the assets, and the keep-alive endpoint")
 print("=" * 78)
 
 if not os.path.isfile(os.path.join(SHIP, "index.html")):
@@ -185,7 +200,50 @@ try:
     else:
         ok("%-34s -> /sites.json  200, %d bytes" % ("ART = '../' + sites.json", len(b)))
 
-    # 4. THE OLD PAGE IS STILL THERE, WITH THE PERMANENT LIVE SURFACE
+    # 4. THE KEEP-ALIVE SURFACE. A free Render instance sleeps after 15 minutes without traffic, so
+    # an external pinger hits this every 10 minutes forever. Two things have to hold.
+    #
+    # IT MUST BE TINY. /api/health returns 6,233 bytes, almost all of it the 250-key sites list. At
+    # Render's health-check cadence of one poll every 5 seconds that is 3.28 GB a month against a
+    # 5 GiB free allowance. /api/ping exists to be the polled endpoint instead.
+    #
+    # IT MUST ANSWER HEAD. Uptime monitors commonly send HEAD rather than GET, and
+    # SimpleHTTPRequestHandler implements do_HEAD for files only: before this was fixed, every
+    # /api/* path answered 404 to HEAD while answering 200 to GET. A pinger seeing 404 is worse than
+    # no pinger, because the service still sleeps AND the monitor starts reporting an outage.
+    st, _h, b = get(port, "/api/ping")
+    if st != 200:
+        bad("/api/ping -> %d. This is the keep-alive and health-check target." % st)
+    elif len(b) > 64:
+        bad("/api/ping returned %d bytes. It exists to be cheap enough to poll; keep it tiny."
+            % len(b))
+    else:
+        ok("/api/ping -> 200, %d bytes, %s" % (len(b), b[:32].decode("utf-8", "replace")))
+
+    for path in ("/api/ping", "/api/health"):
+        st, _h, b = HEAD(port, path)
+        if st != 200:
+            bad("HEAD %s -> %d. Uptime monitors often send HEAD, and a 404 makes a working service "
+                "look down while it still goes to sleep." % (path, st))
+        else:
+            ok("HEAD %-14s -> 200" % path)
+
+    st, hdrs, _b = HEAD(port, "/")
+    loc = [v for k, v in hdrs if k.lower() == "location"]
+    if st not in (301, 302, 307, 308) or loc[:1] != ["/app/"]:
+        bad("HEAD / -> %d %r, but GET / redirects to /app/. Both verbs must route the same way."
+            % (st, loc[:1] or None))
+    else:
+        ok("HEAD /              -> %d to /app/, same as GET" % st)
+
+    # An unknown API path must still be a clean 404 on HEAD, not a 200 that hides a typo.
+    st, _h, _b = HEAD(port, "/api/nonsense")
+    if st != 404:
+        bad("HEAD /api/nonsense -> %d, so a mistyped ping URL would look healthy" % st)
+    else:
+        ok("HEAD /api/nonsense  -> 404, so a mistyped ping URL cannot look healthy")
+
+    # 5. THE OLD PAGE IS STILL THERE, WITH THE PERMANENT LIVE SURFACE
     st, _h, b = get(port, "/index.html")
     old = b.decode("utf-8", "replace")
     if st != 200:
@@ -229,7 +287,8 @@ if FAILS:
     sys.exit(1)
 
 print("=" * 78)
-print("VERDICT: PASS. / serves the React app, its assets resolve at /app/, and the single-file")
-print("page is still at /index.html with the live surface intact.")
+print("VERDICT: PASS. / serves the React app, its assets resolve at /app/, /api/ping answers")
+print("both GET and HEAD cheaply, and the single-file page is still at /index.html with the")
+print("live surface intact.")
 print("=" * 78)
 sys.exit(0)

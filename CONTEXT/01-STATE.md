@@ -39,6 +39,33 @@ Verified five ways: identical output on 250 keys, a caller mutating the returned
 cache, 220x faster, it does invalidate when the file changes (tested against a temp copy so the real
 artefact is never touched), and a missing file returns `[]` rather than a stale answer.
 
+### `/api/ping`, and the HEAD trap that would have made a pinger report an outage
+
+Two changes so the keep-alive ping is cheap and actually works.
+
+**`/api/ping` returns 12 bytes, `{"ok": true}`, and does no work at all.** No `reload_if_stale`, no
+`offerable_sites`, no key read. Point Render's Health Check Path and the external pinger here, not at
+`/api/health`. The bandwidth arithmetic, if Render really polls every 5 seconds:
+
+| polled endpoint | bytes | per month at one poll / 5 s | share of the 5 GiB free allowance |
+|---|---|---|---|
+| `/api/health` | 6,233 | 3.28 GB | **61 %** |
+| `/api/ping` | 12 | 7.9 MB | 0.15 % |
+
+A 10-minute pinger on `/api/ping` costs 0.07 MB a month. ⚠ Whether Render's own health checks count
+against billed bandwidth is NOT confirmed, and neither is the 5-second cadence: both are inferred.
+The endpoint is worth having either way, and it removes the question.
+
+**🔴 HEAD ANSWERED 404 ON EVERY `/api/*` PATH.** `SimpleHTTPRequestHandler` implements `do_HEAD` for
+FILES only, so `HEAD /api/health` returned 404 while `GET /api/health` returned 200. Measured
+2026-08-28. Uptime monitors commonly send HEAD, and **a pinger that gets a 404 is worse than no
+pinger**: the instance still falls asleep, and the monitoring service also starts emailing that the
+site is down. `do_HEAD` now answers `/api/ping` and `/api/health` with 200 and no body, keeps a clean
+404 for unknown `/api/*` so a mistyped ping URL cannot look healthy, and shares `_root_redirect()`
+with `do_GET` so both verbs route identically.
+
+Guard extended: `run_all.py` step 33 now checks all of that, 16 checks, and still writes nothing.
+
 ### 🔴 THE DEPLOYED SITE WAS SERVING THE OLD SINGLE-FILE PAGE, and the user caught it
 
 **The user opened `agentic-arbiter.onrender.com` and saw the PREVIOUS interface.** They were right,

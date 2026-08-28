@@ -406,7 +406,59 @@ class Handler(SimpleHTTPRequestHandler):
         line = (self.requestline or "")[:120]
         sys.stderr.write("   %s %s\n" % (self.address_string(), line))
 
+    def _root_redirect(self):
+        """Shared by GET and HEAD so a monitor configured for HEAD sees the same routing. Returns True
+        when it has answered the request."""
+        if self.path.split("?")[0] not in ("", "/", "/index.htm"):
+            return False
+        self.send_response(302)
+        self.send_header("Location", "/app/")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+        return True
+
+    def do_HEAD(self):
+        """🔴 UPTIME MONITORS OFTEN SEND HEAD, NOT GET, and without this they would see a 404 and
+        report the site as down. `SimpleHTTPRequestHandler` implements `do_HEAD` for files only, so
+        every `/api/*` path answered 404 to a HEAD request while answering 200 to a GET. Measured
+        2026-08-28: `HEAD /api/health` returned 404 on this server.
+
+        A keep-alive pinger that gets a 404 is worse than no pinger: the free service still sleeps,
+        and the monitoring service starts emailing that the site is down.
+        """
+        if self.path.split("?")[0] in ("/api/ping", "/api/health"):
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        if self.path.startswith("/api/"):
+            self.send_response(404)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        if self._root_redirect():
+            return
+        return super().do_HEAD()
+
     def do_GET(self):
+        # 🔴 THE CHEAPEST POSSIBLE LIVENESS ANSWER, and it exists because /api/health is not cheap
+        # enough to be polled. Measured 2026-08-28: /api/health returns 6,233 bytes, almost all of it
+        # the 250-key `sites` list. At Render's health-check cadence of one poll every 5 seconds that
+        # is 17,280 requests and 107.7 MB a DAY, about 3.28 GB a month against a 5 GiB free bandwidth
+        # allowance: 61% of the budget spent resending a list that changes when the pipeline reruns.
+        # This endpoint is 14 bytes, so the same cadence costs 7.9 MB a month, and a 10-minute
+        # keep-alive ping costs 0.07 MB.
+        #
+        # IT DELIBERATELY DOES NO WORK. No reload_if_stale, no offerable_sites, no key read. What it
+        # proves is exactly what a restart decision should hinge on: the process is accepting
+        # connections and its Python handler still runs. Anything heavier makes the health check
+        # itself a way to fail the health check, which on 0.1 CPU is a real risk rather than a
+        # theoretical one.
+        #
+        # Point Render's Health Check Path and any external pinger HERE, not at /api/health.
+        if self.path.startswith("/api/ping"):
+            return _json(self, {"ok": True})
         if self.path.startswith("/api/health"):
             return _json(self, health())
         if self.path.startswith("/api/live/job/"):
@@ -436,12 +488,11 @@ class Handler(SimpleHTTPRequestHandler):
         # demo/index.html IS NOT HIDDEN. It stays reachable at /index.html, which is what the
         # verification layer measures and what CLAUDE.md calls canonical. This changes which page is
         # served at one path; it removes nothing.
-        if self.path.split("?")[0] in ("", "/", "/index.htm"):
-            self.send_response(302)
-            self.send_header("Location", "/app/")
-            # No Cache-Control here: end_headers() above adds `no-cache` for every non-/api/ path,
-            # and sending it twice would emit a duplicate header.
-            self.end_headers()
+        #
+        # Shared with do_HEAD via _root_redirect, so a monitor sending HEAD is routed identically.
+        # No Cache-Control set by hand in there: end_headers() above adds `no-cache` for every
+        # non-/api/ path, and sending it twice would emit a duplicate header.
+        if self._root_redirect():
             return
         return super().do_GET()
 
