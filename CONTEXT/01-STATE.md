@@ -12,6 +12,64 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### 🔴 A GREP IS NOT A LOOK. testing/render_shots.py NOW EXISTS FOR THAT REASON. 2026-08-29
+
+The user's words: **"WHY ARE YOU SO BLIND? DONT YOU SEE THE SCREENSHOTS OF THE RENDERED RESULT BEFORE
+TELLING ME ITS DONE."** They were right, twice over.
+
+Two fixes had been reported as done after grepping the BUILT CSS for the selector. That proves a rule
+shipped and says nothing about what a reader sees. Both were wrong:
+
+| reported fixed | why it was not |
+|---|---|
+| the masthead popover | the rule targeted the engine's `.info-bub`; the masthead uses **React's `Info.tsx`**, `role="note"` with `.glass`. A different element. |
+| the dropdown | the background went dark and the LABEL did not. `Combo.tsx` puts `text-ink` on the label span, and a utility on the span beat a colour set on the container. Dark text on navy. |
+
+Then my own second attempt made the dropdown WORSE: `polish.css` and `tones.css` both put `!important`
+on `[role='listbox']`, one winning the background and the other the colour, so the state names went
+from hard to read to **invisible**. One selector needs one owner in one file.
+
+**`testing/render_shots.py` renders the app to PNG** in both themes, for the dropdown open, a popover
+open, the configure stage, and the configure stage scrolled. Every fix below was checked by looking at
+the image. Run it before claiming a visual fix is done.
+
+### WHAT THE SCREENSHOTS THEN FIXED
+
+- **The dropdown** is dark in BOTH themes with light text and blue counts, and does not vary with the
+  theme at all: a menu floating over a map and a row of cards has to be legible against what is behind
+  it, not match the paper.
+- **The masthead had FOUR popovers, one per sentence.** Now one, at the end, short. The four lines read
+  straight through. The long-form reasoning was not deleted; it lives in the panels the agent writes.
+- **Every call to action is brand blue.** `.btn-go`, `#pickgo`, `#runagent2` and React's Configure CTA
+  all took `var(--action)`, which is zinc-inverted by design: black in light, white in dark. ⚠ `--action`
+  is canonical, so its VALUE is untouched and the components are re-skinned. Repointing it inside `#app`
+  would pass `verify_palette.py` while defeating its intent.
+- **The tab heading survives a scroll.** It vanished because `.aa-workspace-main` is the scroll
+  container and the heading was inside it. Now `position: sticky` with the floor colour behind it.
+- **THE TONE SYSTEM, which is what was actually asked for:** not a gradient on every block, but one
+  tone per KIND of widget, held across every page. `--w-0` floor, `--w-1` panel, `--w-2` nested block,
+  `--w-3` input, plus `--w-hair`, `--w-ink`, `--w-dim`. The grey boxes were `.tile` and `.filters`
+  taking `--surface-2`, which is zinc.
+- **The light theme is blue PAPER, not white paper.** The first tone set used `#ffffff` for panels,
+  which is exactly why the cards still photographed as white boxes: a card the same colour as nothing
+  else in the palette reads as grey whatever surrounds it.
+- **The black band under the frame is gone.** `#app` is `height: 100vh; overflow: hidden` and only
+  `body` carried the gradient, so anything body did not cover fell through to the UA default. `html`
+  carries the floor now.
+- **The duplicate eyebrow** is gone: the banner already says "free-cooling decisions, hour by hour".
+
+⚠ **AND A PROCESS SLIP WORTH RECORDING:** twice I ran `python tools/build_app.py` from inside
+`AGENTIC-ARBITER/app`, where that path does not exist. The grep for "copied" matched nothing, no build
+happened, and the screenshots were of the OLD bundle. Identical PNG byte sizes across a run that
+changed CSS is the tell. Build from the repository root, and check for the "copied N file(s)" line.
+
+**21st.dev quota:** free tier, **2 component retrievals per day, 0 remaining**. The API does not
+publish a reset timestamp, so the exact hour is unknown; available again within 24 hours of use.
+`search` is free and unmetered (`freeSearchesPerDay: null`).
+
+Verified: flow 26 of 26, palette 38/0, view-matches-page 0, shipped-current 0, deployed-root 0,
+app-deterministic 0, `audit.py` 2,216 passed 0 failures.
+
 ### FIVE DEFECTS FIXED BY MEASURING FIRST, and the first page turned blue. 2026-08-29
 
 After being confidently wrong twice on the heading, every fix in this round was written against a

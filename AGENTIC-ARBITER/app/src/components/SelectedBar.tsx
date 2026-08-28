@@ -78,7 +78,15 @@ export function SelectedBar({ a, facility, onClear, onConfigure, busy }: {
           onClick={() => onConfigure(facility.metro_key)}
           className="shrink-0 rounded-lg px-3.5 py-2 text-[12.5px] font-bold transition-transform
                      duration-150 hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
-          style={{ background: 'var(--action)', color: 'var(--action-ink)' }}
+          /* BRAND BLUE, not var(--action). --action is one of the 20 canonical palette tokens
+             verify_palette.py requires the app and the page to agree on, so its VALUE is left alone
+             and this component is re-skinned instead. It rendered black in the light theme, which is
+             what the user photographed. */
+          style={{
+            background: 'linear-gradient(180deg, var(--fg-bright), var(--fg-deep))',
+            color: '#fff',
+            boxShadow: '0 6px 18px color-mix(in oklab, var(--fg-deep) 34%, transparent)',
+          }}
         >
           {busy ? `Loading ${facility.metro_key}…` : 'Configure this plant →'}
         </button>

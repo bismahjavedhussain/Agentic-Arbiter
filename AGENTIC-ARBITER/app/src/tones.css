@@ -1,0 +1,205 @@
+/* THE WIDGET TONE SYSTEM, and the defects a SCREENSHOT caught that a grep did not.
+ *
+ * 🔴 HOW THIS ROUND WAS DIFFERENT. Two previous fixes were reported as done after grepping the built
+ * CSS for a selector, which proves a rule shipped and says nothing about what a reader sees. Both were
+ * wrong for the same kind of reason: one targeted the engine's `.info-bub` while the masthead uses
+ * React's own Info.tsx (`role="note"` with `.glass`), and one set a colour on a container while a
+ * Tailwind utility on the inner span (`text-ink`) overrode it. `scratchpad/shots.py` now renders the
+ * app to PNG so a fix can be checked by looking at it.
+ *
+ * THE TONES. Four surfaces, each used for the same KIND of widget on every page, which is what was
+ * asked for: not a gradient on every block, but one tone per role, held consistently.
+ *
+ *     --w-0   the floor        the page behind everything
+ *     --w-1   a panel          cards, the rail, the console
+ *     --w-2   a nested block   tiles, control groups, the filter bar
+ *     --w-3   an input         selects, text inputs, the option list
+ *
+ * ⚠ NOT ONE CANONICAL TOKEN VALUE IS CHANGED. verify_palette.py requires the app to declare the same
+ * values as demo/index.html for its 20-token palette, and `--action` and `--surface-1` are both in it.
+ * So the tones are NEW tokens applied to specific components. Repointing `--action` inside `#app`
+ * would pass the check while defeating its intent, which is worse than not doing it at all.
+ *
+ * Loaded last, after every other stylesheet.
+ */
+
+:root {
+  --w-0: #060d15;
+  --w-1: #0c1826;
+  --w-2: #112436;
+  --w-3: #0a1725;
+  --w-hair: #1c3247;
+  --w-ink: #eaf2f9;
+  --w-dim: #93aabf;
+}
+/* THE LIGHT THEME IS BLUE PAPER, NOT WHITE PAPER. The first version set --w-1 and --w-3 to pure
+   #ffffff, which is why the cards still photographed as white boxes on a blue page: a card the same
+   colour as nothing else in the palette reads as grey no matter what surrounds it. Every surface here
+   now carries a visible blue cast, and the steps between them stay the same size as in the dark
+   theme so the hierarchy is identical on both. */
+:root[data-theme='light'] {
+  --w-0: #e6eff8;
+  --w-1: #f6fafe;
+  --w-2: #e9f2fb;
+  --w-3: #ffffff;
+  --w-hair: #c6dbec;
+  --w-ink: #0c1a2a;
+  --w-dim: #52687d;
+}
+
+/* ---- 1. THE FLOOR, on every stage, with no black band below the frame.
+   MEASURED: the configure screenshot showed pure black under the app, because `#app` is
+   `height: 100vh; overflow: hidden` and only BODY carried the gradient, so anything the body did not
+   cover fell through to the UA default. Putting it on `html` as well closes that. ---- */
+html { background: var(--w-0); }
+body {
+  background:
+    radial-gradient(1100px 560px at 12% -10%, color-mix(in oklab, var(--fg-deep) 17%, transparent), transparent 68%),
+    radial-gradient(860px 480px at 88% 2%, color-mix(in oklab, var(--fg-bright) 11%, transparent), transparent 66%),
+    var(--w-0);
+  background-attachment: fixed;
+}
+
+/* ---- 2. PANELS: every card, on every page, one tone. ---- */
+.viz-root .card,
+.aa-workspace .viz-root .card,
+.aa-rail-nav,
+.aa-console {
+  background: var(--w-1) !important;
+  border-color: var(--w-hair) !important;
+}
+.viz-root .card > h2 { border-bottom-color: var(--w-hair); }
+
+/* ---- 3. NESTED BLOCKS: the four fact tiles, the control groups, the filter bar.
+   MEASURED: these read as grey boxes against the blue in both screenshots, because `.tile` and
+   `.filters` take `--surface-2`, which is zinc. ---- */
+.tile,
+.tiles > *,
+.filters,
+.plate-cell,
+.viz-root fieldset,
+.viz-root details > summary {
+  background: var(--w-2) !important;
+  border-color: var(--w-hair) !important;
+}
+.tile .k,
+.tile .lbl,
+.plate-cell .k { color: var(--w-dim) !important; }
+
+/* ---- 4. INPUTS, including the option list. ---- */
+select,
+input,
+textarea {
+  background: var(--w-3) !important;
+  border-color: var(--w-hair) !important;
+  color: var(--w-ink) !important;
+}
+select:focus,
+input:focus { border-color: var(--fg-bright) !important; outline: none; }
+/* The native option list follows the control, or a dark select drops a white menu. */
+select option { background: var(--w-3); color: var(--w-ink); }
+
+/* ---- 5. 🔴 THE DROPDOWN. TWO ATTEMPTS, AND THE SECOND MADE IT WORSE.
+   Attempt one turned the panel dark and left the label alone, so the state names were near-black on
+   navy. Attempt two set the label from `--w-ink`, which is near-black in the LIGHT theme, on a panel
+   another of my own sheets was still painting dark: the names went from hard to read to invisible.
+   A screenshot caught both; a grep for the selector caught neither.
+
+   So the option list is now DARK IN BOTH THEMES with light text, and nothing about it varies with the
+   theme. A floating menu over a map and a row of cards needs to be legible against whatever is behind
+   it, not to match the paper. Combo.tsx puts `text-ink` on the label span, so the rule has to name the
+   span and outrank a utility class, hence the `*`. ---- */
+[role='listbox'] {
+  background: var(--fg-pop) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid color-mix(in oklab, var(--fg-bright) 26%, transparent) !important;
+  box-shadow: 0 22px 50px rgba(3, 8, 14, 0.62) !important;
+}
+[role='listbox'] [role='option'],
+[role='listbox'] [role='option'] * { color: #eaf2f9 !important; }
+/* The count on the right, quieter than the name it belongs to. */
+[role='listbox'] [role='option'] .num,
+[role='listbox'] [role='option'] span + span { color: #7fc4e8 !important; }
+[role='listbox'] [role='option']:hover,
+[role='listbox'] [role='option'][aria-selected='true'] {
+  background: color-mix(in oklab, var(--fg-bright) 26%, transparent) !important;
+}
+[role='listbox'] [role='option']:hover *,
+[role='listbox'] [role='option'][aria-selected='true'] * { color: #ffffff !important; }
+/* The site search list on the pick screen is the same widget with a different class. */
+.srchlist, #searchresults.srchlist {
+  background: var(--fg-pop) !important;
+  border-color: color-mix(in oklab, var(--fg-bright) 26%, transparent) !important;
+}
+.srchlist, .srchlist * { color: #eaf2f9 !important; }
+
+/* ---- 6. 🔴 THE REACT POPOVER, WHICH IS THE ONE THE MASTHEAD ACTUALLY USES.
+   Info.tsx renders `role="note"` with `className="glass ..."`. My previous rule styled the ENGINE's
+   `.info-bub`, a different element, which is why the transparency survived two "fixes". ---- */
+[role='note'],
+[role='note'].glass {
+  background: var(--fg-pop) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid color-mix(in oklab, var(--fg-bright) 30%, transparent) !important;
+  box-shadow: 0 20px 48px rgba(3, 8, 14, 0.6) !important;
+  color: var(--fg-pop-dim) !important;
+  z-index: 300 !important;
+}
+[role='note'] strong,
+[role='note'] b { color: var(--fg-pop-ink) !important; }
+
+/* ---- 7. EVERY CALL TO ACTION IN BRAND BLUE.
+   MEASURED: "Configure this plant" rendered black in light theme and "Run the agent on this site"
+   rendered white in dark, because both take `var(--action)`, which is zinc-inverted by design.
+   `--action` is canonical and its VALUE is not changed; these components are re-skinned instead. ---- */
+.btn-go,
+.viz-root .btn-go,
+#pickgo,
+#runagent2,
+#autofill.btn-go {
+  background: linear-gradient(180deg, var(--fg-bright), var(--fg-deep)) !important;
+  border-color: color-mix(in oklab, var(--fg-bright) 58%, transparent) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 18px color-mix(in oklab, var(--fg-deep) 34%, transparent);
+}
+.btn-go:hover,
+#pickgo:hover,
+#runagent2:hover { filter: brightness(1.08); }
+/* The quiet buttons beside them: outlined, not filled. */
+.viz-root .btn:not(.btn-go) {
+  background: var(--w-2) !important;
+  border-color: var(--w-hair) !important;
+  color: var(--w-ink) !important;
+}
+.viz-root .btn:not(.btn-go):hover { border-color: var(--fg-bright) !important; }
+
+/* ---- 8. THE TAB HEADING SURVIVES A SCROLL.
+   MEASURED: it vanished because `.aa-workspace-main` is the scroll container and the heading was
+   inside it, so it scrolled away with the content. Sticky, with the container's own background behind
+   it so the panels do not show through as they pass under. ---- */
+.aa-workspace-main { position: relative; }
+.aa-tabhead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: 0 0 14px;
+  padding: 10px 0 12px;
+  background: linear-gradient(180deg, var(--w-0) 78%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ---- 9. The banner already says "free-cooling decisions, hour by hour", so the masthead's own copy
+   of that eyebrow is a duplicate on every stage. One of them is enough. ---- */
+#app > header .label:first-child { display: none; }
+
+/* ---- 10. The stepper, on the tones. ---- */
+.aa-banner .rail-step { color: var(--w-dim); }
+.aa-banner .rail-step[aria-current='step'] { color: var(--w-ink); }
+.aa-banner .rail-step .rn { border-color: var(--w-hair); }
+.aa-banner .rail-pill {
+  background: color-mix(in oklab, var(--fg-deep) 34%, transparent) !important;
+  border-color: color-mix(in oklab, var(--fg-bright) 40%, transparent) !important;
+}

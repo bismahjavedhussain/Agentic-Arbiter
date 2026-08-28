@@ -22,6 +22,9 @@ import './cinematic.css'
 /* And polish.css after all of them: every rule in it was written against a MEASURED computed
    style, and several deliberately override engine.css, so it has to be able to win. */
 import './polish.css'
+/* The tone system last of all: it is the single place that decides what colour a KIND of
+   widget is, so it has to be able to override every earlier sheet including engine.css. */
+import './tones.css'
 import { App } from './App'
 
 const el = document.getElementById('root')

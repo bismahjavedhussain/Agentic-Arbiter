@@ -52,64 +52,14 @@ body[data-stage='pick'] .aa-banner #rail { display: flex; }
    is gone. #runagent2 on the results stage is untouched. ---- */
 .viz-root #runagent { display: none !important; }
 
-/* ---- 4. POPOVERS ARE OPAQUE AND DARK.
-   The bubble inherited `background: var(--surface-1)`, which IS opaque, so the bleed-through the user
-   saw was the masthead's own text painting over it: `.info-bub` sits at z-index 80 inside a paragraph,
-   and later paragraphs in normal flow won a stacking contest against it.
-
-   Three changes, each doing one thing:
-     z-index 300 and `isolation: isolate` on the host, so nothing in the masthead can paint over it
-     an explicitly dark background, so even a stacking mistake cannot make it look translucent
-     :focus-within as well as :hover, because a CLICK gives :focus and not :focus-visible, which is
-       why clicking it behaved differently from hovering it ---- */
+/* ---- 4 and 5 MOVED TO tones.css.
+   They used to live here, and having two of my own stylesheets both put `!important` on
+   `[role='listbox']` is exactly how the state names ended up invisible: polish.css won the background
+   and tones.css won the colour, so a dark panel got light-theme near-black text. One selector, one
+   file, one owner. The engine's own `.info-bub` keeps its rule below because it is a different
+   element from React's Info.tsx, which was the original mix-up. ---- */
 .info { isolation: isolate; }
-.info-bub {
-  z-index: 300;
-  background: var(--fg-pop) !important;
-  border-color: color-mix(in oklab, var(--fg-bright) 34%, transparent) !important;
-  color: var(--fg-pop-dim) !important;
-  box-shadow: 0 18px 44px rgba(4, 10, 18, 0.55), 0 2px 8px rgba(4, 10, 18, 0.4) !important;
-}
-.info-bub strong,
-.info-bub b { color: var(--fg-pop-ink) !important; }
-.info:focus-within .info-bub,
-.info:active .info-bub {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition-delay: 0s, 0s, 0s;
-}
-
-/* ---- 5. THE DROPDOWN IS OPAQUE AND DARK.
-   MEASURED: the listbox in Combo.tsx carries `className="glass absolute ..."`, and `.glass` is a
-   translucent surface, which is why the KPI cards and the map showed through the state list.
-   Glass is right for chrome that floats over its own background and wrong for a list of options a
-   reader has to read. Scoped to the listbox so the rest of the glass treatment is untouched. ---- */
-[role='listbox'].glass,
-[role='listbox'] {
-  background: var(--fg-pop) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border: 1px solid color-mix(in oklab, var(--fg-bright) 26%, transparent) !important;
-  box-shadow: 0 22px 50px rgba(4, 10, 18, 0.6) !important;
-  color: var(--fg-pop-ink);
-}
-[role='listbox'] [role='option'] { color: var(--fg-pop-ink); }
-[role='listbox'] [role='option']:hover,
-[role='listbox'] [role='option'][aria-selected='true'] {
-  background: color-mix(in oklab, var(--fg-bright) 20%, transparent) !important;
-}
-/* The count badge and any secondary text inside an option. */
-[role='listbox'] .num,
-[role='listbox'] small,
-[role='listbox'] .muted { color: var(--fg-pop-dim) !important; }
-/* The site search list on the pick screen is the same problem with a different class. */
-#searchresults.srchlist,
-.srchlist {
-  background: var(--fg-pop) !important;
-  border-color: color-mix(in oklab, var(--fg-bright) 26%, transparent) !important;
-  color: var(--fg-pop-ink);
-}
+.info-bub { z-index: 300; }
 
 /* ---- 6. THE FIRST PAGE, IN BLUE.
    The shell was already blue at the configure and results stages; the pick screen was still on the

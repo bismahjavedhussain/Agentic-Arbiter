@@ -52,31 +52,21 @@ export function Masthead({
           which one that is depends on render timing. A CSS rule reads the fact the owner published
           and introduces no owner at all. The rule is in index.css. */}
       <div className="aa-mast-prose mt-4 max-w-[64ch] space-y-2 text-[clamp(14.5px,1.2vw,17px)] leading-[1.45]">
-        {/* PAIN */}
+        {/* 🔴 ONE POPOVER FOR THE WHOLE HEADLINE, at the user's instruction. There were FOUR, one
+            hanging off every sentence, which made an "i" the most repeated element on the first screen
+            and put four essays behind it. The four lines below now read straight through, and the
+            single note at the end answers the one question a reader actually has: why does any of
+            this need a forecast. Short on purpose. The long-form reasoning has not been deleted, it
+            lives in the panels the agent writes. */}
         <p>
           <b>Data centres run chiller compressors through hours when outside air would have done.</b>
-          <Info label="Why plants do this on purpose: a chiller needs hours of notice to start, and a thermometer only reports the present. Switching late risks a hot hall; not switching only costs electricity.">
-            <b>It is a rational choice, not carelessness.</b> A chiller needs hours of notice before
-            it can carry the load, and a thermometer only tells you about right now. Switching too
-            late risks a hall running hot. Not switching only costs electricity. One of those can be
-            undone and the other cannot, so with no view of the coming hours, burning the compressor
-            is the correct call.
-          </Info>
         </p>
 
-        {/* THE GAP FORTYGUARD CLOSES */}
         <p>
           <b>FortyGuard forecasts heat at 2 m,</b> the height a ground-mounted condenser breathes,
           which turns "right now" into hours of notice.
-          <Info label="Why the height matters: a satellite skin temperature and a 10 m weather mast both measure air the equipment never touches. A condenser on the ground breathes at about 2 m.">
-            <b>Why the height is the whole point.</b> A satellite skin temperature and a 10 m
-            weather-mast reading both measure air the equipment never touches. A condenser sitting on
-            the ground draws its air from roughly 2 m up, so that is the forecast that predicts what
-            the machine will actually experience.
-          </Info>
         </p>
 
-        {/* IMPACT */}
         <p>
           {haveImpact ? (
             <>
@@ -90,25 +80,19 @@ export function Masthead({
               a minimum dwell time.
             </>
           )}
-          <Info label="What a schedule means here: hours are maximised subject to a hard safety bound, a limit on how many times a day the plant may change mode, and a minimum time it must stay in one.">
-            <b>A schedule, not a thermostat.</b> The plan maximises free-cooling hours subject to
-            three constraints at once: a hard safety bound on intake temperature, a limit on how many
-            times a day the plant may change mode, and a minimum number of hours it must stay in a
-            mode once it is there. Both figures are measured against the reactive controller operators
-            verifiably run today, on real recorded weather.
-          </Info>
         </p>
 
-        {/* ACCURACY */}
         <p>
           <b>Every hour carries a safety margin measured from its own past errors,</b> and it refuses
           the hours it cannot stand behind.
-          <Info label="What the margin is: a conformal prediction interval sized from the agent's own measured past errors, which assumes no shape for the error. Its measured coverage is on the card below, including where it falls short.">
-            <b>Measured, not assumed.</b> The margin is a conformal prediction interval. Take the
-            forecaster's errors on past cases where the true answer is now known, and let their
-            spread set the size of the bound. It assumes no shape for the error at all, which is why
-            this kind of guarantee is called distribution free. Its measured coverage is on the card
-            below, including the part where it falls short of what it promised.
+          <Info label="Why a forecast is needed at all, and what the margin is.">
+            <b>A chiller needs hours of notice.</b> A thermometer only reports the present, so with no
+            view of the coming hours the safe call is to keep the compressor running. A 2 m forecast
+            turns that into a schedule.
+            <br />
+            <b>The margin is measured, not assumed.</b> It is a conformal interval sized from the
+            agent's own past errors, and its real coverage is on the card below, including where it
+            falls short.
           </Info>
         </p>
       </div>
