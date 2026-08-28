@@ -70,6 +70,43 @@ export default defineConfig({
     // ../core, ../charts and ../demo all sit outside this directory and are imported or fetched
     // from it, so Vite has to be allowed to read the parent.
     fs: { allow: [path.resolve(HERE, '..')] },
+
+    /**
+     * 🔴 THE LIVE AGENT COULD NOT BE REACHED FROM THE DEV SERVER AT ALL, and this is why the user saw
+     * "the live agent is currently not working".
+     *
+     * The app probes `api/health` with a RELATIVE url, because the shipped artefact is the built
+     * bundle sitting inside demo/, served by serve_live.py, which answers both the static files and
+     * /api/* from one origin. On the Vite dev server there is no /api route at all, the fetch fails,
+     * and the app correctly concludes REPLAY. Correct behaviour, and completely indistinguishable
+     * from a broken live agent.
+     *
+     * So dev now forwards /api to serve_live.py. To see the live agent attached:
+     *
+     *     python AGENTIC-ARBITER/src/serve_live.py --allow-paid        # terminal 1, port 8000
+     *     cd AGENTIC-ARBITER/app && npm run dev                        # terminal 2, port 5173
+     *
+     * ⚠ `--allow-paid` IS WHAT ARMS SPENDING, and /api/health only reports live_available: true when
+     * the server has it AND the key is present. Without the flag the health check answers, the app
+     * shows REPLAY, and nothing can be spent. That two-key design is deliberate and is not being
+     * loosened here: this proxy only makes the server REACHABLE. A live run still costs 4,220 credits
+     * per hourly window and still needs the request itself to ask for it.
+     *
+     * `configure: proxy => {}` with an error handler that stays quiet: without it, every page load
+     * with no live server running prints an ECONNREFUSED stack to the dev console, which is noise
+     * about a mode, not an error.
+     */
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: false,
+        configure: (proxy) => {
+          proxy.on('error', () => {
+            /* no live server on 8000: that is REPLAY, not a fault. The app already handles it. */
+          })
+        },
+      },
+    },
   },
   // maplibre's worker is an ES module and imports a shared chunk. Vite's default worker format is
   // 'iife', which cannot carry `import`, so the format is set explicitly.

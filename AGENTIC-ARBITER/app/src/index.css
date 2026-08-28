@@ -240,3 +240,18 @@
 }
 .maplibregl-ctrl-group button + button { border-top: 1px solid var(--border) !important; }
 .maplibregl-ctrl-attrib { font-size: 10px !important; }
+
+/* ---------------------------------------------------------------------------------------------
+ * THE ENGINE'S STEP RAIL BELONGS TO THE LATER STAGES ONLY.
+ *
+ * #rail comes across with the lifted markup and sits after the pick screen in DOM order, so on the
+ * first screen it appeared stranded UNDER the map, announcing "1 PICK A SITE" about a screen you had
+ * already read. On the configure and results stages the pick screen is hidden, the rail rises to the
+ * top, and it is genuinely useful navigation.
+ *
+ * Done in CSS keyed off <body data-stage>, which the engine's own setStage() writes, rather than by
+ * React setting .hidden. That keeps setStage() the SINGLE owner of visibility: this rule reads the
+ * state the engine publishes instead of competing to own it. The page's own comments are emphatic
+ * about why two writers of .hidden is a bug, and this is not a second writer.
+ * --------------------------------------------------------------------------------------------- */
+body[data-stage="pick"] #rail { display: none; }

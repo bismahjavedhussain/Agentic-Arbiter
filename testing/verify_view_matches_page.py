@@ -159,7 +159,10 @@ def guarded(eid):
         # the reference plus the next two lines: enough for `if(!el) return;` on its own line
         tail = CODE[mo.end(): mo.end() + 200]
         head = CODE[max(0, mo.start() - 60): mo.start()]
-        if var and re.search(r"if\s*\(\s*!?\s*" + re.escape(var) + r"\s*\)", tail):
+        # The variable has to be TESTED, not necessarily be the only thing tested. The first version
+        # demanded `if(!el)` exactly, so animatePlate()'s `if(!el || el.hidden) return;` read as
+        # unguarded and #plate was reported as an unguarded lookup while sitting behind a guard.
+        if var and re.search(r"if\s*\([^)]{0,80}\b" + re.escape(var) + r"\b", tail):
             safe += 1
         elif re.search(r"if\s*\(\s*!?\s*$", head) or re.search(r"if\s*\(\s*$", head):
             safe += 1        # the lookup is itself the condition

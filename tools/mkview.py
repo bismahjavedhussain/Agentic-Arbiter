@@ -101,7 +101,13 @@ for m in re.finditer(r'<[a-zA-Z][a-zA-Z0-9]*\b[^>]*\bdata-show="([a-z ]+)"', M):
 #   #modebanner drawModeBanner() opens with `const el = $('#modebanner'); if(!el) return;`, so its
 #              absence is already handled, and React's masthead carries the mode line the brief asks
 #              for ("ending on the live-agent line").
-EXTRA = ["tt", "plate", "rail"]
+#   #plate    THE FIVE CARDS THE USER SAW TWICE. drawPlate() renders the same five metrics the React
+#             KPI cards already show, so the pick screen carried them once from React and once from
+#             the engine. Their words: "the same cards are repeated as if you have copied the html
+#             from here onwards. This tab of 'Pick a site' is what already exists above, so this must
+#             not be on the first page." Both drawPlate() and animatePlate() open with
+#             `if(!el) return;`, so dropping it is already handled.
+EXTRA = ["tt", "rail"]
 for eid in EXTRA:
     m = re.search(r'<[a-zA-Z][a-zA-Z0-9]*\b[^>]*\bid="' + eid + r'"', M)
     if not m:

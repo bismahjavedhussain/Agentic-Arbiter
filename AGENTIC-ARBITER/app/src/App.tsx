@@ -119,9 +119,6 @@ export function App() {
   }
 
   return (
-    /* id="app" because the engine does `$('#app').hidden = false` when it finishes booting.
-       Nothing in the engine ever sets it to true, so hosting the attribute here is safe and it
-       keeps that lookup from returning null. */
     /* id="app" because the engine does `$('#app').hidden = false` once it has booted; nothing in the
        engine ever sets it back to true, so hosting the attribute here is safe and keeps that lookup
        from returning null.
@@ -158,7 +155,9 @@ export function App() {
       </button>
 
       {/* The masthead is on every stage: it carries the headline and the live-agent line. */}
-      <Masthead live={live} />
+      {/* The impact figures are passed in rather than typed into the masthead, so the headline
+          cannot state a number the artefacts do not support. */}
+      <Masthead live={live} cutPct={h?.cutPct} gainHPerYear={h?.gainHPerYear} />
 
       {!a || !h ? (
         <p className="text-[13px] text-muted">Loading saved data…</p>

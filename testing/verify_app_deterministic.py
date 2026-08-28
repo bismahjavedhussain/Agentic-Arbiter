@@ -90,9 +90,14 @@ PROBE = """
   var tries = 0;
   var done = false;
   function complete(o){
+    /* 🔴 THE BARS WERE THE COMPLETENESS SIGNAL AND THEY ARE GONE. The KPI cards lost their sparkline
+       charts on 2026-08-28, at the user's instruction that the cards carry text only and the graphs
+       belong in the results stage. This condition still demanded 3 charts and 20 bars, so it never
+       became true, the probe polled until its give-up, and the give-up was slower than the hold, so
+       the run printed "a render did not report" and nothing else. Second time in this session that a
+       liveness condition outlived the thing it was watching. */
     return (o.figures || []).length >= 5
-        && o.barCharts >= 3
-        && (o.bars || []).length >= 20
+        && (o.comboValues || []).length >= 3
         && o.map && o.map.paintedDots === 637;
   }
   function publish(o, why){
@@ -112,7 +117,9 @@ PROBE = """
     if (complete(o)) { clearInterval(iv); publish(o, 'complete'); return; }
     /* A bounded give-up, so a genuinely broken page still reports and the floors below fail it
        loudly rather than the check timing out with nothing to say. */
-    if (tries > 120) { clearInterval(iv); publish(o, 'gave up after ' + tries + ' polls'); }
+    /* 40 polls at 150 ms is 6 s, comfortably inside the 16 s hold. At 120 the give-up fired
+       AFTER --dump-dom had already read the page, so a stall reported nothing at all. */
+    if (tries > 40) { clearInterval(iv); publish(o, 'gave up after ' + tries + ' polls'); }
   }, 150);
 })();
 </script>
@@ -214,9 +221,11 @@ def main():
         "paragraphs": 6,    # three masthead lines plus the card sub-lines
         "buttons": 4,       # five info triggers, the theme toggle, the combo chevrons
         "comboValues": 3,   # state, operator, facility
-        "bars": 20,         # 4 notice leads + 16 money cells + 4 day-pairs = 24
-        "barCharts": 3,     # exactly three series have real data behind them
-        "barLabels": 3,
+        # bars, barCharts and barLabels are deliberately NOT floored any more: the cards are text
+        # only now. They are still HARVESTED and still COMPARED below, so if a chart ever reappears
+        # in a card its heights have to be identical across the two renders like everything else.
+        # A floor on a thing that should be absent is how a check starts failing the product for
+        # doing what it was asked to do.
     }
     for tag, side in (("a", a), ("b", b)):
         print("   render %s: %s after %s poll(s)"

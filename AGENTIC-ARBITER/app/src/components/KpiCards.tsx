@@ -1,47 +1,26 @@
 import { Info } from './Info'
 import { int } from '../lib/artefacts'
-import { usdShort, type Headline, type Series } from '../lib/headline'
+import { usdShort, type Headline } from '../lib/headline'
 
 /**
- * The data cards.
+ * The data cards. TEXT ONLY.
  *
- * THE BRIEF IS EXPLICIT: "Do not modify the existing reports, graphs, or numerical data cards. Leave
- * all quantitative elements exactly as they are." Every figure here is the shipped figure, derived in
- * src/lib/headline.ts exactly as audit.py's front-door registry derives it, and reproduced in Python
- * against the published strings before this file existed. What changed is the PRESENTATION.
+ * 🔴 THE CHARTS THAT USED TO BE IN HERE ARE GONE, at the user's instruction: "you have tried making
+ * graphs within the cards. Remove these. The cards should only have those textual content which they
+ * do hold and all the graphical content belongs to a separate tab of 'Read the decision'."
  *
- * ---------------------------------------------------------------------------------------------
- * CREDIT, AND WHAT WAS AND WAS NOT TAKEN
- * ---------------------------------------------------------------------------------------------
- * The layout and the chart treatment are adapted from "Stats Card" by kavikatiyar on 21st.dev
- * (component 7841): the quiet label row, the dominant figure, one line of context, and beneath it a
- * flex row of bottom-aligned bars with rounded tops, heights as percentages, a highlighted final bar
- * and a small label under each. That composition is the reason the retrieval was spent.
+ * They are right, and it is worth writing down why rather than just deleting the code. A bar chart
+ * four bars wide inside a card the width of a phone cannot be read; it can only be recognised. So it
+ * was decoration standing where a number should be, on the one screen that has to land the figures
+ * in a few seconds. The series it drew are real and they are still drawn, full size, in the results
+ * stage where a reader has come to study them. Nothing was lost by removing them from here.
  *
- * 🔴 ITS MOTION AND ITS NUMBER FORMATTING WERE NOT TAKEN, and could not be:
- *   1. `AnimatedValue` did `latest.toFixed(0)`. On this data that renders 10.7 % as "11 %", 65.6 % as
- *      "66 %" and $334,269 as "334269". A display layer silently rounding every audited figure to an
- *      integer is a data bug wearing an animation's clothes.
- *   2. `useSpring` for the counter and `type:"spring"` for the bars. Spring physics is TIME-DEPENDENT,
- *      so two renders of one screen differ. testing/verify_site_panels.py renders one site twice and
- *      requires byte-identical output; this is exactly why the single-file page uses fixed
- *      cubic-bezier curves and not a physics engine.
- *   3. `useInView(..., {once:true})` gates what is drawn on the reader's SCROLL POSITION, which is
- *      not a property of the data.
- * So the entrance is a CSS animation with a fixed duration and one shared easing, and it stands down
- * entirely under `prefers-reduced-motion` (which the render harness forces). No framer-motion, no
- * lucide-react, no shadcn Card: zero new dependencies.
+ * THE FIGURES ARE UNCHANGED, which the brief is explicit about: "Do not modify the existing reports,
+ * graphs, or numerical data cards. Leave all quantitative elements exactly as they are." Every figure
+ * is derived in src/lib/headline.ts exactly as audit.py's front-door registry derives it.
  *
- * ⚠ AND NO TREND DELTA. The original ships a "revenue decreased by $421" line. Four of these five
- * figures are LEVELS measured once; there is no previous period. A delta would be a false claim.
- *
- * 🔴 ONLY THREE OF THE FIVE CARDS GET A CHART, because only three have a real series behind them:
- * the notice-hour ladder, the 16 money cells, and the margin trajectory. A cut percentage and an hour
- * count are single measurements. Giving them a shape would be decoration posing as evidence, which is
- * the one thing this project cannot afford to do.
- *
- * 🔴 THE FAILING NUMBER IS STILL HERE, AND STILL RED. 65.6 % against a 90 % promise, on the first
- * screen, labelled as not met.
+ * 🔴 THE FAILING NUMBER IS STILL HERE, AND STILL RED. The coverage against a 90 % promise, on the
+ * first screen, labelled as not met. That is the whole reason this project is trustworthy.
  */
 export function KpiCards({ h }: { h: Headline }) {
   return (
@@ -50,47 +29,41 @@ export function KpiCards({ h }: { h: Headline }) {
       className="grid grid-cols-2 gap-3 lg:grid-cols-5"
     >
       <Card
-        i={0}
         k="Mechanical cooling cut"
         v={h.cutPct.toFixed(1)}
         unit="%"
         sub={`${int(h.mechIncumbentH)} h of chiller time becomes ${int(h.mechAgentH)} h`}
         info="A SHARE, not a total, which is why it holds at any hall size. Measured on the shipped
-              five-year row: the agent's mechanical runtime against the tuned reactive on-site-sensor
+              five year row: the agent's mechanical runtime against the tuned reactive on site sensor
               controller operators verifiably run today, over the same hours."
         infoLabel="Why a share rather than a total: it holds at any hall size."
       />
 
       <Card
-        i={1}
         k="Chiller-hours recovered"
         v={`+${Math.round(h.gainHPerYear)}`}
         unit="h/yr"
         sub="against the reactive controller operators run today"
-        series={h.series.gain}
-        info="The incumbent is not a straw man: it is the on-site-sensor control plants verifiably
-              run, reacting to what a thermometer reports now. The bars are the sensitivity sweep's
-              notice axis, so they are the forecast's value measured by varying only the forecast."
-        infoLabel="What the comparison is against, and what the bars show: chiller-hours bought by each hour of notice."
+        info="The incumbent is not a straw man. It is the on site sensor control that plants
+              verifiably run, reacting to what a thermometer reports now. The sweep that shows what
+              each hour of forecast notice buys is in the results stage."
+        infoLabel="What the comparison is against: the controller operators actually run today."
       />
 
       <Card
-        i={2}
         k="Worth at this site"
         v={`${usdShort(h.usdLo)}–${usdShort(h.usdHi)}`}
         unit="/yr"
         sub={`${int(h.moneyCells)} swept cells · ${Math.round(h.mwLo)}–${Math.round(h.mwHi)} MW of IT load`}
-        series={h.series.worth}
         info={`A RANGE BECAUSE IT IS A SWEEP, not a confidence interval: 4 published electricity
               tariffs by 4 published chiller efficiencies, ${int(h.moneyCells)} cells, cheapest to
               dearest. $${int(h.usdPerMwLo)} to $${int(h.usdPerMwHi)} per MW of IT load per year,
-              times this site's own measured footprint of ${int(h.footprintM2)} m². Compressor-only,
+              times this site's own measured footprint of ${int(h.footprintM2)} m². Compressor only,
               which makes it an upper bound on that term rather than a projection.`}
-        infoLabel="Why it is a range: a 16-cell sweep of published tariffs and chiller efficiencies, not a confidence interval."
+        infoLabel="Why it is a range: a 16 cell sweep of published tariffs and efficiencies, not a confidence interval."
       />
 
       <Card
-        i={3}
         k="Measured on"
         v={int(h.weatherHours)}
         unit="h"
@@ -102,29 +75,25 @@ export function KpiCards({ h }: { h: Headline }) {
       />
 
       <Card
-        i={4}
         k="Bound coverage, measured"
         v={h.coveragePct.toFixed(1)}
         unit="%"
         tone="critical"
         sub="against its own 90 % promise · PRE-REGISTERED TEST NOT MET"
-        series={h.series.cov}
-        signed
-        info="THIS IS THE HONEST NUMBER AND IT IS ON THE FIRST SCREEN. The bound promised 90 % and
-              delivered 65.6 %. Most of the shortfall is arithmetic rather than modelling: with n
-              calibration day-pairs the best attainable coverage is n/(n+1), so 4 pairs cap it at
-              80 % before anything else goes wrong. Nine are needed for 90 % and four exist. The bars
-              are the margin recalibrating itself across those four pairs, and they cross zero."
-        infoLabel="Why coverage fell short: with 4 calibration day-pairs the attainable ceiling is 80 percent, and 9 are needed for 90."
+        info="THIS IS THE HONEST NUMBER AND IT IS ON THE FIRST SCREEN. The bound promised 90 % and did
+              not reach it. Most of the shortfall is arithmetic rather than modelling: with n
+              calibration day pairs the best coverage anyone can attain is n/(n+1), so a small number
+              of pairs caps it well below 90 % before anything else goes wrong. The margin
+              recalibrating itself across those pairs is drawn in the results stage."
+        infoLabel="Why coverage fell short: with n calibration day pairs the ceiling is n/(n+1)."
       />
     </section>
   )
 }
 
 function Card({
-  i, k, v, unit, sub, info, infoLabel, tone, series, signed,
+  k, v, unit, sub, info, infoLabel, tone,
 }: {
-  i: number
   k: string
   v: string | number
   unit?: string
@@ -132,9 +101,6 @@ function Card({
   info: string
   infoLabel: string
   tone?: 'critical'
-  series?: Series
-  /** Draw from a zero baseline, for a series that crosses it. */
-  signed?: boolean
 }) {
   return (
     <div
@@ -159,91 +125,6 @@ function Card({
       </div>
 
       <p className="mt-2 text-[11.5px] leading-[1.45] text-ink-2">{sub}</p>
-
-      {series && <Bars series={series} signed={signed} delay={i * 60} critical={tone === 'critical'} />}
-    </div>
-  )
-}
-
-/**
- * The bar chart, adapted from the 21st.dev card's treatment and driven by a real series.
- *
- * DETERMINISTIC BY CONSTRUCTION. Heights are computed from the data and written as inline styles, so
- * the final frame is a pure function of the values. The only motion is one CSS animation with a fixed
- * duration and a fixed easing, and `@media (prefers-reduced-motion: reduce)` in index.css collapses it
- * to nothing. Nothing here reads the clock, the scroll position, or a random number.
- */
-function Bars({ series, signed, delay, critical }: {
-  series: Series
-  signed?: boolean
-  delay: number
-  critical?: boolean
-}) {
-  const vals = series.vals
-  const n = vals.length
-  const max = Math.max(...vals.map((x) => Math.abs(x)), 1e-9)
-
-  // A signed series is drawn from the middle, because a margin that crosses zero has to be SEEN to
-  // cross zero. An all-positive series is drawn from the bottom, where a reader expects it.
-  const pct = (x: number) => (signed ? (Math.abs(x) / max) * 50 : (Math.abs(x) / max) * 100)
-
-  const accent = critical ? 'var(--critical)' : 'var(--series-1-edge)'
-  const quiet = 'var(--axis)'
-
-  return (
-    <div className="mt-3">
-      <div
-        className="relative flex h-[42px] w-full items-end"
-        style={{ gap: n > 8 ? '2px' : '4px' }}
-        role="img"
-        aria-label={`${series.cap}: ${vals.map((x) => x.toFixed(2)).join(', ')}`}
-      >
-        {signed && (
-          // The zero line, drawn so the sign of each bar is readable rather than implied.
-          <div
-            className="pointer-events-none absolute left-0 right-0 top-1/2 h-px"
-            style={{ background: 'var(--grid)' }}
-          />
-        )}
-        {vals.map((x, j) => {
-          const last = j === n - 1
-          return (
-            <div key={j} className="relative flex h-full flex-1 items-end">
-              <span
-                className="aa-bar w-full rounded-t-[3px]"
-                style={{
-                  height: `${pct(x)}%`,
-                  background: last ? accent : quiet,
-                  opacity: last ? 1 : 0.55,
-                  // A signed series sits on the midline; a negative bar hangs below it.
-                  ...(signed
-                    ? x >= 0
-                      ? { position: 'absolute', bottom: '50%' }
-                      : { position: 'absolute', top: '50%', borderRadius: '0 0 3px 3px' }
-                    : {}),
-                  animationDelay: `${delay + j * 45}ms`,
-                }}
-              />
-            </div>
-          )
-        })}
-      </div>
-
-      {series.labels && n <= 8 && (
-        <div className="mt-1 flex w-full" style={{ gap: '4px' }}>
-          {series.labels.map((l, j) => (
-            <span
-              key={j}
-              className="num flex-1 text-center text-[9.5px] text-muted"
-              style={{ opacity: j === n - 1 ? 1 : 0.7 }}
-            >
-              {l}
-            </span>
-          ))}
-        </div>
-      )}
-
-      <p className="mt-1.5 text-[10px] leading-[1.35] text-muted">{series.cap}</p>
     </div>
   )
 }
