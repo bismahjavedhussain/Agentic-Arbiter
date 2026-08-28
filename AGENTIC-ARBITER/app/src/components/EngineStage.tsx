@@ -6,6 +6,8 @@ import { classifyPanels, unlockedTabs, type TabId } from '../lib/tabs'
 import { useStage } from '../lib/stage'
 import { TabHeader, TabRail } from './Workspace'
 import { AgentTerminal } from './AgentTerminal'
+import { AgentConsole } from './AgentConsole'
+import { ART } from '../lib/artefacts'
 
 /**
  * The configure and results stages: the page's own markup, driven by the page's own engine.
@@ -56,6 +58,12 @@ export function EngineStage({
   const stage = useStage()
   const [tab, setTab] = useState<TabId>('config')
   const unlocked = unlockedTabs(stage)
+  /* THE PDF THE CONSOLE OFFERS. Read from the engine's own currentSite() and its `artefacts`
+     map, never constructed: sites.json names report.pdf for the metro and a key-prefixed one
+     per national site, and a guessed filename is a 404 that looks like a missing feature.
+     Null when the manifest names none, and the button is then not rendered at all. */
+  const [pdfHref, setPdfHref] = useState<string | null>(null)
+
 
   /* The markup goes in FIRST, in a layout effect, so it is in the DOM before bootEngine() runs and
      before the browser paints. Guarded by a ref: injecting twice would discard whatever the engine had
@@ -150,6 +158,15 @@ export function EngineStage({
     } catch { /* nothing loaded yet */ }
   }, [theme])
 
+  useEffect(() => {
+    if (stage !== 'results') return
+    try {
+      const site = engine.currentSite() as { artefacts?: Record<string, string> } | null
+      const rel = site?.artefacts?.report
+      setPdfHref(rel ? ART + rel : null)
+    } catch { setPdfHref(null) }
+  }, [stage])
+
   /* MOVE TO THE TAB THE NEW STAGE IS ABOUT. Reaching `configure` means the plant is what matters;
      reaching `results` means the run is, so the workspace opens on the agent working rather than
      leaving the reader on a tab whose panels just changed underneath them. */
@@ -230,6 +247,10 @@ export function EngineStage({
           <TabHeader active={tab} />
           {/* The console chrome, only where it means anything. It reads #tape and writes nothing,
               so mounting and unmounting it cannot disturb the engine's own stream. */}
+          {/* THE AGENT, AS ONE ROW. It reads #tape and writes nothing, so mounting it cannot
+              disturb the engine's own stream. The expanded tape stays in the DOM, hidden by
+              CSS and reopenable, because it is what verify_app_flow.py counts. */}
+          {tab === 'live' && stage === 'results' && <AgentConsole pdfHref={pdfHref} />}
           {tab === 'live' && stage === 'results' && <AgentTerminal />}
           <div ref={host} className="viz-root" />
         </div>

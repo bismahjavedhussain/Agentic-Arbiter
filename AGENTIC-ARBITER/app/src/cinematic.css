@@ -1,0 +1,293 @@
+/* THE CINEMATIC BLUE SHELL, the FortyGuard banner, and the one-row agent console.
+ *
+ * 🔴 WHY THE BLUE ARRIVES AS NEW TOKENS RATHER THAN BY REPOINTING THE OLD ONES.
+ * testing/verify_palette.py holds a canonical 20-token palette and asserts that
+ * app/src/index.css declares the SAME VALUES as demo/index.html for every one of them. So recolouring
+ * `--surface-1`, `--series-1` or `--border` in the app alone does not make the app blue, it makes the
+ * check fail, because the app would then be claiming a palette the page was never measured on.
+ *
+ * The honest split, and it is the one implemented here:
+ *   THE SHELL is React's own: the banner, the rail, the tab header, the console. It takes the new
+ *   `--fg-*` tokens below and goes deep blue.
+ *   THE PANELS are the engine's, drawn from the audited palette. They keep it.
+ *
+ * ⚠ SO THE CHARTS ARE NOT BLUE YET, and that is a real gap against the brief rather than an oversight.
+ * The series ramp is `--series-1` (blue) and `--series-2` (orange), both canonical, both read at
+ * runtime by the canvas renderers. Turning the orange into a second blue means editing the palette in
+ * demo/index.html, re-lifting engine.css through tools/mkview.py, and mirroring the values here, so
+ * that the page and the app still agree. That is a coordinated change across the audited page and it
+ * is not something to slip in unannounced.
+ *
+ * Loaded last, after engine.css, index.css, workspace.css and dashboard.css.
+ */
+
+/* ---- 0. THE BRAND RAMP. FortyGuard's wordmark is two blues: a deep corporate blue and a brighter
+   cyan-leaning one. Everything below is mixed from those two plus a near-black navy. ---- */
+:root {
+  --fg-deep: #1b6ec2;      /* the wordmark's darker half */
+  --fg-bright: #14a1e0;    /* the wordmark's lighter half */
+  --fg-ink: #071018;       /* near-black navy, the shell floor */
+  --fg-shell: #0a1522;     /* the shell's own surface, one step up from the floor */
+  --fg-hair: #17293d;      /* a blue-tinted hairline, darker than the page's --border */
+  --fg-dim: #7c93ad;       /* blue-tinted secondary text */
+}
+:root[data-theme='light'] {
+  --fg-deep: #12558f;
+  --fg-bright: #0d7fb4;
+  --fg-ink: #f4f8fc;
+  --fg-shell: #ffffff;
+  --fg-hair: #d3e0ed;
+  --fg-dim: #5a7086;
+}
+
+/* ---- 1. THE APP FRAME. An operator console, not a document: the chrome is fixed and the panel
+   column is the only thing that scrolls.
+
+   ⚠ TRUE ZERO-SCROLL IS NOT POSSIBLE HERE and claiming it would be false. One tab holds up to four
+   engine panels, each with a chart and a table, and they are the audited artefacts a judge came to
+   read. What this does is make the shell app-like: banner, rail, header and console stay put, and
+   only the panels move. ---- */
+body:not([data-stage='pick']) {
+  background:
+    radial-gradient(1200px 620px at 18% -8%, color-mix(in oklab, var(--fg-deep) 16%, transparent), transparent 70%),
+    radial-gradient(900px 520px at 92% 4%, color-mix(in oklab, var(--fg-bright) 11%, transparent), transparent 68%),
+    var(--fg-ink);
+  background-attachment: fixed;
+}
+body:not([data-stage='pick']) #app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1580px;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+body:not([data-stage='pick']) .aa-workspace {
+  flex: 1 1 auto;
+  min-height: 0;                 /* without this a grid child refuses to shrink and the page scrolls */
+}
+body:not([data-stage='pick']) .aa-workspace-main {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;  /* the panel column stops scrolling the window when it bottoms out */
+  padding-right: 4px;
+}
+body:not([data-stage='pick']) .aa-rail-nav { max-height: calc(100vh - 128px); overflow-y: auto; }
+
+/* ---- 2. THE FORTYGUARD BANNER. Muted, spanning the top, and behind everything.
+   The wordmark is a real RGBA png (demo/fortyguard-logo.png), so it needs no blend trick; opacity is
+   enough. `pointer-events: none` because it is scenery, not a control. ---- */
+.aa-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 46px;
+  margin: 0 0 6px;
+  border-bottom: 1px solid var(--fg-hair);
+  pointer-events: none;
+  user-select: none;
+}
+.aa-banner img {
+  height: 19px;
+  width: auto;
+  opacity: 0.34;
+  filter: saturate(1.15);
+}
+:root[data-theme='light'] .aa-banner img { opacity: 0.46; }
+.aa-banner::after {
+  /* A thin brand rule fading out to the right, so the banner reads as a band rather than a logo
+     floating in space. */
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--fg-bright), color-mix(in oklab, var(--fg-deep) 40%, transparent), transparent 70%);
+  opacity: 0.55;
+}
+.aa-banner-sub {
+  margin-left: 13px;
+  padding-left: 13px;
+  border-left: 1px solid var(--fg-hair);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+/* ---- 3. THE RAIL AND HEADER, in brand blue ---- */
+.aa-rail-nav {
+  border-color: var(--fg-hair);
+  background: color-mix(in oklab, var(--fg-shell) 78%, transparent);
+}
+.aa-tab.is-active .aa-tab-icon { color: var(--fg-bright); }
+.aa-tab-marker {
+  background: color-mix(in oklab, var(--fg-deep) 26%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg-bright) 40%, transparent);
+}
+.aa-qa-icon { color: var(--fg-bright); }
+.aa-qa-card { border-top-color: var(--fg-hair); }
+.aa-tabhead-icon {
+  color: var(--fg-bright);
+  background: color-mix(in oklab, var(--fg-deep) 20%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg-bright) 30%, transparent);
+}
+.aa-workspace .viz-root .card {
+  border-color: var(--fg-hair);
+  background: color-mix(in oklab, var(--fg-shell) 62%, transparent);
+}
+.aa-workspace .viz-root .card:hover {
+  border-color: color-mix(in oklab, var(--fg-bright) 34%, var(--fg-hair));
+}
+
+/* ---- 4. NO REPEATED HEADINGS.
+   🔴 A SPECIFICITY FIX, NOT A NEW RULE. workspace.css already said `.secgroup { display: none }`, and
+   it did not work: engine.css declares `.secgroup{display:block;...}` and Vite emitted that
+   declaration AFTER ours in the bundle, so equal specificity meant the later one won. Verified by
+   reading the deployed stylesheet, where both rules are present in that order.
+   `.viz-root .secgroup` is (0,2,0) against engine.css's (0,1,0), so order stops mattering.
+   The page carries the eyebrow "The decision, and what it is worth" TWICE, which is what put the same
+   heading on screen twice in the user's screenshot. ---- */
+.viz-root #secnav,
+.viz-root .secgroup,
+.aa-workspace .secgroup { display: none; }
+
+/* ---- 5. THE EXPANDED TAPE IS FOLDED AWAY, not deleted.
+   The console above it is what a reader looks at now. The rows stay in the DOM because
+   verify_app_flow.py counts them (`#tape > *`) and #tapedone is the completion signal the console
+   itself reads, and because "show me the actual trace" is a fair thing to ask of an agent. ---- */
+.aa-workspace[data-aa-active='live'] #tapecard #tape,
+.aa-workspace[data-aa-active='live'] #tapecard #tapeguard { display: none; }
+.aa-workspace[data-aa-active='live'] #tapecard.aa-trace-open #tape {
+  display: grid;
+  margin-top: 10px;
+}
+.aa-trace-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 5px 10px;
+  border: 1px solid var(--fg-hair);
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+.aa-trace-toggle:hover { color: var(--text-primary); border-color: var(--fg-bright); }
+
+/* ---- 6. THE ONE-ROW CONSOLE ---- */
+.aa-console {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 11px 14px;
+  border: 1px solid color-mix(in oklab, var(--fg-bright) 22%, var(--fg-hair));
+  border-radius: 13px;
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--fg-deep) 20%, transparent), transparent 58%),
+    color-mix(in oklab, var(--fg-shell) 86%, transparent);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+.aa-console.is-run { border-color: color-mix(in oklab, var(--fg-bright) 46%, transparent); }
+.aa-console.is-done { border-color: color-mix(in oklab, var(--good) 34%, var(--fg-hair)); }
+
+.aa-console-orb { display: grid; place-items: center; width: 18px; height: 18px; flex: none; }
+.aa-console-orb i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fg-dim);
+}
+.aa-console.is-done .aa-console-orb i {
+  background: var(--good);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--good) 18%, transparent);
+}
+.aa-spin { color: var(--fg-bright); animation: aa-rot 0.9s linear infinite; }
+@keyframes aa-rot { to { transform: rotate(360deg); } }
+
+.aa-console-line {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13.2px;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+.aa-console-line > span { display: inline-block; }
+
+/* THE SHIMMER, adapted from 21st.dev's thinking-tool: a gradient painted THROUGH the glyphs with
+   background-clip:text and slid across on a loop. Its neutral greys are repointed at the brand ramp,
+   so the line reads as the agent thinking in FortyGuard blue rather than in shadcn grey. */
+@keyframes aa-shimmer {
+  from { background-position: 100% center; }
+  to { background-position: 0% center; }
+}
+.aa-shimmer {
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(
+    90deg,
+    var(--fg-dim) 0%,
+    var(--fg-dim) 40%,
+    var(--fg-bright) 50%,
+    var(--fg-dim) 60%,
+    var(--fg-dim) 100%
+  );
+  animation: aa-shimmer 1.25s linear infinite;
+}
+
+.aa-console-ticks { display: flex; gap: 4px; margin: 0; padding: 0; list-style: none; flex: none; }
+.aa-console-ticks li {
+  width: 15px;
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--fg-dim) 30%, transparent);
+  transition: background-color 0.3s ease;
+}
+.aa-console-ticks li.is-past { background: var(--fg-deep); }
+.aa-console-ticks li.is-now { background: var(--fg-bright); }
+.aa-console-stage {
+  flex: none;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9.8px;
+  letter-spacing: 0.09em;
+  color: var(--fg-bright);
+}
+
+/* THE PAYOFF. Bright brand blue, unmissable, and the only saturated fill in the shell. */
+.aa-console-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--fg-bright) 60%, transparent);
+  background: linear-gradient(180deg, var(--fg-bright), var(--fg-deep));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  box-shadow: 0 6px 18px color-mix(in oklab, var(--fg-deep) 38%, transparent);
+}
+.aa-console-dl:hover { filter: brightness(1.07); }
+.aa-console-dl:focus-visible { outline: 2px solid var(--fg-bright); outline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .aa-console { flex-wrap: wrap; }
+  .aa-console-line { flex-basis: 100%; order: 3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aa-shimmer { animation: none; color: var(--fg-dim); background: none; -webkit-text-fill-color: currentColor; }
+  .aa-spin { animation: none; }
+}

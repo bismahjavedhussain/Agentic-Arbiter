@@ -12,6 +12,61 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE CINEMATIC BLUE SHELL, THE ONE-ROW AGENT CONSOLE, AND WHAT IS STILL OUTSTANDING. 2026-08-29
+
+**21st.dev MCP, used and exhausted.** `search` (free) several times, `get_usage`, and the one remaining
+`get_component` retrieval spent on **#12363 `thinking-tool`** by serafimcloud, whose shimmer is the
+basis of the console: an animated linear-gradient painted through the glyphs with
+`background-clip: text`. Its `@tabler/icons-react` dependency was dropped for lucide, already present,
+and its neutral greys repointed at the brand ramp. `mcp__21st__generate` returned
+`locked: generation_limit_reached` on this free account, so the layout is hand-built from the search
+results rather than generated.
+
+**`AgentConsole.tsx`: the agent as one row.** Spinner, one shimmering line of short reasoning that
+cycles, seven stage ticks, and a bright-blue **Download PDF** that springs in the moment the tape
+finishes. The expanded sixteen-line tape is folded away by CSS and reopenable behind "Full trace".
+
+🔴 **EVERY REASONING PHRASE IS FIXED AND CONTAINS NO DIGIT.** The stage is READ from the engine's tape,
+so the progress is real; the wording is decoration over a real signal. Paraphrasing the tape's numbers
+would be inventing figures with no artefact behind them. `ticker.json` makes the same promise about its
+own templates. The **PDF is resolved from `currentSite().artefacts.report`**, never constructed, and the
+button is not rendered when the manifest names none.
+
+**The repeated heading is fixed, and it was a specificity bug of mine.** `workspace.css` already said
+`.secgroup { display: none }` and it did nothing: engine.css declares `.secgroup{display:block}` and
+Vite emitted that declaration AFTER ours, so equal specificity meant the later one won. Confirmed by
+reading the deployed stylesheet. `.viz-root .secgroup` is (0,2,0) against (0,1,0), so order stops
+mattering. The page carries the eyebrow "The decision, and what it is worth" **twice**, which is what
+put it on screen twice.
+
+🔴 **PRESELECTED IS NOT THE SAME AS FILTERED, and conflating them broke a real check.** Defaulting
+`filters.facility` to `metro_ashburn` also filtered the map to that one key, so the footprint collapsed
+from 637 dots to 1 and `verify_app_deterministic.py` failed, correctly: it loads `/app/?probe=1` and
+asserts 637 dots and 246 halos. The default now drives the **search bar and the Configure panel**,
+which is what was asked, while the **map keeps showing everything** until the reader touches something.
+`pristine` is that distinction and any interaction clears it. `ashburn` is confirmed as the site whose
+committed pair is Amazon Web Services IAD116 to IAD117.
+
+**FortyGuard banner:** the wordmark ships as `demo/fortyguard-logo.png` (RGBA, 33,778 B, so opacity
+alone is enough), muted at 0.34, spanning the top, `pointer-events: none`, fetched through `ART`.
+
+⚠ **THREE PARTS OF THE BRIEF ARE NOT FULLY DELIVERED, stated rather than implied.**
+
+1. **The charts are not blue yet.** The series ramp is `--series-1` (blue) and `--series-2` (orange),
+   both among the canonical 20 that `verify_palette.py` requires the app and the page to AGREE on, and
+   both read at runtime by the canvas renderers. Turning the orange into a second blue means editing
+   the palette in `demo/index.html`, re-lifting `engine.css` through `tools/mkview.py`, and mirroring
+   the values in the app. That is a coordinated change across the audited page, not a CSS tweak.
+   The **shell** is blue via new `--fg-*` tokens that collide with nothing.
+2. **True zero-scroll is not achievable while the panels are the deliverable.** One tab holds up to
+   four engine panels, each with a chart and a table. What ships is an app-like frame: banner, rail,
+   header and console are fixed, and the panel column is the only scroll region.
+3. **The filters and metric cards are not yet consolidated into one widget grid.** They still live on
+   the pick screen as the brief for that screen specified.
+
+Verified: palette 38/0, flow 24 of 24, view-matches-page 0, shipped-current 0, deployed-root 0,
+**app-deterministic 0**, `audit.py` **2,216 passed 0 failures**. Figures unchanged.
+
 ### shadcn IS INSTALLED, AND ITS INIT BROKE THREE THINGS QUIETLY. 2026-08-29
 
 At the user's direction: `npx shadcn init -b radix -p nova`, the `@efferd` registry added to

@@ -15,6 +15,10 @@ import './workspace.css'
 /* And the dashboard arrangement last: it styles the rail groups, the quick actions and the
    panel entrance, all of which sit on top of what workspace.css lays out. */
 import './dashboard.css'
+/* LAST OF ALL. The cinematic shell re-skins the chrome the previous three laid out and fixes
+   two things by specificity that equal-specificity rules could not: the repeated .secgroup
+   heading, and the panel column being the only scroll region. */
+import './cinematic.css'
 import { App } from './App'
 
 const el = document.getElementById('root')

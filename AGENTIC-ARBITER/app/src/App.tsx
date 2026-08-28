@@ -39,9 +39,26 @@ export function App() {
     return {
       state: q.get('state') || '',
       operator: q.get('operator') || '',
-      facility: q.get('facility') || '',
+      /* 🔴 ASHBURN IS PRESELECTED, at the user's instruction: the first screen should open on the
+         facility the project actually ships a full agent run for, rather than on an empty search box
+         over 637 candidates. `metro_ashburn` is the map key whose label is "Ashburn, Virginia" and
+         whose committed pair is Amazon Web Services IAD116 to IAD117 (sites.json `committed`).
+         It is the DEFAULT, not a lock: `?facility=` still overrides it, which is what the browser
+         checks drive, and clearing the selection still works. */
+      facility: q.get('facility') || 'metro_ashburn',
     }
   })
+  /* 🔴 PRESELECTED IS NOT THE SAME AS FILTERED, and conflating them broke a real check.
+     Defaulting `filters.facility` to metro_ashburn also filtered the map to that ONE key
+     (SiteMap.tsx:254 clauses on it), so the national footprint collapsed from 637 dots to 1 and
+     verify_app_deterministic.py failed: it loads /app/?probe=1 and asserts 637 dots / 246 halos.
+     It was right to. The 637-site footprint is the first thing the page claims.
+     So the default selection drives the SEARCH BAR and the Configure panel, which is what was asked,
+     while the MAP keeps showing everything until the reader actually touches something. `pristine`
+     is that distinction, and any interaction clears it for good. */
+  const [pristine, setPristine] = useState(
+    () => !new URLSearchParams(typeof location === 'undefined' ? '' : location.search).get('facility'),
+  )
   const [theme, setTheme] = useState<'dark' | 'light'>(
     () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'),
   )
@@ -73,9 +90,16 @@ export function App() {
   /* Stable identity, so SiteMap's create-once effect stays create-once even if its dependency
      array is ever widened again. Belt as well as braces: the ref inside SiteMap is the braces. */
   const onPick = useCallback(
-    (key: string) => setFilters((f) => ({ ...f, facility: key })),
+    (key: string) => { setPristine(false); setFilters((f) => ({ ...f, facility: key })) },
     [],
   )
+
+  /* Every route by which a reader changes a filter goes through here, so `pristine` cannot survive an
+     interaction by being forgotten at one call site. */
+  const onFilters = useCallback((next: Filters | ((f: Filters) => Filters)) => {
+    setPristine(false)
+    setFilters(next as Filters)
+  }, [])
 
   /* "Configure the plant". The whole transition lives in lib/engine.ts because its ORDER carries a
      reason -- it is chooseSite()'s order from the page, and wire() inside it is what binds #runagent,
@@ -92,17 +116,23 @@ export function App() {
     }
   }, [])
 
+  /* What the MAP and the count see: the same filters, minus a facility nobody chose. */
+  const mapFilters = useMemo(
+    () => (pristine ? { ...filters, facility: '' } : filters),
+    [pristine, filters],
+  )
+
   const selected = a && filters.facility ? a.byKey.get(filters.facility) ?? null : null
 
   const shown = useMemo(() => {
     if (!a) return 0
     return a.unified.sites.filter((s) => {
-      if (filters.facility) return s.key === filters.facility
-      if (filters.state && (s.state || '??') !== filters.state) return false
-      if (filters.operator && !s.operators?.includes(filters.operator)) return false
+      if (mapFilters.facility) return s.key === mapFilters.facility
+      if (mapFilters.state && (s.state || '??') !== mapFilters.state) return false
+      if (mapFilters.operator && !s.operators?.includes(mapFilters.operator)) return false
       return true
     }).length
-  }, [a, filters])
+  }, [a, mapFilters])
 
   if (err) {
     return (
@@ -155,6 +185,16 @@ export function App() {
         )}
       </button>
 
+      {/* 🔴 THE FORTYGUARD BANNER, muted and spanning the top. The wordmark ships as
+          demo/fortyguard-logo.png, a real RGBA png, so low opacity is enough and no blend trick is
+          needed. Fetched through ART like every other artefact, so it resolves at /app/ and at the
+          demo root alike. alt is empty and it is aria-hidden: the product name is already the <h1>
+          directly below, so announcing the logo would just repeat it. */}
+      <div className="aa-banner">
+        <img src={ART + 'fortyguard-logo.png'} alt="" aria-hidden="true" />
+        <span className="aa-banner-sub">Free-cooling decisions, hour by hour</span>
+      </div>
+
       {/* The masthead is on every stage: it carries the headline and the live-agent line. */}
       {/* The impact figures are passed in rather than typed into the masthead, so the headline
           cannot state a number the artefacts do not support. */}
@@ -172,7 +212,7 @@ export function App() {
               decide. The map instance survives inside a hidden container, so returning to the pick
               screen does not rebuild it. */}
           <div data-show="pick">
-            <SearchBar a={a} filters={filters} onChange={setFilters} shown={shown} />
+            <SearchBar a={a} filters={filters} onChange={onFilters} shown={shown} />
             {/* 🔴 THE PATH FORWARD. The first version of this screen let a reader select a data
                 centre and then offered nothing; the second offered a link back to the old page.
                 This one calls the engine. */}
@@ -189,7 +229,7 @@ export function App() {
               <KpiCards h={h} />
             </div>
             <div className="mt-4">
-              <SiteMap a={a} filters={filters} onPick={onPick} />
+              <SiteMap a={a} filters={mapFilters} onPick={onPick} />
             </div>
           </div>
 
