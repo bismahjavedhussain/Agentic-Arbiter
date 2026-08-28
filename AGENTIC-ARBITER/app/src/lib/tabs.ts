@@ -99,7 +99,14 @@ export const TABS: Tab[] = [
   },
   {
     id: 'calib',
-    label: 'Model Calibration',
+    /* 🔴 NOT "Model Calibration". The user asked whether that name is right for an agentic
+       dashboard, and it is not: there is no learned model here to calibrate. What this tab shows is
+       the agent grading its own promise against what happened and widening its own margin, which is
+       a conformal bound and a feedback loop, not a trained estimator. The panels inside are called
+       "The self-scoring loop" and "How the bound is built", so the tab now says what they say.
+       "Model" would also invite exactly the wrong question from a judge: which model, trained on
+       what. The answer is none, and the name should not imply otherwise. */
+    label: 'Self-Scoring',
     blurb: 'What the agent promised, what it measured, and the arithmetic between them.',
     selectors: ['#scorecard', '#cfcard'],
     needs: 'results',

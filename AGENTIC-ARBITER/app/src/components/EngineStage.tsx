@@ -6,6 +6,7 @@ import { classifyPanels, unlockedTabs, type TabId } from '../lib/tabs'
 import { useStage } from '../lib/stage'
 import { TabHeader, TabRail } from './Workspace'
 import { AgentConsole } from './AgentConsole'
+import { PlumeBadge } from './PlumeBadge'
 import { ART } from '../lib/artefacts'
 
 /**
@@ -94,6 +95,14 @@ export function EngineStage({
     const railSlot = document.getElementById('aa-railslot')
     const rail = host.current.querySelector('#rail')
     if (railSlot && rail) railSlot.appendChild(rail)
+
+    /* MOVE "Learn more about the bound" TO THE LAST CARD ON THE TAB, at the user's request. It sat
+       mid-tab in #scorecard, so a reader met the call to action before the arithmetic it refers to.
+       #cfcard is the last panel in the Self-Scoring tab, which is where a "learn more" belongs.
+       A node move, like #rail: the button keeps its id and whatever the engine bound to it. */
+    const more = host.current.querySelector('#boundmore')
+    const lastCard = host.current.querySelector('#cfcard')
+    if (more && lastCard) lastCard.appendChild(more.closest('p') || more)
 
     const { missing } = classifyPanels(host.current)
     if (missing.length && import.meta.env.DEV) {
@@ -253,8 +262,15 @@ export function EngineStage({
           engine host inside it is never torn down and rebuilt. */}
       <div className="aa-workspace" data-aa-active={tab}>
         <TabRail active={tab} unlocked={unlocked} onSelect={setTab} />
-        <div className="aa-workspace-main">
+        {/* 🔴 THE HEADING IS OUTSIDE THE SCROLL CONTAINER, which is the only way it stops merging
+            with the content. As a sticky child of the scrolling column it stayed on screen but the
+            panels slid UNDER it, so it overlapped the first card: the user's words were that the
+            headings "completely get merged with the content".
+            Now the column is a flex stack of a fixed heading and a scrolling body, so the heading is
+            never painted over and the panels never reach it. That is how a tab is supposed to sit. */}
+        <div className="aa-workspace-col">
           <TabHeader active={tab} />
+          <div className="aa-workspace-main">
           {/* The console chrome, only where it means anything. It reads #tape and writes nothing,
               so mounting and unmounting it cannot disturb the engine's own stream. */}
           {/* THE AGENT, AS ONE ROW, and the ONLY thing standing in for the tape now.
@@ -263,7 +279,10 @@ export function EngineStage({
               #tape is what verify_app_flow.py counts and #tapedone is the completion signal this
               console reads. It reads them and writes nothing, so the engine's stream is untouched. */}
           {tab === 'live' && stage === 'results' && <AgentConsole pdfHref={pdfHref} />}
-          <div ref={host} className="viz-root" />
+          {/* The solver, named on the tab it belongs to. Reads #dialcard and writes nothing. */}
+          {tab === 'plume' && stage === 'results' && <PlumeBadge />}
+            <div ref={host} className="viz-root" />
+          </div>
         </div>
       </div>
       {failed && (

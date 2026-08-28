@@ -58,6 +58,32 @@ SHOTS = {
           if (/Configure this plant/.test(b[i].textContent || '')) { clearInterval(t); b[i].click(); }
       }, 150);
     """,
+    # Results, then the Plume tab: is the NVIDIA Warp strip there and does it carry real numbers?
+    "plume": """
+      var st = 0;
+      var t = setInterval(function(){
+        var b = document.querySelectorAll('button');
+        if (st === 0) {
+          for (var i = 0; i < b.length; i++)
+            if (/Configure this plant/.test(b[i].textContent || '')) { b[i].click(); st = 1; return; }
+        } else if (st === 1) {
+          var r = document.getElementById('runagent');
+          if (r) { r.click(); st = 2; }
+        } else if (st === 2) {
+          if (document.body.dataset.stage !== 'results') return;
+          /* WAIT before clicking. EngineStage moves to the 'live' tab when the stage becomes
+             'results', so a click landing in the same tick is immediately overridden and the shot
+             photographs the wrong tab. Learned by looking at the PNG. */
+          st = 3;
+          setTimeout(function(){
+            var tab = document.querySelector('[data-aa-tabid="plume"]');
+            if (tab && !tab.disabled) tab.click();
+            clearInterval(t);
+          }, 2600);
+        }
+      }, 200);
+    """,
+
     # The configure stage, scrolled. Picture 5: does the tab heading survive?
     "configure_scrolled": """
       var t = setInterval(function(){

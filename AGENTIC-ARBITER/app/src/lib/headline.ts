@@ -58,6 +58,10 @@ type Money = {
 export type Series = { vals: number[]; cap: string; labels?: string[] }
 
 export type Headline = {
+  /** Which site these figures are actually for. Not always the one asked for: see loadHeadline. */
+  usedKey?: string
+  /** True when the requested site had no agent run and the shipped reference was substituted. */
+  isFallback?: boolean
   cutPct: number
   mechIncumbentH: number
   mechAgentH: number
@@ -82,7 +86,9 @@ export type Headline = {
 /** The shipped site. `metros.py` calls it DEFAULT_METRO and its value is "ashburn". */
 export const DEFAULT_METRO = 'ashburn'
 
-export function headlineFigures(bt: Backtest, t: Trace, mn: Money, manifest: Manifest): Headline {
+export function headlineFigures(bt: Backtest, t: Trace, mn: Money, manifest: Manifest,
+  forKey: string,
+): Headline {
   /* THE SHIPPED ROW of the five-year ladder. Addressed by its `anchor` FIELD rather than by index:
      audit.py's comment records that this used to be `C[-2]`, which silently encoded "the unanchored
      row is last", so adding a rung to the ladder would have re-pointed it at the wrong configuration
@@ -109,8 +115,12 @@ export function headlineFigures(bt: Backtest, t: Trace, mn: Money, manifest: Man
   /* THE SITE'S OWN MEASURED SIZE, turned into an IT load range by two published densities: average
      load for the floor, installed capacity for the ceiling. */
   const scale = manifest.scale || {}
+  /* 🔴 THE SELECTED SITE'S FOOTPRINT, NOT THE DEFAULT'S. This read `DEFAULT_METRO` unconditionally,
+     which is why picking a different data centre left every figure on the first screen unchanged: the
+     three artefacts were Ashburn's and so was the footprint the money range is scaled by. The user
+     photographed an Alabama facility selected above Ashburn's numbers. */
   const footprintM2 =
-    manifest.sites.find((s) => s.key === DEFAULT_METRO)?.footprint_m2 ?? NaN
+    manifest.sites.find((s) => s.key === forKey)?.footprint_m2 ?? NaN
   const mwLo = (footprintM2 * (scale.w_per_m2_average_load ?? NaN)) / 1e6
   const mwHi = (footprintM2 * (scale.w_per_m2_installed ?? NaN)) / 1e6
 
@@ -182,16 +192,49 @@ export function usdShort(v: number): string {
   return `$${Math.round(v).toLocaleString('en-US')}`
 }
 
-export async function loadHeadline(manifest: Manifest): Promise<Headline> {
+/**
+ * Load the three artefacts the first screen's figures come from, FOR ONE SITE.
+ *
+ * 🔴 IT USED TO IGNORE THE SELECTION ENTIRELY. It fetched the unprefixed `backtest.json`,
+ * `trace.json` and `money.json`, which are Ashburn's, so every card on the pick screen showed
+ * Ashburn no matter which of the 637 facilities was chosen. The single-file page was site-specific
+ * here and the React rebuild had quietly lost it.
+ *
+ * FILENAMES COME FROM THE MANIFEST, never constructed. sites.json carries an `artefacts` map per
+ * site: unprefixed for the metro, key-prefixed for a national site. A guessed name is a 404 that
+ * looks like a missing feature (the engine's own loadSite() says the same thing).
+ *
+ * A FACILITY WITH NO AGENT RUN falls back to the shipped reference and SAYS SO through `usedKey`, so
+ * the caller can label the figures rather than passing another site's numbers off as this one's.
+ * Showing the default silently is exactly the bug being fixed.
+ */
+export async function loadHeadline(
+  manifest: Manifest,
+  siteKey: string = DEFAULT_METRO,
+): Promise<Headline> {
   const grab = async <T,>(n: string): Promise<T> => {
     const r = await fetch(ART + n, { cache: 'no-cache' })
     if (!r.ok) throw new Error(`${n}: HTTP ${r.status}`)
     return (await r.json()) as T
   }
+  /* Resolve the site, and fall back to the shipped reference when the one asked for has no run. A
+     facility can be real, mapped and selectable while carrying no artefacts: sites.json marks those
+     `offerable: false`, and the pick screen already says "No agent run published yet" for them. */
+  const wanted = manifest.sites.find((s) => s.key === siteKey)
+  const site =
+    wanted && (wanted as { offerable?: boolean }).offerable
+      ? wanted
+      : manifest.sites.find((s) => s.key === DEFAULT_METRO)
+  const usedKey = String((site as { key?: string })?.key ?? DEFAULT_METRO)
+  const art = ((site as { artefacts?: Record<string, string> })?.artefacts) || {}
+
   const [bt, t, mn] = await Promise.all([
-    grab<Backtest>('backtest.json'),
-    grab<Trace>('trace.json'),
-    grab<Money>('money.json'),
+    grab<Backtest>(art.backtest || 'backtest.json'),
+    grab<Trace>(art.trace || 'trace.json'),
+    grab<Money>(art.money || 'money.json'),
   ])
-  return headlineFigures(bt, t, mn, manifest)
+  const figs = headlineFigures(bt, t, mn, manifest, usedKey)
+  /* WHICH SITE THESE FIGURES ARE ACTUALLY FOR, so the caller can label them instead of implying they
+     belong to whatever is selected. Reporting the substitution is the whole point of the fallback. */
+  return { ...figs, usedKey, isFallback: usedKey !== siteKey }
 }

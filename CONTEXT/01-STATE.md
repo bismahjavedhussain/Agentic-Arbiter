@@ -12,6 +12,71 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### EIGHT ITEMS, EACH CHECKED AGAINST A RENDERED PNG. 2026-08-29
+
+| ask | what it needed |
+|---|---|
+| headings merge with content on scroll | the heading LEFT the scroll container. `position: sticky` was the wrong tool twice: sticky means "scrolls with, then pins", and the panels share its scroll box either way, so they slid under it. Now `.aa-workspace-col` is a flex stack of a fixed heading and a separate scrolling body. |
+| NVIDIA Warp is invisible | it appeared ONCE in the whole product, mid-popover at index.html:2121. `PlumeBadge.tsx` names it on the Plume tab. **The numbers are scraped from `#dialcard`'s rendered text**, so 72 bearings and 576 GPU solves follow the site instead of being typed. |
+| is "Model Calibration" the right name | **No, and it is now "Self-Scoring".** There is no learned model to calibrate: it is a conformal bound plus a feedback loop. "Model" invites a judge to ask which model, trained on what, and the answer is none. |
+| move "Learn more about the bound" | node-moved into `#cfcard`, the last panel on that tab. |
+| the logo is diffused at the top | it was **19px in a 46px band**, a favicon in a corner. Now `clamp(48px, 6.8vw, 88px)` at 0.15 opacity as a backdrop. WARNING: the first attempt used `z-index: -1` and the logo **disappeared entirely**, because `.aa-banner` paints no background so a negative-index child falls behind body's gradient. `z-index: 0` with siblings at 1. |
+| say what is shipped | "**250** data centres ship with a full agentic analysis ... out of **637** mapped". Both counts READ from `manifest.sites` and `unified.sites`, so the line cannot drift from what the product contains. |
+| KPI cards do not follow the selected site | see below, the one real functional bug in the batch. |
+| 65.6 % in bold red | green, and the sub now reads "the ceiling at 4 day-pairs is 80.0 %". |
+
+### 🔴 THE KPI CARDS IGNORED THE SELECTION, AND THERE WERE TWO SEPARATE CAUSES
+
+A regression against the single-file page, which was site-specific here.
+
+**Cause one:** `loadHeadline(manifest)` took no site at all. It fetched the unprefixed `backtest.json`,
+`trace.json` and `money.json`, which are Ashburn's, and `headlineFigures` read
+`sites.find(s => s.key === DEFAULT_METRO).footprint_m2` unconditionally. So every figure was Ashburn's
+whatever was selected. It now takes a key, resolves that site's OWN `artefacts` map from sites.json
+(never a constructed filename), and reports `usedKey` / `isFallback` so the caller can label a fallback
+rather than passing another site's numbers off as this one's.
+
+**Cause two, found by looking at the render:** **there are TWO KEY SPACES.** The map and the search bar
+address facilities by the UNIFIED key (`metro_ashburn`); sites.json owns the artefacts and uses the
+metro key (`ashburn`). The unified entry carries `metro_key` for exactly this join. Passing the unified
+key straight through meant it was never found, so the shipped-reference fallback fired for the DEFAULT
+site and the first screen announced that **Ashburn had no agent run**. Caught in a PNG, not by a test.
+
+### THE COVERAGE CARD IS GREEN, AND THE ARGUMENT IS ARITHMETIC RATHER THAN PRESENTATION
+
+`tone="critical"` painted 65.6 % in the failure red and read as an apology. The shortfall stays on
+screen; the cause is a COUNTING limit. A conformal bound on n day-pairs cannot exceed **n/(n+1)**
+coverage however well it is built, so at 4 pairs the ceiling is 80.0 % and 90 % was unreachable before
+the method was even considered. **90 % needs n >= 9**, because n/(n+1) >= 0.90 solves to n >= 9: a fact
+about the arithmetic, not a claim about the data. The popover adds why there are not 9 yet (a pair is a
+vendor forecast plus its elapsed outcome, so each takes a real calendar day and cannot be back-filled)
+and what more days change (only n).
+**The pair count is READ, not typed:** `series.cov` carries one margin value per day-pair.
+
+WARNING, A DEFECT THE SCREENSHOT FOUND THAT NOBODY REPORTED: the blue `.btn-go` treatment was painting
+**disabled** buttons as full-width primary CTAs, so "Live agent not attached" looked like the main
+action on the page. The label was honest and the styling was not. `:disabled` is now muted.
+
+**testing/render_shots.py** gained a `plume` shot. Its first version clicked the tab in the same tick
+the stage became `results`, and `EngineStage`'s auto-tab effect immediately overrode it, so the PNG
+photographed the wrong tab. The click is deferred now. Looking at the image caught that too.
+
+### THE CALIBRATION PAIRS COLLECTOR IS RUNNING AGAIN, 2026-08-29
+
+Enabled: `FG-N26-Coverage` (daily **13:30 +05:00**), `FG-N26-Coverage-Retry1` (13:50),
+`FG-N26-Coverage-Retry2` (14:15). All three run `testing/test_n26_coverage.py collect`, which is
+self-guarding: "safe to run any time; does only what is due today", `fixture_exists()` short-circuits
+before any call, and the retries only spend after a failure.
+
+🔴 **LEFT DISABLED ON PURPOSE, and this is the important half.**
+`INTAKE-ARBITER n26 calibration` runs the SAME collector at 13:30 **and** 15:30. It duplicates the
+primary and adds an unwanted second window: **it is the task that fired at 15:40 and cost 4,220
+credits** when I had reported all FG tasks disabled after filtering names for `FG-`.
+`FG-N26-Chicago-Offset` also stays disabled: a different script, `--allow-paid`, three daily triggers.
+
+Verified: flow 26 of 26, palette 38/0, view-matches-page 0, shipped-current 0, deployed-root 0,
+app-deterministic 0, `audit.py` 2,216 passed 0 failures.
+
 ### 🔴 THE LIVE AGENT WAS DEAD ON THE DEPLOYED SITE FOR ONE MISSING PREFIX. 2026-08-29
 
 Asked to "make the live agent option active". It was not a settings problem: the server had been armed

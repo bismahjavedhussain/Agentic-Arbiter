@@ -1,6 +1,6 @@
 {
   "_what": "SHA-256 of the app source this bundle was built from. testing/verify_shipped_app_is_current.py recomputes it and fails if the shipped bundle is stale, because the Dockerfile does not build the app and a stale bundle deploys silently.",
   "built_by": "tools/build_app.py",
-  "source_sha256": "97bd6624bbcc38a3d3fcb04efde5b4262b45187304b11eb2dc62f8ecd984e9ab",
-  "source_files": 57
+  "source_sha256": "ac1af58153eecd762d7470bb136f5d05137d0cdd10f96a6abea544c417637060",
+  "source_files": 59
 }

@@ -67,10 +67,38 @@ export function App() {
     loadArtefacts()
       .then(async (art) => {
         setA(art)
-        setH(await loadHeadline(art.manifest))
+        setH(await loadHeadline(art.manifest, filters.facility || DEFAULT_METRO))
       })
       .catch((e: Error) => setErr(e.message))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  /* 🔴 THE FIGURES FOLLOW THE SELECTION. They did not, and that was a regression against the
+     single-file page: loadHeadline ignored the chosen site and always read Ashburn's three artefacts,
+     so picking an Alabama facility left Ashburn's numbers on every card. The user photographed it.
+     Guarded on `a` so this does not race the first load, and loadHeadline falls back to the shipped
+     reference for a facility with no run, reporting that through `isFallback`. */
+  /* 🔴 TWO KEY SPACES, AND CONFLATING THEM PRODUCED A FALSE "no agent run" NOTICE.
+     The map and the search bar address facilities by the UNIFIED key (`metro_ashburn`); sites.json,
+     which owns the artefacts, addresses them by the metro key (`ashburn`). The unified entry carries
+     `metro_key` for exactly this join. Passing the unified key straight to loadHeadline meant it was
+     never found, so the shipped-reference fallback fired for the DEFAULT site and the first screen
+     announced that Ashburn had no agent run. Measured in a screenshot. */
+  const headlineKey = useMemo(() => {
+    if (!a || !filters.facility) return DEFAULT_METRO
+    const u = a.byKey.get(filters.facility) as
+      { metro_key?: string; key?: string } | undefined
+    return u?.metro_key || u?.key || filters.facility
+  }, [a, filters.facility])
+
+  useEffect(() => {
+    if (!a) return
+    let cancelled = false
+    loadHeadline(a.manifest, headlineKey)
+      .then((next) => { if (!cancelled) setH(next) })
+      .catch(() => { /* a site with no artefacts keeps the figures already on screen */ })
+    return () => { cancelled = true }
+  }, [a, filters.facility])
 
   /* THE SAME TWO-TIER PROBE THE SINGLE-FILE PAGE USES. A truthy response means a server is attached
      at all; its flags then say whether a run can actually be requested. Under a static host there is
@@ -215,6 +243,27 @@ export function App() {
               one that is depends on render timing. So React labels its screen and lets setStage()
               decide. The map instance survives inside a hidden container, so returning to the pick
               screen does not rebuild it. */}
+          {/* 🔴 WHAT IS ACTUALLY SHIPPED, on the first screen, in the user's words.
+              Both counts are READ from the artefacts, never typed: `manifest.sites` carries one entry
+              per built site with an `offerable` flag, and `unified.sites` is the mapped universe the
+              national map draws. So this line cannot drift from what the product contains. */}
+          <p className="aa-scope">
+            <b className="num">{a.manifest.sites.filter((s) => (s as { offerable?: boolean }).offerable).length}</b>{' '}
+            data centres ship with a full agentic analysis: their own plant configuration, their own
+            hourly schedule and their own solved plume, out of{' '}
+            <b className="num">{a.unified.sites.length}</b> mapped from OpenStreetMap.
+          </p>
+
+          {/* WHEN THE SELECTED FACILITY HAS NO RUN, say whose figures are on the cards. Showing the
+              shipped reference silently is the bug this replaces: an Alabama site was selected above
+              Ashburn's numbers with nothing saying so. */}
+          {h.isFallback && (
+            <p className="aa-fallback">
+              This facility has no agent run published yet, so the figures below are the shipped
+              reference for <b>{h.usedKey}</b>. Pick a site marked ready to run to see its own.
+            </p>
+          )}
+
           <div data-show="pick">
             <SearchBar a={a} filters={filters} onChange={onFilters} shown={shown} />
             {/* 🔴 THE PATH FORWARD. The first version of this screen let a reader select a data

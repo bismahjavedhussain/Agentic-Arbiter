@@ -25,6 +25,9 @@ import './polish.css'
 /* The tone system last of all: it is the single place that decides what colour a KIND of
    widget is, so it has to be able to override every earlier sheet including engine.css. */
 import './tones.css'
+/* Truly last: the backdrop wordmark, the tab-heading strip and the first-screen copy all sit on
+   top of the tone system and have to be able to override it. */
+import './masthead.css'
 import { App } from './App'
 
 const el = document.getElementById('root')

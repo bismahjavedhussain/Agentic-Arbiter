@@ -1,0 +1,162 @@
+/* THE BACKDROP LOGO, THE TAB HEADINGS, AND THE NEW FIRST-SCREEN COPY.
+ *
+ * Loaded last. Every rule here was checked against a rendered PNG from testing/render_shots.py.
+ */
+
+/* ---- 1. THE FORTYGUARD WORDMARK AS A BACKDROP, not a favicon in a corner.
+   It was 19px tall inside a 46px band, which the user described as "diffused somewhere on the top of
+   the screen". It is meant to be large and muted, sitting BEHIND the content as scenery.
+
+   So it comes out of the banner's flex row and becomes an absolutely positioned backdrop pinned to the
+   top of the frame: big, low-opacity, non-interactive, and behind everything via a negative z-index.
+   `overflow: clip` on the host stops it widening the page. ---- */
+.aa-banner {
+  position: relative;
+  min-height: 54px;
+  overflow: clip;
+}
+/* 🔴 z-index 0, NOT -1. The first version used -1 to put the wordmark "behind everything", and it
+   went behind the PAGE BACKGROUND: `.aa-banner` paints no background of its own, so a negative-index
+   child falls through to body's gradient and the logo disappeared from the screenshot completely.
+   0 with the siblings raised to 1 keeps it underneath the stepper and the label while staying in
+   front of the page. */
+.aa-banner img {
+  position: absolute;
+  top: 50%;
+  left: -8px;
+  translate: 0 -50%;
+  height: clamp(48px, 6.8vw, 88px);   /* was 19px, which read as a favicon in a corner */
+  width: auto;
+  z-index: 0;
+  opacity: 0.15;
+  filter: saturate(1.7);
+  pointer-events: none;
+}
+.aa-banner-sub,
+.aa-banner #aa-railslot { position: relative; z-index: 1; }
+:root[data-theme='light'] .aa-banner img { opacity: 0.17; }
+
+/* The sub-label has to clear the wordmark now that the wordmark is behind it rather than beside it. */
+.aa-banner-sub {
+  margin-left: clamp(150px, 19vw, 260px);
+  border-left: 0;
+  padding-left: 0;
+}
+
+/* ---- 2. THE TAB HEADING SITS ABOVE ITS CONTENT, LIKE A TAB SHOULD.
+   TWO ATTEMPTS. The first made it `position: sticky` INSIDE the scrolling column, which kept it on
+   screen but let the panels slide underneath it: it overlapped the first card, which is exactly the
+   "merged with the content" the user reported, only now with a solid background instead of a
+   transparent one.
+
+   A sticky element cannot solve this, because sticky means "scrolls with, then pins", and the content
+   shares its scroll box either way. So the column is now a flex stack: a FIXED heading row and a
+   SEPARATE scrolling body beneath it. The panels never reach the heading because they are not in the
+   same box as it. ---- */
+.aa-workspace-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+.aa-tabhead {
+  flex: 0 0 auto;
+  margin: 0 0 12px;
+  padding: 2px 2px 12px;
+  border-bottom: 1px solid var(--w-hair);
+}
+body:not([data-stage='pick']) .aa-workspace-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+
+/* ---- 3. THE SCOPE LINE on the first screen: what is shipped, out of what is mapped. ---- */
+.aa-scope {
+  margin: 14px 0 0;
+  max-width: 66ch;
+  font-size: clamp(13px, 1.05vw, 14.5px);
+  line-height: 1.5;
+  color: var(--w-dim);
+}
+.aa-scope b {
+  font-size: 1.22em;
+  font-weight: 800;
+  color: var(--fg-bright);
+  letter-spacing: -0.01em;
+}
+
+/* ---- 4. THE FALLBACK NOTE, when the chosen facility has no run of its own. Amber rather than red:
+   it is information about coverage, not an error. ---- */
+.aa-fallback {
+  margin: 12px 0 0;
+  padding: 9px 12px;
+  max-width: 72ch;
+  border: 1px solid color-mix(in oklab, var(--warning) 40%, transparent);
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--warning) 11%, transparent);
+  font-size: 12.6px;
+  line-height: 1.45;
+  color: var(--w-ink);
+}
+
+/* ---- 5. THE GPU STRIP on the Plume tab. One accent, because it is the only place in the product
+   that names the solver, and a judge from NVIDIA should not have to open a popover to find it. ---- */
+.aa-gpu {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 13px 15px;
+  border: 1px solid color-mix(in oklab, #76b900 34%, var(--w-hair));
+  border-radius: 13px;
+  /* #76b900 is NVIDIA's green. Used at low mix so the strip reads as an attribution rather than as a
+     sponsor badge, and the surface stays on the project's own blue. */
+  background:
+    linear-gradient(90deg, color-mix(in oklab, #76b900 13%, transparent), transparent 46%),
+    var(--w-1);
+}
+.aa-gpu-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: #8fd400;
+  background: color-mix(in oklab, #76b900 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, #76b900 32%, transparent);
+}
+.aa-gpu-body { min-width: 0; }
+.aa-gpu-head {
+  margin: 1px 0 3px;
+  font-size: 13.6px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--w-ink);
+}
+.aa-gpu-head strong { color: #8fd400; font-weight: 800; letter-spacing: 0.005em; }
+.aa-gpu-sub {
+  margin: 0;
+  max-width: 88ch;
+  font-size: 12.3px;
+  line-height: 1.5;
+  color: var(--w-dim);
+}
+.aa-gpu-sub strong { color: var(--w-ink); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .aa-banner-sub { display: none; }
+  .aa-banner img { height: 40px; opacity: 0.1; }
+}
+
+/* ---- 6. The scope line and the fallback note belong to the FIRST SCREEN, like the masthead prose.
+   Keyed on body[data-stage], the attribute setStage() publishes, so this reads the owner's fact and
+   introduces no owner of its own. Same mechanism as .aa-mast-prose. ---- */
+body[data-stage='configure'] .aa-scope,
+body[data-stage='results'] .aa-scope,
+body[data-stage='configure'] .aa-fallback,
+body[data-stage='results'] .aa-fallback { display: none; }
