@@ -193,12 +193,48 @@ def _json(handler, obj, code=200):
     handler.wfile.write(body)
 
 
+# (mtime, keys) as ONE tuple, deliberately. ThreadingHTTPServer answers requests on many threads, and
+# two separate stores would let a reader see the NEW mtime beside the OLD keys. A single name rebound
+# to a single tuple cannot be observed half-updated. No lock needed for that reason.
+_SITES_CACHE = (None, ())
+
+
 def offerable_sites():
+    """Which sites the interface may offer, cached on `sites.json`'s mtime.
+
+    🔴 WHY THIS IS CACHED, MEASURED 2026-08-28. `health()` calls this, and Render's health check polls
+    `/api/health` EVERY 5 SECONDS. Parsing the 784,300-byte `sites.json` costs 8.40 ms median on a
+    full core (40 runs), so roughly 84 ms on the free instance's 0.1 CPU. Uncached that is 1.68% of
+    the entire instance's CPU, 17,280 parses and 1,452 CPU-seconds a day, spent re-reading a file that
+    only changes when the pipeline reruns. On an instance this small that background load is worth
+    removing on its own, and it is a plausible contributor to the health check timing out under a
+    concurrent page load, which is what an intermittent `x-render-routing: no-server` looks like.
+
+    A keep-alive ping every 10 minutes was never the expensive part: 144 calls and 12.1
+    CPU-seconds a day, 0.01% of CPU. The 5-second poll is 120x that.
+
+    MTIME AND NOT A TTL, because the answer is a pure function of the file: `build_sites.py` rewrites
+    `sites.json` and the mtime moves, so a stale answer cannot outlive the file that produced it. A
+    TTL would be both slower to notice a change and pointless work when nothing changed.
+
+    Returns a fresh list each time, so a caller cannot mutate the cache from underneath the next one.
+    """
+    global _SITES_CACHE
+    p = os.path.join(DEMO, "sites.json")
     try:
-        s = json.load(open(os.path.join(DEMO, "sites.json"), encoding="utf-8"))
-        return [x["key"] for x in s["sites"] if x.get("offerable")]
+        m = os.path.getmtime(p)
+    except OSError:
+        return []
+    mtime, keys = _SITES_CACHE
+    if mtime == m:
+        return list(keys)
+    try:
+        s = json.load(open(p, encoding="utf-8"))
+        keys = tuple(x["key"] for x in s["sites"] if x.get("offerable"))
     except (OSError, ValueError, KeyError):
         return []
+    _SITES_CACHE = (m, keys)
+    return list(keys)
 
 
 def health():

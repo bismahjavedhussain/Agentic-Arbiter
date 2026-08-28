@@ -12,6 +12,33 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE HEALTH CHECK WAS THE EXPENSIVE PART, not the keep-alive ping
+
+Found while sizing the pinger, and it inverts the intuition. `health()` calls `offerable_sites()`,
+which re-parsed the 784,300-byte `sites.json` **on every call, uncached**. Render polls
+`/api/health` every 5 seconds.
+
+Measured 2026-08-28, 40 runs on a full core:
+
+| | per call | frequency | share of 0.1 CPU | per day |
+|---|---|---|---|---|
+| `offerable_sites()` uncached | 8.40 ms, so ~84 ms on 0.1 CPU | | | |
+| Render health check, every 5 s | | 17,280/day | **1.68 %** | 1,452 CPU-seconds |
+| keep-alive ping, every 600 s | | 144/day | 0.01 % | 12.1 CPU-seconds |
+
+**The 5-second poll costs 120x what the pinger does.** So the pinger interval was never the thing to
+optimise, and a plausible contributor to the intermittent `x-render-routing: no-server` was the health
+check itself timing out under a concurrent page load.
+
+**Now cached on the file's mtime**, not a TTL: `build_sites.py` rewriting `sites.json` moves the mtime,
+so a stale answer cannot outlive the file that produced it. **7.836 ms to 0.0356 ms, 220x.** The cache
+is one `(mtime, keys)` tuple rebound in a single store, because `ThreadingHTTPServer` serves on many
+threads and two separate stores would let a reader see the new mtime beside the old keys.
+
+Verified five ways: identical output on 250 keys, a caller mutating the returned list cannot poison the
+cache, 220x faster, it does invalidate when the file changes (tested against a temp copy so the real
+artefact is never touched), and a missing file returns `[]` rather than a stale answer.
+
 ### 🔴 THE DEPLOYED SITE WAS SERVING THE OLD SINGLE-FILE PAGE, and the user caught it
 
 **The user opened `agentic-arbiter.onrender.com` and saw the PREVIOUS interface.** They were right,
