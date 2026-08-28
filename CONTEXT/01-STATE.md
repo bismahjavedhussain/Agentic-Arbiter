@@ -636,6 +636,62 @@ path were wrong. It reports **2,215 passed, 0 failures** after the move.
 
 Not blockers, and each is stated rather than quietly dropped.
 
+### 🔴 BLOCKER, DEFERRED BY THE USER 2026-08-28: two measured day-pairs are not in the figures
+
+**The user's decision: "dont do it right now, we'll do it later. just save the pairs somewhere for
+now."** So nothing has been rebuilt and no published figure has been touched. This entry is the save.
+
+**THE FIXTURES ARE SAFE.** All four files are tracked and committed, 7.2 MB each, 28.9 MB of paid
+measured data:
+
+```
+testing/results/fixtures/n26_f_2026-08-25.json   n26_h_2026-08-25.json
+testing/results/fixtures/n26_f_2026-08-26.json   n26_h_2026-08-26.json
+```
+
+`testing/results/n26_manifest.json` lists **6 complete forecast/outcome day-pairs**. The shipped
+artefacts were built from **4**. `backtest.py` calls `perceive_fortyguard()`, which reads *every*
+complete pair on disk, so a pipeline run today picks up all six.
+
+**IT IS NOT NONDETERMINISM AND NOT A CODE CHANGE.** Proved by regenerating `backtest.json` from the
+committed `trace.json` with the current `backtest.py`: the diff ADDS `/fortyguard_offsets/4` and
+`/5`, dated 2026-08-25 and 2026-08-26. New input data, never adopted. The manifest was last committed
+2026-08-27 in `01cc7aa`.
+
+**WHAT MOVES WHEN IT IS ADOPTED.** Measured once, recorded here so nobody has to spend another full
+pipeline run deriving it:
+
+| Figure | Shipped, 4 pairs | Regenerated, 6 pairs |
+|---|---|---|
+| Pooled bound coverage | **65.6 %** (0.6559) | **78.6 %** (0.7857) |
+| Attainable ceiling, n/(n+1) | 80.0 % (4/5) | 85.7 % (6/7) |
+| Ladder 5 unanchored coverage | 0.9865 | 0.9165 |
+| Unanchored cost | 561.7 h/yr | 312.8 h/yr |
+| Ladder 5 + unanchored, offsets rotated | -156.0 | +92.8 |
+| Significant reversal axes | 3 | 2 |
+| `backtest.json` | | 51 values changed, +10 keys, -5 |
+
+The 90 % promise is unchanged and the pre-registered test is **still NOT MET** either way, so the
+honesty story survives; it gets stronger, because the bound would be measured on six real day-pairs
+instead of four. Adopting it means restating `README.md` lines 119, 278 and 363, the CONTEXT figures,
+and regenerating 243 artefacts and 266 PDFs.
+
+**⚠ CONSEQUENCE WHILE THIS IS DEFERRED: `run_all.py` DOES NOT EXIT 0.** It regenerates and then
+audits, so it rebuilds with six pairs and then fails `audit.py` against docs that quote four. Two
+steps fail: `every other offerable site, on its own data`, and `AUDIT: everything, mechanically`.
+`audit.py` run on its own against the committed artefacts is still **2,216 passed, 0 failures**,
+because the docs and the shipped artefacts agree with each other. Both describe the four-pair state.
+
+This matters because `README.md` says "If `run_all.py` is not green, do not believe a number on the
+page." Today the honest statement is narrower: **the shipped numbers are internally consistent and
+audited, and they are not reproducible from a full pipeline run until this is resolved.**
+
+⚠ AND A TRAP FOR THE NEXT SESSION: `run_all.py` and `build_sites.py` REWRITE the artefacts in place.
+A run leaves 243 modified files whose numbers no longer match the published figures. `git checkout --
+AGENTIC-ARBITER/demo/` restores them. Do not read figures off the tree during or after a partial run;
+one set of screenshots in this session caught a half-rewritten state and showed an 85.7 % ceiling on a
+page whose documents say 80 %.
+
 - **The empty `INTAKE-ARBITER/` husk cannot be deleted.** The editor's file watcher holds the
   directory. Safe to delete once released; nothing reads it.
 - **The user's own prose still contains em dashes** deeper in the page and in the older documents.
