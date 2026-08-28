@@ -12,6 +12,61 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### PUSHED, and the Render free-tier limits that actually matter, verified
+
+**The repository is on GitHub: `github.com/bismahjavedhussain/Agentic-Arbiter`, branch `master`.**
+4,930 files, 943 MB, 85 commits. Local and remote HEAD agree at `3ac39b6`. The GitHub API returns 404
+without credentials, which is what a PRIVATE repo does, so it needs making public for judges to read it.
+
+`scan_secrets.py` ran before the push as the gate: **CLEAN, 0 hits in 4,930 tracked files and 10,746
+history blobs, 2,437 MB read.**
+
+⚠ `http.postBuffer` was raised to 500 MB locally first. The 1 MB default makes large HTTPS pushes fail
+with `RPC failed; curl 55`, and 943 MB would very likely have hit it.
+
+🔴 A MISTAKE OF MINE WORTH KEEPING. I reported `git ls-remote origin | head -10; echo "EXIT: $?"` as
+proving the repo existed and was empty. That `$?` is **head's** exit code, not git's; the probe was in
+fact sitting on a credential prompt. The conclusion happened to be right and the evidence was
+worthless. `${PIPESTATUS[0]}` is what reads the real exit code through a pipe, and the push used it.
+
+### THE FREE-TIER NUMBERS, all workspace-wide and per month
+
+Researched by a 9-agent workflow and then checked adversarially, which found 35 problems in the first
+pass. Every number below carries a source in the workflow output.
+
+| Limit | Value | What happens when exceeded, with no card on file |
+|---|---|---|
+| RAM per instance | **512 MB** | process killed, "Ran out of memory", deploy cancelled |
+| Outbound bandwidth | **5 GB** | every free service suspended until the 1st |
+| Build pipeline minutes | **500** | no new builds for the rest of the month, so no redeploying a fix |
+| Instance hours | **750** | every free web service suspended until the 1st |
+
+**THE RAM RISK IS CLEARED BY MEASUREMENT, not by argument.** The workflow called 512 MB "the one number
+most likely to stop this outright". Measured locally, serving every path a judge's browser requests:
+
+```
+peak working set   65.5 MB
+Render free limit 512.0 MB
+headroom          446.5 MB
+```
+
+The server streams artefacts from disk rather than loading them, so numpy's import is most of the 63 MB.
+⚠ NOT measured: a real live run, which allocates numpy arrays for a 17,862-tile field. Measuring it
+costs 4,220 credits, so it was not done.
+
+⚠ **750 HOURS LEAVES SIX HOURS OF SLACK.** Keeping one service awake through a 31-day month spends 744.
+So: **only one free service in this workspace**, or the allowance is split and both get suspended.
+
+### 🔴 GITHUB ACTIONS CANNOT BE THE KEEP-ALIVE PINGER ON A PRIVATE REPO
+
+This is the finding that most changed the plan, and it would have failed silently. A 10-minute schedule
+is 6 runs an hour, 4,320 a month, and **GitHub rounds every job up to a whole minute**, so it needs
+4,320 billable minutes against the **2,000** included on GitHub Free. The pings stop dead about
+**13.9 days** into each month with no alert. Only viable if the repo is public.
+
+**So the pinger is `cron-job.org`:** no card, no repo change, no Render change, any interval from one
+minute upward.
+
 ### DECIDED, SCHEDULED FOR AFTER THE PUSH: Render with a card and a zero spend limit
 
 The user's decision on 2026-08-28, recorded because it is the next action and it involves money:
