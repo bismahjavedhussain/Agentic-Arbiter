@@ -12,6 +12,40 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### DECIDED, SCHEDULED FOR AFTER THE PUSH: Render with a card and a zero spend limit
+
+The user's decision on 2026-08-28, recorded because it is the next action and it involves money:
+*"we will go with the first option i.e Render, card plus a zero spend limit. But for now push the
+project on github first."*
+
+**Target repo: `https://github.com/bismahjavedhussain/Agentic-Arbiter`** (branch here is `master`).
+
+**Why a card at all, since Render's own docs say free access does not need one.** The signup asked for
+it anyway, most likely because the **Blueprint** flow can create several services at once. The
+documented free-tier behaviour is that payment info only matters for OVERAGES: *"If you haven't added a
+payment method, Render instead suspends all of your Free services"* for bandwidth, and *"disables all
+new builds"* for build minutes.
+
+**The plan, in order, once the push is done:**
+1. Render, **New > Web Service** (not Blueprint), connect the repo, pick the **Free** instance type.
+2. Add the card, then set the workspace **spend limit to zero**, so overages suspend rather than bill.
+3. Paste `FORTYGUARD_API_KEY` as a secret env var. The user pastes it; it never passes through me.
+4. Start command is in the Dockerfile. Public URL will be `<service>.onrender.com/app/`.
+5. Point a free uptime pinger at `/api/health` every 10 minutes: Render spins a free service down
+   after 15 minutes idle and takes about a minute to wake, and 750 free instance hours a month covers
+   one always-awake service with about six hours to spare.
+
+⚠ COULD NOT VERIFY: the exact dashboard path for the spend limit. Render's `/docs/spend-limits` and
+`/docs/billing` both return 404, and the pricing table is rendered client-side. The limit is referenced
+by the free-tier doc (*"unless you've reached your spend limit"*), so it exists; the click path is not
+established.
+
+⚠ HUGGING FACE SPACES IS NOT AN ALTERNATIVE, correcting something I said earlier from memory. Their
+docs: *"Gradio and **Docker Spaces** run on compute and **require a paid plan** to create"*. Koyeb's
+free web tier also appears to be gone. TryCloudflare quick tunnels are genuinely card-free and
+account-free, but the URL is *"randomly generated each time"* and Cloudflare calls them *"intended for
+testing and development only"*, so they suit a live demo you attend, not a submission link.
+
 ### What we are in the middle of
 The React app is now **the whole product, not just the pick screen**. As of 2026-08-28 it carries
 pick, configure and results, including the live agent. Remaining work is judgement, not plumbing:
