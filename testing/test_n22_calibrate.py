@@ -35,7 +35,7 @@ METHOD
 import os, sys
 import numpy as np
 
-from common import banner, save_result, verdict, SCRATCH
+from common import banner, save_result, verdict, field_path, SCRATCH
 from solver import Site
 import warp_solver as ws
 
@@ -56,7 +56,10 @@ FIT_PLANTS = {"El Dorado 2007", "Bighorn", "El Dorado 2005"}      # held-out spl
 
 
 def load_xy(fn, xmax, ymax):
-    p = os.path.join(SCRATCH, fn)
+    # field_path() rather than a bare SCRATCH join: SCRATCH names a dead session temp
+    # directory, so this looked in one place that does not exist and reported the dataset
+    # missing. The resolver also tries validation-data/, where the CSVs actually are.
+    p = field_path(fn)
     if not os.path.exists(p):
         return None
     rows = []

@@ -32,7 +32,7 @@ UNITS: report is mph and degF. Converted to m/s (x0.44704) and K (x5/9).
 import os, sys, glob
 import numpy as np
 
-from common import banner, save_result, verdict, SCRATCH
+from common import banner, save_result, verdict, field_path, SCRATCH
 from solver import Site, downwash_fraction
 import warp_solver as ws
 
@@ -56,7 +56,10 @@ BINS = [(0, 5), (5, 10), (10, 15), (15, 20), (20, 25), (25, 30)]
 
 
 def load_field(fn, xmax, ymax):
-    p = os.path.join(SCRATCH, fn)
+    # field_path() rather than a bare SCRATCH join: SCRATCH names a dead session temp
+    # directory, so this looked in one place that does not exist and reported the dataset
+    # missing. The resolver also tries validation-data/, where the CSVs actually are.
+    p = field_path(fn)
     if not os.path.exists(p):
         return None
     rows = []
@@ -223,7 +226,7 @@ def main():
     # ---------------- 5. DIRECTION: the claim that actually matters --------
     print("\n   5. DOES WIND DIRECTION MATTER IN THE FIELD DATA?")
     print("      (this is the project's core claim, and it is separate from the speed response)")
-    dirp = os.path.join(SCRATCH, "fig6-90_wygen_vs_winddir.csv")
+    dirp = field_path("fig6-90_wygen_vs_winddir.csv")
     dir_res = None
     if os.path.exists(dirp):
         rows = []

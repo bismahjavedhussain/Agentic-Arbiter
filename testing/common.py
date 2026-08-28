@@ -31,10 +31,22 @@ RESULTS = os.path.join(HERE, "results")
 FIXTURES = os.path.join(RESULTS, "fixtures")
 os.makedirs(FIXTURES, exist_ok=True)
 
-# Fields already captured in earlier work — reused so we do not pay twice.
+# Fields already captured in earlier work, reused so we do not pay twice.
+#
+# ⚠ SCRATCH NAMES A DEAD DIRECTORY, and that is a trap rather than a bug in itself. It points at one
+# specific Claude session's temp folder, by id, and that session is long gone: the path does not exist.
+# Anything that looked ONLY here silently found nothing. test_n21_validate.py and
+# test_n22_calibrate.py did exactly that and have been exiting 2 with "no field data found in the
+# scratchpad" ever since, which reads like an absent dataset rather than a stale path.
 SCRATCH = os.path.join(
     os.environ.get("TEMP", r"C:\Users\bisma\AppData\Local\Temp"),
     "claude", "d--FGHackathon", "48b2e995-a9e0-4f0c-8ab4-8cbe4f628a17", "scratchpad")
+
+# THE DURABLE HOME of the digitised field data, which is where those CSVs actually survived. All seven
+# filenames the two recirculation tests ask for are here, and they are the evidence behind README's
+# recirculation and 67-Prairie-Grass claims: CSVs digitised from California Energy Commission report
+# CEC-500-2013-065, whose three source PDFs sit beside them.
+VALIDATION = os.path.join(os.path.dirname(HERE), "validation-data")
 
 SAVED_FIELDS = {
     "DC_2026-06-23": "dec_1_DC_dayA.json",     # 8x8 km @ 39.0100,-77.4460  17,862 tiles
@@ -137,7 +149,9 @@ def box_aoi(clat, clon, side_km):
 
 # ----------------------------------------------------------------- fields
 def field_path(fn):
-    for base in (SCRATCH, FIXTURES, HERE):
+    # VALIDATION added 2026-08-28. SCRATCH names a dead session temp directory, so anything that
+    # lived only there was unreachable; validation-data/ is where the digitised CSVs actually survived.
+    for base in (SCRATCH, VALIDATION, FIXTURES, HERE):
         p = os.path.join(base, fn)
         if os.path.exists(p):
             return p

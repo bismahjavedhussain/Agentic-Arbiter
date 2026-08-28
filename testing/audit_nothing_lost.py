@@ -141,6 +141,16 @@ def removed_on_purpose(p):
     q = p.replace(os.sep, "/")
     if "/data/" in q or q.endswith("/data"):
         return True
+    # A FOURTH DECLARED REMOVAL, 2026-08-28: IMAGERY-REVIEW/, 17 files, 5.1 MB of ESRI-versus-USGS
+    # comparison JPGs from a one-off visual review, moved to D:/FGHackathon-notes. Nothing in any .py,
+    # .js, .mjs or .html reads it or any of its filenames; only HANDOFF.md mentions it in prose.
+    # ⚠ validation-data/ IS DELIBERATELY NOT ON THIS LIST. It looks like the same kind of thing and is
+    # not: test_n21_validate.py and test_n22_calibrate.py read its CSVs, digitised from California
+    # Energy Commission report CEC-500-2013-065, and those back README's recirculation and
+    # 67-Prairie-Grass claims. run_all.py does not run those two tests, so removing it would have gone
+    # unnoticed by every gate, which is exactly why it is written down here.
+    if q.startswith("IMAGERY-REVIEW/"):
+        return True
     base = q.rsplit("/", 1)[-1]
     if base.endswith(".md"):
         norm = q.replace(OLD + "/", "<proj>/", 1).replace(NEW + "/", "<proj>/", 1)
