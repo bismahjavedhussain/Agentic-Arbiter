@@ -102,6 +102,55 @@ def read_tokens():
     return out
 
 
+def norm_value(v):
+    """Canonical form of a CSS value, so FORMATTING is not mistaken for a difference.
+
+    The two files write the same values differently and both are valid CSS:
+        page  .34s          rgba(24,24,27,.72)          cubic-bezier(.16,1,.3,1)
+        app   0.34s         rgba(24, 24, 27, 0.72)      cubic-bezier(0.16, 1, 0.3, 1)
+    Comparing raw strings reports five differences per theme that are not differences. Whitespace out,
+    a bare leading decimal point given its zero, lower-cased.
+    """
+    v = re.sub(r"\s+", "", v.strip().lower())
+    v = re.sub(r"(^|[(,:])\.(\d)", r"\g<1>0.\g<2>", v)
+    return v
+
+
+def read_app_tokens(path):
+    """{theme: {token: value}} from the React app's stylesheet.
+
+    Read separately from read_tokens() rather than by generalising it, because the two files are not
+    the same shape: the page has one <style> block and the app is a whole stylesheet with Tailwind's
+    `@theme inline` in it. One reader trying to serve both would need a mode flag, and a mode flag on
+    a colour reader is how you end up measuring one theme twice.
+    """
+    src = re.sub(r"/\*.*?\*/", "", open(path, encoding="utf-8").read(), flags=re.S)
+
+    def block(sel):
+        k = src.find(sel)
+        if k < 0:
+            return ""
+        o = src.find("{", k)
+        # brace-matched, because a stylesheet block can contain nested rules
+        d, i = 0, o
+        while i < len(src):
+            if src[i] == "{":
+                d += 1
+            elif src[i] == "}":
+                d -= 1
+                if d == 0:
+                    break
+            i += 1
+        return src[o + 1:i]
+
+    dark = dict(re.findall(TOKEN_RE, block(":root {")))
+    if not dark:
+        dark = dict(re.findall(TOKEN_RE, block(":root{")))
+    light = dict(dark)
+    light.update(dict(re.findall(TOKEN_RE, block('[data-theme="light"]'))))
+    return {"dark": dark, "light": light}
+
+
 def ck(name, ok, detail=""):
     CHECKS[0] += 1
     print("   [%s] %-58s %s" % ("ok  " if ok else "FAIL", name, detail))
@@ -277,12 +326,37 @@ def main():
             ck("%s unchanged across themes" % f, same,
                "%s / %s" % (themes["light"].get(f), themes["dark"].get(f)))
 
+    # ---- THE REACT APP'S OWN COPY OF THE PALETTE ------------------------------------------------
+    # 🔴 EVERY RATIO ABOVE IS MEASURED ON demo/index.html'S TOKENS, and the React app has its own
+    # declarations in app/src/index.css. So until now the app's contrast was INHERITED rather than
+    # verified: "the tokens are the same" was a claim in a comment, and a hand-edit to one file would
+    # have made the measurements above describe a palette the app no longer used.
+    # This closes it the cheap way. Rather than re-measuring 34 pairs twice, it asserts the two
+    # declarations AGREE. If they agree, every ratio proved above is proved for the app as well.
+    app_css = os.path.join(HERE, "..", "AGENTIC-ARBITER", "app", "src", "index.css")
+    if os.path.exists(app_css):
+        print("\n   ---- app/src/index.css declares the same palette ----")
+        app_themes = read_app_tokens(app_css)
+        for theme in ("dark", "light"):
+            P, A = themes.get(theme, {}), app_themes.get(theme, {})
+            shared = sorted(set(P) & set(A))
+            ck("%s: the app declares a usable share of the palette" % theme, len(shared) >= 20,
+               "%d tokens in common" % len(shared))
+            bad = [(k, P[k], A[k]) for k in shared if norm_value(P[k]) != norm_value(A[k])]
+            ck("%s: every shared token has the same value" % theme, not bad,
+               "%d tokens agree" % len(shared) if not bad
+               else "; ".join("%s page=%s app=%s" % b for b in bad[:3]))
+    else:
+        # A skip is not a pass. If the app exists but its stylesheet does not, say so.
+        ck("app/src/index.css is present to be checked", False, "not found at %s" % app_css)
+
     print("\n   %d checks, %d failed" % (CHECKS[0], len(FAILS)))
     if FAILS:
         for f in FAILS:
             print("      FAILED: %s" % f)
         return 1
-    print("   VERDICT: every measured pair clears its floor.")
+    print("   VERDICT: every measured pair clears its floor, and the React app declares the same")
+    print("            palette the pairs were measured on.")
     return 0
 
 
