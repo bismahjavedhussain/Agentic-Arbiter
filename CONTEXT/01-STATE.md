@@ -517,7 +517,7 @@ only `fmt`.
 | Of those, ready to run | **246** | sites.json offerable metros, joined on metro_key |
 | Offerable metros | **250** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
-| run_all.py steps | **34** | count of STEPS entries in src/run_all.py |
+| run_all.py steps | **35** | count of STEPS entries in src/run_all.py |
 | demo/index.html size | **480 KB** | byte length of the shipped page |
 | Map GeoJSON sources | **2** | one clustered, one flat -- see 02-ARCHITECTURE |
 | Map unisites-* layers | **5** | cluster, halo, points, flat-halo, flat |

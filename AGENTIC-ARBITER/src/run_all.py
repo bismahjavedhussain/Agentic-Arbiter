@@ -250,6 +250,14 @@ STEPS = [
      [sys.executable, "verify_shipped_app_is_current.py"], TESTING,
      {3: "no bundle in AGENTIC-ARBITER/demo/app or no build stamp. Build it with "
          "`python tools/build_app.py`. The single-file page is unaffected."}),
+    # 🔴 AND THE BUNDLE HAS TO BE THE PAGE A VISITOR REACHES, which the step above does not check.
+    # It passed, correctly, while the deployed site served the OLD single-file interface: the static
+    # root is demo/, so `/` returned demo/index.html and the bundle sat at /app/, reachable only if
+    # you knew to type it. "The bundle is current" and "the bundle is what / returns" are different
+    # claims. This one starts the real server and asks it for the root over HTTP.
+    ("the root URL serves the React app, not the page it replaced",
+     [sys.executable, "verify_deployed_root_is_the_app.py"], TESTING,
+     {3: "no bundle in AGENTIC-ARBITER/demo/app. Build it with `python tools/build_app.py`."}),
     ("the new UI carries the whole product, pick to results, in a browser",
      [sys.executable, "verify_app_flow.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The single-file page remains "
