@@ -226,6 +226,19 @@ PROBE = r"""
           /* Present but not displayed: that is the contract for the replaced tape card. */
           out._tapeCardInDom = (out._tapeCardInDom !== false) && !!q('#tapecard');
           out._tapeCardShown = out._tapeCardShown || vis(q('#tapecard'));
+          /* 🔴 EVERY TAB MUST OPEN AT ITS OWN TOP. `.aa-workspace-main` is one scroll container
+             shared by all six tabs, so its scrollTop survived a tab change and a reader who had
+             scrolled to the bottom of one tab landed halfway down the next. Reported as "it will
+             show me somewhere middle of the page".
+             The walk below scrolls the container DOWN before moving on, so each tab is entered from
+             a scrolled predecessor, which is the only condition under which the bug appeared. */
+          (function(){
+            var m = q('.aa-workspace-main');
+            if (!m) return;
+            out._tabScroll = out._tabScroll || {};
+            out._tabScroll[cur] = Math.round(m.scrollTop);
+            m.scrollTop = 400;                 // leave it scrolled for the next tab to inherit
+          })();
           /* 🔴 THE REPEATED SECTION HEADINGS. The page carries the eyebrow "The decision, and what it
              is worth" TWICE plus two more, and hiding them took three attempts because engine.css's
              rule is `body[data-stage="results"] .secgroup` (0,2,1), not the bare `.secgroup` the
@@ -255,6 +268,7 @@ PROBE = r"""
           perTab:      out._perTab,
           liveInDom:   out._liveInDomEveryTab,
           tapeCardInDom: out._tapeCardInDom,
+          tabScroll:     out._tabScroll,
           secgroupTotal: out._secgroupTotal,
           secgroupShown: out._secgroupShown,
           tapeCardShown: out._tapeCardShown,
@@ -498,6 +512,14 @@ def main():
     # The replaced tape card: still in the document on every tab, and shown on none of them. Both
     # halves matter. Gone from the DOM would break the console and the row count; visible would mean
     # the panel the console replaced is still competing with it.
+    # Each tab is entered from a predecessor the probe deliberately left scrolled to 400, so a
+    # non-zero reading here is the bug: the shared scroll container carried its position across.
+    ts = rr.get("tabScroll") or {}
+    stuck = {k: v for k, v in ts.items() if v}
+    ck(not stuck, "every tab opens at its own top",
+       "%d tab(s) entered at scrollTop 0" % len(ts) if not stuck
+       else "ENTERED PART-SCROLLED: " + ", ".join("%s at %s" % kv for kv in stuck.items()))
+
     # The page's four .secgroup eyebrows, two of which carry the SAME text, must not reach the screen
     # on any tab. Asserted rather than reasoned about: two previous fixes were argued from specificity
     # and both were wrong, so this counts what a browser actually renders.

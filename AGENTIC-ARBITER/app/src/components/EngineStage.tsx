@@ -221,6 +221,21 @@ export function EngineStage({
     return () => cancelAnimationFrame(id)
   }, [tab, stage])
 
+  /* 🔴 EVERY TAB OPENS AT ITS OWN TOP, whatever the last one was scrolled to.
+     `.aa-workspace-main` is the scroll container and it is SHARED by all six tabs, so its scrollTop
+     survives a tab change: after reading to the bottom of Economic Impact, clicking Plume showed the
+     new panels already scrolled halfway down. The user's report is exact, that it "will show me
+     somewhere middle of the page", and that it only happens after scrolling the previous tab.
+
+     Reset here rather than inside the click handler, so it applies however the tab changed, including
+     the automatic move to 'live' when the stage becomes 'results'.
+     `behavior: 'instant'` on purpose: a smooth scroll would animate through the panels of a tab the
+     reader is leaving, which looks like a glitch rather than navigation. */
+  useEffect(() => {
+    const main = document.querySelector('.aa-workspace-main')
+    if (main) main.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+  }, [tab])
+
   return (
     <>
       {/* 🔴 className="viz-root" IS LOAD-BEARING, NOT COSMETIC. The engine reads its design tokens

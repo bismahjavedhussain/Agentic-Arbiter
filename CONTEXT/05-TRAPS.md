@@ -294,6 +294,30 @@ and restore it. Both `--replay` here and `build_sites.py` earlier in this projec
 "At least 2 tape rows" was satisfied 200 ms into a stream that ends at 32, and the check failed a
 working tape. Find the thing that means *finished* (`#tapedone` here) and wait for that.
 
+### 5b.8 A LONG `git commit -m` IS PARSED AS A PATHSPEC, and the push then reports success
+Two rounds of work were reported as committed and pushed. Neither commit existed. The message was a
+long multi-line string after `-m`, and git took part of it as a filename:
+
+```
+Co-Authored-By: ...' did not match any file(s) known to git
+```
+
+The commit failed, the background task went on to `git push`, the push succeeded with nothing new in
+it, and the task's exit code came from the PUSH. Everything was still staged, so nothing was lost, but
+"done" was reported twice for work that was not in the repository.
+
+**Two rules.** Use `git commit -F <file>` for any message longer than one line. And when a task chains
+`commit && push`, read the COMMIT step's output: a zero exit from the push says nothing about whether
+the commit happened.
+
+### 5b.9 INSTRUMENT THE BROWSER, do not reason about who scrolled
+"Changing the site jumps to the top, and it alternates" was three plausible theories deep (layout
+shift from a toggling note, a focus change, the map camera) before anything was measured. Patching
+`window.scrollTo`, `scrollBy`, `scrollIntoView` and `focus` to record a stack trace answered it in one
+run: `at Module.ad [as setStage]`, from `engine.mjs:138`.
+`scratchpad/scrollprobe.py` is the pattern. A scroll, a focus or a re-render has a caller, and the
+caller can be asked directly instead of inferred from the symptom.
+
 ### 5b.7 THE HARNESS MUST REPRODUCE PRODUCTION, or it certifies a server nobody runs
 `testing/serve_app.py` serves the app at `/app/` and, for any path under it, tries the bundle **and
 then falls back to `demo/`**. Its own comment explains why: "the app's own assets and the artefacts

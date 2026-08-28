@@ -28,6 +28,13 @@ import './tones.css'
 /* Truly last: the backdrop wordmark, the tab-heading strip and the first-screen copy all sit on
    top of the tone system and have to be able to override it. */
 import './masthead.css'
+/* BEFORE App, and therefore before EngineStage's layout effect calls setStage('pick'). The shim
+   only suppresses a scroll-to-top when the stage has not changed, so the boot scroll still happens;
+   installing early just means no re-run can slip past it. */
+import { installNoScrollJump } from './lib/noscrolljump'
+
+installNoScrollJump()
+
 import { App } from './App'
 
 const el = document.getElementById('root')

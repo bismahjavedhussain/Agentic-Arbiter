@@ -12,6 +12,83 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### TWO SCROLL FAULTS, BOTH FOUND BY INSTRUMENTING RATHER THAN GUESSING. 2026-08-29
+
+**1. Changing the selected facility threw the window to the top**, so the map and the filters left
+the viewport. It ALTERNATED, which is what made it look mysterious.
+
+`scratchpad/scrollprobe.py` patched `window.scrollTo`, `scrollBy`, `scrollIntoView` and `focus`,
+drove three facility changes and recorded the stacks. One line answered it:
+
+```
+window.scrollTo arg={"top":0,"behavior":...}   at Module.ad [as setStage]   y=452 -> 0
+```
+
+**engine.mjs:138**, the last line of `setStage()`:
+`window.scrollTo({top:0, behavior: next==='pick' ? 'auto' : 'smooth'});`
+
+That is RIGHT for a real transition and wrong for a no-op re-run, and the engine re-runs setStage with
+the stage it is already on deliberately, in more than one place: `probeLive()` ends with
+`if(STAGE) setStage(STAGE);` precisely so that one function stays the single owner of visibility.
+
+**`app/src/lib/noscrolljump.ts`** swallows a scroll-to-top ONLY when `body.dataset.stage` is unchanged
+since the last one that was allowed through. A genuine pick to configure to results transition still
+scrolls. Any scroll to a target other than the very top, any scroll the reader causes, and every
+`scrollIntoView` pass through untouched, which matters because `#boundmore` relies on one.
+A shim rather than a one-line edit to the engine, because step 30 asserts engine.mjs character for
+character against the page.
+**Measured before: y=520 became 0 and stayed. After: y=452 held across all three changes.**
+
+**2. A tab opened part-scrolled if the previous tab had been scrolled.** `.aa-workspace-main` is ONE
+scroll container shared by all six tabs, so its `scrollTop` survived the change. Reset in EngineStage
+on every `tab` change, with `behavior: instant` because a smooth scroll would animate through the
+panels of the tab being left.
+**Now asserted permanently:** the flow check's tab walk leaves each container at 400 before moving on,
+so every tab is entered from a scrolled predecessor, and reports "6 tab(s) entered at scrollTop 0".
+
+### THE LIVE RUN'S OWN REPORT, and the popup and bubble work. 2026-08-29
+
+⚠ **THESE ENTRIES ARE LATE, AND THAT IS THE POINT OF RECORDING IT.** Three rounds of work went in with
+their narrative in the COMMIT MESSAGE only. `sync_context.py --write` ran each time, which regenerates
+the derived figures and says nothing about prose, so `--check` passed while 01-STATE.md said nothing
+about any of it. CLAUDE.md is explicit that the change-log entry is "yours to write". Running the tool
+is not the same as updating the pack.
+
+**`src/live_report.py`** writes a PDF about ONE live run from the job that produced it: the config it
+used, what it spent, the schedule hour by hour, THE REASONING hour by hour, the seven stages as they
+streamed, and what it does not cover. Served at `/api/live/report/<job_id>`, with `latest` resolving to
+the most recent finished job so the browser can ask without the engine exposing its job id.
+⚠ On a shared host `latest` is whoever ran last; the content is a weather schedule, and the explicit
+`/<job_id>` form exists for a caller that has one.
+
+**Helvetica for prose, Courier for the table.** The writer wraps by arithmetic because every Courier
+glyph is 600/1000 em, and Helvetica's metrics are not in this repository. Wrapping Helvetica on
+Courier's metric is CONSERVATIVE: Helvetica averages about 0.5 em, so a line that measures as fitting
+is narrower once set and cannot run past the margin. The table stays Courier because a column of
+figures wants a fixed advance.
+⚠ **INTER IS DEFERRED, NOT FORGOTTEN.** It needs TrueType embedding by hand: descriptor, embedded font
+stream, a `/Widths` array and the real advance table parsed out of the woff2, replacing the
+exact-arithmetic wrapping the writer depends on.
+
+**A report that fails its own read-back is not served.** Two bugs in that verifier, both found by
+running it: it looked for mixed-case section text when `Pdf.heading()` UPPERCASES, and its
+forbidden-token test fired on the word **"provenance"**, which contains "nan". Word boundaries now.
+
+**All FOUR floating-surface kinds now share one dark treatment**, and each was found separately, which
+is why the rule grew three times: `.info-bub` (the engine's), `[role='note']` (React's Info.tsx, which
+is what the masthead actually uses), `[role='listbox']` (the Combo dropdown) and `[role='dialog']` (the
+DetailModal). All four carried `.glass`.
+
+**The scope is a drifting bubble**, points not sentences, 250 at `clamp(40px,5.4vw,62px)`, both counts
+read from the artefacts. **The FortyGuard mark is at full ink and labelled "Powered by"**: a bare
+wordmark above a product called AGENTIC-ARBITER reads as though FortyGuard built it, which is not true.
+
+🔴 **AND A GIT LESSON THAT COST TWO REPORTED-AS-DONE COMMITS.** A long multi-line `git commit -m` was
+misparsed as a pathspec: `Co-Authored-By: ...' did not match any file(s) known to git`. The commit
+never happened; the background task then ran `git push`, which succeeded with nothing new, and exit 0
+came back from the PUSH. **Check the commit step's own output, not the push's.** Use `-F <file>` for
+any message longer than a line.
+
 ### EIGHT ITEMS, EACH CHECKED AGAINST A RENDERED PNG. 2026-08-29
 
 | ask | what it needed |
