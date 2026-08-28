@@ -1,0 +1,446 @@
+{
+  "adapter": {
+    "bytes": 1062,
+    "functions": [
+      "attachSites",
+      "currentSite",
+      "currentStage"
+    ],
+    "sha256": "6873f3b7dd052d9d1333c93da114d266db31cd3d225f638ae1fd2aa1b48cea03"
+  },
+  "declarations": 54,
+  "dropped_declarations": {
+    "BOOTED": "boot"
+  },
+  "excluded_react_owns": [
+    "applyMapFilter",
+    "boot",
+    "buildFilterBar",
+    "buildSitePicker",
+    "chooseSite",
+    "closeInspector",
+    "drawUnifiedMap",
+    "filteredSites",
+    "inspectorEl",
+    "loadScript",
+    "mapFallback",
+    "mapFilterExpr",
+    "mfDropRender",
+    "natClusterReadout",
+    "natReadout",
+    "openInspector",
+    "searchIndexReady",
+    "searchMatch",
+    "searchOpen",
+    "searchRender",
+    "searchWire",
+    "setMapView",
+    "wireChrome",
+    "wireFilterBar"
+  ],
+  "functions": {
+    "H0": {
+      "bytes": 42,
+      "sha256": "28e9eb08777ef2a91fe16c19b2c46593254b90507ca9cfae1d47403a1e0904b1"
+    },
+    "aerialImagery": {
+      "bytes": 68,
+      "sha256": "374e7694eb1953dcf3ed51bec5d0753fb063634f3e2cddb033238afdd86370c6"
+    },
+    "animatePlate": {
+      "bytes": 158,
+      "sha256": "c391140ac57e44e3c833ab4b319c0d1f88f5836499fc03607168cdcf79d3eba3"
+    },
+    "applyTheme": {
+      "bytes": 912,
+      "sha256": "53ed9d5581250c75dc5f7d0b9972cd99c62dae44d8e6b413de0543a22699c3ad"
+    },
+    "autofill": {
+      "bytes": 437,
+      "sha256": "e9cb393a1a842b2559f61da8c27dbd7eab909daa8ce8e543182ff31dbfc1e12d"
+    },
+    "barTop": {
+      "bytes": 254,
+      "sha256": "bbbc108ddcd517bd05ada2152e2a6323797d8442967f5a8caeb77928c3fa6288"
+    },
+    "buildControls": {
+      "bytes": 2269,
+      "sha256": "b1cbbf832e96e1fb19ac28b5b948b036433aec77beebbf0621a1096f8d0e8fa9"
+    },
+    "buildImageryOptions": {
+      "bytes": 925,
+      "sha256": "431e17f7612ae8e4670a822bb6a6373c71d7a62482cf18b8f28e7621a014c590"
+    },
+    "buildingOf": {
+      "bytes": 88,
+      "sha256": "e50e73be3977ad3fee623604f4b7b4920caae38d0a6bdde604963577ff4a312c"
+    },
+    "cardSetAbsent": {
+      "bytes": 243,
+      "sha256": "36edd55debba544552c3b37eb692855af4861b2cbd659b4ee6c84916121d053e"
+    },
+    "cardSetPresent": {
+      "bytes": 202,
+      "sha256": "35f58952ff676b3e8974f3f9f39d5e6895791ffe8dffc181861573457d165ea5"
+    },
+    "casePath": {
+      "bytes": 267,
+      "sha256": "dceae8b897d4d984e822e9c8c576f5cd0a2feee1326c36b50ce533944960a768"
+    },
+    "cfAttainable": {
+      "bytes": 59,
+      "sha256": "921b5bf22f9a127578994f5e0d284fcc14ea4c4bbc33ca38b4d78d4ae59b5c07"
+    },
+    "cfDayResiduals": {
+      "bytes": 77,
+      "sha256": "cbd7f0b7770b8356c7be0c85540e7b4e6ec867400718e8dd03229a4fef3873ba"
+    },
+    "cfMinN": {
+      "bytes": 58,
+      "sha256": "9c729f3077888502cffc2a9d5d3ad61019814ab2d96c0c8612096550e291395f"
+    },
+    "cfQuantileIndex": {
+      "bytes": 129,
+      "sha256": "225bfbf21ea1b11ecf822f1030081c194d9c86b3c5979b8762c81f1e8d8c4a9d"
+    },
+    "cfSplit": {
+      "bytes": 448,
+      "sha256": "c2c509727df161f14d7f47a3a450c4f82e3a3616f9aceb09de4adaeabb4b1286"
+    },
+    "cfg": {
+      "bytes": 353,
+      "sha256": "aab961453729d5a7d0def949fb00795724f0c3a9f07f407b6962fb6282a0b8e5"
+    },
+    "chipText": {
+      "bytes": 498,
+      "sha256": "df9b665329a5f2b7fc0751b3bdb0c43b9c86dcb867dabfef798d08b9eca208b1"
+    },
+    "countUpText": {
+      "bytes": 1521,
+      "sha256": "11690a6c86d59daa3b9cc3a3c9f0e61fbf0863879f9c86ea7226e59fc12722e9"
+    },
+    "decide": {
+      "bytes": 4951,
+      "sha256": "70ab154d038014a7b8989f2d73e15c04d375dde1ba1d271b5a55164e5bc59eac"
+    },
+    "describeSite": {
+      "bytes": 4250,
+      "sha256": "1e5c74497c3ef332dd69fae686b3db0013a3483cf6d898feddf1759643fff837"
+    },
+    "drawAerial": {
+      "bytes": 6895,
+      "sha256": "afa15777e6ea79d0c98b22d3d877669f24a54337130f2ed5ed999fb0fc43a329"
+    },
+    "drawAll": {
+      "bytes": 268,
+      "sha256": "db63bc08c155cbfc35c8e9cad9ae73c6e10ab92d16c59dde48401f1f8bdc4b9e"
+    },
+    "drawBound": {
+      "bytes": 5956,
+      "sha256": "d3f6fe51f38f41bac3c95ed0d83392c5ba033ea6175b0539c93a62326320b402"
+    },
+    "drawBoundStatic": {
+      "bytes": 78,
+      "sha256": "f7efd291124374073d631c2356a7619e82f1b158226a8cbc8a582dbaea7c9a39"
+    },
+    "drawConformal": {
+      "bytes": 1207,
+      "sha256": "2db55086905847a5d25edd7541ca2e576d7202f96047a13007bae86b7641ec6d"
+    },
+    "drawConformalCeiling": {
+      "bytes": 4014,
+      "sha256": "895ca332afe22620b03633d1942b1edd6d4353aa8a72e713f1ad5c3aadf4171b"
+    },
+    "drawConformalLeads": {
+      "bytes": 10064,
+      "sha256": "d0e1189a8e31942064d58e9f2a741b6f2a9568e08a24b64e914ff669bdc8fd8c"
+    },
+    "drawConformalLine": {
+      "bytes": 2823,
+      "sha256": "f3b4931029902ae538ede75f3fe02049a6409b2cca09ed797f13f46a4f9211c3"
+    },
+    "drawConformalSummary": {
+      "bytes": 1511,
+      "sha256": "4f96922b32b98b2dadef7aa722abd23f84f8dcc79babb053219ad7dfda096ee3"
+    },
+    "drawConformalTiles": {
+      "bytes": 1322,
+      "sha256": "34a547c92320e956554b5cef81563820f33f64b7b9a02d6c1a6bf2bc949b7743"
+    },
+    "drawCov": {
+      "bytes": 5461,
+      "sha256": "9ecce28f81a289527510f716ee8fd60d62d146cd6c315135428a520b6b4fd41b"
+    },
+    "drawCoverageTiles": {
+      "bytes": 1838,
+      "sha256": "c7ee8e26bae4729b6471a57f430dd007e032d091aa9858c5a2d8b494b02c5466"
+    },
+    "drawDial": {
+      "bytes": 8504,
+      "sha256": "f6e723272687a9c2416667edfa4b9bc3a8dc096a048f06e50007423474139d4d"
+    },
+    "drawExplain": {
+      "bytes": 2485,
+      "sha256": "1eca46353d3417f47d1311cc6a02cea69cf5c5b08bb170cad2e07ecbfa793564"
+    },
+    "drawField": {
+      "bytes": 11706,
+      "sha256": "a27936fc58717c1935fc8c2af0eafe2928e5ad112ef77a13c4751414e72a80b5"
+    },
+    "drawHeadline": {
+      "bytes": 8254,
+      "sha256": "127465a6dc069b806d74a98734adc902fd0a902c5353b8226792ca7c6a6ad76e"
+    },
+    "drawLadder": {
+      "bytes": 9719,
+      "sha256": "02faac706cfb78803e462236047bfd15c206cbda51174c5e91117c42f144e0ec"
+    },
+    "drawLimits": {
+      "bytes": 9957,
+      "sha256": "d882a4eb2cf18070bd0b9575a1a28190f93387354d02d4e409e04b5c62911dbf"
+    },
+    "drawLive": {
+      "bytes": 10724,
+      "sha256": "6b784efe9b29b8ebaf17cd944915dbbffd2a9a99cc7f17dd66b74c3eb7431871"
+    },
+    "drawLiveCost": {
+      "bytes": 2362,
+      "sha256": "5674758bb55a6cd1ed6d41468ea6a4df939b9de2fa26ca712f97ab152376f2d2"
+    },
+    "drawLiveUnavailable": {
+      "bytes": 615,
+      "sha256": "c7ca618cfab48448327ef62594f49cac38770f1d076bb652ccbc8c1e7b0d2b9c"
+    },
+    "drawModeBanner": {
+      "bytes": 3199,
+      "sha256": "d28f253c591cac6d34f031fb51f494f51861c651ff060e66f2acd4d20e828c65"
+    },
+    "drawMoney": {
+      "bytes": 7660,
+      "sha256": "4bc8a0fbefdbc556b31fcf81c313de3e5aeef89152a1b81e084a930d8443dab5"
+    },
+    "drawPlate": {
+      "bytes": 12414,
+      "sha256": "fa5117d886bc34faf4ad07ca2ee59e0c33b17b2bbf4866e2ac3d76968afdb106"
+    },
+    "drawPlume": {
+      "bytes": 8418,
+      "sha256": "9bd913bf1ee85563e748f1366e696b4305e0e24d32e6f74f5c885535947be088"
+    },
+    "drawReadyTiles": {
+      "bytes": 623,
+      "sha256": "9faa641ac693c0541d0a040cfff90abd28806afb626d3896265b8af31ddc9841"
+    },
+    "drawReportLink": {
+      "bytes": 813,
+      "sha256": "438d6cec5c4ec6452d268a452366069da0986832ce76f3196f11ad5ae6097fc6"
+    },
+    "drawSched": {
+      "bytes": 3437,
+      "sha256": "0bb17c6d70db59f9f553a9e9c94898f4f09a9498e80e66fa865e266a1dcef473"
+    },
+    "drawSiteNotes": {
+      "bytes": 7335,
+      "sha256": "8e3beedea8c8035f026c6612a10cd1afdb9bc07b7cc82f1926f0e559795a10f5"
+    },
+    "drawTicker": {
+      "bytes": 1059,
+      "sha256": "9fafc3431d9e78c98ee87e1e88579532e3dc460d3332972f62a7aea3815a9c6e"
+    },
+    "drawZeroNote": {
+      "bytes": 1854,
+      "sha256": "9e08bf837d799ffffa5c81d0902ac836f6f4ebc76d9df4e0be97d4fd2a741873"
+    },
+    "explainHour": {
+      "bytes": 4516,
+      "sha256": "ca158295a3e61b2ba4654c4402fcbc524a2d152b125da033de5a3e752333a6d5"
+    },
+    "fitCanvas": {
+      "bytes": 898,
+      "sha256": "8e83d2413cf0d853ae3e00cd9121050e4b6117dc7037599b0cdc8dfbf50a814a"
+    },
+    "getCssVar": {
+      "bytes": 120,
+      "sha256": "4ca765124aa02eaacc459d9023b0a2e5f8879053a7082c4781552a7aa92821e8"
+    },
+    "liveStreamRow": {
+      "bytes": 2134,
+      "sha256": "def47f9619c29add52d5933528d04a02ddc819937a4b407718d87988b2502055"
+    },
+    "loadField": {
+      "bytes": 205,
+      "sha256": "3557258bdd02000491513c72ed9d97d66a3a35b1d02bdf4acbcd354b861fbda9"
+    },
+    "loadSite": {
+      "bytes": 3516,
+      "sha256": "6cf3015e7713c3eba0f4ac1b2f14d85f05d45bd57b010044d1f1bd011de2dc70"
+    },
+    "loneBuilding": {
+      "bytes": 88,
+      "sha256": "aa45f91f043cc0e8e3dc63859592d6ff707b6683bb217051c6a2dcff1cc0ee00"
+    },
+    "motionOK": {
+      "bytes": 129,
+      "sha256": "5a4f50b73c04605dd9b48f61fa6752c1f41ad1b9b5fe9b187b0dc95de64bdd3b"
+    },
+    "opt": {
+      "bytes": 269,
+      "sha256": "9fa0e36695b4eff91be55593e7b7acd9382aa92852886ed5b1846f2271d50252"
+    },
+    "pairLabel": {
+      "bytes": 224,
+      "sha256": "d592a9170687fd5804ec291ffda895a1979647eb5bc420d3b6a1472f55b96e2f"
+    },
+    "plan": {
+      "bytes": 911,
+      "sha256": "f60ebdd05654c44c284893080f556d5dd201969392ef2f1716da02ae8e18e78c"
+    },
+    "plateSparks": {
+      "bytes": 999,
+      "sha256": "f06ecc922f8c8665577881fed0ccdd6287c6f68587ba36c96ac6842c09a5c530"
+    },
+    "plumeModelled": {
+      "bytes": 194,
+      "sha256": "70f60d0b37d4dc046b0d723305e705d791abde338c8955da6d1e781876046893"
+    },
+    "plumeReason": {
+      "bytes": 1819,
+      "sha256": "5704a64f721fd4895ba0189cc0ae4c3f9dd6ec6ed8d1c98efb9283b544eee069"
+    },
+    "probeLive": {
+      "bytes": 566,
+      "sha256": "db9e915c2f360d3356930b874047e21d63bb56a7f950185fa447cbc00076c53d"
+    },
+    "r_i": {
+      "bytes": 49,
+      "sha256": "950a41d08d69b8250c70bf654e4ea563f6671ed19fce3a297beeabbadf494582"
+    },
+    "railIndicator": {
+      "bytes": 601,
+      "sha256": "ee0880c5d2e3137ed63a8c8d6359e4826922943f4a60518c00d0406b6aa53f40"
+    },
+    "railOnResize": {
+      "bytes": 127,
+      "sha256": "87c68b30bc092ede92e791922101dab84f4cb3ce59cd28aac50dc33be656496d"
+    },
+    "ramp": {
+      "bytes": 375,
+      "sha256": "7817790d4811a09be12bc6c4d37ea50cb25b94136059258e357c871104046642"
+    },
+    "rampCss": {
+      "bytes": 79,
+      "sha256": "095f175141e62503110d0a786151f6b551ffe62922090eef2f32b2776c1a3a67"
+    },
+    "reactive": {
+      "bytes": 413,
+      "sha256": "e06234845562986af33d0efa317eb55b15c6808701e9f3ce9f9e9829d44c89b2"
+    },
+    "refusalLimits": {
+      "bytes": 1964,
+      "sha256": "c16e4a54a7a2131c5adb5121e71d2df5820b8d5545f05f37b72e0fff073a5c17"
+    },
+    "repaintForTheme": {
+      "bytes": 147,
+      "sha256": "59915c5e03da43f2d8b6594298cf41edbf7c0eff4fa8871221f3fb98ac734998"
+    },
+    "runAgent": {
+      "bytes": 110,
+      "sha256": "c260731162d2bc0c87b591bf3d41a142acc89ae3564b4d1cc20d63ba94c648e7"
+    },
+    "runLive": {
+      "bytes": 1803,
+      "sha256": "be77904f95b2da4dd3e6559e8e6d65010af8ecff873867ffb498261049d636df"
+    },
+    "setStage": {
+      "bytes": 2806,
+      "sha256": "3e0ce43773ef089bf86b68278f593c295e1fb8a15f73a51cfaa391f28679252f"
+    },
+    "shippedGain": {
+      "bytes": 717,
+      "sha256": "b3cbd35749a34bbcb3a1815f974b2086552a1c1dcdd49e0dfdee7bf8e8a7be20"
+    },
+    "shortPhrase": {
+      "bytes": 188,
+      "sha256": "ddc07613eee0a72eff6bcde21b9700b9481dcaca72a7d12f8d93a4d6ad2fe3a7"
+    },
+    "siteIsRunnable": {
+      "bytes": 155,
+      "sha256": "14a13b9bdf78ec86ee60e696ad3fe28c6f78d5544c4edc893768403dd9993b9c"
+    },
+    "sparkSVG": {
+      "bytes": 1000,
+      "sha256": "c01834da5629b35ae1266e819d09bd9b322b28bd47f01ce2195249369a62fb5d"
+    },
+    "stationName": {
+      "bytes": 128,
+      "sha256": "cd5415b003fa93a5fd818742fe6a80a02864cd205e80f00b466aa2465cd31a5b"
+    },
+    "streamTape": {
+      "bytes": 1729,
+      "sha256": "df2f59d592c6f74599a97111203b689a140fce08a7715783a19044218272fce7"
+    },
+    "styleMapForTheme": {
+      "bytes": 2102,
+      "sha256": "38a210e9e1e72e9d5d058f85c1518e14693e90c6cd7ab038d4dab8bb283196df"
+    },
+    "syncOffday": {
+      "bytes": 445,
+      "sha256": "efa8e4779308cd63ce8ad81030076579cde4aba69abef1cb395623f121788ef1"
+    },
+    "syncRail": {
+      "bytes": 583,
+      "sha256": "82b7da411618da943fc535f7182af6dab57a275fc0ca1fa62c76ab20fea80e85"
+    },
+    "tapeHTML": {
+      "bytes": 767,
+      "sha256": "a59dbb48259a7e2bfefec553cba7ceb262d5964050bbee9401a788ad77c71568"
+    },
+    "tickerFor": {
+      "bytes": 2571,
+      "sha256": "ecf925288f9e09c76042bd71fada06aae5da3ef222f6606211ef581d69860daa"
+    },
+    "tile": {
+      "bytes": 181,
+      "sha256": "489810498c54ab9204ff3bff1c45de6241699b88f30756d6d55fd52261446027"
+    },
+    "tip": {
+      "bytes": 228,
+      "sha256": "16e78930a6eb04baeccb820c3c70ac966f5ec4c576477dddc009aaa7c79065ff"
+    },
+    "tkEvent": {
+      "bytes": 272,
+      "sha256": "d08e8abede2fd94947cb4d329838efad480a51024aa8d86e9ddf69bce6c6c778"
+    },
+    "tkFixed": {
+      "bytes": 1021,
+      "sha256": "b535f54c55426a00ed9e0c08f19d3300155e9ee112927ef9fc3f55de806aac33"
+    },
+    "tkFormat": {
+      "bytes": 913,
+      "sha256": "abb5e42e3fd4bdde87c134026054fb3b25cd2a0aff1405e3acf2e06287085ef5"
+    },
+    "tkRender": {
+      "bytes": 294,
+      "sha256": "76f9a8f0fdd0720d6643754ca323640acf54176ded96f579e9a3314cfa71c10b"
+    },
+    "untip": {
+      "bytes": 39,
+      "sha256": "4b84db0f83f670c9af1d62591375a40db093cdfb59f1ad93a9de84c46c5ac8ca"
+    },
+    "wire": {
+      "bytes": 2592,
+      "sha256": "46c26a4c74268ecf172923500f15f1e0b9f5c0bcbb2eef848ff42ddd0279e891"
+    },
+    "wireAerial": {
+      "bytes": 656,
+      "sha256": "f24aeb1e033f41616fdbf801a9aa110c9610be5ac668b08d9fa127ea64e6cfd2"
+    },
+    "wireRail": {
+      "bytes": 778,
+      "sha256": "f45ea08b977f47caf22109361a82a757bde94e7dc7a7f18c87a98746eba84d5c"
+    }
+  },
+  "generated_by": "tools/mkresults.py",
+  "note": "Every entry is a SHA-256 of the exact page text lifted. verify_results_matches_page.py recomputes these against the page and fails on drift.",
+  "source": "AGENTIC-ARBITER/demo/index.html"
+}

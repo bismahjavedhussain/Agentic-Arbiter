@@ -1,5 +1,5 @@
 {
-  "_what": "Provenance for AGENTIC-ARBITER/core/. Written by scratchpad/mkcore.py; read by testing/verify_core_matches_page.py. page_sha256 is the function as extracted from demo/index.html, core_sha256 is the function as emitted here. If either side is edited by hand the gate fails until the generator is re-run.",
+  "_what": "Provenance for AGENTIC-ARBITER/core/. Written by tools/mkcore.py; read by testing/verify_core_matches_page.py. page_sha256 is the function as extracted from demo/index.html, core_sha256 is the function as emitted here. If either side is edited by hand the gate fails until the generator is re-run.",
   "functions": {
     "H0": {
       "core_chars": 42,
