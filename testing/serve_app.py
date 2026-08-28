@@ -82,6 +82,17 @@ class H(BaseHTTPRequestHandler):
         # In all three, `../index.html` from the app reaches the page that owns configure and results.
         # An /app/ path tries the bundle first and then demo/, because the app's own assets and the
         # artefacts it fetches both arrive under that prefix once `../` is clamped at the root.
+        #
+        # 🔴 THIS FALLBACK MUST ALSO EXIST IN PRODUCTION, and for a while it did not. serve_live.py
+        # served demo/ as a plain static root, so /app/trace.json was simply a missing file there
+        # while it resolved here. The engine fetches every artefact by bare filename, so on the
+        # deployed host loadSite() returned false for EVERY site: "No built artefacts for <site>" and
+        # a Configure button that did nothing. The flow check driven through THIS server passed the
+        # whole time, because this fallback hid the difference. Trap 5b.7.
+        #
+        # serve_live.py now has `_app_artefact_fallback()`, and step 33 asserts it by fetching every
+        # artefact name from sites.json through the REAL server. If you change the routing here, change
+        # it there too, or this harness goes back to certifying a server nobody runs.
         if rel == "app" or rel.startswith("app/"):
             sub = rel[4:] or "index.html"
             bases = [(DIST, sub), (DEMO, sub)]
