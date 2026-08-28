@@ -267,6 +267,72 @@ PROBE = r"""
           return;
         }
 
+        /* 🔴 POPUP TEXT MUST BE READABLE, MEASURED RATHER THAN EYEBALLED.
+           The popups are dark in BOTH themes, and an earlier rule named only the tags I thought of
+           (p, li, strong, b, h3, h4), so a <summary> inherited the PAGE's colour: near-black on
+           near-black in the light theme, fine in dark. The heading "One hour, all seven stages of the
+           loop" was invisible and the user photographed it.
+           So this opens a dialog and computes the WCAG contrast ratio of every text node against the
+           dialog's own background. A tag nobody remembered still fails. */
+        if (!out._contrast) {
+          out._contrast = {opened: false, worst: null, worstEl: null, n: 0};
+          var opener = null, ab = document.querySelectorAll('button');
+          for (var z = 0; z < ab.length; z++)
+            if (/Read the reasoning|How the schedule|How it scores|What a live run/.test(ab[z].textContent || ''))
+              { opener = ab[z]; break; }
+          if (opener) {
+            opener.click();
+            out._contrast.opened = true;
+            /* Measured on the NEXT poll, so React has mounted the dialog. */
+            return;
+          }
+        } else if (out._contrast.opened && out._contrast.worst === null) {
+          var dlg = q('[role="dialog"]');
+          if (dlg) {
+            var lum = function (c) {
+              var m = c.match(/rgba?\(([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/);
+              if (!m) return null;
+              var f = [1, 2, 3].map(function (i) {
+                var v = parseFloat(m[i]) / 255;
+                return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+              });
+              return 0.2126 * f[0] + 0.7152 * f[1] + 0.0722 * f[2];
+            };
+            /* The dialog's own painted background: walk up until something is not transparent. */
+            var bgEl = dlg, bg = null;
+            while (bgEl && bg === null) {
+              var cb = getComputedStyle(bgEl).backgroundColor;
+              if (cb && cb.indexOf('rgba(0, 0, 0, 0)') < 0) bg = lum(cb);
+              bgEl = bgEl.parentElement;
+            }
+            if (bg !== null) {
+              var worst = 99, worstEl = '';
+              var els = dlg.querySelectorAll('p, li, summary, h1, h2, h3, h4, strong, b, span, div, code, label');
+              for (var y = 0; y < els.length; y++) {
+                var el = els[y];
+                /* NOT `txt`: this probe already has a global txt(selector) helper, and `var`
+                   hoists to the whole enclosing function, so declaring `var txt` here shadowed it and
+                   step 1's txt('#runagent') died with "txt is not a function". */
+                var elTxt = (el.textContent || '').trim();
+                if (!elTxt || el.children.length) continue;    // leaf nodes with real text only
+                if (el.offsetParent === null) continue;         // not displayed
+                var fl = lum(getComputedStyle(el).color);
+                if (fl === null) continue;
+                var hi = Math.max(fl, bg), lo2 = Math.min(fl, bg);
+                var ratio = (hi + 0.05) / (lo2 + 0.05);
+                out._contrast.n++;
+                if (ratio < worst) { worst = ratio; worstEl = (el.tagName + '.' + (el.className || '')).slice(0, 40) + ' :: ' + elTxt.slice(0, 40); }
+              }
+              out._contrast.worst = Math.round(worst * 100) / 100;
+              out._contrast.worstEl = worstEl;
+            }
+            var cl = dlg.parentElement && dlg.parentElement.querySelector('button');
+            if (cl) cl.click();
+          } else {
+            out._contrast.worst = -1;                            // never mounted
+          }
+        }
+
         var shown = [], hidden = [];
         for (var m2 = 0; m2 < cards.length; m2++)
           (out._seen[cards[m2]] ? shown : hidden).push(cards[m2]);
@@ -275,6 +341,7 @@ PROBE = r"""
           perTab:      out._perTab,
           liveInDom:   out._liveInDomEveryTab,
           tapeCardInDom: out._tapeCardInDom,
+          contrast:      out._contrast,
           tabScroll:     out._tabScroll,
           secgroupTotal: out._secgroupTotal,
           secgroupShown: out._secgroupShown,
@@ -521,6 +588,18 @@ def main():
     # The replaced tape card: still in the document on every tab, and shown on none of them. Both
     # halves matter. Gone from the DOM would break the console and the row count; visible would mean
     # the panel the console replaced is still competing with it.
+    # WCAG contrast inside a popup, measured rather than eyeballed. 4.5:1 is the AA floor for body
+    # text; 3.0 is the large-text floor. Anything under 3 is unreadable, which is what a <summary>
+    # inheriting the page's near-black on a dark panel actually was.
+    con = rr.get("contrast") or {}
+    if con.get("worst") is None or con.get("worst") == -1:
+        ck(False, "popup text contrast was measured", "no dialog could be opened to measure")
+    else:
+        ck(con["worst"] >= 3.0, "every popup text passes a 3:1 contrast floor",
+           "worst is %.2f:1 over %d text node(s)%s"
+           % (con["worst"], con.get("n") or 0,
+              "" if con["worst"] >= 3.0 else "  <-- %s" % con.get("worstEl")))
+
     # Each tab is entered from a predecessor the probe deliberately left scrolled to 400, so a
     # non-zero reading here is the bug: the shared scroll container carried its position across.
     ts = rr.get("tabScroll") or {}

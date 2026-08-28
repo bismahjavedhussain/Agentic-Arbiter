@@ -28,6 +28,9 @@ import './tones.css'
 /* Truly last: the backdrop wordmark, the tab-heading strip and the first-screen copy all sit on
    top of the tone system and have to be able to override it. */
 import './masthead.css'
+/* Truly last: readability and position fixes, each verified against a rendered PNG in both
+   themes. Several deliberately override engine.css and my own earlier sheets. */
+import './lastmile.css'
 /* BEFORE App, and therefore before EngineStage's layout effect calls setStage('pick'). The shim
    only suppresses a scroll-to-top when the stage has not changed, so the boot scroll still happens;
    installing early just means no re-run can slip past it. */

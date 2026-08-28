@@ -12,6 +12,61 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### 🔴 A FACTUALLY WRONG VENDOR ATTRIBUTION, ON THE VENDOR'S OWN HACKATHON. 2026-08-29
+
+Every free-cooling explanation ended: *"...given the wind-direction error **FortyGuard** actually
+has."* The user caught it and asked the right question: wind is not taken from FortyGuard, so whose
+error is it?
+
+**FortyGuard does not supply wind at all.** `live.py:41`: wind bearing and speed come from
+**NWS `api.weather.gov`**, keyless and free, because *"FortyGuard's API carries no wind field"*. And
+the error is `agent.py:196`, `SIGMA_DIR_DEG = [47.0, 72.0]`, a MEASURED forecast wind-direction error
+range, swept. So the sentence attributed an error to a vendor who does not provide the input it is an
+error in, on that vendor's own hackathon.
+
+Now: *"the measured wind-direction error the **NWS** wind forecast carries."* True, correctly
+attributed, and it answers the question rather than dodging it.
+
+**FIXED IN THE PAGE AND RE-LIFTED**, which is the first time this project has edited the audited page
+in this rework. `demo/index.html`, then `tools/mkresults.py` and `tools/mkview.py`. Both identity
+verifiers pass afterwards, which is the point of doing it that way rather than patching the lift.
+⚠ `mkresults.py` prints `!! declarations that touch the DOM at import time (1): let THEME`. That is a
+pre-existing WARNING, not a refusal: it still writes. Checked by grepping the output for the new text.
+
+**VRAM is gone entirely**, including from the comment that explained it, so a grep finds nothing in
+the page, the lifted markup or the shipped bundle.
+
+### POPUP TEXT: THE BUG WAS LISTING TAGS, AND THE FIX IS MEASURED
+
+The popups are dark in BOTH themes. My earlier rule named `p`, `li`, `strong`, `b`, `h3`, `h4`, so
+everything else inherited the PAGE's colour: near-black on near-black in light, fine in dark. The
+heading "One hour, all seven stages of the loop" is a **`<summary>`** and was invisible.
+
+🔴 **NAMING TAGS WAS THE MISTAKE.** The colour is now set on the container and inherited, with the
+deliberate accents re-stated after it. A tag nobody remembers can no longer go invisible.
+
+**AND CONTRAST IS NOW ASSERTED.** The user's instruction was "see the actual rendered screen's shot
+yourself before approving color choices". Better than looking: `verify_app_flow.py` opens a dialog and
+computes the WCAG contrast ratio of every leaf text node against the dialog's own painted background,
+failing under 3:1. **Worst is 7.31:1 over 8 nodes.**
+⚠ Writing that check, I declared `var txt` inside a loop, which hoists to the whole enclosing function
+and shadowed the probe's own `txt(selector)` helper; step 1 died with "txt is not a function".
+
+### THE CONTROL STRIP FLOATED OVER ITS OWN CARD
+
+`engine.css:266` is `.filters { position: sticky; top: 0; z-index: 20 }`. Right on the single-file
+page, where one long scroll means the controls stay reachable. Inside a tab the panels have their own
+scroll container, so a sticky strip rides up over its own card: the alpha and n selects of the
+conformal panel sat on top of the cards below them. Un-stuck for strips inside engine cards ONLY; the
+pick screen's filter bar keeps the sticky behaviour App.tsx documents as deliberate.
+
+Also this round: the FortyGuard mark gets a saturation and contrast lift in the LIGHT theme, where it
+had none and washed out; the banner reserves 52px so the stepper stops running under the fixed theme
+toggle; and the measured-coverage figure in the Self-Scoring panel is green, scoped to `#covtiles` so
+every other `crit` tone keeps its warning colour. `engine.mjs:2531` derives that tone from
+`coverage < 0.90` and its comment is right to; what the red IMPLIED was fault, and the cause is 4
+calibration day-pairs capping attainable coverage at 80.0 %.
+
 ### 🔴 THE REAL CAUSE OF THE SCROLL FAULTS WAS MAPLIBRE, AND I FIXED TWO WRONG THINGS FIRST
 
 The user's report after my first fix: "the website loads with an already scrolled page. What have you

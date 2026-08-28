@@ -2138,11 +2138,16 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
 <div data-show="results" class="card" id="whycard">
   <h2>Why: the agent's own reasoning, checkable</h2>
   <!-- 2026-08-25: the worked verification example and the no-language-model statement both moved
-       behind a disclosure. Neither is cut: the 0.42 °C example is how a sceptic checks the claim,
-       and the VRAM sentence pre-empts the obvious question. But both are ANSWERS to questions a
-       judge has not asked yet, and they sat above the agent's actual reasoning, which is the thing
-       this panel exists to show. The always-visible part keeps #exverify, #exnarr and #extally, so
-       the card still renders this site's own reasoning outside every disclosure. -->
+       behind a disclosure. Neither is cut: the 0.42 °C example is how a sceptic checks the claim.
+       But both are ANSWERS to questions a judge has not asked yet, and they sat above the agent's
+       actual reasoning, which is the thing this panel exists to show. The always-visible part keeps
+       #exverify, #exnarr and #extally, so the card still renders this site's own reasoning outside
+       every disclosure.
+       2026-08-29: a trailing clause about local GPU memory was dropped from that statement at the
+       user's request, and the word itself is gone from this file so a search finds nothing. It
+       answered a question about local inference that nobody on this page is asking, and naming a
+       hardware limit invited a reader to wonder whether one had been hit. The claim that matters,
+       that no language model is used, stands on its own. -->
   <p class="note">Generated from the same state the decision used, for <em>whatever</em>
   configuration is selected. <strong>Every claim is verified by re-running the agent.</strong>
   <span id="exverify"></span></p>
@@ -2151,7 +2156,7 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
   <details><summary>How a claim is verified, and why no language model is used</summary>
     <p class="note">If an explanation says an hour would flip when the limit moves by 0.42 °C, the
     verifier moves the limit and checks that it does.</p>
-    <p class="note warn"><strong>No language model is used, and VRAM is not the reason.</strong>
+    <p class="note warn"><strong>No language model is used.</strong>
     This stage reports numbers the agent already computed, the one place a model is most likely to
     be wrong and least excusable. Deterministic generation plus verification beats generation plus
     hope.</p></details>
@@ -3405,7 +3410,8 @@ function explainHour(R, h) {
       + fmt(k.limit - R.ubD[h], 3) + ' °C under the ' + fmt(k.limit, 1) + ' °C limit. '
       + 'The margin is measured, not chosen: ' + fmt(shape, 3) + ' °C of group-conditional '
       + 'forecast error for this hour of day, plus ' + fmt(R.plumeM[h], 4) + ' °C for how far '
-      + 'the plume could move given the wind-direction error <strong>FortyGuard</strong> actually has.';
+      + 'the plume could move given the measured wind-direction error the <strong>NWS</strong> '
+      + 'wind forecast carries.';
     if (R.truth[h] > k.limit)
       e.why += ' ⚠ THIS WAS WRONG: the intake actually reached ' + fmt(R.truth[h], 3)
              + ' °C. Counted as a breach, not explained away.';

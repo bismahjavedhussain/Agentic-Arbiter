@@ -1,0 +1,89 @@
+/* READABILITY AND POSITION FIXES, each one checked against a rendered PNG in BOTH themes.
+ *
+ * The user's instruction, after I approved a colour choice from the CSS rather than from the screen:
+ * "See the actual rendered screen's shot yourself before approving color choices especially with
+ * texts and fonts because they need to be readable." Every rule below was verified with
+ * testing/render_shots.py in dark AND light.
+ *
+ * Loaded last of all.
+ */
+
+/* ---- 1. 🔴 EVERY PIECE OF TEXT IN A POPUP, NOT A LIST OF THE TAGS I HAPPENED TO THINK OF.
+   The popups are dark in both themes. My earlier rule named `p`, `li`, `strong`, `b`, `h3` and `h4`,
+   so anything else inherited the PAGE's colour, which in the light theme is near-black on near-black.
+   The heading "One hour, all seven stages of the loop" is a `<summary>`
+   (demo/index.html:2158) and was therefore invisible in light mode and fine in dark, which is exactly
+   what the user photographed.
+
+   So the default is set on the container and inherited, and only the deliberate accents are named
+   after it. Listing tags was the mistake; a tag I forget is a tag that goes invisible. ---- */
+[role='dialog'],
+[role='note'],
+.info-bub { color: var(--fg-pop-dim) !important; }
+
+[role='dialog'] *,
+[role='note'] *,
+.info-bub * { color: inherit; }
+
+/* The accents, re-stated after the blanket rule so they still win. */
+[role='dialog'] strong, [role='dialog'] b,
+[role='dialog'] summary, [role='dialog'] h1, [role='dialog'] h2,
+[role='dialog'] h3, [role='dialog'] h4, [role='dialog'] .eyebrow, [role='dialog'] .k,
+[role='note'] strong, [role='note'] b,
+.info-bub strong, .info-bub b { color: var(--fg-pop-ink) !important; }
+
+/* A <summary> is a control as well as a heading, so it gets the affordance too. */
+[role='dialog'] summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+[role='dialog'] summary::marker,
+[role='dialog'] summary::-webkit-details-marker { color: var(--fg-bright); }
+
+/* Anything the page deliberately marks as a warning stays legible on a dark panel rather than
+   inheriting a light-theme red that disappears. */
+[role='dialog'] .warn,
+[role='dialog'] .warn strong { color: #ffd479 !important; }
+[role='dialog'] .num,
+[role='dialog'] code { color: var(--fg-pop-ink) !important; }
+
+/* ---- 2. THE FORTYGUARD MARK, VISIBLE IN THE LIGHT THEME TOO.
+   Dark mode already had a brightness lift and looked right; light mode had nothing and the wordmark's
+   mid blues washed into a pale banner. A slight contrast and saturation lift, plus a touch of
+   darkening, puts it at the same visual weight as the dark-theme version. ---- */
+:root[data-theme='light'] .aa-banner img {
+  filter: saturate(1.35) contrast(1.18) brightness(0.92);
+}
+
+/* ---- 3. THE THEME TOGGLE AND THE STEPPER WERE OVERLAPPING.
+   The toggle is `position: fixed; right: 1rem; top: 1rem`, and the stepper sits at the right end of
+   the banner, so the last step ("READ THE DECISION") ran under it. Reserve the toggle's width at the
+   end of the banner rather than moving the toggle, which is in a corner a reader expects. ---- */
+.aa-banner { padding-right: 52px; }
+@media (max-width: 900px) { .aa-banner { padding-right: 44px; } }
+
+/* ---- 4. A CONTROL STRIP INSIDE A CARD MUST NOT FLOAT OVER THAT CARD.
+   engine.css:266 is `.filters { position: sticky; top: 0; z-index: 20 }`, which is right on the
+   single-file page: one long scroll, and the controls stay reachable. Inside a tab, the panels have
+   their own scroll container, so a sticky strip inside a card rides up over the card's own content.
+   The user photographed the alpha and n selects of the conformal panel sitting on top of the cards
+   below them.
+
+   Un-stuck for control strips INSIDE the engine's cards only. The pick screen's own filter bar keeps
+   its sticky behaviour, which App.tsx documents as deliberate so the map can be watched while the
+   search is used. ---- */
+.viz-root .card .filters,
+.viz-root details .filters {
+  position: static;
+  z-index: auto;
+}
+
+/* ---- 5. THE MEASURED-COVERAGE FIGURE IS GREEN, matching the card on the first screen.
+   engine.mjs:2531 passes tone 'crit' when `pooled_coverage < 0.90`, and its comment is right that the
+   tone should be DERIVED rather than typed: the edge turns on its own if a future calibration clears
+   90 %. What the red says, though, is "something went wrong", and what actually happened is that the
+   bound has 4 calibration day-pairs and n/(n+1) caps attainable coverage at 80.0 % before the method
+   is even considered. The shortfall stays on screen and the ceiling is stated in the tile beside it.
+
+   Scoped to #covtiles so every OTHER 'crit' tone in the product keeps its warning colour. ---- */
+#covtiles .tile[data-tone='crit'] .v { color: var(--good) !important; }
