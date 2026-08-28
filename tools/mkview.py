@@ -93,7 +93,15 @@ for m in re.finditer(r'<[a-zA-Z][a-zA-Z0-9]*\b[^>]*\bdata-show="([a-z ]+)"', M):
     spans.append((sp[0], sp[1], (idm.group(1) if idm else "stage:" + stage)))
 
 # the engine-owned elements that are not inside a [data-show] card
-EXTRA = ["tt", "modebanner", "loading", "plate", "rail"]
+# 🔴 #modebanner AND #loading ARE DELIBERATELY NOT LIFTED, because React already says both things and
+# two copies on one screen is worse than either. Seen in a screenshot of the configure stage: a stale
+# "Loading saved data..." card across the top, and "Running in REPLAY, 0 live API calls" printed twice.
+#   #loading   nothing in the engine references it at all -- the page hides it in boot(), which is
+#              fenced -- and React's own "Loading saved data" state covers it.
+#   #modebanner drawModeBanner() opens with `const el = $('#modebanner'); if(!el) return;`, so its
+#              absence is already handled, and React's masthead carries the mode line the brief asks
+#              for ("ending on the live-agent line").
+EXTRA = ["tt", "plate", "rail"]
 for eid in EXTRA:
     m = re.search(r'<[a-zA-Z][a-zA-Z0-9]*\b[^>]*\bid="' + eid + r'"', M)
     if not m:

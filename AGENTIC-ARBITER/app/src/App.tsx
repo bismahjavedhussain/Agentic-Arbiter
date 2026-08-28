@@ -137,7 +137,24 @@ export function App() {
         className="fixed right-4 top-4 z-50 rounded-lg border border-hair bg-surface-1 p-2
                    text-ink-2 transition-colors hover:text-ink"
       >
-        {theme === 'dark' ? '☀' : '☾'}
+        {/* 🔴 SVG, NOT A GLYPH. This was `theme === 'dark' ? '☀' : '☾'`, and in the light theme the
+            crescent (U+263E) is not in Inter, so it fell back to a font that drew something closer to
+            a capital C. Visible in the light-theme capture of the configure stage. An icon that
+            depends on which fonts a reader happens to have is not an icon; these two paths depend on
+            nothing. Both are 16px, currentColor, and inherit the button's hover transition. */}
+        {theme === 'dark' ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2" />
+            <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2
+                     M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M20.2 14.6A8.4 8.4 0 1 1 9.4 3.8a6.6 6.6 0 0 0 10.8 10.8z" />
+          </svg>
+        )}
       </button>
 
       {/* The masthead is on every stage: it carries the headline and the live-agent line. */}

@@ -1,17 +1,15 @@
 {
-  "bytes": 40232,
+  "bytes": 40115,
   "css_bytes": 98640,
   "css_sha256": "4b450ef13dbef482bd3da8bbe8e059151730d8c8b7ea110a854764732f4e33d4",
   "generated_by": "tools/mkview.py",
   "sections": [
     "rail",
-    "modebanner",
-    "loading",
     "plate",
     "stage:configure results",
     "tt"
   ],
-  "sha256": "476ca00fbcf2e91c137cc4422d9a72d66a0d1bd8c1a781c7c0dbfe2efc149d7c",
+  "sha256": "d5d7968a98f1196a82b34ad3555a8eb5beca984bdcbad60fc06bbbfb31518ba7",
   "source": "AGENTIC-ARBITER/demo/index.html",
   "unique_ids": [
     "aerial",
@@ -92,10 +90,8 @@
     "livestream",
     "livetable",
     "livetiles",
-    "loading",
     "mlimits",
     "mnote",
-    "modebanner",
     "moneycard",
     "msources",
     "mtable",
