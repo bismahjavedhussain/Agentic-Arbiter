@@ -277,6 +277,19 @@ With the give-up after the step blocks, and each step doing `if (not ready yet) 
 that reaches the give-up is one where a step already succeeded. A probe that never finds its target can
 then never report, and prints "the probe never published", which says nothing.
 
+### 5b.5 A MEASUREMENT THAT WRITES IS NOT A MEASUREMENT, and `git add -A` will ship it
+Timing the live path with `live.py run --replay <window>` produced the CPU number that decided the
+Render instance question. It also **wrote `AGENTIC-ARBITER/demo/live.json`**, a shipped artefact, which
+its own output announced (`wrote: live.json`) and which I did not read. The next `git add -A` committed
+it, so a measurement's output became part of what deploys.
+
+`audit_nothing_lost.py` caught it: *"no JSON value changed beyond the rename: live.json, 77 values"*.
+`audit.py` did not, because the file's shape and status were unchanged and only the numbers moved.
+
+**The habits:** read what a tool says it wrote; prefer `git add <path>` over `git add -A` right after
+running anything that produces output; and if a measurement must write, copy the artefact aside first
+and restore it. Both `--replay` here and `build_sites.py` earlier in this project mutate `demo/`.
+
 ### 5b.4 Wait for the completion signal, not the first sign of life
 "At least 2 tape rows" was satisfied 200 ms into a stream that ends at 32, and the check failed a
 working tape. Find the thing that means *finished* (`#tapedone` here) and wait for that.
