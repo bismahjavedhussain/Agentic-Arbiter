@@ -189,9 +189,60 @@ conflict.
 A `cd` in one command changes the directory the next command starts in. A `grep HANDOFF.md` that
 reports "No such file or directory" is usually this. **Use absolute paths.**
 
-### 5.4 Heredocs mangle non-ASCII
+### 5.4 Heredocs mangle non-ASCII AND backslash escapes
 Emoji, arrows and dashes passed through a bash heredoc arrive corrupted. Write script files with the
 Write tool instead when the content is not plain ASCII.
+
+**It also eats backslash escapes, which is worse, because the result usually still runs.** Hit nine
+times as of 2026-08-28. Observed corruptions:
+
+| Written | Arrived as | Symptom |
+|---|---|---|
+| `\b` | a literal BACKSPACE byte | the regex silently matches nothing: "0 classes" in a 96 KB stylesheet |
+| `\n` inside an emitted template | a real line break | invalid TypeScript, or an unterminated string |
+| `" \\t\\r\\n"` | a literal tab and newline | `SyntaxError: unterminated string literal` |
+| `/\bprobe\b/` | a regex holding BACKSPACE bytes | matched nothing; replaced with `.includes('probe')` |
+
+**The habits that avoid it:** use Write and Edit for anything containing a backslash; build escapes
+with `chr(92)`, `chr(10)`, `re.escape()` and `json.dumps()` instead of writing them literally; and
+prefer `str.isspace()` to a whitespace-escape literal.
+
+---
+
+## 5b. Checks that look right and prove nothing
+
+Four instances in one session, 2026-08-28. Each check passed, each was wrong, and the shape repeats.
+
+### 5b.1 A name in prose is not a definition: MASK COMMENTS FIRST
+This codebase documents its own bug history in comments, and those comments QUOTE code. A scan for a
+definition therefore finds the story about it.
+
+| The scan | What it actually found | Consequence |
+|---|---|---|
+| ids in the lifted markup | `id="c_site"` inside an HTML comment about a historical duplicate id | reported present; the real element was on React's side, and the app stalled at the configure stage |
+| `$('#limits')` call sites | the war story that quotes the lookup | reported as an unguarded lookup, when the code beneath it is guarded |
+| the results closure | `//` inside the string `'<code>file://</code>'` swallowed the rest of the line | `buildSitePicker` reported OUTSIDE a closure that plainly calls it |
+| CSS comment balance | `*/` written inside backticks in prose | the delimiters BALANCED, so the check passed while nine words of English were parsed as CSS |
+
+Mask comments and string bodies before any analysis, **length-preservingly**, so line numbers stay
+usable. And strip strings BEFORE line comments, never after.
+
+### 5b.2 Assert on the OUTPUT, not on the inputs
+The engine generator asserted its fence over every function it lifted, and passed. It took the 55
+top-level declarations wholesale, and one was `const BOOTED = boot();`, the page's entire bootstrap.
+The emitted module threw `ReferenceError` the instant React imported it.
+
+Checking the inputs is checking your own reasoning about what the inputs contain. The assertion now
+runs over the emitted file and refuses to write it.
+
+### 5b.3 A polling probe must check its give-up FIRST
+With the give-up after the step blocks, and each step doing `if (not ready yet) return`, the only path
+that reaches the give-up is one where a step already succeeded. A probe that never finds its target can
+then never report, and prints "the probe never published", which says nothing.
+
+### 5b.4 Wait for the completion signal, not the first sign of life
+"At least 2 tape rows" was satisfied 200 ms into a stream that ends at 32, and the check failed a
+working tape. Find the thing that means *finished* (`#tapedone` here) and wait for that.
 
 ---
 

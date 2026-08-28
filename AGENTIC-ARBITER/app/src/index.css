@@ -190,8 +190,28 @@
     border-radius: 4px;
   }
 
+  /* THE BAR ENTRANCE, and the reason it is CSS rather than a physics engine.
+     The 21st.dev card this treatment is adapted from used framer-motion springs. Spring physics is
+     time-dependent, so two renders of one screen differ, and this project's render gate requires two
+     renders of one site to be byte-identical. A keyframe with a FIXED duration and a fixed easing
+     lands on its end value at a known time, which is the same reasoning the single-file page records
+     beside its own --ease-spring token.
+     `scaleY` from the bar's own baseline, so a negative bar hanging below the midline grows downward
+     rather than jumping. `both` holds the start frame during the stagger delay. */
+  @keyframes aa-bar-in {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+  .aa-bar {
+    transform-origin: bottom;
+    animation: aa-bar-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .aa-bar[style*="top: 50%"] { transform-origin: top; }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    /* The bars must still be at full height, not collapsed to nothing. */
+    .aa-bar { animation: none !important; transform: none !important; }
   }
 }
 

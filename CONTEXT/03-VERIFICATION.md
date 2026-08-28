@@ -217,10 +217,42 @@ files, and its verdict says so rather than implying otherwise.
 
 ---
 
-## 5b. The React app, and how to see inside it
+## 5b. The React app: four gates, and how to see inside it
 
-The app has no automated verifier yet. What it has is a **probe surface**, which is how every claim
-about it in `01-STATE.md` was measured rather than eyeballed.
+The app has **four wired-in verifiers** as of 2026-08-28, and they check four different things. The
+order matters, because each one catches a class the one above it cannot see.
+
+| Verifier | What it proves | Scale |
+|---|---|---|
+| `verify_results_matches_page.py` | `results/engine.mjs` is still the page's own code | 12 checks, 100 functions byte-identical, 208 KB |
+| `verify_view_matches_page.py` | the lifted markup is still the page's, and every engine lookup resolves | 8 checks, 105 ids |
+| `verify_app_flow.py` | the two were actually wired together: pick to results, in a browser | 21 checks |
+| `verify_app_deterministic.py` | two renders of the same screen produce the same numbers | figures, labels, bar heights, map counts |
+
+### Why the flow check earns its keep
+The first two are **static**. They prove the code and the markup are the page's; they cannot prove
+anything about whether the halves were connected correctly. **Three defects passed both and were
+caught only by pressing the buttons:**
+
+1. A lifted declaration, `const BOOTED = boot();`, called the page's bootstrap and threw
+   `ReferenceError` at import. Byte-identity said the code was perfect, because it was.
+2. `cssv()` reads tokens through `document.querySelector('.viz-root')` - a **class** selector, which an
+   id-based check cannot see. Absent, `getComputedStyle(null)` threw inside an async handler and the
+   configure transition silently never completed.
+3. React re-applied its own `dangerouslySetInnerHTML` over the engine's output, so `buildControls()`
+   filled `#filters` and a later re-render emptied it again. Nothing threw. The stage said `configure`
+   and the panel was blank.
+
+Each is a reminder of the same thing: **a check that looks at inputs is checking your reasoning about
+the inputs.** The generator's fence assertion was moved onto the emitted file for exactly this reason.
+
+### The rule the app must obey
+`setStage()` remains the **single owner** of what is visible. React's pick screen carries
+`data-show="pick"` and lets the engine hide it, rather than conditionally rendering it, because two
+pieces of code owning `.hidden` means the last writer wins. The engine's markup is injected once in a
+layout effect and React never diffs those children again.
+
+### The probe surface, for looking inside by hand
 
 ```bash
 cd AGENTIC-ARBITER/app && npm run dev        # http://127.0.0.1:5173
@@ -240,9 +272,24 @@ all three layers present, `querySourceFeatures` 0, `isStyleLoaded()` false, noth
 `--hold` keeps one subresource open so the load event stays pending and the render loop gets real
 wall-clock time.
 
-⚠ **Still missing for the app:** a wired-in verifier (the probe is driven by hand today),
-`verify_palette.py` coverage of `app/src/index.css`, and any equivalent of the byte-identical render
-gate.
+⚠ **Two instrument lessons from building `verify_app_flow.py`,** both of which produced confidently
+wrong output before they were fixed:
+
+- **The give-up must be checked FIRST in a polling probe.** It sat at the bottom of the interval
+  callback, after three step blocks that each `return` when not yet ready. So the only path that
+  reached the give-up was one where a step had already succeeded, and a probe that never found its
+  target could never report. Three runs printed "the probe never published", which says nothing.
+- **Wait for the completion signal, not the first sign of life.** The tape streams one row at a time,
+  so "at least 2 rows" was satisfied 200 ms in and the check failed a 32-row tape for having 2. The
+  engine fills `#tapedone` when streaming ends; that is the thing to wait for.
+
+And one assertion that was simply wrong: the check demanded `#livego` read "Run the agent on live
+data". On a static host there is no `/api/health`, so `drawLiveUnavailable()` correctly disables the
+button and says **"Live agent not attached"**. Asserting the live wording unconditionally would have
+been asserting that a static host pretends to have a server. The check is now mode-aware.
+
+⚠ **Still missing for the app:** `verify_palette.py` coverage of `app/src/index.css` (its tokens are
+inherited, not independently verified), and the light theme has not been checked by eye.
 
 ## 6. The two experiment families in `testing/`
 

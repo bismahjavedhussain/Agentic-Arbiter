@@ -4,8 +4,10 @@ import { SearchBar, type Filters } from './components/SearchBar'
 import { SelectedBar } from './components/SelectedBar'
 import { KpiCards } from './components/KpiCards'
 import { SiteMap } from './components/SiteMap'
+import { EngineStage } from './components/EngineStage'
+import { configureSite } from './lib/engine'
 import { ART, loadArtefacts, type Artefacts } from './lib/artefacts'
-import { loadHeadline, type Headline } from './lib/headline'
+import { DEFAULT_METRO, loadHeadline, type Headline } from './lib/headline'
 
 /**
  * The pick screen, in the order the brief specifies:
@@ -25,6 +27,7 @@ export function App() {
   const [h, setH] = useState<Headline | null>(null)
   const [err, setErr] = useState<string | null>(null)
   const [live, setLive] = useState<'checking' | 'attached' | 'replay'>('checking')
+  const [configuring, setConfiguring] = useState(false)
   /* THE FILTERS CAN ARRIVE IN THE URL, which buys two things at once.
      A reader gets a shareable link to a state, an operator or one facility. And the browser checks
      get a way to DRIVE the three behaviours the brief specifies -- fit to a state, highlight an
@@ -73,6 +76,21 @@ export function App() {
     [],
   )
 
+  /* "Configure the plant". The whole transition lives in lib/engine.ts because its ORDER carries a
+     reason -- it is chooseSite()'s order from the page, and wire() inside it is what binds #runagent,
+     #runagent2 and #backtopick. So the two run buttons on the next screens need no code here. */
+  const onConfigure = useCallback(async (metroKey: string) => {
+    setConfiguring(true)
+    try {
+      /* No React state to set. The engine's setStage() inside configureSite() is the single owner
+         of what is visible, and it also writes <body data-stage>, which the CSS keys off. React
+         mirroring it would be a second owner of one fact -- the exact bug the page documents. */
+      await configureSite(metroKey)
+    } finally {
+      setConfiguring(false)
+    }
+  }, [])
+
   const selected = a && filters.facility ? a.byKey.get(filters.facility) ?? null : null
 
   const shown = useMemo(() => {
@@ -101,7 +119,17 @@ export function App() {
   }
 
   return (
-    <main className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-6">
+    /* id="app" because the engine does `$('#app').hidden = false` when it finishes booting.
+       Nothing in the engine ever sets it to true, so hosting the attribute here is safe and it
+       keeps that lookup from returning null. */
+    /* id="app" because the engine does `$('#app').hidden = false` once it has booted; nothing in the
+       engine ever sets it back to true, so hosting the attribute here is safe and keeps that lookup
+       from returning null.
+       ⚠ THE WIDTH IS THE PAGE'S WIDTH, and a stage-dependent one was removed rather than kept. It
+       widened the container on the results stage on the theory that the panels needed more room --
+       a theory I had not measured, and the engine's own .viz-root carries a 1180px measure anyway,
+       so the widening did nothing except justify a duplicate copy of the stage in React state. */
+    <main id="app" className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-6">
       <button
         type="button"
         onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
@@ -112,30 +140,50 @@ export function App() {
         {theme === 'dark' ? '☀' : '☾'}
       </button>
 
+      {/* The masthead is on every stage: it carries the headline and the live-agent line. */}
       <Masthead live={live} />
 
       {!a || !h ? (
         <p className="text-[13px] text-muted">Loading saved data…</p>
       ) : (
         <>
-          <SearchBar a={a} filters={filters} onChange={setFilters} shown={shown} />
-          {/* 🔴 THE PATH FORWARD, which the first version of this screen simply did not have. A
-              reader could select a data centre and then had nothing to do with it. See
-              SelectedBar.tsx for why the button hands off to demo/index.html rather than pretending
-              the configure stage has been rebuilt here. */}
-          {selected && (
-            <SelectedBar
-              a={a}
-              facility={selected}
-              onClear={() => setFilters((f) => ({ ...f, facility: '' }))}
-            />
-          )}
-          <div className="mt-4">
-            <KpiCards h={h} />
+          {/* 🔴 data-show="pick", NOT a conditional render. The engine's setStage() walks
+              [data-show] and sets .hidden, and it stays the single owner of what is on screen. If
+              React also unmounted this subtree there would be two owners of one decision, which is
+              precisely the bug demo/index.html documents at length: the last writer wins, and which
+              one that is depends on render timing. So React labels its screen and lets setStage()
+              decide. The map instance survives inside a hidden container, so returning to the pick
+              screen does not rebuild it. */}
+          <div data-show="pick">
+            <SearchBar a={a} filters={filters} onChange={setFilters} shown={shown} />
+            {/* 🔴 THE PATH FORWARD. The first version of this screen let a reader select a data
+                centre and then offered nothing; the second offered a link back to the old page.
+                This one calls the engine. */}
+            {selected && (
+              <SelectedBar
+                a={a}
+                facility={selected}
+                busy={configuring}
+                onConfigure={onConfigure}
+                onClear={() => setFilters((f) => ({ ...f, facility: '' }))}
+              />
+            )}
+            <div className="mt-4">
+              <KpiCards h={h} />
+            </div>
+            <div className="mt-4">
+              <SiteMap a={a} filters={filters} onPick={onPick} />
+            </div>
           </div>
-          <div className="mt-4">
-            <SiteMap a={a} filters={filters} onPick={onPick} />
-          </div>
+
+          {/* THE OTHER TWO STAGES: the page's own markup, drawn by the page's own engine. Rendered
+              always and hidden by setStage(), never conditionally mounted -- see EngineStage.tsx for
+              why React must not re-render this subtree. */}
+          <EngineStage
+            sites={a.manifest as unknown as { sites: Array<Record<string, unknown>> }}
+            theme={theme}
+            siteKey={DEFAULT_METRO}
+          />
         </>
       )}
     </main>

@@ -95,7 +95,10 @@ class H(BaseHTTPRequestHandler):
             if not os.path.isfile(target):
                 continue
             body = open(target, "rb").read()
-            if target.endswith("index.html") and HOLD_S > 0 and HOLD_TAG not in body:
+            # ANY .html, not only index.html. The determinism check serves its probe copy as
+            # `_det.html`, which got no hold and was therefore dumped before React mounted --
+            # and the check then compared two empty pages and called them equal.
+            if target.endswith(".html") and HOLD_S > 0 and HOLD_TAG not in body:
                 body = body.replace(b"</head>", HOLD_TAG + b"</head>", 1)
             ext = os.path.splitext(target)[1].lower()
             return self._send(body, TYPES.get(ext, "application/octet-stream"))

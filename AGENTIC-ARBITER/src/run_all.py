@@ -201,6 +201,50 @@ STEPS = [
     # It becomes unnecessary the moment the page imports core/ instead of carrying its own copy.
     ("core/ is still the page's own code, substitution for substitution",
      [sys.executable, "verify_core_matches_page.py"], TESTING),
+    # THE REACT APP'S DETERMINISM, added 2026-08-28. The pick screen's KPI cards adapt a treatment
+    # from a 21st.dev component whose motion was framer-motion SPRING physics and whose counter did
+    # `toFixed(0)` -- the first is time-dependent, and the second would have rendered 10.7 % as
+    # "11 %". Both were reimplemented, and this is the measurement that says the reimplementation
+    # worked rather than my believing it did.
+    # It compares the DOM, not pixels: two reduced-motion captures of the identical screen differ by
+    # a few hundred pixels of glyph antialiasing and WebGL compositing, which measures Chrome and not
+    # the product. Every figure, label, caption, bar height and map count must match across two
+    # renders from fresh profiles.
+    # It builds nothing and starts its own server, so it needs no setup; it exits 3 only when there is
+    # no build to check or no browser to check it with.
+    # THE ENGINE EXISTS TWICE NOW, and this is the only reason that is acceptable. results/engine.mjs
+    # is the 100 functions that draw the configure and results stages, lifted byte for byte out of the
+    # page so the React app can drive them instead of reimplementing them. The inline copy stays,
+    # because deleting it would force index.html to load a module and browsers block that over
+    # file:// -- a judge who double-clicks the page would get a blank screen.
+    # So: two copies, and a step that refuses to let them drift. It also asserts the pick-stage fence
+    # (React owns the map and the search; the engine must not define them) and that the live agent's
+    # five functions and nine element ids are present, since a results stage can lose the live path
+    # and still look finished.
+    ("results/engine.mjs is still the page's own engine, byte for byte",
+     [sys.executable, "verify_results_matches_page.py"], TESTING),
+    # THE MARKUP TRAVELLED TOO, and it needs its own gate. The engine finds its targets by element id,
+    # so the React app renders the page's own configure and results markup verbatim rather than a
+    # retyped copy. This asserts it is still the page's markup, AND -- the part that actually catches
+    # things -- that every one of the engine's 105 element lookups is accounted for: in the markup,
+    # created at runtime, rendered by React, or behind a null guard. An unaccounted id is a panel that
+    # writes into nothing, and the page's history says that takes every panel after it down with it.
+    ("the app's engine markup is still the page's markup",
+     [sys.executable, "verify_view_matches_page.py"], TESTING),
+    # AND THE ONE THAT PRESSES THE BUTTONS. Everything above is static: it proves the code and the
+    # markup are the page's. It cannot prove they were wired together. Three separate defects got
+    # through the static checks and were caught only here -- a declaration that called fenced code, a
+    # class selector no id-based check could see, and React re-applying its own innerHTML over the
+    # engine's output. So this drives pick -> configure -> results in a real browser and checks what
+    # lands on each screen.
+    ("the new UI carries the whole product, pick to results, in a browser",
+     [sys.executable, "verify_app_flow.py"], TESTING,
+     {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The single-file page remains "
+         "canonical, so this is not a failure of the pipeline."}),
+    ("the React app renders the same numbers twice, from fresh profiles",
+     [sys.executable, "verify_app_deterministic.py"], TESTING,
+     {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The app is a prototype and the "
+         "single-file page remains canonical, so this is not a failure of the pipeline."}),
 ]
 
 

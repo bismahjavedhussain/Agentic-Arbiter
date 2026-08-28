@@ -10,22 +10,27 @@ import { CATEGORY_LABEL, facilityName, int, isReady, stateName, type Artefacts, 
  * a broken one, and "the brief only specified the pick screen" is not a defence for shipping a
  * cul-de-sac.
  *
- * WHERE THE BUTTON GOES, and it is a handoff rather than a reimplementation. The configure and results
- * stages exist and work TODAY in `demo/index.html`: the plant envelope, the 20,160 swept
- * configurations, the reasoning tape, all thirteen result panels, and the live-agent card. None of that
- * has been rebuilt in React yet, and pretending otherwise with a button that goes nowhere would be
- * worse than this. So the button links to the page that does the work, at the site the reader picked,
- * using the `?site=` parameter it already understands.
+ * WHERE THE BUTTON GOES, AS OF 2026-08-28: INTO THIS APP. It used to be a link out to
+ * `demo/index.html?site=...`, which was honest at the time -- the configure and results stages had not
+ * been brought across -- but the user's reply was the right one: a new UI that hands you back to the
+ * old UI at the first real action has not replaced anything. So the stages came across. The engine
+ * that draws them is results/engine.mjs, lifted byte for byte out of the page, and this button now
+ * calls it. Same plant envelope, same 20,160 swept configurations, same reasoning tape, same thirteen
+ * panels, same live-agent card, and the same numbers -- because it is the same code.
  *
- * ⚠ `?site=` TAKES A METRO KEY, NOT A FACILITY KEY. The page validates it against the picker's own
- * options, which are the offerable metros, and falls through to the default silently on anything it
- * does not recognise. So the CTA is only offered for a facility whose metro is offerable, and a
- * candidate gets the honest reason instead of a button that would quietly land somewhere else.
+ * ⚠ THE ENGINE IS KEYED BY METRO, NOT BY FACILITY. `loadSite()` looks the key up in sites.json and
+ * refuses one it does not know, so the CTA is only offered where the facility's metro is offerable. A
+ * real OSM-tagged candidate with no published run gets the honest sentence instead of a button that
+ * would quietly load somewhere else.
  */
-export function SelectedBar({ a, facility, onClear }: {
+export function SelectedBar({ a, facility, onClear, onConfigure, busy }: {
   a: Artefacts
   facility: Facility
   onClear: () => void
+  /** Hands the metro key to the engine. See lib/engine.ts:configureSite. */
+  onConfigure: (metroKey: string) => void
+  /** True while the engine is loading that site's artefacts, so the button can say so. */
+  busy?: boolean
 }) {
   const ready = isReady(a, facility)
   const man = a.manifest.sites.find((s) => s.key === facility.metro_key)
@@ -63,16 +68,20 @@ export function SelectedBar({ a, facility, onClear }: {
       </button>
 
       {ready ? (
-        <a
-          // Relative, so it works from the dev server, from a built dist/ dropped into demo/, and
-          // from any static host. `../index.html` in dev; the server maps it onto demo/.
-          href={`../index.html?site=${encodeURIComponent(facility.metro_key)}`}
+        // 🔴 THE ONLY BUTTON ON THE FIRST SCREEN, which is what the brief asks for: "The front page
+        // only has the configure button and then the run agent button and run agent live button all
+        // appears afterwards." Run the agent and Run the agent on live data are bound by the engine's
+        // own wire(), on the next screen, exactly as they are in the page.
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => onConfigure(facility.metro_key)}
           className="shrink-0 rounded-lg px-3.5 py-2 text-[12.5px] font-bold transition-transform
-                     duration-150 hover:-translate-y-0.5"
+                     duration-150 hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
           style={{ background: 'var(--action)', color: 'var(--action-ink)' }}
         >
-          Configure this plant →
-        </a>
+          {busy ? `Loading ${facility.metro_key}…` : 'Configure this plant →'}
+        </button>
       ) : (
         <span
           className="shrink-0 rounded-lg border border-hair px-3 py-2 text-[11.5px] text-muted"

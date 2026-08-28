@@ -1,0 +1,150 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ENGINE_MARKUP } from '../generated/engine-markup'
+import { bootEngine, engine } from '../lib/engine'
+
+/**
+ * The configure and results stages: the page's own markup, driven by the page's own engine.
+ *
+ * WHY THIS COMPONENT IS ONE `innerHTML` AND NOTHING ELSE.
+ *
+ * The user's complaint was that the new UI had lost the Configure button and everything behind it.
+ * It had: the React rebuild was a pick screen that linked out to demo/index.html. Bringing the rest
+ * across had two possible shapes, and only one of them is safe.
+ *
+ * Rewriting 31 renderers and 116 element ids as components would put every audited figure on this
+ * page at the mercy of a transcription. audit.py's 2,215 checks read the SINGLE-FILE PAGE; they
+ * cannot see a mistake made in a rebuild. So a typo in one id yields a panel that silently draws
+ * nothing and no test anywhere goes red.
+ *
+ * So the markup travels verbatim (scratchpad/mkview.py), the code travels verbatim
+ * (scratchpad/mkresults.py), and two verifiers refuse to let either drift. React's contribution is
+ * the pick screen the brief asked to redesign, and the shell around all of it.
+ *
+ * 🔴 THE ONE RULE: REACT DOES NOT RE-RENDER THIS SUBTREE. The engine writes into these nodes with
+ * innerHTML and canvas contexts, and a React re-render would wipe every panel it has drawn. Hence
+ * `dangerouslySetInnerHTML` with a constant and an empty dependency list: after mount, this subtree
+ * belongs entirely to the engine. That is the ordinary pattern for hosting a non-React widget, and
+ * here it is also what keeps the verification meaningful.
+ *
+ * VISIBILITY IS STILL THE ENGINE'S. setStage() walks `[data-show]` and sets `.hidden`, and it stays
+ * the single owner -- the page's own comment is emphatic that two pieces of code owning `.hidden`
+ * means the last writer wins. React's pick screen therefore carries `data-show="pick"` and lets
+ * setStage() hide it, rather than conditionally rendering it.
+ */
+export function EngineStage({
+  sites,
+  theme,
+  siteKey,
+  onReady,
+}: {
+  sites: { sites: Array<Record<string, unknown>>; scale?: unknown }
+  theme: 'dark' | 'light'
+  siteKey: string
+  onReady?: (ok: boolean) => void
+}) {
+  const host = useRef<HTMLDivElement | null>(null)
+  const booted = useRef(false)
+  const injected = useRef(false)
+  const [failed, setFailed] = useState<string | null>(null)
+
+  /* The markup goes in FIRST, in a layout effect, so it is in the DOM before bootEngine() runs and
+     before the browser paints. Guarded by a ref: injecting twice would discard whatever the engine had
+     already drawn, which is the very bug this replaced. */
+  useLayoutEffect(() => {
+    if (!host.current || injected.current) return
+    injected.current = true
+    host.current.innerHTML = ENGINE_MARKUP
+    /* 🔴 AND HIDE THE NON-PICK STAGES IN THE SAME FRAME. The markup arrives with every card
+       unhidden, and setStage() is what hides them -- but bootEngine() below cannot call it until
+       loadSite() has awaited two fetches. In between, the results cards and the live card were on
+       screen at the pick stage: measured, not theorised, by the flow check, which found #runagent
+       visible and <body data-stage> unset on the first screen.
+       setStage() needs the DOM and nothing else, so it can run here, synchronously, before the
+       browser paints. This is also why it is a LAYOUT effect. */
+    try { engine.setStage('pick') } catch { /* the engine is imported at module load; this cannot
+                                               fail, but a broken import should not blank the app */ }
+  }, [])
+
+  useEffect(() => {
+    /* StrictMode runs effects twice in development. Booting twice would re-run loadSite and rebind
+       every handler, so the guard is a ref rather than state: it must survive the second call
+       without waiting for a render. */
+    if (booted.current) return
+    booted.current = true
+
+    let cancelled = false
+    bootEngine(sites, theme, siteKey)
+      .then((key) => {
+        if (cancelled) return
+        if (!key) setFailed(siteKey)
+        onReady?.(!!key)
+      })
+      .catch((e: Error) => {
+        if (!cancelled) setFailed(e.message)
+      })
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /* Theme changes AFTER boot go through the engine, because applyTheme() repoints the two sequential
+     ramps and then repaints whatever is on screen. React's toggle owns the attribute; the engine owns
+     the redraw. One owner each. */
+  useEffect(() => {
+    if (!booted.current) return
+    try { engine.applyTheme(theme, false) } catch { /* pre-boot; bootEngine sets it */ }
+    try {
+      if (engine.currentStage() === 'results') engine.drawAll()
+      else engine.drawReadyTiles()
+    } catch { /* nothing loaded yet */ }
+  }, [theme])
+
+  return (
+    <>
+      {/* 🔴 className="viz-root" IS LOAD-BEARING, NOT COSMETIC. The engine reads its design tokens
+          with `const cssv = n => getComputedStyle(document.querySelector('.viz-root'))...`, so
+          without an element carrying that class the selector returns null and getComputedStyle
+          throws "parameter 1 is not of type 'Element'" -- which is exactly what happened: the
+          configure transition rejected, the stage never advanced, and the screen simply sat there.
+          It is a CLASS selector, so the id-based check in verify_view_matches_page.py could not see
+          it; that check now covers class and attribute selectors too.
+          In the page this class is on the main content wrapper and carries its 1180px measure, so
+          hosting it here reproduces the page's own layout as well as satisfying the lookup. */}
+      {/* 🔴 #c_site IS REACT'S DEBT, and forgetting it stalled the whole flow.
+          The engine reads the chosen site from `$('#c_site').value` in cfg() and describeSite(), and
+          in the page that <select> lives inside #pickcard -- which React replaced. So React owns the
+          picker and therefore owes the element. Without it those lookups return null and throw.
+          It is HIDDEN rather than styled, because the visible way to choose a site in this UI is the
+          search bar and the map; this is the engine's own handle on that choice, kept in sync by
+          lib/engine.ts. Populated from sites.json, which is what buildSitePicker() used to do.
+          It sits BEFORE the markup and inside this component so that it is in the DOM before
+          bootEngine() runs in the effect below. */}
+      <select id="c_site" hidden aria-hidden="true" tabIndex={-1}>
+        {(sites.sites || [])
+          .filter((s) => (s as { offerable?: boolean }).offerable)
+          .map((s) => String((s as { key?: string }).key))
+          .map((k) => (
+            <option key={k} value={k}>{k}</option>
+          ))}
+      </select>
+
+      {/* 🔴 THE MARKUP IS INJECTED IN AN EFFECT, NOT VIA dangerouslySetInnerHTML, and the difference
+          is not stylistic. With dangerouslySetInnerHTML React OWNS these children: it holds the
+          previous __html and re-applies it whenever it decides to. That is what happened here -- the
+          configure transition ran, buildControls() filled #filters, React re-rendered on the
+          `configuring` state change, re-applied the pristine markup, and #filters was empty again.
+          Nothing threw. The stage said "configure" and the controls were simply gone, which is the
+          least debuggable failure available.
+          An empty div plus a one-time innerHTML in a layout effect means React has no children here to
+          diff, ever. The engine owns this subtree outright. That is what the comment at the top of
+          this file was already asserting; this is the version of it that is actually true. */}
+      <div ref={host} className="viz-root" />
+      {failed && (
+        <p className="mt-4 text-[13px]" style={{ color: 'var(--critical)' }}>
+          <b>No built artefacts for {failed}.</b> Run{' '}
+          <code>python src/build_sites.py {failed}</code> and reload. The pick screen and the map are
+          unaffected.
+        </p>
+      )}
+    </>
+  )
+}

@@ -13,20 +13,82 @@ maintained by hand. Newest change first, always.
 only section describing work IN FLIGHT rather than work finished.
 
 ### What we are in the middle of
-Migrating the UI to **React + Tailwind + shadcn/ui** by the staged plan the user chose on 2026-08-28
-("option 1"), so the 21st.dev MCP server and the `frontend-design` skill can act on real components.
-**The user's UI brief in section 3 is the SPECIFICATION for the React prototype**, not a patch to
-`demo/index.html`. They asked explicitly for no interim restyle of the HTML: it would be duplicated
-effort, since the declutter, the prose migration, the reordering and all five map behaviours are
-stack-independent decisions that belong in the React build.
+The React app is now **the whole product, not just the pick screen**. As of 2026-08-28 it carries
+pick, configure and results, including the live agent. Remaining work is judgement, not plumbing:
+the light theme is still not visually verified, and `verify_palette.py` does not yet parse
+`app/src/index.css`.
+
+### THE CORRECTION THAT RESHAPED THIS WORK, 2026-08-28
+The user's words: *"I want to change the Ui but I dont want to change the buttons from the .html file
+that existed before. The front page only has the configure button and then the run agent button and
+run agent live button all appears afterwards with graphs and proper reports like it was doing in the
+html file we made before."*
+
+They were right and I had the scope wrong. The React rebuild was a **pick screen only**, and its
+"Configure this plant" button linked out to `demo/index.html`. A new UI that hands the reader back to
+the old UI at the first real action has not replaced anything. Two of the page's three stages, 18
+cards, the reasoning tape and the live agent existed nowhere in it.
+
+They then asked the exactly right follow-up question before agreeing to the approach: does lifting
+the results stage weaken the LIVE agent? The answer, measured rather than asserted: no, and lifting
+protects it best. A live run writes into nine elements, all inside `#livecard`, and it does produce
+new charts -- `drawLive` calls `drawConformalLine` and `drawConformalSummary`, so a real conformal
+bound is computed on live weather. It deliberately does **not** overwrite the replay panels, because
+those are measured over 43,763 held-out hours and one live hour replacing them would make the
+90 %-promise coverage test meaningless. And the live agent's REASONING is server-side in
+`serve_live.py`, so no front-end move can touch it.
 
 ### The plan
 | Step | State |
 |---|---|
 | 1. Attach the 21st.dev MCP server | **done** |
 | 2. Extract `core/`, repoint the verifiers | **done and green** |
-| 3. Extract the shared chart primitives | **done and green** (reframed, see below) |
-| 4. React prototype of the pick screen, per the UI brief | **next.** Needs the CLI restart for 21st.dev |
+| 3. Extract the shared chart primitives | **done and green** |
+| 4. React prototype of the pick screen, per the UI brief | **done and green** |
+| 5. Lift the engine so the React app carries configure + results + live | **done and green** |
+| 6. Verify the palette against `app/src/index.css`; check the light theme by eye | **next** |
+
+### HOW THE TWO HALVES MEET, and why it is shaped this way
+`AGENTIC-ARBITER/results/engine.mjs` is **100 functions, 208 KB, lifted byte for byte** out of
+`demo/index.html`. React renders the page's own configure and results **markup** verbatim
+(`app/src/generated/engine-markup.ts`, 39 KB) and its **stylesheet** verbatim
+(`app/src/generated/engine.css`, 96 KB). The engine finds its targets by element id and owns
+everything inside them; React owns the pick screen and the shell.
+
+Measured, not assumed: with the pick stage fenced off, **the engine calls nothing on React's side of
+the seam.** Zero crossings.
+
+**Why the page keeps its inline copy too.** Deleting it would force `index.html` to load a module,
+and browsers block module loading over `file://` -- a judge who double-clicks the page would get a
+blank screen. That property is the most-tested thing about this product. So there are two copies, and
+`testing/verify_results_matches_page.py` refuses to let them drift.
+
+**Why the code is not imported from `core/`.** Those 22 functions were deliberately CHANGED when they
+were extracted (`decide(k)` became `decide(k, trace)` so the node verifiers stop stubbing `$()`).
+Importing them would break every call site. The duplication is intentional and asserted.
+
+### THE THREE DEFECTS THE STATIC CHECKS COULD NOT SEE
+Worth recording, because all three passed byte-identity and id-presence checks and were caught only
+by driving the browser. This is why `testing/verify_app_flow.py` exists.
+
+1. **`const BOOTED = boot();`** The generator dependency-analysed the *functions* and took the 55
+   top-level *declarations* wholesale. One of them calls the page's entire bootstrap. The lifted
+   module threw `ReferenceError: boot is not defined` the instant React imported it. The fix moved the
+   assertion **onto the emitted output** rather than the inputs: checking the inputs is checking my own
+   reasoning about them.
+2. **`document.querySelector('.viz-root')`.** `cssv()` reads the design tokens through a **class**
+   selector, invisible to an id-based check. Missing, it threw
+   `getComputedStyle: parameter 1 is not of type 'Element'`, the configure transition rejected, and the
+   screen just sat there.
+3. **React re-applying its own `dangerouslySetInnerHTML`.** The transition ran, `buildControls()`
+   filled `#filters`, React re-rendered on a state change, re-applied the pristine markup, and the
+   controls were gone. Nothing threw; the stage said `configure` and the panel was empty. The markup is
+   now injected once in a layout effect, so React has no children there to diff, ever.
+
+Plus a fourth that was mine alone: `#c_site` is in `#pickcard`, on React's side, and the markup
+verifier reported it present because the string `id="c_site"` appears **inside an HTML comment** about
+a historical duplicate id. Four times in one session a name in prose was mistaken for a definition;
+every scan in the verifiers now masks comments first.
 
 ### THE UNCOMMITTED RISK IS CLOSED, at commit fcf7b59
 Everything is committed and `git status` is clean: **0 paths outstanding**. 7365 files changed, 15479 insertions(+), 3330 deletions(-)
@@ -291,7 +353,7 @@ only `fmt`.
 | Of those, ready to run | **246** | sites.json offerable metros, joined on metro_key |
 | Offerable metros | **250** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
-| run_all.py steps | **29** | count of STEPS entries in src/run_all.py |
+| run_all.py steps | **33** | count of STEPS entries in src/run_all.py |
 | demo/index.html size | **480 KB** | byte length of the shipped page |
 | Map GeoJSON sources | **2** | one clustered, one flat -- see 02-ARCHITECTURE |
 | Map unisites-* layers | **5** | cluster, halo, points, flat-halo, flat |
@@ -320,7 +382,7 @@ commands and exit-code contracts are in `03-VERIFICATION.md`.
 
 | Check | Verdict | Scale |
 |---|---|---|
-| `AGENTIC-ARBITER/src/audit.py` | **PASS** | 2,215 passed, 0 warnings, 0 failures |
+| `AGENTIC-ARBITER/src/audit.py` | **PASS** | 2,216 passed, 0 warnings, 0 failures |
 | `testing/verify_palette.py` | **PASS** | 34 pairs, 0 failed, both themes |
 | `testing/verify_state_filter.py` | **PASS** | 62 assertions, 3 consecutive clean runs |
 | `testing/verify_map_hover.py` | **PASS** | |
@@ -328,12 +390,62 @@ commands and exit-code contracts are in `03-VERIFICATION.md`.
 | The five cross-implementation verifiers | **PASS** | agent, conformal, decision, explanation, ticker |
 | Live agent surface | **present** | `#livecard`, `#livego`, `/api/health` reports `live_available: true` |
 | `testing/verify_core_matches_page.py` | **PASS** | 64 checks, 0 failed, 22 functions across `core/` and `charts/` |
-| `testing/audit_nothing_lost.py` | **NO LOSSES** | every function, id, artefact, verdict string and document present |
+| `testing/audit_nothing_lost.py` | **NO LOSSES** | 5,975 baseline paths walked, every function, id, artefact and verdict string present |
+| `testing/verify_results_matches_page.py` | **PASS** | 12 checks, 100 engine functions byte-identical, 208 KB |
+| `testing/verify_view_matches_page.py` | **PASS** | 8 checks, 105 engine lookups all accounted for |
+| `testing/verify_app_flow.py` | **PASS** | 21 checks, pick to results in a real browser, 32-row tape, 11 canvases |
+| `testing/verify_app_deterministic.py` | **PASS** | two renders identical: figures, labels, bar heights, map counts |
 | Paid API calls spent this session | **0** | |
 
 ---
 
 ## 3. Change log
+
+### 2026-08-28 - The new UI now carries the whole product, engine and all
+
+**The user's correction:** the React app was a pick screen whose Configure button led back to
+`demo/index.html`. Two of three stages, 18 cards, the reasoning tape and the live agent were not in
+the new UI at all. Full account in section 0.
+
+**What was measured before anything was built.** The page has 124 top-level functions. Rooted at the
+real entry points, the configure + results + live closure is **100 functions, 208 KB**; the 24 outside
+it are exactly the pick-stage map and search code the React app had already replaced. So the seam
+falls at a natural boundary rather than through the middle of something, and with the pick stage
+fenced off the engine calls **nothing** on React's side. Zero crossings, measured.
+
+A finding that made the lift far safer than the raw grep counts suggested: **`R` is not a global.**
+146 apparent references are almost all local `const R = decide();` plus right-margin variables
+(`const L=46, R=14`). The genuinely shared state is 55 top-level declarations, all of which keep their
+literal names in one module, so every reference stays byte-identical.
+
+**Built:**
+- `AGENTIC-ARBITER/results/engine.mjs` - 100 functions lifted byte for byte, plus a **three-function
+  adapter** (`attachSites`, `currentSite`, `currentStage`) that is the only written code in the file
+  and is pinned by hash so logic cannot accumulate there.
+- `app/src/generated/engine-markup.ts` - the configure and results markup, 39 KB, six blocks, verbatim.
+- `app/src/generated/engine.css` - the page's stylesheet, 96 KB, verbatim. It lifts cleanly because the
+  page's CSS has **zero `url()` references** by deliberate design, recorded in its own comment: no
+  `@font-face`, no `@import`, because the page must work offline and `verify_site_panels.py` demands
+  byte-identical canvases, which a font arriving over the network cannot promise.
+- `app/src/lib/engine.ts`, `app/src/components/EngineStage.tsx` - the seam.
+- `testing/verify_results_matches_page.py`, `testing/verify_view_matches_page.py`,
+  `testing/verify_app_flow.py` - three new gates, wired into `run_all.py`. **31 steps became 33.**
+
+**A real defect found in the page and fixed there.** A CSS comment contained the text
+`had THREE `*/` closers and one `/*` opener` - prose ABOUT the original bug. CSS comments have no
+escaping, so that `*/` closed the comment, nine words of English were parsed as CSS, and the following
+`/*` opened a new one. **The delimiters therefore balanced**, so `audit.py`'s `check_css_comments`
+passed: it counts delimiters, and the count was right. Browsers error-recover to the next resync
+point, so nothing ever looked wrong. It surfaced only when esbuild's stricter minifier warned during a
+Vite build. `audit.py` gained a second check that asks the question the other way round - is any text
+OUTSIDE the comments not plausibly CSS - and the count went 2,215 to 2,216.
+
+**`audit_nothing_lost.py` was silently going vacuous.** It compared against `HEAD`, which was the
+pre-work commit when it was written. Once the work was committed, `HEAD` contained the changes and
+every comparison trivially agreed; the first run after committing reported 8 losses that were nothing
+of the kind, because the rename had landed and `git show HEAD:INTAKE-ARBITER/...` simply failed. The
+baseline is now a pinned commit id, and the section that read `git status` for deletions - zero, once
+the rename was committed - now walks **all 5,975 paths that existed at the baseline** instead.
 
 ### 2026-08-28 - The pick screen had no way forward, and the URL layout that fixed it
 The user caught that the React screen offered no "configure the plant" action. Added

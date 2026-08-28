@@ -33,6 +33,7 @@ import { ART, type Manifest } from './artefacts'
 type Backtest = {
   hours: number
   days: number
+  sensitivity?: { rows: Array<{ axis: string; value: number; gain_h_per_year: number }> }
   n56_audit: Array<{
     step: string
     anchor: string
@@ -42,8 +43,19 @@ type Backtest = {
     gain_h_per_year: number
   }>
 }
-type Trace = { cycle: { pooled_coverage: number } }
-type Money = { cells: Array<{ hours_label: string; usd_per_mw_it_per_year: number }> }
+type Trace = {
+  cycle: {
+    pooled_coverage: number
+    margin_trajectory?: Array<{ margin_c: number }>
+  }
+}
+type Money = {
+  cells: Array<{ hours_label: string; usd_per_mw_it_per_year: number }>
+  hours_rows: Array<{ label: string; is_base?: boolean }>
+}
+
+/** A sparkline's values plus the caption that says what they ARE. Never a caption without values. */
+export type Series = { vals: number[]; cap: string; labels?: string[] }
 
 export type Headline = {
   cutPct: number
@@ -60,6 +72,11 @@ export type Headline = {
   moneyCells: number
   weatherHours: number
   coveragePct: number
+  /* THREE REAL SERIES, and only three. The single-file page's plateSparks() draws exactly these, and
+     the other two cards get NO chart because there is no series behind them: a cut percentage and an
+     hour count are single measurements, and inventing a shape for them would be decoration posing as
+     evidence. */
+  series: { gain?: Series; worth?: Series; cov?: Series }
 }
 
 /** The shipped site. `metros.py` calls it DEFAULT_METRO and its value is "ashburn". */
@@ -97,7 +114,48 @@ export function headlineFigures(bt: Backtest, t: Trace, mn: Money, manifest: Man
   const mwLo = (footprintM2 * (scale.w_per_m2_average_load ?? NaN)) / 1e6
   const mwHi = (footprintM2 * (scale.w_per_m2_installed ?? NaN)) / 1e6
 
+  /* ---- THE THREE SERIES, lifted from the page's plateSparks() so the two cannot disagree -------
+     1. GAIN BY FORECAST LEAD. The notice_h axis of the sensitivity sweep: 0, 1, 3 and 6 hours of
+        notice against the chiller-hours each buys. This is the single most persuasive series in the
+        project, because it is the forecast's value measured by varying only the forecast.
+     2. THE MONEY CELLS, cheapest to dearest. Addressed through the base row's own label rather than
+        by matching a string, which is how money.json says which row is the shipped one.
+     3. THE MARGIN, RECALIBRATING. One value per day-pair, and it crosses zero, which is why the bars
+        below are drawn from a zero baseline rather than from the bottom of the box. */
+  const series: Headline['series'] = {}
+
+  const notice = bt.sensitivity?.rows
+    ?.filter((r) => r.axis === 'notice_h')
+    ?.slice()
+    ?.sort((x, y) => x.value - y.value)
+  if (notice && notice.length >= 2) {
+    series.gain = {
+      vals: notice.map((r) => r.gain_h_per_year),
+      labels: notice.map((r) => `${r.value}h`),
+      cap: 'chiller-hours bought by each hour of notice',
+    }
+  }
+
+  const baseRow = mn.hours_rows?.find((r) => r.is_base)
+  const usd = mn.cells
+    .filter((c) => c.hours_label === baseRow?.label)
+    .map((c) => c.usd_per_mw_it_per_year)
+    .sort((x, y) => x - y)
+  if (usd.length >= 2) {
+    series.worth = { vals: usd, cap: `${usd.length} swept cells, cheapest to dearest` }
+  }
+
+  const traj = t.cycle.margin_trajectory || []
+  if (traj.length >= 2) {
+    series.cov = {
+      vals: traj.map((x) => x.margin_c),
+      labels: traj.map((_, i) => `${i + 1}`),
+      cap: `the margin recalibrating itself over ${traj.length} day-pairs`,
+    }
+  }
+
   return {
+    series,
     cutPct: (100 * (mechIncumbentH - mechAgentH)) / mechIncumbentH,
     mechIncumbentH,
     mechAgentH,
