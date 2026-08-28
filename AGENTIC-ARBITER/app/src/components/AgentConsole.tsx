@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Download } from 'lucide-react'
+import { ART } from '../lib/artefacts'
+import { Download, FileText } from 'lucide-react'
 
 /**
  * The agent as ONE LINE: an orbiting icon, a short reasoning phrase that changes every second or so,
@@ -76,6 +77,10 @@ export function AgentConsole({ pdfHref }: { pdfHref: string | null }) {
   const [idx, setIdx] = useState(0)
   const [stage, setStage] = useState(0)
   const startedAt = useRef<number>(0)
+  /* Whether the run being watched is a LIVE one. The engine holds the job id privately, so
+     this is inferred from WHICH button started the run, which is the same signal `begin`
+     already listens for. Only #livego means a vendor call happened. */
+  const [wasLive, setWasLive] = useState(false)
 
   /* One restartable run of the sequence. `startedAt` is a ref, not state: the interval below reads it
      and must not be re-created every time it changes. */
@@ -95,7 +100,10 @@ export function AgentConsole({ pdfHref }: { pdfHref: string | null }) {
     const onClick = (e: MouseEvent) => {
       const t = e.target as HTMLElement | null
       const btn = t && t.closest ? (t.closest('button, a') as HTMLElement | null) : null
-      if (btn && RUN_BUTTONS.includes(btn.id)) begin()
+      if (btn && RUN_BUTTONS.includes(btn.id)) {
+        setWasLive(btn.id === 'livego')
+        begin()
+      }
     }
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
@@ -178,8 +186,33 @@ export function AgentConsole({ pdfHref }: { pdfHref: string | null }) {
               <Download size={15} strokeWidth={2.4} aria-hidden="true" />
               Download PDF
             </motion.a>
+            {/* 🔴 THE LIVE RUN'S OWN REPORT, and it is a DIFFERENT DOCUMENT from the one beside it.
+                The button on the left downloads the per-site report, generated at build time from
+                saved responses for one named configuration. This one is built at request time from
+                the job that just ran: its hours, its bounds, its gates and its reasoning hour by
+                hour, plus the seven stages as they streamed. serve_live.py reads the PDF back before
+                returning a byte of it and refuses to serve one that fails its own check.
+                Shown only after a LIVE run, because after a replay there is no live moment to report
+                on and offering it would imply one. */}
+            {wasLive && (
+              <motion.a
+                href={ART + 'api/live/report/latest'}
+                download
+                className="aa-console-dl is-live"
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 30, delay: 0.08 }}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.985 }}
+              >
+                <FileText size={15} strokeWidth={2.4} aria-hidden="true" />
+                Live run report
+              </motion.a>
+            )}
             <span className="aa-console-dlnote">
-              A snapshot of this configuration. The panels recompute for whatever you select.
+              {wasLive
+                ? 'Two documents: the site report, and this run’s own hours and reasoning.'
+                : 'A snapshot of this configuration. The panels recompute for whatever you select.'}
             </span>
           </motion.div>
         )}

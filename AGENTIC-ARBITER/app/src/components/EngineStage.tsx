@@ -96,13 +96,19 @@ export function EngineStage({
     const rail = host.current.querySelector('#rail')
     if (railSlot && rail) railSlot.appendChild(rail)
 
-    /* MOVE "Learn more about the bound" TO THE LAST CARD ON THE TAB, at the user's request. It sat
-       mid-tab in #scorecard, so a reader met the call to action before the arithmetic it refers to.
-       #cfcard is the last panel in the Self-Scoring tab, which is where a "learn more" belongs.
-       A node move, like #rail: the button keeps its id and whatever the engine bound to it. */
-    const more = host.current.querySelector('#boundmore')
-    const lastCard = host.current.querySelector('#cfcard')
-    if (more && lastCard) lastCard.appendChild(more.closest('p') || more)
+    /* 🔴 #boundmore IS NOT MOVED, AND MOVING IT IS WHAT BROKE IT.
+       I appended it into #cfcard, the last card on the Self-Scoring tab, because that is where a
+       "learn more" was asked for. It disappeared.
+
+       #cfcard ships with the class `cfshut` and is COLLAPSED, and engine.mjs:1668 refuses to draw
+       anything inside it while that class is present, because every canvas in there sizes itself from
+       its parent's clientWidth and a collapsed parent reports zero. #boundmore's own handler
+       (engine.mjs:318) is the ONLY thing that opens it: it removes `cfshut`, calls drawConformal(),
+       relabels itself "The arithmetic is open below" and scrolls the card into view.
+
+       So the button is the card's opener, and I put the opener inside the thing it opens. It stays
+       where the engine put it: the end of #scorecard, directly above the card it reveals, which is
+       also exactly where a reader meets it after reading the coverage figures. */
 
     const { missing } = classifyPanels(host.current)
     if (missing.length && import.meta.env.DEV) {

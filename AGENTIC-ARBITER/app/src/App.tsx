@@ -6,6 +6,7 @@ import { KpiCards } from './components/KpiCards'
 import { SiteMap } from './components/SiteMap'
 import { EngineStage } from './components/EngineStage'
 import { DetailModal } from './components/DetailModal'
+import { ScopeBubble } from './components/ScopeBubble'
 import { configureSite } from './lib/engine'
 import { ART, loadArtefacts, type Artefacts } from './lib/artefacts'
 import { DEFAULT_METRO, loadHeadline, type Headline } from './lib/headline'
@@ -219,7 +220,17 @@ export function App() {
           demo root alike. alt is empty and it is aria-hidden: the product name is already the <h1>
           directly below, so announcing the logo would just repeat it. */}
       <div className="aa-banner">
-        <img src={ART + 'fortyguard-logo.png'} alt="" aria-hidden="true" />
+        {/* 🔴 "POWERED BY" IS NOT DECORATION, IT IS DISAMBIGUATION. A bare FortyGuard wordmark at the
+            top of a product called AGENTIC-ARBITER reads as though FortyGuard built this, which is
+            not true and is not a claim to leave ambiguous in front of a judge. The relationship is
+            real and specific: FortyGuard supplies the 2 m forecast field that the whole decision
+            depends on, which the masthead states directly. So the mark is labelled.
+            The alt text carries the same words, because with the label present the image is now
+            informative rather than scenery. */}
+        <span className="aa-banner-brand">
+          <span className="aa-banner-by">Powered by</span>
+          <img src={ART + 'fortyguard-logo.png'} alt="FortyGuard" />
+        </span>
         <span className="aa-banner-sub">Free-cooling decisions, hour by hour</span>
         {/* WHERE THE STEPPER GOES. EngineStage moves the engine's own #rail node in here after the
             markup is injected, so the progress control lives in the header on every stage instead of
@@ -243,16 +254,16 @@ export function App() {
               one that is depends on render timing. So React labels its screen and lets setStage()
               decide. The map instance survives inside a hidden container, so returning to the pick
               screen does not rebuild it. */}
-          {/* 🔴 WHAT IS ACTUALLY SHIPPED, on the first screen, in the user's words.
-              Both counts are READ from the artefacts, never typed: `manifest.sites` carries one entry
-              per built site with an `offerable` flag, and `unified.sites` is the mapped universe the
-              national map draws. So this line cannot drift from what the product contains. */}
-          <p className="aa-scope">
-            <b className="num">{a.manifest.sites.filter((s) => (s as { offerable?: boolean }).offerable).length}</b>{' '}
-            data centres ship with a full agentic analysis: their own plant configuration, their own
-            hourly schedule and their own solved plume, out of{' '}
-            <b className="num">{a.unified.sites.length}</b> mapped from OpenStreetMap.
-          </p>
+          {/* 🔴 WHAT IS ACTUALLY SHIPPED, as a drifting bubble in the empty space to the right of
+              the headline, at the user's request: points rather than sentences, and the count much
+              larger than the words around it.
+              BOTH NUMBERS ARE READ, NEVER TYPED. `offerable` is the flag sites.json sets on a site
+              that carries a full run, and unified_sites.json is the mapped universe the national map
+              draws, so the bubble cannot claim a scope the product does not have. */}
+          <ScopeBubble
+            shipped={a.manifest.sites.filter((s) => (s as { offerable?: boolean }).offerable).length}
+            mapped={a.unified.sites.length}
+          />
 
           {/* WHEN THE SELECTED FACILITY HAS NO RUN, say whose figures are on the cards. Showing the
               shipped reference silently is the bug this replaces: an Alabama site was selected above

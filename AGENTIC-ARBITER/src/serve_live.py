@@ -562,6 +562,50 @@ class Handler(SimpleHTTPRequestHandler):
             return _json(self, {"ok": True})
         if self.path.startswith("/api/health"):
             return _json(self, health())
+        # 🔴 THE LIVE RUN'S OWN REPORT, built at request time from the job that produced it.
+        # NOT the per-site report: that one is generated at build time from saved responses for one
+        # named configuration and cannot describe hours decided after the build. live_report.py writes
+        # this one from the job's own `result` and `progress`, in Helvetica for prose and Courier for
+        # the table, and reads it back before returning a byte of it.
+        #
+        # `latest` resolves to the most recently FINISHED job in this process, which is what the
+        # browser can ask for without the engine exposing its job id. ⚠ On a shared host that is
+        # whichever visitor ran last; the content is a weather schedule rather than anything private,
+        # and the explicit /<job_id> form is there for a caller that has one.
+        if self.path.startswith("/api/live/report/"):
+            want = self.path.rsplit("/", 1)[-1].split("?")[0]
+            with LOCK:
+                if want == "latest":
+                    done = [(j.get("started") or 0, k, j) for k, j in JOBS.items()
+                            if j.get("state") == "done"]
+                    job = dict(max(done)[2], id=max(done)[1]) if done else None
+                else:
+                    j = JOBS.get(want)
+                    job = dict(j, id=want) if j else None
+            if job is None:
+                return _json(self, {"error": "no finished live run to report on"}, 404)
+            try:
+                import live_report as LR
+                data, meta = LR.build_live(job)
+                problems = LR.verify_live(data, meta)
+            except Exception as e:                                    # noqa: BLE001
+                return _json(self, {"error": "the report could not be built: %s" % e}, 500)
+            if problems:
+                # A report that fails its own read-back is not served. Saying why beats handing over
+                # a file that looks fine until something opens it.
+                return _json(self, {"error": "the report failed its own verification",
+                                    "problems": problems}, 500)
+            name = "agentic-arbiter-live-%s-%s.pdf" % (
+                str(meta.get("site") or "site"), str(meta.get("generated") or "").replace(":", "").replace(" ", "-"))
+            self.send_response(200)
+            self.send_header("Content-Type", "application/pdf")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Content-Disposition", 'attachment; filename="%s"' % name)
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
         if self.path.startswith("/api/live/job/"):
             jid = self.path.rsplit("/", 1)[-1].split("?")[0]
             with LOCK:

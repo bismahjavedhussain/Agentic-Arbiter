@@ -20,27 +20,48 @@
    child falls through to body's gradient and the logo disappeared from the screenshot completely.
    0 with the siblings raised to 1 keeps it underneath the stepper and the label while staying in
    front of the page. */
+/* 🔴 FULL INK. It was 0.15 opacity, which the user called too muted, and they are right: at that
+   value a brand mark reads as a watermark somebody forgot to remove. It is now a labelled attribution
+   sitting in the banner at full strength, which is what "Powered by FortyGuard" should look like.
+   In flow rather than absolutely positioned, so the label sits beside it and the two move together. */
 .aa-banner img {
-  position: absolute;
-  top: 50%;
-  left: -8px;
-  translate: 0 -50%;
-  height: clamp(48px, 6.8vw, 88px);   /* was 19px, which read as a favicon in a corner */
+  position: relative;
+  z-index: 1;
+  height: clamp(25px, 2.7vw, 35px);   /* the wordmark's strokes are thin; below ~24px it reads pale */
   width: auto;
-  z-index: 0;
-  opacity: 0.15;
-  filter: saturate(1.7);
+  opacity: 1;
   pointer-events: none;
+}
+/* The dark theme needs a lift: the wordmark's darker blue is close to the shell floor. */
+:root[data-theme='dark'] .aa-banner img { filter: brightness(1.28) saturate(1.15); }
+
+/* One group, so the banner's space-between cannot push the label away from the mark it labels. */
+.aa-banner-brand {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.aa-banner-by {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--w-dim);
+  white-space: nowrap;
 }
 .aa-banner-sub,
 .aa-banner #aa-railslot { position: relative; z-index: 1; }
-:root[data-theme='light'] .aa-banner img { opacity: 0.17; }
 
 /* The sub-label has to clear the wordmark now that the wordmark is behind it rather than beside it. */
 .aa-banner-sub {
-  margin-left: clamp(150px, 19vw, 260px);
-  border-left: 0;
-  padding-left: 0;
+  margin-left: 18px;
+  padding-left: 18px;
+  border-left: 1px solid var(--w-hair);
 }
 
 /* ---- 2. THE TAB HEADING SITS ABOVE ITS CONTENT, LIKE A TAB SHOULD.
@@ -74,19 +95,89 @@ body:not([data-stage='pick']) .aa-workspace-main {
   padding-right: 4px;
 }
 
-/* ---- 3. THE SCOPE LINE on the first screen: what is shipped, out of what is mapped. ---- */
-.aa-scope {
-  margin: 14px 0 0;
-  max-width: 66ch;
-  font-size: clamp(13px, 1.05vw, 14.5px);
-  line-height: 1.5;
+/* ---- 3. THE SCOPE BUBBLE, floating in the empty space right of the headline.
+   Absolutely positioned against #app so it occupies space nothing else wanted, and it steps down to
+   static flow on a narrow screen rather than overlapping the prose. `will-change: transform` keeps
+   the drift on the compositor so an 11-second loop costs nothing per frame. ---- */
+.aa-bubble {
+  position: absolute;
+  top: 148px;
+  right: 8px;
+  z-index: 2;
+  width: min(276px, 32vw);
+  padding: 18px 20px 16px;
+  border-radius: 26px 26px 26px 8px;
+  border: 1px solid color-mix(in oklab, var(--fg-bright) 26%, var(--w-hair));
+  background:
+    radial-gradient(120% 90% at 18% 8%, color-mix(in oklab, var(--fg-bright) 17%, transparent), transparent 62%),
+    var(--w-1);
+  box-shadow: 0 22px 46px -22px rgba(4, 12, 22, 0.72);
+  will-change: transform;
+}
+.aa-bubble-hero { margin: 0 0 11px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.aa-bubble-num {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5.4vw, 62px);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  color: var(--fg-bright);
+  font-variant-numeric: tabular-nums;
+}
+.aa-bubble-unit {
+  font-size: 12.4px;
+  font-weight: 650;
+  line-height: 1.25;
+  color: var(--w-ink);
+}
+.aa-bubble-list {
+  list-style: none;
+  margin: 0 0 11px;
+  padding: 0;
+  border-top: 1px solid var(--w-hair);
+  padding-top: 10px;
+}
+.aa-bubble-list li {
+  position: relative;
+  margin: 0 0 5px;
+  padding-left: 14px;
+  font-size: 12.3px;
+  line-height: 1.35;
   color: var(--w-dim);
 }
-.aa-scope b {
-  font-size: 1.22em;
-  font-weight: 800;
-  color: var(--fg-bright);
-  letter-spacing: -0.01em;
+.aa-bubble-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fg-bright);
+}
+.aa-bubble-foot {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0 0 4px;
+  font-size: 11.4px;
+  line-height: 1.35;
+  color: var(--w-dim);
+}
+.aa-bubble-foot svg { flex: none; margin-top: 1px; color: var(--fg-bright); }
+.aa-bubble-foot b { color: var(--w-ink); font-weight: 700; }
+
+@media (max-width: 1120px) {
+  .aa-bubble {
+    position: static;
+    width: auto;
+    max-width: 420px;
+    margin: 16px 0 0;
+    border-radius: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aa-bubble { animation: none !important; }
 }
 
 /* ---- 4. THE FALLBACK NOTE, when the chosen facility has no run of its own. Amber rather than red:
@@ -156,7 +247,24 @@ body:not([data-stage='pick']) .aa-workspace-main {
 /* ---- 6. The scope line and the fallback note belong to the FIRST SCREEN, like the masthead prose.
    Keyed on body[data-stage], the attribute setStage() publishes, so this reads the owner's fact and
    introduces no owner of its own. Same mechanism as .aa-mast-prose. ---- */
-body[data-stage='configure'] .aa-scope,
-body[data-stage='results'] .aa-scope,
+body[data-stage='configure'] .aa-bubble,
+body[data-stage='results'] .aa-bubble,
 body[data-stage='configure'] .aa-fallback,
 body[data-stage='results'] .aa-fallback { display: none; }
+
+/* ---- 7. THE LIVE RUN'S OWN REPORT BUTTON, beside the site report.
+   Two documents, so two buttons, and they must not look interchangeable: the site report is the
+   primary filled blue, and this one is an outlined sibling in the same family. Outlined rather than a
+   second saturated fill, because two equally loud CTAs make a reader choose before they know the
+   difference. ---- */
+.aa-console-dl.is-live {
+  background: color-mix(in oklab, var(--fg-deep) 20%, transparent);
+  border-color: color-mix(in oklab, var(--fg-bright) 52%, transparent);
+  color: var(--fg-bright);
+  box-shadow: none;
+}
+.aa-console-dl.is-live:hover {
+  background: color-mix(in oklab, var(--fg-bright) 26%, transparent);
+  color: #fff;
+  filter: none;
+}
