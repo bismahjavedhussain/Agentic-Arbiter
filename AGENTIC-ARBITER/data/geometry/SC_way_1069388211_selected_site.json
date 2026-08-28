@@ -1,0 +1,556 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 31,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 3,
+  "facade_faces_away": 10,
+  "facade_too_short": 0,
+  "survived": 18
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "1069388141",
+  "receptor_osm_id": "1069388147",
+  "separation_m": 213.9,
+  "bearing_a_to_b_deg": 353.6,
+  "source_area_m2": 16883.8,
+  "receptor_area_m2": 12196.8,
+  "combined_area_m2": 29080.6,
+  "source_name": "Google",
+  "receptor_name": "Google",
+  "critical_wind_from_deg": 173.6,
+  "wind_exposure": 0.2187,
+  "dilution_factor": 1.403,
+  "exposure_x_dilution": 0.30673,
+  "true_gap_m": 99.2,
+  "longest_facade_m": 132.5,
+  "path_clearance": 0.117
+ },
+ "source_building": {
+  "osm_id": "1069388141",
+  "area_m2": 16883.8,
+  "centre_m": [
+   276.7,
+   97.4
+  ],
+  "width_m": 132.0,
+  "height_m": 137.3,
+  "rot_rect_long_m": 137.4,
+  "rot_rect_short_m": 131.3,
+  "rot_rect_angle_deg": 89.7,
+  "ring_m": [
+   [
+    213.7,
+    12.3
+   ],
+   [
+    214.4,
+    144.8
+   ],
+   [
+    231.4,
+    144.7
+   ],
+   [
+    231.5,
+    148.4
+   ],
+   [
+    243.6,
+    148.3
+   ],
+   [
+    243.5,
+    145.1
+   ],
+   [
+    284.8,
+    144.9
+   ],
+   [
+    284.9,
+    149.3
+   ],
+   [
+    294.2,
+    149.2
+   ],
+   [
+    294.1,
+    144.5
+   ],
+   [
+    340.6,
+    144.3
+   ],
+   [
+    340.6,
+    137.2
+   ],
+   [
+    345.7,
+    137.2
+   ],
+   [
+    345.1,
+    14.2
+   ],
+   [
+    305.2,
+    14.4
+   ],
+   [
+    305.2,
+    23.5
+   ],
+   [
+    262.6,
+    23.7
+   ],
+   [
+    262.6,
+    12.0
+   ],
+   [
+    213.7,
+    12.3
+   ]
+  ],
+  "name": "Google",
+  "operator": "Google",
+  "building_tag": "industrial",
+  "telecom_tag": "data_center",
+  "n_vertices": 19,
+  "centre_latlon": [
+   33.064462,
+   -80.038482
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "1069388147",
+  "area_m2": 12196.8,
+  "centre_m": [
+   252.7,
+   309.9
+  ],
+  "width_m": 130.7,
+  "height_m": 120.2,
+  "rot_rect_long_m": 130.1,
+  "rot_rect_short_m": 118.5,
+  "rot_rect_angle_deg": 179.2,
+  "ring_m": [
+   [
+    208.1,
+    368.1
+   ],
+   [
+    338.2,
+    366.3
+   ],
+   [
+    336.6,
+    247.9
+   ],
+   [
+    278.5,
+    248.6
+   ],
+   [
+    278.9,
+    280.4
+   ],
+   [
+    244.7,
+    280.9
+   ],
+   [
+    245.0,
+    298.9
+   ],
+   [
+    217.0,
+    299.3
+   ],
+   [
+    217.3,
+    325.1
+   ],
+   [
+    207.5,
+    325.2
+   ],
+   [
+    208.1,
+    368.1
+   ]
+  ],
+  "name": "Google",
+  "operator": "Google",
+  "building_tag": "industrial",
+  "telecom_tag": "data_center",
+  "n_vertices": 11,
+  "centre_latlon": [
+   33.066373,
+   -80.03874
+  ]
+ },
+ "runner_up": {
+  "source_osm_id": "1069388075",
+  "receptor_osm_id": "610827836",
+  "separation_m": 286.0,
+  "bearing_a_to_b_deg": 326.8,
+  "source_area_m2": 16847.7,
+  "receptor_area_m2": 13628.5,
+  "combined_area_m2": 30476.2,
+  "source_name": "Google",
+  "receptor_name": "Google",
+  "critical_wind_from_deg": 146.8,
+  "wind_exposure": 0.24927,
+  "dilution_factor": 1.049,
+  "exposure_x_dilution": 0.26147,
+  "true_gap_m": 120.8,
+  "longest_facade_m": 148.4,
+  "path_clearance": 0.553
+ },
+ "survivors": [
+  {
+   "source_osm_id": "1069388141",
+   "receptor_osm_id": "1069388147",
+   "separation_m": 213.9,
+   "bearing_a_to_b_deg": 353.6,
+   "source_area_m2": 16883.8,
+   "receptor_area_m2": 12196.8,
+   "combined_area_m2": 29080.6,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 173.6,
+   "wind_exposure": 0.2187,
+   "dilution_factor": 1.403,
+   "exposure_x_dilution": 0.30673,
+   "true_gap_m": 99.2,
+   "longest_facade_m": 132.5,
+   "path_clearance": 0.117
+  },
+  {
+   "source_osm_id": "1069388075",
+   "receptor_osm_id": "610827836",
+   "separation_m": 286.0,
+   "bearing_a_to_b_deg": 326.8,
+   "source_area_m2": 16847.7,
+   "receptor_area_m2": 13628.5,
+   "combined_area_m2": 30476.2,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 146.8,
+   "wind_exposure": 0.24927,
+   "dilution_factor": 1.049,
+   "exposure_x_dilution": 0.26147,
+   "true_gap_m": 120.8,
+   "longest_facade_m": 148.4,
+   "path_clearance": 0.553
+  },
+  {
+   "source_osm_id": "1069388095",
+   "receptor_osm_id": "610827836",
+   "separation_m": 236.6,
+   "bearing_a_to_b_deg": 0.4,
+   "source_area_m2": 19170.6,
+   "receptor_area_m2": 13628.5,
+   "combined_area_m2": 32799.1,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 180.4,
+   "wind_exposure": 0.19453,
+   "dilution_factor": 1.268,
+   "exposure_x_dilution": 0.24665,
+   "true_gap_m": 119.1,
+   "longest_facade_m": 148.2,
+   "path_clearance": 0.003
+  },
+  {
+   "source_osm_id": "1069388067",
+   "receptor_osm_id": "1069388141",
+   "separation_m": 274.8,
+   "bearing_a_to_b_deg": 359.0,
+   "source_area_m2": 16976.4,
+   "receptor_area_m2": 16883.8,
+   "combined_area_m2": 33860.2,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 179.0,
+   "wind_exposure": 0.1995,
+   "dilution_factor": 1.092,
+   "exposure_x_dilution": 0.2178,
+   "true_gap_m": 96.2,
+   "longest_facade_m": 150.5,
+   "path_clearance": 0.034
+  },
+  {
+   "source_osm_id": "1069388067",
+   "receptor_osm_id": "610827836",
+   "separation_m": 371.9,
+   "bearing_a_to_b_deg": 314.7,
+   "source_area_m2": 16976.4,
+   "receptor_area_m2": 13628.5,
+   "combined_area_m2": 30604.9,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 134.7,
+   "wind_exposure": 0.22703,
+   "dilution_factor": 0.807,
+   "exposure_x_dilution": 0.18314,
+   "true_gap_m": 210.6,
+   "longest_facade_m": 150.5,
+   "path_clearance": 0.722
+  },
+  {
+   "source_osm_id": "1069388141",
+   "receptor_osm_id": "610827836",
+   "separation_m": 259.8,
+   "bearing_a_to_b_deg": 267.1,
+   "source_area_m2": 16883.8,
+   "receptor_area_m2": 13628.5,
+   "combined_area_m2": 30512.3,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 87.1,
+   "wind_exposure": 0.11857,
+   "dilution_factor": 1.155,
+   "exposure_x_dilution": 0.13691,
+   "true_gap_m": 127.2,
+   "longest_facade_m": 132.5,
+   "path_clearance": 0.998
+  },
+  {
+   "source_osm_id": "1069388067",
+   "receptor_osm_id": "1069388147",
+   "separation_m": 488.2,
+   "bearing_a_to_b_deg": 356.6,
+   "source_area_m2": 16976.4,
+   "receptor_area_m2": 12196.8,
+   "combined_area_m2": 29173.2,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 176.6,
+   "wind_exposure": 0.20804,
+   "dilution_factor": 0.615,
+   "exposure_x_dilution": 0.12784,
+   "true_gap_m": 333.1,
+   "longest_facade_m": 150.5,
+   "path_clearance": 0.076
+  },
+  {
+   "source_osm_id": "1069388095",
+   "receptor_osm_id": "1069388211",
+   "separation_m": 536.9,
+   "bearing_a_to_b_deg": 298.3,
+   "source_area_m2": 19170.6,
+   "receptor_area_m2": 13527.3,
+   "combined_area_m2": 32697.9,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 118.3,
+   "wind_exposure": 0.19334,
+   "dilution_factor": 0.559,
+   "exposure_x_dilution": 0.10803,
+   "true_gap_m": 338.7,
+   "longest_facade_m": 148.2,
+   "path_clearance": 0.885
+  },
+  {
+   "source_osm_id": "610827836",
+   "receptor_osm_id": "1069388147",
+   "separation_m": 326.2,
+   "bearing_a_to_b_deg": 46.2,
+   "source_area_m2": 13628.5,
+   "receptor_area_m2": 12196.8,
+   "combined_area_m2": 25825.3,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 226.2,
+   "wind_exposure": 0.1102,
+   "dilution_factor": 0.92,
+   "exposure_x_dilution": 0.10135,
+   "true_gap_m": 225.3,
+   "longest_facade_m": 173.4,
+   "path_clearance": 0.691
+  },
+  {
+   "source_osm_id": "610827836",
+   "receptor_osm_id": "1069388211",
+   "separation_m": 474.7,
+   "bearing_a_to_b_deg": 272.2,
+   "source_area_m2": 13628.5,
+   "receptor_area_m2": 13527.3,
+   "combined_area_m2": 27155.8,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 92.2,
+   "wind_exposure": 0.13372,
+   "dilution_factor": 0.632,
+   "exposure_x_dilution": 0.08451,
+   "true_gap_m": 250.8,
+   "longest_facade_m": 173.4,
+   "path_clearance": 0.039
+  },
+  {
+   "source_osm_id": "1069388075",
+   "receptor_osm_id": "1069388211",
+   "separation_m": 681.3,
+   "bearing_a_to_b_deg": 292.2,
+   "source_area_m2": 16847.7,
+   "receptor_area_m2": 13527.3,
+   "combined_area_m2": 30375.0,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 112.2,
+   "wind_exposure": 0.17875,
+   "dilution_factor": 0.44,
+   "exposure_x_dilution": 0.07871,
+   "true_gap_m": 469.4,
+   "longest_facade_m": 148.4,
+   "path_clearance": 0.929
+  },
+  {
+   "source_osm_id": "1069388186",
+   "receptor_osm_id": "1069388095",
+   "separation_m": 356.5,
+   "bearing_a_to_b_deg": 92.1,
+   "source_area_m2": 64861.3,
+   "receptor_area_m2": 19170.6,
+   "combined_area_m2": 84031.9,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 272.1,
+   "wind_exposure": 0.08851,
+   "dilution_factor": 0.842,
+   "exposure_x_dilution": 0.07448,
+   "true_gap_m": 77.3,
+   "longest_facade_m": 193.1,
+   "path_clearance": 0.024
+  },
+  {
+   "source_osm_id": "1069388186",
+   "receptor_osm_id": "1069388075",
+   "separation_m": 514.5,
+   "bearing_a_to_b_deg": 91.7,
+   "source_area_m2": 64861.3,
+   "receptor_area_m2": 16847.7,
+   "combined_area_m2": 81709.0,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 271.7,
+   "wind_exposure": 0.08902,
+   "dilution_factor": 0.583,
+   "exposure_x_dilution": 0.05191,
+   "true_gap_m": 220.6,
+   "longest_facade_m": 193.1,
+   "path_clearance": 0.018
+  },
+  {
+   "source_osm_id": "1069388141",
+   "receptor_osm_id": "1069388075",
+   "separation_m": 272.8,
+   "bearing_a_to_b_deg": 202.2,
+   "source_area_m2": 16883.8,
+   "receptor_area_m2": 16847.7,
+   "combined_area_m2": 33731.5,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 22.2,
+   "wind_exposure": 0.04251,
+   "dilution_factor": 1.1,
+   "exposure_x_dilution": 0.04674,
+   "true_gap_m": 94.4,
+   "longest_facade_m": 132.5,
+   "path_clearance": 0.373
+  },
+  {
+   "source_osm_id": "1069388186",
+   "receptor_osm_id": "1069388067",
+   "separation_m": 623.4,
+   "bearing_a_to_b_deg": 93.5,
+   "source_area_m2": 64861.3,
+   "receptor_area_m2": 16976.4,
+   "combined_area_m2": 81837.7,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 273.5,
+   "wind_exposure": 0.087,
+   "dilution_factor": 0.481,
+   "exposure_x_dilution": 0.04187,
+   "true_gap_m": 348.6,
+   "longest_facade_m": 193.1,
+   "path_clearance": 0.049
+  },
+  {
+   "source_osm_id": "1069388156",
+   "receptor_osm_id": "1069388095",
+   "separation_m": 334.0,
+   "bearing_a_to_b_deg": 133.9,
+   "source_area_m2": 23174.1,
+   "receptor_area_m2": 19170.6,
+   "combined_area_m2": 42344.7,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 313.9,
+   "wind_exposure": 0.04506,
+   "dilution_factor": 0.898,
+   "exposure_x_dilution": 0.04047,
+   "true_gap_m": 115.1,
+   "longest_facade_m": 190.4,
+   "path_clearance": 0.685
+  },
+  {
+   "source_osm_id": "1069388156",
+   "receptor_osm_id": "1069388075",
+   "separation_m": 462.4,
+   "bearing_a_to_b_deg": 120.4,
+   "source_area_m2": 23174.1,
+   "receptor_area_m2": 16847.7,
+   "combined_area_m2": 40021.8,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 300.4,
+   "wind_exposure": 0.05548,
+   "dilution_factor": 0.649,
+   "exposure_x_dilution": 0.03599,
+   "true_gap_m": 228.4,
+   "longest_facade_m": 190.4,
+   "path_clearance": 0.497
+  },
+  {
+   "source_osm_id": "1069388156",
+   "receptor_osm_id": "1069388067",
+   "separation_m": 567.9,
+   "bearing_a_to_b_deg": 116.8,
+   "source_area_m2": 23174.1,
+   "receptor_area_m2": 16976.4,
+   "combined_area_m2": 40150.5,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "critical_wind_from_deg": 296.8,
+   "wind_exposure": 0.05967,
+   "dilution_factor": 0.528,
+   "exposure_x_dilution": 0.03152,
+   "true_gap_m": 361.7,
+   "longest_facade_m": 190.4,
+   "path_clearance": 0.441
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

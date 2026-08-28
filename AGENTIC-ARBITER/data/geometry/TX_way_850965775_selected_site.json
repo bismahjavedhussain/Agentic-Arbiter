@@ -1,0 +1,316 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 14,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 4,
+  "facade_faces_away": 4,
+  "facade_too_short": 0,
+  "survived": 6
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "1426525215",
+  "receptor_osm_id": "850965775",
+  "separation_m": 418.3,
+  "bearing_a_to_b_deg": 222.9,
+  "source_area_m2": 23145.6,
+  "receptor_area_m2": 3875.6,
+  "combined_area_m2": 27021.2,
+  "source_name": "Compass Data Center",
+  "receptor_name": "Compass Data Center",
+  "critical_wind_from_deg": 42.9,
+  "wind_exposure": 0.06493,
+  "dilution_factor": 0.717,
+  "exposure_x_dilution": 0.04657,
+  "true_gap_m": 228.0,
+  "longest_facade_m": 447.6,
+  "path_clearance": 0.737
+ },
+ "source_building": {
+  "osm_id": "1426525215",
+  "area_m2": 23145.6,
+  "centre_m": [
+   102.8,
+   -64.9
+  ],
+  "width_m": 471.5,
+  "height_m": 91.5,
+  "rot_rect_long_m": 471.1,
+  "rot_rect_short_m": 91.3,
+  "rot_rect_angle_deg": 179.7,
+  "ring_m": [
+   [
+    -200.6,
+    -42.2
+   ],
+   [
+    -200.9,
+    -89.1
+   ],
+   [
+    246.7,
+    -91.5
+   ],
+   [
+    246.6,
+    -114.1
+   ],
+   [
+    270.1,
+    -114.2
+   ],
+   [
+    270.6,
+    -22.9
+   ],
+   [
+    246.8,
+    -22.8
+   ],
+   [
+    246.7,
+    -44.6
+   ],
+   [
+    -200.6,
+    -42.2
+   ]
+  ],
+  "name": "Compass Data Center",
+  "operator": null,
+  "building_tag": "yes",
+  "telecom_tag": "data_center",
+  "n_vertices": 9,
+  "centre_latlon": [
+   32.541621,
+   -96.801482
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "850965775",
+  "area_m2": 3875.6,
+  "centre_m": [
+   -181.8,
+   -371.5
+  ],
+  "width_m": 42.7,
+  "height_m": 130.0,
+  "rot_rect_long_m": 130.0,
+  "rot_rect_short_m": 42.7,
+  "rot_rect_angle_deg": 90.0,
+  "ring_m": [
+   [
+    -179.7,
+    -317.2
+   ],
+   [
+    -154.8,
+    -317.5
+   ],
+   [
+    -154.8,
+    -446.8
+   ],
+   [
+    -189.4,
+    -447.2
+   ],
+   [
+    -189.4,
+    -410.6
+   ],
+   [
+    -197.2,
+    -410.5
+   ],
+   [
+    -197.5,
+    -399.7
+   ],
+   [
+    -186.8,
+    -399.5
+   ],
+   [
+    -187.0,
+    -391.8
+   ],
+   [
+    -180.1,
+    -391.9
+   ],
+   [
+    -179.8,
+    -333.4
+   ],
+   [
+    -185.3,
+    -333.4
+   ],
+   [
+    -185.4,
+    -327.7
+   ],
+   [
+    -179.7,
+    -327.7
+   ],
+   [
+    -179.7,
+    -317.2
+   ]
+  ],
+  "name": "Compass Data Center",
+  "operator": null,
+  "building_tag": "yes",
+  "telecom_tag": "data_center",
+  "n_vertices": 15,
+  "centre_latlon": [
+   32.538864,
+   -96.804518
+  ]
+ },
+ "runner_up": {
+  "source_osm_id": "1426525214",
+  "receptor_osm_id": "1426525216",
+  "separation_m": 291.6,
+  "bearing_a_to_b_deg": 180.5,
+  "source_area_m2": 23145.9,
+  "receptor_area_m2": 23053.2,
+  "combined_area_m2": 46199.1,
+  "source_name": "Compass Data Center",
+  "receptor_name": "Compass Data Center",
+  "critical_wind_from_deg": 0.5,
+  "wind_exposure": 0.0378,
+  "dilution_factor": 1.029,
+  "exposure_x_dilution": 0.03888,
+  "true_gap_m": 200.2,
+  "longest_facade_m": 447.6,
+  "path_clearance": 1.0
+ },
+ "survivors": [
+  {
+   "source_osm_id": "1426525215",
+   "receptor_osm_id": "850965775",
+   "separation_m": 418.3,
+   "bearing_a_to_b_deg": 222.9,
+   "source_area_m2": 23145.6,
+   "receptor_area_m2": 3875.6,
+   "combined_area_m2": 27021.2,
+   "source_name": "Compass Data Center",
+   "receptor_name": "Compass Data Center",
+   "critical_wind_from_deg": 42.9,
+   "wind_exposure": 0.06493,
+   "dilution_factor": 0.717,
+   "exposure_x_dilution": 0.04657,
+   "true_gap_m": 228.0,
+   "longest_facade_m": 447.6,
+   "path_clearance": 0.737
+  },
+  {
+   "source_osm_id": "1426525214",
+   "receptor_osm_id": "1426525216",
+   "separation_m": 291.6,
+   "bearing_a_to_b_deg": 180.5,
+   "source_area_m2": 23145.9,
+   "receptor_area_m2": 23053.2,
+   "combined_area_m2": 46199.1,
+   "source_name": "Compass Data Center",
+   "receptor_name": "Compass Data Center",
+   "critical_wind_from_deg": 0.5,
+   "wind_exposure": 0.0378,
+   "dilution_factor": 1.029,
+   "exposure_x_dilution": 0.03888,
+   "true_gap_m": 200.2,
+   "longest_facade_m": 447.6,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "1426525214",
+   "receptor_osm_id": "850965775",
+   "separation_m": 535.2,
+   "bearing_a_to_b_deg": 212.3,
+   "source_area_m2": 23145.9,
+   "receptor_area_m2": 3875.6,
+   "combined_area_m2": 27021.5,
+   "source_name": "Compass Data Center",
+   "receptor_name": "Compass Data Center",
+   "critical_wind_from_deg": 32.3,
+   "wind_exposure": 0.05436,
+   "dilution_factor": 0.561,
+   "exposure_x_dilution": 0.03047,
+   "true_gap_m": 373.7,
+   "longest_facade_m": 447.6,
+   "path_clearance": 0.848
+  },
+  {
+   "source_osm_id": "1426525213",
+   "receptor_osm_id": "1426525216",
+   "separation_m": 435.3,
+   "bearing_a_to_b_deg": 180.4,
+   "source_area_m2": 23145.9,
+   "receptor_area_m2": 23053.2,
+   "combined_area_m2": 46199.1,
+   "source_name": "Compass Data Center",
+   "receptor_name": "Compass Data Center",
+   "critical_wind_from_deg": 0.4,
+   "wind_exposure": 0.03776,
+   "dilution_factor": 0.689,
+   "exposure_x_dilution": 0.02602,
+   "true_gap_m": 343.9,
+   "longest_facade_m": 447.6,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "1426525213",
+   "receptor_osm_id": "850965775",
+   "separation_m": 661.3,
+   "bearing_a_to_b_deg": 205.7,
+   "source_area_m2": 23145.9,
+   "receptor_area_m2": 3875.6,
+   "combined_area_m2": 27021.5,
+   "source_name": "Compass Data Center",
+   "receptor_name": "Compass Data Center",
+   "critical_wind_from_deg": 25.7,
+   "wind_exposure": 0.04967,
+   "dilution_factor": 0.454,
+   "exposure_x_dilution": 0.02253,
+   "true_gap_m": 517.5,
+   "longest_facade_m": 447.6,
+   "path_clearance": 0.904
+  },
+  {
+   "source_osm_id": "1426525212",
+   "receptor_osm_id": "1426525216",
+   "separation_m": 581.3,
+   "bearing_a_to_b_deg": 180.1,
+   "source_area_m2": 23145.6,
+   "receptor_area_m2": 23053.2,
+   "combined_area_m2": 46198.8,
+   "source_name": "Compass Data Center",
+   "receptor_name": "Compass Data Center",
+   "critical_wind_from_deg": 0.1,
+   "wind_exposure": 0.03765,
+   "dilution_factor": 0.516,
+   "exposure_x_dilution": 0.01943,
+   "true_gap_m": 489.9,
+   "longest_facade_m": 447.6,
+   "path_clearance": 1.0
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

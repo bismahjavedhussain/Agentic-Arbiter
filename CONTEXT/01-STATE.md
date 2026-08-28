@@ -401,6 +401,117 @@ commands and exit-code contracts are in `03-VERIFICATION.md`.
 
 ## 3. Change log
 
+### 2026-08-28 - The deployment, and a correction: the SERVER does need part of data/
+
+**One service, decided by the user: "I only want one deployment which supports the new UI and a live
+agent working on the deployed project."** `serve_live.py` already serves the artefact folder statically
+AND answers `/api/*`, so one process is the whole deployment and no code was needed to support it. Both
+front ends call the agent with a relative url, `fetch('api/live/<site>')`, so a split origin would have
+meant inventing a configurable API base plus CORS, which is two new ways for live to break.
+
+```
+python AGENTIC-ARBITER/src/serve_live.py --allow-paid --host 0.0.0.0 --port $PORT --max-live-calls 48
+    /app/              the React interface
+    /                  the single-file page
+    /api/live/<site>   a live run
+```
+
+New at the repo root: `Dockerfile`, `render.yaml`, `requirements.txt`, and a *Deploying it* section in
+README. `requirements.txt` is **derived**: the import graph from `serve_live.py` was walked, 12 modules,
+and only `numpy` and `psychrolib` are third party. `physics` looks like a third and is not, it is a
+local package at `src/physics/`, which a first pass missed by looking for `physics.py` rather than
+`physics/`. **No GPU:** nvidia-warp solved the plume fields at build time and they ship as data.
+
+⚠ **NOT VERIFIED: the Docker image itself.** Docker is unavailable in this environment, so the
+Dockerfile is reasoned rather than built. The start command inside it IS verified, which is the part
+that usually goes wrong.
+
+**THE KEY, and the blocker that had to be fixed first.** `testing/common.py:load_key()` read
+`<root>/.env` and nothing else. That file is gitignored and must stay so, therefore it does not exist
+on a host: the live agent could only ever have started on this one machine. It now reads
+`FORTYGUARD_API_KEY` from the environment first, with the file as fallback. `render.yaml` declares the
+variable with `sync: false`, so Render prompts and stores it encrypted and it is never in the
+repository, not even in the Docker build context.
+
+**⚠ THE LIVE ENDPOINT IS OPEN, BY THE OWNER'S EXPLICIT DECISION.** Their words: "let the user make live
+calls, whoever it may be. there should be enough live calls limit available for multiple judges to run
+the agent and they will refresh the credits themselves." `serve_live.py` has no authentication of any
+kind, checked for tokens, bearer headers, origin and referer. `MAX_LIVE_CALLS` is the only ceiling,
+counted per day. Each run is one heatmap window at 4,220 credits, about 246 runs remain, so 48 a day is
+roughly five days of headroom and 24 a day roughly ten.
+
+### 🔴 CORRECTION: "data/ is never needed at runtime" was half wrong
+
+Recorded prominently because I told the user the wrong thing and then acted on it.
+
+**What I claimed:** `AGENTIC-ARBITER/data/` is never fetched at runtime, proved by reading every fetch
+in the page. **That part is true and remains true: the BROWSER never touches it.**
+
+**What I missed:** the SERVER does. `serve_live.py` imports `live.py` which imports `agent.py`, and
+`agent.py` reads `data/geometry/` at import time. Tested by hiding the folder:
+
+```
+live.py selftest   FileNotFoundError: data\geometry\selected_site.json
+serve_live.py      will not start at all
+```
+
+**The minimal set, measured by hiding each subfolder in turn and re-running the selftest:**
+
+| subfolder | size | needed by the server |
+|---|---|---|
+| `geometry` | **13.0 MB**, 1,185 files | **YES**, tracked in the repo now |
+| `weather` | 229.2 MB | no |
+| `national_fields` | 279.5 MB | no |
+| `imagery` | 299.9 MB | no |
+| `live_cache` | 217.6 MB | no, and the server recreates it if absent |
+
+So the structure changed: the whole-folder junction is gone, `data/geometry/` is a **real directory
+inside the repo**, and the other four are **per-folder junctions** to `D:/FGHackathon-data`.
+`.gitignore` carries `AGENTIC-ARBITER/data/*` with `!AGENTIC-ARBITER/data/geometry/`.
+
+Confirmed by hiding all four at once, which is what a fresh clone has: selftest ALL PASS, `/api/health`
+200, `/app/` 200, `/sites.json` 200.
+
+⚠ A TRAP THIS EXPOSED TWICE: running the server or the selftest RECREATES `data/live_cache/` as a real
+empty directory, which then collides with restoring the junction under the same name. It has no files,
+only an empty `ashburn/` subdirectory, so `Directory.Delete(path, recursive=true)` then rename the
+junction back.
+
+### 2026-08-28 - The repository is now what a judge sees, and nothing more
+
+**The user: "Only 1 read me md file is to be there for the judges which will be professional."**
+61 tracked `.md` files became 18; the 43 moved to `D:/FGHackathon-notes` with their original relative
+paths. `IMAGERY-REVIEW/` followed them: 17 files, 5.1 MB of ESRI-versus-USGS comparison JPGs, and
+nothing in any `.py`, `.js`, `.mjs` or `.html` reads it.
+
+🔴 THE KEEP LIST WAS MEASURED. Every `.py` was stripped of comments and docstrings and the `.md`
+filenames surviving inside string literals are the ones code actually opens. Moving one would have
+broken `audit.py`'s 2,216 checks or `run_all`'s context step:
+
+    README.md, API-USAGE.md, CLAUDE.md, RECIRCULATION-DEFENCE.md, money-sources.md,
+    demo/README.md, demo/money-sources.md, CONTEXT/*.md
+
+### 🔴 validation-data/ WAS QUIETLY HOLDING UP TWO PUBLISHED CLAIMS WITH NO GATE WATCHING IT
+
+Asked whether it was needed, I first said yes because "the two recirculation tests read it". **They did
+not.** They read `os.path.join(SCRATCH, fn)`, and `SCRATCH` in `testing/common.py` names ONE Claude
+session's temp directory by id, `48b2e995-a9e0-4f0c-8ab4-8cbe4f628a17`, which no longer exists. So
+`test_n21_validate.py` and `test_n22_calibrate.py` had been exiting 2 with *"no field data found in the
+scratchpad"*, which reads like an absent dataset rather than a stale path.
+
+The data was never absent. All SEVEN CSVs those tests ask for are in `validation-data/`, digitised from
+California Energy Commission report **CEC-500-2013-065**, whose three source PDFs sit beside them, and
+they are the evidence behind README's recirculation and 67-Prairie-Grass claims. **`run_all.py` does not
+run those two tests, so nothing anywhere went red.** That is precisely how a folder like this gets
+deleted by accident.
+
+Fixed rather than noted: `common.py` gained `VALIDATION` and `field_path()` now searches
+`(SCRATCH, VALIDATION, FIXTURES, HERE)`. Both tests run again:
+
+- `test_n21_validate` **PASS**, the solver reproduces the measured shape at **r=0.798** in its better
+  configuration (N-11 OFF), against 1-minute field data from six air-cooled condensers.
+- `test_n22_calibrate` **PASS**, the closure fits the field data on held-out RMS.
+
 ### 2026-08-28 - Deployment prep, and the prose the UI stopped showing
 
 **Deployment shape chosen by the user:** both the static demo and the live API on ONE Python host, so

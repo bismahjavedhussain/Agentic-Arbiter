@@ -1,0 +1,2192 @@
+{
+ "25.7824,-80.1931": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "25.7975,-80.2300": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "26.0779,-98.3620": {
+  "country": "mx",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "26.1850,-80.2869": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "26.1901,-80.1933": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "27.9455,-82.3511": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "28.0739,-82.3684": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "28.2941,-81.8349": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "28.5779,-81.5645": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "28.6174,-81.3935": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "29.2930,-98.3916": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.4206,-98.8397": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.4294,-98.4869": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.4337,-98.7520": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.4383,-98.5065": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.4625,-98.6688": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.5802,-98.5413": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.6581,-95.4433": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.6726,-82.2999": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "29.6864,-98.4626": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.8029,-95.7553": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.8216,-95.5708": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.9451,-95.4242": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "29.9963,-95.5637": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "30.0187,-95.8637": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "30.1777,-95.4866": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "30.1980,-97.7131": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "30.2108,-97.6584": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "30.2310,-97.7121": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "30.3314,-81.6624": {
+  "country": "us",
+  "reason": null,
+  "state": "FL"
+ },
+ "30.3428,-97.6962": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "30.4211,-97.5916": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "30.4880,-97.6725": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "31.0575,-97.2983": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "31.1036,-103.2385": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "31.1314,-97.3706": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "31.1942,-94.7968": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "31.2319,-85.4558": {
+  "country": "us",
+  "reason": null,
+  "state": "AL"
+ },
+ "31.5137,-103.4489": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "31.5330,-103.8033": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "31.7500,-106.3099": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "31.9727,-110.3048": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "32.0927,-110.7874": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "32.3097,-106.7292": {
+  "country": "us",
+  "reason": null,
+  "state": "NM"
+ },
+ "32.3413,-97.7317": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.3805,-106.4811": {
+  "country": "us",
+  "reason": null,
+  "state": "NM"
+ },
+ "32.4119,-90.1900": {
+  "country": "us",
+  "reason": null,
+  "state": "MS"
+ },
+ "32.4418,-97.0621": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.4982,-84.8836": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "32.4983,-99.7859": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.5051,-99.7797": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.5421,-96.8033": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.5422,-96.7911": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.5498,-97.0749": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.5954,-90.0936": {
+  "country": "us",
+  "reason": null,
+  "state": "MS"
+ },
+ "32.6512,-97.3197": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.7477,-117.1590": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "32.7810,-96.7965": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.8195,-96.8520": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.8351,-117.1497": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "32.8416,-97.0557": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.8960,-96.9823": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.9720,-97.1567": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.9790,-96.6548": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.9798,-96.7314": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "32.9863,-97.2572": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "33.0054,-97.2457": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "33.0481,-96.6704": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "33.0642,-80.0422": {
+  "country": "us",
+  "reason": null,
+  "state": "SC"
+ },
+ "33.0872,-96.8157": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "33.1383,-96.6585": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "33.1536,-117.2388": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "33.1718,-96.7255": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "33.2717,-111.8841": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.3293,-111.6411": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.3523,-111.8693": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.3950,-111.9613": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.3966,-112.0002": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.4048,-86.9116": {
+  "country": "us",
+  "reason": null,
+  "state": "AL"
+ },
+ "33.4213,-111.8590": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.4271,-112.3685": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.4473,-112.0401": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.4562,-84.5258": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.4584,-111.9869": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.4754,-111.7192": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.5007,-86.8208": {
+  "country": "us",
+  "reason": null,
+  "state": "AL"
+ },
+ "33.5981,-83.6950": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.6001,-83.6968": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.6009,-83.7029": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.6570,-84.4152": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.6591,-112.1112": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.6746,-78.9439": {
+  "country": "us",
+  "reason": null,
+  "state": "SC"
+ },
+ "33.6847,-112.0983": {
+  "country": "us",
+  "reason": null,
+  "state": "AZ"
+ },
+ "33.7102,-117.8280": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "33.7309,-84.6137": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.7496,-84.5835": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.7651,-84.3837": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.7773,-100.8689": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "33.7776,-84.4203": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.8508,-118.3041": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "33.9187,-118.3855": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "33.9255,-84.4816": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.9534,-98.5248": {
+  "country": "us",
+  "reason": null,
+  "state": "TX"
+ },
+ "33.9547,-84.1985": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "33.9717,-96.4028": {
+  "country": "us",
+  "reason": null,
+  "state": "OK"
+ },
+ "34.0362,-84.0594": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "34.0363,-84.3195": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "34.0527,-118.2465": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "34.0595,-117.2022": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "34.0707,-84.6759": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "34.0769,-84.2549": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "34.1034,-84.2150": {
+  "country": "us",
+  "reason": null,
+  "state": "GA"
+ },
+ "34.1999,-118.3438": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "34.5800,-118.1140": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "34.7410,-86.6825": {
+  "country": "us",
+  "reason": null,
+  "state": "AL"
+ },
+ "34.7562,-92.4447": {
+  "country": "us",
+  "reason": null,
+  "state": "AR"
+ },
+ "34.8281,-106.7801": {
+  "country": "us",
+  "reason": null,
+  "state": "NM"
+ },
+ "34.8490,-86.6255": {
+  "country": "us",
+  "reason": null,
+  "state": "AL"
+ },
+ "34.9142,-85.7471": {
+  "country": "us",
+  "reason": null,
+  "state": "AL"
+ },
+ "34.9955,-106.6180": {
+  "country": "us",
+  "reason": null,
+  "state": "NM"
+ },
+ "34.9957,-90.0345": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "35.0315,-85.2973": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "35.0483,-106.5422": {
+  "country": "us",
+  "reason": null,
+  "state": "NM"
+ },
+ "35.0600,-90.1564": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "35.1577,-80.9265": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.1795,-80.5702": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.2492,-91.7409": {
+  "country": "us",
+  "reason": null,
+  "state": "AR"
+ },
+ "35.2504,-81.3950": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.3158,-81.8241": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.3298,-80.7658": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.5681,-95.5124": {
+  "country": "us",
+  "reason": null,
+  "state": "OK"
+ },
+ "35.5887,-81.2624": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.6725,-105.9566": {
+  "country": "us",
+  "reason": null,
+  "state": "NM"
+ },
+ "35.7250,-78.6624": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.7668,-78.7840": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.8393,-78.3281": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.8955,-81.5471": {
+  "country": "us",
+  "reason": null,
+  "state": "NC"
+ },
+ "35.9465,-86.8319": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "35.9934,-86.4958": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "36.0235,-86.7916": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "36.0327,-86.6378": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "36.0575,-115.0087": {
+  "country": "us",
+  "reason": null,
+  "state": "NV"
+ },
+ "36.0598,-115.1472": {
+  "country": "us",
+  "reason": null,
+  "state": "NV"
+ },
+ "36.0604,-115.2166": {
+  "country": "us",
+  "reason": null,
+  "state": "NV"
+ },
+ "36.0813,-95.8541": {
+  "country": "us",
+  "reason": null,
+  "state": "OK"
+ },
+ "36.1405,-86.7641": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "36.1586,-95.9886": {
+  "country": "us",
+  "reason": null,
+  "state": "OK"
+ },
+ "36.1629,-115.0730": {
+  "country": "us",
+  "reason": null,
+  "state": "NV"
+ },
+ "36.1686,-115.1431": {
+  "country": "us",
+  "reason": null,
+  "state": "NV"
+ },
+ "36.2350,-115.1242": {
+  "country": "us",
+  "reason": null,
+  "state": "NV"
+ },
+ "36.2488,-86.7904": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "36.2625,-95.9100": {
+  "country": "us",
+  "reason": null,
+  "state": "OK"
+ },
+ "36.3270,-88.3201": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "36.3281,-83.3767": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "36.4090,-86.3688": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "36.6262,-87.2602": {
+  "country": "us",
+  "reason": null,
+  "state": "TN"
+ },
+ "36.6853,-78.3759": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "37.0628,-113.5447": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "37.2419,-121.7833": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.2784,-98.5885": {
+  "country": "us",
+  "reason": null,
+  "state": "KS"
+ },
+ "37.3585,-77.3297": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "37.3610,-121.8882": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.3630,-87.5472": {
+  "country": "us",
+  "reason": null,
+  "state": "KY"
+ },
+ "37.3799,-121.9655": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.3996,-122.0146": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.4031,-121.8913": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.4145,-122.0146": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.4397,-122.1707": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.4478,-121.9411": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.4857,-77.2397": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "37.6002,-82.6788": {
+  "country": "us",
+  "reason": null,
+  "state": "KY"
+ },
+ "37.6469,-77.4387": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "37.6651,-121.0400": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.6995,-121.9038": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.7563,-122.3940": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "37.7990,-122.2825": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "38.2425,-85.7333": {
+  "country": "us",
+  "reason": null,
+  "state": "KY"
+ },
+ "38.2462,-122.0672": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "38.2541,-122.2731": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "38.2772,-85.5072": {
+  "country": "us",
+  "reason": null,
+  "state": "KY"
+ },
+ "38.4548,-77.9781": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.4626,-78.8567": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.5923,-121.2774": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "38.6295,-90.1968": {
+  "country": "us",
+  "reason": null,
+  "state": "MO"
+ },
+ "38.6366,-90.2554": {
+  "country": "us",
+  "reason": null,
+  "state": "MO"
+ },
+ "38.6473,-121.4925": {
+  "country": "us",
+  "reason": null,
+  "state": "CA"
+ },
+ "38.7323,-77.4965": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.7377,-77.8261": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.7464,-77.1912": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.7474,-77.6745": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.7673,-77.5494": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.7862,-104.7886": {
+  "country": "us",
+  "reason": null,
+  "state": "CO"
+ },
+ "38.8027,-104.5220": {
+  "country": "us",
+  "reason": null,
+  "state": "CO"
+ },
+ "38.8034,-77.5106": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.8091,-77.6374": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.8106,-89.9487": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "38.8721,-99.3002": {
+  "country": "us",
+  "reason": null,
+  "state": "KS"
+ },
+ "38.8988,-77.4543": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.9142,-77.2187": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.9235,-92.2886": {
+  "country": "us",
+  "reason": null,
+  "state": "MO"
+ },
+ "38.9329,-94.7628": {
+  "country": "us",
+  "reason": null,
+  "state": "KS"
+ },
+ "38.9374,-94.8623": {
+  "country": "us",
+  "reason": null,
+  "state": "KS"
+ },
+ "38.9503,-77.5316": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.9519,-77.4543": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.9550,-77.3524": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "38.9873,-104.7868": {
+  "country": "us",
+  "reason": null,
+  "state": "CO"
+ },
+ "39.0000,-77.4900": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "39.0177,-78.2909": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "39.0244,-77.4496": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "39.0557,-76.9452": {
+  "country": "us",
+  "reason": null,
+  "state": "MD"
+ },
+ "39.0619,-77.5500": {
+  "country": "us",
+  "reason": null,
+  "state": "VA"
+ },
+ "39.0945,-94.5794": {
+  "country": "us",
+  "reason": null,
+  "state": "MO"
+ },
+ "39.1027,-84.5179": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "39.1337,-76.8514": {
+  "country": "us",
+  "reason": null,
+  "state": "MD"
+ },
+ "39.1744,-86.5007": {
+  "country": "us",
+  "reason": null,
+  "state": "IN"
+ },
+ "39.2444,-76.6542": {
+  "country": "us",
+  "reason": null,
+  "state": "MD"
+ },
+ "39.2928,-94.6793": {
+  "country": "us",
+  "reason": null,
+  "state": "MO"
+ },
+ "39.2936,-76.5517": {
+  "country": "us",
+  "reason": null,
+  "state": "MD"
+ },
+ "39.2940,-84.4121": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "39.3024,-94.6848": {
+  "country": "us",
+  "reason": null,
+  "state": "MO"
+ },
+ "39.3039,-84.3116": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "39.3226,-94.5964": {
+  "country": "us",
+  "reason": null,
+  "state": "MO"
+ },
+ "39.3778,-77.4115": {
+  "country": "us",
+  "reason": null,
+  "state": "MD"
+ },
+ "39.3853,-84.5663": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "39.3890,-84.2219": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "39.5111,-119.4802": {
+  "country": "us",
+  "reason": null,
+  "state": "NV"
+ },
+ "39.5680,-119.5419": {
+  "country": "us",
+  "reason": null,
+  "state": "NV"
+ },
+ "39.5795,-104.8552": {
+  "country": "us",
+  "reason": null,
+  "state": "CO"
+ },
+ "39.6125,-74.3275": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "39.7172,-85.9414": {
+  "country": "us",
+  "reason": null,
+  "state": "IN"
+ },
+ "39.7241,-82.6893": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "39.7318,-104.7104": {
+  "country": "us",
+  "reason": null,
+  "state": "CO"
+ },
+ "39.7440,-93.9974": {
+  "country": "us",
+  "reason": null,
+  "state": "MO"
+ },
+ "39.7454,-104.9875": {
+  "country": "us",
+  "reason": null,
+  "state": "CO"
+ },
+ "39.8309,-75.1953": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "39.8503,-82.9956": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "39.9128,-83.7237": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "39.9225,-104.9834": {
+  "country": "us",
+  "reason": null,
+  "state": "CO"
+ },
+ "39.9598,-75.1608": {
+  "country": "us",
+  "reason": null,
+  "state": "PA"
+ },
+ "39.9892,-105.0207": {
+  "country": "us",
+  "reason": null,
+  "state": "CO"
+ },
+ "40.0445,-74.2791": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.0581,-83.1612": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "40.0759,-82.7493": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "40.0953,-88.2420": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "40.1015,-82.7494": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "40.1050,-82.8057": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "40.1104,-83.1995": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "40.1158,-83.0020": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "40.1260,-83.2080": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "40.1371,-75.4431": {
+  "country": "us",
+  "reason": null,
+  "state": "PA"
+ },
+ "40.1452,-74.0479": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.1570,-74.1016": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.1945,-92.5812": {
+  "country": "us",
+  "reason": null,
+  "state": "MO"
+ },
+ "40.2085,-74.1192": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.2245,-83.0458": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "40.2392,-74.3195": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.2689,-112.0173": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "40.4274,-80.0425": {
+  "country": "us",
+  "reason": null,
+  "state": "PA"
+ },
+ "40.4514,-80.1902": {
+  "country": "us",
+  "reason": null,
+  "state": "PA"
+ },
+ "40.4566,-109.5290": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "40.4805,-111.9052": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "40.5115,-111.8883": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "40.5208,-74.3472": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.5443,-75.6544": {
+  "country": "us",
+  "reason": null,
+  "state": "PA"
+ },
+ "40.5492,-74.6766": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.5509,-74.4760": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.5529,-74.5466": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.5639,-112.0492": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "40.5844,-74.2434": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.5908,-111.9038": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "40.5996,-74.7100": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.6072,-74.1740": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "40.6204,-111.9860": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "40.6357,-75.4576": {
+  "country": "us",
+  "reason": null,
+  "state": "PA"
+ },
+ "40.6856,-111.8851": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "40.7259,-99.0383": {
+  "country": "us",
+  "reason": null,
+  "state": "NE"
+ },
+ "40.7367,-74.1739": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.7567,-74.0403": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.7616,-111.9376": {
+  "country": "us",
+  "reason": null,
+  "state": "UT"
+ },
+ "40.8275,-74.1324": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "40.8437,-72.8834": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "40.9513,-73.8979": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "41.0411,-80.6331": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "41.0434,-73.9807": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "41.0574,-81.5219": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "41.0632,-104.7829": {
+  "country": "us",
+  "reason": null,
+  "state": "WY"
+ },
+ "41.0769,-104.8249": {
+  "country": "us",
+  "reason": null,
+  "state": "WY"
+ },
+ "41.0783,-74.1529": {
+  "country": "us",
+  "reason": null,
+  "state": "NJ"
+ },
+ "41.0833,-76.1474": {
+  "country": "us",
+  "reason": null,
+  "state": "PA"
+ },
+ "41.0918,-73.5167": {
+  "country": "us",
+  "reason": null,
+  "state": "CT"
+ },
+ "41.1131,-73.3886": {
+  "country": "us",
+  "reason": null,
+  "state": "CT"
+ },
+ "41.1243,-104.9057": {
+  "country": "us",
+  "reason": null,
+  "state": "WY"
+ },
+ "41.1251,-96.1444": {
+  "country": "us",
+  "reason": null,
+  "state": "NE"
+ },
+ "41.1264,-104.8983": {
+  "country": "us",
+  "reason": null,
+  "state": "WY"
+ },
+ "41.1418,-104.7172": {
+  "country": "us",
+  "reason": null,
+  "state": "WY"
+ },
+ "41.1730,-96.0841": {
+  "country": "us",
+  "reason": null,
+  "state": "NE"
+ },
+ "41.1746,-95.7943": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.1750,-95.8039": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.1826,-104.0685": {
+  "country": "us",
+  "reason": null,
+  "state": "WY"
+ },
+ "41.2168,-95.8709": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.2204,-96.1476": {
+  "country": "us",
+  "reason": null,
+  "state": "NE"
+ },
+ "41.2407,-73.1473": {
+  "country": "us",
+  "reason": null,
+  "state": "CT"
+ },
+ "41.2594,-95.9372": {
+  "country": "us",
+  "reason": null,
+  "state": "NE"
+ },
+ "41.2717,-79.8132": {
+  "country": "us",
+  "reason": null,
+  "state": "PA"
+ },
+ "41.3317,-96.0607": {
+  "country": "us",
+  "reason": null,
+  "state": "NE"
+ },
+ "41.3611,-81.6328": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "41.4322,-82.7190": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "41.4428,-81.8029": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "41.4788,-72.8010": {
+  "country": "us",
+  "reason": null,
+  "state": "CT"
+ },
+ "41.4968,-93.7870": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.5057,-81.6707": {
+  "country": "us",
+  "reason": null,
+  "state": "OH"
+ },
+ "41.5162,-93.7120": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.5362,-93.8442": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.5503,-90.4824": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.5581,-93.5279": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.5880,-93.6310": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.6169,-93.9244": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.6672,-93.4557": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.6700,-93.5113": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.6799,-86.4694": {
+  "country": "us",
+  "reason": null,
+  "state": "IN"
+ },
+ "41.7040,-91.5871": {
+  "country": "us",
+  "reason": null,
+  "state": "IA"
+ },
+ "41.7071,-87.9760": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.7074,-87.5202": {
+  "country": "us",
+  "reason": null,
+  "state": "IN"
+ },
+ "41.7844,-88.2320": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.8023,-88.0949": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.8049,-88.2439": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.8126,-87.9729": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.8582,-87.6436": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.8894,-88.7264": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.9053,-88.2195": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.9284,-87.8593": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.9560,-87.9455": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.9880,-88.0064": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "41.9930,-86.0985": {
+  "country": "us",
+  "reason": null,
+  "state": "MI"
+ },
+ "42.0120,-87.9632": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "42.2139,-83.1982": {
+  "country": "us",
+  "reason": null,
+  "state": "MI"
+ },
+ "42.2168,-87.9529": {
+  "country": "us",
+  "reason": null,
+  "state": "IL"
+ },
+ "42.2353,-83.4441": {
+  "country": "us",
+  "reason": null,
+  "state": "MI"
+ },
+ "42.3173,-111.3042": {
+  "country": "us",
+  "reason": null,
+  "state": "ID"
+ },
+ "42.3262,-83.0734": {
+  "country": "us",
+  "reason": null,
+  "state": "MI"
+ },
+ "42.3325,-122.8804": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "42.3767,-71.0798": {
+  "country": "us",
+  "reason": null,
+  "state": "MA"
+ },
+ "42.4477,-83.2626": {
+  "country": "us",
+  "reason": null,
+  "state": "MI"
+ },
+ "42.6303,-71.3046": {
+  "country": "us",
+  "reason": null,
+  "state": "MA"
+ },
+ "42.6733,-87.8968": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "42.6757,-87.9184": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "42.6794,-76.9486": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "42.6857,-71.2086": {
+  "country": "us",
+  "reason": null,
+  "state": "MA"
+ },
+ "42.6880,-84.6430": {
+  "country": "us",
+  "reason": null,
+  "state": "MI"
+ },
+ "42.7054,-84.6661": {
+  "country": "us",
+  "reason": null,
+  "state": "MI"
+ },
+ "42.7454,-73.7592": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "42.8336,-88.7340": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "42.8631,-87.9779": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "42.9687,-83.7796": {
+  "country": "us",
+  "reason": null,
+  "state": "MI"
+ },
+ "42.9821,-70.9506": {
+  "country": "us",
+  "reason": null,
+  "state": "NH"
+ },
+ "42.9972,-77.6458": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "43.0121,-76.1159": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "43.0449,-78.7492": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "43.0514,-88.2167": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "43.0673,-89.4367": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "43.0748,-78.9448": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "43.0761,-70.8080": {
+  "country": "us",
+  "reason": null,
+  "state": "NH"
+ },
+ "43.0828,-79.0169": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "43.1436,-70.9524": {
+  "country": "us",
+  "reason": null,
+  "state": "NH"
+ },
+ "43.4632,-116.2702": {
+  "country": "us",
+  "reason": null,
+  "state": "ID"
+ },
+ "43.5964,-79.7516": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.5999,-96.7948": {
+  "country": "us",
+  "reason": null,
+  "state": "SD"
+ },
+ "43.6000,-79.7500": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.6016,-79.5290": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.6035,-79.7408": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.6070,-96.8092": {
+  "country": "us",
+  "reason": null,
+  "state": "SD"
+ },
+ "43.6383,-89.7214": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "43.6509,-79.3618": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.7050,-79.3605": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.7407,-79.6209": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.7444,-79.7172": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.7789,-79.5406": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.7822,-89.5748": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "43.8252,-111.7821": {
+  "country": "us",
+  "reason": null,
+  "state": "ID"
+ },
+ "43.8300,-79.3400": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.8300,-79.3408": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "43.8952,-69.9234": {
+  "country": "us",
+  "reason": null,
+  "state": "ME"
+ },
+ "44.0474,-121.3285": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "44.0708,-92.5221": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "44.0861,-121.2830": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "44.1892,-105.6105": {
+  "country": "us",
+  "reason": null,
+  "state": "WY"
+ },
+ "44.2044,-88.3449": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "44.2925,-120.8823": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "44.3015,-120.8922": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "44.3374,-79.6705": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "44.6681,-74.9806": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "44.7346,-93.0634": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "44.7752,-122.6159": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "44.8072,-93.3754": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "44.8079,-93.6360": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "44.8516,-93.5989": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "44.8772,-91.9200": {
+  "country": "us",
+  "reason": null,
+  "state": "WI"
+ },
+ "44.8930,-74.0729": {
+  "country": "us",
+  "reason": null,
+  "state": "NY"
+ },
+ "44.9323,-123.0178": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "44.9722,-93.1475": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "44.9814,-93.2534": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "45.1322,-93.0956": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "45.1437,-93.3871": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "45.3187,-122.7659": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.3926,-71.9309": {
+  "country": "ca",
+  "reason": "outside_united_states",
+  "state": null
+ },
+ "45.5148,-123.0788": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.5215,-122.6807": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.5385,-122.8864": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.5600,-122.9307": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.6308,-121.2048": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.7101,-119.8237": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.7987,-119.3625": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.8098,-119.8589": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.8100,-119.2734": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.8405,-119.6484": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.8810,-119.3407": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.9033,-119.3203": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "45.9172,-119.2481": {
+  "country": "us",
+  "reason": null,
+  "state": "OR"
+ },
+ "46.0129,-98.5728": {
+  "country": "us",
+  "reason": null,
+  "state": "ND"
+ },
+ "46.3321,-113.2927": {
+  "country": "us",
+  "reason": null,
+  "state": "MT"
+ },
+ "46.4069,-105.8207": {
+  "country": "us",
+  "reason": null,
+  "state": "MT"
+ },
+ "46.8275,-92.1305": {
+  "country": "us",
+  "reason": null,
+  "state": "MN"
+ },
+ "46.9400,-67.9056": {
+  "country": "us",
+  "reason": null,
+  "state": "ME"
+ },
+ "47.1599,-122.2796": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.2453,-119.8541": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.3920,-120.2174": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.4079,-120.1897": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.4134,-120.2108": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.4935,-122.2913": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.5946,-117.5371": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.6000,-119.8500": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.6538,-122.3370": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.6542,-117.4200": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.6719,-117.0959": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.8418,-122.3017": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "47.8435,-122.2869": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ },
+ "48.1463,-103.7728": {
+  "country": "us",
+  "reason": null,
+  "state": "ND"
+ },
+ "48.7573,-122.4805": {
+  "country": "us",
+  "reason": null,
+  "state": "WA"
+ }
+}

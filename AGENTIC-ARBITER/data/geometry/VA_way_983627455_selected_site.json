@@ -1,0 +1,346 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 30,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 1,
+  "facade_faces_away": 19,
+  "facade_too_short": 1,
+  "survived": 9
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "701930920",
+  "receptor_osm_id": "48242814",
+  "separation_m": 185.4,
+  "bearing_a_to_b_deg": 21.2,
+  "source_area_m2": 14000.6,
+  "receptor_area_m2": 10464.1,
+  "combined_area_m2": 24464.7,
+  "source_name": "Amazon IAD98",
+  "receptor_name": "Amazon IAD10",
+  "critical_wind_from_deg": 201.2,
+  "wind_exposure": 0.20051,
+  "dilution_factor": 1.618,
+  "exposure_x_dilution": 0.32446,
+  "true_gap_m": 74.1,
+  "longest_facade_m": 237.4,
+  "path_clearance": 0.961
+ },
+ "source_building": {
+  "osm_id": "701930920",
+  "area_m2": 14000.6,
+  "centre_m": [
+   191.1,
+   27.8
+  ],
+  "width_m": 241.6,
+  "height_m": 79.7,
+  "rot_rect_long_m": 237.4,
+  "rot_rect_short_m": 59.0,
+  "rot_rect_angle_deg": 174.9,
+  "ring_m": [
+   [
+    287.8,
+    42.9
+   ],
+   [
+    282.6,
+    -15.9
+   ],
+   [
+    46.2,
+    5.1
+   ],
+   [
+    51.3,
+    63.9
+   ],
+   [
+    287.8,
+    42.9
+   ]
+  ],
+  "name": "Amazon IAD98",
+  "operator": "Amazon Web Services",
+  "building_tag": "data_center",
+  "telecom_tag": "data_center",
+  "n_vertices": 5,
+  "centre_latlon": [
+   39.020259,
+   -77.433606
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "48242814",
+  "area_m2": 10464.1,
+  "centre_m": [
+   258.1,
+   200.7
+  ],
+  "width_m": 104.2,
+  "height_m": 126.3,
+  "rot_rect_long_m": 125.6,
+  "rot_rect_short_m": 103.2,
+  "rot_rect_angle_deg": 89.4,
+  "ring_m": [
+   [
+    293.9,
+    244.9
+   ],
+   [
+    293.9,
+    243.5
+   ],
+   [
+    297.9,
+    243.4
+   ],
+   [
+    296.8,
+    122.2
+   ],
+   [
+    224.7,
+    122.9
+   ],
+   [
+    224.9,
+    138.4
+   ],
+   [
+    193.7,
+    138.8
+   ],
+   [
+    194.2,
+    184.5
+   ],
+   [
+    225.2,
+    184.2
+   ],
+   [
+    225.9,
+    248.4
+   ],
+   [
+    295.3,
+    247.7
+   ],
+   [
+    295.2,
+    244.9
+   ],
+   [
+    293.9,
+    244.9
+   ]
+  ],
+  "name": "Amazon IAD10",
+  "operator": "Amazon Web Services",
+  "building_tag": "data_center",
+  "telecom_tag": "data_center",
+  "n_vertices": 13,
+  "centre_latlon": [
+   39.021814,
+   -77.432831
+  ]
+ },
+ "runner_up": {
+  "source_osm_id": "701930920",
+  "receptor_osm_id": "48242816",
+  "separation_m": 168.7,
+  "bearing_a_to_b_deg": 324.1,
+  "source_area_m2": 14000.6,
+  "receptor_area_m2": 3314.0,
+  "combined_area_m2": 17314.6,
+  "source_name": "Amazon IAD98",
+  "receptor_name": "Amazon IAD32",
+  "critical_wind_from_deg": 144.1,
+  "wind_exposure": 0.13039,
+  "dilution_factor": 1.778,
+  "exposure_x_dilution": 0.23187,
+  "true_gap_m": 65.2,
+  "longest_facade_m": 237.4,
+  "path_clearance": 0.755
+ },
+ "survivors": [
+  {
+   "source_osm_id": "701930920",
+   "receptor_osm_id": "48242814",
+   "separation_m": 185.4,
+   "bearing_a_to_b_deg": 21.2,
+   "source_area_m2": 14000.6,
+   "receptor_area_m2": 10464.1,
+   "combined_area_m2": 24464.7,
+   "source_name": "Amazon IAD98",
+   "receptor_name": "Amazon IAD10",
+   "critical_wind_from_deg": 201.2,
+   "wind_exposure": 0.20051,
+   "dilution_factor": 1.618,
+   "exposure_x_dilution": 0.32446,
+   "true_gap_m": 74.1,
+   "longest_facade_m": 237.4,
+   "path_clearance": 0.961
+  },
+  {
+   "source_osm_id": "701930920",
+   "receptor_osm_id": "48242816",
+   "separation_m": 168.7,
+   "bearing_a_to_b_deg": 324.1,
+   "source_area_m2": 14000.6,
+   "receptor_area_m2": 3314.0,
+   "combined_area_m2": 17314.6,
+   "source_name": "Amazon IAD98",
+   "receptor_name": "Amazon IAD32",
+   "critical_wind_from_deg": 144.1,
+   "wind_exposure": 0.13039,
+   "dilution_factor": 1.778,
+   "exposure_x_dilution": 0.23187,
+   "true_gap_m": 65.2,
+   "longest_facade_m": 237.4,
+   "path_clearance": 0.755
+  },
+  {
+   "source_osm_id": "701930921",
+   "receptor_osm_id": "48242814",
+   "separation_m": 301.3,
+   "bearing_a_to_b_deg": 15.3,
+   "source_area_m2": 13998.3,
+   "receptor_area_m2": 10464.1,
+   "combined_area_m2": 24462.4,
+   "source_name": "Amazon IAD99",
+   "receptor_name": "Amazon IAD10",
+   "critical_wind_from_deg": 195.3,
+   "wind_exposure": 0.20051,
+   "dilution_factor": 0.996,
+   "exposure_x_dilution": 0.19965,
+   "true_gap_m": 192.9,
+   "longest_facade_m": 237.9,
+   "path_clearance": 0.986
+  },
+  {
+   "source_osm_id": "701930921",
+   "receptor_osm_id": "48242816",
+   "separation_m": 268.8,
+   "bearing_a_to_b_deg": 341.2,
+   "source_area_m2": 13998.3,
+   "receptor_area_m2": 3314.0,
+   "combined_area_m2": 17312.3,
+   "source_name": "Amazon IAD99",
+   "receptor_name": "Amazon IAD32",
+   "critical_wind_from_deg": 161.2,
+   "wind_exposure": 0.17317,
+   "dilution_factor": 1.116,
+   "exposure_x_dilution": 0.19327,
+   "true_gap_m": 182.1,
+   "longest_facade_m": 237.9,
+   "path_clearance": 0.909
+  },
+  {
+   "source_osm_id": "435817145",
+   "receptor_osm_id": "48242814",
+   "separation_m": 294.3,
+   "bearing_a_to_b_deg": 161.1,
+   "source_area_m2": 47060.5,
+   "receptor_area_m2": 10464.1,
+   "combined_area_m2": 57524.6,
+   "source_name": "CyrusOne NVA5",
+   "receptor_name": "Amazon IAD10",
+   "critical_wind_from_deg": 341.1,
+   "wind_exposure": 0.11929,
+   "dilution_factor": 1.019,
+   "exposure_x_dilution": 0.1216,
+   "true_gap_m": 127.4,
+   "longest_facade_m": 116.2,
+   "path_clearance": 0.324
+  },
+  {
+   "source_osm_id": "793087859",
+   "receptor_osm_id": "48242816",
+   "separation_m": 470.4,
+   "bearing_a_to_b_deg": 43.1,
+   "source_area_m2": 9804.9,
+   "receptor_area_m2": 3314.0,
+   "combined_area_m2": 13118.9,
+   "source_name": "Amazon IAD118",
+   "receptor_name": "Amazon IAD32",
+   "critical_wind_from_deg": 223.1,
+   "wind_exposure": 0.17825,
+   "dilution_factor": 0.638,
+   "exposure_x_dilution": 0.11368,
+   "true_gap_m": 389.5,
+   "longest_facade_m": 158.4,
+   "path_clearance": 0.956
+  },
+  {
+   "source_osm_id": "701930920",
+   "receptor_osm_id": "983627455",
+   "separation_m": 675.7,
+   "bearing_a_to_b_deg": 357.2,
+   "source_area_m2": 14000.6,
+   "receptor_area_m2": 5656.4,
+   "combined_area_m2": 19657.0,
+   "source_name": "Amazon IAD98",
+   "receptor_name": "CyrusOne NVA7",
+   "critical_wind_from_deg": 177.2,
+   "wind_exposure": 0.19223,
+   "dilution_factor": 0.444,
+   "exposure_x_dilution": 0.08535,
+   "true_gap_m": 585.6,
+   "longest_facade_m": 237.4,
+   "path_clearance": 0.99
+  },
+  {
+   "source_osm_id": "435817145",
+   "receptor_osm_id": "701930920",
+   "separation_m": 452.3,
+   "bearing_a_to_b_deg": 176.4,
+   "source_area_m2": 47060.5,
+   "receptor_area_m2": 14000.6,
+   "combined_area_m2": 61061.1,
+   "source_name": "CyrusOne NVA5",
+   "receptor_name": "Amazon IAD98",
+   "critical_wind_from_deg": 356.4,
+   "wind_exposure": 0.08559,
+   "dilution_factor": 0.663,
+   "exposure_x_dilution": 0.05677,
+   "true_gap_m": 325.9,
+   "longest_facade_m": 116.2,
+   "path_clearance": 0.063
+  },
+  {
+   "source_osm_id": "435817145",
+   "receptor_osm_id": "701930921",
+   "separation_m": 569.4,
+   "bearing_a_to_b_deg": 178.4,
+   "source_area_m2": 47060.5,
+   "receptor_area_m2": 13998.3,
+   "combined_area_m2": 61058.8,
+   "source_name": "CyrusOne NVA5",
+   "receptor_name": "Amazon IAD99",
+   "critical_wind_from_deg": 358.4,
+   "wind_exposure": 0.08071,
+   "dilution_factor": 0.527,
+   "exposure_x_dilution": 0.04252,
+   "true_gap_m": 444.4,
+   "longest_facade_m": 116.2,
+   "path_clearance": 0.029
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

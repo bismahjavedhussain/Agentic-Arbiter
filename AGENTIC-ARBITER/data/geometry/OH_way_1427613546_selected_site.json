@@ -1,0 +1,368 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 26,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 1,
+  "facade_faces_away": 13,
+  "facade_too_short": 0,
+  "survived": 12
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "562775657",
+  "receptor_osm_id": "1020374278",
+  "separation_m": 231.6,
+  "bearing_a_to_b_deg": 345.2,
+  "source_area_m2": 15004.0,
+  "receptor_area_m2": 14354.2,
+  "combined_area_m2": 29358.2,
+  "source_name": "Amazon Web Services  CMH50",
+  "receptor_name": "Amazon Web Services CMH56",
+  "critical_wind_from_deg": 165.2,
+  "wind_exposure": 0.09446,
+  "dilution_factor": 1.295,
+  "exposure_x_dilution": 0.12236,
+  "true_gap_m": 147.2,
+  "longest_facade_m": 248.3,
+  "path_clearance": 0.952
+ },
+ "source_building": {
+  "osm_id": "562775657",
+  "area_m2": 15004.0,
+  "centre_m": [
+   -195.7,
+   -357.1
+  ],
+  "width_m": 251.1,
+  "height_m": 73.1,
+  "rot_rect_long_m": 248.3,
+  "rot_rect_short_m": 60.4,
+  "rot_rect_angle_deg": 177.1,
+  "ring_m": [
+   [
+    -296.2,
+    -376.2
+   ],
+   [
+    -293.1,
+    -315.8
+   ],
+   [
+    -45.1,
+    -328.5
+   ],
+   [
+    -48.2,
+    -388.9
+   ],
+   [
+    -296.2,
+    -376.2
+   ]
+  ],
+  "name": "Amazon Web Services  CMH50",
+  "operator": "Amazon Web Services",
+  "building_tag": "warehouse",
+  "telecom_tag": "data_center",
+  "n_vertices": 5,
+  "centre_latlon": [
+   40.094587,
+   -82.751635
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "1020374278",
+  "area_m2": 14354.2,
+  "centre_m": [
+   -254.9,
+   -133.2
+  ],
+  "width_m": 244.1,
+  "height_m": 74.0,
+  "rot_rect_long_m": 240.9,
+  "rot_rect_short_m": 59.6,
+  "rot_rect_angle_deg": 86.5,
+  "ring_m": [
+   [
+    -349.6,
+    -103.5
+   ],
+   [
+    -109.1,
+    -118.1
+   ],
+   [
+    -112.7,
+    -177.6
+   ],
+   [
+    -353.2,
+    -163.0
+   ],
+   [
+    -349.6,
+    -103.5
+   ]
+  ],
+  "name": "Amazon Web Services CMH56",
+  "operator": "Amazon Web Services",
+  "building_tag": "warehouse",
+  "telecom_tag": "data_center",
+  "n_vertices": 5,
+  "centre_latlon": [
+   40.096601,
+   -82.75233
+  ]
+ },
+ "runner_up": {
+  "source_osm_id": "1427613544",
+  "receptor_osm_id": "1427613546",
+  "separation_m": 432.7,
+  "bearing_a_to_b_deg": 186.4,
+  "source_area_m2": 22779.6,
+  "receptor_area_m2": 20644.3,
+  "combined_area_m2": 43423.9,
+  "source_name": "Vantage Building 1",
+  "receptor_name": "Vantage Building 3",
+  "critical_wind_from_deg": 6.4,
+  "wind_exposure": 0.10605,
+  "dilution_factor": 0.693,
+  "exposure_x_dilution": 0.07352,
+  "true_gap_m": 270.5,
+  "longest_facade_m": 152.1,
+  "path_clearance": 0.065
+ },
+ "survivors": [
+  {
+   "source_osm_id": "562775657",
+   "receptor_osm_id": "1020374278",
+   "separation_m": 231.6,
+   "bearing_a_to_b_deg": 345.2,
+   "source_area_m2": 15004.0,
+   "receptor_area_m2": 14354.2,
+   "combined_area_m2": 29358.2,
+   "source_name": "Amazon Web Services  CMH50",
+   "receptor_name": "Amazon Web Services CMH56",
+   "critical_wind_from_deg": 165.2,
+   "wind_exposure": 0.09446,
+   "dilution_factor": 1.295,
+   "exposure_x_dilution": 0.12236,
+   "true_gap_m": 147.2,
+   "longest_facade_m": 248.3,
+   "path_clearance": 0.952
+  },
+  {
+   "source_osm_id": "1427613544",
+   "receptor_osm_id": "1427613546",
+   "separation_m": 432.7,
+   "bearing_a_to_b_deg": 186.4,
+   "source_area_m2": 22779.6,
+   "receptor_area_m2": 20644.3,
+   "combined_area_m2": 43423.9,
+   "source_name": "Vantage Building 1",
+   "receptor_name": "Vantage Building 3",
+   "critical_wind_from_deg": 6.4,
+   "wind_exposure": 0.10605,
+   "dilution_factor": 0.693,
+   "exposure_x_dilution": 0.07352,
+   "true_gap_m": 270.5,
+   "longest_facade_m": 152.1,
+   "path_clearance": 0.065
+  },
+  {
+   "source_osm_id": "1020374278",
+   "receptor_osm_id": "1386016628",
+   "separation_m": 560.5,
+   "bearing_a_to_b_deg": 3.8,
+   "source_area_m2": 14354.2,
+   "receptor_area_m2": 11661.9,
+   "combined_area_m2": 26016.1,
+   "source_name": "Amazon Web Services CMH56",
+   "receptor_name": "Amazon Web Services",
+   "critical_wind_from_deg": 183.8,
+   "wind_exposure": 0.13589,
+   "dilution_factor": 0.535,
+   "exposure_x_dilution": 0.07274,
+   "true_gap_m": 481.9,
+   "longest_facade_m": 240.9,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "1427613546",
+   "receptor_osm_id": "1020374279",
+   "separation_m": 544.8,
+   "bearing_a_to_b_deg": 183.3,
+   "source_area_m2": 20644.3,
+   "receptor_area_m2": 14951.8,
+   "combined_area_m2": 35596.1,
+   "source_name": "Vantage Building 3",
+   "receptor_name": "Amazon Web Services  CMH59",
+   "critical_wind_from_deg": 3.3,
+   "wind_exposure": 0.10491,
+   "dilution_factor": 0.551,
+   "exposure_x_dilution": 0.05777,
+   "true_gap_m": 425.7,
+   "longest_facade_m": 149.9,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "1427613544",
+   "receptor_osm_id": "1386016627",
+   "separation_m": 285.3,
+   "bearing_a_to_b_deg": 260.2,
+   "source_area_m2": 22779.6,
+   "receptor_area_m2": 19816.5,
+   "combined_area_m2": 42596.1,
+   "source_name": "Vantage Building 1",
+   "receptor_name": "Amazon Web Services",
+   "critical_wind_from_deg": 80.2,
+   "wind_exposure": 0.05076,
+   "dilution_factor": 1.052,
+   "exposure_x_dilution": 0.05338,
+   "true_gap_m": 161.5,
+   "longest_facade_m": 152.1,
+   "path_clearance": 0.976
+  },
+  {
+   "source_osm_id": "1427613546",
+   "receptor_osm_id": "562775657",
+   "separation_m": 598.7,
+   "bearing_a_to_b_deg": 216.8,
+   "source_area_m2": 20644.3,
+   "receptor_area_m2": 15004.0,
+   "combined_area_m2": 35648.3,
+   "source_name": "Vantage Building 3",
+   "receptor_name": "Amazon Web Services  CMH50",
+   "critical_wind_from_deg": 36.8,
+   "wind_exposure": 0.10182,
+   "dilution_factor": 0.501,
+   "exposure_x_dilution": 0.05102,
+   "true_gap_m": 398.7,
+   "longest_facade_m": 149.9,
+   "path_clearance": 0.834
+  },
+  {
+   "source_osm_id": "1427613546",
+   "receptor_osm_id": "1252196801",
+   "separation_m": 652.5,
+   "bearing_a_to_b_deg": 184.6,
+   "source_area_m2": 20644.3,
+   "receptor_area_m2": 12650.8,
+   "combined_area_m2": 33295.1,
+   "source_name": "Vantage Building 3",
+   "receptor_name": "Amazon Web Services CMH62",
+   "critical_wind_from_deg": 4.6,
+   "wind_exposure": 0.10539,
+   "dilution_factor": 0.46,
+   "exposure_x_dilution": 0.04845,
+   "true_gap_m": 544.2,
+   "longest_facade_m": 149.9,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "1427613546",
+   "receptor_osm_id": "1020374277",
+   "separation_m": 682.5,
+   "bearing_a_to_b_deg": 211.1,
+   "source_area_m2": 20644.3,
+   "receptor_area_m2": 14293.4,
+   "combined_area_m2": 34937.7,
+   "source_name": "Vantage Building 3",
+   "receptor_name": "Amazon Web Services  CMH53",
+   "critical_wind_from_deg": 31.1,
+   "wind_exposure": 0.10931,
+   "dilution_factor": 0.44,
+   "exposure_x_dilution": 0.04805,
+   "true_gap_m": 509.8,
+   "longest_facade_m": 149.9,
+   "path_clearance": 0.885
+  },
+  {
+   "source_osm_id": "1020374279",
+   "receptor_osm_id": "1020374277",
+   "separation_m": 323.7,
+   "bearing_a_to_b_deg": 262.8,
+   "source_area_m2": 14951.8,
+   "receptor_area_m2": 14293.4,
+   "combined_area_m2": 29245.2,
+   "source_name": "Amazon Web Services  CMH59",
+   "receptor_name": "Amazon Web Services  CMH53",
+   "critical_wind_from_deg": 82.8,
+   "wind_exposure": 0.04844,
+   "dilution_factor": 0.927,
+   "exposure_x_dilution": 0.0449,
+   "true_gap_m": 90.2,
+   "longest_facade_m": 248.4,
+   "path_clearance": 0.177
+  },
+  {
+   "source_osm_id": "1427613546",
+   "receptor_osm_id": "1020374278",
+   "separation_m": 489.9,
+   "bearing_a_to_b_deg": 238.6,
+   "source_area_m2": 20644.3,
+   "receptor_area_m2": 14354.2,
+   "combined_area_m2": 34998.5,
+   "source_name": "Vantage Building 3",
+   "receptor_name": "Amazon Web Services CMH56",
+   "critical_wind_from_deg": 58.6,
+   "wind_exposure": 0.07213,
+   "dilution_factor": 0.612,
+   "exposure_x_dilution": 0.04417,
+   "true_gap_m": 263.7,
+   "longest_facade_m": 149.9,
+   "path_clearance": 0.57
+  },
+  {
+   "source_osm_id": "1427613545",
+   "receptor_osm_id": "1020374278",
+   "separation_m": 643.6,
+   "bearing_a_to_b_deg": 225.5,
+   "source_area_m2": 22063.3,
+   "receptor_area_m2": 14354.2,
+   "combined_area_m2": 36417.5,
+   "source_name": "Vantage Building 2",
+   "receptor_name": "Amazon Web Services CMH56",
+   "critical_wind_from_deg": 45.5,
+   "wind_exposure": 0.08881,
+   "dilution_factor": 0.466,
+   "exposure_x_dilution": 0.0414,
+   "true_gap_m": 415.1,
+   "longest_facade_m": 150.5,
+   "path_clearance": 0.737
+  },
+  {
+   "source_osm_id": "1427613544",
+   "receptor_osm_id": "1386016628",
+   "separation_m": 447.3,
+   "bearing_a_to_b_deg": 253.7,
+   "source_area_m2": 22779.6,
+   "receptor_area_m2": 11661.9,
+   "combined_area_m2": 34441.5,
+   "source_name": "Vantage Building 1",
+   "receptor_name": "Amazon Web Services",
+   "critical_wind_from_deg": 73.7,
+   "wind_exposure": 0.05669,
+   "dilution_factor": 0.671,
+   "exposure_x_dilution": 0.03802,
+   "true_gap_m": 310.5,
+   "longest_facade_m": 152.1,
+   "path_clearance": 0.945
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

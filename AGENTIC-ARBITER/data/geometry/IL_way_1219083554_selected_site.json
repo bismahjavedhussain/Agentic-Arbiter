@@ -1,0 +1,153 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 1,
+  "not_datacentre": 0,
+  "gap_zero": 0,
+  "gap_too_small": 0,
+  "facade_faces_away": 0,
+  "facade_too_short": 0,
+  "survived": 1
+ },
+ "rejected_touching_footprints": [],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "1219083554",
+  "receptor_osm_id": "1219083552",
+  "separation_m": 285.3,
+  "bearing_a_to_b_deg": 87.7,
+  "source_area_m2": 15142.0,
+  "receptor_area_m2": 10247.5,
+  "combined_area_m2": 25389.5,
+  "source_name": "T5 Chicago II",
+  "receptor_name": null,
+  "critical_wind_from_deg": 267.7,
+  "wind_exposure": 0.12334,
+  "dilution_factor": 1.052,
+  "exposure_x_dilution": 0.1297,
+  "true_gap_m": 73.4,
+  "longest_facade_m": 238.2,
+  "path_clearance": 0.047
+ },
+ "source_building": {
+  "osm_id": "1219083554",
+  "area_m2": 15142.0,
+  "centre_m": [
+   -163.1,
+   -11.8
+  ],
+  "width_m": 238.6,
+  "height_m": 65.1,
+  "rot_rect_long_m": 238.2,
+  "rot_rect_short_m": 63.6,
+  "rot_rect_angle_deg": 179.6,
+  "ring_m": [
+   [
+    -258.5,
+    -36.6
+   ],
+   [
+    -20.3,
+    -38.2
+   ],
+   [
+    -19.9,
+    25.4
+   ],
+   [
+    -258.1,
+    27.0
+   ],
+   [
+    -258.5,
+    -36.6
+   ]
+  ],
+  "name": "T5 Chicago II",
+  "operator": "T5 Data Centers",
+  "building_tag": "warehouse",
+  "telecom_tag": "data_center",
+  "n_vertices": 5,
+  "centre_latlon": [
+   42.022987,
+   -87.975846
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "1219083552",
+  "area_m2": 10247.5,
+  "centre_m": [
+   122.0,
+   -0.3
+  ],
+  "width_m": 171.9,
+  "height_m": 60.7,
+  "rot_rect_long_m": 171.5,
+  "rot_rect_short_m": 59.8,
+  "rot_rect_angle_deg": 179.7,
+  "ring_m": [
+   [
+    53.3,
+    -23.8
+   ],
+   [
+    224.8,
+    -24.7
+   ],
+   [
+    225.1,
+    35.0
+   ],
+   [
+    53.6,
+    35.9
+   ],
+   [
+    53.3,
+    -23.8
+   ]
+  ],
+  "name": null,
+  "operator": null,
+  "building_tag": "warehouse",
+  "telecom_tag": "data_center",
+  "n_vertices": 5,
+  "centre_latlon": [
+   42.02309,
+   -87.972394
+  ]
+ },
+ "runner_up": null,
+ "survivors": [
+  {
+   "source_osm_id": "1219083554",
+   "receptor_osm_id": "1219083552",
+   "separation_m": 285.3,
+   "bearing_a_to_b_deg": 87.7,
+   "source_area_m2": 15142.0,
+   "receptor_area_m2": 10247.5,
+   "combined_area_m2": 25389.5,
+   "source_name": "T5 Chicago II",
+   "receptor_name": null,
+   "critical_wind_from_deg": 267.7,
+   "wind_exposure": 0.12334,
+   "dilution_factor": 1.052,
+   "exposure_x_dilution": 0.1297,
+   "true_gap_m": 73.4,
+   "longest_facade_m": 238.2,
+   "path_clearance": 0.047
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

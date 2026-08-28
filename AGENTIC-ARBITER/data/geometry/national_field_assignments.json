@@ -1,0 +1,2365 @@
+{
+ "generated_by": "AGENTIC-ARBITER/src/wire_national_fields.py",
+ "api_calls_made": 0,
+ "coverage_rule": "a facility is covered when its centre lies inside the bounding box of the tile centroids the vendor actually DELIVERED, not inside the box that was requested; of several overlapping fields the one whose centre is nearest wins",
+ "n_fields": 40,
+ "n_covered": 157,
+ "n_uncovered": 482,
+ "assignments": {
+  "AZ_way_1015704066": {
+   "aoi_key": "AZ_29",
+   "n_tiles": 17396,
+   "field_centre": [
+    33.3292639,
+    -111.6411072
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Phoenix",
+   "aoi_rank": 29,
+   "aoi_state": "AZ",
+   "metres_from_field_centre": 2585.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI AZ_29 (rank 29, AZ), 17,396 tiles, 2026-08-24 14:00-16:00 America/Phoenix. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 2,585.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "AZ_way_1372772726": {
+   "aoi_key": "AZ_29",
+   "n_tiles": 17396,
+   "field_centre": [
+    33.3292639,
+    -111.6411072
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Phoenix",
+   "aoi_rank": 29,
+   "aoi_state": "AZ",
+   "metres_from_field_centre": 4337.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI AZ_29 (rank 29, AZ), 17,396 tiles, 2026-08-24 14:00-16:00 America/Phoenix. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 4,337.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "AZ_way_1456975949": {
+   "aoi_key": "AZ_29",
+   "n_tiles": 17396,
+   "field_centre": [
+    33.3292639,
+    -111.6411072
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Phoenix",
+   "aoi_rank": 29,
+   "aoi_state": "AZ",
+   "metres_from_field_centre": 2249.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI AZ_29 (rank 29, AZ), 17,396 tiles, 2026-08-24 14:00-16:00 America/Phoenix. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 2,249.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "AZ_way_152163722": {
+   "aoi_key": "AZ_29",
+   "n_tiles": 17396,
+   "field_centre": [
+    33.3292639,
+    -111.6411072
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Phoenix",
+   "aoi_rank": 29,
+   "aoi_state": "AZ",
+   "metres_from_field_centre": 3850.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI AZ_29 (rank 29, AZ), 17,396 tiles, 2026-08-24 14:00-16:00 America/Phoenix. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 3,850.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "AZ_way_300959969": {
+   "aoi_key": "AZ_30",
+   "n_tiles": 17117,
+   "field_centre": [
+    33.27166355,
+    -111.88411085
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Phoenix",
+   "aoi_rank": 30,
+   "aoi_state": "AZ",
+   "metres_from_field_centre": 154.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 1,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI AZ_30 (rank 30, AZ), 17,117 tiles, 2026-08-24 14:00-16:00 America/Phoenix. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 154.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "AZ_way_567575425": {
+   "aoi_key": "AZ_29",
+   "n_tiles": 17396,
+   "field_centre": [
+    33.3292639,
+    -111.6411072
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Phoenix",
+   "aoi_rank": 29,
+   "aoi_state": "AZ",
+   "metres_from_field_centre": 3954.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI AZ_29 (rank 29, AZ), 17,396 tiles, 2026-08-24 14:00-16:00 America/Phoenix. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 3,954.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "AZ_way_808979618": {
+   "aoi_key": "AZ_29",
+   "n_tiles": 17396,
+   "field_centre": [
+    33.3292639,
+    -111.6411072
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Phoenix",
+   "aoi_rank": 29,
+   "aoi_state": "AZ",
+   "metres_from_field_centre": 2591.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI AZ_29 (rank 29, AZ), 17,396 tiles, 2026-08-24 14:00-16:00 America/Phoenix. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 2,591.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_1351049826": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 3030.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 3,030.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_1460847458": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 422.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 422.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_209087373": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 1150.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 1,150.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_209117217": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 1096.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 1,096.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_358455179": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 2671.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 2,671.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_37877544": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 2068.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 2,068.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_40608200": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 1890.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 1,890.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_460159928": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 853.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 853.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_58708529": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 2155.4,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 2,155.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "CA_way_888253616": {
+   "aoi_key": "CA_3",
+   "n_tiles": 17387,
+   "field_centre": [
+    37.379896099999996,
+    -121.965506
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 3,
+   "aoi_state": "CA",
+   "metres_from_field_centre": 1498.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 10,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI CA_3 (rank 3, CA), 17,387 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 10 facility(ies) and is SHARED between them; this site's centre is 1,498.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "GA_way_1282332209": {
+   "aoi_key": "GA_37",
+   "n_tiles": 17808,
+   "field_centre": [
+    34.0769001,
+    -84.2548755
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 37,
+   "aoi_state": "GA",
+   "metres_from_field_centre": 4702.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI GA_37 (rank 37, GA), 17,808 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 4,702.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "GA_way_34770750": {
+   "aoi_key": "GA_37",
+   "n_tiles": 17808,
+   "field_centre": [
+    34.0769001,
+    -84.2548755
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 37,
+   "aoi_state": "GA",
+   "metres_from_field_centre": 1279.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI GA_37 (rank 37, GA), 17,808 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 1,279.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "GA_way_39083797": {
+   "aoi_key": "GA_37",
+   "n_tiles": 17808,
+   "field_centre": [
+    34.0769001,
+    -84.2548755
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 37,
+   "aoi_state": "GA",
+   "metres_from_field_centre": 1150.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI GA_37 (rank 37, GA), 17,808 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 1,150.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "GA_way_39083830": {
+   "aoi_key": "GA_37",
+   "n_tiles": 17808,
+   "field_centre": [
+    34.0769001,
+    -84.2548755
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 37,
+   "aoi_state": "GA",
+   "metres_from_field_centre": 1894.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI GA_37 (rank 37, GA), 17,808 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 1,894.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "GA_way_615593145": {
+   "aoi_key": "GA_37",
+   "n_tiles": 17808,
+   "field_centre": [
+    34.0769001,
+    -84.2548755
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 37,
+   "aoi_state": "GA",
+   "metres_from_field_centre": 2680.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI GA_37 (rank 37, GA), 17,808 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,680.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "GA_way_635022480": {
+   "aoi_key": "GA_37",
+   "n_tiles": 17808,
+   "field_centre": [
+    34.0769001,
+    -84.2548755
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 37,
+   "aoi_state": "GA",
+   "metres_from_field_centre": 2617.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI GA_37 (rank 37, GA), 17,808 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,617.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "GA_way_891031651": {
+   "aoi_key": "GA_37",
+   "n_tiles": 17808,
+   "field_centre": [
+    34.0769001,
+    -84.2548755
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 37,
+   "aoi_state": "GA",
+   "metres_from_field_centre": 874.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI GA_37 (rank 37, GA), 17,808 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 874.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IA_way_1073720221": {
+   "aoi_key": "IA_17",
+   "n_tiles": 17677,
+   "field_centre": [
+    41.1750226,
+    -95.8038504
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 17,
+   "aoi_state": "IA",
+   "metres_from_field_centre": 63.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IA_17 (rank 17, IA), 17,677 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 63.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IA_way_1287260561": {
+   "aoi_key": "IA_17",
+   "n_tiles": 17677,
+   "field_centre": [
+    41.1750226,
+    -95.8038504
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 17,
+   "aoi_state": "IA",
+   "metres_from_field_centre": 1135.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IA_17 (rank 17, IA), 17,677 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 1,135.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IA_way_1454813846": {
+   "aoi_key": "IA_24",
+   "n_tiles": 17684,
+   "field_centre": [
+    41.5162123,
+    -93.71195080000001
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 24,
+   "aoi_state": "IA",
+   "metres_from_field_centre": 726.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IA_24 (rank 24, IA), 17,684 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 726.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IA_way_830881745": {
+   "aoi_key": "IA_24",
+   "n_tiles": 17684,
+   "field_centre": [
+    41.5162123,
+    -93.71195080000001
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 24,
+   "aoi_state": "IA",
+   "metres_from_field_centre": 637.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IA_24 (rank 24, IA), 17,684 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 637.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IL_way_1219083554": {
+   "aoi_key": "IL_21",
+   "n_tiles": 17853,
+   "field_centre": [
+    42.011959250000004,
+    -87.96316265
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 21,
+   "aoi_state": "IL",
+   "metres_from_field_centre": 1516.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IL_21 (rank 21, IL), 17,853 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,516.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IL_way_1316005112": {
+   "aoi_key": "IL_21",
+   "n_tiles": 17853,
+   "field_centre": [
+    42.011959250000004,
+    -87.96316265
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 21,
+   "aoi_state": "IL",
+   "metres_from_field_centre": 1237.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IL_21 (rank 21, IL), 17,853 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,237.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IL_way_1446350370": {
+   "aoi_key": "IL_21",
+   "n_tiles": 17853,
+   "field_centre": [
+    42.011959250000004,
+    -87.96316265
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 21,
+   "aoi_state": "IL",
+   "metres_from_field_centre": 4460.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IL_21 (rank 21, IL), 17,853 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 4,460.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IL_way_383545769": {
+   "aoi_key": "IL_21",
+   "n_tiles": 17853,
+   "field_centre": [
+    42.011959250000004,
+    -87.96316265
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 21,
+   "aoi_state": "IL",
+   "metres_from_field_centre": 2197.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IL_21 (rank 21, IL), 17,853 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 2,197.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IL_way_863162820": {
+   "aoi_key": "IL_21",
+   "n_tiles": 17853,
+   "field_centre": [
+    42.011959250000004,
+    -87.96316265
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 21,
+   "aoi_state": "IL",
+   "metres_from_field_centre": 1651.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IL_21 (rank 21, IL), 17,853 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,651.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "IL_way_863162822": {
+   "aoi_key": "IL_21",
+   "n_tiles": 17853,
+   "field_centre": [
+    42.011959250000004,
+    -87.96316265
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 21,
+   "aoi_state": "IL",
+   "metres_from_field_centre": 589.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI IL_21 (rank 21, IL), 17,853 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 589.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "ND_way_1422191477": {
+   "aoi_key": "ND_34",
+   "n_tiles": 17901,
+   "field_centre": [
+    46.0129261,
+    -98.57278425
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 34,
+   "aoi_state": "ND",
+   "metres_from_field_centre": 21.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 1,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI ND_34 (rank 34, ND), 17,901 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 21.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "NE_way_1253282100": {
+   "aoi_key": "NE_33",
+   "n_tiles": 17467,
+   "field_centre": [
+    41.12507865,
+    -96.1443962
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 33,
+   "aoi_state": "NE",
+   "metres_from_field_centre": 979.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI NE_33 (rank 33, NE), 17,467 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 979.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "NE_way_1253282102": {
+   "aoi_key": "NE_33",
+   "n_tiles": 17467,
+   "field_centre": [
+    41.12507865,
+    -96.1443962
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 33,
+   "aoi_state": "NE",
+   "metres_from_field_centre": 1315.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI NE_33 (rank 33, NE), 17,467 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 1,315.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "NE_way_844394357": {
+   "aoi_key": "NE_33",
+   "n_tiles": 17467,
+   "field_centre": [
+    41.12507865,
+    -96.1443962
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 33,
+   "aoi_state": "NE",
+   "metres_from_field_centre": 1235.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI NE_33 (rank 33, NE), 17,467 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 1,235.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "NE_way_942557184": {
+   "aoi_key": "NE_33",
+   "n_tiles": 17467,
+   "field_centre": [
+    41.12507865,
+    -96.1443962
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 33,
+   "aoi_state": "NE",
+   "metres_from_field_centre": 122.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI NE_33 (rank 33, NE), 17,467 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 122.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "NV_way_1421212901": {
+   "aoi_key": "NV_31",
+   "n_tiles": 17431,
+   "field_centre": [
+    36.06039665,
+    -115.21662889999999
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 31,
+   "aoi_state": "NV",
+   "metres_from_field_centre": 644.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI NV_31 (rank 31, NV), 17,431 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 644.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "NV_way_775412073": {
+   "aoi_key": "NV_27",
+   "n_tiles": 17882,
+   "field_centre": [
+    39.56804625,
+    -119.54192545000001
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 27,
+   "aoi_state": "NV",
+   "metres_from_field_centre": 35.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 1,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI NV_27 (rank 27, NV), 17,882 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 35.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "NV_way_984796364": {
+   "aoi_key": "NV_31",
+   "n_tiles": 17431,
+   "field_centre": [
+    36.06039665,
+    -115.21662889999999
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 31,
+   "aoi_state": "NV",
+   "metres_from_field_centre": 313.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI NV_31 (rank 31, NV), 17,431 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 313.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "NY_way_1109643936": {
+   "aoi_key": "NY_25",
+   "n_tiles": 17614,
+   "field_centre": [
+    43.0827606,
+    -79.0168591
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 25,
+   "aoi_state": "NY",
+   "metres_from_field_centre": 1133.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI NY_25 (rank 25, NY), 17,614 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 1,133.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "NY_way_832658041": {
+   "aoi_key": "NY_25",
+   "n_tiles": 17614,
+   "field_centre": [
+    43.0827606,
+    -79.0168591
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 25,
+   "aoi_state": "NY",
+   "metres_from_field_centre": 1092.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI NY_25 (rank 25, NY), 17,614 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 1,092.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_1252196813": {
+   "aoi_key": "OH_8",
+   "n_tiles": 17476,
+   "field_centre": [
+    40.07591995,
+    -82.74925865
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 8,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 1725.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_8 (rank 8, OH), 17,476 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 1,725.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_1386016631": {
+   "aoi_key": "OH_8",
+   "n_tiles": 17476,
+   "field_centre": [
+    40.07591995,
+    -82.74925865
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 8,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 2570.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_8 (rank 8, OH), 17,476 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,570.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_1386016635": {
+   "aoi_key": "OH_8",
+   "n_tiles": 17476,
+   "field_centre": [
+    40.07591995,
+    -82.74925865
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 8,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 1562.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_8 (rank 8, OH), 17,476 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 1,562.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_1386016636": {
+   "aoi_key": "OH_23",
+   "n_tiles": 17889,
+   "field_centre": [
+    40.1104157,
+    -83.19954154999999
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 23,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 2991.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_23 (rank 23, OH), 17,889 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 2,991.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_1386016639": {
+   "aoi_key": "OH_23",
+   "n_tiles": 17889,
+   "field_centre": [
+    40.1104157,
+    -83.19954154999999
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 23,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 893.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_23 (rank 23, OH), 17,889 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 893.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_1425043213": {
+   "aoi_key": "OH_8",
+   "n_tiles": 17476,
+   "field_centre": [
+    40.07591995,
+    -82.74925865
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 8,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 2458.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_8 (rank 8, OH), 17,476 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,458.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_1427613543": {
+   "aoi_key": "OH_8",
+   "n_tiles": 17476,
+   "field_centre": [
+    40.07591995,
+    -82.74925865
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 8,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 2291.4,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_8 (rank 8, OH), 17,476 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,291.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_1427613546": {
+   "aoi_key": "OH_8",
+   "n_tiles": 17476,
+   "field_centre": [
+    40.07591995,
+    -82.74925865
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 8,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 2419.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_8 (rank 8, OH), 17,476 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,419.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_802160675": {
+   "aoi_key": "OH_8",
+   "n_tiles": 17476,
+   "field_centre": [
+    40.07591995,
+    -82.74925865
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 8,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 979.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_8 (rank 8, OH), 17,476 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 979.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OH_way_821081358": {
+   "aoi_key": "OH_23",
+   "n_tiles": 17889,
+   "field_centre": [
+    40.1104157,
+    -83.19954154999999
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 23,
+   "aoi_state": "OH",
+   "metres_from_field_centre": 964.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OH_23 (rank 23, OH), 17,889 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 964.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_1114969101": {
+   "aoi_key": "OR_12",
+   "n_tiles": 17800,
+   "field_centre": [
+    45.560002049999994,
+    -122.9307292
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 12,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 1586.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_12 (rank 12, OR), 17,800 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,586.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_1280344151": {
+   "aoi_key": "OR_18",
+   "n_tiles": 17373,
+   "field_centre": [
+    45.9172456,
+    -119.24805459999999
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 18,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 1533.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_18 (rank 18, OR), 17,373 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 1,533.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_1280344155": {
+   "aoi_key": "OR_10",
+   "n_tiles": 17940,
+   "field_centre": [
+    45.84047505,
+    -119.64841485
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 10,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 3995.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_10 (rank 10, OR), 17,940 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 3,995.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_1386017494": {
+   "aoi_key": "OR_10",
+   "n_tiles": 17940,
+   "field_centre": [
+    45.84047505,
+    -119.64841485
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 10,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 2587.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_10 (rank 10, OR), 17,940 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,587.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_1501436324": {
+   "aoi_key": "OR_10",
+   "n_tiles": 17940,
+   "field_centre": [
+    45.84047505,
+    -119.64841485
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 10,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 2650.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_10 (rank 10, OR), 17,940 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,650.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_328703599": {
+   "aoi_key": "OR_12",
+   "n_tiles": 17800,
+   "field_centre": [
+    45.560002049999994,
+    -122.9307292
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 12,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 3190.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_12 (rank 12, OR), 17,800 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 3,190.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_331132308": {
+   "aoi_key": "OR_12",
+   "n_tiles": 17800,
+   "field_centre": [
+    45.560002049999994,
+    -122.9307292
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 12,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 4138.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_12 (rank 12, OR), 17,800 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 4,138.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_471691757": {
+   "aoi_key": "OR_12",
+   "n_tiles": 17800,
+   "field_centre": [
+    45.560002049999994,
+    -122.9307292
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 12,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 685.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_12 (rank 12, OR), 17,800 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 685.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_471691760": {
+   "aoi_key": "OR_12",
+   "n_tiles": 17800,
+   "field_centre": [
+    45.560002049999994,
+    -122.9307292
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 12,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 1284.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_12 (rank 12, OR), 17,800 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,284.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_697413741": {
+   "aoi_key": "OR_18",
+   "n_tiles": 17373,
+   "field_centre": [
+    45.9172456,
+    -119.24805459999999
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 18,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 1512.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_18 (rank 18, OR), 17,373 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 1,512.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_697415321": {
+   "aoi_key": "OR_10",
+   "n_tiles": 17940,
+   "field_centre": [
+    45.84047505,
+    -119.64841485
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 10,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 436.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_10 (rank 10, OR), 17,940 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 436.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_697415323": {
+   "aoi_key": "OR_10",
+   "n_tiles": 17940,
+   "field_centre": [
+    45.84047505,
+    -119.64841485
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 10,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 1927.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_10 (rank 10, OR), 17,940 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 1,927.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_706759844": {
+   "aoi_key": "OR_26",
+   "n_tiles": 17909,
+   "field_centre": [
+    44.292486800000006,
+    -120.8822519
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 26,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 1009.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_26 (rank 26, OR), 17,909 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 1,009.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_734323663": {
+   "aoi_key": "OR_12",
+   "n_tiles": 17800,
+   "field_centre": [
+    45.560002049999994,
+    -122.9307292
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 12,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 1418.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_12 (rank 12, OR), 17,800 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,418.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_772827597": {
+   "aoi_key": "OR_26",
+   "n_tiles": 17909,
+   "field_centre": [
+    44.292486800000006,
+    -120.8822519
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 26,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 385.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_26 (rank 26, OR), 17,909 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 385.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_772827601": {
+   "aoi_key": "OR_26",
+   "n_tiles": 17909,
+   "field_centre": [
+    44.292486800000006,
+    -120.8822519
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 26,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 1250.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_26 (rank 26, OR), 17,909 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 1,250.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_914616809": {
+   "aoi_key": "OR_10",
+   "n_tiles": 17940,
+   "field_centre": [
+    45.84047505,
+    -119.64841485
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 10,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 3351.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_10 (rank 10, OR), 17,940 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 3,351.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "OR_way_914616810": {
+   "aoi_key": "OR_10",
+   "n_tiles": 17940,
+   "field_centre": [
+    45.84047505,
+    -119.64841485
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 10,
+   "aoi_state": "OR",
+   "metres_from_field_centre": 3391.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI OR_10 (rank 10, OR), 17,940 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 3,391.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "PA_way_1539603382": {
+   "aoi_key": "PA_11",
+   "n_tiles": 17780,
+   "field_centre": [
+    41.2716635,
+    -79.8132459
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 11,
+   "aoi_state": "PA",
+   "metres_from_field_centre": 17.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 1,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI PA_11 (rank 11, PA), 17,780 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 17.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "SC_way_1069388211": {
+   "aoi_key": "SC_35",
+   "n_tiles": 17894,
+   "field_centre": [
+    33.0641714,
+    -80.04217539999999
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 35,
+   "aoi_state": "SC",
+   "metres_from_field_centre": 93.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 1,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI SC_35 (rank 35, SC), 17,894 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 93.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_1081973944": {
+   "aoi_key": "TX_7",
+   "n_tiles": 17152,
+   "field_centre": [
+    29.4625017,
+    -98.6687696
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 7,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 2115.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_7 (rank 7, TX), 17,152 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 2,115.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_1426525221": {
+   "aoi_key": "TX_22",
+   "n_tiles": 17850,
+   "field_centre": [
+    32.54213575,
+    -96.8033238
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 22,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 1084.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_22 (rank 22, TX), 17,850 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 1,084.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_1432637062": {
+   "aoi_key": "TX_28",
+   "n_tiles": 17743,
+   "field_centre": [
+    29.4336985,
+    -98.75204785
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 28,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 4141.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_28 (rank 28, TX), 17,743 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 4,141.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_1502711381": {
+   "aoi_key": "TX_7",
+   "n_tiles": 17152,
+   "field_centre": [
+    29.4625017,
+    -98.6687696
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 7,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3036.4,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_7 (rank 7, TX), 17,152 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 3,036.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_1530966395": {
+   "aoi_key": "TX_6",
+   "n_tiles": 17825,
+   "field_centre": [
+    32.5051028,
+    -99.7796594
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 6,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 680.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 1,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_6 (rank 6, TX), 17,825 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 680.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_1533349844": {
+   "aoi_key": "TX_28",
+   "n_tiles": 17743,
+   "field_centre": [
+    29.4336985,
+    -98.75204785
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 28,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3998.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_28 (rank 28, TX), 17,743 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 3,998.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_1533350872": {
+   "aoi_key": "TX_32",
+   "n_tiles": 17556,
+   "field_centre": [
+    29.42058885,
+    -98.8396925
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 32,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3526.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_32 (rank 32, TX), 17,556 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 3,526.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_1533392814": {
+   "aoi_key": "TX_32",
+   "n_tiles": 17556,
+   "field_centre": [
+    29.42058885,
+    -98.8396925
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 32,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3674.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_32 (rank 32, TX), 17,556 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 3,674.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_1537390751": {
+   "aoi_key": "TX_7",
+   "n_tiles": 17152,
+   "field_centre": [
+    29.4625017,
+    -98.6687696
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 7,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3108.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_7 (rank 7, TX), 17,152 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 3,108.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_28544618": {
+   "aoi_key": "TX_39",
+   "n_tiles": 17369,
+   "field_centre": [
+    32.8194558,
+    -96.85195105
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 39,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3659.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_39 (rank 39, TX), 17,369 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 3,659.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_379199519": {
+   "aoi_key": "TX_36",
+   "n_tiles": 17484,
+   "field_centre": [
+    30.231036250000002,
+    -97.71212955
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 36,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3493.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_36 (rank 36, TX), 17,484 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 3,493.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_379205427": {
+   "aoi_key": "TX_36",
+   "n_tiles": 17484,
+   "field_centre": [
+    30.231036250000002,
+    -97.71212955
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 36,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 2460.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_36 (rank 36, TX), 17,484 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 2,460.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_382785871": {
+   "aoi_key": "TX_36",
+   "n_tiles": 17484,
+   "field_centre": [
+    30.231036250000002,
+    -97.71212955
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 36,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 1851.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_36 (rank 36, TX), 17,484 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 1,851.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_465032201": {
+   "aoi_key": "TX_39",
+   "n_tiles": 17369,
+   "field_centre": [
+    32.8194558,
+    -96.85195105
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 39,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 2081.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_39 (rank 39, TX), 17,369 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,081.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_465032380": {
+   "aoi_key": "TX_39",
+   "n_tiles": 17369,
+   "field_centre": [
+    32.8194558,
+    -96.85195105
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 39,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3257.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_39 (rank 39, TX), 17,369 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 3,257.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_465032484": {
+   "aoi_key": "TX_39",
+   "n_tiles": 17369,
+   "field_centre": [
+    32.8194558,
+    -96.85195105
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 39,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3177.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_39 (rank 39, TX), 17,369 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 3,177.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_465032487": {
+   "aoi_key": "TX_39",
+   "n_tiles": 17369,
+   "field_centre": [
+    32.8194558,
+    -96.85195105
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 39,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 2227.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_39 (rank 39, TX), 17,369 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,227.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_465032631": {
+   "aoi_key": "TX_39",
+   "n_tiles": 17369,
+   "field_centre": [
+    32.8194558,
+    -96.85195105
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 39,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 1998.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_39 (rank 39, TX), 17,369 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 1,998.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_465042594": {
+   "aoi_key": "TX_39",
+   "n_tiles": 17369,
+   "field_centre": [
+    32.8194558,
+    -96.85195105
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 39,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 1366.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_39 (rank 39, TX), 17,369 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 1,366.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_509611432": {
+   "aoi_key": "TX_7",
+   "n_tiles": 17152,
+   "field_centre": [
+    29.4625017,
+    -98.6687696
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 7,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 2633.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_7 (rank 7, TX), 17,152 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 2,633.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_509611436": {
+   "aoi_key": "TX_7",
+   "n_tiles": 17152,
+   "field_centre": [
+    29.4625017,
+    -98.6687696
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 7,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 1698.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_7 (rank 7, TX), 17,152 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,698.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_509611439": {
+   "aoi_key": "TX_7",
+   "n_tiles": 17152,
+   "field_centre": [
+    29.4625017,
+    -98.6687696
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 7,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 979.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_7 (rank 7, TX), 17,152 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 979.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_548184239": {
+   "aoi_key": "TX_40",
+   "n_tiles": 17610,
+   "field_centre": [
+    32.97979675,
+    -96.73137625
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 40,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 2578.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_40 (rank 40, TX), 17,610 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 2,578.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_577628941": {
+   "aoi_key": "TX_36",
+   "n_tiles": 17484,
+   "field_centre": [
+    30.231036250000002,
+    -97.71212955
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 36,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 3552.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_36 (rank 36, TX), 17,484 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 3,552.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_597876798": {
+   "aoi_key": "TX_40",
+   "n_tiles": 17610,
+   "field_centre": [
+    32.97979675,
+    -96.73137625
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 40,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 2306.4,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_40 (rank 40, TX), 17,610 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 2,306.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_713411279": {
+   "aoi_key": "TX_36",
+   "n_tiles": 17484,
+   "field_centre": [
+    30.231036250000002,
+    -97.71212955
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 36,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 2976.4,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_36 (rank 36, TX), 17,484 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 2,976.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "TX_way_850965775": {
+   "aoi_key": "TX_22",
+   "n_tiles": 17850,
+   "field_centre": [
+    32.54213575,
+    -96.8033238
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Chicago",
+   "aoi_rank": 22,
+   "aoi_state": "TX",
+   "metres_from_field_centre": 70.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 2,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI TX_22 (rank 22, TX), 17,850 tiles, 2026-08-24 14:00-16:00 America/Chicago. This field covers 2 facility(ies) and is SHARED between them; this site's centre is 70.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1074595310": {
+   "aoi_key": "VA_15",
+   "n_tiles": 17953,
+   "field_centre": [
+    36.68531395,
+    -78.3759393
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 15,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 203.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 1,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_15 (rank 15, VA), 17,953 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 203.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1132541700": {
+   "aoi_key": "VA_16",
+   "n_tiles": 17814,
+   "field_centre": [
+    37.48570515,
+    -77.2397388
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 16,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1457.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_16 (rank 16, VA), 17,814 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 1,457.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1252196825": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 3447.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 3,447.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1252196826": {
+   "aoi_key": "VA_4",
+   "n_tiles": 17769,
+   "field_centre": [
+    38.928143199999994,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 4,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2833.7,
+   "n_overlapping_fields": 2,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_4 (rank 4, VA), 17,769 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,833.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1287260555": {
+   "aoi_key": "VA_38",
+   "n_tiles": 17235,
+   "field_centre": [
+    38.80911055,
+    -77.63739785
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 38,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1604.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_38 (rank 38, VA), 17,235 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 1,604.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1333205263": {
+   "aoi_key": "VA_14",
+   "n_tiles": 17194,
+   "field_centre": [
+    39.06192145,
+    -77.5499609
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 14,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1101.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_14 (rank 14, VA), 17,194 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 1,101.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1443922535": {
+   "aoi_key": "VA_14",
+   "n_tiles": 17194,
+   "field_centre": [
+    39.06192145,
+    -77.5499609
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 14,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2596.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_14 (rank 14, VA), 17,194 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 2,596.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1447029365": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 4660.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 4,660.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1464257783": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 3239.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 3,239.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1464257784": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 3195.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 3,195.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1493516633": {
+   "aoi_key": "VA_16",
+   "n_tiles": 17814,
+   "field_centre": [
+    37.48570515,
+    -77.2397388
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 16,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 599.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_16 (rank 16, VA), 17,814 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 599.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1509985717": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1099.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 1,099.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1510517639": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 3661.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 3,661.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1521913707": {
+   "aoi_key": "VA_4",
+   "n_tiles": 17769,
+   "field_centre": [
+    38.928143199999994,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 4,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2636.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_4 (rank 4, VA), 17,769 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,636.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1543296494": {
+   "aoi_key": "VA_5",
+   "n_tiles": 17885,
+   "field_centre": [
+    38.9757412,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 5,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 3513.3,
+   "n_overlapping_fields": 3,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_5 (rank 5, VA), 17,885 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 3,513.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_1544103416": {
+   "aoi_key": "VA_13",
+   "n_tiles": 17810,
+   "field_centre": [
+    38.950328999999996,
+    -77.53157970000001
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 13,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 779.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_13 (rank 13, VA), 17,810 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 779.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_224100721": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2877.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 2,877.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_258343749": {
+   "aoi_key": "VA_4",
+   "n_tiles": 17769,
+   "field_centre": [
+    38.928143199999994,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 4,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 3008.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_4 (rank 4, VA), 17,769 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 3,008.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_258520532": {
+   "aoi_key": "VA_4",
+   "n_tiles": 17769,
+   "field_centre": [
+    38.928143199999994,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 4,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2673.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_4 (rank 4, VA), 17,769 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,673.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_262058094": {
+   "aoi_key": "VA_4",
+   "n_tiles": 17769,
+   "field_centre": [
+    38.928143199999994,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 4,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2508.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_4 (rank 4, VA), 17,769 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,508.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_273895868": {
+   "aoi_key": "VA_5",
+   "n_tiles": 17885,
+   "field_centre": [
+    38.9757412,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 5,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1030.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_5 (rank 5, VA), 17,885 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 1,030.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_380282154": {
+   "aoi_key": "VA_1",
+   "n_tiles": 17383,
+   "field_centre": [
+    39.024398899999994,
+    -77.4496489
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 1,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2719.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_1 (rank 1, VA), 17,383 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 2,719.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_429040021": {
+   "aoi_key": "VA_16",
+   "n_tiles": 17814,
+   "field_centre": [
+    37.48570515,
+    -77.2397388
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 16,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 981.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_16 (rank 16, VA), 17,814 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 981.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_45583050": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 5228.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 5,228.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_45776988": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2719.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 2,719.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_460175664": {
+   "aoi_key": "VA_5",
+   "n_tiles": 17885,
+   "field_centre": [
+    38.9757412,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 5,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2371.4,
+   "n_overlapping_fields": 2,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_5 (rank 5, VA), 17,885 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 2,371.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_46831933": {
+   "aoi_key": "VA_38",
+   "n_tiles": 17235,
+   "field_centre": [
+    38.80911055,
+    -77.63739785
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 38,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 5037.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_38 (rank 38, VA), 17,235 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 5,037.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_490997244": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1364.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 1,364.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_696992451": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2624.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 2,624.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_701923203": {
+   "aoi_key": "VA_1",
+   "n_tiles": 17383,
+   "field_centre": [
+    39.024398899999994,
+    -77.4496489
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 1,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1798.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_1 (rank 1, VA), 17,383 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,798.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_701924669": {
+   "aoi_key": "VA_5",
+   "n_tiles": 17885,
+   "field_centre": [
+    38.9757412,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 5,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 3967.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_5 (rank 5, VA), 17,885 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 3,967.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_701930930": {
+   "aoi_key": "VA_1",
+   "n_tiles": 17383,
+   "field_centre": [
+    39.024398899999994,
+    -77.4496489
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 1,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1272.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_1 (rank 1, VA), 17,383 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,272.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_701931819": {
+   "aoi_key": "VA_4",
+   "n_tiles": 17769,
+   "field_centre": [
+    38.928143199999994,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 4,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 3584.7,
+   "n_overlapping_fields": 2,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_4 (rank 4, VA), 17,769 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 3,584.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_714622339": {
+   "aoi_key": "VA_13",
+   "n_tiles": 17810,
+   "field_centre": [
+    38.950328999999996,
+    -77.53157970000001
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 13,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 853.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_13 (rank 13, VA), 17,810 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 853.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_744496750": {
+   "aoi_key": "VA_1",
+   "n_tiles": 17383,
+   "field_centre": [
+    39.024398899999994,
+    -77.4496489
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 1,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2961.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_1 (rank 1, VA), 17,383 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 2,961.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_828135845": {
+   "aoi_key": "VA_38",
+   "n_tiles": 17235,
+   "field_centre": [
+    38.80911055,
+    -77.63739785
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 38,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1471.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 3,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_38 (rank 38, VA), 17,235 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 3 facility(ies) and is SHARED between them; this site's centre is 1,471.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_844374689": {
+   "aoi_key": "VA_14",
+   "n_tiles": 17194,
+   "field_centre": [
+    39.06192145,
+    -77.5499609
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 14,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1131.1,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_14 (rank 14, VA), 17,194 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 1,131.1 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_897226575": {
+   "aoi_key": "VA_13",
+   "n_tiles": 17810,
+   "field_centre": [
+    38.950328999999996,
+    -77.53157970000001
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 13,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2241.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_13 (rank 13, VA), 17,810 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 2,241.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_909455922": {
+   "aoi_key": "VA_14",
+   "n_tiles": 17194,
+   "field_centre": [
+    39.06192145,
+    -77.5499609
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 14,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2273.7,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_14 (rank 14, VA), 17,194 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 2,273.7 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_954433119": {
+   "aoi_key": "VA_5",
+   "n_tiles": 17885,
+   "field_centre": [
+    38.9757412,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 5,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2886.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_5 (rank 5, VA), 17,885 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 2,886.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_983627455": {
+   "aoi_key": "VA_1",
+   "n_tiles": 17383,
+   "field_centre": [
+    39.024398899999994,
+    -77.4496489
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 1,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1290.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_1 (rank 1, VA), 17,383 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,290.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_984953814": {
+   "aoi_key": "VA_1",
+   "n_tiles": 17383,
+   "field_centre": [
+    39.024398899999994,
+    -77.4496489
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 1,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1934.9,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 6,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_1 (rank 1, VA), 17,383 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 6 facility(ies) and is SHARED between them; this site's centre is 1,934.9 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_986829280": {
+   "aoi_key": "VA_14",
+   "n_tiles": 17194,
+   "field_centre": [
+    39.06192145,
+    -77.5499609
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 14,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1877.4,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 5,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_14 (rank 14, VA), 17,194 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 5 facility(ies) and is SHARED between them; this site's centre is 1,877.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_989735624": {
+   "aoi_key": "VA_4",
+   "n_tiles": 17769,
+   "field_centre": [
+    38.928143199999994,
+    -77.45426665
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 4,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2480.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 7,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_4 (rank 4, VA), 17,769 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 7 facility(ies) and is SHARED between them; this site's centre is 2,480.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_990537858": {
+   "aoi_key": "VA_13",
+   "n_tiles": 17810,
+   "field_centre": [
+    38.950328999999996,
+    -77.53157970000001
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 13,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 2857.3,
+   "n_overlapping_fields": 3,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_13 (rank 13, VA), 17,810 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 2,857.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_996723587": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 1174.4,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 1,174.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "VA_way_996899488": {
+   "aoi_key": "VA_2",
+   "n_tiles": 17283,
+   "field_centre": [
+    38.767284700000005,
+    -77.5494411
+   ],
+   "window": "2026-08-24 14:00-16:00 America/New_York",
+   "aoi_rank": 2,
+   "aoi_state": "VA",
+   "metres_from_field_centre": 5128.3,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 13,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI VA_2 (rank 2, VA), 17,283 tiles, 2026-08-24 14:00-16:00 America/New_York. This field covers 13 facility(ies) and is SHARED between them; this site's centre is 5,128.3 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "WA_way_1173537117": {
+   "aoi_key": "WA_19",
+   "n_tiles": 17706,
+   "field_centre": [
+    47.40789225,
+    -120.18966185
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 19,
+   "aoi_state": "WA",
+   "metres_from_field_centre": 1898.8,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI WA_19 (rank 19, WA), 17,706 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 1,898.8 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "WA_way_460167190": {
+   "aoi_key": "WA_19",
+   "n_tiles": 17706,
+   "field_centre": [
+    47.40789225,
+    -120.18966185
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 19,
+   "aoi_state": "WA",
+   "metres_from_field_centre": 31.6,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI WA_19 (rank 19, WA), 17,706 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 31.6 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "WA_way_499403698": {
+   "aoi_key": "WA_9",
+   "n_tiles": 17885,
+   "field_centre": [
+    47.2453456,
+    -119.8541179
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 9,
+   "aoi_state": "WA",
+   "metres_from_field_centre": 902.0,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI WA_9 (rank 9, WA), 17,885 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 902.0 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "WA_way_499403699": {
+   "aoi_key": "WA_9",
+   "n_tiles": 17885,
+   "field_centre": [
+    47.2453456,
+    -119.8541179
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 9,
+   "aoi_state": "WA",
+   "metres_from_field_centre": 1958.4,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI WA_9 (rank 9, WA), 17,885 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 1,958.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "WA_way_694602725": {
+   "aoi_key": "WA_9",
+   "n_tiles": 17885,
+   "field_centre": [
+    47.2453456,
+    -119.8541179
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 9,
+   "aoi_state": "WA",
+   "metres_from_field_centre": 2967.2,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI WA_9 (rank 9, WA), 17,885 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 2,967.2 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "WA_way_807374322": {
+   "aoi_key": "WA_9",
+   "n_tiles": 17885,
+   "field_centre": [
+    47.2453456,
+    -119.8541179
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 9,
+   "aoi_state": "WA",
+   "metres_from_field_centre": 2571.4,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI WA_9 (rank 9, WA), 17,885 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 2,571.4 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "WA_way_813688320": {
+   "aoi_key": "WA_19",
+   "n_tiles": 17706,
+   "field_centre": [
+    47.40789225,
+    -120.18966185
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 19,
+   "aoi_state": "WA",
+   "metres_from_field_centre": 1832.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI WA_19 (rank 19, WA), 17,706 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 1,832.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "WA_way_814061071": {
+   "aoi_key": "WA_19",
+   "n_tiles": 17706,
+   "field_centre": [
+    47.40789225,
+    -120.18966185
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Los_Angeles",
+   "aoi_rank": 19,
+   "aoi_state": "WA",
+   "metres_from_field_centre": 2742.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 4,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI WA_19 (rank 19, WA), 17,706 tiles, 2026-08-24 14:00-16:00 America/Los_Angeles. This field covers 4 facility(ies) and is SHARED between them; this site's centre is 2,742.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  },
+  "WY_way_537172528": {
+   "aoi_key": "WY_20",
+   "n_tiles": 17452,
+   "field_centre": [
+    41.126389849999995,
+    -104.8982656
+   ],
+   "window": "2026-08-24 14:00-16:00 America/Denver",
+   "aoi_rank": 20,
+   "aoi_state": "WY",
+   "metres_from_field_centre": 351.5,
+   "n_overlapping_fields": 1,
+   "facilities_sharing_this_field": 1,
+   "provenance": "purchased -- 1 past-window FortyGuard heatmap over AOI WY_20 (rank 20, WY), 17,452 tiles, 2026-08-24 14:00-16:00 America/Denver. This field covers 1 facility(ies) and is SHARED between them; this site's centre is 351.5 m from the field centre. It buys the spatial picture and the tile statistics, not a forecast leg -- so it carries no level offset and no coverage record."
+  }
+ }
+}

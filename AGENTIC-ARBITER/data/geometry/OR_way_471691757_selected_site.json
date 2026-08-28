@@ -1,0 +1,866 @@
+{
+ "selection_rule": "REVISED 2026-08-18 after N-54. Three geometric GATES first, then wind exposure x separation dilution over 449 real KIAD observations. Gates: (B) true edge-to-edge gap > intake standoff + radius = 60 m, so the intake disc sits in free air and not inside the source hall; (C) the source LONGEST facade must FACE the receptor, so a realistic condenser bank has a straight plume path -- the original version skipped this and picked a pair where N-54 measured 100 % of downwind bearings REFUSED; (D) longest facade >= 100 m. NOT chosen by floor area.",
+ "gates": {
+  "min_true_gap_m": 60.0,
+  "min_facade_m": 100.0,
+  "derivation_of_min_gap": "INTAKE_STANDOFF_M + INTAKE_RADIUS_M, imported from build_site so the two files cannot drift"
+ },
+ "selection_funnel": {
+  "pairs": 68,
+  "not_datacentre": 0,
+  "gap_zero": 3,
+  "gap_too_small": 5,
+  "facade_faces_away": 25,
+  "facade_too_short": 4,
+  "survived": 31
+ },
+ "rejected_touching_footprints": [
+  {
+   "pair": [
+    "899634245",
+    "1243089554"
+   ],
+   "why": "footprints touch",
+   "gap_m": 0.0,
+   "name": "Stack Infrastructure - POR03"
+  },
+  {
+   "pair": [
+    "1243089555",
+    "1243089554"
+   ],
+   "why": "footprints touch",
+   "gap_m": 0.0,
+   "name": "Stack Infrastructure - POR03"
+  },
+  {
+   "pair": [
+    "860433344",
+    "1080170579"
+   ],
+   "why": "footprints touch",
+   "gap_m": 0.0,
+   "name": "Flexential Portland - Hillsboro 4"
+  }
+ ],
+ "convention": "wind FROM X means air moves toward X+180. Receptor at bearing B from source is exposed when the wind comes FROM (B+180) mod 360.",
+ "plume_half_width_deg": 40.0,
+ "selected": {
+  "source_osm_id": "918873142",
+  "receptor_osm_id": "918871787",
+  "separation_m": 252.6,
+  "bearing_a_to_b_deg": 112.3,
+  "source_area_m2": 31262.7,
+  "receptor_area_m2": 15657.5,
+  "combined_area_m2": 46920.2,
+  "source_name": "Flexential Portland - Hillsboro 3",
+  "receptor_name": "QTS Data Center - Hillsboro 2",
+  "critical_wind_from_deg": 292.3,
+  "wind_exposure": 0.35188,
+  "dilution_factor": 1.188,
+  "exposure_x_dilution": 0.41791,
+  "true_gap_m": 99.4,
+  "longest_facade_m": 180.7,
+  "path_clearance": 0.371
+ },
+ "source_building": {
+  "osm_id": "918873142",
+  "area_m2": 31262.7,
+  "centre_m": [
+   -172.3,
+   519.4
+  ],
+  "width_m": 201.7,
+  "height_m": 170.8,
+  "rot_rect_long_m": 201.6,
+  "rot_rect_short_m": 169.3,
+  "rot_rect_angle_deg": 179.5,
+  "ring_m": [
+   [
+    -294.1,
+    445.8
+   ],
+   [
+    -292.9,
+    571.6
+   ],
+   [
+    -273.4,
+    571.5
+   ],
+   [
+    -273.4,
+    572.3
+   ],
+   [
+    -273.3,
+    581.8
+   ],
+   [
+    -273.2,
+    592.1
+   ],
+   [
+    -264.5,
+    592.0
+   ],
+   [
+    -264.5,
+    595.5
+   ],
+   [
+    -212.7,
+    594.9
+   ],
+   [
+    -212.8,
+    590.4
+   ],
+   [
+    -187.3,
+    590.1
+   ],
+   [
+    -187.3,
+    594.8
+   ],
+   [
+    -100.4,
+    593.7
+   ],
+   [
+    -100.4,
+    591.8
+   ],
+   [
+    -100.5,
+    579.3
+   ],
+   [
+    -94.6,
+    579.3
+   ],
+   [
+    -94.7,
+    567.8
+   ],
+   [
+    -108.1,
+    568.0
+   ],
+   [
+    -109.3,
+    481.5
+   ],
+   [
+    -95.7,
+    481.3
+   ],
+   [
+    -95.9,
+    468.7
+   ],
+   [
+    -97.9,
+    468.7
+   ],
+   [
+    -98.0,
+    463.5
+   ],
+   [
+    -97.2,
+    460.3
+   ],
+   [
+    -92.4,
+    455.6
+   ],
+   [
+    -104.6,
+    443.2
+   ],
+   [
+    -106.2,
+    438.7
+   ],
+   [
+    -106.9,
+    434.0
+   ],
+   [
+    -106.1,
+    428.8
+   ],
+   [
+    -104.3,
+    424.7
+   ],
+   [
+    -285.0,
+    426.3
+   ],
+   [
+    -284.8,
+    445.7
+   ],
+   [
+    -294.1,
+    445.8
+   ]
+  ],
+  "name": "Flexential Portland - Hillsboro 3",
+  "operator": "Flexential",
+  "building_tag": "data_center",
+  "telecom_tag": "data_center",
+  "n_vertices": 33,
+  "centre_latlon": [
+   45.559564,
+   -122.937932
+  ]
+ },
+ "receptor_building": {
+  "osm_id": "918871787",
+  "area_m2": 15657.5,
+  "centre_m": [
+   61.5,
+   423.7
+  ],
+  "width_m": 74.0,
+  "height_m": 246.9,
+  "rot_rect_long_m": 246.9,
+  "rot_rect_short_m": 74.0,
+  "rot_rect_angle_deg": 0.0,
+  "ring_m": [
+   [
+    80.0,
+    311.8
+   ],
+   [
+    7.0,
+    311.8
+   ],
+   [
+    7.0,
+    558.7
+   ],
+   [
+    80.9,
+    558.7
+   ],
+   [
+    80.9,
+    545.5
+   ],
+   [
+    68.6,
+    545.5
+   ],
+   [
+    68.7,
+    334.8
+   ],
+   [
+    80.0,
+    334.8
+   ],
+   [
+    80.0,
+    311.8
+   ]
+  ],
+  "name": "QTS Data Center - Hillsboro 2",
+  "operator": "Quality Technology Services",
+  "building_tag": "industrial",
+  "telecom_tag": "data_center",
+  "n_vertices": 9,
+  "centre_latlon": [
+   45.558704,
+   -122.93493
+  ]
+ },
+ "runner_up": {
+  "source_osm_id": "909742340",
+  "receptor_osm_id": "729192992",
+  "separation_m": 163.8,
+  "bearing_a_to_b_deg": 87.6,
+  "source_area_m2": 16007.5,
+  "receptor_area_m2": 14631.6,
+  "combined_area_m2": 30639.1,
+  "source_name": "QTS Data Center - Hillsboro 2",
+  "receptor_name": "QTS Data Center - Hillsboro 1",
+  "critical_wind_from_deg": 267.6,
+  "wind_exposure": 0.12626,
+  "dilution_factor": 1.832,
+  "exposure_x_dilution": 0.23125,
+  "true_gap_m": 74.8,
+  "longest_facade_m": 260.5,
+  "path_clearance": 0.999
+ },
+ "survivors": [
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "918871787",
+   "separation_m": 252.6,
+   "bearing_a_to_b_deg": 112.3,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 15657.5,
+   "combined_area_m2": 46920.2,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "QTS Data Center - Hillsboro 2",
+   "critical_wind_from_deg": 292.3,
+   "wind_exposure": 0.35188,
+   "dilution_factor": 1.188,
+   "exposure_x_dilution": 0.41791,
+   "true_gap_m": 99.4,
+   "longest_facade_m": 180.7,
+   "path_clearance": 0.371
+  },
+  {
+   "source_osm_id": "909742340",
+   "receptor_osm_id": "729192992",
+   "separation_m": 163.8,
+   "bearing_a_to_b_deg": 87.6,
+   "source_area_m2": 16007.5,
+   "receptor_area_m2": 14631.6,
+   "combined_area_m2": 30639.1,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "QTS Data Center - Hillsboro 1",
+   "critical_wind_from_deg": 267.6,
+   "wind_exposure": 0.12626,
+   "dilution_factor": 1.832,
+   "exposure_x_dilution": 0.23125,
+   "true_gap_m": 74.8,
+   "longest_facade_m": 260.5,
+   "path_clearance": 0.999
+  },
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "918871788",
+   "separation_m": 378.0,
+   "bearing_a_to_b_deg": 104.7,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 16127.5,
+   "combined_area_m2": 47390.2,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "QTS Data Center - Hillsboro 2",
+   "critical_wind_from_deg": 284.7,
+   "wind_exposure": 0.26507,
+   "dilution_factor": 0.794,
+   "exposure_x_dilution": 0.21037,
+   "true_gap_m": 270.5,
+   "longest_facade_m": 180.7,
+   "path_clearance": 0.244
+  },
+  {
+   "source_osm_id": "918871788",
+   "receptor_osm_id": "909742340",
+   "separation_m": 259.9,
+   "bearing_a_to_b_deg": 95.2,
+   "source_area_m2": 16127.5,
+   "receptor_area_m2": 16007.5,
+   "combined_area_m2": 32135.0,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "QTS Data Center - Hillsboro 2",
+   "critical_wind_from_deg": 275.2,
+   "wind_exposure": 0.17649,
+   "dilution_factor": 1.154,
+   "exposure_x_dilution": 0.20372,
+   "true_gap_m": 171.2,
+   "longest_facade_m": 247.5,
+   "path_clearance": 0.996
+  },
+  {
+   "source_osm_id": "52059176",
+   "receptor_osm_id": "1454598380",
+   "separation_m": 183.5,
+   "bearing_a_to_b_deg": 187.0,
+   "source_area_m2": 24127.3,
+   "receptor_area_m2": 19005.6,
+   "combined_area_m2": 43132.9,
+   "source_name": "NTT RagingWire DC - Hillsboro",
+   "receptor_name": "NTT RagingWire DC - Hillsboro",
+   "critical_wind_from_deg": 7.0,
+   "wind_exposure": 0.10111,
+   "dilution_factor": 1.635,
+   "exposure_x_dilution": 0.16531,
+   "true_gap_m": 99.3,
+   "longest_facade_m": 281.8,
+   "path_clearance": 0.993
+  },
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "918871786",
+   "separation_m": 506.1,
+   "bearing_a_to_b_deg": 105.0,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 15904.4,
+   "combined_area_m2": 47167.1,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "QTS Data Center - Hillsboro 2",
+   "critical_wind_from_deg": 285.0,
+   "wind_exposure": 0.2685,
+   "dilution_factor": 0.593,
+   "exposure_x_dilution": 0.15916,
+   "true_gap_m": 356.8,
+   "longest_facade_m": 180.7,
+   "path_clearance": 0.25
+  },
+  {
+   "source_osm_id": "918871788",
+   "receptor_osm_id": "729192992",
+   "separation_m": 422.8,
+   "bearing_a_to_b_deg": 92.3,
+   "source_area_m2": 16127.5,
+   "receptor_area_m2": 14631.6,
+   "combined_area_m2": 30759.1,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "QTS Data Center - Hillsboro 1",
+   "critical_wind_from_deg": 272.3,
+   "wind_exposure": 0.15193,
+   "dilution_factor": 0.71,
+   "exposure_x_dilution": 0.1078,
+   "true_gap_m": 330.9,
+   "longest_facade_m": 247.5,
+   "path_clearance": 0.999
+  },
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "909742340",
+   "separation_m": 635.8,
+   "bearing_a_to_b_deg": 100.8,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 16007.5,
+   "combined_area_m2": 47270.2,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "QTS Data Center - Hillsboro 2",
+   "critical_wind_from_deg": 280.8,
+   "wind_exposure": 0.22517,
+   "dilution_factor": 0.472,
+   "exposure_x_dilution": 0.10624,
+   "true_gap_m": 527.9,
+   "longest_facade_m": 180.7,
+   "path_clearance": 0.179
+  },
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "899634245",
+   "separation_m": 607.7,
+   "bearing_a_to_b_deg": 179.2,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 8713.2,
+   "combined_area_m2": 39975.9,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 359.2,
+   "wind_exposure": 0.14654,
+   "dilution_factor": 0.494,
+   "exposure_x_dilution": 0.07234,
+   "true_gap_m": 464.9,
+   "longest_facade_m": 180.7,
+   "path_clearance": 1.0
+  },
+  {
+   "source_osm_id": "1243089555",
+   "receptor_osm_id": "1080170579",
+   "separation_m": 122.3,
+   "bearing_a_to_b_deg": 3.4,
+   "source_area_m2": 8645.0,
+   "receptor_area_m2": 1857.6,
+   "combined_area_m2": 10502.6,
+   "source_name": "Stack Infrastructure - POR03",
+   "receptor_name": "Flexential Portland - Hillsboro 4 Expansion",
+   "critical_wind_from_deg": 183.4,
+   "wind_exposure": 0.02031,
+   "dilution_factor": 2.453,
+   "exposure_x_dilution": 0.04982,
+   "true_gap_m": 81.7,
+   "longest_facade_m": 102.4,
+   "path_clearance": 0.999
+  },
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "860433344",
+   "separation_m": 473.7,
+   "bearing_a_to_b_deg": 193.7,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 9040.3,
+   "combined_area_m2": 40303.0,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "Flexential Portland - Hillsboro 4",
+   "critical_wind_from_deg": 13.7,
+   "wind_exposure": 0.07155,
+   "dilution_factor": 0.633,
+   "exposure_x_dilution": 0.04531,
+   "true_gap_m": 342.7,
+   "longest_facade_m": 180.7,
+   "path_clearance": 0.974
+  },
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "1080170580",
+   "separation_m": 388.1,
+   "bearing_a_to_b_deg": 199.1,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 16741.5,
+   "combined_area_m2": 48004.2,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "Flexential Portland - Hillsboro 5",
+   "critical_wind_from_deg": 19.1,
+   "wind_exposure": 0.05409,
+   "dilution_factor": 0.773,
+   "exposure_x_dilution": 0.04182,
+   "true_gap_m": 225.9,
+   "longest_facade_m": 180.7,
+   "path_clearance": 0.948
+  },
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "1243089554",
+   "separation_m": 608.5,
+   "bearing_a_to_b_deg": 192.6,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 8442.8,
+   "combined_area_m2": 39705.5,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 12.6,
+   "wind_exposure": 0.07511,
+   "dilution_factor": 0.493,
+   "exposure_x_dilution": 0.03703,
+   "true_gap_m": 462.4,
+   "longest_facade_m": 180.7,
+   "path_clearance": 0.978
+  },
+  {
+   "source_osm_id": "1080170580",
+   "receptor_osm_id": "918871787",
+   "separation_m": 451.4,
+   "bearing_a_to_b_deg": 53.1,
+   "source_area_m2": 16741.5,
+   "receptor_area_m2": 15657.5,
+   "combined_area_m2": 32399.0,
+   "source_name": "Flexential Portland - Hillsboro 5",
+   "receptor_name": "QTS Data Center - Hillsboro 2",
+   "critical_wind_from_deg": 233.1,
+   "wind_exposure": 0.053,
+   "dilution_factor": 0.665,
+   "exposure_x_dilution": 0.03523,
+   "true_gap_m": 180.9,
+   "longest_facade_m": 137.3,
+   "path_clearance": 0.597
+  },
+  {
+   "source_osm_id": "1080170580",
+   "receptor_osm_id": "918871788",
+   "separation_m": 562.6,
+   "bearing_a_to_b_deg": 61.2,
+   "source_area_m2": 16741.5,
+   "receptor_area_m2": 16127.5,
+   "combined_area_m2": 32869.0,
+   "source_name": "Flexential Portland - Hillsboro 5",
+   "receptor_name": "QTS Data Center - Hillsboro 2",
+   "critical_wind_from_deg": 241.2,
+   "wind_exposure": 0.06057,
+   "dilution_factor": 0.533,
+   "exposure_x_dilution": 0.0323,
+   "true_gap_m": 328.2,
+   "longest_facade_m": 137.3,
+   "path_clearance": 0.479
+  },
+  {
+   "source_osm_id": "1080170580",
+   "receptor_osm_id": "918871786",
+   "separation_m": 659.8,
+   "bearing_a_to_b_deg": 69.1,
+   "source_area_m2": 16741.5,
+   "receptor_area_m2": 15904.4,
+   "combined_area_m2": 32645.9,
+   "source_name": "Flexential Portland - Hillsboro 5",
+   "receptor_name": "QTS Data Center - Hillsboro 2",
+   "critical_wind_from_deg": 249.1,
+   "wind_exposure": 0.06889,
+   "dilution_factor": 0.455,
+   "exposure_x_dilution": 0.03132,
+   "true_gap_m": 414.4,
+   "longest_facade_m": 137.3,
+   "path_clearance": 0.354
+  },
+  {
+   "source_osm_id": "918871786",
+   "receptor_osm_id": "918871787",
+   "separation_m": 257.5,
+   "bearing_a_to_b_deg": 277.8,
+   "source_area_m2": 15904.4,
+   "receptor_area_m2": 15657.5,
+   "combined_area_m2": 31561.9,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "QTS Data Center - Hillsboro 2",
+   "critical_wind_from_deg": 97.8,
+   "wind_exposure": 0.02269,
+   "dilution_factor": 1.165,
+   "exposure_x_dilution": 0.02644,
+   "true_gap_m": 183.5,
+   "longest_facade_m": 245.8,
+   "path_clearance": 0.991
+  },
+  {
+   "source_osm_id": "899634245",
+   "receptor_osm_id": "1243089555",
+   "separation_m": 269.7,
+   "bearing_a_to_b_deg": 274.0,
+   "source_area_m2": 8713.2,
+   "receptor_area_m2": 8645.0,
+   "combined_area_m2": 17358.2,
+   "source_name": "Stack Infrastructure - POR03",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 94.0,
+   "wind_exposure": 0.02187,
+   "dilution_factor": 1.112,
+   "exposure_x_dilution": 0.02433,
+   "true_gap_m": 115.6,
+   "longest_facade_m": 100.0,
+   "path_clearance": 0.068
+  },
+  {
+   "source_osm_id": "918871787",
+   "receptor_osm_id": "1243089557",
+   "separation_m": 682.4,
+   "bearing_a_to_b_deg": 198.8,
+   "source_area_m2": 15657.5,
+   "receptor_area_m2": 9077.4,
+   "combined_area_m2": 24734.9,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 18.8,
+   "wind_exposure": 0.05506,
+   "dilution_factor": 0.44,
+   "exposure_x_dilution": 0.02421,
+   "true_gap_m": 506.9,
+   "longest_facade_m": 246.9,
+   "path_clearance": 0.322
+  },
+  {
+   "source_osm_id": "918871787",
+   "receptor_osm_id": "899634245",
+   "separation_m": 559.2,
+   "bearing_a_to_b_deg": 203.7,
+   "source_area_m2": 15657.5,
+   "receptor_area_m2": 8713.2,
+   "combined_area_m2": 24370.7,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 23.7,
+   "wind_exposure": 0.04052,
+   "dilution_factor": 0.536,
+   "exposure_x_dilution": 0.02174,
+   "true_gap_m": 372.4,
+   "longest_facade_m": 246.9,
+   "path_clearance": 0.403
+  },
+  {
+   "source_osm_id": "899634245",
+   "receptor_osm_id": "1080170579",
+   "separation_m": 297.4,
+   "bearing_a_to_b_deg": 298.3,
+   "source_area_m2": 8713.2,
+   "receptor_area_m2": 1857.6,
+   "combined_area_m2": 10570.8,
+   "source_name": "Stack Infrastructure - POR03",
+   "receptor_name": "Flexential Portland - Hillsboro 4 Expansion",
+   "critical_wind_from_deg": 118.3,
+   "wind_exposure": 0.02144,
+   "dilution_factor": 1.009,
+   "exposure_x_dilution": 0.02162,
+   "true_gap_m": 171.9,
+   "longest_facade_m": 100.0,
+   "path_clearance": 0.473
+  },
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "1243089555",
+   "separation_m": 643.6,
+   "bearing_a_to_b_deg": 203.9,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 8645.0,
+   "combined_area_m2": 39907.7,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 23.9,
+   "wind_exposure": 0.04009,
+   "dilution_factor": 0.466,
+   "exposure_x_dilution": 0.01869,
+   "true_gap_m": 470.1,
+   "longest_facade_m": 180.7,
+   "path_clearance": 0.918
+  },
+  {
+   "source_osm_id": "918873142",
+   "receptor_osm_id": "1080170579",
+   "separation_m": 530.8,
+   "bearing_a_to_b_deg": 208.5,
+   "source_area_m2": 31262.7,
+   "receptor_area_m2": 1857.6,
+   "combined_area_m2": 33120.3,
+   "source_name": "Flexential Portland - Hillsboro 3",
+   "receptor_name": "Flexential Portland - Hillsboro 4 Expansion",
+   "critical_wind_from_deg": 28.5,
+   "wind_exposure": 0.03017,
+   "dilution_factor": 0.565,
+   "exposure_x_dilution": 0.01705,
+   "true_gap_m": 371.6,
+   "longest_facade_m": 180.7,
+   "path_clearance": 0.883
+  },
+  {
+   "source_osm_id": "325096144",
+   "receptor_osm_id": "1243089557",
+   "separation_m": 546.9,
+   "bearing_a_to_b_deg": 303.9,
+   "source_area_m2": 10644.2,
+   "receptor_area_m2": 9077.4,
+   "combined_area_m2": 19721.6,
+   "source_name": "Adobe Data Center",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 123.9,
+   "wind_exposure": 0.02033,
+   "dilution_factor": 0.549,
+   "exposure_x_dilution": 0.01115,
+   "true_gap_m": 432.9,
+   "longest_facade_m": 128.0,
+   "path_clearance": 0.558
+  },
+  {
+   "source_osm_id": "918871787",
+   "receptor_osm_id": "1243089554",
+   "separation_m": 618.6,
+   "bearing_a_to_b_deg": 216.4,
+   "source_area_m2": 15657.5,
+   "receptor_area_m2": 8442.8,
+   "combined_area_m2": 24100.3,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 36.4,
+   "wind_exposure": 0.01707,
+   "dilution_factor": 0.485,
+   "exposure_x_dilution": 0.00828,
+   "true_gap_m": 423.6,
+   "longest_facade_m": 246.9,
+   "path_clearance": 0.593
+  },
+  {
+   "source_osm_id": "325096144",
+   "receptor_osm_id": "899634245",
+   "separation_m": 635.4,
+   "bearing_a_to_b_deg": 313.8,
+   "source_area_m2": 10644.2,
+   "receptor_area_m2": 8713.2,
+   "combined_area_m2": 19357.4,
+   "source_name": "Adobe Data Center",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 133.8,
+   "wind_exposure": 0.01715,
+   "dilution_factor": 0.472,
+   "exposure_x_dilution": 0.0081,
+   "true_gap_m": 521.6,
+   "longest_facade_m": 128.0,
+   "path_clearance": 0.692
+  },
+  {
+   "source_osm_id": "918871787",
+   "receptor_osm_id": "860433344",
+   "separation_m": 502.4,
+   "bearing_a_to_b_deg": 223.5,
+   "source_area_m2": 15657.5,
+   "receptor_area_m2": 9040.3,
+   "combined_area_m2": 24697.8,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "Flexential Portland - Hillsboro 4",
+   "critical_wind_from_deg": 43.5,
+   "wind_exposure": 0.0097,
+   "dilution_factor": 0.597,
+   "exposure_x_dilution": 0.00579,
+   "true_gap_m": 330.1,
+   "longest_facade_m": 246.9,
+   "path_clearance": 0.688
+  },
+  {
+   "source_osm_id": "918871786",
+   "receptor_osm_id": "899634245",
+   "separation_m": 676.8,
+   "bearing_a_to_b_deg": 225.2,
+   "source_area_m2": 15904.4,
+   "receptor_area_m2": 8713.2,
+   "combined_area_m2": 24617.6,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 45.2,
+   "wind_exposure": 0.00909,
+   "dilution_factor": 0.443,
+   "exposure_x_dilution": 0.00403,
+   "true_gap_m": 515.2,
+   "longest_facade_m": 245.8,
+   "path_clearance": 0.71
+  },
+  {
+   "source_osm_id": "918871787",
+   "receptor_osm_id": "1243089555",
+   "separation_m": 698.0,
+   "bearing_a_to_b_deg": 225.1,
+   "source_area_m2": 15657.5,
+   "receptor_area_m2": 8645.0,
+   "combined_area_m2": 24302.5,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "Stack Infrastructure - POR03",
+   "critical_wind_from_deg": 45.1,
+   "wind_exposure": 0.00912,
+   "dilution_factor": 0.43,
+   "exposure_x_dilution": 0.00392,
+   "true_gap_m": 497.6,
+   "longest_facade_m": 246.9,
+   "path_clearance": 0.708
+  },
+  {
+   "source_osm_id": "918871787",
+   "receptor_osm_id": "1080170579",
+   "separation_m": 612.1,
+   "bearing_a_to_b_deg": 232.7,
+   "source_area_m2": 15657.5,
+   "receptor_area_m2": 1857.6,
+   "combined_area_m2": 17515.1,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "Flexential Portland - Hillsboro 4 Expansion",
+   "critical_wind_from_deg": 52.7,
+   "wind_exposure": 0.00648,
+   "dilution_factor": 0.49,
+   "exposure_x_dilution": 0.00318,
+   "true_gap_m": 458.0,
+   "longest_facade_m": 246.9,
+   "path_clearance": 0.796
+  },
+  {
+   "source_osm_id": "918871786",
+   "receptor_osm_id": "860433344",
+   "separation_m": 685.2,
+   "bearing_a_to_b_deg": 241.3,
+   "source_area_m2": 15904.4,
+   "receptor_area_m2": 9040.3,
+   "combined_area_m2": 24944.7,
+   "source_name": "QTS Data Center - Hillsboro 2",
+   "receptor_name": "Flexential Portland - Hillsboro 4",
+   "critical_wind_from_deg": 61.3,
+   "wind_exposure": 0.0071,
+   "dilution_factor": 0.438,
+   "exposure_x_dilution": 0.00311,
+   "true_gap_m": 545.5,
+   "longest_facade_m": 245.8,
+   "path_clearance": 0.877
+  }
+ ],
+ "assumptions_not_in_osm": [
+  "Building HEIGHT is absent from OSM for these footprints, so the solver's building height remains a stated assumption rather than a measurement.",
+  "Condenser bank POSITION is not mapped anywhere. It is placed on the source face pointing at the receptor, which is the physically conservative worst case.",
+  "Intake POSITION is likewise assumed, on the receptor face pointing at the source."
+ ],
+ "attribution": "Building footprints (c) OpenStreetMap contributors, ODbL. Weather: NOAA ASOS via Iowa State Environmental Mesonet. No FortyGuard credential used."
+}

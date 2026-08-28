@@ -59,7 +59,18 @@ AGENTIC-ARBITER/app/dist/
 #
 # ⚠ A fresh clone will NOT have it, and cannot regenerate the pipeline without it. That is the
 # deliberate trade. CONTEXT/02-ARCHITECTURE.md records what it holds and where it went.
-AGENTIC-ARBITER/data/
+# 🔴 geometry IS NEEDED BY THE SERVER AND IS TRACKED. Measured, not assumed: with data/ absent,
+# `live.py selftest` dies on data/geometry/selected_site.json and serve_live.py will not start at all.
+# The BROWSER never fetches data/, which is what an earlier note here claimed and it was only half
+# true; the SERVER reads geometry at import time. 13 MB, 1,185 files, so it belongs in the repo.
+#
+# The other four subfolders were each hidden in turn and the selftest still passed, so they are build
+# inputs only. They live at D:/FGHackathon-data with a per-folder junction here, which keeps every
+# script working and keeps 1,026 MB out of GitHub:
+#     imagery 300 MB   weather 229 MB   national_fields 280 MB   live_cache 218 MB
+AGENTIC-ARBITER/data/*
+!AGENTIC-ARBITER/data/geometry/
+
 
 # The BUILT app that ships. demo/app/ is tracked on purpose: GitHub Pages can only serve files that
 # are committed, and this is the deployable artefact. Its sourcemaps are not committed, which is why
