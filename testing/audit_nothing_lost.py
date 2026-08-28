@@ -93,11 +93,60 @@ except Exception:
     pass
 
 
+# A THIRD DECLARED REMOVAL, 2026-08-28: 43 working-note markdown files, 1.3 MB, moved to
+# D:/FGHackathon-notes so the repository presents ONE professional README to judges rather than sixty
+# files of planning and research. The user's instruction, and the keep list was MEASURED rather than
+# chosen: every .py in the tree was stripped of comments and docstrings, and the .md filenames
+# surviving inside string literals are the ones code actually opens. Those all stayed.
+# Listed by name rather than by pattern, because "any .md may vanish" would hide a real loss: if
+# CONTEXT/01-STATE.md or money-sources.md ever disappeared, this check must still fail.
+MOVED_NOTES = {
+    "FORTYGUARD-NEXT-EXPERIMENTS.md", "FORTYGUARD-VALUE-AUDIT.md", "NATIONAL-BUILD-PLAN.md",
+    "PLAN.md", "README.md", "GEOMETRY-AND-PHYSICS.md", "REVIEW.md", "RESULTS.md",
+    "claims-and-defences.md", "damper-agent-plan.md", "damper-claims-and-defences.md",
+    "damper-physics-explained.md", "damper-test-1-data-availability.md",
+    "damper-test-2-switching-simulation.md", "damper-test-3-forecast-skill-PLANNED.md",
+    "fortyguard-api-findings.md", "fortyguard-day1-data-checks.md",
+    "fortyguard-day1-data-checks-RESULTS.md", "fortyguard-email-2-empty-completed.md",
+    "fortyguard-email-3-empty-and-stalled-windows.md", "fortyguard-email-4-short-no-ids.md",
+    "fortyguard-email-draft.md", "fortyguard-groupchat-message.md",
+    "fortyguard-message-forecast-zero-tiles.md", "fortyguard-question-catalog-horizon.md",
+    "fortyguard-report-2026-08-20-jobs-not-completing.md", "how-it-all-fits.md",
+    "i-m-a-second-semester-computer-zazzy-hennessy.md", "intake-agent-checks.md",
+    "intake-agent-plan.md", "n45-costmodel-PREREG.md", "n46-margin-PREREG.md",
+    "n47-persistence-PREREG.md", "n49-detection-PREREG.md", "n50-timing-PREREG.md",
+    "n56-freecooling-PREREG.md", "nvidia-integration-plan.md", "physics-explained.md",
+    "project-master-plan-v2.md", "project-master-plan.md", "project-viability-report.md",
+    "what-am-i-building.md", "._fortyguard-day1-data-checks-RESULTS.md",
+}
+# 🔴 A FILENAME MATCH IS NOT ENOUGH, and two files proved it. `README.md` exists three times: the root
+# one judges read, `<proj>/README.md` which moved, and `<proj>/demo/README.md` which audit.py OPENS and
+# must never vanish. A name-based exception protected the wrong one and then declared a kept one as
+# moved, which would have let a real loss through silently.
+# So the exception is by PATH, listing exactly what stayed, with the project folder normalised because
+# the baseline calls it INTAKE-ARBITER and the tree calls it AGENTIC-ARBITER.
+KEPT_MD = {
+    "README.md",
+    "API-USAGE.md",
+    "CLAUDE.md",
+    "RECIRCULATION-DEFENCE.md",
+    "money-sources.md",
+    "<proj>/demo/README.md",
+    "<proj>/demo/money-sources.md",
+    "<proj>/preserved/README.md",
+}
+
+
 def removed_on_purpose(p):
     q = p.replace(os.sep, "/")
     if "/data/" in q or q.endswith("/data"):
         return True
     base = q.rsplit("/", 1)[-1]
+    if base.endswith(".md"):
+        norm = q.replace(OLD + "/", "<proj>/", 1).replace(NEW + "/", "<proj>/", 1)
+        if norm in KEPT_MD or norm.startswith("CONTEXT/"):
+            return False                      # kept on purpose; a loss here is a real loss
+        return base in MOVED_NOTES
     body = base[len("plume_field_"):] if base.startswith("plume_field_") else base
     return any(body.startswith(k + "_") or body.startswith(k + ".") for k in UNOFFERED)
 

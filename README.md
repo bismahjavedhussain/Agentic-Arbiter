@@ -330,7 +330,7 @@ Every one of those limits, and all four parsed sources, are in
 [`money-sources.md`](money-sources.md), generated from `money.json` by
 `src/write_money_doc.py` and asserted present by `audit.py` check 12.
 
-Read [`AGENTIC-ARBITER/PLAN.md`](AGENTIC-ARBITER/PLAN.md) for the full design record — every claim
+Read `AGENTIC-ARBITER/PLAN.md` for the full design record — every claim
 there carries a citation and a link, verified by opening the source. The short version:
 
 **Established.** Seven-stage loop over **120,960 swept scenarios**. Conformal layer with **20/20
@@ -506,7 +506,7 @@ window**, so it needs both that flag on the server and the request itself to ask
 | [`AGENTIC-ARBITER/`](AGENTIC-ARBITER/) | The product. `src/` is 24 modules, `demo/` is the interface, `PLAN.md` is the citation-bearing design record |
 | [`AGENTIC-ARBITER/demo/`](AGENTIC-ARBITER/demo/) | One HTML file, one inline script, no build step, no dependencies. **Zero API calls at view time** |
 | [`API-USAGE.md`](API-USAGE.md) | How much of the FortyGuard plan was used, derived from the credit meter rather than asserted: **13 calls, 54,860 credits, 2.74 %** |
-| [`fortyguard-api-findings.md`](fortyguard-api-findings.md) | 1,105 lines of field findings written for the FortyGuard team — with a section listing the suspicions that **failed retest and were withdrawn** rather than deleted |
+| `fortyguard-api-findings.md` | 1,105 lines of field findings written for the FortyGuard team — with a section listing the suspicions that **failed retest and were withdrawn** rather than deleted |
 | [`money-sources.md`](money-sources.md) | Every price and efficiency figure, with the document and page it came from |
 | [`CONTEXT/HANDOFF.md`](CONTEXT/HANDOFF.md) | The working log. Long, blunt, and includes **195 gotchas that each actually bit**, plus a running tally of how often this project's own verification code was wrong |
 | [`testing/`](testing/) | Every experiment, including the failures. `scan_secrets.py` and `api_usage_ledger.py` are the two you can run for free |
