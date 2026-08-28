@@ -325,12 +325,35 @@
      "at_utc": "2026-08-28T08:40:07.802095+00:00",
      "lead_h": 9.499,
      "leg": "forecast"
+    },
+    {
+     "submit_http": 200,
+     "activity_id": "53071bf7-a1e5-49d4-a2fc-d184f2a46652",
+     "tiles": 0,
+     "terminal_status": "completed",
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "elapsed_s": 602.5,
+     "polls": 56,
+     "empty_completed_polls": 53,
+     "submit_error_body": null,
+     "error": "completed but never populated after 53 polls over 602 s",
+     "class": "completed_but_empty",
+     "billed": true,
+     "credits_if_billed": 4220,
+     "sentence": "FortyGuard reported the job COMPLETE and returned zero tiles, activity 53071bf7, after 602 s and 56 status polls.",
+     "tag": "n26_f_2026-08-28",
+     "at_utc": "2026-08-28T10:40:07.268486+00:00",
+     "lead_h": 7.499,
+     "leg": "forecast"
     }
    ],
    "forecast_attempts": 2,
-   "forecast_billed_attempts": 1,
-   "forecast_credits_spent": 4220,
-   "forecast_error": "completed but never populated after 54 polls over 603 s"
+   "forecast_billed_attempts": 2,
+   "forecast_credits_spent": 8440,
+   "forecast_error": "completed but never populated after 53 polls over 602 s"
   }
  },
  "errors": {
@@ -339,10 +362,10 @@
   "n26_f_2026-08-20": "failed",
   "n26_f_2026-08-21": "completed but never populated after 59 polls over 604 s",
   "n26_f_2026-08-27": "completed but never populated after 53 polls over 601 s",
-  "n26_f_2026-08-28": "completed but never populated after 54 polls over 603 s"
+  "n26_f_2026-08-28": "completed but never populated after 53 polls over 602 s"
  },
- "credits_last_before": 1052620,
- "credits_last_after": 1044180,
+ "credits_last_before": 1044180,
+ "credits_last_after": 1039960,
  "off_series_observations": {
   "2026-08-19T19:00": {
    "why_not_in_days": "target hour 19:00, NOT the fixed 14:00 the series controls for. Hour-of-day dominates forecast error here (Mondrian worst group 0.7314 vs 0.8794 pooled), so mixing hours would contaminate the coverage measurement. Kept as a separate observation.",

@@ -75,6 +75,34 @@ def head_bytes(path):
     return None if r.returncode else r.stdout
 
 
+# 🔴 TWO DELIBERATE REMOVALS, 2026-08-28, declared here so this check stays meaningful.
+#   data/       1,039 MB of BUILD INPUTS, moved to D:/FGHackathon-data with a directory junction left
+#               at the old path so all twelve scripts that build os.path.join(IA, "data", ...) keep
+#               working. Never fetched at runtime, proved by reading the page: it fetches only
+#               relative names inside demo/. Untracked so it is never pushed, which took tracked bytes
+#               from 1,823 MB to 962 MB, inside GitHub's recommended 1 GB.
+#   unoffered   153 artefacts, 28.3 MB, belonging to the 14 sites sites.json marks NOT offerable.
+#               Unreachable by design: #c_site only ever holds an offerable key, so loadSite() is
+#               never called with one of these. Parked rather than deleted, under the same data folder.
+# Anything absent that is NOT one of those two shapes is still a failure, which is the point.
+UNOFFERED = set()
+try:
+    _sj = json.load(io.open(os.path.join(ROOT, NEW, "demo", "sites.json"), encoding="utf-8"))
+    UNOFFERED = {x["key"] for x in _sj["sites"] if not x.get("offerable")}
+except Exception:
+    pass
+
+
+def removed_on_purpose(p):
+    q = p.replace(os.sep, "/")
+    if "/data/" in q or q.endswith("/data"):
+        return True
+    base = q.rsplit("/", 1)[-1]
+    body = base[len("plume_field_"):] if base.startswith("plume_field_") else base
+    return any(body.startswith(k + "_") or body.startswith(k + ".") for k in UNOFFERED)
+
+
+
 def sect(t):
     print()
     print("=" * 78)
@@ -231,8 +259,10 @@ for f in jsons:
 r = subprocess.run(["git", "ls-tree", "-r", "--name-only", BASE, "%s/demo/" % OLD],
                    cwd=ROOT, capture_output=True, text=True)
 for p in (r.stdout or "").strip().split("\n"):
-    if p.endswith(".json") and not os.path.exists(
-            os.path.join(ROOT, p.replace(OLD, NEW).replace("/", os.sep))):
+    if (p.endswith(".json")
+            and not removed_on_purpose(p)
+            and not os.path.exists(
+                os.path.join(ROOT, p.replace(OLD, NEW).replace("/", os.sep)))):
         gone.append(os.path.basename(p))
 
 ck("no JSON artefact is missing", not gone,
@@ -249,7 +279,8 @@ for ext in (".png", ".pdf", ".csv"):
                        cwd=ROOT, capture_output=True, text=True)
     heads = [p for p in (r.stdout or "").split("\n") if p.endswith(ext)]
     miss = [p for p in heads
-            if not os.path.exists(os.path.join(ROOT, p.replace(OLD, NEW).replace("/", os.sep)))]
+            if not removed_on_purpose(p)
+            and not os.path.exists(os.path.join(ROOT, p.replace(OLD, NEW).replace("/", os.sep)))]
     ck("every %s at the baseline is still present" % ext, not miss,
        "%d files" % len(heads) if not miss else "MISSING %d, e.g. %s" % (len(miss), miss[0]))
 
@@ -371,7 +402,8 @@ def counterpart(p):
 
 
 absent = [p for p in base_paths
-          if not os.path.exists(os.path.join(ROOT, counterpart(p).replace("/", os.sep)))]
+          if not os.path.exists(os.path.join(ROOT, counterpart(p).replace("/", os.sep)))
+          and not removed_on_purpose(p)]
 ck("every path that existed at %s is still on disk" % BASE, not absent,
    "%d paths walked, %d under the rename"
    % (len(base_paths), sum(1 for p in base_paths if p.startswith(OLD + "/")))
@@ -382,7 +414,8 @@ ck("every path that existed at %s is still on disk" % BASE, not absent,
 r = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, text=True)
 dels = [l[3:].strip().strip('"') for l in (r.stdout or "").split("\n")
         if l.startswith(" D") or l.startswith("D ")]
-ck("no uncommitted deletion in the working tree", not dels,
+dels = [d for d in dels if not removed_on_purpose(d)]
+ck("no uncommitted deletion beyond the declared removals", not dels,
    "clean" if not dels else "%d DELETED: %s" % (len(dels), ", ".join(dels[:6])))
 
 print()

@@ -82,7 +82,7 @@ demo's judge-facing rewrite, facility-scale money, and the failure-bucket triage
 >    **`src/build_national_batch.py run` is the unattended driver** — ~6.5 min/facility, ~46 h for
 >    the standalone tier, resumable by construction. **§3.5 is the record; `NATIONAL-BUILD-PLAN.md`
 >    §6's stage table is now partly stale — trust §3.5.**
-> 8. **SPEND IS 229 CALLS / 955,820 / 47.79 %**, 1,044,180 remaining — 221 heatmaps + 8
+> 8. **SPEND IS 230 CALLS / 960,040 / 48.00 %**, 1,039,960 remaining — 222 heatmaps + 8
 >    `env_params`. Re-derive with `python testing/api_usage_ledger.py`, then
 >    `python testing/bump_spend_docs.py` writes it into API-USAGE.md and this file; the bump now
 >    REFUSES to write if the two sides of its own equation disagree. (Historical, for the drift
@@ -4691,8 +4691,8 @@ session's. The command is in §4.2.
 | `satellite` / `heat_intelligence` | 14,400 / 8,600 |
 | **Daily limit** | **30 heatmaps/day** — the cap binds long before credits do |
 | System / usage / plan endpoints | **FREE** |
-| **Spent to date** | 🔴 **955,820 = 229 calls = 47.79 %.** Remaining **1,044,180**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
-| **⚠ Of that, 316,500 PROVABLY bought nothing** | **33.1 %** of spend. Ceiling **793,360 = 83.0 %**. §10 #93 |
+| **Spent to date** | 🔴 **960,040 = 230 calls = 48.00 %.** Remaining **1,039,960**. Split **174 heatmap × 4,220 + 5 env_params × 2,900**. **Re-derive it, never quote from memory: `python testing/api_usage_ledger.py`** (was 571,540 / 137 calls / 28.58 % before the national field purchases and the live runs) |
+| **⚠ Of that, 316,500 PROVABLY bought nothing** | **33.0 %** of spend. Ceiling **797,580 = 83.1 %**. §10 #93 |
 | **⚠ THE LIVE AGENT IS NOW THE DOMINANT SPENDER** | One 12-hour run = **11 calls, 46,420 credits, 44 % of all spend ever**. **3 returned a field, 8 returned `completed` with no data and ALL 8 WERE BILLED** — 33,760 for nothing. §10 #103 |
 | **⚠ THE PREVIOUS LINE SAID 42,200 = 10 CALLS = 2.11 %** | Stale by three calls, because the collector kept firing and no test re-read the figure. **`audit.py` check 9 now re-reads it and fails on the stale string.** §10 #93 |
 | Forecast (future) windows | ⚠ **ONE success, 2026-08-19 13:35 UTC — and three failures since.** §4 is now qualified: read §4.0 |

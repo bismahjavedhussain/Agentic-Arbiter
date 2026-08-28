@@ -46,3 +46,17 @@ node_modules/
 AGENTIC-ARBITER/app/dist/
 .vite/
 *.tsbuildinfo
+
+# ---- BUILD INPUTS, MOVED OUT OF THE REPOSITORY 2026-08-28 ----------------------------------------
+# 1,039 MB across 2,120 files: imagery, national fields, weather and the live cache. NEVER fetched at
+# runtime, proved by reading the page: it fetches only sites.json, unified_sites.json, per-site names
+# from that manifest, and api/*, all relative and all inside demo/. So it is a regeneration input, not
+# part of what a judge opens.
+#
+# It now lives at D:\FGHackathon-data with a DIRECTORY JUNCTION at the old path, so all twelve scripts
+# that build `os.path.join(IA, "data", ...)` keep working with no code change. Untracked, so it is
+# never pushed: tracked bytes fall from 1,823 MB to about 960 MB, inside GitHub's recommended 1 GB.
+#
+# ⚠ A fresh clone will NOT have it, and cannot regenerate the pipeline without it. That is the
+# deliberate trade. CONTEXT/02-ARCHITECTURE.md records what it holds and where it went.
+AGENTIC-ARBITER/data/

@@ -222,3 +222,34 @@ PREFLIGHT -- read-only. Nothing is written and nothing is spent.
    THIS MODE DOES NOT REBUILD AND HAS CHANGED NOTHING. The rebuild is a human decision
    and waits for one: `python testing/rebuild_calibration.py run`.
 ==============================================================================
+
+### rebuild_calibration.py preflight  at 2026-08-28 11:00 UTC
+==============================================================================
+PREFLIGHT -- read-only. Nothing is written and nothing is spent.
+==============================================================================
+   [FAIL] 2245 uncommitted change(s) OUTSIDE testing/results/. Commit or stash first --
+          the last commit is what a rollback restores to, and rollback overwrites
+          AGENTIC-ARBITER/demo and AGENTIC-ARBITER/data without asking.
+          - .gitignore
+          - AGENTIC-ARBITER/data/geometry/AL_way_1540172608_direction_table.json
+          - AGENTIC-ARBITER/data/geometry/AL_way_1540172608_selected_site.json
+          - AGENTIC-ARBITER/data/geometry/AL_way_1540172608_solver_site_facing.json
+          - AGENTIC-ARBITER/data/geometry/AL_way_1540172608_solver_site_longest.json
+          - AGENTIC-ARBITER/data/geometry/AZ_way_1015704066_direction_table.json
+          - AGENTIC-ARBITER/data/geometry/AZ_way_1015704066_selected_site.json
+          - AGENTIC-ARBITER/data/geometry/AZ_way_1015704066_solver_site_facing.json
+          ... and 2237 more
+   ...... running audit.py to confirm the CURRENT state is green (this takes a minute)
+   [ok  ] audit.py green: AUDIT: 2216 passed, 0 warnings, 0 FAILURES
+   [ok  ] 16:03 PKT is outside the collector window
+
+   published calibration : n = 4, ceiling 80.00 %, margin 0.15202845146120256
+   on disk now           : n = 6  (2026-08-12, 2026-08-13, 2026-08-15, 2026-08-16, 2026-08-25, 2026-08-26)
+   [ok  ] a rebuild would take n 4 -> 6, ceiling 80.00 % -> 85.71 %
+          3 further pair(s) would make 90 % reachable (n = 9)
+
+   VERDICT: DO NOT RUN -- fix the [FAIL] rows above
+
+   THIS MODE DOES NOT REBUILD AND HAS CHANGED NOTHING. The rebuild is a human decision
+   and waits for one: `python testing/rebuild_calibration.py run`.
+==============================================================================
