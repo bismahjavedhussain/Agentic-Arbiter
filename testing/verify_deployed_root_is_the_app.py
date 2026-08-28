@@ -275,6 +275,34 @@ try:
     else:
         ok("%d traversal attempt(s) through the /app/ fallback all blocked" % len(escapes))
 
+    # 3d. 🔴 THE ENGINE'S API ROUTES, AT THE DEPTH IT IS SERVED FROM. This is what kept the live agent
+    # dead on the deployed site for days.
+    #
+    # probeLive() in results/engine.mjs:2077 does `fetch('api/health')` with NO ART prefix. From
+    # demo/index.html, served out of demo/, that resolves to /api/health and works. The React app is
+    # served from demo/app/, so the browser resolves the same string against /app/ and asks for
+    # /app/api/health, which do_GET did not recognise as an API route at all. It 404d, HEALTH became
+    # null, drawLiveUnavailable() disabled #livego and labelled it "Live agent not attached".
+    #
+    # Three routes, not one: api/health, api/live/<site> and api/live/job/<id>.
+    # Only the GET routes are exercised here. The POST is the one that spends 4,220 credits, and a
+    # verifier must never be the thing that spends them.
+    for route in ("/api/health", "/api/ping", "/api/live/job/nosuchjob"):
+        bare = get(port, route)
+        under = get(port, "/app" + route)
+        if bare[0] != under[0]:
+            bad("%s answers %d but /app%s answers %d. The engine fetches the bare relative path, so "
+                "it asks for the /app/ spelling; a mismatch means the live agent is unreachable from "
+                "the React app." % (route, bare[0], route, under[0]))
+        else:
+            ok("%-26s and /app%-26s both -> %d" % (route, route, bare[0]))
+    # And an unknown API path must still 404 under the prefix, not fall through to a file.
+    st, _h, _b = get(port, "/app/api/definitely-not-a-route")
+    if st != 404:
+        bad("/app/api/definitely-not-a-route -> %d, so the prefix strip is too broad" % st)
+    else:
+        ok("an unknown /app/api/ route still 404s honestly")
+
     # 4. THE KEEP-ALIVE SURFACE. A free Render instance sleeps after 15 minutes without traffic, so
     # an external pinger hits this every 10 minutes forever. Two things have to hold.
     #

@@ -420,6 +420,41 @@ class Handler(SimpleHTTPRequestHandler):
         line = (self.requestline or "")[:120]
         sys.stderr.write("   %s %s\n" % (self.address_string(), line))
 
+    def _unprefix_api(self):
+        """`/app/api/...` is the same route as `/api/...`. Rewrite it. Returns True if it did.
+
+        🔴 THIS IS WHY THE LIVE AGENT WAS DEAD ON THE DEPLOYED SITE, and the cause is one missing
+        prefix in code that cannot be edited. `probeLive()` in results/engine.mjs:2077 does:
+
+            const r = await fetch('api/health', {cache:'no-store'});
+
+        A BARE RELATIVE PATH, with no `ART`. On demo/index.html, served from demo/, that resolves to
+        `/api/health` and works. The React app is served from demo/app/, so the browser resolves the
+        same string against `/app/` and asks for **`/app/api/health`**, which `do_GET` does not
+        recognise as an API route at all: it does not start with `/api/`. So it fell through to the
+        static handler, 404d, `HEALTH` became null, and `drawLiveUnavailable()` disabled `#livego` and
+        labelled it "Live agent not attached". Measured against the live host: `/api/health` 200,
+        `/app/api/health` 404.
+
+        Three routes were affected, not one: `api/health`, `api/live/<site>` (the POST that starts a
+        run, engine.mjs:2229) and `api/live/job/<id>` (the poll, engine.mjs:2239).
+
+        WHY NOT FIX IT IN THE ENGINE. run_all.py step 30 asserts results/engine.mjs is character for
+        character the code inside demo/index.html, and that identity is what makes the React rebuild
+        trustworthy. Adding a prefix there would end it. So the server accepts both spellings, exactly
+        as `_app_artefact_fallback` already does for the artefacts, which failed to catch this because
+        it only rewrites paths that resolve to a real FILE and these are routes.
+
+        NO NEW CAPABILITY. It strips a known prefix and hands the request to the same handlers, which
+        keep their own checks: `do_POST` still refuses a site that is not offerable, `--allow-paid` is
+        still required before anything is spent, and the per-process cap still applies.
+        """
+        p, _, q = self.path.partition("?")
+        if not p.startswith("/app/api/"):
+            return False
+        self.path = p[len("/app"):] + (("?" + q) if q else "")
+        return True
+
     def _app_artefact_fallback(self):
         """An `/app/<name>` the bundle does not have falls back to `demo/<name>`. Returns True if the
         path was rewritten.
@@ -475,6 +510,7 @@ class Handler(SimpleHTTPRequestHandler):
         return True
 
     def do_HEAD(self):
+        self._unprefix_api()      # /app/api/... is the same route as /api/...; see _unprefix_api
         """🔴 UPTIME MONITORS OFTEN SEND HEAD, NOT GET, and without this they would see a 404 and
         report the site as down. `SimpleHTTPRequestHandler` implements `do_HEAD` for files only, so
         every `/api/*` path answered 404 to a HEAD request while answering 200 to a GET. Measured
@@ -500,6 +536,7 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_HEAD()
 
     def do_GET(self):
+        self._unprefix_api()      # MUST be first: the /api/ branches below match on the prefix
         # 🔴 THE CHEAPEST POSSIBLE LIVENESS ANSWER, and it exists because /api/health is not cheap
         # enough to be polled. Measured 2026-08-28: /api/health returns 6,233 bytes, almost all of it
         # the 250-key `sites` list, resent to a robot that does not read it.
@@ -562,6 +599,7 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self):
+        self._unprefix_api()      # the live RUN arrives here as /app/api/live/<site>
         if not self.path.startswith("/api/live/"):
             return _json(self, {"error": "unknown endpoint"}, 404)
         site = self.path[len("/api/live/"):].split("?")[0].strip("/")

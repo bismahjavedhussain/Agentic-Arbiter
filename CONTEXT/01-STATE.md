@@ -12,6 +12,54 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### 🔴 THE LIVE AGENT WAS DEAD ON THE DEPLOYED SITE FOR ONE MISSING PREFIX. 2026-08-29
+
+Asked to "make the live agent option active". It was not a settings problem: the server had been armed
+the whole time (`live_available True, paid_enabled True, key_present True, max_live_calls 48`). The page
+could not reach it.
+
+`probeLive()` at `results/engine.mjs:2077`:
+
+```js
+const r = await fetch('api/health', {cache:'no-store'});
+```
+
+**A bare relative path, with no `ART`.** On `demo/index.html`, served out of `demo/`, it resolves to
+`/api/health` and works. The React app is served from `demo/app/`, so the browser resolves the same
+string against `/app/` and asks for **`/app/api/health`**, which `do_GET` did not recognise as an API
+route at all because it does not start with `/api/`. Measured against the live host:
+
+```
+/api/health       200      <- React's path, ART + 'api/health'
+/app/api/health   404      <- the engine's path. probeLive() asks for THIS
+```
+
+So `HEALTH` became null, `drawLiveUnavailable()` ran, and `#livego` was disabled and relabelled "Live
+agent not attached". **Three routes were affected, not one:** `api/health`, `api/live/<site>` (the POST
+that starts a run, engine.mjs:2229) and `api/live/job/<id>` (the poll, engine.mjs:2239).
+
+**This is the SAME BUG SHAPE as the artefact 404s** fixed earlier the same day: a bare relative path in
+lifted code resolving one level too deep at `/app/`. `_app_artefact_fallback` did not catch it because
+that only rewrites paths resolving to a real FILE, and these are routes.
+
+**Fixed in the server, not the engine.** `_unprefix_api()` strips a leading `/app` from any
+`/app/api/...` path, called first in `do_GET`, `do_HEAD` and `do_POST`. Step 30 asserts engine.mjs is
+character for character the page's code, so adding a prefix there would end that identity.
+**No new capability:** it strips a known prefix and hands the request to the same handlers, which keep
+their own checks. `do_POST` still refuses a non-offerable site, `--allow-paid` is still required, and
+the per-process cap still applies.
+
+Step 33 now asserts **route parity**: `/api/X` and `/app/api/X` must return the same status for
+`api/health`, `api/ping` and `api/live/job/<id>`, and an unknown `/app/api/` path must still 404 so the
+prefix strip cannot be too broad. ⚠ **Only the GET routes are exercised. The POST is the one that spends
+4,220 credits and a verifier must never be the thing that spends them.**
+
+⚠ **WHAT IS NOW LIVE, STATED PLAINLY.** `#livego` on the deployed site is enabled and a click really
+calls FortyGuard. **4,220 credits per hourly window**, capped at `MAX_LIVE_CALLS=48` per process, so
+about 202,560 credits a day is reachable by anyone with the URL. That is the owner's standing decision
+from 2026-08-28 ("let the user make live calls, whoever it may be"), recorded here because the button
+was inert until now and the exposure only becomes real with this commit.
+
 ### 🔴 A GREP IS NOT A LOOK. testing/render_shots.py NOW EXISTS FOR THAT REASON. 2026-08-29
 
 The user's words: **"WHY ARE YOU SO BLIND? DONT YOU SEE THE SCREENSHOTS OF THE RENDERED RESULT BEFORE
