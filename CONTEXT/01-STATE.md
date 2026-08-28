@@ -12,6 +12,70 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### 🔴 RENDER HAS NO SPEND LIMIT, and the keep-alive must be WINDOWED not 24/7
+
+Verified 2026-08-28 by a 26-agent research pass with a skeptic against every load-bearing claim.
+
+**1. There is no workspace spend limit on Render.** No maximum spend, no spend cap, no field that caps
+total workspace spend. The public feature request is open with a May 2025 comment saying it is not on
+the roadmap. **"Set the spend limit to zero" is not an action that exists.** The only spend control in
+the product caps ONE axis, build pipeline minutes: *Dashboard, workspace home, **Settings** in the left
+pane, scroll to **Build Pipeline**, click **Set spend limit***. Not on the Billing page, not gated to
+paid plans. ⚠ Whether that dialog accepts a literal `0` is unconfirmed, and a `0` there stops **all
+builds including deploys** for the rest of the month, so you could not ship a fix.
+
+**The real cap is having no payment method:** *"If you haven't added a payment method or you reach your
+spend limit, Render instead disables all new builds."* Free instance hours behave the same way,
+suspending rather than billing. ⚠ **A card IS on this workspace** (the $1 authorisation), so that
+protection is not currently in force. The one genuinely billable axis is **bandwidth**, which has no
+cap and bills per GB (5 GB included since the 2026-04-23 plan change, overage documented at $0.15/GB).
+
+**2. 🔴 A 24/7 PINGER IS ARITHMETICALLY FINE AND PRACTICALLY RECKLESS.** 750 instance hours per month,
+**workspace-wide**, shared by every free service, no rollover.
+
+| plan | hours | headroom of 750 |
+|---|---|---|
+| awake 24/7, 31-day month | **744** | **6 h, 0.80 %** |
+| awake 24/7, 30-day month | 720 | 30 h, 4.0 % |
+| **awake 14 h/day, 31-day month** | **434** | **316 h, 42 %** |
+
+On exhaustion Render **suspends every free service until the 1st of the next month**. Not slower: off,
+for up to 30 days. And the docs never say whether deploys, restarts and previews count, so **744 is a
+floor, not a ceiling**. The asymmetry decides it: a dead pinger costs one judge a one-minute cold
+start; a dead hour budget costs the whole site for weeks.
+
+**The interval does not change hours consumed.** Once it never sleeps it burns 744 h whether pinged
+every 5 or every 14 minutes. The lever is the DAILY WINDOW, not the interval.
+
+**DECIDED: every 5 minutes, hours 08 to 21 only.** 5 and not 10 minutes because spin-down is 15 idle
+minutes, so a 5-minute interval gives 3 pings per window and survives two consecutive misses, while
+10 gives 1.5 and one late ping lets it sleep. cron-job.org's own FAQ admits it may delay jobs
+deliberately.
+
+**3. cron-job.org is the pinger.** No card, 1-minute granularity, timezone selectable. ⚠ It
+auto-disables a job after **more than 25 consecutive failures**, and the free tier has a 30-second
+request timeout. Second choice is Cloudflare Workers Cron Triggers, which nothing disables for failing
+or for inactivity. UptimeRobot is **fixed at 5 minutes always-on**, which cancels the window.
+
+**4. 🔴 GITHUB ACTIONS CANNOT DO THIS ON A PRIVATE REPO, AT ANY INTERVAL.** Every job is rounded up to
+1 minute against 2,000 included minutes, so the entire monthly quota spent on nothing but pings buys
+64.5 runs a day, one every **22.3 minutes**, slower than the 15-minute spin-down. Going public makes
+Actions minutes free, but `schedule` is documented as delayed and droppable, and **scheduled workflows
+are disabled after 60 days of repository inactivity**. Still not the recommendation.
+
+**5. The ping target is `/api/ping`**, now deployed, 12 bytes. Proof it cannot spend: the only call to
+the paid path is `LV.live_run(...)` at `serve_live.py:354`, reachable only from `do_POST` on
+`/api/live/`; `health()` was instrumented on `socket.connect`, `getaddrinfo` and `urlopen` across two
+calls, cold and warm, and made **zero** outbound calls.
+
+⚠ Separately, and it is the owner's stated decision rather than a defect: `POST /api/live/<site>` is
+unauthenticated on the deployed host, so 48 calls a day at 4,220 credits is about 202,560 credits a day
+available to anyone with the URL.
+
+**Bandwidth per visitor, measured:** first load 2.90 MB, then `loadSite` fetches 7 artefacts totalling
+2.20 MB, so **5.11 MB for a full journey and 1,051 journeys before the 5 GiB cap**. `scenarios.json`
+is 30.2 MB but nothing fetches it: it is named in the artefacts map and `loadSite` does not read it.
+
 ### 🔴 THE DEPLOYED APP COULD NOT LOAD A SINGLE SITE, and the harness is why it shipped
 
 **The user reported "No built artefacts for ashburn" and a Configure button that did nothing.** Both
