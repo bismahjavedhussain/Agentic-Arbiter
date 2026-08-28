@@ -19,6 +19,7 @@
 - [Live agent is permanent](live-agent-is-permanent.md) — never remove or relocate `#livecard`/`#livego`; a UI brief mentioning both modes is a constraint, not a feature request
 - [Project renamed AGENTIC-ARBITER](project-renamed-agentic-arbiter.md) — was INTAKE-ARBITER until 2026-08-27; folder, 2,737 strings, wordmark and 266 PDFs all moved
 - [No em dashes](no-em-dashes.md) - never use em dashes in copy; masthead is a header plus 2-3 lines, deeper prose goes in `.info` popovers
+- [Two day-pairs deferred](two-day-pairs-deferred.md) - 2026-08-25/26 measured but not in the figures by the user's decision; run_all.py fails two steps until adopted, and a run rewrites demo/ in place
 ```
 
 ---
@@ -294,7 +295,40 @@ times the volume. See [[ship-production-not-mvp]] and [[complete-agent-no-thresh
 standards a delegated result still has to meet.
 ```
 
+## `two-day-pairs-deferred.md`
+
+```markdown
+---
+name: two-day-pairs-deferred
+description: "Two measured FortyGuard day-pairs are deliberately not in the published figures, and run_all.py therefore does not exit 0"
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: ce7469f0-426c-49a0-bdc6-a332de79e06e
+  modified: 2026-08-28T08:21:20.715Z
 ---
 
-*8 memories mirrored, plus the index.*
+On 2026-08-28 the user deferred adopting two measured FortyGuard day-pairs (2026-08-25, 2026-08-26)
+that exist as tracked fixtures but are absent from every published figure: *"dont do it right now,
+we'll do it later. just save the pairs somewhere for now."*
+
+**Why:** adopting them moves the headline honesty number from 65.6 % to 78.6 % bound coverage and the
+n/(n+1) ceiling from 80 % to 85.7 %, which means restating README lines 119, 278 and 363 and
+regenerating 243 artefacts plus 266 PDFs. The 90 % promise is unmet either way. Changing a headline
+figure is the user's call, not mine.
+
+**How to apply:** do not rebuild artefacts or restate figures until they say so. Two consequences to
+hold in mind: `run_all.py` currently fails two steps (it rebuilds with six pairs, then audits against
+docs quoting four), while `audit.py` alone still passes 2,216/0 on the committed set. And `run_all.py`
+and `build_sites.py` REWRITE `AGENTIC-ARBITER/demo/` in place, so a run leaves 243 files whose numbers
+contradict the published ones; `git checkout -- AGENTIC-ARBITER/demo/` restores them. Never read a
+figure off the tree during or after a partial run.
+
+Full evidence and the measured before/after table are in `CONTEXT/01-STATE.md` section 5. Related:
+[[context-folder-is-the-source]], [[ship-production-not-mvp]].
+```
+
+---
+
+*9 memories mirrored, plus the index.*
 

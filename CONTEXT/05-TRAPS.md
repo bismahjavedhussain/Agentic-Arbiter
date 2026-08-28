@@ -154,6 +154,43 @@ symptom is an authentication failure that looks like a bad key. The correct sequ
 ### 4.2 Never print, echo, log or transmit the key
 It is gitignored and untracked, and it is a real credential. Read it only through `load_key()`.
 
+### 4.2b FOUR WINDOWS SCHEDULED TASKS COULD SPEND MONEY ON THEIR OWN, and three were armed
+Disabled 2026-08-28 at the user's direction, minutes before the next would have fired. They are the
+user's own collector, set up deliberately with `--allow-paid`, and they are **not** part of
+`run_all.py`; nothing in the pipeline spends.
+
+```
+FG-N26-Chicago-Offset    daily 13:35   python testing/n26_chicago_offset.py collect --allow-paid
+FG-N26-Coverage-Retry1   daily 13:50
+FG-N26-Coverage-Retry2   daily 14:15
+FG-N26-Coverage          already disabled
+```
+
+**Why they were stopped: the collector had stopped returning data and was still being billed.**
+
+| Date | Attempts | Tiles returned |
+|---|---|---|
+| 2026-08-25 | 2 | 17,862 and 17,862, captured |
+| 2026-08-26 | 2 | 17,862 and 17,862, captured |
+| 2026-08-27 | 3 | 0, 0, 0 |
+| 2026-08-28 | 1 | 0 |
+
+Four consecutive empty results at 4,220 credits each. The 08-25 and 08-26 successes are where the two
+unadopted day-pairs in section 5 of `01-STATE.md` came from.
+
+**Re-enable with:**
+```
+schtasks /change /tn FG-N26-Chicago-Offset  /enable
+schtasks /change /tn FG-N26-Coverage-Retry1 /enable
+schtasks /change /tn FG-N26-Coverage-Retry2 /enable
+```
+
+🔴 AND THE DIAGNOSTIC LESSON, because I got this wrong out loud first. A changed
+`testing/results/api_usage.json` after a pipeline run does **not** mean the pipeline spent. `audit.py`
+WRITES that file: it re-derives the ledger from the manifest, so a scheduled task's spend surfaces the
+next time the audit runs and looks like the audit's fault. Check `schtasks /query` and the fixture
+mtimes before concluding anything about who spent. `agent.py` has no network code at all.
+
 ### 4.3 A live paid run costs 4,220 credits per hourly window
 50,640 for a 12-hour horizon. `serve_live.py` requires **two** keys to spend: the `--allow-paid`
 flag on the server *and* a flag on the request. Do not spend without explicit direction.

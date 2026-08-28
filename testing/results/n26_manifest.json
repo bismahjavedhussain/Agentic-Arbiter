@@ -297,6 +297,40 @@
    "forecast_billed_attempts": 3,
    "forecast_credits_spent": 12660,
    "forecast_error": "completed but never populated after 53 polls over 601 s"
+  },
+  "2026-08-28": {
+   "date": "2026-08-28",
+   "forecast_done": false,
+   "outcome_done": false,
+   "forecast_attempt_log": [
+    {
+     "submit_http": 200,
+     "activity_id": "65d74497-cc91-4e16-a974-25fa640dc33e",
+     "tiles": 0,
+     "terminal_status": "completed",
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "elapsed_s": 602.7,
+     "polls": 57,
+     "empty_completed_polls": 54,
+     "submit_error_body": null,
+     "error": "completed but never populated after 54 polls over 603 s",
+     "class": "completed_but_empty",
+     "billed": true,
+     "credits_if_billed": 4220,
+     "sentence": "FortyGuard reported the job COMPLETE and returned zero tiles, activity 65d74497, after 603 s and 57 status polls.",
+     "tag": "n26_f_2026-08-28",
+     "at_utc": "2026-08-28T08:40:07.802095+00:00",
+     "lead_h": 9.499,
+     "leg": "forecast"
+    }
+   ],
+   "forecast_attempts": 1,
+   "forecast_billed_attempts": 1,
+   "forecast_credits_spent": 4220,
+   "forecast_error": "completed but never populated after 54 polls over 603 s"
   }
  },
  "errors": {
@@ -304,10 +338,11 @@
   "n26_f_2026-08-19": "completed but never populated after 58 polls over 607 s",
   "n26_f_2026-08-20": "failed",
   "n26_f_2026-08-21": "completed but never populated after 59 polls over 604 s",
-  "n26_f_2026-08-27": "completed but never populated after 53 polls over 601 s"
+  "n26_f_2026-08-27": "completed but never populated after 53 polls over 601 s",
+  "n26_f_2026-08-28": "completed but never populated after 54 polls over 603 s"
  },
- "credits_last_before": 1106160,
- "credits_last_after": 1106160,
+ "credits_last_before": 1052620,
+ "credits_last_after": 1044180,
  "off_series_observations": {
   "2026-08-19T19:00": {
    "why_not_in_days": "target hour 19:00, NOT the fixed 14:00 the series controls for. Hour-of-day dominates forecast error here (Mondrian worst group 0.7314 vs 0.8794 pooled), so mixing hours would contaminate the coverage measurement. Kept as a separate observation.",
