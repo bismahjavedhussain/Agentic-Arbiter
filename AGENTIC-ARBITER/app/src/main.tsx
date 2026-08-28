@@ -7,6 +7,11 @@ import { createRoot } from 'react-dom/client'
    conflict by accident: testing/verify_palette.py asserts 34 page/app colour pairs agree. */
 import './generated/engine.css'
 import './index.css'
+/* LAST, because the workspace re-measures and re-hides what the other two lay out: it overrides
+   .viz-root's 1180px measure, collapses .side's two columns and decides which panels are on screen.
+   A separate file rather than more of index.css so that "what the tabs do" is one thing to read, and
+   so removing the workspace is removing one import. */
+import './workspace.css'
 import { App } from './App'
 
 const el = document.getElementById('root')

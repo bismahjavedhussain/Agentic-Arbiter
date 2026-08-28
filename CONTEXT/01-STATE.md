@@ -12,6 +12,72 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE RESULTS STAGE IS NOW A SIX-TAB WORKSPACE, and the panels were not rewritten
+
+Built 2026-08-28 at the user's direction: a hierarchical workspace with a sidebar rail, a widget grid,
+glassmorphism, framer-motion transitions and a console-style component for the seven agent stages.
+
+**THE ONE DECISION EVERYTHING ELSE FOLLOWS: the panels are rearranged, never retyped.** The thirteen
+results cards keep their ids, their markup and their renderers. `results/engine.mjs` stays
+byte-identical to `demo/index.html` (step 30), the markup string stays hash-identical (step 31), and
+`audit.py`'s 2,216 checks still measure the page they always measured. `lib/tabs.ts` stamps
+`data-aa-tab` on each panel and `workspace.css` decides which are on screen. **No node is moved.**
+
+| tab | panels |
+|---|---|
+| Configuration & Setup | `[data-show="configure"]`, plus the `.sidebar` holding `#filters` |
+| Live Agent Execution | `#tapecard`, `#livecard` |
+| Hourly Schedule & Reasoning | `#decisioncard`, `#whycard` |
+| Economic Impact | `#headcard`, `#laddercard`, `#moneycard` |
+| Plume & Geometry Analysis | `#fieldcard`, `#sitecard`, `#plumecard`, `#dialcard` |
+| Model Calibration | `#scorecard`, `#cfcard` |
+
+**TWO OWNERS OF VISIBILITY, DELIBERATELY, BECAUSE THEY OWN DIFFERENT FACTS.** `setStage()` owns "is
+this panel's STAGE current" through the `hidden` attribute; the tab rules own "is this panel's TAB
+current" through `display`. A panel needs both. Neither reads or clears the other, so `#livecard`
+remains governed by the stage machine exactly as standing rule C1 requires. That is not the
+two-writers bug the page documents: that bug is two pieces of code setting the SAME property.
+
+**🔴 THE PAGE EXPLICITLY WARNS AGAINST TABS, AND ONE HALF OF THE WARNING IS REAL.**
+`demo/index.html` says `IT IS NOT A TAB BAR, AND IT MUST NOT BECOME ONE`, for two reasons.
+- The `verify_site_panels.py` half does **not** apply: that check reads `demo/index.html` directly
+  (its line 290) and never sees this app. The page is unchanged.
+- The canvas half is entirely real: *"a canvas whose parent has no width never draws"*. The engine
+  sizes each canvas from its parent's measured width, so a panel that was `display:none` when
+  `drawAll()` last ran holds a zero-width canvas that painted nothing. **Every tab activation now
+  redraws on the next frame**, in `EngineStage.tsx`, after the attribute is committed and the panel
+  has been laid out. Without that, switching tabs reveals a permanently blank chart.
+
+**THE FIVE DELETIONS the user asked for are all in `Masthead.tsx`**, so React-owned and safe. They are
+hidden by one CSS rule on `body[data-stage]`, the attribute `setStage()` already publishes, so the
+prose stays on the pick screen and is gone from configure and results with **no new owner of anything**.
+⚠ The class stops short of the "LIVE agent is also attached" line, which C1 keeps on every stage.
+
+**🔴 A BUG WORTH KEEPING, because it reads as a standing-rule violation.** The first tab map claimed
+`#filters` and, since `#filters` has no frame of its own, walked up with
+`closest('details, .card, [data-show]')`. That landed on a `<details>` spanning
+`demo/index.html` 1754 to 6970, which **encloses all thirteen cards**. Every card then reported hidden,
+`#livecard` among them, and the flow check said "the live agent card is present: FAIL". The cause was
+layout, not the rule. `classifyPanels()` now **refuses to stamp any element that encloses another
+tab's panel** and reports it, so this cannot recur silently.
+
+**`verify_app_flow.py` was rewritten, not relaxed.** Asserting "all thirteen cards visible at once" is
+meaningless once they are split across tabs, so the probe now **opens each tab in turn** and credits a
+card only to the tab named in its own `data-aa-tab`. The union must still cover all thirteen, no
+results tab may be empty, and the canvas count is the **peak across the walk**, which is what proves
+the redraw fires. C1 became two assertions that each say what they mean: `#livecard` and `#livego` are
+in the DOM **on every tab** (never removed), and the card is reachable in its tab.
+
+Verified: flow check 22 of 22, `verify_view_matches_page` 0, `verify_shipped_app_is_current` 0,
+`verify_deployed_root_is_the_app` 0, `verify_palette` 0, `verify_app_deterministic` 0,
+`audit.py` 2,216 passed 0 failures. framer-motion 13.1.1 added.
+
+⚠ **ONE FIGURE THE USER QUOTED DOES NOT MATCH.** They asked the plume tab to highlight "345 degrees
+with a 0.3797 degC rise". Ashburn's real worst is **255 degrees at 0.3550 degC**
+(`demo/rise_table_longest.json:max_rise_bearing`, `max_rise_c`); the facing mode is 235 degrees at
+0.1584. 72 bearings and 576 solves are both confirmed. Nothing was hardcoded, so `#dialcard` shows
+whichever is true for the loaded site; 345 is most likely the facility they had open.
+
 ### THE PINGER IS CREATED, on cron-job.org, 2026-08-28
 
 `Agentic Arbiter keepalive` -> `https://agentic-arbiter.onrender.com/api/ping`, enabled, first

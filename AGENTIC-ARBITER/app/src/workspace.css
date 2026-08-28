@@ -1,0 +1,262 @@
+/* THE WORKSPACE: a six-tab dashboard over the engine's own panels.
+ *
+ * WHAT IS AND IS NOT HAPPENING HERE. The thirteen results panels are still the engine's, still
+ * carrying their own ids, still drawn by results/engine.mjs, which run_all.py step 30 asserts is
+ * character for character the code inside demo/index.html. Nothing here retypes a panel, and nothing
+ * here moves a node: lib/tabs.ts stamps `data-aa-tab` on each panel and these rules decide which are
+ * on screen, so the DOM the engine wrote is the DOM it keeps.
+ *
+ * 🔴 TWO MECHANISMS, TWO FACTS, WHICH IS WHY THIS IS NOT THE TWO-WRITERS BUG THE PAGE WARNS ABOUT.
+ *     setStage() owns  "is this panel's STAGE current"  ->  the `hidden` attribute
+ *     these rules own  "is this panel's TAB current"    ->  `display`
+ * A panel needs both to be true. Neither reads or clears the other, so #livecard remains governed by
+ * the stage machine exactly as standing rule C1 requires.
+ *
+ * LOADED AFTER engine.css AND index.css (see main.tsx), so where any of the three set the same
+ * property this one wins.
+ */
+
+/* ---- 1. The four opening paragraphs, and the REPLAY line, belong to the first screen only ----
+   The user's instruction: these blocks stay on "pick a site" and are gone from the third tab.
+   Keyed on body[data-stage], which setStage() publishes, so this READS the owner's fact and adds no
+   owner of its own. Gating it in React would need React to hold a copy of the stage, which App.tsx
+   refuses for a documented reason. See Masthead.tsx.
+   WARNING: .aa-mast-prose is deliberately NOT on the "LIVE agent is also attached" line. */
+body[data-stage="configure"] .aa-mast-prose,
+body[data-stage="results"]   .aa-mast-prose { display: none; }
+
+/* ---- 2. The shell ---- */
+body[data-stage="pick"] .aa-rail-nav,
+body[data-stage="pick"] .aa-tabhead { display: none; }
+
+body:not([data-stage="pick"]) .aa-workspace {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+/* A dashboard earns more measure than a reading column. The pick screen keeps the page's 1180px. */
+body:not([data-stage="pick"]) #app { max-width: 1580px; }
+/* .viz-root KEEPS ITS CLASS, because the engine resolves its design tokens through
+   getComputedStyle(document.querySelector('.viz-root')) and a missing element there threw
+   "parameter 1 is not of type 'Element'" once already. Only its measure is handed to the shell. */
+.aa-workspace .viz-root { max-width: none; margin: 0; padding: 0; }
+
+@media (max-width: 1080px) {
+  body:not([data-stage="pick"]) .aa-workspace { grid-template-columns: minmax(0, 1fr); }
+  .aa-rail-nav { position: static; max-height: none; }
+  .aa-rail-nav ul { display: flex; flex-wrap: wrap; gap: 6px; }
+}
+
+/* ---- 3. WHICH TAB IS ON SCREEN.
+   One selector per tab: CSS cannot compare two attributes to each other, so the six are written out.
+   `~=` rather than `=` so a panel may belong to more than one tab and then shows in both, rather
+   than matching none of them and silently disappearing for good. ---- */
+.aa-workspace[data-aa-active="config"]   [data-aa-tab]:not([data-aa-tab~="config"]),
+.aa-workspace[data-aa-active="live"]     [data-aa-tab]:not([data-aa-tab~="live"]),
+.aa-workspace[data-aa-active="schedule"] [data-aa-tab]:not([data-aa-tab~="schedule"]),
+.aa-workspace[data-aa-active="money"]    [data-aa-tab]:not([data-aa-tab~="money"]),
+.aa-workspace[data-aa-active="plume"]    [data-aa-tab]:not([data-aa-tab~="plume"]),
+.aa-workspace[data-aa-active="calib"]    [data-aa-tab]:not([data-aa-tab~="calib"]) { display: none; }
+
+/* The engine's own section index is exactly what the rail replaces, so it goes. The aside AROUND it
+   does not: #filters, the plant controls, lives inside that same aside (demo/index.html:1788), and
+   hiding the aside would take the controls with it. So the aside survives and its column collapses
+   whenever the tab that owns those controls is not the active one. */
+#secnav, .secgroup { display: none; }
+.aa-workspace:not([data-aa-active="config"]) .sidebar { display: none; }
+.aa-workspace:not([data-aa-active="config"]) .side { grid-template-columns: minmax(0, 1fr); }
+
+/* ---- 4. THE WIDGET GRID. Only one tab's panels are on screen, so two to four cards tile instead of
+   stacking down a page. minmax stops a chart being squeezed narrower than it can draw legibly, and
+   auto-fit drops to a single column rather than overflowing. Applied only to the tabs that hold more
+   than two panels; a two-panel tab reads better full width. ---- */
+@media (min-width: 1240px) {
+  .aa-workspace[data-aa-active="money"] .side > .f,
+  .aa-workspace[data-aa-active="plume"] .side > .f {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+  .aa-workspace[data-aa-active="money"] .card,
+  .aa-workspace[data-aa-active="plume"] .card { margin: 0; }
+}
+
+/* ---- 5. THE RAIL ---- */
+.aa-rail-nav {
+  position: sticky;
+  top: 16px;
+  padding: 14px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  /* GLASS, AND ONLY HERE. The page's own rule is that glass is for chrome and for figures, never for
+     charts (engine.css:1021). A navigation rail is chrome. */
+  background: color-mix(in oklab, var(--surface-1) 74%, transparent);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+}
+.aa-rail-eyebrow {
+  margin: 2px 0 10px 10px;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.aa-rail-nav ul { list-style: none; margin: 0; padding: 0; }
+.aa-rail-nav li { margin: 0; }
+
+.aa-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
+  font: inherit;
+  font-size: 12.9px;
+  line-height: 1.25;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+.aa-tab:hover:not(.is-locked) { color: var(--text-primary); }
+.aa-tab.is-active { color: var(--text-primary); font-weight: 600; }
+.aa-tab.is-locked { cursor: not-allowed; opacity: 0.42; }
+.aa-tab-label { position: relative; z-index: 1; }
+.aa-tab-lock { position: relative; z-index: 1; margin-left: auto; flex: none; }
+/* The indicator framer-motion slides between tabs by layoutId. Behind the label, hence z-index 0. */
+.aa-tab-marker {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--series-1) 17%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--series-1) 34%, transparent);
+}
+.aa-tab:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+
+/* ---- 6. The tab heading strip. Two lines, never more: the depth is inside the panels. ---- */
+.aa-tabhead { margin: 2px 0 14px; }
+.aa-tabhead h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.1vw, 27px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+.aa-tabhead p { margin: 5px 0 0; font-size: var(--fs-note); color: var(--text-secondary); }
+
+/* ---- 7. THE CONSOLE. The chrome is React's; the rows inside #tape stay the engine's. ---- */
+.aa-term {
+  margin: 0 0 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface-1) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+.aa-term-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface-1) 60%, transparent);
+}
+.aa-term-dots { display: inline-flex; gap: 5px; }
+.aa-term-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--text-secondary) 42%, transparent);
+}
+.aa-term-title {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+.aa-term-state {
+  margin-left: auto;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.aa-term-state.is-idle { color: var(--text-secondary); background: color-mix(in oklab, var(--text-secondary) 14%, transparent); }
+.aa-term-state.is-run  { color: var(--series-1); background: color-mix(in oklab, var(--series-1) 16%, transparent); }
+.aa-term-state.is-done { color: var(--good); background: color-mix(in oklab, var(--good) 16%, transparent); }
+
+.aa-rail {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 12px 13px;
+  border-bottom: 1px solid var(--border);
+}
+.aa-rail-step { display: flex; align-items: center; gap: 7px; }
+.aa-rail-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  flex: none;
+}
+.aa-rail-step.is-past .aa-rail-dot { background: var(--good); }
+.aa-rail-step.is-now .aa-rail-dot { background: var(--series-1); }
+.aa-rail-n {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+.aa-rail-label {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+.aa-rail-step.is-past .aa-rail-label,
+.aa-rail-step.is-now .aa-rail-label { color: var(--text-primary); }
+
+.aa-term-status {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 11px 13px 4px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11.8px;
+  line-height: 1.5;
+}
+.aa-term-prompt { color: var(--series-1); flex: none; }
+.aa-term-line { color: var(--text-primary); }
+.aa-term-caret {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  background: var(--series-1);
+  transform: translateY(1px);
+  flex: none;
+}
+.aa-term-foot {
+  margin: 0;
+  padding: 2px 13px 12px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+/* The engine's tape, read as console output. Its GRID stays engine.css's; only the face changes. */
+.aa-workspace[data-aa-active="live"] #tape {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11.9px;
+}

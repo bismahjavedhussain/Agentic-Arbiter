@@ -13,7 +13,8 @@ So this presses the buttons.
      "Configure this plant". That is the brief: "The front page only has the configure button and then
      the run agent button and run agent live button all appears afterwards."
   2. Clicking it must reach the configure stage: the plant controls built, #runagent present.
-  3. Clicking "Run the agent" must reach the results stage: the thirteen cards visible, the reasoning
+  3. Clicking "Run the agent" must reach the results stage: all thirteen cards reachable across the
+     six workspace tabs (the probe opens each in turn), the reasoning
      tape populated, real figures on screen, and #livecard with #livego present.
 
 🔴 CHECK 3 IS AIMED AT A SPECIFIC HISTORICAL FAILURE. drawLimits() is the LAST call in drawAll(), and
@@ -179,10 +180,64 @@ PROBE = r"""
         var tapeRows = n('#tape tr') + n('#tape .ev') + n('#tape > *');
         var cards = ['headcard','tapecard','decisioncard','laddercard','moneycard','fieldcard',
                      'sitecard','plumecard','whycard','scorecard','cfcard','livecard'];
+
+        /* 🔴 THE THIRTEEN CARDS ARE NO LONGER ALL ON ONE SCREEN, so "every card visible" is now
+           "every card visible IN ITS TAB". The results stage is a six-tab workspace, so a single
+           snapshot would find ten of twelve hidden and be right to, which says nothing about whether
+           the panels render.
+           So this WALKS the tabs, one per poll of this interval. One per poll and not a tight loop
+           because a click only sets React state: the panel is not laid out until React re-renders
+           and, more importantly, EngineStage redraws the canvases on the next frame, because a canvas
+           whose parent had no width painted nothing. A poll interval is a generous frame boundary.
+           The union across tabs is what gets asserted, so a card that is unreachable in every tab
+           still fails. */
+        if (out._tabs === undefined) {
+          out._tabs = Array.prototype.map.call(
+            document.querySelectorAll('[data-aa-tabid]'),
+            function (b) { return b.getAttribute('data-aa-tabid'); });
+          out._tabIdx = -1;
+          out._seen = {};
+          out._canvasMax = 0;
+          out._perTab = {};
+        }
+        /* Record what the CURRENT tab shows, before moving on. */
+        if (out._tabIdx >= 0) {
+          var cur = out._tabs[out._tabIdx];
+          var here = [];
+          for (var j = 0; j < cards.length; j++) {
+            var el = q('#' + cards[j]);
+            /* Only credit a card to the tab it claims, so a card left visible by a stale rule in
+               some other tab cannot stand in for the tab that is meant to own it. */
+            var owns = el && (el.getAttribute('data-aa-tab') || '').split(' ').indexOf(cur) >= 0;
+            if (owns && vis(el)) { out._seen[cards[j]] = cur; here.push(cards[j]); }
+          }
+          out._perTab[cur] = here;
+          out._canvasMax = Math.max(out._canvasMax, n('canvas'));
+          /* STANDING RULE C1 IS ABOUT PRESENCE IN THE DOM, NOT ABOUT BEING ON SCREEN RIGHT NOW.
+             #livecard must never be removed and never relocated. Sampled on EVERY tab, so a tab that
+             tore it out of the document would be caught even though only one tab displays it. */
+          out._liveInDomEveryTab = (out._liveInDomEveryTab !== false) && !!q('#livecard');
+          out._livegoInDomEveryTab = (out._livegoInDomEveryTab !== false) && !!q('#livego');
+        }
+        /* Advance. While tabs remain, click the next one and come back next poll. */
+        out._tabIdx += 1;
+        if (out._tabIdx < out._tabs.length) {
+          var btn = q('[data-aa-tabid="' + out._tabs[out._tabIdx] + '"]');
+          if (btn && !btn.disabled) btn.click();
+          return;
+        }
+
         var shown = [], hidden = [];
-        for (var j = 0; j < cards.length; j++)
-          (vis(q('#' + cards[j])) ? shown : hidden).push(cards[j]);
+        for (var m2 = 0; m2 < cards.length; m2++)
+          (out._seen[cards[m2]] ? shown : hidden).push(cards[m2]);
         record('results', {
+          tabs:        out._tabs,
+          perTab:      out._perTab,
+          liveInDom:   out._liveInDomEveryTab,
+          livegoInDom: out._livegoInDomEveryTab,
+          liveTab:     out._seen['livecard'] || null,
+          cardsByTab:  out._seen,
+          canvasMax:   out._canvasMax,
           bodyStage:   document.body.dataset.stage,
           tapeRows:    tapeRows,
           cardsShown:  shown,
@@ -386,15 +441,39 @@ def main():
     # ---- 3. the results stage ---------------------------------------------------------------------
     rr = by.get("results") or {}
     ck(bool(rr), "clicking Run the agent reached the results stage")
-    ck(not rr.get("cardsHidden"), "every results card is visible",
-       "%d shown" % len(rr.get("cardsShown") or [])
-       if not rr.get("cardsHidden") else "HIDDEN: " + ", ".join(rr["cardsHidden"]))
+    # 🔴 "EVERY CARD VISIBLE" IS NOW "EVERY CARD VISIBLE IN ITS OWN TAB". The results stage is a
+    # six-tab workspace, so the probe opens each tab in turn and credits a card only to the tab whose
+    # id is in that card's own `data-aa-tab`. The union has to cover all thirteen: a card reachable
+    # from no tab is a card no reader can ever see, which is the failure this still has to catch.
+    tabs = rr.get("tabs") or []
+    per = rr.get("perTab") or {}
+    ck(len(tabs) >= 6, "the workspace offers its six tabs", "%d: %s" % (len(tabs), ", ".join(tabs)))
+    ck(not rr.get("cardsHidden"), "every results card is reachable in its tab",
+       "%d card(s) across %d tab(s)" % (len(rr.get("cardsShown") or []), len(tabs))
+       if not rr.get("cardsHidden")
+       else "UNREACHABLE IN EVERY TAB: " + ", ".join(rr["cardsHidden"]))
+    # And no tab may be empty: an entry in the rail that shows nothing is worse than no entry.
+    empty = [t for t in tabs if t != "config" and not per.get(t)]
+    ck(not empty, "no results tab is empty",
+       "each of %d tab(s) showed at least one panel" % (len(tabs) - 1) if not empty
+       else "EMPTY: " + ", ".join(empty))
     ck((rr.get("tapeRows") or 0) >= 8, "the reasoning tape streamed to completion",
        "%s rows, and #tapedone is filled" % rr.get("tapeRows"))
-    ck((rr.get("canvases") or 0) >= 6, "the charts drew", "%s canvases" % rr.get("canvases"))
+    # canvasMax, not the final snapshot: only the active tab has canvases with a width to draw into,
+    # so the count on the last tab visited says nothing about the others. The peak across the walk
+    # is the honest figure, and it is what proves the redraw-on-tab-open actually fires.
+    ck((rr.get("canvasMax") or 0) >= 6, "the charts drew",
+       "%s canvases at the peak across %d tab(s)" % (rr.get("canvasMax"), len(tabs)))
     ck(bool(rr.get("headline")), "the headline rendered", (rr.get("headline") or "")[:60])
-    ck(rr.get("liveVisible") is True, "the live agent card is present",
-       "standing rule C1")
+    # 🔴 C1 IS "NEVER REMOVED, NEVER RELOCATED", WHICH IS A CLAIM ABOUT THE DOM. Asserting
+    # vis(#livecard) at the end of the run was asserting something else: the probe walks every tab and
+    # finishes on the last one, so the card it owns is legitimately off screen by then. That is the tab
+    # system working, not the rule breaking. So two separate assertions, each saying what it means.
+    ck(rr.get("liveInDom") is True and rr.get("livegoInDom") is True,
+       "#livecard and #livego are in the DOM on every tab", "standing rule C1: never removed")
+    ck(bool(rr.get("liveTab")), "the live agent card is reachable in its tab",
+       "shown under the %r tab" % rr.get("liveTab") if rr.get("liveTab")
+       else "REACHABLE FROM NO TAB")
     # 🔴 MODE-AWARE, because "Live agent not attached" is the CORRECT label here and my first version
     # called it a failure. serve_app.py serves static files and answers no /api/health, so probeLive()
     # finds nothing and drawLiveUnavailable() disables the button and says so. That is the honest

@@ -40,7 +40,18 @@ export function Masthead({
         AGENTIC<span className="text-ink-2">·</span>ARBITER
       </h1>
 
-      <div className="mt-4 max-w-[64ch] space-y-2 text-[clamp(14.5px,1.2vw,17px)] leading-[1.45]">
+      {/* 🔴 aa-mast-prose: THE FOUR OPENING PARAGRAPHS BELONG TO THE FIRST SCREEN ONLY.
+          The user's instruction was explicit: these blocks stay on "pick a site", the first page a
+          reader ever sees, and are gone from the third tab where the decision is read. By then they
+          are preamble competing with the answer.
+
+          IT IS DONE IN CSS, KEYED ON body[data-stage], AND THAT IS THE POINT. setStage() already
+          writes that attribute (engine.mjs:105) and is the single owner of what belongs to which
+          stage. Gating this in React would need React to know the stage, and App.tsx refuses to keep
+          a copy for a documented reason: a second owner of one fact, where the last writer wins and
+          which one that is depends on render timing. A CSS rule reads the fact the owner published
+          and introduces no owner at all. The rule is in index.css. */}
+      <div className="aa-mast-prose mt-4 max-w-[64ch] space-y-2 text-[clamp(14.5px,1.2vw,17px)] leading-[1.45]">
         {/* PAIN */}
         <p>
           <b>Data centres run chiller compressors through hours when outside air would have done.</b>
@@ -106,8 +117,13 @@ export function Masthead({
       <div className="mt-4 space-y-1 text-[13px]">
         {live === 'checking' && <p className="text-muted">Checking for a live agent…</p>}
 
+        {/* aa-mast-prose, so this goes with the four paragraphs above: the user listed it among the
+            blocks the third tab must not carry. The mode still reaches a reader on the first screen,
+            and the results stage says the same thing where it is load-bearing, inside #livecard.
+            ⚠ THE CLASS STOPS HERE. The "LIVE agent is also attached" line directly below is NOT in
+            it and must never be: standing rule C1 keeps the live surface present on every stage. */}
         {live !== 'checking' && (
-          <p className="text-ink-2">
+          <p className="aa-mast-prose text-ink-2">
             Running in <b className="text-ink">REPLAY</b>, on saved responses, with{' '}
             <b className="text-ink">0</b> live API calls.
           </p>

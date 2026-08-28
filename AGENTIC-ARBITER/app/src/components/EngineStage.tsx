@@ -2,6 +2,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ENGINE_MARKUP } from '../generated/engine-markup'
 import { bootEngine, engine } from '../lib/engine'
 import { applyDeclutter } from '../lib/declutter'
+import { classifyPanels, unlockedTabs, type TabId } from '../lib/tabs'
+import { useStage } from '../lib/stage'
+import { TabHeader, TabRail } from './Workspace'
+import { AgentTerminal } from './AgentTerminal'
 
 /**
  * The configure and results stages: the page's own markup, driven by the page's own engine.
@@ -47,6 +51,11 @@ export function EngineStage({
   const booted = useRef(false)
   const injected = useRef(false)
   const [failed, setFailed] = useState<string | null>(null)
+  /* Read-only: useStage observes body[data-stage], which setStage() publishes. See lib/stage.ts for
+     why an observer rather than React state, given App.tsx's rule against mirroring the stage. */
+  const stage = useStage()
+  const [tab, setTab] = useState<TabId>('config')
+  const unlocked = unlockedTabs(stage)
 
   /* The markup goes in FIRST, in a layout effect, so it is in the DOM before bootEngine() runs and
      before the browser paints. Guarded by a ref: injecting twice would discard whatever the engine had
@@ -64,6 +73,16 @@ export function EngineStage({
        browser paints. This is also why it is a LAYOUT effect. */
     try { engine.setStage('pick') } catch { /* the engine is imported at module load; this cannot
                                                fail, but a broken import should not blank the app */ }
+    /* AND CLASSIFY THE PANELS INTO TABS, in the same frame and before the first paint. This only
+       stamps `data-aa-tab`; the hiding is a CSS rule keyed on the workspace's `data-aa-active`, so
+       setStage() remains the sole owner of `hidden`. Doing it here rather than in an effect means no
+       frame exists in which every panel is unassigned and therefore displayed at once. */
+    const { missing } = classifyPanels(host.current)
+    if (missing.length && import.meta.env.DEV) {
+      /* A panel that matches nothing belongs to no tab and would never be shown again, which is
+         invisible in production. Loud in development, silent in the bundle. */
+      console.warn('[tabs] these selectors matched no panel, so their content is unreachable:', missing)
+    }
   }, [])
 
   useEffect(() => {
@@ -131,6 +150,35 @@ export function EngineStage({
     } catch { /* nothing loaded yet */ }
   }, [theme])
 
+  /* MOVE TO THE TAB THE NEW STAGE IS ABOUT. Reaching `configure` means the plant is what matters;
+     reaching `results` means the run is, so the workspace opens on the agent working rather than
+     leaving the reader on a tab whose panels just changed underneath them. */
+  useEffect(() => {
+    if (stage === 'configure') setTab('config')
+    else if (stage === 'results') setTab('live')
+  }, [stage])
+
+  /* 🔴 REDRAW WHEN A TAB OPENS, AND THIS IS THE ONE THING A TABBED VERSION OF THIS PAGE CANNOT SKIP.
+     demo/index.html carries the warning in full: "a canvas whose parent has no width never draws".
+     It is correct. The engine sizes every canvas from its parent's MEASURED width (cssv/yr in
+     engine.mjs read layout), so a panel that was display:none when drawAll() last ran holds a canvas
+     of zero width that painted nothing, and switching to its tab would reveal a blank chart that
+     stays blank forever.
+
+     So every tab activation redraws, on the NEXT FRAME rather than inline: the `data-aa-active`
+     attribute below has to be committed and the browser has to lay the panel out before its width is
+     anything but zero. requestAnimationFrame is exactly that boundary.
+
+     Cheap enough to do unconditionally: drawAll() is the same call the theme toggle already makes on
+     every flip, and only the active tab's canvases have a width to draw into. */
+  useEffect(() => {
+    if (!booted.current || stage !== 'results') return
+    const id = requestAnimationFrame(() => {
+      try { engine.drawAll() } catch { /* a panel with no artefact draws nothing, which is its job */ }
+    })
+    return () => cancelAnimationFrame(id)
+  }, [tab, stage])
+
   return (
     <>
       {/* 🔴 className="viz-root" IS LOAD-BEARING, NOT COSMETIC. The engine reads its design tokens
@@ -170,7 +218,22 @@ export function EngineStage({
           An empty div plus a one-time innerHTML in a layout effect means React has no children here to
           diff, ever. The engine owns this subtree outright. That is what the comment at the top of
           this file was already asserting; this is the version of it that is actually true. */}
-      <div ref={host} className="viz-root" />
+      {/* THE WORKSPACE SHELL. `data-aa-active` is the one fact the tabs own, and index.css turns it
+          into a display rule against each panel's `data-aa-tab`. It sits on an ANCESTOR of the host
+          because that is what the CSS needs; it is never set on a panel, so it cannot collide with
+          the `hidden` attribute setStage() owns.
+          At the pick stage the rail is hidden by CSS on body[data-stage], not unmounted, so the
+          engine host inside it is never torn down and rebuilt. */}
+      <div className="aa-workspace" data-aa-active={tab}>
+        <TabRail active={tab} unlocked={unlocked} onSelect={setTab} />
+        <div className="aa-workspace-main">
+          <TabHeader active={tab} />
+          {/* The console chrome, only where it means anything. It reads #tape and writes nothing,
+              so mounting and unmounting it cannot disturb the engine's own stream. */}
+          {tab === 'live' && stage === 'results' && <AgentTerminal />}
+          <div ref={host} className="viz-root" />
+        </div>
+      </div>
       {failed && (
         <p className="mt-4 text-[13px]" style={{ color: 'var(--critical)' }}>
           <b>No built artefacts for {failed}.</b> Run{' '}
