@@ -1,0 +1,41 @@
+# One Render service: the whole product, including a working live agent.
+#
+# Point Render at this repository and it reads this file. Nothing to configure in the dashboard except
+# the one secret, which is the one thing that must never be in the repository.
+#
+# WHY DOCKER RATHER THAN RENDER'S PYTHON RUNTIME. The image pins python 3.12 and installs two wheels,
+# which is reproducible; the native runtime would resolve a Python version from its own defaults. It is
+# also the same Dockerfile on any other host, so this file is a convenience and not a lock-in.
+
+services:
+  - type: web
+    name: agentic-arbiter
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+
+    envVars:
+      # 🔴 THE KEY. sync: false means Render will PROMPT for it and store it encrypted, and it is
+      # never written to this file or to git. testing/common.py:load_key() reads the environment first
+      # for exactly this reason.
+      - key: FORTYGUARD_API_KEY
+        sync: false
+
+      # 🔴 THE ONLY CEILING ON SPEND, and it is deliberately generous because the owner asked for it:
+      # "there should be enough live calls limit available for multiple judges to run the agent and
+      # they will refresh the credits themselves."
+      #
+      # THE ARITHMETIC, so the number is a decision rather than a default. Each live run is one
+      # FortyGuard heatmap window at 4,220 credits. With 1,039,960 credits remaining on 2026-08-28
+      # there are about 246 live runs left in total.
+      #
+      #     MAX_LIVE_CALLS=48   up to 202,560 credits a day, budget lasts about 5 days
+      #     MAX_LIVE_CALLS=24   up to 101,280 credits a day, budget lasts about 10 days
+      #
+      # ⚠ serve_live.py HAS NO AUTHENTICATION. Anyone who reaches this URL can request a live run.
+      # That is the owner's explicit decision, so that judges need no token. Change this value in the
+      # Render dashboard and restart; no redeploy and no code change needed.
+      - key: MAX_LIVE_CALLS
+        value: "48"

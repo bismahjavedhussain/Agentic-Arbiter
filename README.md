@@ -499,6 +499,57 @@ window**, so it needs both that flag on the server and the request itself to ask
 
 ---
 
+## Deploying it
+
+One service serves the whole product, including the live agent. That is possible because both front
+ends call the agent with a **relative** url, `fetch('api/live/<site>')`, and
+`AGENTIC-ARBITER/src/serve_live.py` answers both the static files and `/api/*` from the same origin.
+
+```bash
+# what a host runs
+python AGENTIC-ARBITER/src/serve_live.py --allow-paid --host 0.0.0.0 --port $PORT --max-live-calls 48
+```
+
+| URL | What is there |
+|---|---|
+| `/app/` | the React interface |
+| `/` | the single-file page, no build step, works offline |
+| `/api/health` | what mode the server is in, and how much budget is left |
+| `/api/live/<site>` | a live run, on a forecast bought at that moment |
+
+### On Render, which is the shortest path
+
+1. Push this repository to GitHub.
+2. In Render, **New > Blueprint**, point it at the repository. It reads [`render.yaml`](render.yaml).
+3. Render prompts for `FORTYGUARD_API_KEY`. Paste it there. It is stored encrypted and never appears in
+   this repository.
+4. Deploy. The interface is at `https://<your-service>.onrender.com/app/`.
+
+The same [`Dockerfile`](Dockerfile) works unchanged on Fly.io, Railway, Hugging Face Spaces or any host
+that runs a container.
+
+### Two things worth knowing before you deploy
+
+**The key is never in the repository.** `.env` is gitignored, and
+`testing/common.py:load_key()` reads the `FORTYGUARD_API_KEY` environment variable first and falls back
+to that file only for local work. A host supplies the variable; the repository never carries the secret.
+
+**The live endpoint is open, and that is a deliberate choice.** `serve_live.py` has no authentication,
+so any visitor can request a live run and no token is needed for a judge to try it. The only ceiling is
+`MAX_LIVE_CALLS`, counted per day, changeable in the host's dashboard without a redeploy. Each live run
+is one FortyGuard heatmap window at **4,220 credits**:
+
+```
+MAX_LIVE_CALLS=48    up to 202,560 credits a day
+MAX_LIVE_CALLS=24    up to 101,280 credits a day
+```
+
+**No GPU is required.** The plume fields were solved with NVIDIA Warp at build time and ship as data.
+The server replays them and never solves, so the smallest CPU instance is enough. Its only dependencies
+are `numpy` and `psychrolib`, listed in [`requirements.txt`](requirements.txt).
+
+---
+
 ## Where things are
 
 | Path | What is there |

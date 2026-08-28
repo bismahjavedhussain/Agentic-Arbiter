@@ -1,0 +1,13 @@
+# Everything the DEPLOYED live server needs, and nothing else.
+#
+# Derived rather than guessed: the import graph reachable from AGENTIC-ARBITER/src/serve_live.py was
+# walked, 12 modules, and every import classified as standard library, local, or third party. Two are
+# third party. `physics` looks like a third one and is not: it is a local package at
+# AGENTIC-ARBITER/src/physics/, which a first pass missed because it looked for physics.py rather than
+# physics/.
+#
+# NOT HERE ON PURPOSE: nvidia-warp. The GPU plume solver is a BUILD-TIME dependency. It produced the
+# shipped plume fields, and the deployed server replays them; it never solves. A host with no GPU can
+# serve this product completely, which is the point of shipping the fields rather than the solver.
+numpy>=1.26
+psychrolib>=2.5
