@@ -29,6 +29,37 @@ proving the repo existed and was empty. That `$?` is **head's** exit code, not g
 fact sitting on a credential prompt. The conclusion happened to be right and the evidence was
 worthless. `${PIPESTATUS[0]}` is what reads the real exit code through a pipe, and the push used it.
 
+### WHAT 0.1 CPU ACTUALLY COSTS, measured rather than guessed
+
+The Render free instance is **0.1 CPU and 512 MB**. RAM was never the risk; CPU is. Measured on this
+machine, then divided by 0.1:
+
+| Work | Here | On 0.1 CPU | Verdict |
+|---|---|---|---|
+| One full page load, 3.2 MB | 0.09 s, 33 MB/s | about 1 s of CPU | fine, unnoticeable |
+| Server memory, peak | 65.5 MB | same | 446 MB spare |
+| **One LIVE run** | **12.1 s of CPU time** | **about 121 s, 2 minutes** | slow but not broken |
+
+The live figure is the one that matters and it needed a specific measurement: **total CPU time**, not
+wall clock, because 0.1 CPU rations CPU seconds. A run consumed 12.1 CPU seconds at an effective
+**0.80 cores**, so it is essentially single-threaded and there is no hidden multi-core multiplier
+inflating the estimate.
+
+**IT CANNOT TIME OUT, which is the saving grace.** `POST /api/live/<site>` returns a `job_id`
+immediately, the agent runs in a background `threading.Thread`, and the browser polls
+`GET /api/live/job/<id>` while progress streams. So two minutes shows as a progressing card, not a dead
+request. Had this been one synchronous request it would have been unusable on this tier.
+
+Measured with `live.py run --replay <cached window>`, which does the same computation from a saved
+FortyGuard response for **zero credits**.
+
+⚠ **NO PERSISTENT DISK on the free tier**, per Render's own notice on the plan picker. `data/live_cache/`
+is where a bought window is cached so it is not bought twice, and it is ephemeral here: a redeploy or a
+restart loses it, so the same window can cost 4,220 credits again. Not a fault, but it is why the cache
+cannot be relied on to prevent double spending in this deployment.
+
+⚠ Also stated on that notice, and all harmless here: no SSH, no scaling, no one-off jobs.
+
 ### THE FREE-TIER NUMBERS, all workspace-wide and per month
 
 Researched by a 9-agent workflow and then checked adversarially, which found 35 problems in the first
