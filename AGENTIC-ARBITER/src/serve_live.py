@@ -382,6 +382,31 @@ class Handler(SimpleHTTPRequestHandler):
                 return _json(self, {k: v for k, v in j.items() if k != "started"})
         if self.path.startswith("/api/"):
             return _json(self, {"error": "unknown endpoint"}, 404)
+
+        # 🔴 THE FRONT DOOR IS THE REACT APP, NOT demo/index.html. The static root is DEMO, so
+        # without this `/` serves the single-file page: a SUCCESSFUL deploy that shows the previous
+        # interface, with every light green and nothing anywhere reporting a problem. Observed on the
+        # live host 2026-08-28, and it is the same class of silent staleness that
+        # testing/verify_shipped_app_is_current.py exists to catch, one layer further out: that check
+        # proves the bundle is CURRENT, this makes it the thing a visitor actually reaches.
+        #
+        # A REDIRECT, rather than serving demo/app/index.html at `/`, because the bundle's asset
+        # references are RELATIVE and that is not incidental: `./assets/index-*.js` and
+        # `../fonts/inter-latin.woff2`. Served at `/` they resolve to /assets/ and to a parent of the
+        # root, neither of which exists. Served at `/app/` they resolve to demo/app/assets/ and
+        # demo/fonts/, and the app's own ART = '../' fetches land on demo/*.json. The bundle only
+        # works at that depth, so the URL is load-bearing: do not "simplify" this to a file read.
+        #
+        # demo/index.html IS NOT HIDDEN. It stays reachable at /index.html, which is what the
+        # verification layer measures and what CLAUDE.md calls canonical. This changes which page is
+        # served at one path; it removes nothing.
+        if self.path.split("?")[0] in ("", "/", "/index.htm"):
+            self.send_response(302)
+            self.send_header("Location", "/app/")
+            # No Cache-Control here: end_headers() above adds `no-cache` for every non-/api/ path,
+            # and sending it twice would emit a duplicate header.
+            self.end_headers()
+            return
         return super().do_GET()
 
     def do_POST(self):

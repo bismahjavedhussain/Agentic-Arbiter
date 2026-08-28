@@ -294,6 +294,24 @@ and restore it. Both `--replay` here and `build_sites.py` earlier in this projec
 "At least 2 tape rows" was satisfied 200 ms into a stream that ends at 32, and the check failed a
 working tape. Find the thing that means *finished* (`#tapedone` here) and wait for that.
 
+### 5b.6 A CURRENCY check cannot see a ROUTING mistake: verify WHICH PAGE, not just which bytes
+`verify_shipped_app_is_current.py` proved the React bundle was built from the committed source, and it
+was right. The deployed site still showed the old interface, because `serve_live.py`'s static root is
+`demo/` and `/` therefore served `demo/index.html` while the bundle sat at `/app/`. Every check green,
+wrong page, and the user found it rather than the suite.
+
+Two habits follow.
+
+**Assert on the URL a visitor actually opens.** "The bundle is current" and "the bundle is what `/`
+returns" are different claims, and only the second is what the user is looking at. A probe of the root
+that greps for a React marker (`id="root"`) would have caught this in one request.
+
+**When a check passes and the user still sees the old thing, suspect the layer the check does not
+cover.** I spent the preceding effort on intermittent `no-server` 404s, which were real but were not
+the complaint. I never checked what the SUCCEEDING requests returned.
+
+Related to 5b.2: assert on the output. Here the output was not the file, it was the response.
+
 ---
 
 ## 6. Documentation traps

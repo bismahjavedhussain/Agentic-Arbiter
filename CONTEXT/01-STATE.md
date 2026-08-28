@@ -12,6 +12,50 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### 🔴 THE DEPLOYED SITE WAS SERVING THE OLD SINGLE-FILE PAGE, and the user caught it
+
+**The user opened `agentic-arbiter.onrender.com` and saw the PREVIOUS interface.** They were right,
+and I was diagnosing the wrong thing at the time: I had spent the preceding effort on intermittent
+`x-render-routing: no-server` 404s and had not checked WHICH PAGE the working requests returned.
+
+The cause, one line. `serve_live.py` sets the static root to `demo/`:
+
+```python
+super().__init__(*a, directory=DEMO, **kw)      # line 344
+```
+
+So `/` served `demo/index.html`, the single-file page. The React bundle is `demo/app/index.html` and
+was only ever reachable at `/app/`. Build fine, bundle current, key present, deploy green, wrong page.
+
+**The fix is a 302 from `/` to `/app/`**, added in `do_GET` after the `/api/` branches. A redirect and
+NOT serving `demo/app/index.html` at `/`, because the bundle's references are relative:
+`./assets/index-*.js` and `../fonts/inter-latin.woff2`. At `/` those resolve to `/assets/` and to a
+parent of the root, neither of which exists. At `/app/` they resolve correctly and the app's own
+`ART = '../'` fetches land on `demo/*.json`. **The `/app/` depth is load-bearing.**
+
+`demo/index.html` is NOT hidden. It stays at `/index.html`, which is what the verification layer
+measures and what `CLAUDE.md` calls canonical.
+
+Verified locally on port 8099, no artefact written:
+
+| path | result |
+|---|---|
+| `/` | 302 to `/app/`, one `Cache-Control` header |
+| `/app/` | React bundle, 3 markers (`id="root"`, js, css) |
+| `/app/assets/index-CU1B4VOs.js` | 200, 1,332,270 B |
+| `/app/assets/index-DXWxYH6S.css` | 200, 139,341 B |
+| `/fonts/inter-latin.woff2` | 200, 48,256 B |
+| `/sites.json` | 200, 784,300 B |
+| `/index.html` | 200, 491,456 B, `#livego` and `#livecard` both present |
+
+`verify_shipped_app_is_current.py` exits 0, hash `b3378b7b3319f500`, so the bundle the redirect points
+at is built from the committed source.
+
+**THE LESSON, and it generalises.** `verify_shipped_app_is_current.py` answers "is the bundle
+current?" Nothing answered "is the bundle the thing a visitor reaches?" A currency check one layer in
+cannot see a routing mistake one layer out. When a check passes and the user still sees the old thing,
+suspect the layer the check does not cover.
+
 ### PUSHED, and the Render free-tier limits that actually matter, verified
 
 **The repository is on GitHub: `github.com/bismahjavedhussain/Agentic-Arbiter`, branch `master`.**
