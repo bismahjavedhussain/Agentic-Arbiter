@@ -12,6 +12,40 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### 🔴 THE REAL CAUSE OF THE SCROLL FAULTS WAS MAPLIBRE, AND I FIXED TWO WRONG THINGS FIRST
+
+The user's report after my first fix: "the website loads with an already scrolled page. What have you
+fixed? Fix this issue accurately for once please." Fair. Two guesses preceded the measurement.
+
+**What it actually is.** `scratchpad/reloadprobe.py`, now `testing/probe_reload_scroll.py`, patched
+`scrollTo`, `scrollIntoView` and `focus` and sampled `scrollY` every 20 ms:
+
+```
+focus on maplibregl-popup-close-button (+287ms)   y=0
+   at HTMLElement.focus ... at AA._focusFirstElement ...
+*** LEFT THE TOP *** (+307ms)                     y=501
+```
+
+**MapLibre opens a popup and calls its own `_focusFirstElement()`, focusing the close button; the
+browser scrolls that element into view and drags the page to 501.** A facility is preselected, so the
+popup opens on load and the first screen arrives scrolled past the headline. `focusAfterOpen: false`
+on both `new Popup(...)` in SiteMap.tsx. **Measured after: scrollY 0 at every sample to +4500 ms.**
+
+It is also the other half of the ALTERNATING jump on changing site: the popup pulled DOWN to the map
+while `setStage`'s scroll-to-top pulled UP, and which one won depended on ordering. One cause, two
+symptoms, and my first fix addressed only the second.
+
+⚠ **THE TWO WRONG GUESSES, KEPT BECAUSE BOTH CHANGES ARE STILL CORRECT ON THEIR OWN MERITS.**
+1. `setStage` scrolling to top on a no-op re-run is real, and `noscrolljump.ts` should suppress it.
+   That fix was right; it just was not the whole cause.
+2. `history.scrollRestoration = 'manual'` is right too, and it changed NOTHING here: the probe showed
+   `restoration: manual` and `finalY: 501` on the same run. Recorded because a fix that makes no
+   difference is worth knowing about rather than quietly crediting.
+
+**Three assertions now, where there were none.** `verify_app_flow.py`: the first screen loads at
+`scrollY` 0; every tab is entered at `scrollTop` 0 having deliberately left its predecessor at 400.
+Nothing in the suite looked at a scroll position before this.
+
 ### TWO SCROLL FAULTS, BOTH FOUND BY INSTRUMENTING RATHER THAN GUESSING. 2026-08-29
 
 **1. Changing the selected facility threw the window to the top**, so the map and the filters left

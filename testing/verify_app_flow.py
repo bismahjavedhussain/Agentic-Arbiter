@@ -145,6 +145,13 @@ PROBE = r"""
           runAgentVisible: vis(q('#runagent')),
           liveVisible:     vis(q('#livecard')),
           bodyStage:       document.body.dataset.stage || null,
+          /* 🔴 THE PAGE MUST LOAD AT THE TOP. It did not: MapLibre opens a popup for the
+             preselected facility and calls _focusFirstElement(), the browser scrolls that close
+             button into view, and the first screen arrived already scrolled past the headline.
+             Measured at y=501 by scratchpad/reloadprobe.py, fixed with focusAfterOpen: false.
+             Asserted here because it is a first-impression defect a judge meets before anything
+             else, and nothing else in the suite looks at the window's scroll position. */
+          loadScrollY:     Math.round(window.scrollY),
           mapDots:         n('#natmap canvas') ? 'canvas' : 'none'
         });
         cta.click();
@@ -466,6 +473,8 @@ def main():
     ck(bool(c), "clicking Configure reached the configure stage")
     ck((c.get("controlsBuilt") or 0) >= 6,
        "buildControls() built the plant controls", "%s selects" % c.get("controlsBuilt"))
+    ck((p.get("loadScrollY") or 0) == 0, "the first screen loads at the top",
+       "window.scrollY is %s on the pick stage" % p.get("loadScrollY"))
     ck("Run the agent" in (c.get("runAgent") or ""),
        "Run the agent appears here", c.get("runAgent") or "ABSENT")
     ck(bool(c.get("autofill")), "Auto-fill a realistic plant appears here",

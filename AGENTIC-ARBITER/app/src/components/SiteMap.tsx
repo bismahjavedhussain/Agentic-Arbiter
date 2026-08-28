@@ -263,7 +263,30 @@ export function SiteMap({ a, filters, onPick }: {
       const f = a.byKey.get(filters.facility)
       if (f) {
         popup.current?.remove()
-        popup.current = new Popup({ closeOnClick: false, offset: 12, maxWidth: '330px' })
+        popup.current = new Popup({ closeOnClick: false, offset: 12, maxWidth: '330px',
+        /* 🔴 focusAfterOpen: false IS THE WHOLE FIX FOR "the page loads already scrolled".
+           MEASURED with scratchpad/reloadprobe.py, which patched scrollTo, scrollIntoView and
+           focus and sampled scrollY every 20 ms:
+
+               focus on maplibregl-popup-close-button (+287ms)   y=0
+                  at HTMLElement.focus ... at AA._focusFirstElement ...
+               *** LEFT THE TOP *** (+307ms)                     y=501
+
+           MapLibre opens a popup and calls its own _focusFirstElement(), which focuses the
+           close button. The browser then scrolls that element into view, dragging the whole
+           page down to the map. A facility is preselected, so the popup opens on load and the
+           first thing a reader sees is a page already scrolled past the headline.
+
+           It is also the other half of the ALTERNATING jump on changing site: the popup pulled
+           DOWN to the map while setStage's scroll-to-top pulled UP, and which one a reader saw
+           depended on ordering. Neither was scroll restoration, which is what I assumed first
+           and fixed second: that guess is recorded in noscrolljump.ts because turning
+           scrollRestoration to manual is correct on its own merits and changed nothing here.
+
+           The popup stays keyboard-reachable: it is in the DOM with a real close button, and a
+           reader who tabs to it still gets it. What is given up is the popup STEALING focus the
+           moment it opens, which is what moves the viewport. */
+        focusAfterOpen: false })
           .setLngLat([f.centre[1], f.centre[0]])
           .setHTML(popupHTML(
             `${facilityName(f)}, ${stateName(f.state)}`,
@@ -314,7 +337,30 @@ export function SiteMap({ a, filters, onPick }: {
       const c = a.manifest.sites.find((x) => x.key === 'ashburn')?.committed
       const pair =
         c?.source_name && c?.receptor_name ? `${c.source_name} → ${c.receptor_name}` : ''
-      popup.current = new Popup({ closeOnClick: false, offset: 12, maxWidth: '330px' })
+      popup.current = new Popup({ closeOnClick: false, offset: 12, maxWidth: '330px',
+        /* 🔴 focusAfterOpen: false IS THE WHOLE FIX FOR "the page loads already scrolled".
+           MEASURED with scratchpad/reloadprobe.py, which patched scrollTo, scrollIntoView and
+           focus and sampled scrollY every 20 ms:
+
+               focus on maplibregl-popup-close-button (+287ms)   y=0
+                  at HTMLElement.focus ... at AA._focusFirstElement ...
+               *** LEFT THE TOP *** (+307ms)                     y=501
+
+           MapLibre opens a popup and calls its own _focusFirstElement(), which focuses the
+           close button. The browser then scrolls that element into view, dragging the whole
+           page down to the map. A facility is preselected, so the popup opens on load and the
+           first thing a reader sees is a page already scrolled past the headline.
+
+           It is also the other half of the ALTERNATING jump on changing site: the popup pulled
+           DOWN to the map while setStage's scroll-to-top pulled UP, and which one a reader saw
+           depended on ordering. Neither was scroll restoration, which is what I assumed first
+           and fixed second: that guess is recorded in noscrolljump.ts because turning
+           scrollRestoration to manual is correct on its own merits and changed nothing here.
+
+           The popup stays keyboard-reachable: it is in the DOM with a real close button, and a
+           reader who tabs to it still gets it. What is given up is the popup STEALING focus the
+           moment it opens, which is what moves the viewport. */
+        focusAfterOpen: false })
         .setLngLat([ash.centre[1], ash.centre[0]])
         .setHTML(popupHTML(
           'Ashburn, Virginia',

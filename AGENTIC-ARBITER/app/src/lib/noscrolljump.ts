@@ -24,6 +24,12 @@
  * character against demo/index.html by run_all.py step 30, and that identity is what makes the React
  * rebuild trustworthy. A condition added there would end it.
  *
+ * IT ALSO TURNS OFF THE BROWSER'S OWN SCROLL RESTORATION, and that is not a separate concern.
+ * `history.scrollRestoration` defaults to 'auto', so a reload from a scrolled position puts the page
+ * back where it was. That was previously being undone by accident, by exactly the no-op setStage
+ * scrolls this file suppresses. Fixing the jump therefore revealed the restoration: the page began
+ * loading already scrolled. Measured, both times, by scratchpad/reloadprobe.py.
+ *
  * WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT.
  *   It swallows a scroll-to-top ONLY when `document.body.dataset.stage` is the same value it was at
  *   the last scroll-to-top that was allowed through. A genuine pick -> configure -> results
@@ -40,6 +46,29 @@ export function installNoScrollJump() {
   installed = true
 
   const native = window.scrollTo.bind(window)
+
+  /* 🔴 TAKE THE BROWSER OUT OF THE ARGUMENT, and this is the half the first version missed.
+     MEASURED with scratchpad/reloadprobe.py: scroll to 521, reload, and Chrome puts the page back at
+     521 because `history.scrollRestoration` defaults to 'auto'. The probe's own reading:
+
+         first load left:  scrolled:521
+         restoration:      auto
+         final scrollY:    521
+
+     Before the shim below existed, that restoration was being UNDONE by accident: a no-op
+     setStage() re-run would fire window.scrollTo({top:0}) shortly after load and put the page back at
+     the top. Suppressing those re-runs fixed the jump the user reported and exposed the restoration
+     they reported next, which is why the page then loaded already scrolled. One cause, two symptoms,
+     and my first fix only addressed one of them.
+
+     'manual' means the browser restores nothing and the app decides. The app's decision is: the top.
+     Set BEFORE the scroll below so nothing can race it. */
+  try {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+  } catch { /* a sandboxed history is not a reason to fail to boot */ }
+  /* Through `native`, not the patched function: this must happen even though it is a scroll-to-top
+     and the shim below is about to start refusing some of those. */
+  native({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
   /* The stage the last ALLOWED scroll-to-top belonged to. `null` until the first one, so the scroll
      at boot is never suppressed. */
   let lastStage: string | null = null
