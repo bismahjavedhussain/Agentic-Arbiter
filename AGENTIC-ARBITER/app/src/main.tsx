@@ -12,6 +12,9 @@ import './index.css'
    A separate file rather than more of index.css so that "what the tabs do" is one thing to read, and
    so removing the workspace is removing one import. */
 import './workspace.css'
+/* And the dashboard arrangement last: it styles the rail groups, the quick actions and the
+   panel entrance, all of which sit on top of what workspace.css lays out. */
+import './dashboard.css'
 import { App } from './App'
 
 const el = document.getElementById('root')

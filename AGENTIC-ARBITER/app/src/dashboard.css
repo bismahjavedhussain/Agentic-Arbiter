@@ -1,0 +1,135 @@
+/* THE DASHBOARD ARRANGEMENT, after @efferd/dashboard-4.
+ *
+ * What was taken from the reference block is its LAYOUT LANGUAGE: grouped nav under eyebrow headings,
+ * an icon and a label per row, the active row as a soft filled pill, and a Quick actions card of
+ * icon plus title plus one-line subtitle plus chevron.
+ *
+ * 🔴 WHAT WAS NOT TAKEN IS ITS DATA. The block is an e-commerce dashboard and its cards carry invented
+ * figures: revenue-chart-data.ts held 275 numeric literals, stats.tsx and the three chart components
+ * held their own. Those files were deleted rather than adapted, because a figure with no artefact
+ * behind it is the one thing this project does not ship. Every number on screen is still drawn by the
+ * engine from demo/*.json.
+ *
+ * Loaded last, after engine.css, index.css and workspace.css.
+ */
+
+/* ---- 1. The rail, in groups ---- */
+.aa-railgroup + .aa-railgroup { margin-top: 14px; }
+.aa-rail-eyebrow {
+  margin: 0 0 6px 10px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.72;
+}
+
+/* The icon sits in the pill with the label, so the whole row is one target. */
+.aa-tab { gap: 9px; }
+.aa-tab-icon {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  opacity: 0.62;
+  transition: opacity 0.18s ease, color 0.18s ease;
+}
+.aa-tab:hover:not(.is-locked) .aa-tab-icon { opacity: 0.9; }
+.aa-tab.is-active .aa-tab-icon { opacity: 1; color: var(--series-1); }
+
+/* ---- 2. Quick actions ---- */
+.aa-qa-card {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.aa-qa {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+.aa-qa:hover:not(.is-off) { background: color-mix(in oklab, var(--text-primary) 6%, transparent); }
+.aa-qa.is-off { cursor: not-allowed; opacity: 0.4; }
+.aa-qa-icon { flex: none; color: var(--series-1); }
+.aa-qa.is-off .aa-qa-icon { color: var(--text-secondary); }
+.aa-qa-text { display: flex; min-width: 0; flex-direction: column; gap: 1px; }
+.aa-qa-title { font-size: 12.6px; font-weight: 600; line-height: 1.2; }
+.aa-qa-sub {
+  font-size: 10.8px;
+  line-height: 1.25;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aa-qa-chev { margin-left: auto; flex: none; color: var(--text-secondary); opacity: 0.55; }
+.aa-qa:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+
+/* ---- 3. The tab heading strip, with the reference's leading icon chip ---- */
+.aa-tabhead {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+.aa-tabhead-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-top: 2px;
+  border-radius: 9px;
+  color: var(--series-1);
+  background: color-mix(in oklab, var(--series-1) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--series-1) 26%, transparent);
+}
+
+/* ---- 4. THE PANELS, ARRIVING. A tab switch replaces the content wholesale, so the panels get a
+   short rise-and-fade. Keyed off `data-aa-active` changing, which re-runs the animation because the
+   attribute selector re-matches.
+
+   MOTION ONLY, NEVER LAYOUT. The transform and opacity are composited and touch neither the box a
+   canvas measures itself against nor the moment it is measured: EngineStage redraws on the frame
+   after the attribute is committed, and a transform does not change offsetWidth. An animation that
+   scaled or reflowed the panel would race that redraw and hand the engine a width that is true for
+   one frame only. ---- */
+@keyframes aa-panel-in {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+.aa-workspace[data-aa-active] .viz-root [data-aa-tab] {
+  animation: aa-panel-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* A second panel in the same tab follows a beat later, so a two-card tab reads as a sequence rather
+   than a jump. Only two steps: more would make the last card feel slow. */
+.aa-workspace[data-aa-active] .viz-root [data-aa-tab] + [data-aa-tab] { animation-delay: 0.05s; }
+
+/* THE ONE RULE THAT OVERRIDES ALL OF THE ABOVE. A reader who has asked for less motion gets none,
+   and the panels simply appear. */
+@media (prefers-reduced-motion: reduce) {
+  .aa-workspace[data-aa-active] .viz-root [data-aa-tab] { animation: none; }
+  .aa-term-caret { animation: none; }
+}
+
+/* ---- 5. Card polish, applied to the engine's own frames rather than replacing them. The reference
+   reads as sleek because its cards are quiet: a hairline, a soft radius, and no shadow until you
+   interact. engine.css already gives .card a 7px radius and a 1px border, so this only lifts the
+   radius and adds the hover state. ---- */
+.aa-workspace .viz-root .card {
+  border-radius: 13px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.aa-workspace .viz-root .card:hover {
+  border-color: color-mix(in oklab, var(--border) 55%, var(--text-primary) 45%);
+}

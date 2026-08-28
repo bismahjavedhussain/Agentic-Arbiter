@@ -60,6 +60,9 @@ export default defineConfig({
   // Relative asset URLs, so dist/ works wherever it is dropped, including inside demo/.
   base: './',
   plugins: [react(), tailwind(), serveDemoArtefacts()],
+  /* Matches the tsconfig alias. TypeScript's `paths` only teaches the CHECKER where to look;
+     without this the bundler would fail on the first shadcn component it tried to resolve. */
+  resolve: { alias: { '@': path.resolve(HERE, 'src') } },
   server: {
     // EXPLICIT, because the default is `localhost`, which on this machine resolves to ::1 only.
     // A dev server reachable at [::1]:5173 and not at 127.0.0.1:5173 looks exactly like a server

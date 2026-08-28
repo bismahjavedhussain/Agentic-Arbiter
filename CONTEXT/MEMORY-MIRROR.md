@@ -16,6 +16,7 @@
 - [Complete agent, no thresholds](complete-agent-no-thresholds.md) — hackathon track wording is NOT an acceptable reason to accept weaker agency; audit every "agentic" claim with the point-at-the-constant test
 - [Ship production, not MVP](ship-production-not-mvp.md) — non-negotiables: fully functioning end-to-end, genuine high-impact problem, textbook-correct conformal prediction, every claim cited
 - [Subagents permitted](subagents-permitted.md) — rule 9 lifted 2026-08-23; delegate search and verification, never the judgement, and confirm every finding against the artefact
+- [React app is the deliverable](react-app-is-the-deliverable.md) — verify what a visitor gets at the deployed root, not `demo/index.html`; a currency check cannot see a routing mistake
 - [Live agent is permanent](live-agent-is-permanent.md) — never remove or relocate `#livecard`/`#livego`; a UI brief mentioning both modes is a constraint, not a feature request
 - [Project renamed AGENTIC-ARBITER](project-renamed-agentic-arbiter.md) — was INTAKE-ARBITER until 2026-08-27; folder, 2,737 strings, wordmark and 266 PDFs all moved
 - [No em dashes](no-em-dashes.md) - never use em dashes in copy; masthead is a header plus 2-3 lines, deeper prose goes in `.info` popovers
@@ -224,6 +225,39 @@ directory, so the children were moved out individually and the shell could not d
 directory. It is safe to delete once the editor releases it. See [[live-agent-is-permanent]].
 ```
 
+## `react-app-is-the-deliverable.md`
+
+```markdown
+---
+name: react-app-is-the-deliverable
+description: "The React app is the product; verify the URL a visitor opens, not demo/index.html"
+metadata: 
+  node_type: memory
+  type: feedback
+  originSessionId: ce7469f0-426c-49a0-bdc6-a332de79e06e
+  modified: 2026-08-28T16:20:07.526Z
+---
+
+**The React app in `AGENTIC-ARBITER/app/` is the deliverable. `demo/index.html` is the reference
+implementation it was lifted from, not the thing being shipped.** When checking anything about the
+front end, check what a visitor gets at the deployed root, not the single-file page.
+
+**Why:** the user has had to say this more than once, most sharply on 2026-08-28: *"it is rendering THE
+PREVIOUS HTML FILE VERSION OF UI. i have told you a million times that we are dealing with the react
+UI."* They were right. `serve_live.py` served `demo/` as its static root, so `/` returned
+`demo/index.html` while the React bundle sat at `/app/`. Build green, bundle current, key present,
+wrong page. I had spent the preceding effort on intermittent `no-server` 404s and never checked which
+page the SUCCEEDING requests returned.
+
+**How to apply:** when a check passes and the user still sees the old thing, suspect the layer the
+check does not cover. "The bundle is current" and "the bundle is what `/` returns" are different
+claims, and only the second is what the user is looking at. Assert on the response, at the URL a
+visitor opens. `run_all.py` step 33 now does this; trap 5b.6 records the reasoning.
+
+Both front ends still exist on purpose, so this is about PRIORITY, not deletion. See
+[[live-agent-is-permanent]] and [[ship-production-not-mvp]].
+```
+
 ## `ship-production-not-mvp.md`
 
 ```markdown
@@ -330,5 +364,5 @@ Full evidence and the measured before/after table are in `CONTEXT/01-STATE.md` s
 
 ---
 
-*9 memories mirrored, plus the index.*
+*10 memories mirrored, plus the index.*
 

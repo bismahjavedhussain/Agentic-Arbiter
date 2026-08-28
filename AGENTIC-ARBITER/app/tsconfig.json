@@ -15,7 +15,12 @@
     "allowImportingTsExtensions": false,
     "noEmit": true,
     "types": ["vite/client"],
-    "allowJs": true
+    "allowJs": true,
+    /* THE @/* ALIAS EXISTS FOR shadcn's GENERATOR, which refuses to init without one and
+       writes every component it fetches against it. Nothing hand-written in this app uses it:
+       the existing imports stay relative, so the alias adds a path and changes no file. */
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src", "vite.config.ts"]
 }

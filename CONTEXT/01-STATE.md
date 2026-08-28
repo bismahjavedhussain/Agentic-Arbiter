@@ -12,6 +12,66 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### shadcn IS INSTALLED, AND ITS INIT BROKE THREE THINGS QUIETLY. 2026-08-29
+
+At the user's direction: `npx shadcn init -b radix -p nova`, the `@efferd` registry added to
+`components.json`, then `npx shadcn add @efferd/dashboard-4`. 37 files arrived. **The generator also
+made three changes nobody asked for, and every one of them was a visible regression.**
+
+**1. It overwrote two palette values in place.** `--border` went `#27272a` to `oklch(0.922 0 0)` and
+`--muted` went `#8d8d96` to `oklch(0.97 0 0)`, both near-white, so **every border and muted label in
+the dark theme would have rendered near-white on `#09090b`**. `verify_palette.py` caught it and named
+it: 18 of its canonical 20 tokens in common for dark against 20 for light. Restored, below shadcn's
+own declarations so a re-init is overridden rather than merged.
+
+**2. Its base layer applies `bg-background text-foreground` to `<body>`, and its `--background` is
+`oklch(1 0 0)`: pure WHITE.** Installing one component would have turned the whole dark dashboard
+white. Fixed by **aliasing shadcn's tokens to this app's** rather than deleting the `@apply`:
+`--background: var(--page)`, `--foreground: var(--text-primary)`, `--card: var(--surface-1)` and five
+more. Deleting the rule would have fixed the body and left every registry component off-palette;
+aliasing fixes both, so anything added later is on-palette by construction.
+⚠ `--muted` is deliberately NOT aliased: this app means muted TEXT by it, shadcn means a muted
+SURFACE. One name, two meanings, and the app's wins.
+
+**3. It changed the typeface of the whole app.** It appended `@apply font-sans` to the `html` rule
+**after** the existing `font-family: "Inter", ...`, with `--font-sans: 'Geist Variable'`. Later
+declaration wins, so everything silently became Geist, and five Geist woff2 files (76 KB) shipped
+beside the Inter `index.html` already preloads for the render gate. Fixed by pointing `--font-sans` at
+Inter, which also puts every shadcn component on the right face, and removing the font import.
+
+**🔴 THE BLOCK'S DATA WAS DELETED, NOT ADAPTED.** `@efferd/dashboard-4` is an e-commerce dashboard and
+its cards carry invented figures: `revenue-chart-data.ts` alone held **275 numeric literals and 91
+e-commerce strings**, plus `stats.tsx` and three chart components. 16 files removed. A figure with no
+artefact behind it is the one thing this project does not ship, and the user's instruction was explicit
+that the values are the agent's and must not change.
+
+**What was kept:** the 17 `ui/` primitives, `delta.tsx`, `formater.ts`, `use-mobile.ts`, and the
+block's **layout language**, which is what the request was actually about. The rail is now grouped
+under eyebrow headings (Setup / The run / What it found) with lucide icons and a spring-driven active
+pill, plus a **Quick actions** card of icon, title, one-line subtitle and chevron.
+
+**🔴 THE QUICK ACTIONS ARE REMOTE CONTROLS, NOT A SECOND IMPLEMENTATION.** Each row reads a real
+engine button by id and forwards the click: `#runagent`, `#livego`, `#backtopick`. It mirrors that
+button's `disabled` state through a `MutationObserver`, and a row whose button does not exist yet
+renders nothing. `wire()` inside the byte-identical engine is still the only thing that runs the agent.
+
+**The panel entrance is transform and opacity ONLY, never layout.** A scaling or reflowing animation
+would race the canvas redraw: `EngineStage` redraws on the frame after `data-aa-active` commits, and a
+transform does not change `offsetWidth`, so the width the engine measures is the settled one. Honoured
+`prefers-reduced-motion` throughout.
+
+**Bundle cost, measured:** js 1,466,326 to 1,471,611 (**+0.4 %**, framer-motion and the icons); css
+144,999 to 208,801 (**+44 %, +63.8 KB**) because `index.css` now `@import`s `shadcn/tailwind.css`
+unconditionally. The 17 unused primitives are tree-shaken out of the js. Per fresh visit that moves
+2.90 MB to about 2.97 MB, so roughly 1,030 journeys before the 5 GiB cap instead of 1,051.
+
+Verified after: palette 38 checks 0 failed, flow **24 of 24**, `verify_view_matches_page` 0,
+`verify_shipped_app_is_current` 0, `verify_deployed_root_is_the_app` 0, `verify_app_deterministic` 0,
+`audit.py` **2,216 passed 0 failures**. Every figure unchanged: 10.7 %, +406 h/yr, 65.6 %, 43,763 h.
+
+⚠ An `@/*` alias was added to `tsconfig.json` and `vite.config.ts` because the shadcn CLI refuses to
+init without one. No hand-written import uses it; the existing relative imports are untouched.
+
 ### THE RESULTS STAGE IS NOW A SIX-TAB WORKSPACE, and the panels were not rewritten
 
 Built 2026-08-28 at the user's direction: a hierarchical workspace with a sidebar rail, a widget grid,
