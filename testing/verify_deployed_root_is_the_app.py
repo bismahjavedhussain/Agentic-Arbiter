@@ -19,8 +19,17 @@ WHAT IT ASSERTS
   1. `/` is a redirect to `/app/`, and exactly one Cache-Control header comes with it
   2. `/app/` is the React bundle: <div id="root"> plus its hashed js and css
   3. every asset the bundle references resolves at that depth, including ../fonts and ART = '../'
+  3b. EVERY ARTEFACT THE ENGINE FETCHES resolves under /app/, for two sites of different shape
+  3c. and the /app/ fallback that makes 3b work cannot be used to climb out of demo/
   4. the keep-alive surface: `/api/ping` is tiny, and HEAD works on it as well as GET
   5. `/index.html` STILL serves the single-file page with #livecard and #livego intact
+
+Check 3b is the one that would have saved a whole round trip. The engine fetches artefacts by BARE
+filename, because it is lifted from a page served out of demo/. Served from demo/app/ those names
+resolve one level too low and every one 404s, loadSite() returns false, and the app reports "No built
+artefacts" for every site while the Configure button silently does nothing. testing/serve_app.py, which
+the browser flow check drives, already fell back from /app/ to demo/ and so never saw it. The harness
+did not reproduce production.
 
 Point 4 is here because a free Render instance sleeps after 15 minutes without traffic, so an external
 pinger hits one URL every 10 minutes indefinitely. Monitors commonly send HEAD, and
@@ -49,6 +58,7 @@ EXIT CODES
 """
 import http.client
 import io
+import json
 import os
 import socket
 import subprocess
@@ -199,6 +209,71 @@ try:
         bad("/sites.json -> %d, and the app fetches its artefacts with ART = '../' from /app/" % st)
     else:
         ok("%-34s -> /sites.json  200, %d bytes" % ("ART = '../' + sites.json", len(b)))
+
+    # 3b. 🔴 THE ENGINE'S OWN ARTEFACT FETCHES, AT THE DEPTH IT IS ACTUALLY SERVED FROM. This is the
+    # check that was missing when the deployed app could not load a single site.
+    #
+    # results/engine.mjs is lifted byte for byte out of demo/index.html, which is served FROM demo/,
+    # so loadSite() fetches every artefact by the BARE filename in sites.json's `artefacts` map:
+    # `trace.json`, `backtest.json`, `money.json`, the plume field. The app is served from demo/app/,
+    # one level down, so a browser resolves those names against /app/ and they 404. loadSite() returns
+    # false on a missing trace, so the app said "No built artefacts for <site>" for EVERY site and the
+    # Configure button did nothing, because the transition it starts rejected.
+    #
+    # The engine CANNOT be changed: step 30 asserts it is character for character the page's code, and
+    # that identity is what makes the React rebuild trustworthy. So serve_live.py falls back from
+    # /app/<name> to demo/<name>, and this proves the fallback is there.
+    #
+    # WHY IT SHIPPED: testing/serve_app.py, which the browser flow check drives, ALREADY had that
+    # fallback. The harness did not reproduce production, so the flow check passed on a server whose
+    # routing production did not share. Hence this check talks to serve_live.py, the real one.
+    try:
+        smeta = json.loads(io.open(os.path.join(DEMO, "sites.json"), encoding="utf-8").read())
+    except Exception as e:
+        bad("could not read demo/sites.json to learn the artefact names: %s" % e)
+        smeta = {"sites": []}
+
+    offerable = [s for s in smeta.get("sites", []) if s.get("offerable")]
+    # The default site plus one national one, because their artefact names differ in shape: the metro
+    # uses unprefixed names, a national site prefixes every file with its key.
+    probe_sites = offerable[:1] + [s for s in offerable if s.get("national")][:1]
+    checked = 0
+    for site in probe_sites:
+        names = [v for v in (site.get("artefacts") or {}).values() if v]
+        if site.get("plume_field_file"):
+            names.append(site["plume_field_file"])
+        missing = []
+        for nm in names:
+            # Exactly what the browser computes for a bare name on a document at /app/.
+            st, _h, b = get(port, "/app/" + nm)
+            checked += 1
+            if st != 200 or not b:
+                missing.append("%s -> %s" % (nm, st))
+        if missing:
+            bad("site %r: %d of %d artefact(s) do not resolve under /app/: %s. loadSite() returns "
+                "false on a missing trace, so the app reports \"No built artefacts\" and the "
+                "Configure button does nothing."
+                % (site.get("key"), len(missing), len(names), "; ".join(missing[:3])))
+        else:
+            ok("site %-18s %2d artefact(s) all resolve under /app/" % (site.get("key"), len(names)))
+    if not checked:
+        bad("no offerable site had artefacts to check, so this proved nothing")
+
+    # 3c. AND THE FALLBACK MUST NOT BE A WAY OUT OF demo/. It rewrites /app/<name> to /<name>, so the
+    # obvious worry is whether `..` can climb to the repository root, where .env lives. Both candidate
+    # paths go through translate_path, which collapses `..` and anchors under demo/, but a security
+    # property asserted in a comment is not a tested one.
+    escapes = ["/app/../.env", "/app/../../.env", "/app/..%2f..%2f.env",
+               "/app/%2e%2e%2f%2e%2e%2f.env", "/app/../src/serve_live.py"]
+    leaked = []
+    for e in escapes:
+        st, _h, b = get(port, e)
+        if st == 200 and b:
+            leaked.append("%s -> 200, %d bytes" % (e, len(b)))
+    if leaked:
+        bad("THE /app/ FALLBACK ESCAPES demo/: %s. The repository root holds .env." % "; ".join(leaked))
+    else:
+        ok("%d traversal attempt(s) through the /app/ fallback all blocked" % len(escapes))
 
     # 4. THE KEEP-ALIVE SURFACE. A free Render instance sleeps after 15 minutes without traffic, so
     # an external pinger hits this every 10 minutes forever. Two things have to hold.

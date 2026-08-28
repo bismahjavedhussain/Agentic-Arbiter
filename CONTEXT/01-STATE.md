@@ -12,6 +12,44 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### 🔴 THE DEPLOYED APP COULD NOT LOAD A SINGLE SITE, and the harness is why it shipped
+
+**The user reported "No built artefacts for ashburn" and a Configure button that did nothing.** Both
+symptoms, one cause, and the artefacts were never missing.
+
+`results/engine.mjs` is lifted byte for byte from `demo/index.html`, which is served FROM `demo/`. So
+`loadSite()` fetches every artefact by the **bare filename** in `sites.json`'s `artefacts` map:
+`trace.json`, `backtest.json`, `money.json`, the plume field. The React app is served from
+`demo/app/`, **one level down**, so a browser resolves those names against `/app/` and every one 404s.
+Measured against the real server:
+
+```
+/app/trace.json                          404      /trace.json                          200  207,367 B
+/app/backtest.json                       404      /backtest.json                       200   80,206 B
+/app/money.json                          404      /money.json                          200  241,855 B
+/app/plume_field_ashburn_longest.json    404      /plume_field_ashburn_longest.json     200  684,806 B
+```
+
+`loadSite` returns false on a missing trace, so **every** site reported "No built artefacts", and
+Configure did nothing because `configureSite()` starts with the same failing `loadSite`. The error
+names the boot site rather than the clicked one, because `bootEngine` runs once with the initial key.
+
+**The fix is in the server, not the engine.** Step 30 asserts the engine is character for character
+the page's code, and that identity is the whole reason the React rebuild is trustworthy; prefixing its
+fetches would end that. So `serve_live.py` falls back from `/app/<name>` to `demo/<name>` when the
+bundle does not have it. React's own code already carries `ART = '../'` for the artefacts it reads
+directly; the engine cannot, so the server closes the gap.
+
+**🔴 WHY IT SHIPPED, and this is trap 5b.7.** `testing/serve_app.py`, the server the browser flow
+check drives, **already had that fallback**, with a comment explaining it. Production did not. The
+flow check passed on a server whose routing production did not share. A harness that differs from
+production in any routing behaviour is certifying a server nobody runs.
+
+Step 33 now reads `sites.json` and fetches every artefact name for two sites of different shape
+(`ashburn`, unprefixed; `AL_way_1540172608`, key-prefixed) through the REAL server at `/app/`, plus
+five traversal attempts proving the fallback cannot climb to the repository root where `.env` lives.
+19 checks, still writes nothing.
+
 ### THE HEALTH CHECK WAS THE EXPENSIVE PART, not the keep-alive ping
 
 Found while sizing the pinger, and it inverts the intuition. `health()` calls `offerable_sites()`,

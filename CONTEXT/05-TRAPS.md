@@ -294,6 +294,29 @@ and restore it. Both `--replay` here and `build_sites.py` earlier in this projec
 "At least 2 tape rows" was satisfied 200 ms into a stream that ends at 32, and the check failed a
 working tape. Find the thing that means *finished* (`#tapedone` here) and wait for that.
 
+### 5b.7 THE HARNESS MUST REPRODUCE PRODUCTION, or it certifies a server nobody runs
+`testing/serve_app.py` serves the app at `/app/` and, for any path under it, tries the bundle **and
+then falls back to `demo/`**. Its own comment explains why: "the app's own assets and the artefacts
+live in different places". Production's `serve_live.py` had no such fallback.
+
+`results/engine.mjs` is lifted byte for byte from `demo/index.html`, which is served FROM `demo/`, so
+`loadSite()` fetches every artefact by the BARE name in `sites.json`'s `artefacts` map. At `/app/` a
+browser resolves those one level too low. Every fetch 404d, `loadSite` returned false, and the deployed
+app reported **"No built artefacts for ashburn"** for every site while the Configure button did nothing,
+because the transition it starts rejected. The browser flow check passed throughout, on a server whose
+routing production did not share.
+
+**The rule: a harness that differs from production in ANY routing behaviour is testing a server nobody
+runs.** Either drive the real server, or assert the behaviour the harness adds is also in production.
+Step 33 now fetches every artefact name from `sites.json` through `serve_live.py` at `/app/`.
+
+**And when you add a fallback, test what it opens.** The fix rewrites `/app/<name>` to `/<name>`, so
+the obvious question is whether `..` climbs to the repository root where `.env` lives. It cannot,
+because both candidates go through `translate_path`, but that is now five asserted traversal attempts
+rather than a claim in a comment.
+
+Related: 5b.6 was the same shape one layer out. Both are "the check passed and the user saw it fail".
+
 ### 5b.6 A CURRENCY check cannot see a ROUTING mistake: verify WHICH PAGE, not just which bytes
 `verify_shipped_app_is_current.py` proved the React bundle was built from the committed source, and it
 was right. The deployed site still showed the old interface, because `serve_live.py`'s static root is

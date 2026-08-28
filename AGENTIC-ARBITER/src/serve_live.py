@@ -406,6 +406,49 @@ class Handler(SimpleHTTPRequestHandler):
         line = (self.requestline or "")[:120]
         sys.stderr.write("   %s %s\n" % (self.address_string(), line))
 
+    def _app_artefact_fallback(self):
+        """An `/app/<name>` the bundle does not have falls back to `demo/<name>`. Returns True if the
+        path was rewritten.
+
+        🔴 WITHOUT THIS THE DEPLOYED APP CANNOT LOAD A SINGLE SITE, and the failure names the wrong
+        cause. `loadSite()` in results/engine.mjs fetches every artefact by the BARE filename that
+        sites.json's `artefacts` map gives it -- `trace.json`, `backtest.json`, `money.json`, the
+        plume field -- because the engine is lifted byte for byte out of demo/index.html, which is
+        served FROM demo/ where a bare name resolves. The React app is served from demo/app/, one
+        level down, so the browser resolves those same names against /app/ and every one of them
+        404s. `loadSite` returns false on a missing trace, so the app reports "No built artefacts for
+        <site>" for EVERY site, and the Configure button does nothing because the transition it
+        starts rejects. Measured on the live host 2026-08-28, and reported by the user.
+
+        WHY THE FIX IS HERE AND NOT IN THE ENGINE. The engine must stay byte-identical to the page:
+        run_all.py step 30 asserts it character for character, and that identity is what makes the
+        React rebuild safe to trust at all. Prefixing the fetches would break it. React's own code
+        already carries `ART = '../'` for the artefacts IT reads (app/src/lib/artefacts.ts); the
+        engine cannot, so the server closes the gap instead.
+
+        THIS IS EXACTLY WHAT testing/serve_app.py ALREADY DID, and that is the whole reason the bug
+        shipped. Its comment says an /app/ path "tries the bundle first and then demo/, because the
+        app's own assets and the artefacts live in different places". The browser flow check drove the
+        app through that server, the fallback made every fetch succeed, and the check passed while
+        production had no such fallback. The harness did not reproduce production. Trap 5b.7.
+
+        PATH TRAVERSAL IS NOT POSSIBLE HERE. Both candidates go through `translate_path`, which
+        collapses `..`, drops leading slashes and anchors the result under `directory=DEMO`, so
+        `/app/../../.env` cannot resolve outside demo/. The rewrite only ever REMOVES the `/app`
+        prefix; it never joins attacker-controlled text to a filesystem path itself.
+        """
+        raw = self.path
+        p, _, q = raw.partition("?")
+        if not p.startswith("/app/") or p.endswith("/"):
+            return False
+        if os.path.isfile(self.translate_path(p)):
+            return False                          # the bundle has it: its own js, css, index.html
+        alt = "/" + p[len("/app/"):]
+        if not os.path.isfile(self.translate_path(alt)):
+            return False                          # neither has it, so let the honest 404 happen
+        self.path = alt + (("?" + q) if q else "")
+        return True
+
     def _root_redirect(self):
         """Shared by GET and HEAD so a monitor configured for HEAD sees the same routing. Returns True
         when it has answered the request."""
@@ -439,6 +482,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if self._root_redirect():
             return
+        self._app_artefact_fallback()
         return super().do_HEAD()
 
     def do_GET(self):
@@ -494,6 +538,7 @@ class Handler(SimpleHTTPRequestHandler):
         # non-/api/ path, and sending it twice would emit a duplicate header.
         if self._root_redirect():
             return
+        self._app_artefact_fallback()
         return super().do_GET()
 
     def do_POST(self):

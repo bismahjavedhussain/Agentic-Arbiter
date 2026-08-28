@@ -14,7 +14,7 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     region: oregon
-    healthCheckPath: /api/health
+    healthCheckPath: /api/ping
 
     envVars:
       # 🔴 THE KEY. sync: false means Render will PROMPT for it and store it encrypted, and it is
