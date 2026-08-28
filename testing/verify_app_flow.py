@@ -178,7 +178,13 @@ PROBE = r"""
         var doneEl = q('#tapedone');
         if (!doneEl || !(doneEl.textContent || '').trim()) return;
         var tapeRows = n('#tape tr') + n('#tape .ev') + n('#tape > *');
-        var cards = ['headcard','tapecard','decisioncard','laddercard','moneycard','fieldcard',
+        /* 🔴 #tapecard IS DELIBERATELY NOT ON SCREEN, so it is not in this list.
+           The one-row AgentConsole replaced it at the user's instruction: "The agent, working", its
+           prose, its own PDF button and its disclosure are all gone from the display. The card stays
+           in the DOM because #tape is what proves the reasoning streamed and #tapedone is the signal
+           the console reads, and both are asserted separately below. Leaving it in this list would
+           report a deliberate design decision as a broken panel. */
+        var cards = ['headcard','decisioncard','laddercard','moneycard','fieldcard',
                      'sitecard','plumecard','whycard','scorecard','cfcard','livecard'];
 
         /* 🔴 THE THIRTEEN CARDS ARE NO LONGER ALL ON ONE SCREEN, so "every card visible" is now
@@ -217,6 +223,20 @@ PROBE = r"""
              #livecard must never be removed and never relocated. Sampled on EVERY tab, so a tab that
              tore it out of the document would be caught even though only one tab displays it. */
           out._liveInDomEveryTab = (out._liveInDomEveryTab !== false) && !!q('#livecard');
+          /* Present but not displayed: that is the contract for the replaced tape card. */
+          out._tapeCardInDom = (out._tapeCardInDom !== false) && !!q('#tapecard');
+          out._tapeCardShown = out._tapeCardShown || vis(q('#tapecard'));
+          /* 🔴 THE REPEATED SECTION HEADINGS. The page carries the eyebrow "The decision, and what it
+             is worth" TWICE plus two more, and hiding them took three attempts because engine.css's
+             rule is `body[data-stage="results"] .secgroup` (0,2,1), not the bare `.secgroup` the
+             minified bundle appeared to show. Counted on EVERY tab, because a rule that wins on one
+             tab and loses on another is exactly the shape of the bug that kept coming back. */
+          (function(){
+            var g = document.querySelectorAll('.secgroup'), shown = 0;
+            for (var k = 0; k < g.length; k++) if (vis(g[k])) shown++;
+            out._secgroupTotal = g.length;
+            out._secgroupShown = Math.max(out._secgroupShown || 0, shown);
+          })();
           out._livegoInDomEveryTab = (out._livegoInDomEveryTab !== false) && !!q('#livego');
         }
         /* Advance. While tabs remain, click the next one and come back next poll. */
@@ -234,6 +254,10 @@ PROBE = r"""
           tabs:        out._tabs,
           perTab:      out._perTab,
           liveInDom:   out._liveInDomEveryTab,
+          tapeCardInDom: out._tapeCardInDom,
+          secgroupTotal: out._secgroupTotal,
+          secgroupShown: out._secgroupShown,
+          tapeCardShown: out._tapeCardShown,
           livegoInDom: out._livegoInDomEveryTab,
           liveTab:     out._seen['livecard'] || null,
           cardsByTab:  out._seen,
@@ -471,6 +495,19 @@ def main():
     # system working, not the rule breaking. So two separate assertions, each saying what it means.
     ck(rr.get("liveInDom") is True and rr.get("livegoInDom") is True,
        "#livecard and #livego are in the DOM on every tab", "standing rule C1: never removed")
+    # The replaced tape card: still in the document on every tab, and shown on none of them. Both
+    # halves matter. Gone from the DOM would break the console and the row count; visible would mean
+    # the panel the console replaced is still competing with it.
+    # The page's four .secgroup eyebrows, two of which carry the SAME text, must not reach the screen
+    # on any tab. Asserted rather than reasoned about: two previous fixes were argued from specificity
+    # and both were wrong, so this counts what a browser actually renders.
+    ck((rr.get("secgroupShown") or 0) == 0,
+       "no repeated section heading is on screen",
+       "%s .secgroup element(s) in the page, %s displayed on any tab"
+       % (rr.get("secgroupTotal"), rr.get("secgroupShown")))
+    ck(rr.get("tapeCardInDom") is True and rr.get("tapeCardShown") is not True,
+       "#tapecard is in the DOM and deliberately not displayed",
+       "replaced by the one-row console; #tape still streams %s rows" % rr.get("tapeRows"))
     ck(bool(rr.get("liveTab")), "the live agent card is reachable in its tab",
        "shown under the %r tab" % rr.get("liveTab") if rr.get("liveTab")
        else "REACHABLE FROM NO TAB")

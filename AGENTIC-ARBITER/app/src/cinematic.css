@@ -141,44 +141,36 @@ body:not([data-stage='pick']) .aa-rail-nav { max-height: calc(100vh - 128px); ov
   border-color: color-mix(in oklab, var(--fg-bright) 34%, var(--fg-hair));
 }
 
-/* ---- 4. NO REPEATED HEADINGS.
-   🔴 A SPECIFICITY FIX, NOT A NEW RULE. workspace.css already said `.secgroup { display: none }`, and
-   it did not work: engine.css declares `.secgroup{display:block;...}` and Vite emitted that
-   declaration AFTER ours in the bundle, so equal specificity meant the later one won. Verified by
-   reading the deployed stylesheet, where both rules are present in that order.
-   `.viz-root .secgroup` is (0,2,0) against engine.css's (0,1,0), so order stops mattering.
-   The page carries the eyebrow "The decision, and what it is worth" TWICE, which is what put the same
-   heading on screen twice in the user's screenshot. ---- */
-.viz-root #secnav,
-.viz-root .secgroup,
-.aa-workspace .secgroup { display: none; }
+/* ---- 4. NO REPEATED HEADINGS. THIRD ATTEMPT, AND THIS TIME THE SPECIFICITY IS ACTUALLY RIGHT.
+   The page carries the eyebrow "The decision, and what it is worth" TWICE, plus two more, and they
+   were still on screen after two fixes because I twice compared against the wrong rule.
 
-/* ---- 5. THE EXPANDED TAPE IS FOLDED AWAY, not deleted.
-   The console above it is what a reader looks at now. The rows stay in the DOM because
-   verify_app_flow.py counts them (`#tape > *`) and #tapedone is the completion signal the console
-   itself reads, and because "show me the actual trace" is a fair thing to ask of an agent. ---- */
-.aa-workspace[data-aa-active='live'] #tapecard #tape,
-.aa-workspace[data-aa-active='live'] #tapecard #tapeguard { display: none; }
-.aa-workspace[data-aa-active='live'] #tapecard.aa-trace-open #tape {
-  display: grid;
-  margin-top: 10px;
-}
-.aa-trace-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-  padding: 5px 10px;
-  border: 1px solid var(--fg-hair);
-  border-radius: 8px;
-  background: none;
-  font: inherit;
-  font-size: 11.5px;
-  color: var(--fg-dim);
-  cursor: pointer;
-  transition: color 0.18s ease, border-color 0.18s ease;
-}
-.aa-trace-toggle:hover { color: var(--text-primary); border-color: var(--fg-bright); }
+   What engine.css really says, at line 565:
+       body[data-stage="results"] .secgroup { display: block }      (0,2,1)
+   My previous fix was:
+       .viz-root .secgroup        { display: none }                 (0,2,0)   LOSES
+   and before that:
+       .secgroup                  { display: none }                 (0,1,0)   LOSES
+   I had grepped the MINIFIED bundle, which showed a bare `.secgroup{display:block}`, and never saw
+   the `body[data-stage="results"]` prefix that gives it the extra 0,0,1.
+
+   `!important` rather than a fourth specificity guess. engine.css is lifted verbatim from the audited
+   page and cannot be edited here, so this is the case the keyword is for: overriding a stylesheet you
+   do not own. A fourth round of counting selectors is not worth the reader's time.
+   #secnav goes the same way: the workspace rail replaces the section index. ---- */
+#secnav,
+.secgroup { display: none !important; }
+
+/* ---- 5. THE WHOLE TAPE CARD IS OFF THE SCREEN, at the user's instruction.
+   "The agent, working" panel, its seven-stage prose, its own PDF button and its "How it worked"
+   disclosure are all replaced by the one-row console above.
+
+   🔴 HIDDEN, NOT REMOVED, AND THE DIFFERENCE IS LOAD-BEARING. #tape is what verify_app_flow.py counts
+   to prove the reasoning actually streamed, and #tapedone is the completion signal the console itself
+   reads to know when to offer the PDF. Deleting the card would break both and leave the console with
+   nothing real to follow. So it stays in the DOM, sized to nothing, and the flow check now asserts
+   exactly that: present, and deliberately not displayed. ---- */
+.aa-workspace #tapecard { display: none !important; }
 
 /* ---- 6. THE ONE-ROW CONSOLE ---- */
 .aa-console {
@@ -290,4 +282,64 @@ body:not([data-stage='pick']) .aa-rail-nav { max-height: calc(100vh - 128px); ov
 @media (prefers-reduced-motion: reduce) {
   .aa-shimmer { animation: none; color: var(--fg-dim); background: none; -webkit-text-fill-color: currentColor; }
   .aa-spin { animation: none; }
+}
+
+/* ---- 8. THE ORBITING ICON. Two counter-rotating arcs around a core: it reads as thinking, where a
+   progress spinner would imply a percentage nobody is measuring. Pure CSS, so it costs no JS frame. */
+.aa-orbit { position: relative; display: inline-block; width: 20px; height: 20px; flex: none; }
+.aa-orbit i { position: absolute; inset: 0; border-radius: 50%; }
+.aa-orbit-a {
+  border: 1.6px solid transparent;
+  border-top-color: var(--fg-bright);
+  border-right-color: color-mix(in oklab, var(--fg-bright) 45%, transparent);
+  animation: aa-orbit-cw 1.1s linear infinite;
+}
+.aa-orbit-b {
+  inset: 4px;
+  border: 1.6px solid transparent;
+  border-bottom-color: var(--fg-deep);
+  border-left-color: color-mix(in oklab, var(--fg-deep) 50%, transparent);
+  animation: aa-orbit-ccw 1.5s linear infinite;
+}
+.aa-orbit-core {
+  inset: 7.5px;
+  background: var(--fg-bright);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--fg-bright) 70%, transparent);
+  animation: aa-orbit-pulse 1.4s ease-in-out infinite;
+}
+@keyframes aa-orbit-cw { to { transform: rotate(360deg); } }
+@keyframes aa-orbit-ccw { to { transform: rotate(-360deg); } }
+@keyframes aa-orbit-pulse { 50% { opacity: 0.45; transform: scale(0.82); } }
+
+/* Settled: the arcs stop and the core turns green, so "finished" is legible at a glance. */
+.aa-orbit[data-state='ready'] .aa-orbit-a,
+.aa-orbit[data-state='ready'] .aa-orbit-b { animation: none; border-color: transparent; }
+.aa-orbit[data-state='ready'] .aa-orbit-core {
+  inset: 6px;
+  animation: none;
+  background: var(--good);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--good) 20%, transparent);
+}
+
+/* ---- 9. THE SECOND ROW: the Download button on its own line, as asked. ---- */
+.aa-console-wrap { margin: 0 0 16px; }
+.aa-console { margin-bottom: 0; }
+.aa-console-dlrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 9px;
+  padding: 0 2px;
+  overflow: hidden;
+}
+.aa-console-dlnote {
+  font-size: 11.4px;
+  line-height: 1.35;
+  color: var(--fg-dim);
+}
+@media (max-width: 760px) {
+  .aa-console-dlrow { flex-direction: column; align-items: flex-start; gap: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aa-orbit-a, .aa-orbit-b, .aa-orbit-core { animation: none; }
 }

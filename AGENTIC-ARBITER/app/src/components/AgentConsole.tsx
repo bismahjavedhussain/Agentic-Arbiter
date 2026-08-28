@@ -1,183 +1,189 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Download, Loader2 } from 'lucide-react'
+import { Download } from 'lucide-react'
 
 /**
- * The agent, as ONE ROW. A live shimmer while it reasons, a blue Download button the moment it stops.
+ * The agent as ONE LINE: an orbiting icon, a short reasoning phrase that changes every second or so,
+ * and then, on the line below, the Download PDF button.
  *
- * Replaces the expanded sixteen-line tape as the thing a reader looks at. The tape itself stays in the
- * DOM, hidden by CSS: it is what verify_app_flow.py counts (`#tape > *`) and what #tapedone reports
- * completion through, and it remains openable under "Full reasoning trace".
+ * THE SEQUENCE, which is what the previous version got wrong. It showed "Decision ready" and the
+ * button immediately, because the replay tape had already finished before anyone looked, so a reader
+ * never saw the agent reason at all. Now the reasoning always plays first:
  *
- * 🔴 EVERY WORD OF THE REASONING IS A FIXED PHRASE, AND NOT ONE OF THEM CONTAINS A DIGIT. That is
- * deliberate and it is the whole reason this component is safe. The stage it shows is READ from the
- * engine's own tape, so the progress is real; the wording is decoration over a real signal. A version
- * that paraphrased the tape's numbers would be inventing figures with no artefact behind them, which
- * is the one thing this project does not ship. ticker.json makes the same promise about its own
- * templates: "no template in src/ticker.py contains a literal digit".
+ *     reasoning   orbiting icon + rotating phrases, held open for at least MIN_MS
+ *     ready       one line: "Decision ready", and the Download PDF button on the row beneath
  *
- * THE SHIMMER is adapted from 21st.dev's `thinking-tool` (serafimcloud): an animated linear-gradient
- * painted through `background-clip: text`. Its icon dependency (@tabler/icons-react) was dropped for
- * lucide, which is already here, and the greys were repointed at this project's blue ramp.
+ * Clicking any of the engine's run buttons restarts it, so pressing "Run the agent on live data"
+ * replays the reasoning against that run rather than sitting on a stale conclusion.
+ *
+ * 🔴 THE PHRASES ARE FIXED AND NONE CONTAINS A DIGIT, and the stage shown beside them is READ from
+ * the engine's own tape, so what advances is real. Paraphrasing the tape's numbers would be inventing
+ * figures with no artefact behind them, which is the one thing this project does not ship.
+ * ticker.json makes the same promise about its own templates.
+ *
+ * MIN_MS EXISTS BECAUSE THE TAPE CAN FINISH TOO FAST TO READ. On a warm replay the whole stream lands
+ * in well under a second, and a reasoning state that flashes past reads as a glitch rather than as
+ * work. So the console holds the sequence open for a few seconds even when the work is already done,
+ * and it never resolves EARLIER than the real tape does.
  */
 
-/** The seven real stages, in order, from ticker.json's own `stages` map. */
 const STAGE_NAMES = ['PERCEIVE', 'SOLVE', 'BOUND', 'DECIDE', 'ACT', 'SCORE', 'RECALIBRATE'] as const
 
-/**
- * Short reasoning phrases, keyed by the stage the tape has actually reached. Two or three per stage so
- * a long stage does not sit on one line, cycled on a timer.
- *
- * Each phrase describes what that stage DOES, which is a fact about the pipeline rather than about the
- * data, so none of them can go stale against an artefact.
- */
-const PHRASES: Record<number, string[]> = {
-  1: ['Reading the vendor field...', 'Loading real station hours...', 'Locating the committed site...'],
-  2: ['Solving the plume...', 'Turning the wind through every bearing...', 'Marching the exhaust downwind...'],
-  3: ['Calibrating bounds...', 'Pondering margins...', 'Fitting residuals to held-out days...'],
-  4: ['Planning the schedule...', 'Weighing the plant envelope...', 'Evaluating chiller data...'],
-  5: ['Emitting the command rows...', 'Attaching a bound to every hour...'],
-  6: ['Scoring itself on held-out days...', 'Checking its own coverage...'],
-  7: ['Widening its own margin...', 'Recalibrating online...'],
+/** How long the reasoning is held open at minimum, and how long each phrase sits. */
+const MIN_MS = 5200
+const PHRASE_MS = 1150
+
+/** Short phrases, in pipeline order. Each describes what a stage DOES, which is a fact about the
+ *  pipeline rather than about the data, so none of them can go stale against an artefact. */
+const PHRASES: string[] = [
+  'Reading the vendor field...',
+  'Loading real station hours...',
+  'Solving the plume...',
+  'Turning the wind through every bearing...',
+  'Calibrating bounds...',
+  'Pondering margins...',
+  'Evaluating chiller data...',
+  'Planning the schedule...',
+  'Weighing the plant envelope...',
+  'Attaching a bound to every hour...',
+  'Scoring itself on held-out days...',
+  'Widening its own margin...',
+]
+
+/** The engine's buttons that mean "a run has started". */
+const RUN_BUTTONS = ['runagent', 'runagent2', 'livego']
+
+function tapeDone(): boolean {
+  const el = document.getElementById('tapedone')
+  return !!(el?.textContent || '').trim()
 }
 
-type Tape = { stage: number; events: number; done: boolean }
-
-function readTape(): Tape {
+function tapeStage(): number {
   const tape = document.getElementById('tape')
-  const done = document.getElementById('tapedone')
-  if (!tape) return { stage: 0, events: 0, done: false }
+  if (!tape) return 0
   let stage = 0
-  let events = 0
   for (const el of Array.from(tape.children) as HTMLElement[]) {
     if (el.classList.contains('n')) {
       const n = parseInt((el.textContent || '').trim(), 10)
       if (Number.isFinite(n)) stage = Math.max(stage, n)
-    } else if (el.classList.contains('t')) events += 1
+    }
   }
-  return { stage, events, done: !!(done?.textContent || '').trim() }
+  return stage
 }
 
 export function AgentConsole({ pdfHref }: { pdfHref: string | null }) {
-  const [t, setT] = useState<Tape>({ stage: 0, events: 0, done: false })
-  const [phraseIdx, setPhraseIdx] = useState(0)
+  const [phase, setPhase] = useState<'reasoning' | 'ready'>('reasoning')
+  const [idx, setIdx] = useState(0)
+  const [stage, setStage] = useState(0)
+  const startedAt = useRef<number>(0)
 
-  /* Mirror the tape. Debounced to a frame: streamTape() reveals rows one at a time and a 32-row tape
-     would otherwise re-render this 32 times for no visible difference. */
-  useEffect(() => {
-    const tape = document.getElementById('tape')
-    const done = document.getElementById('tapedone')
-    if (!tape) return
-    let queued = 0
-    const run = () => { queued = 0; setT(readTape()) }
-    const mo = new MutationObserver(() => {
-      if (queued) return
-      queued = requestAnimationFrame(run)
-    })
-    mo.observe(tape, { childList: true, subtree: true, characterData: true })
-    if (done) mo.observe(done, { childList: true, subtree: true, characterData: true })
-    run()
-    return () => { mo.disconnect(); if (queued) cancelAnimationFrame(queued) }
+  /* One restartable run of the sequence. `startedAt` is a ref, not state: the interval below reads it
+     and must not be re-created every time it changes. */
+  const begin = useCallback(() => {
+    startedAt.current = performance.now()
+    setIdx(0)
+    setPhase('reasoning')
   }, [])
 
-  const running = t.events > 0 && !t.done
-  const phrases = PHRASES[Math.min(Math.max(t.stage, 1), 7)] ?? PHRASES[1]
+  /* Start on mount. Opening this tab at the results stage is itself the moment to show the work. */
+  useEffect(() => { begin() }, [begin])
 
-  /* Cycle the phrase while running. Cleared when it stops, so the last line does not keep animating
-     under the Download button. */
+  /* AND RESTART ON ANY RUN BUTTON. Capture phase, so this sees the click even though the engine's own
+     handler is bound to the same element. It only OBSERVES: the engine's handler is what actually
+     runs the agent, and nothing here interferes with it or duplicates it. */
   useEffect(() => {
-    if (!running) return
-    const id = setInterval(() => setPhraseIdx((i) => i + 1), 2100)
-    return () => clearInterval(id)
-  }, [running])
+    const onClick = (e: MouseEvent) => {
+      const t = e.target as HTMLElement | null
+      const btn = t && t.closest ? (t.closest('button, a') as HTMLElement | null) : null
+      if (btn && RUN_BUTTONS.includes(btn.id)) begin()
+    }
+    document.addEventListener('click', onClick, true)
+    return () => document.removeEventListener('click', onClick, true)
+  }, [begin])
 
-  const phrase = phrases[phraseIdx % phrases.length]
-  const stageLabel = useMemo(
-    () => (t.stage >= 1 && t.stage <= 7 ? STAGE_NAMES[t.stage - 1] : ''),
-    [t.stage],
-  )
+  /* One interval drives both the phrase and the stage read, so they cannot drift apart, and it stops
+     the moment the sequence resolves. */
+  useEffect(() => {
+    if (phase !== 'reasoning') return
+    const id = setInterval(() => {
+      setIdx((i) => i + 1)
+      setStage(tapeStage())
+      /* Resolves only when BOTH the minimum has elapsed AND the real tape has finished, so the console
+         can never claim a decision the engine has not actually reached. */
+      if (performance.now() - startedAt.current >= MIN_MS && tapeDone()) setPhase('ready')
+    }, PHRASE_MS)
+    return () => clearInterval(id)
+  }, [phase])
+
+  const phrase = PHRASES[idx % PHRASES.length]
+  const stageLabel = stage >= 1 && stage <= 7 ? STAGE_NAMES[stage - 1] : ''
 
   return (
-    <motion.div
-      className={`aa-console ${t.done ? 'is-done' : running ? 'is-run' : 'is-idle'}`}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {/* LEFT: the state light. A spinner while working, a filled dot when finished. */}
-      <span className="aa-console-orb" aria-hidden="true">
-        {running ? <Loader2 className="aa-spin" size={15} strokeWidth={2.4} /> : <i />}
-      </span>
+    <div className="aa-console-wrap">
+      {/* LINE ONE: the agent thinking, or the conclusion. */}
+      <motion.div
+        className={`aa-console ${phase === 'ready' ? 'is-done' : 'is-run'}`}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* THE ORBITING ICON. Two counter-rotating arcs around a core, so it reads as thinking rather
+            than as a progress spinner, which would imply a percentage nobody is measuring. */}
+        <span className="aa-orbit" aria-hidden="true" data-state={phase}>
+          <i className="aa-orbit-a" />
+          <i className="aa-orbit-b" />
+          <i className="aa-orbit-core" />
+        </span>
 
-      {/* MIDDLE: one line, swapped with a crossfade. aria-live so a screen reader hears the state
-          change without the text being re-announced on every cosmetic swap. */}
-      <div className="aa-console-line" aria-live="polite">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={t.done ? 'done' : `${t.stage}-${phraseIdx % phrases.length}`}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
-            className={running ? 'aa-shimmer' : undefined}
-          >
-            {t.done
-              ? 'Decision ready. Every hour carries its own bound.'
-              : running
-                ? phrase
-                : 'Idle. Run the agent to see it reason.'}
-          </motion.span>
-        </AnimatePresence>
-      </div>
+        <div className="aa-console-line" aria-live="polite">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={phase === 'ready' ? 'done' : idx % PHRASES.length}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className={phase === 'reasoning' ? 'aa-shimmer' : undefined}
+            >
+              {phase === 'ready' ? 'Decision ready. Every hour carries its own bound.' : phrase}
+            </motion.span>
+          </AnimatePresence>
+        </div>
 
-      {/* The seven stages as ticks, so the row still shows WHERE it is without a second panel. */}
-      <ol className="aa-console-ticks" aria-label={`Stage ${t.stage} of 7`}>
-        {STAGE_NAMES.map((s, i) => (
-          <li
-            key={s}
-            className={t.done || t.stage > i + 1 ? 'is-past' : t.stage === i + 1 ? 'is-now' : ''}
-            title={s}
-          />
-        ))}
-      </ol>
-      {stageLabel && !t.done && <span className="aa-console-stage">{stageLabel}</span>}
+        {phase === 'reasoning' && stageLabel && (
+          <span className="aa-console-stage">{stageLabel}</span>
+        )}
+      </motion.div>
 
-      {/* 🔴 THE FULL TRACE STAYS REACHABLE. Folding the sixteen-line tape away is a display decision;
-          hiding an agent's actual reasoning behind a decoration would not be. This toggles a class on
-          #tapecard that cinematic.css keys off, so the rows are one click away and the DOM is
-          untouched either way, which is what keeps verify_app_flow.py's row count meaningful. */}
-      {t.events > 0 && (
-        <button
-          type="button"
-          className="aa-trace-toggle"
-          onClick={() => document.getElementById('tapecard')?.classList.toggle('aa-trace-open')}
-        >
-          Full trace
-        </button>
-      )}
-
-      {/* RIGHT: the payoff. The button appears only when the tape is finished, and it points at a REAL
-          file: the per-site report.pdf listed in sites.json's artefacts map. If the manifest names no
-          report for this site the button is not rendered at all, rather than offering a dead link. */}
+      {/* LINE TWO: the payoff, on its own row as asked. It points at a REAL file, the per-site
+          report.pdf named in sites.json's artefacts map, and is not rendered when the manifest names
+          none, rather than offering a dead link. */}
       <AnimatePresence initial={false}>
-        {t.done && pdfHref && (
-          <motion.a
-            key="dl"
-            href={pdfHref}
-            download
-            className="aa-console-dl"
-            initial={{ opacity: 0, scale: 0.94, x: 6 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.94 }}
-            transition={{ type: 'spring', stiffness: 460, damping: 30 }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.98 }}
+        {phase === 'ready' && pdfHref && (
+          <motion.div
+            key="dlrow"
+            className="aa-console-dlrow"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
           >
-            <Download size={15} strokeWidth={2.4} aria-hidden="true" />
-            Download PDF
-          </motion.a>
+            <motion.a
+              href={pdfHref}
+              download
+              className="aa-console-dl"
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.985 }}
+            >
+              <Download size={15} strokeWidth={2.4} aria-hidden="true" />
+              Download PDF
+            </motion.a>
+            <span className="aa-console-dlnote">
+              A snapshot of this configuration. The panels recompute for whatever you select.
+            </span>
+          </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   )
 }

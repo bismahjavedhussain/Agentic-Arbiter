@@ -12,6 +12,64 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### 🔴 THE REPEATED HEADING TOOK THREE ATTEMPTS, AND THE FIRST TWO WERE WRONG FOR THE SAME REASON
+
+The user reported it three times. Worth recording in full, because the mistake is a general one.
+
+`demo/index.html` carries four `.secgroup` eyebrows and **two of them say the same thing**, "The
+decision, and what it is worth". Every tab showed them. My fixes, in order:
+
+| attempt | rule | specificity | outcome |
+|---|---|---|---|
+| 1 | `.secgroup { display: none }` | (0,1,0) | lost |
+| 2 | `.viz-root .secgroup { display: none }` | (0,2,0) | lost |
+| 3 | `.secgroup { display: none !important }` | n/a | **wins** |
+
+What engine.css actually says, at line 565, is `body[data-stage="results"] .secgroup { display: block }`
+which is **(0,2,1)**. Both my fixes lost to it.
+
+🔴 **THE ROOT CAUSE OF BEING WRONG TWICE: I grepped the MINIFIED BUNDLE.** It printed
+`secgroup{display:block;...}` and I read that as the whole selector. The `body[data-stage="results"]`
+prefix was there in the source the entire time. **Read the source stylesheet, not the built one, when
+reasoning about specificity**: minified output shows a rule's declarations, not reliably its selector
+context, and a grep that starts mid-selector silently drops the parts that decide the cascade.
+
+`!important` is the right answer here rather than a fourth guess: engine.css is lifted verbatim from
+the audited page and cannot be edited in the app, which is exactly the case the keyword exists for.
+
+**AND IT IS NOW ASSERTED, NOT ARGUED.** `verify_app_flow.py` counts `.secgroup` elements that a real
+browser renders, on **every tab**: "4 .secgroup element(s) in the page, 0 displayed on any tab". Two
+fixes were argued from specificity and both were wrong, so the third is measured.
+
+### THE CONSOLE, REBUILT: REASONING FIRST, THEN THE BUTTON. 2026-08-29
+
+The first version showed "Decision ready" and the PDF button immediately, because the replay tape had
+already finished before anyone looked, so **a reader never saw the agent reason at all**. Rebuilt to
+the sequence the user asked for:
+
+- **Line one:** an orbiting icon (two counter-rotating CSS arcs around a pulsing core, so it reads as
+  thinking rather than as a progress bar implying a percentage nobody measures) plus one short phrase
+  that changes every 1.15 s, with the real stage name beside it.
+- **Line two:** the blue **Download PDF** button, springing in on its own row.
+
+`MIN_MS = 5200` holds the sequence open even when the work is already done, because a warm replay lands
+in under a second and a reasoning state that flashes past reads as a glitch. It **never resolves
+earlier than the real tape**: the gate is minimum-elapsed AND `#tapedone` filled.
+
+Clicking `#runagent`, `#runagent2` or `#livego` restarts it, via a **capture-phase** listener that only
+observes, so the engine's own handler still does all the work.
+
+**Removed from the screen entirely, at the user's instruction:** `AgentTerminal.tsx` deleted (the stage
+rail whose status badge said COMPLETE while its line said "waiting for the agent to start"), and
+`#tapecard` hidden, taking "The agent, working", its prose, its own PDF button and its disclosure with
+it. ⚠ `#tapecard` is **hidden, not removed**: `#tape` is what proves the reasoning streamed and
+`#tapedone` is the signal the console reads. The flow check now asserts exactly that contract, present
+and deliberately not displayed, so neither half can regress silently. The live-run block below it is
+`#livecard` with `#livego`, still present and still governed by standing rule C1.
+
+Verified: flow **26 of 26**, palette 38/0, view-matches-page 0, shipped-current 0, deployed-root 0,
+app-deterministic 0, `audit.py` **2,216 passed 0 failures**.
+
 ### THE CINEMATIC BLUE SHELL, THE ONE-ROW AGENT CONSOLE, AND WHAT IS STILL OUTSTANDING. 2026-08-29
 
 **21st.dev MCP, used and exhausted.** `search` (free) several times, `get_usage`, and the one remaining

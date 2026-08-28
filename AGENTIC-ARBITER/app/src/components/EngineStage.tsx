@@ -5,7 +5,6 @@ import { applyDeclutter } from '../lib/declutter'
 import { classifyPanels, unlockedTabs, type TabId } from '../lib/tabs'
 import { useStage } from '../lib/stage'
 import { TabHeader, TabRail } from './Workspace'
-import { AgentTerminal } from './AgentTerminal'
 import { AgentConsole } from './AgentConsole'
 import { ART } from '../lib/artefacts'
 
@@ -247,11 +246,12 @@ export function EngineStage({
           <TabHeader active={tab} />
           {/* The console chrome, only where it means anything. It reads #tape and writes nothing,
               so mounting and unmounting it cannot disturb the engine's own stream. */}
-          {/* THE AGENT, AS ONE ROW. It reads #tape and writes nothing, so mounting it cannot
-              disturb the engine's own stream. The expanded tape stays in the DOM, hidden by
-              CSS and reopenable, because it is what verify_app_flow.py counts. */}
+          {/* THE AGENT, AS ONE ROW, and the ONLY thing standing in for the tape now.
+              The stage rail and the expanded 16-line trace are both gone from the screen at the
+              user's instruction. #tapecard stays in the DOM, hidden by cinematic.css, because
+              #tape is what verify_app_flow.py counts and #tapedone is the completion signal this
+              console reads. It reads them and writes nothing, so the engine's stream is untouched. */}
           {tab === 'live' && stage === 'results' && <AgentConsole pdfHref={pdfHref} />}
-          {tab === 'live' && stage === 'results' && <AgentTerminal />}
           <div ref={host} className="viz-root" />
         </div>
       </div>
