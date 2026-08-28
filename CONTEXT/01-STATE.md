@@ -12,6 +12,41 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE PINGER IS CREATED, on cron-job.org, 2026-08-28
+
+`Agentic Arbiter keepalive` -> `https://agentic-arbiter.onrender.com/api/ping`, enabled, first
+execution "Today at 10:25:00 PM" in its own timezone (Asia/Karachi). Response measured from here at
+the moment of creation: **200, 12 bytes, 0.35 to 0.50 s**, well inside cron-job.org's 30-second
+free-tier timeout.
+
+⚠ **TWO SETTINGS NOT YET CONFIRMED**, because the job list shows neither: that the interval is
+**every 5 minutes** rather than hourly (one "next execution" of 10:25 PM is consistent with both), and
+that **Schedule expires is set to 21 September 2026**. Without the expiry, September runs 720 of the
+750 workspace hours, which is 96 % and too tight. Both are visible under EDIT.
+
+**The shape that was chosen, and why it changed twice.** First plan was a daily 08:00 to 22:00 window,
+rejected because a judge arriving at 23:30 waits a minute for a cold start and reasonably concludes the
+site is broken. Second was `Custom` with days 1-21,28-31 across August and September, which works but
+picks up 28-30 September as a side effect (576 h, 76.8 %). Settled on **"Every 5 minutes" plus an
+expiry date**, which is two controls instead of five multi-selects:
+
+| | days running | instance hours | of 750 |
+|---|---|---|---|
+| August | 28 to 31, only 4 left | <= 96 | 12.8 % |
+| September | 1 to 21 | 504 | 67 %, 246 h spare |
+
+🔴 **A FIRST DRAFT OF THIS SCHEDULE WOULD NEVER HAVE FIRED IN AUGUST.** I told the user to set Months
+= September while the question they had just asked was whether a judge could see the project on **31
+August**. Their screenshot showed `5 * 1 9 *`, hourly on 1 September only. Read the crontab expression
+and the "Next executions" panel; both state plainly what the multi-selects imply, and the panel is the
+check: after the fix it must show **today's** date, not next month's.
+
+⚠ **ISOLATED FAILURES IN HISTORY ARE EXPECTED, not a fault.** A cold start is about 60 s
+(render.com/docs/free) against a 30 s free-tier request timeout, so **the ping that wakes a sleeping
+instance can be logged as failed while still having done its job**; the next one 5 minutes later finds
+it awake. It is **25 CONSECUTIVE** failures that auto-disable the job, and that many in a row would
+mean the service is genuinely down.
+
 ### 🔴 RENDER HAS NO SPEND LIMIT, and the keep-alive must be WINDOWED not 24/7
 
 Verified 2026-08-28 by a 26-agent research pass with a skeptic against every load-bearing claim.
