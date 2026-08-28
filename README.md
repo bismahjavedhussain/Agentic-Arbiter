@@ -40,7 +40,7 @@ it an upper bound on that term rather than a projection (§ *What is honest*).
 ## Start here: two commands
 
 ```bash
-# 1. Prove it. 33 steps, ZERO API calls. Exits non-zero on any failure.
+# 1. Prove it. 34 steps, ZERO API calls. Exits non-zero on any failure.
 cd AGENTIC-ARBITER/src && python run_all.py
 
 # 2. See it: REPLAY mode, no API key needed, works offline.
@@ -527,6 +527,26 @@ python AGENTIC-ARBITER/src/serve_live.py --allow-paid --host 0.0.0.0 --port $POR
    and it is never in this repository, never in the Docker image, and never in a chat log.
 4. Deploy. The interface is at `https://<your-service>.onrender.com/app/`.
 5. Add a keep-alive ping, which is what stops a judge meeting a cold start. See below.
+
+### Changing the project after it is deployed
+
+Render **auto-deploys on push** to `master`, and if a build fails the running version keeps serving
+uninterrupted. Deploys have zero downtime, so a judge will not catch a gap.
+
+⚠ **ONE STEP IS EASY TO FORGET AND FAILS SILENTLY.** The site serves `AGENTIC-ARBITER/demo/app/`, the
+built React bundle, which is committed. The image installs Python dependencies only, so it cannot build
+the app. Edit the source, push, and Render will rebuild, succeed, and serve the **previous** interface.
+
+So a front-end change is:
+
+```bash
+python tools/build_app.py          # builds, copies into demo/app/, records a source hash
+git add -A && git commit -m "..."  # commit demo/app/ along with your source change
+git push
+```
+
+`run_all.py` step 34 fails if the shipped bundle is stale, so this cannot be forgotten quietly. A
+change to the Python side needs no build step at all: commit and push.
 
 ### Keeping it awake, which matters more than it sounds
 

@@ -237,6 +237,19 @@ STEPS = [
     # class selector no id-based check could see, and React re-applying its own innerHTML over the
     # engine's output. So this drives pick -> configure -> results in a real browser and checks what
     # lands on each screen.
+    # 🔴 THE ONE FAILURE THAT WOULD BE COMPLETELY SILENT. The deployment serves demo/app/, the BUILT
+    # bundle, which is committed. The Dockerfile installs Python dependencies and nothing else, so
+    # there is no Node in the image and it cannot build the app. Edit app/src, commit, push: Render
+    # rebuilds faithfully, deploys the bundle it already had, reports SUCCESS, and nothing a visitor
+    # sees has changed. Every light green, the change invisible.
+    # No other step here would notice. audit.py reads the single-file page, the byte-identity
+    # verifiers compare the engine against the page, and the flow check drives whatever bundle is on
+    # disk. So this compares a hash of the app source against the one recorded when the bundle was
+    # built. Exit 3 when there is no bundle or no stamp, because a skip is not a pass.
+    ("the shipped React bundle was built from the committed source",
+     [sys.executable, "verify_shipped_app_is_current.py"], TESTING,
+     {3: "no bundle in AGENTIC-ARBITER/demo/app or no build stamp. Build it with "
+         "`python tools/build_app.py`. The single-file page is unaffected."}),
     ("the new UI carries the whole product, pick to results, in a browser",
      [sys.executable, "verify_app_flow.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The single-file page remains "
