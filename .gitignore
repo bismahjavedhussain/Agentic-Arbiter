@@ -60,3 +60,8 @@ AGENTIC-ARBITER/app/dist/
 # ⚠ A fresh clone will NOT have it, and cannot regenerate the pipeline without it. That is the
 # deliberate trade. CONTEXT/02-ARCHITECTURE.md records what it holds and where it went.
 AGENTIC-ARBITER/data/
+
+# The BUILT app that ships. demo/app/ is tracked on purpose: GitHub Pages can only serve files that
+# are committed, and this is the deployable artefact. Its sourcemaps are not committed, which is why
+# this is a pattern and not a folder exclusion: 3.6 MB of .map for no reader benefit on a host.
+AGENTIC-ARBITER/demo/app/**/*.map
