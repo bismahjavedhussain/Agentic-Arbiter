@@ -1,0 +1,46 @@
+# What must NOT be sent to the Docker daemon as build context.
+#
+# Without this the context is about 1.6 GB, most of it things the image has no use for: .git alone is
+# 479 MB of history, and node_modules is 138 MB of the React app's BUILD-time dependencies. The image
+# needs the built output, not the toolchain that produced it.
+
+# 479 MB of history. The image needs the files, not how they got there.
+.git
+.gitattributes
+
+# 138 MB of build-time dependencies. The React app is already built: its output ships as
+# AGENTIC-ARBITER/demo/app/, which is tracked, and that is what the server serves at /app/.
+node_modules
+AGENTIC-ARBITER/app/node_modules
+AGENTIC-ARBITER/app/dist
+
+# 🔴 THE KEY. Belt and braces: .env is already gitignored so it is not in a git clone, but a LOCAL
+# `docker build` runs against the working tree, where it does exist. Excluded explicitly so the key
+# cannot reach an image by that route either.
+.env
+.env.*
+*.key
+
+__pycache__
+**/__pycache__
+*.py[cod]
+.venv
+venv
+
+# Build inputs that live outside the repository anyway. Named so that a local build does not follow
+# the junctions at these paths and copy 1,026 MB the server proved it does not need.
+AGENTIC-ARBITER/data/imagery
+AGENTIC-ARBITER/data/weather
+AGENTIC-ARBITER/data/national_fields
+AGENTIC-ARBITER/data/live_cache
+
+# ⚠ AGENTIC-ARBITER/data/geometry IS NOT EXCLUDED. 13 MB, and the server does not start without it:
+# agent.py reads data/geometry/selected_site.json at import time. Measured by hiding the folder.
+
+# The frozen copy of the old page. Useful on disk, not needed in a running image.
+AGENTIC-ARBITER/preserved
+
+# Local scratch and editor state
+.claude
+.vite
+*.tmp

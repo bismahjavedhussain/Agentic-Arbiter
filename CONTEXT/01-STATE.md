@@ -401,6 +401,49 @@ commands and exit-code contracts are in `03-VERIFICATION.md`.
 
 ## 3. Change log
 
+### 2026-08-28 - Where it deploys, decided against fetched facts rather than memory
+
+**The user's requirement: "Deploy on a good platform where no dynamic working or live calls get
+interrupted."** That single line rules out most free tiers, so the platform docs were fetched rather
+than recalled.
+
+| Platform | Verified fact | Verdict |
+|---|---|---|
+| Render free | "spins down a Free web service that goes 15 minutes without receiving any inbound traffic", wake "takes about one minute", 750 free instance hours per workspace per month | usable **with a keep-alive ping** |
+| Hugging Face Spaces | "Gradio and **Docker Spaces** run on compute and **require a paid plan** to create" | **not an option** on a free account |
+| HF free hardware | "your Space will go to sleep and stop executing after a period of time if unused" | would interrupt anyway |
+
+**The chosen answer: Render free plus an external pinger on `/api/health` every 10 minutes.** The
+arithmetic closes: a service kept awake through a 31-day month uses about 744 hours against a 750-hour
+allowance. `/api/health` makes no vendor call and costs no credits, so the pinger is free in both senses.
+
+⚠ THE MARGIN IS SIX HOURS. If they exhaust the 750, Render suspends free services until the next month.
+Fine for a hackathon window; the cheapest paid instance removes the question. Render's price could not
+be verified from here, the pricing table is rendered client-side, so no figure is quoted.
+
+**Also added `.dockerignore`.** Without it the build context is about 1.6 GB: `.git` alone is 479 MB and
+`node_modules` 138 MB. It also excludes `.env` explicitly, because a LOCAL `docker build` runs against
+the working tree where that file does exist, unlike a git clone.
+
+**THE KEY NEVER PASSES THROUGH ME.** `render.yaml` declares `FORTYGUARD_API_KEY` with `sync: false`, so
+Render prompts for it and stores it encrypted. The user pastes it. A key that passes through a chat
+transcript is a leaked key, and there is no version of this task that requires me to see it.
+
+### 2026-08-28 - The README lost its em dashes, and the ranges kept theirs
+
+66 em dashes removed from README, the one document judges read. The rule: a dash followed by a
+conjunction or pronoun is joining clauses, so a comma; anything else introduces an expansion, so a
+colon. Two comma splices the rule could not see were fixed by hand, and one case where a blockquote
+marker sat between the dash and the word after it, so the rule read ">" instead of "so".
+
+🔴 EIGHT EN DASHES STAY, AND audit.py IS THE REASON. Replacing them with "to" broke check 10
+immediately: `audit.py` FORMATS published figures as `"**%d–%d MW**"` and `"$%s – $%s per year"`, so the
+range separator is part of a published figure, not prose. Changing it means changing the formatter in
+audit.py, the page, and the React app together, and regenerating everything, to gain a typographic
+nicety on a numeric range. Reverted rather than pushed through, and the seven ranges plus one
+`advection–diffusion` are what remain. **Left as an open question for the user rather than decided
+quietly.**
+
 ### 2026-08-28 - The deployment, and a correction: the SERVER does need part of data/
 
 **One service, decided by the user: "I only want one deployment which supports the new UI and a live

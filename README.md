@@ -1,22 +1,22 @@
 # AGENTIC-ARBITER
 
 **An agent that decides, hour by hour, whether a data centre can switch its mechanical chillers off
-and cool with outside air — and that earns the right to say yes more often by grading its own
+and cool with outside air, and that earns the right to say yes more often by grading its own
 accuracy against reality.**
 
 FortyGuard Hackathon'26 · Track 3 (Industrial & Enterprise) + Track 6 (Agentic AI)
 
 > **Data centres over-cool, continuously, because nobody can promise them the hours ahead.** A
-> chiller plant needs hours of notice to change mode, and a thermometer only ever reports *now* — so
+> chiller plant needs hours of notice to change mode, and a thermometer only ever reports *now*: so
 > the mechanical chillers keep running through hours that outside air could have cooled for free.
 > **FortyGuard** closes that gap with heat intelligence **2 m above the ground**, the height a
 > ground-mounted condenser actually breathes. This agent turns that forecast into an hour-by-hour
 > schedule with a **calibrated safety bound**: over **913 held-out days** it cuts mechanical cooling
-> runtime **10.7 %** — 9,510 h to 8,496 h. Remove the forecast and **88.3 %** of the gain goes with
+> runtime **10.7 %**: 9,510 h to 8,496 h. Remove the forecast and **88.3 %** of the gain goes with
 > it.
 >
 > *No specific notice period is claimed. `notice_h` is a swept axis `[0, 1, 3, 6]` and the shipped
-> row uses 3 — a chosen configuration, not a sourced property of cooling plants. The whole sweep is
+> row uses 3: a chosen configuration, not a sourced property of cooling plants. The whole sweep is
 > in `backtest.json` and on the page.*
 
 ---
@@ -25,25 +25,25 @@ FortyGuard Hackathon'26 · Track 3 (Industrial & Enterprise) + Track 6 (Agentic 
 
 **Data-centre cooling-plant operators** struggle to **decide, each hour, whether to switch the
 mechanical chillers off and cool with outside air** because **a rooftop thermometer cannot see three
-hours ahead and a plant needs that much notice to change mode** — so they either switch late or
+hours ahead and a plant needs that much notice to change mode**, so they either switch late or
 carry a conservative buffer. The result is **406 chiller-hours per year left on the table, worth
 $5,522–$7,990 per MW of IT load**, measured across **43,763 hours of real weather** against the
 reactive on-site-sensor control operators verifiably run today.
 
 Every variable in that sentence is a measured number with a file behind it, not an estimate:
-`audit.py` re-reads all of them. The dollar range is 16 cells — **4 published electricity tariffs ×
+`audit.py` re-reads all of them. The dollar range is 16 cells: **4 published electricity tariffs ×
 4 published chiller efficiencies**, swept rather than chosen, and **compressor-only**, which makes
 it an upper bound on that term rather than a projection (§ *What is honest*).
 
 ---
 
-## Start here — two commands
+## Start here: two commands
 
 ```bash
 # 1. Prove it. 33 steps, ZERO API calls. Exits non-zero on any failure.
 cd AGENTIC-ARBITER/src && python run_all.py
 
-# 2. See it — REPLAY mode, no API key needed, works offline.
+# 2. See it: REPLAY mode, no API key needed, works offline.
 cd AGENTIC-ARBITER/demo && python -m http.server 8000        # then open http://localhost:8000
 ```
 
@@ -54,7 +54,7 @@ hours across the national tier. It used to say "~6 minutes" full stop, which was
 sites shipped and quietly stopped being true as the national build grew.
 
 **To see it decide the next hours from a LIVE forecast**, serve it with the live agent attached
-instead. This needs a FortyGuard key in the **repository root** `.env` — `testing/common.py:load_key()`
+instead. This needs a FortyGuard key in the **repository root** `.env`: `testing/common.py:load_key()`
 reads `<repo root>/.env`, and a copy inside `AGENTIC-ARBITER/` is read by nothing, which fails
 silently: the server starts, `/api/health` answers, and the key is simply never found.
 
@@ -65,15 +65,14 @@ python AGENTIC-ARBITER/src/serve_live.py --allow-paid   # then open http://127.0
 
 **Why two commands and not one:** a static page cannot make a live API call, because the request
 needs a key and anything the page can read, every visitor can read. `serve_live.py` holds the key in
-its own process and returns only numbers. The page detects which mode it is in and says so — it does
-not offer a live button that cannot work.
+its own process and returns only numbers. The page detects which mode it is in and says so: it does not offer a live button that cannot work.
 
 **New to this? Read [`READING-THE-AGENT.md`](CONTEXT/READING-THE-AGENT.md) first.** It explains every
-screen, every control and every graph from zero — no data-centre or statistics background
+screen, every control and every graph from zero: no data-centre or statistics background
 assumed, every term defined before it is used.
 
 **`file://` will not work.** Browsers block `fetch()` from it and the page will show only a red
-error. Any static host serves the demo as-is — there is no build step and no server side.
+error. Any static host serves the demo as-is: there is no build step and no server side.
 
 **There are two front ends, and the single-file page is the canonical one.**
 `AGENTIC-ARBITER/demo/index.html` is what a judge opens: one file, no build step, nothing to install,
@@ -103,10 +102,10 @@ perceive  FortyGuard heatmap + env_params + real wind + its own accuracy record
   decide  a switching SCHEDULE under a switch budget and a dwell limit, by DP
   act     BMS/SCADA-shaped command rows, each carrying its own numbers
   explain deterministic, and every claim verified by re-running the agent
-  score → recalibrate — the safety margin widens itself when reality proves it wrong
+  score → recalibrate: the safety margin widens itself when reality proves it wrong
 ```
 
-**What that buys, measured on 43,763 hours of real weather across five years** — 913 held-out days
+**What that buys, measured on 43,763 hours of real weather across five years**: 913 held-out days
 the agent never calibrated on, on real Ashburn geometry, against the reactive on-site-sensor
 incumbent that operators verifiably run:
 
@@ -114,13 +113,13 @@ incumbent that operators verifiably run:
 |---|---|
 | Free cooling delivered | **5,375 h/yr** by the rolling controller, hour by hour |
 | Chiller-hours avoided vs the incumbent | **+406 h/yr** |
-| **FortyGuard**'s share of that gain | **88.3 %** — at zero forecast skill the same agent gains only **+47.6 h/yr** |
+| **FortyGuard**'s share of that gain | **88.3 %**: at zero forecast skill the same agent gains only **+47.6 h/yr** |
 | A published 12-hour plan holds | **94.1 %** of 21,879 re-plans change nothing at all |
-| Bound coverage, measured | **65.6 %** against a 90 % promise — **it FAILED its pre-registration** |
+| Bound coverage, measured | **65.6 %** against a 90 % promise: **it FAILED its pre-registration** |
 
 **The forecast is the product.** Row three is measured by taking it away: hold every other setting
-at the shipped configuration, drop the forecast to zero skill — nothing beyond "tomorrow resembles
-today" — and 405.7 h/yr becomes 47.6. The physics, the plant limits and the dew-point gate are all
+at the shipped configuration, drop the forecast to zero skill: nothing beyond "tomorrow resembles
+today", and 405.7 h/yr becomes 47.6. The physics, the plant limits and the dew-point gate are all
 still in place; only **FortyGuard** is gone. The same axis run the other way says it scales with
 lead time: **0 h → +118.8 · 1 h → +230.8 · 3 h → +405.7 · 6 h → +645.3 h/yr.** A thermometer gives
 zero notice by construction, which is why a forecast is the missing input rather than a refinement.
@@ -133,7 +132,7 @@ footnote.**
 ## Who buys this, and how the first one starts
 
 **The hero is a named role, not a market.** The critical-environments or facility engineer at a
-colocation operator — the person who owns the PUE target, signs off on setpoint changes, and gets
+colocation operator: the person who owns the PUE target, signs off on setpoint changes, and gets
 called at 03:00 when an intake runs hot. They are the buyer because they carry both halves of this
 trade: the energy number they are measured on, and the risk they personally absorb if a hall
 overheats.
@@ -142,11 +141,11 @@ overheats.
 
 | | |
 |---|---|
-| **Mechanical cooling runtime cut** | **10.7 %** — 9,510 h of chiller time becomes 8,496 h. A share, so it holds at any hall size |
+| **Mechanical cooling runtime cut** | **10.7 %**: 9,510 h of chiller time becomes 8,496 h. A share, so it holds at any hall size |
 | Chiller-hours recoverable | **406 h/yr** vs the tuned reactive incumbent |
 | Value of those hours | **$5,522 – $7,990 per MW-IT per year** |
-| At the shipped site's own measured size — 86,280 m², **61–121 MW** of IT load | **$334,000 – $967,000 per year** |
-| At the largest facility in the registry — 1,116,335 m², **783–1,566 MW** | **$4.3M – $12.5M per year** |
+| At the shipped site's own measured size: 86,280 m², **61–121 MW** of IT load | **$334,000 – $967,000 per year** |
+| At the largest facility in the registry: 1,116,335 m², **783–1,566 MW** | **$4.3M – $12.5M per year** |
 | Basis | 16 cells: 4 published tariffs × 4 published chiller efficiencies, **swept, not chosen** |
 
 **Lead with the first row.** It is a percentage, so it needs no assumption about how big the
@@ -156,7 +155,7 @@ why it is the honest headline and the dollar rows are the illustration.
 
 ⚠ **The megawatt figures are DERIVED, and the footprint half of them is measured.** The footprint is
 ours: **20,441,476 m²** of tagged data-centre buildings across 639 US facilities, computed from the
-same OpenStreetMap rings the solver runs on. The density is derived from LBNL 2024 — **176 TWh** of
+same OpenStreetMap rings the solver runs on. The density is derived from LBNL 2024: **176 TWh** of
 US data-centre electricity in 2023 (p.6, p.52) at **PUE 1.4** (p.47) is 125.7 TWh of IT-only energy,
 **14,341 MW** averaged over the year, spread over that footprint: **702 W/m²** of average load, or
 **1,403 W/m²** installed at LBNL's ~50 % capacity utilisation (p.7). Hence a range, not a point.
@@ -164,14 +163,14 @@ US data-centre electricity in 2023 (p.6, p.52) at **PUE 1.4** (p.47) is 125.7 TW
 ⚠ **And the density's errors do not cancel.** LBNL's 176 TWh covers every data centre, including
 server closets carrying no OSM tag, so dividing it by tagged-only footprint **overstates** density;
 incomplete OSM coverage overstates it again; multi-storey halls understate it. Net: probably high.
-The one independent check available says it lands in the right place — applied to Virginia's measured
+The one independent check available says it lands in the right place: applied to Virginia's measured
 4.71 km² it gives **~3,300 MW** of average IT load, against published Northern Virginia data-centre
 load in the low thousands of MW. That is a sanity test, not a calibration, and the range is quoted
-because of it. **The old row here read "a 30 MW hall" — a round number with no source behind it,
+because of it. **The old row here read "a 30 MW hall": a round number with no source behind it,
 which this replaces.**
 
 ⚠ **Compressor-only, and therefore an upper bound on that term.** Fans, chilled-water pumps,
-condenser pumps and tower fans keep running, and an airside economizer moves *more* air — so the
+condenser pumps and tower fans keep running, and an airside economizer moves *more* air, so the
 unmeasured fan term has the **opposite sign**. We did not find a defensible °C→fan-kWh conversion in
 any primary document, so it is excluded and labelled rather than estimated. Sources in
 [`money-sources.md`](money-sources.md).
@@ -183,7 +182,7 @@ The smallest sellable unit is **not** control. It is a **30-day shadow trial**:
 1. The agent publishes a 12-hour switching schedule each hour, for their site's real geometry and
    their own weather station.
 2. **The operator ignores it.** No BMS integration, no setpoint written, no procurement, no risk.
-3. After 30 days, compare what the agent said against what actually happened — hour by hour, with a
+3. After 30 days, compare what the agent said against what actually happened: hour by hour, with a
    reason attached to every hour.
 
 That comparison artefact already exists and already ships: the per-site PDF this repository
@@ -192,7 +191,7 @@ product's first deliverable**, not a mock-up of it.
 
 **Why shadow mode is the right wedge and not a hedge:** a cooling plant will not hand control to
 software it has not watched, and no procurement process starts with write access to a chiller.
-Shadow mode is how this class of product is actually bought — and it is also the honest sequencing,
+Shadow mode is how this class of product is actually bought, and it is also the honest sequencing,
 because the one thing this project cannot yet claim is a 90 % bound on live forecasts (§ *What is
 honest*). Thirty days of shadow data is simultaneously the sales motion **and** the missing
 calibration set: it produces the ~9 measured day-pairs the bound needs. **The trial that earns the
@@ -201,39 +200,38 @@ customer is the same trial that finishes the science.**
 ### What we do not have
 
 No signed pilot, no letter of intent, and no operator interview. The pain is evidenced from
-published sources — LBNL instrumented eight real data centres and documented *why* operators avoid
-free cooling — not from a customer conversation we have had. **That is the biggest hole in the
+published sources: LBNL instrumented eight real data centres and documented *why* operators avoid
+free cooling: not from a customer conversation we have had. **That is the biggest hole in the
 commercial case and it is stated rather than papered over.**
 
 ---
 
-## Useful AI — and where we deliberately did not use one
+## Useful AI, and where we deliberately did not use one
 
 **There is no LLM anywhere in this product, and that is a decision we can defend line by line
 rather than an omission.** The test we applied: *if deterministic code solves it exactly, at zero
 variable cost and zero latency, an LLM is a liability rather than a feature.*
 
-The decision is recorded in the emitted artefact, not just in prose — `demo/explanations.json`
+The decision is recorded in the emitted artefact, not just in prose: `demo/explanations.json`
 carries `local_model_used: false` and the reason it was declined:
 
-> *"no inference stack installed … and this stage reports numbers the agent already computed —
-> **deterministic generation plus verification is safer than generation plus hope**"*
+> *"no inference stack installed … and this stage reports numbers the agent already computed: > **deterministic generation plus verification is safer than generation plus hope**"*
 
 And it was declined on the merits, not on capacity: the same file records the GPU headroom measured
-at the time — **371 MiB peak of 6,141 available**, so a small local model would have fitted
+at the time: **371 MiB peak of 6,141 available**, so a small local model would have fitted
 comfortably. We had the room and chose the verifiable path.
 
 | Job | What does it | Why not a model |
 |---|---|---|
 | Deciding the switching schedule | **Dynamic programming** over `(mode, switches used, dwell owed)` | The optimum under a switch budget and a dwell limit is *exactly* computable. A model would approximate a solved problem, and could not carry a hard constraint |
-| The safety margin | **Split conformal prediction** — Mondrian, group-conditional, 20/20 self-tests | A distribution-free finite-sample guarantee. No learned uncertainty head offers that, and this one is falsifiable — ours failed its pre-registration and we published the failure |
-| Explaining every decision | Deterministic templates, and **30 stage-event templates in which no template may contain a literal digit** — enforced at build time | A generated explanation cannot be verified against the decision it explains. Ours is re-derived and checked: **1,336 explanations, 0 verification failures** |
+| The safety margin | **Split conformal prediction**: Mondrian, group-conditional, 20/20 self-tests | A distribution-free finite-sample guarantee. No learned uncertainty head offers that, and this one is falsifiable: ours failed its pre-registration and we published the failure |
+| Explaining every decision | Deterministic templates, and **30 stage-event templates in which no template may contain a literal digit**: enforced at build time | A generated explanation cannot be verified against the decision it explains. Ours is re-derived and checked: **1,336 explanations, 0 verification failures** |
 | Reading the vendor's field | Nearest-tile lookup on real coordinates | It is a spatial index, not a judgement |
 
 **Where machine compute *is* load-bearing, because rules genuinely break down there:** the plume
 field. **576 coupled advection–diffusion solves** across 72 wind bearings × 8 wind speeds on the
 rasterised OpenStreetMap footprints, run on the GPU through **NVIDIA Warp in 5.34 s**. There is no
-closed form for exhaust recirculation between two irregular buildings — that is precisely the
+closed form for exhaust recirculation between two irregular buildings: that is precisely the
 "rules-based logic naturally breaks down" case, and it is where the compute budget goes.
 
 **The agent's execution scope is constrained on purpose, and narrowly:**
@@ -243,24 +241,24 @@ closed form for exhaust recirculation between two irregular buildings — that i
   degree of risk and an hour of chiller. An earlier prototype needed `c_excursion = 120.0` to
   produce an answer at all; that number had no source, so the whole approach was discarded.
 - **It refuses.** When the intake disc would average the exhaust it is meant to measure, the solver
-  declines to answer and the agent **falls back to mechanical** — a refused bearing is not
+  declines to answer and the agent **falls back to mechanical**: a refused bearing is not
   permission.
 - **Bounded actuation.** A switch budget and a minimum dwell, both cited to operator practice rather
   than chosen by us.
 - **It cannot act on a perception it does not have.** When the vendor returns no field, the live
-  agent emits **no schedule at all** — not an interpolation, not a carried-forward value, not a
+  agent emits **no schedule at all**: not an interpolation, not a carried-forward value, not a
   saved field relabelled as live.
 
 **What this buys in cost terms:** the decision path has **zero variable inference cost and zero
-model latency**. Every FortyGuard credit is spent on *perception* — the one thing we cannot compute
-ourselves — and none on reasoning we can do exactly.
+model latency**. Every FortyGuard credit is spent on *perception*: the one thing we cannot compute
+ourselves, and none on reasoning we can do exactly.
 
 ---
 
 ## What is honest about this, and what is not
 
 **The first four of these used to be a card on the demo page.** They were removed from it on
-2026-08-26 and moved here, because a results screen is for results — not because any of them stopped
+2026-08-26 and moved here, because a results screen is for results: not because any of them stopped
 being true. `drawLimits()` in the demo still derives all four from the artefacts, so this copy stays
 checkable against something rather than becoming prose nobody re-reads.
 
@@ -274,23 +272,23 @@ appears.
 
 | | |
 |---|---|
-| **Reproducible rather than live, and it says which** | Every panel is computed from saved **FortyGuard** responses. N-55 re-requested a window and got **17,862 of 17,862 tiles byte-for-byte identical**, so replay is not a weaker claim than a live call — it is the same numbers, on demand. The live path exists and is labelled separately. |
-| **The 90 % bound does not hold yet** | Measured **65.6 %**. It has 4 calibration day-pairs and needs about 10. At 4, the arithmetic ceiling is 80 % — so part of that gap was never reachable. More days is the whole remedy, and they come from **FortyGuard** data alone. |
+| **Reproducible rather than live, and it says which** | Every panel is computed from saved **FortyGuard** responses. N-55 re-requested a window and got **17,862 of 17,862 tiles byte-for-byte identical**, so replay is not a weaker claim than a live call, it is the same numbers, on demand. The live path exists and is labelled separately. |
+| **The 90 % bound does not hold yet** | Measured **65.6 %**. It has 4 calibration day-pairs and needs about 10. At 4, the arithmetic ceiling is 80 %, so part of that gap was never reachable. More days is the whole remedy, and they come from **FortyGuard** data alone. |
 | **The hours claim wants a level anchor** | One local reading. Unanchored, five years of data say the agent **loses**. The *safety* guarantee needs no customer hardware; the *hours* do. |
 | **Recirculation here is small, and that is the physics working** | The worst case is a fraction of one weather-station grid step. A model that reported a large rise at this geometry would be wrong, not impressive. |
 | **Only Ashburn has a calibration of its own** | A **field** is one call; a **calibration** needs a forecast leg *and* its elapsed outcome. Many sites hold a purchased **FortyGuard** field, and **Ashburn is the only one with forecast/outcome day-pairs**, so at every other site the *hours, weather and geometry are that site's own* and the **measured level offset and the coverage record are Ashburn's**. The artefact records it per site (`trace.fortyguard_provenance.own_measured_day_pairs`), the coverage figure on each site's results panel says *"measured at Ashburn and applied here"*, and `audit.py` check 6d asserts that **every** borrowing site declares it, so a borrowed number cannot pass as a measured one. |
 | **The imagery is one source at nearly every site, and it cannot certify equipment** | The screening gate reads aerial frames. **3 of 250 offerable sites** have two independent sources (ESRI World Imagery *and* USGS The National Map); **245 carry exactly one**, so the **two-source cross-check is NOT met** there, one vendor and one capture season. And **2 have no screening frame at all**. Separately, at *every* site including those three, imagery at **0.3–0.5 m shows objects, not nameplates**: it cannot certify a unit type or measure a height, so it is evidence about *where* equipment is, never about *what* it is. Both facts are recorded per site in `sites.json` (`imagery.two_source_cross_check`, `imagery.resolution_note`), those three counts are re-read from it by `audit.py` rather than typed here, and the site panel's "Imagery source" control lists exactly the sources that exist, so a single-source site cannot present itself as cross-checked. |
 
 **What "no plume is modelled" does and does not mean.** At a facility with no other tagged data
-centre inside the solver's validated 600 m range, the quantity the rise table computes — the
-temperature rise at a *neighbour's* air intake — **does not exist** rather than being unmeasured.
+centre inside the solver's validated 600 m range, the quantity the rise table computes: the
+temperature rise at a *neighbour's* air intake: **does not exist** rather than being unmeasured.
 That is a statement about the model's domain, **not a claim that recirculation there is zero.** And
-one limitation applies everywhere, not just to those sites: **self-recirculation — a building's own
-exhaust re-entering its own intake — is not modelled at ANY site in this project, including the
+one limitation applies everywhere, not just to those sites: **self-recirculation: a building's own
+exhaust re-entering its own intake: is not modelled at ANY site in this project, including the
 three shipped metros.** The solver places the condenser bank on the source building's ring and the
 intake outside the *receptor's* facing facade, so the only quantity it ever computes is the
 neighbour's exhaust arriving at my intake. That is worth stating plainly because the primary case in
-this project's own cited source, **ASHRAE Handbook Ch. 46**, is the self-recirculation one — and
+this project's own cited source, **ASHRAE Handbook Ch. 46**, is the self-recirculation one: and
 because it is what makes running the isolated facilities *consistent* with the paired ones rather
 than a concession.
 
@@ -298,14 +296,14 @@ than a concession.
 nothing else to show. They remain verbatim in the `why_zero` field of every standalone facility's
 rise table, so the page trims the view without touching the record.*
 
-**What the safety bound does NOT claim, and cannot.** Full *conditional* coverage — being right 90 %
-of the time in **every** situation separately rather than 90 % on average — is **provably
+**What the safety bound does NOT claim, and cannot.** Full *conditional* coverage: being right 90 %
+of the time in **every** situation separately rather than 90 % on average: is **provably
 impossible** for any distribution-free method with finite data (Barber, Candès, Ramdas &
 Tibshirani, *The limits of distribution-free conditional predictive inference*, Information and
 Inference **10**(2), 2021). That matters because an average hides its own worst case: pooled across
 the day this bound reads a healthy **90.17 %** overall while one hour of the day sits at
 **73.14 %**, and **6 of 24** hours fall under nominal. So the agent ships the strongest thing that
-*is* achievable — **Mondrian conformal stratified by hour of day**, which calibrates each hour
+*is* achievable: **Mondrian conformal stratified by hour of day**, which calibrates each hour
 separately and lifts that worst hour to **87.94 %**, leaving **5 of 24** under nominal. Stratifying
 by hour **and** season on top was measured and **rejected**: it over-stratifies, dropping the worst
 group to **84.93 %** and putting **27 of 96** groups under nominal. The claim is group-conditional
@@ -317,37 +315,37 @@ not turn it into prose nobody checks.*
 
 **Why the money figure is a ceiling and not a projection.** It counts the chiller **compressor
 only**. Fans, chilled-water pumps, condenser pumps and cooling-tower fans keep running, and an
-airside economizer moves *more* air — so the unmeasured term has the **opposite sign**. On top of
+airside economizer moves *more* air, so the unmeasured term has the **opposite sign**. On top of
 that, the chiller is assumed at ASHRAE 90.1 code minimum, which is a legal *floor* that real
 hyperscale plants beat, and full-load kW/ton overstates the draw at exactly the cool conditions free
 cooling needs. The tariff is an EIA state-sector average, not the site's own contract. Four
 independent reasons the real number is **smaller**, none that it is larger.
 
-All **608 cells** are swept — every ladder and sensitivity row × 4 published chiller efficiencies ×
-4 published prices — and **no row is collapsed**, including the ones that come out negative. The
+All **608 cells** are swept: every ladder and sensitivity row × 4 published chiller efficiencies ×
+4 published prices, and **no row is collapsed**, including the ones that come out negative. The
 worst cell anywhere in the sweep is **−$61,538 per MW-IT per year**, where the refusal guard fires.
 Every one of those limits, and all four parsed sources, are in
 [`money-sources.md`](money-sources.md), generated from `money.json` by
 `src/write_money_doc.py` and asserted present by `audit.py` check 12.
 
-Read `AGENTIC-ARBITER/PLAN.md` for the full design record — every claim
+Read `AGENTIC-ARBITER/PLAN.md` for the full design record: every claim
 there carries a citation and a link, verified by opening the source. The short version:
 
 **Established.** Seven-stage loop over **120,960 swept scenarios**. Conformal layer with **20/20
-self-tests** — Mondrian, CQR, ACI/DtACI, joint coverage, worst-group. Physics validated against an
+self-tests**: Mondrian, CQR, ACI/DtACI, joint coverage, worst-group. Physics validated against an
 analytic plume at **0.00 %**, heat conserved at **0.00 %**, **67 Prairie Grass** field experiments,
 and 6 instrumented condensers at **r = 0.798**. **1,336 explanations with 0 verification failures.**
 A reasoning tape whose **32 templates contain not one literal digit**, checked at build time.
-**Three sites live on their own geometry, weather, bound and tariff — and two more were refused on
+**Three sites live on their own geometry, weather, bound and tariff, and two more were refused on
 aerial evidence.**
 
 **On the size of the verification surface**, because it is fair to ask: **2216 audit checks and a
-gotcha log of 195 entries exist because every one of them actually bit** — a NaN that
+gotcha log of 195 entries exist because every one of them actually bit**: a NaN that
 was legal Python JSON and illegal standard JSON, a rounded array that flipped decisions at gate
 boundaries, an invented constant that outlived its own retraction by a day, a site picker that
 swapped one file out of thirteen. Every check is a headstone. That is **validation** infrastructure,
 and it is the only infrastructure here: there is **no Kubernetes, no vector database, no message
-queue, no microservice and no build step** — the interface is one HTML file with one inline script,
+queue, no microservice and no build step**: the interface is one HTML file with one inline script,
 and the whole thing rebuilds and re-verifies in about five minutes on one laptop. **Scale is a
 problem we have deliberately not solved yet.**
 
@@ -359,10 +357,10 @@ problem we have deliberately not solved yet.**
     five-year record **all 12 per-lead bounds cover ≥ 90 %**.
   - **The live calibration is under-sampled.** A 90 % one-sided bound needs **9 calibration
     day-pairs; 4 exist.** At n=4 the attainable coverage ceiling is n/(n+1) = **80 %**, so 90 % is
-    *arithmetically* unreachable — not methodologically refuted. Measured coverage on held-out days
+    *arithmetically* unreachable: not methodologically refuted. Measured coverage on held-out days
     is **65.6 %**, which **failed its pre-registration**, and that is the only figure we quote.
   
-  So this is a data-collection gap with a known fix — 5 more day-pairs — currently blocked by the
+  So this is a data-collection gap with a known fix: 5 more day-pairs: currently blocked by the
   vendor outage in [`API-USAGE.md`](API-USAGE.md) §5. **A 30-day shadow trial produces exactly that
   calibration set**, which is why the commercial wedge and the remaining science are the same
   activity.
@@ -371,7 +369,7 @@ problem we have deliberately not solved yet.**
   documented rather than deleted (`PLAN.md` §6).
 - **Money covers the chiller compressor term only**, from two documents parsed in this repository
   ([`money-sources.md`](money-sources.md)). The fan, pump and tower term is **not sourced and not
-  claimed** — and it has the opposite sign.
+  claimed**, and it has the opposite sign.
 - **Claims that were retracted are listed as retracted**, with what killed each one
   (`HANDOFF.md` §2.3).
 
@@ -517,16 +515,40 @@ python AGENTIC-ARBITER/src/serve_live.py --allow-paid --host 0.0.0.0 --port $POR
 | `/api/health` | what mode the server is in, and how much budget is left |
 | `/api/live/<site>` | a live run, on a forecast bought at that moment |
 
-### On Render, which is the shortest path
+### The five steps
 
-1. Push this repository to GitHub.
-2. In Render, **New > Blueprint**, point it at the repository. It reads [`render.yaml`](render.yaml).
-3. Render prompts for `FORTYGUARD_API_KEY`. Paste it there. It is stored encrypted and never appears in
-   this repository.
+1. Create an empty repository on GitHub, then:
+   ```bash
+   git remote add origin https://github.com/<you>/<repo>.git
+   git push -u origin master
+   ```
+2. In Render: **New > Blueprint**, point it at the repository. It reads [`render.yaml`](render.yaml).
+3. Render prompts for `FORTYGUARD_API_KEY`. **Paste the key there yourself.** It is stored encrypted,
+   and it is never in this repository, never in the Docker image, and never in a chat log.
 4. Deploy. The interface is at `https://<your-service>.onrender.com/app/`.
+5. Add a keep-alive ping, which is what stops a judge meeting a cold start. See below.
 
-The same [`Dockerfile`](Dockerfile) works unchanged on Fly.io, Railway, Hugging Face Spaces or any host
-that runs a container.
+### Keeping it awake, which matters more than it sounds
+
+Render's free instance **spins down after 15 minutes without traffic**, and waking it takes about a
+minute. A judge arriving at a sleeping service waits, and a live run requested during that minute can
+time out. So point any free uptime pinger at the health endpoint every 10 minutes:
+
+```
+https://<your-service>.onrender.com/api/health     every 10 minutes
+```
+
+`/api/health` is cheap, makes no vendor call and costs no credits: it reports the mode, the key's
+presence and the remaining budget. The arithmetic works out: Render allows **750 free instance hours
+per workspace per month**, and a service kept awake for a 31-day month uses about 744, so one
+always-awake service fits inside the free allowance with a little room.
+
+If you would rather not depend on that margin, Render's cheapest paid instance is always on and removes
+the question. Check their pricing page for the current figure.
+
+The same [`Dockerfile`](Dockerfile) runs on Fly.io, Railway, Google Cloud Run or any container host.
+⚠ Hugging Face Spaces is **not** an option on a free account any more: Docker Spaces now require a paid
+plan.
 
 ### Two things worth knowing before you deploy
 
@@ -557,7 +579,7 @@ are `numpy` and `psychrolib`, listed in [`requirements.txt`](requirements.txt).
 | [`AGENTIC-ARBITER/`](AGENTIC-ARBITER/) | The product. `src/` is 24 modules, `demo/` is the interface, `PLAN.md` is the citation-bearing design record |
 | [`AGENTIC-ARBITER/demo/`](AGENTIC-ARBITER/demo/) | One HTML file, one inline script, no build step, no dependencies. **Zero API calls at view time** |
 | [`API-USAGE.md`](API-USAGE.md) | How much of the FortyGuard plan was used, derived from the credit meter rather than asserted: **13 calls, 54,860 credits, 2.74 %** |
-| `fortyguard-api-findings.md` | 1,105 lines of field findings written for the FortyGuard team — with a section listing the suspicions that **failed retest and were withdrawn** rather than deleted |
+| `fortyguard-api-findings.md` | 1,105 lines of field findings written for the FortyGuard team, with a section listing the suspicions that **failed retest and were withdrawn** rather than deleted |
 | [`money-sources.md`](money-sources.md) | Every price and efficiency figure, with the document and page it came from |
 | [`CONTEXT/HANDOFF.md`](CONTEXT/HANDOFF.md) | The working log. Long, blunt, and includes **195 gotchas that each actually bit**, plus a running tally of how often this project's own verification code was wrong |
 | [`testing/`](testing/) | Every experiment, including the failures. `scan_secrets.py` and `api_usage_ledger.py` are the two you can run for free |
