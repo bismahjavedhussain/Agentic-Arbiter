@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ENGINE_MARKUP } from '../generated/engine-markup'
 import { bootEngine, engine } from '../lib/engine'
+import { applyDeclutter } from '../lib/declutter'
 
 /**
  * The configure and results stages: the page's own markup, driven by the page's own engine.
@@ -84,6 +85,38 @@ export function EngineStage({
       })
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /* 🔴 RE-APPLY THE DECLUTTER AFTER EVERY DRAW, because drawAll() replaces whole cards' innerHTML.
+     The engine redraws on any control change and on every theme flip, and each redraw discards the
+     folded prose along with everything else it wrote. So this watches the subtree and re-runs.
+     Three things keep an observer that mutates what it observes from looping:
+       1. every node the pass touches is marked, so a second run finds nothing to do;
+       2. `busy` drops mutations raised by the pass itself;
+       3. the work is debounced to the next frame, so a redraw that fires fifty mutations runs it once.
+     Measured before this existed: 1,680 words in 52 blocks across 13 cards. */
+  useEffect(() => {
+    const el = host.current
+    if (!el) return
+    let busy = false
+    let queued = 0
+
+    const run = () => {
+      queued = 0
+      busy = true
+      try { applyDeclutter(el) } finally {
+        /* released on the next frame, so mutations this pass caused are seen while busy is true */
+        requestAnimationFrame(() => { busy = false })
+      }
+    }
+
+    const mo = new MutationObserver(() => {
+      if (busy || queued) return
+      queued = requestAnimationFrame(run)
+    })
+    mo.observe(el, { childList: true, subtree: true })
+    run()
+    return () => { mo.disconnect(); if (queued) cancelAnimationFrame(queued) }
   }, [])
 
   /* Theme changes AFTER boot go through the engine, because applyTheme() repoints the two sequential

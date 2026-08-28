@@ -327,7 +327,7 @@
      "leg": "forecast"
     }
    ],
-   "forecast_attempts": 1,
+   "forecast_attempts": 2,
    "forecast_billed_attempts": 1,
    "forecast_credits_spent": 4220,
    "forecast_error": "completed but never populated after 54 polls over 603 s"

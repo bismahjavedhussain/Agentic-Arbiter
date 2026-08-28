@@ -142,11 +142,11 @@ function describeSite(){
   const s = SITES.sites.find(x=>x.key===$('#c_site').value);
   const el = $('#pickinfo'); if(!s){ el.innerHTML=''; return; }
   const c = s.committed || {};
-  el.innerHTML = '<strong>' + s.label + '</strong> — ' + int(s.n_tagged_dc)
+  el.innerHTML = '<strong>' + s.label + '</strong>: ' + int(s.n_tagged_dc)
     + ' OSM-tagged data centres, ' + int(s.weather_hours) + ' hourly records from ' + s.station
     + ' at ' + fmt(100*s.weather_coverage,2) + ' % coverage.<br>'
     + (loneBuilding(c)
-        ? 'Single building: <strong>' + pairLabel(c) + '</strong> — no other tagged data centre inside the validated range, so no neighbour plume is modelled.<br>'
+        ? 'Single building: <strong>' + pairLabel(c) + '</strong>: no other tagged data centre inside the validated range, so no neighbour plume is modelled.<br>'
         : 'Committed pair: <strong>' + pairLabel(c)
           + '</strong>, facades ' + fmt(c.facade_gap_m,1) + ' m apart.<br>')
     /* THREE STATES, NOT TWO. One boolean conflated "we bought a field here" with "we measured this
@@ -186,7 +186,7 @@ function describeSite(){
                it. That assertion is what makes this a relocation rather than a deletion. */
         : s.has_own_fortyguard_field
         ? '<span class="ok"><strong>FortyGuard</strong> field purchased for this site.</span>'
-        : '<span class="warn">No <strong>FortyGuard</strong> field purchased here — its weather, '
+        : '<span class="warn">No <strong>FortyGuard</strong> field purchased here, its weather, '
           + "geometry and hours are its own, but the measured level offset is Ashburn&rsquo;s."
           + '</span>');
 }
@@ -220,11 +220,11 @@ function buildControls(){
     + ' <span class="pill">'+pill+'</span></label><select id="'+id+'"></select></div>').join('');
 
   const cases = T.cases.cases.filter(c=>c.day);
-  opt('#c_case', cases.map(c=>c.name), cases.map(c=>c.name.replace(/_/g,' ')+' — '+c.day),
+  opt('#c_case', cases.map(c=>c.name), cases.map(c=>c.name.replace(/_/g,' ')+': '+c.day),
       cases.some(c=>c.name==='crossing') ? 'crossing' : cases[0].name);
   opt('#c_limit', PE().limit_c, PE().limit_c.map(v=>v+' °C'), 18);
   opt('#c_notice', PE().notice_h, PE().notice_h.map(v=>v+' h'), 3);
-  opt('#c_anchor', PE().anchor, PE().anchor.map(v=>v==='sensor'?'one local reading':'none — believe <strong>FortyGuard</strong>'), 'sensor');
+  opt('#c_anchor', PE().anchor, PE().anchor.map(v=>v==='sensor'?'one local reading':'none: believe <strong>FortyGuard</strong>'), 'sensor');
   const fo = T.cases.fg_offsets||[];
   opt('#c_offday', fo.map(o=>o.date), fo.map(o=>o.date+' · '+fmt(o.mean_d,4)+' °C'),
       fo.length?fo[0].date:'');
@@ -262,7 +262,7 @@ function autofill(){
     if([...el.options].some(o=>o.value===v)) el.value=v;
   }
   syncOffday();
-  $('#runnote').innerHTML = 'Set to the <strong>shipped reference point</strong> — the configuration '
+  $('#runnote').innerHTML = 'Set to the <strong>shipped reference point</strong>: the configuration '
     + 'the five-year backtest is scored at. Every value is one of the swept options.';
   if(STAGE==='results') drawAll();
   drawReadyTiles();
@@ -371,7 +371,7 @@ async function streamTape(){
      which is a flex column of event lines -- so nothing could sit beside it and the report button
      had nowhere to go. The row is in the markup now and this fills its left cell. */
   const done=$('#tapedone');
-  if(done) done.innerHTML='Done. The panels below are that decision, with its working — and the '
+  if(done) done.innerHTML='Done. The panels below are that decision, with its working, and the '
     + 'long form of every line above is in the report.';
   streaming = false;
 }
@@ -459,7 +459,7 @@ function drawField(){
         + 'on <strong>FortyGuard</strong>’s own values where they were bought. Nothing on this page is borrowed '
         + 'except the measured forecast offset, which says so where it is used.</span>'
       : '<span class="err">The saved field file did not load. Serve this page over http rather '
-        + 'than opening it from the filesystem — browsers block <code>fetch()</code> from '
+        + 'than opening it from the filesystem, browsers block <code>fetch()</code> from '
         + '<code>file://</code>.</span>');
     return; }
   cardSetPresent('fieldcard', 'fieldabsent');
@@ -591,7 +591,7 @@ function drawField(){
        rest was assertion about ourselves, and the field card's own tiles already say
        "Tiles, one call" and "Live API calls: replayed from a saved response". */
     $('#latticenote').innerHTML = `Every cell on this map is <strong>FortyGuard's own measured
-      temperature field</strong> — <strong>${int(n)}</strong> tiles across the site and its
+      temperature field</strong>: <strong>${int(n)}</strong> tiles across the site and its
       surroundings.`;
   } else {
     $('#latticenote').innerHTML = 'This field file predates the tile-shape export, so cells are '
@@ -664,14 +664,14 @@ function decide(){
      constant offset across 1,826 days gave +450.9 h/yr where the four measured offsets rotated
      gave -156.0. The filter is gone and all four offsets are selectable. */
   const offs=(T.cases.fg_offsets||[]);
-  let off=0, lvl=0, offLabel='anchored — one local reading removes the day level';
+  let off=0, lvl=0, offLabel='anchored: one local reading removes the day level';
   if(k.anchor==='none'){
     const o=offs.find(x=>x.date===k.offday)||offs[0];
     if(!o) return null;
     off=o.mean_d; lvl=o.level_margin_c;
-    offLabel='unanchored — <strong>FortyGuard</strong>\'s measured offset for '+o.date+' ('+fmt(off,4)+' °C), '
+    offLabel='unanchored: <strong>FortyGuard</strong>\'s measured offset for '+o.date+' ('+fmt(off,4)+' °C), '
       +'bounded by a leave-one-out conformal margin of '+fmt(lvl,4)+' °C fitted on the other '
-      +o.level_n+' measured days'+(o.level_clamped?' (CLAMPED — guarantee degraded)':'');
+      +o.level_n+' measured days'+(o.level_clamped?' (CLAMPED: guarantee degraded)':'');
   }
   const s=1-k.skill;
   const ubD=[], ubW=[], ubP=[], safeA=[], safeI=[], truth=[], truthW=[];
@@ -793,7 +793,7 @@ function drawSched(){
     const r=c.getBoundingClientRect(), h=Math.floor((ev.clientX-r.left-L)/cw);
     if(h<0||h>=R.H) return untip();
     tip(`<b>${R.ds.hours[h]}:00</b><br>agent: ${R.A.modes[h]?'FREE COOLING':'mechanical'}
-      ${R.refused[h]?'<br><b>REFUSED</b> — building on the plume path':''}
+      ${R.refused[h]?'<br><b>REFUSED</b>: building on the plume path':''}
       <br>incumbent: ${R.I.modes[h]?'FREE COOLING':'mechanical'}
       <br>bound ${fmt(R.ubD[h],3)} °C vs limit ${fmt(R.k.limit,1)}
       <br>actual intake ${fmt(R.truth[h],3)} °C
@@ -834,14 +834,13 @@ function drawZeroNote(R){
   let s=`<p class="note crit"><strong>All 24 hours mechanical, and that is the correct answer
     here.</strong> True intake peaked at <strong>${fmt(hot,2)} °C</strong> against a
     <strong>${R.k.limit} °C</strong> limit, with <strong>${over} of 24 hours</strong> genuinely over
-    it. Outside air was never safe today. You would need the changeover limit ${need} °C higher —
-    the control above lets you try.</p>`;
+    it. Outside air was never safe today. You would need the changeover limit ${need} °C higher: the control above lets you try.</p>`;
   let more='';
   if(am) more+=`<p class="note">One of the <strong>${fmt(100*am.fraction,1)} %</strong> of
     ${int(am.n_total)} swept configurations that declare no free cooling at all.</p>`;
   if(RL && RL.configs && RL.configs.length) more+=`<p class="note"><strong>Over five years the same
     agent still delivers ${int(Math.round(RL.configs[0].executed_free_h_per_day*365.25))}
-    free-cooling hours a year</strong> — refusing on the hot days is how it keeps the cold ones
+    free-cooling hours a year</strong>: refusing on the hot days is how it keeps the cold ones
     safe. An agent that found free cooling on a 35 °C day would be the dangerous kind.</p>`;
   if(more) s+=`<details><summary>How often it refuses, and what it still delivers</summary>`
     + more + `</details>`;
@@ -928,11 +927,11 @@ function drawBound(){
     + 'so with n days it can promise at most n/(n+1). We hold <strong>' + int(nCal)
     + '</strong>, which caps it at <strong>'
     + (ceilCal !== null ? fmt(100*ceilCal,0) + ' %' : '–')
-    + '</strong> — <strong>ten days reaches 90.9 %</strong>. We hold four because '
+    + '</strong>: <strong>ten days reaches 90.9 %</strong>. We hold four because '
     + '<strong>FortyGuard</strong>’s map could not be fetched to build more. Ten days closes '
     + 'it, with no change to this code.</p>'
     + '<p class="note"><strong>Level term:</strong> ' + R.offLabel
-    + '. <strong>Margin:</strong> group-conditional by hour of day (Mondrian) — tighter in easy '
+    + '. <strong>Margin:</strong> group-conditional by hour of day (Mondrian): tighter in easy '
     + 'hours, wider in hard ones.</p>';
 }
 
@@ -967,7 +966,7 @@ function explainHour(R, h) {
     e.why = 'Mechanical, and the reason is a REFUSAL rather than a temperature. At this bearing a '
           + 'building sits between the condensers and the intake. The dispersion model has no '
           + 'representation of a building standing in the flow, so any number it produced would be '
-          + 'meaningless — so the agent declines to certify the hour.';
+          + 'meaningless: so the agent declines to certify the hour.';
     return e;
   }
   if (!dryPass || !dewPass || !aqPass) {
@@ -979,10 +978,10 @@ function explainHour(R, h) {
     e.binding = cands[0][0]; e.flip_needs = cands[0][1];
     if (e.binding === 'dry-bulb')
       e.why = 'Mechanical. The upper bound on intake is ' + fmt(R.ubD[h], 3) + ' °C against a '
-            + fmt(k.limit, 1) + ' °C limit — it fails by ' + fmt(e.flip_needs, 3)
+            + fmt(k.limit, 1) + ' °C limit: it fails by ' + fmt(e.flip_needs, 3)
             + ' °C. A limit that much higher, or a bound that much tighter, would change it.';
     else if (e.binding === 'dew point')
-      e.why = 'Mechanical, and TEMPERATURE IS NOT THE REASON — the dry-bulb bound of '
+      e.why = 'Mechanical, and TEMPERATURE IS NOT THE REASON: the dry-bulb bound of '
             + fmt(R.ubD[h], 3) + ' °C would have passed. The air is too HUMID: dew-point bound '
             + fmt(R.ubP[h], 2) + ' °C against a ' + fmt(k.dp, 1) + ' °C maximum, failing by '
             + fmt(e.flip_needs, 2) + ' °C. Cool but damp air condenses on cold surfaces inside '
@@ -990,7 +989,7 @@ function explainHour(R, h) {
     else
       e.why = 'Mechanical, and neither temperature nor humidity is the reason. The air is too '
             + 'DIRTY: PM2.5 index ' + fmt(R.ds.aq_idx[h], 1) + ' against a ' + fmt(k.aq, 1)
-            + ' limit. Opening a damper pulls that air into the hall — the documented reason '
+            + ' limit. Opening a damper pulls that air into the hall: the documented reason '
             + 'operators avoid free cooling at all.';
     if (cands.length > 1) e.also = cands.slice(1).map(c => c[0]);
     return e;
@@ -1001,7 +1000,7 @@ function explainHour(R, h) {
   e.binding = (byBudget && !byDwell) ? 'switch budget'
             : (byDwell && !byBudget) ? 'minimum dwell'
             : byBudget ? 'switch budget' : null;
-  e.why = 'Mechanical EVEN THOUGH THIS HOUR IS SAFE — every gate passes, the bound is '
+  e.why = 'Mechanical EVEN THOUGH THIS HOUR IS SAFE: every gate passes, the bound is '
         + fmt(R.ubD[h], 3) + ' °C against ' + fmt(k.limit, 1) + ' °C. The SCHEDULE forbids '
         + 'it: ' + (byBudget ? 'the switch budget of ' + k.budget + ' changes per day is already '
         + 'committed to better hours' : byDwell ? 'the plant must hold its mode for ' + k.dwell
@@ -1031,9 +1030,9 @@ function drawExplain() {
   let lead = 'The agent ran free cooling for <strong>' + R.aFree + ' of ' + R.H
     + ' hours</strong> with ' + R.A.sw + ' mode change' + (R.A.sw === 1 ? '' : 's') + '.';
   if (R.iFree !== R.aFree)
-    lead += ' The reactive incumbent took <strong>' + R.iFree + '</strong> — '
+    lead += ' The reactive incumbent took <strong>' + R.iFree + '</strong>: '
           + Math.abs(R.iFree - R.aFree) + (R.iFree > R.aFree ? ' more' : ' fewer')
-          + ' — with ' + R.iBreach + ' unsafe hour' + (R.iBreach === 1 ? '' : 's')
+          + ': with ' + R.iBreach + ' unsafe hour' + (R.iBreach === 1 ? '' : 's')
           + ' against the agent’s ' + R.aBreach + '.';
   if (R.I.over) lead += ' The incumbent broke its own switch budget ' + R.I.over
           + ' time' + (R.I.over === 1 ? '' : 's') + ' to stay safe; the agent never did.';
@@ -1047,7 +1046,7 @@ function drawExplain() {
   $('#extable').innerHTML =
       '<tr><th>Hour</th><th>Mode</th><th>Safe?</th><th>Binding constraint</th><th>Reason</th></tr>'
     + rows.map(r => '<tr><td>' + r.hour + ':00</td><td>' + r.mode + '</td><td>'
-        + (r.safe ? 'yes' : 'no') + '</td><td>' + (r.binding || '—') + '</td>'
+        + (r.safe ? 'yes' : 'no') + '</td><td>' + (r.binding || ': ') + '</td>'
         + '<td style="text-align:left;font-variant-numeric:normal">' + r.why + '</td></tr>').join('');
 }
 
@@ -1183,7 +1182,7 @@ function tapeHTML(events){
        happen after that comparison or it would break it. It touches no digit. */
     return `<div class="n${cls}">${isNew ? e.stage : ''}</div>`
          + `<div class="s${cls}">${isNew ? e.stage_name : ''}</div>`
-         + `<div class="t${cls}">${e.text.replace(/ -- /g, ' — ')}</div>`;
+         + `<div class="t${cls}">${e.text.replace(/ -- /g, ': ')}</div>`;
   }).join('');
 }
 
@@ -1198,7 +1197,7 @@ function drawTicker(){
   for(let h=0; h<R.H; h++){ const d = Math.abs(R.k.limit - R.ubD[h]);
     if(d < best){ best = d; tight = h; } }
   opt('#c_hour', R.ds.hours.map((_,h)=>h), R.ds.hours.map((x,h)=>x+':00'
-      + (h===tight ? ' — tightest hour' : '')), (prev!=='' && +prev < R.H) ? prev : tight);
+      + (h===tight ? ': tightest hour' : '')), (prev!=='' && +prev < R.H) ? prev : tight);
   const h = Math.min(+$('#c_hour').value || 0, R.H-1);
   try{ host.innerHTML = tapeHTML(tickerFor(R, h)); }
   catch(e){ host.innerHTML = '<div class="t err">The tape refused to render rather than show a '
@@ -1234,11 +1233,11 @@ function drawConformalTiles(){
      Seen in a screenshot. The formulae live in the sub-line, which is not transformed. */
   $('#cftiles').innerHTML =
       tile('Order statistic used', ki.k, ki.clamped
-            ? 'CLAMPED to n — the ' + Math.ceil((n+1)*(1-alpha)) + 'th smallest does not exist'
-            : 'k = ⌈(n+1)(1−α)⌉ — the ' + ki.k + 'th smallest of ' + int(n) + ' past errors')
+            ? 'CLAMPED to n: the ' + Math.ceil((n+1)*(1-alpha)) + 'th smallest does not exist'
+            : 'k = ⌈(n+1)(1−α)⌉: the ' + ki.k + 'th smallest of ' + int(n) + ' past errors')
     + tile('Arithmetic ceiling', fmt(100*ceil,2)+' %',
             'n/(n+1). ' + (ceil < 1-alpha
-              ? 'BELOW the ' + fmt(100*(1-alpha),0) + ' % nominal — impossible at this n'
+              ? 'BELOW the ' + fmt(100*(1-alpha),0) + ' % nominal: impossible at this n'
               : 'the nominal is attainable at this n'))
     + tile('Smallest n that reaches nominal', need,
             'below this, no distribution-free bound gets to '+fmt(100*(1-alpha),0)+' %')
@@ -1281,7 +1280,7 @@ function drawConformalCeiling(){
      copied into the one place it cannot work -- a single fillText cannot bold part of itself.
      Every other label in this function was already plain; this one was the exception. */
   const marks = nSel === nReal
-    ? [[nSel, cssv('--warning'), 'n = '+nSel+' — our real FortyGuard days']]
+    ? [[nSel, cssv('--warning'), 'n = '+nSel+': our real FortyGuard days']]
     : [[nSel, cssv('--series-2'), 'n = '+nSel], [nReal, cssv('--warning'), 'our real days']];
   marks.forEach(([n,col,lab],i)=>{
     if(n<1||n>NMAX) return;
@@ -1303,11 +1302,11 @@ function drawConformalCeiling(){
      carries n, the ceiling and the remedy exactly once. Describes the CHART -- the curve, the
      shaded region and the marker -- rather than restating the principle a second time. */
   const need2 = cfMinN(alpha), nReal2 = cfDayResiduals().length;
-  $('#cfceilnote').innerHTML = 'Each n has a hard ceiling of n/(n+1) — the blue curve. At α = '
+  $('#cfceilnote').innerHTML = 'Each n has a hard ceiling of n/(n+1): the blue curve. At α = '
     + fmt(alpha,2)+' it clears the '+fmt(100*(1-alpha),0)+' % nominal only from <strong>n = '
     + need2+'</strong>; the shaded band is where that target is arithmetically out of reach. '
     + 'We hold <strong>'+nReal2+'</strong>, ceiling <strong>'+fmt(100*cfAttainable(nReal2),1)
-    + ' %</strong>. Only more days move it — no code change can.';
+    + ' %</strong>. Only more days move it: no code change can.';
 }
 
 function drawConformalLine(){
@@ -1347,12 +1346,12 @@ function drawConformalLine(){
   const py = T.cycle.bound_day_level, d = Math.abs(s.q - py.margin);
   $('#cflinenote').innerHTML = 'Browser: <strong>k = '+s.k+' of n = '+s.n+'</strong>, margin '
     + '<strong>'+fmt(s.q,4)+' °C</strong>, ceiling '+fmt(100*s.ceiling,1)+' %'
-    + (s.clamped?', <span class="err">CLAMPED — the guarantee is degraded</span>':'')
+    + (s.clamped?', <span class="err">CLAMPED: the guarantee is degraded</span>':'')
     // The reference implementation, named by what it IS rather than by its path -- the last source
     // filename that was still reaching a reader on the happy path.
     + '. The reference implementation wrote k = '+py.k+', margin '+fmt(py.margin,4)
     + ' °C. <strong>Difference '+d.toExponential(1)+' °C</strong>'
-    + (d===0?' — identical.':'.')
+    + (d===0?': identical.':'.')
     + ' <br>With only '+s.n+' residuals, ⌈(n+1)(1−α)⌉ = '+Math.ceil((s.n+1)*(1-alpha))
     + ' exceeds n, so there is no such order statistic and the largest is used instead. '
     + 'That is exactly why <strong>90 % is not quotable yet</strong>.';
@@ -1371,7 +1370,7 @@ function drawConformalLeads(){
   const {W,H,g} = fitCanvas(c, c.parentElement.clientWidth);
   g.clearRect(0,0,W,H);
   if(!RL || !RL.configs || !RL.configs.length){ $('#cfleadnote').textContent =
-    'rolling.json not loaded — run python src/rolling.py'; return; }
+    'rolling.json not loaded: run python src/rolling.py'; return; }
   const m=RL.lead_margins_c_at_hour14, cb=RL.configs[0].coverage_by_lead,
         nb=RL.configs[0].coverage_n_by_lead, alpha=RL.alpha, nom=1-alpha;
   const leads=Object.keys(m).map(Number).sort((a,b)=>a-b);
@@ -1437,7 +1436,7 @@ function drawConformalLeads(){
   const pad=(c1-c0)*0.45 || 0.01, clo=c0-pad, chi=c1+pad;
   const yC=v=>pb1-((v-clo)/(chi-clo))*PB_H;
   g.font=CF.label; g.textAlign='left'; g.fillStyle=cssv('--text-secondary');
-  g.fillText('Realised coverage — the shaded band is where a bound has failed', L, pb0-8);
+  g.fillText('Realised coverage: the shaded band is where a bound has failed', L, pb0-8);
   /* The failure region, as an area rather than an inference. */
   g.fillStyle=cssv('--critical'); g.globalAlpha=0.10;
   g.fillRect(L, yC(nom), W-R-L, pb1-yC(nom)); g.globalAlpha=1;
@@ -1485,10 +1484,10 @@ function drawConformalLeads(){
       + leads[0]+' h to <strong>'+fmt(m[String(lastK)],2)+' °C</strong> at '+lastK+' h'
     : 'widens from <strong>'+fmt(m[String(leads[0])],2)+' °C</strong> at '+leads[0]
       + ' h to a peak of <strong>'+fmt(m[String(peakK)],2)+' °C</strong> at '+peakK
-      + ' h — it is <strong>not monotone in lead</strong> — and stands at <strong>'
+      + ' h: it is <strong>not monotone in lead</strong>: and stands at <strong>'
       + fmt(m[String(lastK)],2)+' °C</strong> at '+lastK+' h';
   $('#cfleadnote').innerHTML = '<strong>'+leads.length+' separate calibrations.</strong> The margin '
-    + shape + ' — the agent is not equally confident about every hour, and the bound '
+    + shape + ': the agent is not equally confident about every hour, and the bound '
     + 'says so. Realised coverage runs '
     + fmt(100*Math.min(...leads.map(k=>cb[String(k)])),2)+'–'
     + fmt(100*Math.max(...leads.map(k=>cb[String(k)])),2)+' %, '
@@ -1497,7 +1496,7 @@ function drawConformalLeads(){
       : '<strong>none below the '+fmt(100*(1-alpha),0)+' % nominal</strong>')
     + '. Here n is at least <strong>'+int(nmin)+'</strong> per lead, so the arithmetic ceiling is '
     + fmt(100*cfAttainable(nmin),3)+' % and <strong>nothing about this shortfall could be '
-    + 'arithmetic</strong> — the opposite regime from the four-day bound above.';
+    + 'arithmetic</strong>: the opposite regime from the four-day bound above.';
 
   $('#cftable').innerHTML =
       '<tr><th>Lead</th><th>Margin °C</th><th>n scored</th><th>k = ⌈(n+1)(1−α)⌉</th>'
@@ -1523,11 +1522,11 @@ function drawReportLink(){
   const s=SITES && SITES.sites.find(x=>x.key===key);
   const f=s && s.artefacts && s.artefacts['report'];
   if(!f){ a.removeAttribute('href'); a.setAttribute('aria-disabled','true');
-    n.textContent='No report built for this site yet — run python src/report.py'; return; }
+    n.textContent='No report built for this site yet: run python src/report.py'; return; }
   a.href=f; a.setAttribute('download', f); a.removeAttribute('aria-disabled');
   /* SHORT, because this now sits beside the button in the tape's footer row rather than under a
      block of tiles. The verification claim moved to the limits panel with the rest of them. */
-  n.innerHTML='A snapshot of one named configuration — the panels below recompute for whatever '
+  n.innerHTML='A snapshot of one named configuration: the panels below recompute for whatever '
     + 'you select.';
 }
 
@@ -1537,8 +1536,8 @@ function drawMoney(){
   if(!$('#c_chiller').options.length){
     const ch = MN.chiller_efficiencies_swept, pr = MN.electricity_prices_swept;
     opt('#c_chiller', ch.map(c=>c.kw_per_ton),
-        ch.map(c=>c.label+' — '+fmt(c.kw_per_ton,3)+' kW/ton'), ch[1].kw_per_ton);
-    opt('#c_price', pr.map(p=>p.cents), pr.map(p=>p.label+' — '+fmt(p.cents,2)+' ¢/kWh'),
+        ch.map(c=>c.label+': '+fmt(c.kw_per_ton,3)+' kW/ton'), ch[1].kw_per_ton);
+    opt('#c_price', pr.map(p=>p.cents), pr.map(p=>p.label+': '+fmt(p.cents,2)+' ¢/kWh'),
         pr[0].cents);
     $('#c_chiller').onchange = drawMoney; $('#c_price').onchange = drawMoney;
   }
@@ -1571,7 +1570,7 @@ function drawMoney(){
            '$'+int(Math.round(bcell.usd_per_mw_it_per_year)),
            'per MW of IT load per year, from '+fmt(bcell.hours_per_year,1)+' chiller-hours') : '')
     + (bcell ? tile('Energy avoided', int(Math.round(bcell.kwh_per_mw_it_per_year))+' kWh',
-           'per MW of IT load per year — compressor only') : '')
+           'per MW of IT load per year: compressor only') : '')
     /* Sub-label no longer says "including the negative row, sign intact" -- that row is not in
        `lad` any more, so the claim would have been describing something absent. The genuinely
        negative cells are still reported, one line below, as the worst of all 608. */
@@ -1655,7 +1654,7 @@ function drawConformalSummary(){
      Nothing is lost: n, the ceiling and the remedy are in the note under the chart, and the
      measured coverage is on the plate at the top of the page and in the note under the dot chart,
      both per-site and both computed. */
-  el.innerHTML = '<strong>' + label + '</strong> — where the safety margin comes from, and what it '
+  el.innerHTML = '<strong>' + label + '</strong>: where the safety margin comes from, and what it '
     + 'can honestly promise on the days measured so far.';
 }
 
@@ -1716,7 +1715,7 @@ function drawDial(){
   $('#dbar').style.background=rampCss(ORANGE); $('#dmax').textContent=fmt(maxr,4);
   const ww=md.wind_weighted && md.wind_weighted.all_hours ? md.wind_weighted.all_hours : {};
   $('#dialtiles').innerHTML =
-     tile('Selected bearing', dialBearing+'°', sel.refused?'REFUSED — no number returned':'intake rise '+fmt(sel.rise_c,4)+' °C')
+     tile('Selected bearing', dialBearing+'°', sel.refused?'REFUSED: no number returned':'intake rise '+fmt(sel.rise_c,4)+' °C')
    /* `md.worst` IS NULL AT A FACILITY WITH NO NEIGHBOUR -- there is no receptor intake for a rise
       to be worst at, so the direction table publishes null rather than bearing 0, which would read
       as "due north". This crashed the page for the first standalone site: the real-browser panel
@@ -1724,7 +1723,7 @@ function drawDial(){
       that check exists to do. */
    + (md.worst
       ? tile('Worst bearing', md.worst.bearing+'°', 'rise '+fmt(md.worst.rise_c,4)+' °C')
-      : tile('Worst bearing', 'n/a', 'no plume solved — no neighbour in range'))
+      : tile('Worst bearing', 'n/a', 'no plume solved: no neighbour in range'))
    + tile('Bearings refused', md.n_refused+' of 72',
           md.n_downwind_refused+' of '+md.n_downwind+' downwind',
           /* --warning, not --critical, and the plate's refused cell makes the same call for the
@@ -1755,20 +1754,20 @@ function drawDial(){
   $('#dialnote').innerHTML = !md.worst
     ? '<span class="warn">No plume was solved here: there is no other tagged data centre inside '
       +'the solver’s validated range, so there is no neighbour intake for a rise to be computed '
-      +'at. Recirculation is <strong>not modelled</strong> — a statement about the model’s '
+      +'at. Recirculation is <strong>not modelled</strong>: a statement about the model’s '
       +'domain, not a claim that it is zero. The dial is flat because nothing was computed, not '
       +'because every bearing was found safe.</span>'
     : k.bank==='facing'
-    ? '<span class="warn"><strong>Sensitivity placement</strong> — a '+facTxt+' end wall that no '
+    ? '<span class="warn"><strong>Sensitivity placement</strong>: a '+facTxt+' end wall that no '
       +'condenser bank actually occupies. The solver refuses <strong>'+int(nRef)+' of '+int(nDw)
       +' downwind bearings</strong> here, so the agent falls back to mechanical and loses hours by '
       +'construction. That is the refusal guard working, and it is why this mode is never the '
       +'headline.</span>'
-    : '<span class="ok"><strong>The realistic placement</strong> — a '+facTxt+' facade. '
+    : '<span class="ok"><strong>The realistic placement</strong>: a '+facTxt+' facade. '
       +(nRef===0 ? 'The path is clear on every bearing, so the solver never has to refuse. '
                  : 'The solver refuses '+int(nRef)+' of '+int(nDw)+' downwind bearings here. ')
       +'All 72 bearings are solved, not sampled, and the worst is <strong>'
-      +fmt(md.worst.rise_c,4)+' °C</strong> — under the '+fmt(ASOS_STEP_C,4)+' °C step the weather '
+      +fmt(md.worst.rise_c,4)+' °C</strong>: under the '+fmt(ASOS_STEP_C,4)+' °C step the weather '
       +'record behind these numbers can express. So no wind direction here can move the intake '
       +'enough to change a decision, and that is known by solving every direction rather than '
       +'assuming the quiet ones.</span>';
@@ -1995,7 +1994,7 @@ function drawSiteNotes(){
   const imgline = nsrc === 0 ? 'No screening frame for this pair.'
     : nsrc === 1
       ? 'Imagery: ' + (IMAGERY_LABELS[Object.keys(srcs)[0]] || Object.keys(srcs)[0]) + '.'
-      : 'Imagery: ESRI World Imagery <strong>and</strong> USGS The National Map — two independent sources.';
+      : 'Imagery: ESRI World Imagery <strong>and</strong> USGS The National Map: two independent sources.';
   const an = $('#aerialnote');
   if(an) an.innerHTML = '<strong>' + pair + '</strong>, ' + (SITE ? SITE.label : '') + '. '
     /* The rotated-rectangle justification ("not axis-aligned boxes, which misdescribe these halls
@@ -2008,7 +2007,7 @@ function drawSiteNotes(){
     + 'Footprints are ' + ways + '.<br>' + imgline;
 
   const fp = $('#fieldpairnote');
-  if(fp) fp.innerHTML = 'The committed site sits inside one of these tiles — ' + ways.replace(
+  if(fp) fp.innerHTML = 'The committed site sits inside one of these tiles: ' + ways.replace(
       'OpenStreetMap ways', 'OSM ways') + ' (' + pair + '), true facade-to-facade gap <strong>'
     + fmt(T.site.facade_gap_m, 1) + '</strong> m measured edge-to-edge.';
 
@@ -2017,7 +2016,7 @@ function drawSiteNotes(){
     lh.textContent = 'Five years, ' + int(T.weather.n_hours) + ' real hours at ' + stationName();
 
   const ps = $('#plumesite');
-  if(ps) ps.innerHTML = 'Solved for <strong>' + pair + '</strong> — '
+  if(ps) ps.innerHTML = 'Solved for <strong>' + pair + '</strong>: '
     + (SITE ? SITE.label : '') + ', on its own OpenStreetMap footprints.';
 
   /* The screen-zero header: tile count and the corridor's own name, both were Ashburn's. The tile
@@ -2046,14 +2045,14 @@ function drawSiteNotes(){
     if(pairs){
       fn.innerHTML = 'One <code>/v1/heatmap</code> call returns <strong>' + int(nt) + ' tiles</strong>'
         + ' over 8×8 km of the ' + label + ' data-centre corridor at 2 m. This is the '
-        + 'forecast leg and its elapsed outcome for the same window, same tiles, same plane — '
+        + 'forecast leg and its elapsed outcome for the same window, same tiles, same plane: '
         + '<strong>' + (keys.length / 2) + ' measured day-pairs</strong>, this site’s own.';
     } else if(observed){
       fn.innerHTML = 'One <code>/v1/heatmap</code> call over 8×8 km of ' + label + ' at 2 m, '
-        + '<strong>' + int(nt) + ' tiles</strong> — <strong>this site’s own field</strong>, '
+        + '<strong>' + int(nt) + ' tiles</strong>: <strong>this site’s own field</strong>, '
         + 'purchased for it. ⚠ It is <strong>one past window, not a day-pair</strong>: there is no '
         + 'forecast leg beside it, so it shows what <strong>FortyGuard</strong> resolves here and it cannot produce '
-        + 'a level offset or a coverage figure. Those need a forecast and its elapsed outcome — '
+        + 'a level offset or a coverage figure. Those need a forecast and its elapsed outcome: '
         + 'two more calls, and the coverage tile on this page is still Ashburn’s.';
     } else {
       fn.innerHTML = '<span class="warn"><strong>No FortyGuard field was purchased for ' + label
@@ -2094,7 +2093,7 @@ function drawLiveUnavailable(){
   const m = $('#livemsg');
   if(m) m.innerHTML = 'Everything below is computed from saved responses. To decide the next hours '
     + 'from a live forecast, serve this folder with the live agent attached instead of a static '
-    + 'server — the banner at the top will then read LIVE and this button will enable itself.';
+    + 'server: the banner at the top will then read LIVE and this button will enable itself.';
 }
 
 function drawModeBanner(){
@@ -2105,7 +2104,7 @@ function drawModeBanner(){
        serve_live.py instruction as well, inside the masthead subtitle -- so the first thing a
        reader met was a hundred words on reproducibility. Both claims moved into drawLimits(),
        numbers intact. The banner's job is to say which mode the page is in, and nothing else. */
-    el.innerHTML = 'Running in <strong>REPLAY</strong> — <strong>' + int(nCalls)
+    el.innerHTML = 'Running in <strong>REPLAY</strong>: <strong>' + int(nCalls)
       + '</strong> live API calls.';
     return;
   }
@@ -2155,7 +2154,7 @@ function drawLiveCost(){
      with our polling strategy, which only means something to someone who already knew the shape of
      the API. */
   el.innerHTML = HEALTH.live_available
-    ? '<strong>FortyGuard’s forecast arrives asynchronously</strong> — the request is accepted at '
+    ? '<strong>FortyGuard’s forecast arrives asynchronously</strong>: the request is accepted at '
       + 'once and the field is delivered when their job completes, so expect a wait of a few '
       + 'minutes for the whole horizon.'
     : 'This will return a <strong>costed dry run</strong>: what it would fetch, and for how much. '
@@ -2204,7 +2203,7 @@ function liveStreamRow(ev){
   d.className = 'ev live';
   let txt = ev.note || '';
   if(ev.hour_index != null){
-    txt = 'hour ' + (ev.hour_index+1) + ' of ' + ev.of_hours + ' — '
+    txt = 'hour ' + (ev.hour_index+1) + ' of ' + ev.of_hours + ': '
         + (ev.value_c != null ? fmt(ev.value_c,3) + ' °C at this site’s tile'
                               : 'no field (' + (ev['class']||'?') + ')')
         + (ev.source === 'cache' ? ' [cached]' : '');
@@ -2328,10 +2327,10 @@ function drawLive(L){
       let s2 = '<strong>Every gate FortyGuard supplies, on FortyGuard data.</strong> Humidity for '
         + '<strong>' + int(hs.fortyguard_hours) + ' of '
         + int(hs.fortyguard_hours + (hs.nws_hours||0)) + ' hour(s)</strong> came from '
-        + '<code>env_params</code> — ' + int(fe.n_fields) + ' fields × ' + int(fe.n_hours)
+        + '<code>env_params</code>: ' + int(fe.n_fields) + ' fields × ' + int(fe.n_hours)
         + ' hours, '
         + (saved ? '<strong>replayed from a saved response</strong> (' + (fe.fixture||'') + '), '
-                 + '0 credits — the same basis as the heatmap beside it'
+                 + '0 credits: the same basis as the heatmap beside it'
                  : '<strong>fetched live</strong> for ' + int(fe.credits) + ' credits, one call '
                  + 'covering the whole day')
         + '. Wind is NWS in both modes, because <strong>FortyGuard</strong> publishes no wind field. '
@@ -2343,7 +2342,7 @@ function drawLive(L){
         s2 += '<br><strong>Contamination:</strong> <strong>FortyGuard</strong>’s PM2.5 index for '
           + int(aq.hours_with_a_value) + ' hour(s)'
           + (aq.limit_idx === null || aq.limit_idx === undefined
-             ? ', <strong>no limit applied</strong> — ' + (aq.units_note || '')
+             ? ', <strong>no limit applied</strong>: ' + (aq.units_note || '')
              : ', limit ' + fmt(aq.limit_idx,1) + ', <strong>' + int(aq.hours_blocked)
                + ' hour(s) blocked</strong>');
       }
@@ -2354,7 +2353,7 @@ function drawLive(L){
         s2 += '<br><span class="' + (al.applied_lag_hours ? 'muted' : 'warn') + '">'
           + 'Hour alignment measured against NWS: <strong>' + (al.lag_hours>0?'+':'')
           + int(al.lag_hours) + ' h</strong> over ' + int(al.n_pairs) + ' overlapping hour(s), '
-          + (al.applied_lag_hours ? 'applied.' : 'NOT applied — ' + (al.unresolved || ''))
+          + (al.applied_lag_hours ? 'applied.' : 'NOT applied: ' + (al.unresolved || ''))
           + '</span>';
       }
       envEl.innerHTML = s2;
@@ -2391,7 +2390,7 @@ function drawLive(L){
       + '<td>' + (h.dewpoint_c==null?'–':fmt(h.dewpoint_c,1)) + '</td>'
       + '<td>' + (h.free_cooling
           ? '<span class="ok">FREE COOLING</span>'
-          : h.no_data_reason ? '<span class="warn">no data — ' + h.no_data_reason + '</span>'
+          : h.no_data_reason ? '<span class="warn">no data: ' + h.no_data_reason + '</span>'
           : (h.bearing_refused ? '<span class="warn">refused</span>' : 'mechanical')) + '</td></tr>');
   }
   $('#livetable').innerHTML = rows.join('');
@@ -2443,7 +2442,7 @@ function drawCov(){
   const N=String(cfg().notice);
   const M=BT && BT.mondrian && BT.mondrian[N] ? BT.mondrian[N] : null;
   if(!M){ g.fillStyle=cssv('--muted'); g.font=CF.message;
-    g.fillText('backtest.json not loaded — run: python src/backtest.py', 10, 22); return; }
+    g.fillText('backtest.json not loaded: run: python src/backtest.py', 10, 22); return; }
   const per=M.mondrian_hod.per_group.slice().sort((a,b)=>a.group-b.group);
   const pooledQ=M.pooled.q;
   const L=44,B=26,Tp=10,pw=W-L-12,ph=H-B-Tp;
@@ -2500,14 +2499,13 @@ function drawCov(){
   const worst=M.mondrian_hod.worst_group, wp=M.pooled.worst_group;
   $('#covnote').innerHTML =
     `At <strong>${N} h notice</strong>, one pooled quantile reads <strong>${fmt(M.pooled.overall*100,2)} %
-     overall</strong> — but hour <strong>${wp.group}</strong> sits at <strong>${fmt(wp.coverage*100,2)} %</strong>,
+     overall</strong>: but hour <strong>${wp.group}</strong> sits at <strong>${fmt(wp.coverage*100,2)} %</strong>,
      and <strong>${M.pooled.groups_below_target} of 24</strong> hour-groups fall below 90 %. Calibrating
      within hour of day lifts the worst group to <strong>${fmt(worst.coverage*100,2)} %</strong>
      (${M.mondrian_hod.groups_below_target} below), and the margin varies
      <strong>${fmt(M.mondrian_hod.q_min,2)}–${fmt(M.mondrian_hod.q_max,2)} °C</strong> across the day
      instead of being one number everywhere. Exact conditional coverage is
-     <em>provably impossible</em> distribution-free (Barber, Candès, Ramdas & Tibshirani 2021) —
-     group-conditional is the strongest guarantee that is not forbidden, and it is what ships.`;
+     <em>provably impossible</em> distribution-free (Barber, Candès, Ramdas & Tibshirani 2021): group-conditional is the strongest guarantee that is not forbidden, and it is what ships.`;
   $('#ctable').innerHTML='<tr><th>Hour of day</th><th>Group-conditional</th><th>One pooled quantile</th><th>Margin °C</th><th>n</th></tr>'
     + per.map(r=>`<tr><td>${r.group}</td><td>${fmt(r.coverage*100,2)} %</td>
       <td>${r.pooled_coverage==null?'–':fmt(r.pooled_coverage*100,2)+' %'}</td>
@@ -2533,7 +2531,7 @@ function drawCoverageTiles(){
           cy.pooled_coverage < 0.90 ? 'crit' : 'good')
    + tile('Complete day-pairs', cy.pairs.length, 'forecast + its elapsed outcome')
    + tile('Arithmetic ceiling', fmt(100*traj[traj.length-1].day_level_ceiling,1)+' %',
-          'n/(n+1) at '+cy.pairs.length+' days — 90 % needs 9')
+          'n/(n+1) at '+cy.pairs.length+' days: 90 % needs 9')
    + tile('Margin moved itself', fmt(traj[1].margin_c,3)+' → '+fmt(traj[2].margin_c,3)+' °C',
           'after the miss, unprompted');
   /* SEVEN SENTENCES DOWN TO ONE, 2026-08-26. What went: the split of the shortfall (90->75 % is
@@ -2545,7 +2543,7 @@ function drawCoverageTiles(){
   $('#n26fail').innerHTML =
     `Coverage is <strong>${fmt(cy.pooled_coverage*100,1)} %</strong> against a 90 % target because
      the bound has <strong>${cy.pairs.length}</strong> calibration days and needs about
-     <strong>10</strong> — which arrive on <strong>FortyGuard</strong> data alone, with no customer
+     <strong>10</strong>: which arrive on <strong>FortyGuard</strong> data alone, with no customer
      hardware.`;
 }
 
@@ -2566,7 +2564,7 @@ const UNIFIED_CATEGORY_LABEL = {
   single: 'standalone, no tagged neighbour'};
 
 const UNIFIED_STATUS_LABEL = {
-  fully_built: 'Running now — click to load its own agent run.',
+  fully_built: 'Running now: click to load its own agent run.',
   refused_known: null, refused_geometry: null,
   isolated: null, not_yet_screened: null};
 
@@ -2781,7 +2779,7 @@ function drawPlume(){
   $('#plumetiles').innerHTML =
      tile('Wind from', bKey+'°', 'plume travels toward '+((+bKey+180)%360)+'°')
    + tile('Intake rise', refused?'REFUSED':fmt(rise,4)+' °C',
-          refused?'building on the path — no number returned':'measured at the intake disc')
+          refused?'building on the path: no number returned':'measured at the intake disc')
    + tile('Critical bearing', PF.critical_bearing_deg+'°',
           'worst case '+fmt(PF.critical_rise_c,4)+' °C')
    + tile('Facade gap', fmt(PF.facade_gap_m,1)+' m', 'edge-to-edge, the plume must cross it');
@@ -2792,19 +2790,19 @@ function drawPlume(){
      the N-35 citation are intact behind the disclosure. What stays visible is the key to the
      image, which is what a reader needs in order to look at it at all. */
   $('#plumenote').innerHTML =
-    `<p class="note"><strong>${PF.metro_label}</strong> — ${PF.provenance.split(',')[0]}.
+    `<p class="note"><strong>${PF.metro_label}</strong>: ${PF.provenance.split(',')[0]}.
      Solved at the median measured wind <strong>${fmt(PF.wind_speed_ms,2)} m/s</strong>, ambient
      ${PF.ambient_c} °C, on a <strong>10 m grid</strong> and interpolated for display only.</p>
      <p class="note">Orange is rise above ambient. The dashed blue circle is the
      <strong>${PF.intake_radius_m} m intake averaging disc</strong>; the orange strip is the
      condenser bank. Peak rise in frame is
      <strong>${fmt(PF.quantisation.peak_rise_c,3)} °C</strong> at the bank, reaching the intake at
-     <strong>${fmt(PF.critical_rise_c,4)} °C</strong> on the critical bearing — dilution over
+     <strong>${fmt(PF.critical_rise_c,4)} °C</strong> on the critical bearing: dilution over
      ${fmt(PF.facade_gap_m,0)} m.</p>
      <details><summary>How far this picture is trusted, and how that was measured</summary>
      <p class="note">The spread is the textbook √x law, and it was checked rather than assumed:
      N-35 tested it against <strong>67 Prairie Grass field experiments</strong>. They fit slightly
-     narrower, so this model runs a little wide and reads the rise <em>low</em> — by at most
+     narrower, so this model runs a little wide and reads the rise <em>low</em>: by at most
      <strong>${fmt(PF.critical_rise_c/3,3)} °C</strong> here. The weather record these numbers are
      scored against resolves only <strong>${fmt(ASOS_STEP_C,3)} °C</strong>, so the error is finer
      than anything that record can express. The build re-derives this rise from the field shown and
@@ -2888,7 +2886,7 @@ function drawPlate(){
     const H = (BT.days ? BT.hours / BT.days * b.test_days : 0);
     cells.push(cell('This site is REFUSED, not scored',
       int(b.refused_h) + ' h',
-      'of ' + int(Math.round(H)) + ' held-out hours the solver would not certify — a building '
+      'of ' + int(Math.round(H)) + ' held-out hours the solver would not certify: a building '
       + 'stands between the condensers and the neighbour’s intake at those wind bearings, and the '
       + 'dispersion model cannot represent that', 'plate-refused'));
     cells.push(cell('What the refusal cost',
@@ -2897,7 +2895,7 @@ function drawPlate(){
       + 'number it cannot stand behind'));
     cells.push(cell('What it bought',
       fmt(b.agent_breach_per_1000_free_h, 2) + ' vs ' + fmt(b.incumbent_breach_per_1000_free_h, 2),
-      'unsafe hours per 1,000 free-cooling hours — this agent against the reactive control. '
+      'unsafe hours per 1,000 free-cooling hours: this agent against the reactive control. '
       + int(b.agent_breach_h) + ' breach(es) here versus ' + int(b.incumbent_breach_h)));
     /* NO HOURS-SAVED TILE AND NO DOLLAR TILE. Both would be negative, and a saving computed from
        hours the agent never claimed describes nothing. The full signed figures stay in the money
@@ -2908,7 +2906,7 @@ function drawPlate(){
       const mA = H - gn.best.agent_safe_free_h, mI = H - gn.best.incumbent_safe_free_h;
       if(mI > 0 && mA > 0) cells.push(cell('Mechanical cooling cut', fmt(100*(mI-mA)/mI,1) + ' %',
         int(Math.round(mI)) + ' h of chiller time becomes ' + int(Math.round(mA))
-        + ' h — a share, so it holds at any hall size'));
+        + ' h: a share, so it holds at any hall size'));
     }
     if(gn && gn.best) cells.push(cell('Chiller-hours recovered',
       (gn.best.gain_h_per_year > 0 ? '+' : '') + fmt(gn.best.gain_h_per_year,0) + ' h/yr',
@@ -2947,7 +2945,7 @@ function drawPlate(){
         + 'LBNL. ' + perMW, null, SP.worth));
     } else if(usd.length){
       cells.push(cell('Worth', '$' + int(Math.round(Math.min(...usd))) + '–$'
-        + int(Math.round(Math.max(...usd))), 'per MW of IT load per year — ' + perMW));
+        + int(Math.round(Math.max(...usd))), 'per MW of IT load per year: ' + perMW));
     }
   }
 
@@ -2972,18 +2970,18 @@ function drawPlate(){
        trigger as well, so it is not hidden from a reader who cannot hover. */
     cells.push(cell('Bound coverage, measured' + (own ? info(
         'At <strong>n = ' + res.length + '</strong> calibration days, a one-sided bound drawn from a '
-        + 'sorted list can promise at most <strong>n/(n+1)</strong> — an arithmetic ceiling of '
+        + 'sorted list can promise at most <strong>n/(n+1)</strong>: an arithmetic ceiling of '
         + '<strong>' + fmt(100*cfAttainable(res.length),0) + ' %</strong>. So part of the gap to 90 % '
         + 'was never reachable at this sample size, and the remedy is more day-pairs rather than a '
         + 'different method.') : ''),
       fmt(T.cycle.pooled_coverage*100,1) + ' %',
       own ? 'against its own 90 % promise'
-          : 'measured at Ashburn and applied here — this site has no <strong>FortyGuard</strong> day pair of its own',
+          : 'measured at Ashburn and applied here: this site has no <strong>FortyGuard</strong> day pair of its own',
       'miss', SP.cov));
   }
 
   el.innerHTML =
-      '<div class="plate-head"><span class="eyebrow">Measured — ' + SITE.label + '</span>'
+      '<div class="plate-head"><span class="eyebrow">Measured: ' + SITE.label + '</span>'
     + '<span class="plate-stamp">' + int(T.api_calls_made) + ' live API calls at view time</span></div>'
     /* 2026-08-25: THE SCREENING NOTE IS NO LONGER PRINTED HERE. `sites.json`'s `screening_note` is
        ~60 words of provenance about five metros, and on the masthead plate it competed with the four
@@ -3002,7 +3000,7 @@ function drawHeadline(){
   drawReportLink();
   const el=$('#headline'); if(!el) return;
   if(!RL && !BT){ el.innerHTML=''; $('#headnote').innerHTML=
-    '<span class="err">rolling.json / backtest.json not loaded — run <code>python src/run_all.py</code>.</span>';
+    '<span class="err">rolling.json / backtest.json not loaded: run <code>python src/run_all.py</code>.</span>';
     return; }
   const out=[];
   /* 1. FREE COOLING ACTUALLY DELIVERED, by the rolling controller, on held-out days.
@@ -3035,7 +3033,7 @@ function drawHeadline(){
       const mI  = H - gn.best.incumbent_safe_free_h;
       if(mI > 0 && mA > 0) out.push(tile('Chiller runtime cut', fmt(100*(mI-mA)/mI,1)+' %',
         int(Math.round(mI))+' h of mechanical cooling becomes '+int(Math.round(mA))
-        +' h — a share, so it holds at any hall size'));
+        +' h: a share, so it holds at any hall size'));
     }
     /* 🔴 THE "…without a local sensor" TILE IS REMOVED, 2026-08-25, AT THE USER'S DIRECTION.
        That tile published the UNANCHORED row -- the agent with no local thermometer, losing 156
@@ -3074,8 +3072,8 @@ function drawHeadline(){
      how they drift, which is the argument for the removal and was the evidence for this fix. */
   const own = !T.fortyguard_provenance || T.fortyguard_provenance.own_measured_day_pairs;
   out.push(tile('Bound coverage, measured', fmt(cy.pooled_coverage*100,1)+' %',
-    own ? 'against a 90 % promise — it FAILED its pre-registration'
-        : 'measured at Ashburn and applied here — this site has no <strong>FortyGuard</strong> forecast-and-outcome day pair of its own',
+    own ? 'against a 90 % promise: it FAILED its pre-registration'
+        : 'measured at Ashburn and applied here: this site has no <strong>FortyGuard</strong> forecast-and-outcome day pair of its own',
     cy.pooled_coverage < 0.90 ? 'crit' : 'good'));
   el.innerHTML=out.join('');
 
@@ -3093,7 +3091,7 @@ function drawHeadline(){
      the agent saying "no free cooling today" when the weather does not allow it, so it now says
      that in those words. A safety system that never says no is not a safety system. */
   if(am) n += `<p class="note"><strong>On ${fmt(100*am.fraction,1)} % of settings it says "no free
-    cooling today" — and that is a feature.</strong> Across ${int(am.n_total)} plant configurations
+    cooling today": and that is a feature.</strong> Across ${int(am.n_total)} plant configurations
     tested, that many find <strong>zero</strong> safe hours. You cannot cool a hall with 35 °C air,
     and an agent that claimed otherwise would be the dangerous kind.</p>`;
   n += `<details><summary>Why there are two hour figures, and where the refusals concentrate</summary>`;
@@ -3193,8 +3191,7 @@ function drawLadder(){
     ? `<p class="note"><strong><strong>FortyGuard</strong>'s forecast is
        ${fmt(100*fgShare,1)} % of the value.</strong> Swap it for "same as now" and the gain falls
        from <strong>${(skb.gain_h_per_year>0?'+':'')+fmt(skb.gain_h_per_year,1)}</strong> to
-       <strong>${(sk0.gain_h_per_year>0?'+':'')+fmt(sk0.gain_h_per_year,1)} h/year</strong> —
-       every other setting unchanged.</p>` : '')
+       <strong>${(sk0.gain_h_per_year>0?'+':'')+fmt(sk0.gain_h_per_year,1)} h/year</strong>: every other setting unchanged.</p>` : '')
     + `<details><summary>What each component is worth, measured by removing it</summary>`;
   /* CUT TO THE ONE FACT THAT MATTERS. This paragraph used to explain the level-offset mechanism
      -- right shape in the wrong place, 561.7 h/year, coverage climbing to 0.9865 -- which is true,
@@ -3248,7 +3245,7 @@ function refusalLimits(){
       `Priced over five years for the first time. With the condenser bank on the short
        <em>facing</em> facade the intake has no line of sight on
        ${fmt(100*f.refused_h/testH,1)} % of held-out hours, so the agent refuses
-       ${f.refused_h.toLocaleString()} of ${testH.toLocaleString()} of them — and
+       ${f.refused_h.toLocaleString()} of ${testH.toLocaleString()} of them: and
        <strong>${f.refused_but_truly_safe_h.toLocaleString()} of those were genuinely safe</strong>.
        That is ${fmt(f.refused_but_truly_safe_h/f.test_days,1)} h/day handed to the incumbent for
        free, <strong>${fmt(f.gain_h_per_year,1)} h/year</strong>. <strong>The hours claim is
@@ -3259,7 +3256,7 @@ function refusalLimits(){
   if(s1 && s1.gain_h_per_year<0){
     out.push(['On one axis the comparison favours the incumbent, and we leave it that way',
       `At a switch budget of 1 the agent <em>loses</em>
-       (${fmt(s1.gain_h_per_year,1)} h/year) — because it honours the budget as a hard constraint
+       (${fmt(s1.gain_h_per_year,1)} h/year): because it honours the budget as a hard constraint
        in the optimiser while the reactive incumbent <strong>breaks it on
        ${s1.incumbent_budget_exceeded_days.toLocaleString()} of
        ${s1.test_days.toLocaleString()} days</strong> to stay safe and keeps those hours anyway.
@@ -3285,7 +3282,7 @@ function drawLimits(){
      belongs in the panel that exists to state what is and is not being claimed. The banner now
      says only which of the two modes the page is in, which was always its actual job. */
   lim.push(['Reproducible rather than live, and the page says which',
-    `Every panel here is computed from <strong>saved FortyGuard responses</strong> — N-55
+    `Every panel here is computed from <strong>saved FortyGuard responses</strong>: N-55
      re-requested a window and got <strong>17,862 of 17,862 tiles byte-for-byte identical</strong>,
      so replaying is a property rather than a limitation. For a live forecast of the next hours,
      serve this folder with <code>python src/serve_live.py --allow-paid</code> instead of
@@ -3300,16 +3297,16 @@ function drawLimits(){
        ${nPairs} forecast/outcome day-pair${nPairs===1?'':'s'}. It failed its pre-registered
        conditions. At n = ${bdl.n} the largest attainable coverage is n/(n+1) =
        ${fmt(100*bdl.attainable,1)} %, so ${fmt(100*bdl.nominal,0)} % is not reachable by any code
-       change — it needs ${bdl.n_needed_for_nominal} calibration day-pairs and
+       change: it needs ${bdl.n_needed_for_nominal} calibration day-pairs and
        ${bdl.n_needed_for_nominal+1} in total. Quote ${fmt(100*cov,1)} %, never
        ${fmt(100*bdl.nominal,0)} %.`, 'crit']);
   }
-  lim.push(['The hours claim is conditional','It wants a level anchor — one local reading. Unanchored, five years of data say the agent loses. The <em>safety</em> guarantee needs no customer hardware; the <em>hours</em> do.','warn']);
+  lim.push(['The hours claim is conditional','It wants a level anchor: one local reading. Unanchored, five years of data say the agent loses. The <em>safety</em> guarantee needs no customer hardware; the <em>hours</em> do.','warn']);
   if(rt){
     lim.push(['Recirculation is small here, and that is the physics working',
       `Worst case ${fmt(rt.max_rise_c,4)} °C at ${fmt(rt.max_rise_bearing,0)}° =
        ${fmt(rt.max_rise_c/ASOS_STEP_C,2)} of one weather-station grid step
-       (${fmt(ASOS_STEP_C,4)} °C, one whole degree Fahrenheit — ASOS reports nothing finer).
+       (${fmt(ASOS_STEP_C,4)} °C, one whole degree Fahrenheit: ASOS reports nothing finer).
        Its value is refusal and safety, not hours. This site was chosen for a clear plume path, so
        a small number is the expected result.`, 'warn']);
   }
@@ -3320,7 +3317,7 @@ function drawLimits(){
        test_n29_verify.py measures 0.0 % absorbed (max |dT| 0.000000 with a 120x200 m wall across
        the plume). The panel whose entire job is honesty was shipping a defect the solver does not
        have, and misattributing why refusal exists. Only looking at the rendered page caught it. */
-    ['Heat passes straight through buildings, and refusal is pure geometry','Obstacles are <em>transparent</em>: measured 0.0 % of plume heat absorbed, so heat is conserved exactly. That is sourced — ASHRAE Ch. 46 corrects only a <em>hidden</em> intake, and ours has line of sight. Refusal is therefore not about absorption: <code>path_blocked()</code> declines whenever a building sits on the source-to-intake path, because the solver cannot produce a rise it can stand behind.','warn'],
+    ['Heat passes straight through buildings, and refusal is pure geometry','Obstacles are <em>transparent</em>: measured 0.0 % of plume heat absorbed, so heat is conserved exactly. That is sourced: ASHRAE Ch. 46 corrects only a <em>hidden</em> intake, and ours has line of sight. Refusal is therefore not about absorption: <code>path_blocked()</code> declines whenever a building sits on the source-to-intake path, because the solver cannot produce a rise it can stand behind.','warn'],
     /* THE TWO ENTRIES BELOW ARE BUILT FROM backtest.json, NOT TYPED. Written as literals first,
        which was the same mistake as the hard-coded "595 h/year" two panels up: a figure in the
        view that no test re-reads is a figure that drifts (methodology rule 10). */
@@ -3339,7 +3336,7 @@ function drawLimits(){
     ...((MN && MN.not_claimed && MN.not_claimed.length) ? [[
       'The dollar figure is a CEILING, and one unpriced term has the opposite sign',
       `Only the chiller compressor is priced. ${MN.not_claimed[0]} Every figure is
-       <strong>per MW of IT load</strong> — nothing here measures a data centre's size, so there is
+       <strong>per MW of IT load</strong>: nothing here measures a data centre's size, so there is
        nothing to multiply by. The money panel carries all ${MN.not_claimed.length} limits and the
        document each price was read out of.`, 'warn']] : [[
       /* 🔴 THIS FALLBACK HEADING WAS ITSELF A RETRACTED CLAIM. It read "No dollars, no kWh,
@@ -3351,7 +3348,7 @@ function drawLimits(){
          notes above. Says what is true of the fallback instead. */
       'Money is not shown here',
       'money.json did not load, so no price is displayed and the unit is chiller-hours avoided.', 'ok']]),
-    ['Designed for the edge, not verified on it','The GPU kernel runs inside 6 GB, which is why an edge claim is defensible — but there is no Jetson here, so it is "designed for", never "verified on".','ok']]);
+    ['Designed for the edge, not verified on it','The GPU kernel runs inside 6 GB, which is why an edge claim is defensible: but there is no Jetson here, so it is "designed for", never "verified on".','ok']]);
   /* NINE LIMITS, ALL STATED, FOUR OF THEM ON SCREEN. This panel rendered every entry expanded --
      roughly 380 words of dense qualification in one block, at the very bottom of the page, which
      is where a reader's attention is thinnest. Nothing is dropped: the disclosure prints its own

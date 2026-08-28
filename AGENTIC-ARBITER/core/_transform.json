@@ -94,26 +94,26 @@
       "substitutions": []
     },
     "decide": {
-      "core_chars": 4958,
-      "core_sha256": "4da563a16ca10e657399fc4e34d497227c615d62297e5c4cfa71426200e05832",
+      "core_chars": 4955,
+      "core_sha256": "21ef801da2d5ef42b1a640076aa606b190484014e18ddf8313aceeac8420e51d",
       "dir": "core",
       "module": "agent.mjs",
-      "page_chars": 4943,
+      "page_chars": 4940,
       "page_name": "decide",
-      "page_sha256": "70ab154d038014a7b8989f2d73e15c04d375dde1ba1d271b5a55164e5bc59eac",
+      "page_sha256": "d2403f9bd61c7253161ad8e57ca7f4b9a4a6b38224b2d7ce8295504358f8c3fa",
       "substitutions": [
         "\\bT\\b -> trace  (x4)",
         "const k=cfg\\(\\), ds= -> const ds=  (x1)"
       ]
     },
     "explainHour": {
-      "core_chars": 4489,
-      "core_sha256": "ca158295a3e61b2ba4654c4402fcbc524a2d152b125da033de5a3e752333a6d5",
+      "core_chars": 4484,
+      "core_sha256": "85d36700a950f9476c9367c5fd091685b666973f08e35b76f47e18c49a33079e",
       "dir": "core",
       "module": "explain.mjs",
-      "page_chars": 4489,
+      "page_chars": 4484,
       "page_name": "explainHour",
-      "page_sha256": "ca158295a3e61b2ba4654c4402fcbc524a2d152b125da033de5a3e752333a6d5",
+      "page_sha256": "85d36700a950f9476c9367c5fd091685b666973f08e35b76f47e18c49a33079e",
       "substitutions": []
     },
     "fitCanvas": {

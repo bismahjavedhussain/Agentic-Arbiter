@@ -44,7 +44,7 @@ export function explainHour(R, h) {
     e.why = 'Mechanical, and the reason is a REFUSAL rather than a temperature. At this bearing a '
           + 'building sits between the condensers and the intake. The dispersion model has no '
           + 'representation of a building standing in the flow, so any number it produced would be '
-          + 'meaningless — so the agent declines to certify the hour.';
+          + 'meaningless: so the agent declines to certify the hour.';
     return e;
   }
   if (!dryPass || !dewPass || !aqPass) {
@@ -56,10 +56,10 @@ export function explainHour(R, h) {
     e.binding = cands[0][0]; e.flip_needs = cands[0][1];
     if (e.binding === 'dry-bulb')
       e.why = 'Mechanical. The upper bound on intake is ' + fmt(R.ubD[h], 3) + ' °C against a '
-            + fmt(k.limit, 1) + ' °C limit — it fails by ' + fmt(e.flip_needs, 3)
+            + fmt(k.limit, 1) + ' °C limit: it fails by ' + fmt(e.flip_needs, 3)
             + ' °C. A limit that much higher, or a bound that much tighter, would change it.';
     else if (e.binding === 'dew point')
-      e.why = 'Mechanical, and TEMPERATURE IS NOT THE REASON — the dry-bulb bound of '
+      e.why = 'Mechanical, and TEMPERATURE IS NOT THE REASON: the dry-bulb bound of '
             + fmt(R.ubD[h], 3) + ' °C would have passed. The air is too HUMID: dew-point bound '
             + fmt(R.ubP[h], 2) + ' °C against a ' + fmt(k.dp, 1) + ' °C maximum, failing by '
             + fmt(e.flip_needs, 2) + ' °C. Cool but damp air condenses on cold surfaces inside '
@@ -67,7 +67,7 @@ export function explainHour(R, h) {
     else
       e.why = 'Mechanical, and neither temperature nor humidity is the reason. The air is too '
             + 'DIRTY: PM2.5 index ' + fmt(R.ds.aq_idx[h], 1) + ' against a ' + fmt(k.aq, 1)
-            + ' limit. Opening a damper pulls that air into the hall — the documented reason '
+            + ' limit. Opening a damper pulls that air into the hall: the documented reason '
             + 'operators avoid free cooling at all.';
     if (cands.length > 1) e.also = cands.slice(1).map(c => c[0]);
     return e;
@@ -78,7 +78,7 @@ export function explainHour(R, h) {
   e.binding = (byBudget && !byDwell) ? 'switch budget'
             : (byDwell && !byBudget) ? 'minimum dwell'
             : byBudget ? 'switch budget' : null;
-  e.why = 'Mechanical EVEN THOUGH THIS HOUR IS SAFE — every gate passes, the bound is '
+  e.why = 'Mechanical EVEN THOUGH THIS HOUR IS SAFE: every gate passes, the bound is '
         + fmt(R.ubD[h], 3) + ' °C against ' + fmt(k.limit, 1) + ' °C. The SCHEDULE forbids '
         + 'it: ' + (byBudget ? 'the switch budget of ' + k.budget + ' changes per day is already '
         + 'committed to better hours' : byDwell ? 'the plant must hold its mode for ' + k.dwell

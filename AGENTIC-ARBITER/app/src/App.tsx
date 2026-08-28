@@ -5,6 +5,7 @@ import { SelectedBar } from './components/SelectedBar'
 import { KpiCards } from './components/KpiCards'
 import { SiteMap } from './components/SiteMap'
 import { EngineStage } from './components/EngineStage'
+import { DetailModal } from './components/DetailModal'
 import { configureSite } from './lib/engine'
 import { ART, loadArtefacts, type Artefacts } from './lib/artefacts'
 import { DEFAULT_METRO, loadHeadline, type Headline } from './lib/headline'
@@ -200,6 +201,10 @@ export function App() {
             theme={theme}
             siteKey={DEFAULT_METRO}
           />
+
+          {/* Where the folded prose opens. Listens for an event, so the buttons injected into engine
+              DOM can reach it without React managing those nodes. */}
+          <DetailModal />
         </>
       )}
     </main>

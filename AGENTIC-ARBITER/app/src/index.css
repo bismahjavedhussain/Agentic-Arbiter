@@ -255,3 +255,50 @@
  * about why two writers of .hidden is a bug, and this is not a second writer.
  * --------------------------------------------------------------------------------------------- */
 body[data-stage="pick"] #rail { display: none; }
+
+/* ---------------------------------------------------------------------------------------------
+ * THE DECLUTTERED RESULTS STAGE: the authored lead, and the button its deep dives fold into.
+ *
+ * Measured before this existed: 1,680 words of prose in 52 blocks across 13 cards, which is what the
+ * user meant by "a report generated through which you keep scrolling through". lib/declutter.ts folds
+ * every long block behind one button per card and puts an authored one or two line lead under the
+ * heading. No tile, table or canvas is touched.
+ * --------------------------------------------------------------------------------------------- */
+.aa-lead {
+  margin: 6px 0 2px;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 62ch;
+}
+
+.aa-foldrow { margin-top: 12px; }
+
+/* Styled as an offer, not a footnote. Action blue is this page's one "you can click this" signal and
+   the page uses it for exactly that, so the button borrows it rather than inventing a new cue. */
+.aa-fold {
+  font: 600 12px/1 var(--font-body, inherit);
+  letter-spacing: 0.01em;
+  color: var(--series-1-edge);
+  background: transparent;
+  border: 1px solid var(--grid);
+  border-radius: 8px;
+  padding: 7px 11px;
+  cursor: pointer;
+  transition: border-color var(--dur-fast, 0.18s) ease, color var(--dur-fast, 0.18s) ease;
+}
+.aa-fold:hover { border-color: var(--series-1-edge); color: var(--text-primary); }
+.aa-fold:focus-visible { outline: 2px solid var(--series-1-edge); outline-offset: 2px; }
+
+/* Inside the modal, the engine's own markup keeps the page's prose treatment. */
+.aa-detail p { margin: 0 0 10px; }
+.aa-detail p:last-child { margin-bottom: 0; }
+.aa-detail li { margin: 0 0 6px 18px; }
+.aa-detail strong, .aa-detail b { color: var(--text-primary); }
+.aa-detail code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.92em;
+  color: var(--text-primary);
+}
+.aa-detail details { margin-top: 10px; }

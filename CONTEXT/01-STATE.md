@@ -401,6 +401,71 @@ commands and exit-code contracts are in `03-VERIFICATION.md`.
 
 ## 3. Change log
 
+### 2026-08-28 - The results stage stopped being a report you scroll through
+
+**The user, on the screen they cared most about:** "by the time user reaches the 'read the decision'
+tab, it's the same layout as the html file that I told you I didnt like the UI of... seems like a
+report generated through which you keep scrolling through with dump of too much technical information
+and not an interactive app... I wanted you to be intelligent here and only display one or two liners
+for every aspect and only explain in a pop up option."
+
+**MEASURED FIRST, because "too much text" needs a number.** A probe drove the app to the results stage
+and counted the prose actually on screen, per card: **1,680 words in 52 blocks across 13 cards**, most
+of it written at runtime by the renderers rather than sitting in the markup. After the change:
+**260 words in 19 blocks.** An 85 % cut.
+
+**AND NOTHING QUANTITATIVE MOVED.** Tile, table and canvas counts per card are identical before and
+after, checked card by card: decisioncard 5 tiles 1 table 2 canvases, headcard 5/0/0, cfcard 0/1/3, and
+so on. `app/src/lib/declutter.ts` selects `p, li, details` and excludes
+`.tile, table, canvas, #tape, .ev, .plate-cell, .rail-step, svg`, so it never looks at a figure. The
+brief's line holds: "Do not modify the existing reports, graphs, or numerical data cards."
+
+**HOW IT WORKS.** Each card gets one authored lead of one or two lines in plain language, and every
+prose block over 14 words is hidden and folded into one button per card that opens it in a modal
+(`DetailModal.tsx`). The engine keeps drawing exactly what it drew; this reorganises the result. Done
+as a DOM pass rather than an edit to the engine because the engine is lifted byte for byte and a
+verifier fails the build if a character moves.
+
+Two bugs of mine on the way, both worth keeping:
+- The pass appended a new fold row on every run, because the engine redraws PARTS of a card without
+  replacing it. The screen showed "What a live run costs (3)" beside "(1)". It now rebuilds the single
+  row from the folded nodes themselves, which are still in the DOM and still marked, so one pass
+  produces exactly one correct row from any starting state.
+- The audit that measured the improvement counted `textContent`, which includes hidden nodes, so it
+  reported prose going UP after 52 blocks were folded away.
+
+### 2026-08-28 - No dashes anywhere a reader looks
+
+**The user:** "Throughout this project's text that you display and render, dont use '-' dashes."
+
+**139 em dashes removed from displayed text, in two passes with different tools, because they needed
+different care.**
+
+| Where | Count | How |
+|---|---|---|
+| the page's body markup | 28 | 23 became a colon, 4 a comma, 1 a full stop |
+| the page script's STRING LITERALS | 111 | same rule, applied by a classifier |
+| the page script's COMMENTS | 10 | **left alone**, deliberately |
+
+The markup pass was straightforward. The script needed a real scanner: a regex cannot tell
+`'<code>fetch()</code> from '` from a comment that quotes code, and 10 of the 121 occurrences are the
+page's own documentation, which there is no reader benefit in rewriting. So a single pass classifies
+every character as code, comment, string or regex, asserts the classification round-trips to the
+original, and rewrites inside strings only. It printed every change and refused to write if any dash
+remained in a string.
+
+That count is why the scanner mattered: I had assumed most of the script's dashes were in comments. It
+was the other way round, 111 to 10, and they included the DAY dropdown ("crossing: 2025-03-11"), the
+level anchor ("none: believe FortyGuard"), the decision legend and six of fourteen card headings.
+
+`decide` and `explainHour` therefore changed in the page, which `audit_nothing_lost.py` correctly
+flagged. Both are now declared exceptions with the reason and the date, so a THIRD function changing
+still fails. Its HANDOFF.md line check gained the same treatment, anchored on the four shapes
+`bump_spend_docs.py` owns rather than on whichever line failed last.
+
+⚠ STILL WITH DASHES, and not swept: the page's own comments, `CONTEXT/`, and `README.md` prose the
+user wrote. Standing rule B2 governs those.
+
 ### 2026-08-28 - The new UI now carries the whole product, engine and all
 
 **The user's correction:** the React app was a pick screen whose Configure button led back to

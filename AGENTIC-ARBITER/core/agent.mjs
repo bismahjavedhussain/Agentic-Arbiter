@@ -92,14 +92,14 @@ export function decide(k, trace){
      constant offset across 1,826 days gave +450.9 h/yr where the four measured offsets rotated
      gave -156.0. The filter is gone and all four offsets are selectable. */
   const offs=(trace.cases.fg_offsets||[]);
-  let off=0, lvl=0, offLabel='anchored — one local reading removes the day level';
+  let off=0, lvl=0, offLabel='anchored: one local reading removes the day level';
   if(k.anchor==='none'){
     const o=offs.find(x=>x.date===k.offday)||offs[0];
     if(!o) return null;
     off=o.mean_d; lvl=o.level_margin_c;
-    offLabel='unanchored — <strong>FortyGuard</strong>\'s measured offset for '+o.date+' ('+fmt(off,4)+' °C), '
+    offLabel='unanchored: <strong>FortyGuard</strong>\'s measured offset for '+o.date+' ('+fmt(off,4)+' °C), '
       +'bounded by a leave-one-out conformal margin of '+fmt(lvl,4)+' °C fitted on the other '
-      +o.level_n+' measured days'+(o.level_clamped?' (CLAMPED — guarantee degraded)':'');
+      +o.level_n+' measured days'+(o.level_clamped?' (CLAMPED: guarantee degraded)':'');
   }
   const s=1-k.skill;
   const ubD=[], ubW=[], ubP=[], safeA=[], safeI=[], truth=[], truthW=[];

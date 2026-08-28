@@ -24,6 +24,14 @@ import json
 import os
 import re
 import subprocess
+import sys
+
+# This file prints lines lifted out of the page and out of HANDOFF.md, and both contain emoji. On a
+# Windows console that is cp1252 that raises UnicodeEncodeError and the traceback replaces the report.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 ROOT = r"D:\FGHackathon"
 # The last commit that predates the React app, the core/ extraction and the folder rename. Pinned so
@@ -154,7 +162,21 @@ else:
             changed.append(pn)
     ck("all 22 extracted functions are STILL IN THE PAGE", not missing,
        "%d checked" % len(man["functions"]) if not missing else "MISSING: " + ", ".join(missing))
-    ck("and none of them was altered in the page", not changed,
+    # 🔴 DECLARED, DATED EXCEPTIONS. A check that is expected to be red is worse than no check: the
+    # redness stops meaning anything. On 2026-08-28 the user asked for no dashes anywhere in displayed
+    # text, and these two functions build rendered strings that used em dashes as punctuation, so
+    # their bodies genuinely changed. Named here so the change is a decision on the record, and so
+    # that a THIRD function changing still fails.
+    ALTERED_ON_PURPOSE = {
+        "decide": "2026-08-28 dash removal: builds the level-anchor label "
+                  "('anchored: one local reading', 'unanchored: FortyGuard's measured offset')",
+        "explainHour": "2026-08-28 dash removal: builds the CLAMPED note and the level-term prose",
+    }
+    changed = [c for c in changed if c not in ALTERED_ON_PURPOSE]
+    if ALTERED_ON_PURPOSE:
+        for k2, why in sorted(ALTERED_ON_PURPOSE.items()):
+            NOTES.append("%s altered on purpose, %s" % (k2, why))
+    ck("and none of them was altered in the page, beyond the declared edits", not changed,
        "byte-identical to the baseline" if not changed else "CHANGED: " + ", ".join(changed))
 
 # =================================================================================================
@@ -304,6 +326,19 @@ for src, dst in (("HANDOFF.md", "CONTEXT/HANDOFF.md"),
     goneL = [l for l in sorted(ha - hbs)
              if l not in REWRITTEN and not l.startswith("- **REPLAY**")
              and not l.startswith("- **LIVE**")]
+    # The spend figures are MEANT to move: testing/bump_spend_docs.py rewrites them from the ledger
+    # after every paid call, and audit.py check 9 fails until it has. A vanished spend line is the
+    # system working. Recognised by shape rather than by exact text, so next month's figures also pass.
+    # DEFINED BY WHAT bump_spend_docs.py OWNS, rather than by whichever line failed last. That script
+    # rewrites exactly four shapes in these two documents after every paid call, and audit.py check 9
+    # fails until it has. A vanished spend line is therefore the system working, not a loss.
+    # Widening this by trial and error was going to end with a pattern loose enough to hide a real
+    # loss, so it is anchored on the strings that script's own regexes target.
+    SPEND_SHAPES = (r"SPEND IS"
+                    r"|Spent to date"
+                    r"|PROVABLY bought nothing"
+                    r"|paid_calls|calls =|credits|% of plan|[Rr]emaining")
+    goneL = [g for g in goneL if not re.search(SPEND_SHAPES, g)]
     ck("%-24s no line from the baseline has vanished" % src, not goneL,
        "%d lines now, %d added since the baseline" % (len(hbs), len(hbs - ha)) if not goneL
        else "%d baseline line(s) absent, e.g. %r" % (len(goneL), goneL[0][:56]))
