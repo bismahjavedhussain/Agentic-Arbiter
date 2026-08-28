@@ -40,7 +40,7 @@ it an upper bound on that term rather than a projection (§ *What is honest*).
 ## Start here — two commands
 
 ```bash
-# 1. Prove it. 29 steps, ZERO API calls. Exits non-zero on any failure.
+# 1. Prove it. 33 steps, ZERO API calls. Exits non-zero on any failure.
 cd AGENTIC-ARBITER/src && python run_all.py
 
 # 2. See it — REPLAY mode, no API key needed, works offline.
@@ -75,8 +75,18 @@ assumed, every term defined before it is used.
 **`file://` will not work.** Browsers block `fetch()` from it and the page will show only a red
 error. Any static host serves the demo as-is — there is no build step and no server side.
 
+**There are two front ends, and the single-file page is the canonical one.**
+`AGENTIC-ARBITER/demo/index.html` is what a judge opens: one file, no build step, nothing to install,
+and it is what every verifier measures. `AGENTIC-ARBITER/app/` is a Vite + React rebuild of the same
+product, started 2026-08-28. It is not a separate demo: it renders the page's own configure and
+results markup and drives the page's own drawing code, lifted byte for byte into
+`AGENTIC-ARBITER/results/engine.mjs`. Three of the 33 steps below exist to prove that, one of them by
+driving pick to results in a real browser. Build it with `cd AGENTIC-ARBITER/app && npm ci && npm run
+build`; the output is designed to drop into `demo/`, where the same relative fetches resolve, so the
+shipped artefact still has no install step.
+
 **If `run_all.py` is not green, do not believe a number on the page.** It re-reads **77 published
-figures** from the files the code actually wrote and runs **2215 audit checks**, including five that
+figures** from the files the code actually wrote and runs **2216 audit checks**, including five that
 re-derive the browser's own arithmetic against Python and one that drives a real browser to render
 every site and diff the panels a reader would look at.
 
@@ -331,7 +341,7 @@ A reasoning tape whose **32 templates contain not one literal digit**, checked a
 **Three sites live on their own geometry, weather, bound and tariff — and two more were refused on
 aerial evidence.**
 
-**On the size of the verification surface**, because it is fair to ask: **2215 audit checks and a
+**On the size of the verification surface**, because it is fair to ask: **2216 audit checks and a
 gotcha log of 195 entries exist because every one of them actually bit** — a NaN that
 was legal Python JSON and illegal standard JSON, a rounded array that flipped decisions at gate
 boundaries, an invented constant that outlived its own retraction by a day, a site picker that

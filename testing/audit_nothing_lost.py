@@ -2,12 +2,21 @@
 r"""Prove that nothing was lost: no function, no element, no data, no assertion.
 
 The user asked for assurance before restarting. Assurance is not a sentence, it is a diff. Everything
-below compares the CURRENT working tree against git HEAD (d28a50b), which predates every change in
+below compares the CURRENT working tree against the commit d28a50b, which predates every change in
 this session, and reports losses rather than changes: a thing that existed then and does not exist now.
 
-Note on paths: HEAD holds the project under the OLD folder name, INTAKE-ARBITER/, because the rename
-to AGENTIC-ARBITER/ on 2026-08-27 is still uncommitted. So the comparison is
-HEAD:INTAKE-ARBITER/<x> against the working tree's AGENTIC-ARBITER/<x>.
+THE BASELINE IS PINNED, NOT `HEAD`. It was written as HEAD when d28a50b WAS head, and the first run
+after committing this work reported 8 losses that were nothing of the kind: the rename had landed, so
+`git show HEAD:INTAKE-ARBITER/...` failed and 8 unreadable files scored as 8 missing ones.
+That is worth spelling out because the bug was structural rather than clumsy. A "nothing was lost"
+check measured against `HEAD` becomes VACUOUS the moment the work is committed, since HEAD then
+contains the changes and every comparison trivially agrees. The question this file answers is "did
+anything survive the React work, the core extraction and the rename", and that question has one fixed
+answer point: the commit before any of it. So BASE is a commit id, overridable with AUDIT_BASE.
+
+Note on paths: the baseline holds the project under whichever folder name existed then, so the folder
+is resolved AT the baseline rather than assumed. Before 2026-08-27 that is INTAKE-ARBITER/, after it
+AGENTIC-ARBITER/, and the comparison is BASE:<old folder>/<x> against the tree's AGENTIC-ARBITER/<x>.
 """
 import hashlib
 import io
@@ -17,15 +26,31 @@ import re
 import subprocess
 
 ROOT = r"D:\FGHackathon"
-OLD = "INTAKE-ARBITER"
+# The last commit that predates the React app, the core/ extraction and the folder rename. Pinned so
+# that committing the work cannot turn this check into a comparison of the work against itself.
+BASE = os.environ.get("AUDIT_BASE", "d28a50b")
 NEW = "AGENTIC-ARBITER"
+
+
+def _folder_at_base():
+    """Whichever name the project folder had at BASE. Assuming it costs 8 false losses."""
+    r = subprocess.run(["git", "ls-tree", "--name-only", BASE], cwd=ROOT,
+                       capture_output=True, text=True)
+    names = r.stdout.split()
+    for cand in (NEW, "INTAKE-ARBITER"):
+        if cand in names:
+            return cand
+    raise SystemExit("!! neither %s/ nor INTAKE-ARBITER/ exists at %s" % (NEW, BASE))
+
+
+OLD = _folder_at_base()
 PROBLEMS = []
 NOTES = []
 
 
 def head(path):
     """The file's contents at HEAD, or None."""
-    r = subprocess.run(["git", "show", "HEAD:" + path], cwd=ROOT,
+    r = subprocess.run(["git", "show", BASE + ":" + path], cwd=ROOT,
                        capture_output=True)
     return None if r.returncode else r.stdout.decode("utf-8", "replace")
 
@@ -38,7 +63,7 @@ def now(path):
 
 
 def head_bytes(path):
-    r = subprocess.run(["git", "show", "HEAD:" + path], cwd=ROOT, capture_output=True)
+    r = subprocess.run(["git", "show", BASE + ":" + path], cwd=ROOT, capture_output=True)
     return None if r.returncode else r.stdout
 
 
@@ -56,13 +81,13 @@ def ck(name, ok, detail=""):
 
 
 # =================================================================================================
-sect("1. THE PAGE: every function and every element id that existed at HEAD")
+sect("1. THE PAGE: every function and every element id that existed at the baseline")
 # =================================================================================================
 h = head("%s/demo/index.html" % OLD)
 n = now("%s/demo/index.html" % NEW)
 if h is None or n is None:
     ck("both versions of index.html are readable", False,
-       "HEAD=%s now=%s" % (h is not None, n is not None))
+       "base=%s now=%s" % (h is not None, n is not None))
 else:
     def script_body(s):
         k = s.rfind("<script")
@@ -79,10 +104,10 @@ else:
     RETIRED_ID = {"sitestatusbody", "sitestatuscard", "sitestatusclose", "sitestatustitle"}
     lost_fn = sorted(hf - nf - RETIRED_FN)
     ck("no function lost from the page's script", not lost_fn,
-       "%d functions at HEAD, %d now, %d added"
+       "%d functions at the baseline, %d now, %d added"
        % (len(hf), len(nf), len(nf - hf)) if not lost_fn else "LOST: " + ", ".join(lost_fn))
     if nf - hf:
-        NOTES.append("functions ADDED to the page since HEAD: %s"
+        NOTES.append("functions ADDED to the page since the baseline: %s"
                      % ", ".join(sorted(nf - hf)))
 
     strip = lambda s: re.sub(r"<!--.*?-->", "", s, flags=re.S)
@@ -90,10 +115,10 @@ else:
     nid = set(re.findall(r'\bid="([\w-]+)"', strip(n)))
     lost_id = sorted(hid - nid - RETIRED_ID)
     ck("no element id lost from the page", not lost_id,
-       "%d ids at HEAD, %d now, %d added"
+       "%d ids at the baseline, %d now, %d added"
        % (len(hid), len(nid), len(nid - hid)) if not lost_id else "LOST: " + ", ".join(lost_id))
     if nid - hid:
-        NOTES.append("element ids ADDED since HEAD: %s" % ", ".join(sorted(nid - hid)))
+        NOTES.append("element ids ADDED since the baseline: %s" % ", ".join(sorted(nid - hid)))
 
     # the live agent, named explicitly because it is a standing instruction
     for i in ("livecard", "livego"):
@@ -130,7 +155,7 @@ else:
     ck("all 22 extracted functions are STILL IN THE PAGE", not missing,
        "%d checked" % len(man["functions"]) if not missing else "MISSING: " + ", ".join(missing))
     ck("and none of them was altered in the page", not changed,
-       "byte-identical to HEAD" if not changed else "CHANGED: " + ", ".join(changed))
+       "byte-identical to the baseline" if not changed else "CHANGED: " + ", ".join(changed))
 
 # =================================================================================================
 sect("2. THE DATA: every artefact the page fetches")
@@ -181,7 +206,7 @@ for f in jsons:
     if real:
         changed_vals.append("%s (%d value(s), e.g. %s)" % (f, len(real), real[0][:40]))
 
-r = subprocess.run(["git", "ls-tree", "-r", "--name-only", "HEAD", "%s/demo/" % OLD],
+r = subprocess.run(["git", "ls-tree", "-r", "--name-only", BASE, "%s/demo/" % OLD],
                    cwd=ROOT, capture_output=True, text=True)
 for p in (r.stdout or "").strip().split("\n"):
     if p.endswith(".json") and not os.path.exists(
@@ -198,12 +223,12 @@ ck("no JSON value changed beyond the rename", not changed_vals,
 
 # field files and other data
 for ext in (".png", ".pdf", ".csv"):
-    r = subprocess.run(["git", "ls-tree", "-r", "--name-only", "HEAD", "%s/" % OLD],
+    r = subprocess.run(["git", "ls-tree", "-r", "--name-only", BASE, "%s/" % OLD],
                        cwd=ROOT, capture_output=True, text=True)
     heads = [p for p in (r.stdout or "").split("\n") if p.endswith(ext)]
     miss = [p for p in heads
             if not os.path.exists(os.path.join(ROOT, p.replace(OLD, NEW).replace("/", os.sep)))]
-    ck("every %s at HEAD is still present" % ext, not miss,
+    ck("every %s at the baseline is still present" % ext, not miss,
        "%d files" % len(heads) if not miss else "MISSING %d, e.g. %s" % (len(miss), miss[0]))
 
 # =================================================================================================
@@ -256,7 +281,7 @@ for src, dst in (("HANDOFF.md", "CONTEXT/HANDOFF.md"),
     na, nb = norm(a), norm(b)
     if na is None or nb is None:
         ck("%-24s readable on both sides" % src, False,
-           "HEAD=%s now=%s" % (na is not None, nb is not None))
+           "base=%s now=%s" % (na is not None, nb is not None))
         continue
     if na == nb:
         ck("%-24s moved with its content intact" % src, True,
@@ -279,29 +304,51 @@ for src, dst in (("HANDOFF.md", "CONTEXT/HANDOFF.md"),
     goneL = [l for l in sorted(ha - hbs)
              if l not in REWRITTEN and not l.startswith("- **REPLAY**")
              and not l.startswith("- **LIVE**")]
-    ck("%-24s no line from HEAD has vanished" % src, not goneL,
-       "%d lines now, %d added since HEAD" % (len(hbs), len(hbs - ha)) if not goneL
-       else "%d HEAD line(s) absent, e.g. %r" % (len(goneL), goneL[0][:56]))
+    ck("%-24s no line from the baseline has vanished" % src, not goneL,
+       "%d lines now, %d added since the baseline" % (len(hbs), len(hbs - ha)) if not goneL
+       else "%d baseline line(s) absent, e.g. %r" % (len(goneL), goneL[0][:56]))
     if hbs - ha:
-        NOTES.append("%s gained %d line(s) since HEAD (edited, not lost)"
+        NOTES.append("%s gained %d line(s) since the baseline (edited, not lost)"
                      % (src, len(hbs - ha)))
 
 # =================================================================================================
-sect("5. WHAT WAS DELETED, and was any of it not the rename?")
+sect("5. EVERY PATH THAT EXISTED AT THE BASELINE")
 # =================================================================================================
+# 🔴 THIS SECTION USED TO READ `git status` FOR DELETIONS, and pinning the baseline made it VACUOUS:
+# the rename is committed now, so the working tree has zero deletions and the check passed by
+# examining nothing. That is the same failure mode as gotcha #74, and it was in this file.
+# The question a pinned baseline can actually answer is the stronger one: walk every path that
+# existed at BASE and require a counterpart today. 5,975 paths, not zero.
+r = subprocess.run(["git", "ls-tree", "-r", "--name-only", BASE], cwd=ROOT,
+                   capture_output=True, text=True)
+base_paths = [p for p in (r.stdout or "").split("\n") if p.strip()]
+
+# The only paths allowed to move rather than stay put, each one a MOVE THE USER ASKED FOR. Anything
+# absent and not named here is a loss, which is the point: the exceptions are declared, not inferred.
+MOVED = {
+    "HANDOFF.md": "CONTEXT/HANDOFF.md",
+    "READING-THE-AGENT.md": "CONTEXT/READING-THE-AGENT.md",
+}
+
+
+def counterpart(p):
+    return MOVED.get(p, p.replace(OLD + "/", NEW + "/", 1))
+
+
+absent = [p for p in base_paths
+          if not os.path.exists(os.path.join(ROOT, counterpart(p).replace("/", os.sep)))]
+ck("every path that existed at %s is still on disk" % BASE, not absent,
+   "%d paths walked, %d under the rename"
+   % (len(base_paths), sum(1 for p in base_paths if p.startswith(OLD + "/")))
+   if not absent else "ABSENT %d, e.g. %s" % (len(absent), absent[0]))
+
+# Separately: nothing deleted in the working tree. The sweep above cannot see this, because a file
+# added since BASE and then deleted never appears in base_paths at all.
 r = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, text=True)
 dels = [l[3:].strip().strip('"') for l in (r.stdout or "").split("\n")
         if l.startswith(" D") or l.startswith("D ")]
-not_rename = [d for d in dels if not d.startswith(OLD + "/")]
-ck("every deletion is part of the uncommitted folder rename", not not_rename,
-   "%d deletions, all under %s/" % (len(dels), OLD) if not not_rename
-   else "OUTSIDE THE RENAME: " + ", ".join(not_rename[:8]))
-# for the rename: does each deleted path have a counterpart?
-orphans = [d for d in dels if d.startswith(OLD + "/")
-           and not os.path.exists(os.path.join(ROOT, d.replace(OLD, NEW, 1).replace("/", os.sep)))]
-ck("every renamed file has a counterpart under %s/" % NEW, not orphans,
-   "%d checked" % len(dels) if not orphans
-   else "%d WITHOUT A COUNTERPART, e.g. %s" % (len(orphans), orphans[0]))
+ck("no uncommitted deletion in the working tree", not dels,
+   "clean" if not dels else "%d DELETED: %s" % (len(dels), ", ".join(dels[:6])))
 
 print()
 print("=" * 78)
@@ -311,8 +358,8 @@ if PROBLEMS:
         print("   * %s" % p)
 else:
     print("NO LOSSES FOUND. Every function, element id, artefact, verdict string and document that")
-    print("existed at HEAD is still present, and the 22 extracted functions are byte-identical in the")
-    print("page as well as being present in core/ and charts/.")
+    print("existed at %s is still present, and the 22 extracted functions are byte-identical in" % BASE)
+    print("the page as well as being present in core/ and charts/.")
 print("=" * 78)
 for n_ in NOTES:
     print("   note: %s" % n_)

@@ -398,6 +398,46 @@ def check_css_comments():
                 bad.append("%s: %d unclosed /*" % (f, depth))
     ck("every <style> block has balanced /* */", not bad, "; ".join(bad[:4]) or "balanced")
 
+    # 🔴 AND THE CHECK ABOVE IS NOT SUFFICIENT, WHICH THIS FILE SHOULD SAY OUT LOUD. On 2026-08-28 a
+    # comment in index.html contained the text "had THREE `*/` closers and one `/*` opener" -- prose
+    # ABOUT the original bug. CSS comments have no escaping, so that `*/` closed the comment, ` closers
+    # and one ` was parsed as CSS, and the following `/*` opened a new one. The delimiters therefore
+    # BALANCED: two openers, two closers, depth back to zero, and this check passed for two days while
+    # nine words of English sat in the stylesheet. It surfaced only when esbuild's minifier -- stricter
+    # than a browser, which error-recovers to the next resync point -- warned during a Vite build.
+    #
+    # Counting delimiters cannot catch it, because the count is right. So the question has to be asked
+    # the other way round: is there any text OUTSIDE the comments that is not plausibly CSS? Real CSS
+    # between rules always carries `{`, `}`, `;`, `:` or a comma. English prose does not.
+    stray = []
+    for f in sorted(os.listdir(DEMO)):
+        if not f.endswith(".html"):
+            continue
+        src = open(os.path.join(DEMO, f), encoding="utf-8").read()
+        for sm in re.finditer(r"<style[^>]*>(.*?)</style>", src, re.S):
+            css = sm.group(1)
+            base = src[:sm.start(1)].count("\n") + 1
+            # NON-NESTING, the way a CSS parser reads it
+            spans, i = [], 0
+            while i < len(css):
+                a = css.find("/*", i)
+                if a < 0:
+                    spans.append((i, len(css)))
+                    break
+                spans.append((i, a))
+                b = css.find("*/", a + 2)
+                if b < 0:
+                    break
+                i = b + 2
+            for a, b in spans:
+                t = css[a:b]
+                if (t.strip() and not re.search(r"[{};:,]", t)
+                        and re.search(r"[A-Za-z]{3}", t)):
+                    stray.append("%s:%d %r" % (f, base + css[:a].count("\n"),
+                                               t.strip()[:44]))
+    ck("no comment prose is being parsed as CSS", not stray,
+       "; ".join(stray[:3]) or "every non-comment stretch is CSS")
+
 
 def check_plume_fields():
     """Every shipped plume field must reproduce its own audited rise at the intake disc.

@@ -400,7 +400,7 @@ canvas{display:block;max-width:100%}
    `display:block` makes the table shrink-to-fit its content, so the ladder rendered ~610 px wide
    inside a 1120 px panel with dead space beside it. Below 640 px a horizontally scrolling table is
    the right trade; above it, nothing changes at all.
-   (This comment block had THREE `*/` closers and one `/*` opener for a while -- each successive
+   (This comment block had THREE comment closers and one opener for a while -- each successive
    edit closed it again -- so two paragraphs of English were being fed to the CSS parser. Browsers
    error-recover by skipping to the next resync point, which is exactly why every screenshot still
    looked correct. `check_css_comments` in audit.py now counts the delimiters.) */
