@@ -1,0 +1,161 @@
+/* FIVE MEASURED DEFECTS, and the blue first page.
+ *
+ * Every rule here was written after MEASURING the computed style in Chrome rather than reasoning about
+ * it, because reasoning about this stylesheet from the minified bundle has already produced two
+ * confidently wrong fixes. What the probe reported is quoted beside each fix.
+ *
+ * Loaded last, after engine.css, index.css, workspace.css, dashboard.css and cinematic.css.
+ */
+
+:root {
+  /* One more token: popovers and dropdowns are always dark, in both themes. A tooltip that inverts
+     with the theme is a tooltip that has to be legible twice; a dark one on a blue shell is legible
+     once and reads as chrome rather than as content. */
+  --fg-pop: #0c1a2a;
+  --fg-pop-ink: #e8f1f8;
+  --fg-pop-dim: #93aabf;
+}
+
+/* ---- 1. THE HEADING NO LONGER TOUCHES THE CARD'S CEILING.
+   MEASURED: card padding-top 24px, h2 margin-top -24px, h2 top minus card top = 0.
+
+   The negative margin is DELIBERATE and correct: engine.css:1134 pulls `.card > h2` out to the card's
+   edges so it becomes a full-width header strip with a bottom rule, which is the line the user saw the
+   text sitting on. What it omits is a TOP padding, so the strip has 24px below the text and 0 above and
+   the heading is pinned to the border.
+
+   `padding-top: var(--sp-4)` restores the balance. Specificity (0,2,1) against engine.css's (0,1,1),
+   so this does not depend on file order the way my last two attempts did. The margin is left alone:
+   it carries `!important` and it is not the bug. ---- */
+.viz-root .card > h2 { padding-top: var(--sp-4); }
+
+/* ---- 2. THE STEPPER MOVES TO THE HEADER.
+   MEASURED: #rail's parent is `viz-root`, and `#bezel` (the header it lives in on the single-file
+   page) is NOT in the lifted markup at all, so the stepper had nowhere to sit but the content flow.
+   EngineStage now moves the node into the banner; these rules dress it there. ---- */
+.aa-banner { justify-content: space-between; }
+#aa-railslot { display: flex; align-items: center; pointer-events: auto; }
+.aa-banner #rail { flex: 0 0 auto; overflow: visible; }
+/* The rail keeps its own pill and states from engine.css; only its scale changes for a 46px band. */
+.aa-banner .rail-step { padding: 4px 8px; font-size: 10.5px; }
+.aa-banner .rail-step .rn { font-size: 9.5px; }
+/* At the pick stage the banner is the only chrome, so the stepper still belongs there. */
+body[data-stage='pick'] .aa-banner #rail { display: flex; }
+
+/* ---- 3. THE PLANT PANEL'S "Run the agent" BUTTON IS OFF THE SCREEN.
+   The workspace rail already carries a Run the agent quick action, so the panel's copy was a second
+   control for one action sitting two inches away from the first.
+
+   🔴 HIDDEN, NOT REMOVED. #runagent is what actually runs the agent: `wire()` in the byte-identical
+   engine binds it, the rail's quick action forwards a click to it, and verify_app_flow.py reads its
+   textContent and calls .click() on it. Both work on a display:none element; neither works on one that
+   is gone. #runagent2 on the results stage is untouched. ---- */
+.viz-root #runagent { display: none !important; }
+
+/* ---- 4. POPOVERS ARE OPAQUE AND DARK.
+   The bubble inherited `background: var(--surface-1)`, which IS opaque, so the bleed-through the user
+   saw was the masthead's own text painting over it: `.info-bub` sits at z-index 80 inside a paragraph,
+   and later paragraphs in normal flow won a stacking contest against it.
+
+   Three changes, each doing one thing:
+     z-index 300 and `isolation: isolate` on the host, so nothing in the masthead can paint over it
+     an explicitly dark background, so even a stacking mistake cannot make it look translucent
+     :focus-within as well as :hover, because a CLICK gives :focus and not :focus-visible, which is
+       why clicking it behaved differently from hovering it ---- */
+.info { isolation: isolate; }
+.info-bub {
+  z-index: 300;
+  background: var(--fg-pop) !important;
+  border-color: color-mix(in oklab, var(--fg-bright) 34%, transparent) !important;
+  color: var(--fg-pop-dim) !important;
+  box-shadow: 0 18px 44px rgba(4, 10, 18, 0.55), 0 2px 8px rgba(4, 10, 18, 0.4) !important;
+}
+.info-bub strong,
+.info-bub b { color: var(--fg-pop-ink) !important; }
+.info:focus-within .info-bub,
+.info:active .info-bub {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s, 0s, 0s;
+}
+
+/* ---- 5. THE DROPDOWN IS OPAQUE AND DARK.
+   MEASURED: the listbox in Combo.tsx carries `className="glass absolute ..."`, and `.glass` is a
+   translucent surface, which is why the KPI cards and the map showed through the state list.
+   Glass is right for chrome that floats over its own background and wrong for a list of options a
+   reader has to read. Scoped to the listbox so the rest of the glass treatment is untouched. ---- */
+[role='listbox'].glass,
+[role='listbox'] {
+  background: var(--fg-pop) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid color-mix(in oklab, var(--fg-bright) 26%, transparent) !important;
+  box-shadow: 0 22px 50px rgba(4, 10, 18, 0.6) !important;
+  color: var(--fg-pop-ink);
+}
+[role='listbox'] [role='option'] { color: var(--fg-pop-ink); }
+[role='listbox'] [role='option']:hover,
+[role='listbox'] [role='option'][aria-selected='true'] {
+  background: color-mix(in oklab, var(--fg-bright) 20%, transparent) !important;
+}
+/* The count badge and any secondary text inside an option. */
+[role='listbox'] .num,
+[role='listbox'] small,
+[role='listbox'] .muted { color: var(--fg-pop-dim) !important; }
+/* The site search list on the pick screen is the same problem with a different class. */
+#searchresults.srchlist,
+.srchlist {
+  background: var(--fg-pop) !important;
+  border-color: color-mix(in oklab, var(--fg-bright) 26%, transparent) !important;
+  color: var(--fg-pop-ink);
+}
+
+/* ---- 6. THE FIRST PAGE, IN BLUE.
+   The shell was already blue at the configure and results stages; the pick screen was still on the
+   page's zinc. Same treatment, same tokens.
+
+   ⚠ THIS RE-SKINS, IT DOES NOT REPALETTE. Not one canonical token value changes: verify_palette.py
+   requires the app to declare the same values as demo/index.html for its 20-token palette, so the blue
+   arrives as `--fg-*` applied to the app's OWN components. The engine's panels and every chart still
+   draw from the audited palette, which is why the charts remain blue-and-orange. ---- */
+body[data-stage='pick'],
+body:not([data-stage]) {
+  background:
+    radial-gradient(1100px 560px at 12% -10%, color-mix(in oklab, var(--fg-deep) 18%, transparent), transparent 68%),
+    radial-gradient(860px 480px at 88% 2%, color-mix(in oklab, var(--fg-bright) 12%, transparent), transparent 66%),
+    var(--fg-ink);
+  background-attachment: fixed;
+}
+
+/* The pick screen's own React cards: the search bar, the metric cards, the selected-site bar. */
+.aa-banner + header .label { color: var(--fg-bright); }
+[data-show='pick'] .filters,
+[data-show='pick'] .tile,
+[data-show='pick'] .plate-cell {
+  background: color-mix(in oklab, var(--fg-shell) 66%, transparent) !important;
+  border-color: var(--fg-hair) !important;
+}
+[data-show='pick'] select,
+[data-show='pick'] input {
+  background: color-mix(in oklab, var(--fg-shell) 82%, transparent) !important;
+  border-color: var(--fg-hair) !important;
+  color: var(--text-primary);
+}
+[data-show='pick'] select:focus,
+[data-show='pick'] input:focus {
+  border-color: var(--fg-bright) !important;
+  outline: none;
+}
+
+/* The map's frame, so it sits in the palette rather than on top of it. */
+[data-show='pick'] .maplibregl-map,
+[data-show='pick'] canvas.maplibregl-canvas { border-radius: 12px; }
+
+/* ---- 7. The theme toggle, which was the one control still wearing zinc. ---- */
+#app > button[aria-label*='palette'] {
+  border-color: var(--fg-hair) !important;
+  background: color-mix(in oklab, var(--fg-shell) 80%, transparent) !important;
+  color: var(--fg-dim) !important;
+}
+#app > button[aria-label*='palette']:hover { color: var(--fg-bright) !important; }

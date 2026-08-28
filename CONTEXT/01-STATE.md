@@ -12,6 +12,43 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### FIVE DEFECTS FIXED BY MEASURING FIRST, and the first page turned blue. 2026-08-29
+
+After being confidently wrong twice on the heading, every fix in this round was written against a
+COMPUTED STYLE read out of Chrome. `polish.css` quotes the measurement beside each rule.
+
+| defect | what the probe reported | fix |
+|---|---|---|
+| heading touched the card ceiling | `card padding-top 24px`, **`h2 margin-top -24px`**, text flush | `.viz-root .card > h2 { padding-top: var(--sp-4) }` |
+| stepper sat in the content flow | **`#rail` parent was `viz-root`**, and `#bezel` is not in the lifted markup at all | node moved into a banner slot |
+| two Run the agent buttons | rail quick action plus the plant panel's own | `.viz-root #runagent { display: none }` |
+| popover text overlapped the page | `--surface-1` IS opaque, so it was a stacking loss at `z-index: 80` | `z-index: 300`, `isolation: isolate`, dark `--fg-pop`, `:focus-within` |
+| dropdown showed the map through it | the listbox carries **`className="glass"`** | opaque `--fg-pop`, `backdrop-filter: none` |
+
+**The heading one is worth reading twice.** The negative margin is DELIBERATE and correct:
+`engine.css:1134` pulls `.card > h2` out to the card's edges so it becomes a full-width header strip
+with a bottom rule, which is the line the user saw the text sitting on. What it omits is a TOP padding,
+so the strip had 24 px below the text and 0 above. The margin was never the bug and still carries
+`!important`; only the padding needed adding. Verified after: `paddingTop: 14px`.
+
+**The popover was NOT translucent.** `--surface-1` is `#18181b` dark and `#ffffff` light, both opaque.
+The bleed-through was the masthead's own later paragraphs winning a stacking contest against a
+`z-index: 80` element inside an earlier paragraph. `:focus-within` was added because **a click gives
+`:focus`, not `:focus-visible`**, which is why clicking behaved differently from hovering.
+
+⚠ **`#rail` MOVED AS A NODE, not re-rendered.** `appendChild` relocates the engine's own element with
+its id, its handlers (`wireRail()` bound them earlier) and its lit pill intact. Nothing is retyped, so
+nothing can drift from the page. Safe because no engine.css rule selects `.rail` through an ancestor.
+
+**The first page is blue** (`bodyBg` measured as `rgb(7, 16, 24)` at `stage: pick`), and so are its
+search bar, selects, tiles and the theme toggle. ⚠ It RE-SKINS rather than repalettes: not one
+canonical token value changed, because `verify_palette.py` requires the app to declare the same values
+as `demo/index.html`. That is also why **the charts are still blue-and-orange**: `--series-2` is
+canonical and read at runtime by the canvas renderers.
+
+Verified: flow **26 of 26**, palette 38/0, view-matches-page 0, shipped-current 0, deployed-root 0,
+app-deterministic 0, `audit.py` **2,216 passed 0 failures**.
+
 ### 🔴 THE REPEATED HEADING TOOK THREE ATTEMPTS, AND THE FIRST TWO WERE WRONG FOR THE SAME REASON
 
 The user reported it three times. Worth recording in full, because the mistake is a general one.

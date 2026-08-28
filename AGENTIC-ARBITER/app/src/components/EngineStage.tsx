@@ -84,6 +84,17 @@ export function EngineStage({
        stamps `data-aa-tab`; the hiding is a CSS rule keyed on the workspace's `data-aa-active`, so
        setStage() remains the sole owner of `hidden`. Doing it here rather than in an effect means no
        frame exists in which every panel is unassigned and therefore displayed at once. */
+    /* 🔴 MOVE THE STEPPER INTO THE HEADER. MEASURED: #rail's parent was `viz-root` and `#bezel`,
+       the header it sits in on the single-file page, is NOT in the lifted markup, so the progress
+       control had nowhere to sit but the content flow, below the tab heading.
+       A NODE MOVE and not a re-render: appendChild relocates the engine's own element with its own
+       id, its own handlers (wireRail() bound them before this runs) and its own lit pill intact.
+       Nothing is retyped, so nothing can drift from the page. Safe because no CSS rule in engine.css
+       selects .rail through an ancestor: it is a standalone flex container. */
+    const railSlot = document.getElementById('aa-railslot')
+    const rail = host.current.querySelector('#rail')
+    if (railSlot && rail) railSlot.appendChild(rail)
+
     const { missing } = classifyPanels(host.current)
     if (missing.length && import.meta.env.DEV) {
       /* A panel that matches nothing belongs to no tab and would never be shown again, which is

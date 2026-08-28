@@ -193,6 +193,10 @@ export function App() {
       <div className="aa-banner">
         <img src={ART + 'fortyguard-logo.png'} alt="" aria-hidden="true" />
         <span className="aa-banner-sub">Free-cooling decisions, hour by hour</span>
+        {/* WHERE THE STEPPER GOES. EngineStage moves the engine's own #rail node in here after the
+            markup is injected, so the progress control lives in the header on every stage instead of
+            in the content flow. An empty div until then, and harmless if the move ever fails. */}
+        <div id="aa-railslot" />
       </div>
 
       {/* The masthead is on every stage: it carries the headline and the live-agent line. */}

@@ -19,6 +19,9 @@ import './dashboard.css'
    two things by specificity that equal-specificity rules could not: the repeated .secgroup
    heading, and the panel column being the only scroll region. */
 import './cinematic.css'
+/* And polish.css after all of them: every rule in it was written against a MEASURED computed
+   style, and several deliberately override engine.css, so it has to be able to win. */
+import './polish.css'
 import { App } from './App'
 
 const el = document.getElementById('root')
