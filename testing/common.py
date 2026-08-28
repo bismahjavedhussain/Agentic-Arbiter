@@ -196,10 +196,35 @@ def stats(vals):
 
 # ----------------------------------------------------------------- API (paid tests only)
 def load_key():
-    for line in open(os.path.join(ROOT, ".env"), encoding="utf-8-sig"):
-        if line.strip().startswith("FORTYGUARD_API_KEY"):
-            return line.split("=", 1)[1].strip().strip('"').strip("'")
-    raise RuntimeError("FORTYGUARD_API_KEY not found in .env")
+    """The FortyGuard key, from the environment first and the repository .env second.
+
+    🔴 THE ENVIRONMENT BRANCH IS WHAT MAKES DEPLOYMENT POSSIBLE, and its absence was a hard blocker.
+    This function used to read `<root>/.env` and nothing else. That file is gitignored and must stay
+    that way, so it does not exist on a deployed host: the live agent could not start anywhere except
+    this machine, and it would have failed with "FORTYGUARD_API_KEY not found in .env" on a box where
+    no such file could ever legitimately exist. Every host injects secrets as environment variables,
+    so that is now the first place looked.
+
+    ORDER MATTERS AND IT IS DELIBERATE. The environment wins, because on a host that is the only
+    source, and locally a developer who exports the variable is deciding to override the file on
+    purpose. The .env fallback keeps every existing local workflow working unchanged.
+
+    THE VALUE IS STILL NEVER PRINTED, LOGGED OR RETURNED ANYWHERE BUT HERE. Only the length and a
+    hash prefix are ever reported, by testing/scan_secrets.py. Nothing about that changes.
+    """
+    env = os.environ.get("FORTYGUARD_API_KEY")
+    if env and env.strip():
+        return env.strip().strip('"').strip("'")
+
+    path = os.path.join(ROOT, ".env")
+    if os.path.exists(path):
+        for line in open(path, encoding="utf-8-sig"):
+            if line.strip().startswith("FORTYGUARD_API_KEY"):
+                return line.split("=", 1)[1].strip().strip('"').strip("'")
+
+    raise RuntimeError(
+        "FORTYGUARD_API_KEY not found. Set it as an environment variable (this is how a deployed "
+        "host supplies it) or put it in the repository-root .env for local work.")
 
 
 V1 = "https://api.fortyguard.com/v1"
