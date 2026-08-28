@@ -1,4 +1,4 @@
-# INTAKE-ARBITER
+# AGENTIC-ARBITER
 
 **An agent that decides, hour by hour, whether a data centre can switch its mechanical chillers off
 and cool with outside air — and that earns the right to say yes more often by grading its own
@@ -40,11 +40,11 @@ it an upper bound on that term rather than a projection (§ *What is honest*).
 ## Start here — two commands
 
 ```bash
-# 1. Prove it. 25 steps, ZERO API calls. Exits non-zero on any failure.
-cd INTAKE-ARBITER/src && python run_all.py
+# 1. Prove it. 29 steps, ZERO API calls. Exits non-zero on any failure.
+cd AGENTIC-ARBITER/src && python run_all.py
 
 # 2. See it — REPLAY mode, no API key needed, works offline.
-cd INTAKE-ARBITER/demo && python -m http.server 8000        # then open http://localhost:8000
+cd AGENTIC-ARBITER/demo && python -m http.server 8000        # then open http://localhost:8000
 ```
 
 **How long step 1 takes scales with how many sites are offerable**, so it is quoted as a rate rather
@@ -54,10 +54,13 @@ hours across the national tier. It used to say "~6 minutes" full stop, which was
 sites shipped and quietly stopped being true as the national build grew.
 
 **To see it decide the next hours from a LIVE forecast**, serve it with the live agent attached
-instead. This needs a FortyGuard key in `.env`:
+instead. This needs a FortyGuard key in the **repository root** `.env` — `testing/common.py:load_key()`
+reads `<repo root>/.env`, and a copy inside `AGENTIC-ARBITER/` is read by nothing, which fails
+silently: the server starts, `/api/health` answers, and the key is simply never found.
 
 ```bash
-cd INTAKE-ARBITER/src && python serve_live.py --allow-paid   # then open http://127.0.0.1:8000
+cp AGENTIC-ARBITER/.env.example .env          # then put your key in ./.env
+python AGENTIC-ARBITER/src/serve_live.py --allow-paid   # then open http://127.0.0.1:8000
 ```
 
 **Why two commands and not one:** a static page cannot make a live API call, because the request
@@ -65,7 +68,7 @@ needs a key and anything the page can read, every visitor can read. `serve_live.
 its own process and returns only numbers. The page detects which mode it is in and says so — it does
 not offer a live button that cannot work.
 
-**New to this? Read [`READING-THE-AGENT.md`](READING-THE-AGENT.md) first.** It explains every
+**New to this? Read [`READING-THE-AGENT.md`](CONTEXT/READING-THE-AGENT.md) first.** It explains every
 screen, every control and every graph from zero — no data-centre or statistics background
 assumed, every term defined before it is used.
 
@@ -81,7 +84,7 @@ every site and diff the panels a reader would look at.
 
 ## What it does
 
-Seven stages, all of them in code, in `INTAKE-ARBITER/src/agent.py`:
+Seven stages, all of them in code, in `AGENTIC-ARBITER/src/agent.py`:
 
 ```
 perceive  FortyGuard heatmap + env_params + real wind + its own accuracy record
@@ -246,10 +249,18 @@ ourselves — and none on reasoning we can do exactly.
 
 ## What is honest about this, and what is not
 
-**These four limits used to be a card on the demo page.** They were removed from it on 2026-08-26
-and moved here, because a results screen is for results — not because any of them stopped being
-true. `drawLimits()` in the demo still derives all four from the artefacts, so this copy stays
+**The first four of these used to be a card on the demo page.** They were removed from it on
+2026-08-26 and moved here, because a results screen is for results — not because any of them stopped
+being true. `drawLimits()` in the demo still derives all four from the artefacts, so this copy stays
 checkable against something rather than becoming prose nobody re-reads.
+
+**The fifth arrived here the same way, on 2026-08-27.** It was two sentences on the site *picker*,
+*"No forecast/outcome day pair yet, so the measured level offset is still Ashburn's…"*, shown to
+anyone choosing one of the many sites that hold a field without a calibration. A caveat that applies
+to almost every site is a property of the project rather than news about the site just chosen, and
+the picker is where a reader is choosing, not reading method. It is off that screen and stated here,
+and it remains on each site's own results panel where the coverage figure it qualifies actually
+appears.
 
 | | |
 |---|---|
@@ -257,6 +268,8 @@ checkable against something rather than becoming prose nobody re-reads.
 | **The 90 % bound does not hold yet** | Measured **65.6 %**. It has 4 calibration day-pairs and needs about 10. At 4, the arithmetic ceiling is 80 % — so part of that gap was never reachable. More days is the whole remedy, and they come from **FortyGuard** data alone. |
 | **The hours claim wants a level anchor** | One local reading. Unanchored, five years of data say the agent **loses**. The *safety* guarantee needs no customer hardware; the *hours* do. |
 | **Recirculation here is small, and that is the physics working** | The worst case is a fraction of one weather-station grid step. A model that reported a large rise at this geometry would be wrong, not impressive. |
+| **Only Ashburn has a calibration of its own** | A **field** is one call; a **calibration** needs a forecast leg *and* its elapsed outcome. Many sites hold a purchased **FortyGuard** field, and **Ashburn is the only one with forecast/outcome day-pairs**, so at every other site the *hours, weather and geometry are that site's own* and the **measured level offset and the coverage record are Ashburn's**. The artefact records it per site (`trace.fortyguard_provenance.own_measured_day_pairs`), the coverage figure on each site's results panel says *"measured at Ashburn and applied here"*, and `audit.py` check 6d asserts that **every** borrowing site declares it, so a borrowed number cannot pass as a measured one. |
+| **The imagery is one source at nearly every site, and it cannot certify equipment** | The screening gate reads aerial frames. **3 of 250 offerable sites** have two independent sources (ESRI World Imagery *and* USGS The National Map); **245 carry exactly one**, so the **two-source cross-check is NOT met** there, one vendor and one capture season. And **2 have no screening frame at all**. Separately, at *every* site including those three, imagery at **0.3–0.5 m shows objects, not nameplates**: it cannot certify a unit type or measure a height, so it is evidence about *where* equipment is, never about *what* it is. Both facts are recorded per site in `sites.json` (`imagery.two_source_cross_check`, `imagery.resolution_note`), those three counts are re-read from it by `audit.py` rather than typed here, and the site panel's "Imagery source" control lists exactly the sources that exist, so a single-source site cannot present itself as cross-checked. |
 
 **What "no plume is modelled" does and does not mean.** At a facility with no other tagged data
 centre inside the solver's validated 600 m range, the quantity the rise table computes — the
@@ -307,7 +320,7 @@ Every one of those limits, and all four parsed sources, are in
 [`money-sources.md`](money-sources.md), generated from `money.json` by
 `src/write_money_doc.py` and asserted present by `audit.py` check 12.
 
-Read [`INTAKE-ARBITER/PLAN.md`](INTAKE-ARBITER/PLAN.md) for the full design record — every claim
+Read [`AGENTIC-ARBITER/PLAN.md`](AGENTIC-ARBITER/PLAN.md) for the full design record — every claim
 there carries a citation and a link, verified by opening the source. The short version:
 
 **Established.** Seven-stage loop over **120,960 swept scenarios**. Conformal layer with **20/20
@@ -319,7 +332,7 @@ A reasoning tape whose **32 templates contain not one literal digit**, checked a
 aerial evidence.**
 
 **On the size of the verification surface**, because it is fair to ask: **2215 audit checks and a
-gotcha log running to #185 exist because every entry in it actually bit** — a NaN that
+gotcha log of 195 entries exist because every one of them actually bit** — a NaN that
 was legal Python JSON and illegal standard JSON, a rounded array that flipped decisions at gate
 boundaries, an invented constant that outlived its own retraction by a day, a site picker that
 swapped one file out of thirteen. Every check is a headstone. That is **validation** infrastructure,
@@ -358,12 +371,12 @@ problem we have deliberately not solved yet.**
 
 | Path | What is there |
 |---|---|
-| [`INTAKE-ARBITER/`](INTAKE-ARBITER/) | The product. `src/` is 24 modules, `demo/` is the interface, `PLAN.md` is the citation-bearing design record |
-| [`INTAKE-ARBITER/demo/`](INTAKE-ARBITER/demo/) | One HTML file, one inline script, no build step, no dependencies. **Zero API calls at view time** |
+| [`AGENTIC-ARBITER/`](AGENTIC-ARBITER/) | The product. `src/` is 24 modules, `demo/` is the interface, `PLAN.md` is the citation-bearing design record |
+| [`AGENTIC-ARBITER/demo/`](AGENTIC-ARBITER/demo/) | One HTML file, one inline script, no build step, no dependencies. **Zero API calls at view time** |
 | [`API-USAGE.md`](API-USAGE.md) | How much of the FortyGuard plan was used, derived from the credit meter rather than asserted: **13 calls, 54,860 credits, 2.74 %** |
 | [`fortyguard-api-findings.md`](fortyguard-api-findings.md) | 1,105 lines of field findings written for the FortyGuard team — with a section listing the suspicions that **failed retest and were withdrawn** rather than deleted |
 | [`money-sources.md`](money-sources.md) | Every price and efficiency figure, with the document and page it came from |
-| [`HANDOFF.md`](HANDOFF.md) | The working log. Long, blunt, and includes **96 gotchas that each actually bit**, plus a running tally of how often this project's own verification code was wrong |
+| [`CONTEXT/HANDOFF.md`](CONTEXT/HANDOFF.md) | The working log. Long, blunt, and includes **195 gotchas that each actually bit**, plus a running tally of how often this project's own verification code was wrong |
 | [`testing/`](testing/) | Every experiment, including the failures. `scan_secrets.py` and `api_usage_ledger.py` are the two you can run for free |
 | [`*-PREREG.md`](.) | Pre-registrations with dated amendment logs, written **before** each test ran |
 | `damper-*.md`, `project-master-plan*.md` | An earlier project direction, abandoned. Kept because the reasoning that killed it is part of the record |
@@ -380,8 +393,8 @@ python testing/test_n26_coverage.py selftest  # its retry budget, against all 5 
 python testing/n26_recovery_watch.py plan     # what the recovery watcher would spend today; spends 0
 python testing/n26_chicago_offset.py dryrun    # Chicago's own level offset: window, lead, cost. Spends 0
 python testing/verify_site_panels.py          # renders every site in real Chrome and diffs the panels
-cd INTAKE-ARBITER/src && python audit.py      # 2057 checks, 77 published numbers re-read
-cd INTAKE-ARBITER/src && python report.py     # the per-site PDF, verified by being reopened
+cd AGENTIC-ARBITER/src && python audit.py      # 2057 checks, 77 published numbers re-read
+cd AGENTIC-ARBITER/src && python report.py     # the per-site PDF, verified by being reopened
 ```
 
 All five make **zero API calls**.

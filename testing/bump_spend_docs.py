@@ -181,7 +181,8 @@ def main():
     io.open(p, "w", encoding="utf-8", newline="").write(t)
 
     # ---- HANDOFF.md
-    p = os.path.join(ROOT, "HANDOFF.md")
+    # CONTEXT/ since 2026-08-28: HANDOFF.md moved into the durable-context pack.
+    p = os.path.join(ROOT, "CONTEXT", "HANDOFF.md")
     t = io.open(p, encoding="utf-8").read()
     t = sub_or_report(
         t, r"\| \*\*Spent to date\*\* \| 🔴 \*\*[\d,]+ = \d+ calls = [\d.]+ %\.\*\* Remaining "

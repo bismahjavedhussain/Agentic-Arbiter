@@ -1,0 +1,70 @@
+{
+ "generated_by": "AGENTIC-ARBITER/src/fetch_facility_imagery.py",
+ "api_calls_made": 0,
+ "source": "ESRI World Imagery via the keyless ArcGIS REST export endpoint",
+ "facility": "NE_way_1253282102",
+ "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+ "architecture_verdict": "MIXED_ROOF_AND_GRADE",
+ "what_would_change_this": "a recorded judgement on whether the cooling plant is at ground level (where FortyGuard's 2 m field applies) or roof-mounted (where this model does not describe the building at all)",
+ "candidates": [
+  {
+   "rank": 0,
+   "file": "00_way_1253282101.jpg",
+   "source_osm_id": 1253282101,
+   "receptor_osm_id": null,
+   "source_name": "Meta Sarpy Data center",
+   "receptor_name": null,
+   "source_latlon": [
+    41.11444846875,
+    -96.14286959374999
+   ],
+   "receptor_latlon": null,
+   "bbox": [
+    -96.14653679999999,
+    41.1101398,
+    -96.1384689,
+    41.1170303
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "n_buildings_framed": 2,
+   "architecture_verdict": "MIXED_ROOF_AND_GRADE",
+   "in_scope": false
+  },
+  {
+   "rank": 1,
+   "file": "01_1253282101_1253282102.jpg",
+   "source_osm_id": 1253282101,
+   "receptor_osm_id": 1253282102,
+   "source_name": "Meta Sarpy Data center",
+   "receptor_name": "Meta Sarpy Data center",
+   "source_latlon": [
+    41.114448,
+    -96.14287
+   ],
+   "receptor_latlon": [
+    41.111876,
+    -96.141523
+   ],
+   "bbox": [
+    -96.14653679999999,
+    41.1101398,
+    -96.1384689,
+    41.1170303
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict",
+   "usgs_file": "usgs_01_1253282101_1253282102.jpg",
+   "second_source": "USGS The National Map, USGSImageryOnly (public domain)",
+   "architecture_verdict": "MIXED_ROOF_AND_GRADE",
+   "in_scope": false
+  }
+ ],
+ "in_scope": false,
+ "assessed_by": "Project owner (human read, 2 sources: ESRI + USGS) -- pack assembled by Claude (Opus 5)",
+ "assessed_utc": "2026-08-27T08:40:12Z",
+ "evidence": "Human review of both frames, 2026-08-27: 'some are on ground level' -- the facility carries plant BOTH at grade and on the roof, so the 2 m plane describes only part of it. Reviewer's overall reading of the whole review set: 'none of it on the ground level' in the sense that no site in the set is cleanly grade-cooled.",
+ "verdict_note": "OVERTURNS NOTHING but SHARPENS my read, which was plain ROOFTOP: a human looking at both sources found ground-level plant as well. Refused because a partial description is not a description -- the model cannot apportion the load between the two planes and will not guess. Real, operating Meta facility.",
+ "limits": "Single-source reading at 0. Chillers and generators are not distinguishable at this resolution, so 'ground-level plant' is a statement about WHERE the equipment is, not about what it is. The two-source cross-check is NOT met -- the same weaker standing this project records for Dulles."
+}

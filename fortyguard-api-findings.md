@@ -864,7 +864,7 @@ billed.
 
 ## 9. `env_params` field defects found while wiring the fields into the agent (2026-08-18)
 
-Found by `INTAKE-ARBITER/src/environment.py`, whose self-test reproduces every number below.
+Found by `AGENTIC-ARBITER/src/environment.py`, whose self-test reproduces every number below.
 Reproduce with `python environment.py`. **No new API calls were made** — all findings come from
 29 `env_params` responses already on disk.
 

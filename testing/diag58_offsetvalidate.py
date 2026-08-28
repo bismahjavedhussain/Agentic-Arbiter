@@ -84,7 +84,7 @@ def fetch_asos(d0, d1):
          ("tz", "America/New_York"), ("format", "onlycomma"), ("latlon", "no"),
          ("missing", "empty"), ("trace", "empty"), ("direct", "no"), ("report_type", "3")]
     url = ASOS + "?" + urllib.parse.urlencode(q)
-    req = urllib.request.Request(url, headers={"User-Agent": "INTAKE-ARBITER research"})
+    req = urllib.request.Request(url, headers={"User-Agent": "AGENTIC-ARBITER research"})
     txt = urllib.request.urlopen(req, timeout=180).read().decode("utf-8", "replace")
     out = {}
     for line in txt.splitlines()[1:]:

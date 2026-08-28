@@ -36,3 +36,13 @@ WhatsApp Image*.jpeg
 *.tmp
 scratch/
 diag*.py.bak
+
+# ---------------------------------------------------------------- the React app (AGENTIC-ARBITER/app)
+# Added 2026-08-28 with the React migration. The SOURCE is tracked; these are not.
+# `dist/` is the exception worth explaining: the built app is the artefact a judge opens, and the
+# README's claim is that it needs no install step. So dist/ is ignored during development and is
+# meant to be committed deliberately, once, when the app supersedes demo/index.html.
+node_modules/
+AGENTIC-ARBITER/app/dist/
+.vite/
+*.tsbuildinfo

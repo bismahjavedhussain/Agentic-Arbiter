@@ -1,0 +1,33 @@
+{
+ "generated_by": "AGENTIC-ARBITER/src/fetch_facility_imagery.py",
+ "api_calls_made": 0,
+ "source": "ESRI World Imagery via the keyless ArcGIS REST export endpoint",
+ "facility": "CO_way_426586135",
+ "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+ "architecture_verdict": "NOT YET ASSESSED",
+ "what_would_change_this": "a recorded judgement on whether the cooling plant is at ground level (where FortyGuard's 2 m field applies) or roof-mounted (where this model does not describe the building at all)",
+ "candidates": [
+  {
+   "rank": 0,
+   "file": "00_way_426586135.jpg",
+   "source_osm_id": 426586135,
+   "receptor_osm_id": null,
+   "source_name": "Google - Thornton",
+   "receptor_name": null,
+   "source_latlon": [
+    39.92247473846154,
+    -104.98348132307692
+   ],
+   "receptor_latlon": null,
+   "bbox": [
+    -104.98546499999999,
+    39.9212112,
+    -104.9813855,
+    39.923718900000004
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "n_buildings_framed": 1,
+   "architecture_verdict": "NOT YET ASSESSED"
+  }
+ ]
+}

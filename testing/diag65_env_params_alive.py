@@ -55,7 +55,7 @@ from common import (load_key, credits_remaining, submit_poll, banner, box_aoi, s
                     verdict, site_now, utc_now, SITE_TZ_NAME, classify_vendor, vendor_rec,
                     vendor_sentence, is_billed)
 
-IA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "INTAKE-ARBITER")
+IA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "AGENTIC-ARBITER")
 sys.path.insert(0, os.path.join(IA, "src"))
 import metros as M                                                        # noqa: E402
 

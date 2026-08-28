@@ -1,0 +1,235 @@
+{
+  "_what": "Provenance for AGENTIC-ARBITER/core/. Written by scratchpad/mkcore.py; read by testing/verify_core_matches_page.py. page_sha256 is the function as extracted from demo/index.html, core_sha256 is the function as emitted here. If either side is edited by hand the gate fails until the generator is re-run.",
+  "functions": {
+    "H0": {
+      "core_chars": 42,
+      "core_sha256": "28e9eb08777ef2a91fe16c19b2c46593254b90507ca9cfae1d47403a1e0904b1",
+      "dir": "core",
+      "module": "agent.mjs",
+      "page_chars": 42,
+      "page_name": "H0",
+      "page_sha256": "28e9eb08777ef2a91fe16c19b2c46593254b90507ca9cfae1d47403a1e0904b1",
+      "substitutions": []
+    },
+    "casePath": {
+      "core_chars": 267,
+      "core_sha256": "dceae8b897d4d984e822e9c8c576f5cd0a2feee1326c36b50ce533944960a768",
+      "dir": "charts",
+      "module": "primitives.mjs",
+      "page_chars": 267,
+      "page_name": "casePath",
+      "page_sha256": "dceae8b897d4d984e822e9c8c576f5cd0a2feee1326c36b50ce533944960a768",
+      "substitutions": []
+    },
+    "cfAttainable": {
+      "core_chars": 59,
+      "core_sha256": "921b5bf22f9a127578994f5e0d284fcc14ea4c4bbc33ca38b4d78d4ae59b5c07",
+      "dir": "core",
+      "module": "conformal.mjs",
+      "page_chars": 59,
+      "page_name": "cfAttainable",
+      "page_sha256": "921b5bf22f9a127578994f5e0d284fcc14ea4c4bbc33ca38b4d78d4ae59b5c07",
+      "substitutions": []
+    },
+    "cfMinN": {
+      "core_chars": 58,
+      "core_sha256": "9c729f3077888502cffc2a9d5d3ad61019814ab2d96c0c8612096550e291395f",
+      "dir": "core",
+      "module": "conformal.mjs",
+      "page_chars": 58,
+      "page_name": "cfMinN",
+      "page_sha256": "9c729f3077888502cffc2a9d5d3ad61019814ab2d96c0c8612096550e291395f",
+      "substitutions": []
+    },
+    "cfQuantileIndex": {
+      "core_chars": 129,
+      "core_sha256": "225bfbf21ea1b11ecf822f1030081c194d9c86b3c5979b8762c81f1e8d8c4a9d",
+      "dir": "core",
+      "module": "conformal.mjs",
+      "page_chars": 129,
+      "page_name": "cfQuantileIndex",
+      "page_sha256": "225bfbf21ea1b11ecf822f1030081c194d9c86b3c5979b8762c81f1e8d8c4a9d",
+      "substitutions": []
+    },
+    "cfSplit": {
+      "core_chars": 448,
+      "core_sha256": "c2c509727df161f14d7f47a3a450c4f82e3a3616f9aceb09de4adaeabb4b1286",
+      "dir": "core",
+      "module": "conformal.mjs",
+      "page_chars": 448,
+      "page_name": "cfSplit",
+      "page_sha256": "c2c509727df161f14d7f47a3a450c4f82e3a3616f9aceb09de4adaeabb4b1286",
+      "substitutions": []
+    },
+    "cfgFromStrings": {
+      "core_chars": 363,
+      "core_sha256": "96efcfe4d38ae2e473bbd43bdaf24768041eaf0a77aaf5a9e8091fb33c2c2e68",
+      "dir": "core",
+      "module": "config.mjs",
+      "page_chars": 353,
+      "page_name": "cfg",
+      "page_sha256": "aab961453729d5a7d0def949fb00795724f0c3a9f07f407b6962fb6282a0b8e5",
+      "substitutions": [
+        "$(id).value -> get(id)  (x1)"
+      ]
+    },
+    "chipText": {
+      "core_chars": 498,
+      "core_sha256": "df9b665329a5f2b7fc0751b3bdb0c43b9c86dcb867dabfef798d08b9eca208b1",
+      "dir": "charts",
+      "module": "primitives.mjs",
+      "page_chars": 498,
+      "page_name": "chipText",
+      "page_sha256": "df9b665329a5f2b7fc0751b3bdb0c43b9c86dcb867dabfef798d08b9eca208b1",
+      "substitutions": []
+    },
+    "countUpText": {
+      "core_chars": 1521,
+      "core_sha256": "11690a6c86d59daa3b9cc3a3c9f0e61fbf0863879f9c86ea7226e59fc12722e9",
+      "dir": "charts",
+      "module": "primitives.mjs",
+      "page_chars": 1521,
+      "page_name": "countUpText",
+      "page_sha256": "11690a6c86d59daa3b9cc3a3c9f0e61fbf0863879f9c86ea7226e59fc12722e9",
+      "substitutions": []
+    },
+    "decide": {
+      "core_chars": 4958,
+      "core_sha256": "4da563a16ca10e657399fc4e34d497227c615d62297e5c4cfa71426200e05832",
+      "dir": "core",
+      "module": "agent.mjs",
+      "page_chars": 4943,
+      "page_name": "decide",
+      "page_sha256": "70ab154d038014a7b8989f2d73e15c04d375dde1ba1d271b5a55164e5bc59eac",
+      "substitutions": [
+        "\\bT\\b -> trace  (x4)",
+        "const k=cfg\\(\\), ds= -> const ds=  (x1)"
+      ]
+    },
+    "explainHour": {
+      "core_chars": 4489,
+      "core_sha256": "ca158295a3e61b2ba4654c4402fcbc524a2d152b125da033de5a3e752333a6d5",
+      "dir": "core",
+      "module": "explain.mjs",
+      "page_chars": 4489,
+      "page_name": "explainHour",
+      "page_sha256": "ca158295a3e61b2ba4654c4402fcbc524a2d152b125da033de5a3e752333a6d5",
+      "substitutions": []
+    },
+    "fitCanvas": {
+      "core_chars": 898,
+      "core_sha256": "8e83d2413cf0d853ae3e00cd9121050e4b6117dc7037599b0cdc8dfbf50a814a",
+      "dir": "charts",
+      "module": "primitives.mjs",
+      "page_chars": 898,
+      "page_name": "fitCanvas",
+      "page_sha256": "8e83d2413cf0d853ae3e00cd9121050e4b6117dc7037599b0cdc8dfbf50a814a",
+      "substitutions": []
+    },
+    "getCssVar": {
+      "core_chars": 120,
+      "core_sha256": "4ca765124aa02eaacc459d9023b0a2e5f8879053a7082c4781552a7aa92821e8",
+      "dir": "charts",
+      "module": "primitives.mjs",
+      "page_chars": 120,
+      "page_name": "getCssVar",
+      "page_sha256": "4ca765124aa02eaacc459d9023b0a2e5f8879053a7082c4781552a7aa92821e8",
+      "substitutions": []
+    },
+    "motionOK": {
+      "core_chars": 129,
+      "core_sha256": "5a4f50b73c04605dd9b48f61fa6752c1f41ad1b9b5fe9b187b0dc95de64bdd3b",
+      "dir": "charts",
+      "module": "primitives.mjs",
+      "page_chars": 129,
+      "page_name": "motionOK",
+      "page_sha256": "5a4f50b73c04605dd9b48f61fa6752c1f41ad1b9b5fe9b187b0dc95de64bdd3b",
+      "substitutions": []
+    },
+    "plan": {
+      "core_chars": 911,
+      "core_sha256": "f60ebdd05654c44c284893080f556d5dd201969392ef2f1716da02ae8e18e78c",
+      "dir": "core",
+      "module": "agent.mjs",
+      "page_chars": 911,
+      "page_name": "plan",
+      "page_sha256": "f60ebdd05654c44c284893080f556d5dd201969392ef2f1716da02ae8e18e78c",
+      "substitutions": []
+    },
+    "reactive": {
+      "core_chars": 413,
+      "core_sha256": "e06234845562986af33d0efa317eb55b15c6808701e9f3ce9f9e9829d44c89b2",
+      "dir": "core",
+      "module": "agent.mjs",
+      "page_chars": 413,
+      "page_name": "reactive",
+      "page_sha256": "e06234845562986af33d0efa317eb55b15c6808701e9f3ce9f9e9829d44c89b2",
+      "substitutions": []
+    },
+    "sparkSVG": {
+      "core_chars": 1000,
+      "core_sha256": "c01834da5629b35ae1266e819d09bd9b322b28bd47f01ce2195249369a62fb5d",
+      "dir": "charts",
+      "module": "primitives.mjs",
+      "page_chars": 1000,
+      "page_name": "sparkSVG",
+      "page_sha256": "c01834da5629b35ae1266e819d09bd9b322b28bd47f01ce2195249369a62fb5d",
+      "substitutions": []
+    },
+    "tickerFor": {
+      "core_chars": 2778,
+      "core_sha256": "d15d0fc388b4f023208ca69ed535d7bb9eeb086037e19a44a2f4b54c6e5d0a84",
+      "dir": "core",
+      "module": "ticker.mjs",
+      "page_chars": 2571,
+      "page_name": "tickerFor",
+      "page_sha256": "ecf925288f9e09c76042bd71fada06aae5da3ef222f6606211ef581d69860daa",
+      "substitutions": [
+        "\\bTK\\b -> tk  (x3)",
+        "\\btkEvent\\( -> _ev(  (x13)"
+      ]
+    },
+    "tkEvent": {
+      "core_chars": 276,
+      "core_sha256": "bba249c2b6eeb6d45bdc72af0d2a2bbe04dbcb71b6eeb6ff5508613f40585867",
+      "dir": "core",
+      "module": "ticker.mjs",
+      "page_chars": 272,
+      "page_name": "tkEvent",
+      "page_sha256": "d08e8abede2fd94947cb4d329838efad480a51024aa8d86e9ddf69bce6c6c778",
+      "substitutions": [
+        "\\bTK\\b -> tk  (x4)"
+      ]
+    },
+    "tkFixed": {
+      "core_chars": 1021,
+      "core_sha256": "b535f54c55426a00ed9e0c08f19d3300155e9ee112927ef9fc3f55de806aac33",
+      "dir": "core",
+      "module": "ticker.mjs",
+      "page_chars": 1021,
+      "page_name": "tkFixed",
+      "page_sha256": "b535f54c55426a00ed9e0c08f19d3300155e9ee112927ef9fc3f55de806aac33",
+      "substitutions": []
+    },
+    "tkFormat": {
+      "core_chars": 913,
+      "core_sha256": "abb5e42e3fd4bdde87c134026054fb3b25cd2a0aff1405e3acf2e06287085ef5",
+      "dir": "core",
+      "module": "ticker.mjs",
+      "page_chars": 913,
+      "page_name": "tkFormat",
+      "page_sha256": "abb5e42e3fd4bdde87c134026054fb3b25cd2a0aff1405e3acf2e06287085ef5",
+      "substitutions": []
+    },
+    "tkRender": {
+      "core_chars": 294,
+      "core_sha256": "76f9a8f0fdd0720d6643754ca323640acf54176ded96f579e9a3314cfa71c10b",
+      "dir": "core",
+      "module": "ticker.mjs",
+      "page_chars": 294,
+      "page_name": "tkRender",
+      "page_sha256": "76f9a8f0fdd0720d6643754ca323640acf54176ded96f579e9a3314cfa71c10b",
+      "substitutions": []
+    }
+  }
+}

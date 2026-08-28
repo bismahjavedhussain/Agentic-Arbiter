@@ -18,7 +18,7 @@ breaches, and **fall below the 90 % coverage they promise.**
 
 ## 1. Where the citations live
 
-**`INTAKE-ARBITER/PLAN.md` § 12** is the evidence register for the whole project — every load-bearing
+**`AGENTIC-ARBITER/PLAN.md` § 12** is the evidence register for the whole project — every load-bearing
 claim with a source and a link, marked 📘 (primary document, opened and read), 🔎 (measured study) or
 📗 (background).
 

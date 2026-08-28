@@ -45,7 +45,7 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-DEMO = os.path.join(ROOT, "INTAKE-ARBITER", "demo")
+DEMO = os.path.join(ROOT, "AGENTIC-ARBITER", "demo")
 
 sys.path.insert(0, HERE)
 # REUSED, not reimplemented: browser discovery and free-port selection are already solved in
@@ -107,9 +107,21 @@ PROBE = """
       inp.value = q; searchRender();
       const box = document.getElementById('searchresults');
       const rows = [...box.querySelectorAll('.srchrow')];
+      /* 🔴 FIND THE ROW, DO NOT ASSUME IT IS FIRST. This used to read row 0 and call it the
+         no-run case, and the first hit for "equinix" is Digital Realty Silicon Valley SJC37, whose
+         metro IS offerable -- searchMatch() floats runnable sites to the top of a score band on
+         purpose, so row 0 is the LEAST likely row to be a no-run one. The check was asserting
+         something the page had never promised.
+         `data-ready="0"` rather than `aria-disabled`: such a row opens the facility's specs now, so
+         it is not disabled and no longer says it is. */
+      const nr = rows.find(r => r.dataset.ready === '0') || null;
       return {n: rows.length,
               first: rows.length ? rows[0].innerText.replace(/\\s+/g,' ').trim() : null,
               first_disabled: rows.length ? rows[0].getAttribute('aria-disabled')==='true' : null,
+              n_norun: rows.filter(r => r.dataset.ready === '0').length,
+              norun: nr ? nr.innerText.replace(/\\s+/g,' ').trim() : null,
+              norun_aria: nr ? nr.getAttribute('aria-disabled') : null,
+              norun_marked: nr ? nr.dataset.ready === '0' : null,
               note: (document.getElementById('searchnote')||{}).innerText || ''};
     };
     // A runnable facility by name. 'apple' must surface the Apple facility that HAS a run.
@@ -248,10 +260,16 @@ def main(argv):
        "RUN THE AGENT" in (qa.get("first") or "").upper() and qa.get("first_disabled") is False,
        "the top hit is openable")
     qe = d.get("q_equinix") or {}
-    ck("a match with no agent run is shown, marked, and NOT clickable",
-       qe.get("n", 0) >= 1 and qe.get("first_disabled") is True
-       and "RUN THE AGENT" not in (qe.get("first") or "").upper(),
-       "%d match(es), first = %r" % (qe.get("n"), (qe.get("first") or "")[:54]))
+    ck("a query returns both kinds of match, run and no-run",
+       qe.get("n", 0) >= 1 and (qe.get("n_norun") or 0) >= 1,
+       "%d match(es), %d of them with no published run" % (qe.get("n"), qe.get("n_norun") or 0))
+    ck("a match with no agent run is shown and marked as such, not offered as a run",
+       qe.get("norun_marked") is True
+       and "RUN THE AGENT" not in (qe.get("norun") or "").upper(),
+       "%r" % (qe.get("norun") or "")[:62])
+    ck("and it does NOT claim to be disabled, because it opens that facility's specs",
+       qe.get("norun_aria") is None,
+       "aria-disabled=%r" % qe.get("norun_aria"))
     qs = d.get("q_short") or {}
     ck("a one-character query refuses rather than listing everything",
        qs.get("n") == 0 and "two characters" in (qs.get("note") or ""),

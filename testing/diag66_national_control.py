@@ -27,7 +27,7 @@ from common import (banner, box_aoi, credits_remaining, load_key, save_result,  
                     submit_poll)
 
 IA_GEOM = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                       "INTAKE-ARBITER", "data", "geometry", "selected_site.json")
+                       "AGENTIC-ARBITER", "data", "geometry", "selected_site.json")
 TZ_NAME = "America/New_York"        # Ashburn's real zone -- gotcha #1's fix, not a guess here
 SIDE_KM = 8.0
 GRAN = 60

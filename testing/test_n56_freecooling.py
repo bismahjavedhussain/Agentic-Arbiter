@@ -51,7 +51,7 @@ Three candidate advantages remain, and this test measures each rather than asser
 
 GEOMETRY: the COMMITTED site, not the synthetic reference
     N-51 ran on `solver.demo_site()`. This runs on the real committed pair -- AWS IAD116 / IAD117,
-    `INTAKE-ARBITER/data/geometry/solver_site_longest.json`, 60.3 m facade gap, 2,600 m2 bank, where
+    `AGENTIC-ARBITER/data/geometry/solver_site_longest.json`, 60.3 m facade gap, 2,600 m2 bank, where
     N-54 measured **0 % of downwind bearings refused**, so a rise is computable for every wind hour.
 
 PRE-REGISTERED CONDITIONS -- written before the first run, methodology rule 2
@@ -136,7 +136,7 @@ import solver                                                 # noqa: E402
 from solver import CALIBRATED                                 # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-IA = os.path.join(ROOT, "INTAKE-ARBITER")
+IA = os.path.join(ROOT, "AGENTIC-ARBITER")
 SITE_JSON = os.path.join(IA, "data", "geometry", "solver_site_longest.json")
 HOURLY = os.path.join(IA, "data", "weather", "kiad_hourly_2021_2025.json")
 

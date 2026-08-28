@@ -46,7 +46,7 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-DEMO = os.path.join(ROOT, "INTAKE-ARBITER", "demo")
+DEMO = os.path.join(ROOT, "AGENTIC-ARBITER", "demo")
 
 # The driver copy is regenerated in the same command that shoots it. Gotcha #102: a copy of
 # index.html goes stale the moment index.html is edited, and twice a verification run reported a

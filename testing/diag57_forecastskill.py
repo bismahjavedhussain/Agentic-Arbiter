@@ -36,7 +36,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import banner, save_result, FIXTURES        # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HOURLY = os.path.join(ROOT, "INTAKE-ARBITER", "data", "weather", "kiad_hourly_2021_2025.json")
+HOURLY = os.path.join(ROOT, "AGENTIC-ARBITER", "data", "weather", "kiad_hourly_2021_2025.json")
 
 LEADS = [("n25_f_lead01.49.json", 1.49), ("n25_f_lead03.49.json", 3.49),
          ("n25_f_lead05.49.json", 5.49), ("n25_f_lead07.49.json", 7.49),

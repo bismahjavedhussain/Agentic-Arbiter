@@ -76,8 +76,8 @@ from zoneinfo import ZoneInfo
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-PLAN_FILE = os.path.join(ROOT, "INTAKE-ARBITER", "data", "geometry", "national_aoi_plan.json")
-FIELDS_DIR = os.path.join(ROOT, "INTAKE-ARBITER", "data", "national_fields")
+PLAN_FILE = os.path.join(ROOT, "AGENTIC-ARBITER", "data", "geometry", "national_aoi_plan.json")
+FIELDS_DIR = os.path.join(ROOT, "AGENTIC-ARBITER", "data", "national_fields")
 LEDGER_FILE = os.path.join(RESULTS, "national_field_ledger.json")
 
 SIDE_KM = 8.0

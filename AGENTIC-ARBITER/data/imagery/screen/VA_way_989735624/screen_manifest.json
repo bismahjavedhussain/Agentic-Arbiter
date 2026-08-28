@@ -1,0 +1,33 @@
+{
+ "generated_by": "AGENTIC-ARBITER/src/fetch_facility_imagery.py",
+ "api_calls_made": 0,
+ "source": "ESRI World Imagery via the keyless ArcGIS REST export endpoint",
+ "facility": "VA_way_989735624",
+ "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+ "architecture_verdict": "NOT YET ASSESSED",
+ "what_would_change_this": "a recorded judgement on whether the cooling plant is at ground level (where FortyGuard's 2 m field applies) or roof-mounted (where this model does not describe the building at all)",
+ "candidates": [
+  {
+   "rank": 0,
+   "file": "00_way_989735623.jpg",
+   "source_osm_id": 989735623,
+   "receptor_osm_id": null,
+   "source_name": "Amazon IAD152",
+   "receptor_name": null,
+   "source_latlon": [
+    38.91672896666667,
+    -77.47977913333334
+   ],
+   "receptor_latlon": null,
+   "bbox": [
+    -77.4818834,
+    38.9136872,
+    -77.47482860000001,
+    38.9185469
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "n_buildings_framed": 3,
+   "architecture_verdict": "NOT YET ASSESSED"
+  }
+ ]
+}

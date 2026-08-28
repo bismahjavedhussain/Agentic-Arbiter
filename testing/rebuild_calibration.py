@@ -36,7 +36,7 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-IA = os.path.join(ROOT, "INTAKE-ARBITER")
+IA = os.path.join(ROOT, "AGENTIC-ARBITER")
 SRC = os.path.join(IA, "src")
 DEMO = os.path.join(IA, "demo")
 MANIFEST = os.path.join(HERE, "results", "n26_manifest.json")
@@ -44,7 +44,7 @@ LOG = os.path.join(HERE, "results", "rebuild_calibration.log")
 
 # The paths a rebuild writes into. Rollback restores exactly these, to the last commit -- surgical
 # rather than `git reset --hard`, which would also throw away anything else in the working tree.
-RESTORE = ["INTAKE-ARBITER/demo", "INTAKE-ARBITER/data"]
+RESTORE = ["AGENTIC-ARBITER/demo", "AGENTIC-ARBITER/data"]
 
 # Paths a rebuild neither reads as input nor restores on rollback: this script's own log, the ledger
 # cache audit.py rewrites, and the paid fixtures a collector drops in.
@@ -53,7 +53,7 @@ RESTORE = ["INTAKE-ARBITER/demo", "INTAKE-ARBITER/data"]
 # BEFORE preflight starts, so the tree is already dirty by the time the check reads it -- a strict
 # check refuses its own scheduled run, every time. Found by running `run --dry` twice: the second
 # run failed on the first run's log line. Everything OUTSIDE this prefix still blocks, because
-# rollback does `git checkout -- INTAKE-ARBITER/{demo,data}` and would destroy uncommitted work there.
+# rollback does `git checkout -- AGENTIC-ARBITER/{demo,data}` and would destroy uncommitted work there.
 OUTPUT_ONLY = ("testing/results/",)
 
 ALPHA = 0.10
@@ -198,7 +198,7 @@ def preflight(fix_docs=True):
         say("   [FAIL] %d uncommitted change(s) OUTSIDE testing/results/. Commit or stash first --"
             % len(blocking))
         say("          the last commit is what a rollback restores to, and rollback overwrites")
-        say("          INTAKE-ARBITER/demo and INTAKE-ARBITER/data without asking.")
+        say("          AGENTIC-ARBITER/demo and AGENTIC-ARBITER/data without asking.")
         for q in blocking[:8]:
             say("          - %s" % q)
         if len(blocking) > 8:
@@ -311,7 +311,7 @@ def rollback(why):
         say("")
         say("   🔴 THE ROLLBACK DID NOT COME BACK GREEN. Do not improvise -- the tagged fallback is")
         say("      intact and is one command away:")
-        say("         git checkout submission-safe-2026-08-27 -- INTAKE-ARBITER/")
+        say("         git checkout submission-safe-2026-08-27 -- AGENTIC-ARBITER/")
         say("      That tag was committed green with scan_secrets CLEAN and is submittable as-is.")
         return 2
     say("   the tree is back where it started. Nothing was lost.")
@@ -388,7 +388,7 @@ def run(dry=False):
         say("   document first guarantees a second failure.")
     say("")
     say("   If anything about the result looks wrong, the tagged fallback is intact:")
-    say("      git checkout submission-safe-2026-08-27 -- INTAKE-ARBITER/")
+    say("      git checkout submission-safe-2026-08-27 -- AGENTIC-ARBITER/")
     say("=" * 78)
     return 0
 
@@ -421,8 +421,8 @@ def selftest():
         ("this script's own log never blocks", "testing/results/rebuild_calibration.log"
          .startswith(OUTPUT_ONLY)),
         ("the ledger cache never blocks", "testing/results/api_usage.json".startswith(OUTPUT_ONLY)),
-        ("a demo change DOES block", not "INTAKE-ARBITER/demo/trace.json".startswith(OUTPUT_ONLY)),
-        ("a src change DOES block", not "INTAKE-ARBITER/src/agent.py".startswith(OUTPUT_ONLY)),
+        ("a demo change DOES block", not "AGENTIC-ARBITER/demo/trace.json".startswith(OUTPUT_ONLY)),
+        ("a src change DOES block", not "AGENTIC-ARBITER/src/agent.py".startswith(OUTPUT_ONLY)),
     ]
     bad = 0
     for name, passed in cases:

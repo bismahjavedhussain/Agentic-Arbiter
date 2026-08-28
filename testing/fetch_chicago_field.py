@@ -57,7 +57,7 @@ from common import (banner, box_aoi, credits_remaining, load_key, RESULTS,   # n
 
 # The committed pair's two centroids, read from the file the pipeline wrote -- not typed in.
 SITE_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                         "INTAKE-ARBITER", "data", "geometry", "chicago_selected_site.json")
+                         "AGENTIC-ARBITER", "data", "geometry", "chicago_selected_site.json")
 TZ_NAME = "America/Chicago"          # the AOI's OWN zone. NOT common.SITE_TZ_NAME.
 SIDE_KM = 8.0
 GRAN = 60

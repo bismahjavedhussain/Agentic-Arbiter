@@ -61,7 +61,7 @@ import buy_national_fields as BNF
 
 STATE_FILE = os.path.join(RESULTS, "national_recovery_state.json")
 IA_GEOM = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                       "INTAKE-ARBITER", "data", "geometry", "selected_site.json")
+                       "AGENTIC-ARBITER", "data", "geometry", "selected_site.json")
 TZ_NAME = "America/New_York"          # Ashburn's real zone -- the same control DIAG-66 used
 
 MAX_BILLED_PROBES_PER_DAY = 3         # matches N26's own convention -- a hand-chosen ceiling,

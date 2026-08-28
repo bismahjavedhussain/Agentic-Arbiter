@@ -1,0 +1,59 @@
+{
+ "generated_by": "AGENTIC-ARBITER/src/fetch_facility_imagery.py",
+ "api_calls_made": 0,
+ "source": "ESRI World Imagery via the keyless ArcGIS REST export endpoint",
+ "facility": "SC_way_1069388211",
+ "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+ "architecture_verdict": "NOT YET ASSESSED",
+ "what_would_change_this": "a recorded judgement on whether the cooling plant is at ground level (where FortyGuard's 2 m field applies) or roof-mounted (where this model does not describe the building at all)",
+ "candidates": [
+  {
+   "rank": 0,
+   "file": "00_way_1069388186.jpg",
+   "source_osm_id": 1069388186,
+   "receptor_osm_id": null,
+   "source_name": "Google",
+   "receptor_name": null,
+   "source_latlon": [
+    33.06233084864865,
+    -80.04510792162162
+   ],
+   "receptor_latlon": null,
+   "bbox": [
+    -80.04853419999999,
+    33.0602456,
+    -80.0364651,
+    33.0677964
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "n_buildings_framed": 9,
+   "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_1069388141_1069388147.jpg",
+   "source_osm_id": 1069388141,
+   "receptor_osm_id": 1069388147,
+   "source_name": "Google",
+   "receptor_name": "Google",
+   "source_latlon": [
+    33.064462,
+    -80.038482
+   ],
+   "receptor_latlon": [
+    33.066373,
+    -80.03874
+   ],
+   "bbox": [
+    -80.0404248,
+    33.0627941,
+    -80.0365419,
+    33.0677964
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
+  }
+ ]
+}

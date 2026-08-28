@@ -1,0 +1,59 @@
+{
+ "generated_by": "AGENTIC-ARBITER/src/fetch_facility_imagery.py",
+ "api_calls_made": 0,
+ "source": "ESRI World Imagery via the keyless ArcGIS REST export endpoint",
+ "facility": "OR_way_697413741",
+ "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+ "architecture_verdict": "NOT YET ASSESSED",
+ "what_would_change_this": "a recorded judgement on whether the cooling plant is at ground level (where FortyGuard's 2 m field applies) or roof-mounted (where this model does not describe the building at all)",
+ "candidates": [
+  {
+   "rank": 0,
+   "file": "00_way_1127951468.jpg",
+   "source_osm_id": 1127951468,
+   "receptor_osm_id": null,
+   "source_name": "Amazon Web Services",
+   "receptor_name": null,
+   "source_latlon": [
+    45.915671144444445,
+    -119.26996212222222
+   ],
+   "receptor_latlon": null,
+   "bbox": [
+    -119.2713436,
+    45.9125082,
+    -119.2648343,
+    45.9188027
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "n_buildings_framed": 11,
+   "architecture_verdict": "NOT YET ASSESSED"
+  },
+  {
+   "rank": 1,
+   "file": "01_592257327_460070139.jpg",
+   "source_osm_id": 592257327,
+   "receptor_osm_id": 460070139,
+   "source_name": "Amazon Web Services",
+   "receptor_name": "Amazon Web Services",
+   "source_latlon": [
+    45.917537,
+    -119.268046
+   ],
+   "receptor_latlon": [
+    45.915875,
+    -119.267325
+   ],
+   "bbox": [
+    -119.2704941,
+    45.914784499999996,
+    -119.2649737,
+    45.9188027
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict"
+  }
+ ]
+}

@@ -1,4 +1,4 @@
-# FortyGuard API usage — INTAKE-ARBITER
+# FortyGuard API usage — AGENTIC-ARBITER
 
 **A submission requirement, answered with the meter rather than with recollection.**
 Every figure below is re-derived by one command that makes **zero API calls**:
@@ -10,7 +10,7 @@ python testing/api_usage_ledger.py
 It reads the usage-endpoint readings that each paid script saved beside its own results, reconciles
 them against the plan's issued total, and refuses to report a call count that is not a whole
 multiple of the measured price. Its output is written to `testing/results/api_usage.json`, which
-`INTAKE-ARBITER/src/audit.py` re-reads — so a number in this document cannot drift away from the
+`AGENTIC-ARBITER/src/audit.py` re-reads — so a number in this document cannot drift away from the
 evidence without a test failing.
 
 ---
@@ -227,7 +227,7 @@ reliably available**, and no figure in this project depends on assuming otherwis
 
 ## 6. Zero API calls at demo time
 
-The interface (`INTAKE-ARBITER/demo/index.html`) makes **no FortyGuard calls at all**. It replays
+The interface (`AGENTIC-ARBITER/demo/index.html`) makes **no FortyGuard calls at all**. It replays
 saved responses from `demo/field_*.json`, and it says so on screen: *"Everything below runs from
 saved FortyGuard responses: 0 live API calls."*
 
@@ -247,4 +247,4 @@ reader's feet.
 | [`testing/api_usage_ledger.py`](testing/api_usage_ledger.py) | The ledger that produces every number above, from saved meter readings. Zero API calls |
 | [`testing/scan_secrets.py`](testing/scan_secrets.py) | Full-tree **and full-history** secret scan, run before publication |
 | [`testing/test_n26_coverage.py`](testing/test_n26_coverage.py) | The collector: retry budget, comparability guard, and a free `dryrun` mode |
-| [`INTAKE-ARBITER/PLAN.md`](INTAKE-ARBITER/PLAN.md) | The design record, with a citation and a link for every claim |
+| [`AGENTIC-ARBITER/PLAN.md`](AGENTIC-ARBITER/PLAN.md) | The design record, with a citation and a link for every claim |

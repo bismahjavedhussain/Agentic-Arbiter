@@ -1,0 +1,70 @@
+{
+ "generated_by": "AGENTIC-ARBITER/src/fetch_facility_imagery.py",
+ "api_calls_made": 0,
+ "source": "ESRI World Imagery via the keyless ArcGIS REST export endpoint",
+ "facility": "TX_way_577628941",
+ "caveat": "0.3-0.5 m resolution shows objects, not nameplates. Cannot certify unit type or measure heights.",
+ "architecture_verdict": "NO_GROUND_PLANT_VISIBLE",
+ "what_would_change_this": "a recorded judgement on whether the cooling plant is at ground level (where FortyGuard's 2 m field applies) or roof-mounted (where this model does not describe the building at all)",
+ "candidates": [
+  {
+   "rank": 0,
+   "file": "00_way_383888914.jpg",
+   "source_osm_id": 383888914,
+   "receptor_osm_id": null,
+   "source_name": "Data Foundry - Texas 1",
+   "receptor_name": null,
+   "source_latlon": [
+    30.198914208333335,
+    -97.71337999999999
+   ],
+   "receptor_latlon": null,
+   "bbox": [
+    -97.715918,
+    30.194906,
+    -97.705118,
+    30.202222000000003
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "n_buildings_framed": 4,
+   "architecture_verdict": "NO_GROUND_PLANT_VISIBLE",
+   "in_scope": false
+  },
+  {
+   "rank": 1,
+   "file": "01_379204643_383888101.jpg",
+   "source_osm_id": 379204643,
+   "receptor_osm_id": 383888101,
+   "source_name": "LightEdge Austin II",
+   "receptor_name": "Lumen Austin 1",
+   "source_latlon": [
+    30.200563,
+    -97.706899
+   ],
+   "receptor_latlon": [
+    30.196475,
+    -97.71219
+   ],
+   "bbox": [
+    -97.714422,
+    30.194906,
+    -97.705118,
+    30.202222000000003
+   ],
+   "bbox_order": "lon_min, lat_min, lon_max, lat_max (ArcGIS export order)",
+   "framed_on": "the committed pair, not the facility",
+   "request_matches": "screen_architecture.py -- same endpoint, size and pads (\u00a73.5.7)",
+   "labelled_by": "fetch_facility_imagery.py pairfetch -- one ArcGIS request, no verdict",
+   "architecture_verdict": "NO_GROUND_PLANT_VISIBLE",
+   "in_scope": false,
+   "usgs_file": "usgs_01_379204643_383888101.jpg",
+   "second_source": "USGS The National Map, USGSImageryOnly (public domain)"
+  }
+ ],
+ "in_scope": false,
+ "assessed_by": "Project owner (human read, 2 sources: ESRI + USGS) -- pack assembled by Claude (Opus 5)",
+ "assessed_utc": "2026-08-27T08:40:39Z",
+ "evidence": "Human review of both frames, 2026-08-27. Reviewer's verdict on the whole set: 'none of it on the ground level'. This site: REFUSE. LightEdge Austin II: no ground-level condenser bank on either committed building.",
+ "verdict_note": "CONFIRMED by a human on two sources. NOT a not-built call: LightEdge Austin II is a real operating colo at 7000 Burleson Rd; what is refused is the model's premise of a facade condenser bank.",
+ "limits": "Single-source reading at 0. Chillers and generators are not distinguishable at this resolution, so 'ground-level plant' is a statement about WHERE the equipment is, not about what it is. The two-source cross-check is NOT met -- the same weaker standing this project records for Dulles."
+}

@@ -52,7 +52,7 @@ from common import (load_key, credits_remaining, submit_poll, banner, box_aoi, v
                     vendor_sentence, is_billed, recent_vendor_record)
 
 # The committed Chicago pair's own centre, read from the geometry the solver used -- never typed.
-IA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "INTAKE-ARBITER")
+IA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "AGENTIC-ARBITER")
 sys.path.insert(0, os.path.join(IA, "src"))
 import metros as M                                                        # noqa: E402
 

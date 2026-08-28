@@ -6,7 +6,7 @@ The submission has to state how much of the FortyGuard plan was used. Writing th
 document by hand is how it goes stale, and it already did: HANDOFF 12.2 said "42,200 = 10 calls =
 2.11 %" while the collector's own manifest recorded a meter of 1,945,140 -- three more calls than
 the prose. So the figure is DERIVED here, from meter readings the test scripts saved next to their
-results, and `INTAKE-ARBITER/src/audit.py` re-reads this file's output.
+results, and `AGENTIC-ARBITER/src/audit.py` re-reads this file's output.
 
 HOW IT KNOWS WHAT IT KNOWS
 --------------------------
