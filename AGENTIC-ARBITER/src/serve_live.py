@@ -202,16 +202,30 @@ _SITES_CACHE = (None, ())
 def offerable_sites():
     """Which sites the interface may offer, cached on `sites.json`'s mtime.
 
-    🔴 WHY THIS IS CACHED, MEASURED 2026-08-28. `health()` calls this, and Render's health check polls
-    `/api/health` EVERY 5 SECONDS. Parsing the 784,300-byte `sites.json` costs 8.40 ms median on a
-    full core (40 runs), so roughly 84 ms on the free instance's 0.1 CPU. Uncached that is 1.68% of
-    the entire instance's CPU, 17,280 parses and 1,452 CPU-seconds a day, spent re-reading a file that
-    only changes when the pipeline reruns. On an instance this small that background load is worth
-    removing on its own, and it is a plausible contributor to the health check timing out under a
-    concurrent page load, which is what an intermittent `x-render-routing: no-server` looks like.
+    🔴 WHY THIS IS CACHED. `health()` calls this, and it used to re-parse the whole file every time.
 
-    A keep-alive ping every 10 minutes was never the expensive part: 144 calls and 12.1
-    CPU-seconds a day, 0.01% of CPU. The 5-second poll is 120x that.
+    MEASURED: parsing the 784,300-byte `sites.json` costs **8.40 ms median on a full core** (40 runs,
+    2026-08-28), so roughly 84 ms on the free instance's 0.1 CPU. Cached it is 0.0356 ms, 220x faster.
+
+    NOT MEASURED, and an earlier version of this comment wrongly stated it as if it were: the health
+    check INTERVAL. render.com/docs/health-checks says only *"Every few seconds, Render sends health
+    checks"* and publishes no number. So the cost is a range, not the single figure that was here:
+
+        every 3 s   ->  28,800 polls/day,  2,419 CPU-seconds/day,  2.80 % of 0.1 CPU
+        every 10 s  ->   8,640 polls/day,    726 CPU-seconds/day,  0.84 % of 0.1 CPU
+
+    Whatever the true cadence, it is CONTINUOUS while the instance is up (the docs describe checks on
+    "actively running services", not only on deploys), and it dwarfs a keep-alive ping: one every 10
+    minutes is 144 calls and 12.1 CPU-seconds a day, 0.01 % of CPU.
+
+    🔴 AND THE FAILURE MODE IS DOCUMENTED, WHICH IS WHY THIS IS MORE THAN TIDINESS.
+    render.com/docs/health-checks: *"If a running service instance fails consecutive health checks for
+    15 seconds, Render temporarily stops routing traffic to it"*, and at 60 seconds it *"automatically
+    restarts the instance"*. Traffic stopped at the edge is exactly the intermittent
+    `x-render-routing: no-server` 404 observed on 2026-08-28, interleaved with 200s. A health check
+    that has to parse 784 KB on a tenth of a CPU, while a visitor is pulling a 2.9 MB page through the
+    same tenth, is a plausible way to miss 15 seconds of checks. Hence both this cache and the
+    12-byte `/api/ping` that the check should point at instead.
 
     MTIME AND NOT A TTL, because the answer is a pure function of the file: `build_sites.py` rewrites
     `sites.json` and the mtime moves, so a stale answer cannot outlive the file that produced it. A
@@ -488,11 +502,17 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         # 🔴 THE CHEAPEST POSSIBLE LIVENESS ANSWER, and it exists because /api/health is not cheap
         # enough to be polled. Measured 2026-08-28: /api/health returns 6,233 bytes, almost all of it
-        # the 250-key `sites` list. At Render's health-check cadence of one poll every 5 seconds that
-        # is 17,280 requests and 107.7 MB a DAY, about 3.28 GB a month against a 5 GiB free bandwidth
-        # allowance: 61% of the budget spent resending a list that changes when the pipeline reruns.
-        # This endpoint is 14 bytes, so the same cadence costs 7.9 MB a month, and a 10-minute
-        # keep-alive ping costs 0.07 MB.
+        # the 250-key `sites` list, resent to a robot that does not read it.
+        #
+        # render.com/docs/health-checks publishes no interval, only "Every few seconds", so the cost is
+        # a range. Per month against the 5 GiB free bandwidth allowance:
+        #
+        #     polled every 3 s   ->  5.46 GB   101.8 % of the allowance
+        #     polled every 10 s  ->  1.64 GB    30.5 % of the allowance
+        #
+        # This endpoint's body is 12 bytes, which turns both of those into 10.5 MB and 3.2 MB. A
+        # 10-minute keep-alive ping on it costs 0.07 MB a month. (Whether Render bills its OWN health
+        # checks as egress is not documented; the endpoint removes the question either way.)
         #
         # IT DELIBERATELY DOES NO WORK. No reload_if_stale, no offerable_sites, no key read. What it
         # proves is exactly what a restart decision should hinge on: the process is accepting

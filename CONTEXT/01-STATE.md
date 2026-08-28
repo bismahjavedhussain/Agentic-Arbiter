@@ -117,20 +117,45 @@ five traversal attempts proving the fallback cannot climb to the repository root
 ### THE HEALTH CHECK WAS THE EXPENSIVE PART, not the keep-alive ping
 
 Found while sizing the pinger, and it inverts the intuition. `health()` calls `offerable_sites()`,
-which re-parsed the 784,300-byte `sites.json` **on every call, uncached**. Render polls
-`/api/health` every 5 seconds.
+which re-parsed the 784,300-byte `sites.json` **on every call, uncached**.
 
-Measured 2026-08-28, 40 runs on a full core:
+**🔴 A CORRECTION TO MY OWN WORK, AND IT WAS A STANDING-RULE BREACH.** The first version of this
+section and of the code comment said *"Render polls `/api/health` every 5 seconds"* with "measured"
+beside it. **The 5 seconds was never measured or sourced.** render.com/docs/health-checks says only
+*"Every few seconds, Render sends health checks"* and publishes no interval. The parse cost is real;
+the cadence was mine. In a repo whose rule is that any number must name the file it came from, that is
+exactly the failure `audit.py` exists to prevent, and it slipped because it was in a comment rather
+than in published copy.
 
-| | per call | frequency | share of 0.1 CPU | per day |
+MEASURED, 40 runs on a full core, 2026-08-28: **8.40 ms** per parse, so ~84 ms on 0.1 CPU. Cached,
+**0.0356 ms, 220x faster**. The cadence-dependent cost is therefore a RANGE:
+
+| cadence | polls/day | CPU-seconds/day | share of 0.1 CPU | `/api/health` egress/month |
 |---|---|---|---|---|
-| `offerable_sites()` uncached | 8.40 ms, so ~84 ms on 0.1 CPU | | | |
-| Render health check, every 5 s | | 17,280/day | **1.68 %** | 1,452 CPU-seconds |
-| keep-alive ping, every 600 s | | 144/day | 0.01 % | 12.1 CPU-seconds |
+| every 3 s | 28,800 | 2,419 | 2.80 % | 5.46 GB, **101.8 % of the 5 GiB allowance** |
+| every 10 s | 8,640 | 726 | 0.84 % | 1.64 GB, 30.5 % |
+| keep-alive ping, every 600 s | 144 | 12.1 | 0.01 % | 27 MB, 0.5 % |
 
-**The 5-second poll costs 120x what the pinger does.** So the pinger interval was never the thing to
-optimise, and a plausible contributor to the intermittent `x-render-routing: no-server` was the health
-check itself timing out under a concurrent page load.
+With the 12-byte `/api/ping` those first two egress figures become 10.5 MB and 3.2 MB.
+
+**🔴 AND THE FLAPPING IS NOW EXPLAINED, FROM RENDER'S OWN DOCS rather than inference.**
+render.com/docs/health-checks: *"If a running service instance fails consecutive health checks for 15
+seconds, Render temporarily stops routing traffic to it"*, and at 60 seconds it *"automatically
+restarts the instance"*. **Traffic stopped at the edge is precisely the `x-render-routing: no-server`
+404, interleaved with 200s, that was observed on 2026-08-28** and that the page surfaced as
+`SyntaxError: Unexpected token 'N'`. A health check that parses 784 KB on a tenth of a CPU while a
+visitor pulls a 2.9 MB page through the same tenth is a credible way to miss 15 seconds of checks. The
+cache and the 12-byte endpoint address the cause; whether they fully fix it needs observation.
+
+⚠ **NOT DOCUMENTED EITHER WAY:** whether Render's own health checks count as the "inbound traffic"
+that defers spin-down. render.com/docs/free defines spin-down as 15 minutes *"without receiving any
+inbound traffic ... both HTTP requests and WebSocket messages"* and says nothing about internal
+checks. Inference, not fact: if they counted, no free service with a health check path would ever
+spin down, which would void a documented behaviour, so they almost certainly do not. **My attempt to
+settle this empirically failed** and is worth recording as a method note: a 17-minute quiet window was
+broken by the user loading the page inside it and by my own deploy polling, so its "never slept"
+result proves nothing. A test that needs the absence of traffic cannot be run against a host somebody
+else is using.
 
 **Now cached on the file's mtime**, not a TTL: `build_sites.py` rewriting `sites.json` moves the mtime,
 so a stale answer cannot outlive the file that produced it. **7.836 ms to 0.0356 ms, 220x.** The cache
