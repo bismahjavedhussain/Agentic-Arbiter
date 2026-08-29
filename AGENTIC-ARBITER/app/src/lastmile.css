@@ -12,8 +12,13 @@
    The popups are dark in both themes. My earlier rule named `p`, `li`, `strong`, `b`, `h3` and `h4`,
    so anything else inherited the PAGE's colour, which in the light theme is near-black on near-black.
    The heading "One hour, all seven stages of the loop" is a `<summary>`
-   (demo/index.html:2158) and was therefore invisible in light mode and fine in dark, which is exactly
+   (demo/index.html:2186) and was therefore invisible in light mode and fine in dark, which is exactly
    what the user photographed.
+   ⚠ THAT PARTICULAR BLOCK IS NO LONGER FOLDED INTO A DIALOG, as of 2026-08-30: it holds a live
+   `<select id="c_hour">` and folding it copied the markup without the engine's change handler, so
+   `lib/declutter.ts` now exempts any block containing a form control. The example moved; the RULE did
+   not, because the other folded blocks still carry summaries, and a tag nobody remembered is still a
+   tag that goes invisible.
 
    So the default is set on the container and inherited, and only the deliberate accents are named
    after it. Listing tags was the mistake; a tag I forget is a tag that goes invisible. ---- */

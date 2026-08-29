@@ -326,6 +326,55 @@ it four pixels out. The layout was correct; the animation was walking the card o
 that reads the CSS could have seen that, and nothing that reads a screenshot by eye would have
 measured it.
 
+## 5d. `testing/cdp.py`, and the three checks that need a real pointer
+
+Added 2026-08-30. Every other browser check in this repository runs Chrome with `--dump-dom` or
+`--screenshot`, evaluates a probe, and reads what the page published about itself. That is enough for
+anything the page can do to itself and it is what the other ~700 assertions rest on. It cannot produce
+two states:
+
+* **`:hover` comes from real pointer position.** No DOM API sets it. A probe can read the RULE out of
+  the CSSOM, which proves the rule was written, and cannot prove the browser applies it.
+* **`:focus-visible` is a heuristic, not a synonym for `:focus`.** Chrome withholds it from a
+  programmatic `.focus()` on a `<button>`, so a check that calls `.focus()` and finds no ring has
+  proved nothing: that is the specified behaviour.
+
+`cdp.py` is a ~200-line DevTools Protocol client over the already-installed `websockets`. It starts
+Chrome with `--remote-debugging-port`, opens the page target's WebSocket, and exposes `goto`, `eval`,
+`poll`, `hover` (`Input.dispatchMouseEvent`), `click`, `key` (`Input.dispatchKeyEvent`) and `shot`
+(`Page.captureScreenshot`, with an optional clip so an element can be photographed rather than a
+viewport). It tears its Chrome down in a `finally` and never leaves a profile behind.
+⚠ **NO `--virtual-time-budget`.** Virtual time and a live CDP session fight: the clock runs ahead of
+the socket and the page can finish before the first command lands. This harness waits on the real
+clock, which is what a hover check has to do anyway.
+
+### `testing/shot_rail.py` - the workspace rail, 208 checks in both palettes
+
+Drives pick to configure to results the way `verify_app_flow.py` does, then measures the rail at rest,
+with a real pointer on a row, and with focus arrived by a real Tab. Asserts the brief of 2026-08-30
+line by line: label typography and its **measured** contrast against the rail's own surface (7.45:1
+dark, 5.51:1 light), row box and type, the four signals that separate active from hover, the 2px and
+3px travels, the 150ms durations, and that tabbing reaches every enabled row with a >= 2px ring.
+Writes `shot_rail_{rest,hover,focus}_{dark,light}.png`.
+
+### `testing/verify_tooltip.py` - the (i) panel, 70 checks
+
+Hovers each of the five KPI `(i)` triggers with a real pointer and requires: an opaque background, no
+backdrop-filter, no ancestor that makes a stacking context, no ancestor that can clip, a `<body>`
+parent, and the panel topmost at **every** sampled point. Then the same again in pixels: the panel is
+photographed and every pixel inside it must be its own fill or its own ink. Also slides between
+adjacent triggers and requires at most one panel at any instant, checks the two edge cards stay inside
+the viewport, checks it paints over the map, and drives focus, Escape and click.
+🔴 **THE PIXEL ASSERTION IS THE ONE THAT WOULD HAVE CAUGHT THE ORIGINAL BUG.** Every computed style was
+already correct; what was wrong was which element painted on top.
+
+### `testing/verify_results_surfaces.py` - three reported surfaces, 23 checks
+
+The hour dropdown (one `#c_hour`, handler bound, block not folded, and changing it really does redraw
+`#tkhour` while leaving `#extable`'s 25 rows alone), the bound-coverage tile (green, no "FAILED", and
+a caption whose every figure it re-derives from `demo/trace.json` before comparing), and the LBNL
+sentence (acronym expanded, no unsupported claim, no em dashes).
+
 ## 6. The two experiment families in `testing/`
 
 Not verifiers, and `run_all.py` runs neither as a family.

@@ -13,52 +13,154 @@
  * Loaded last, after engine.css, index.css and workspace.css.
  */
 
-/* ---- 1. The rail, in groups ---- */
-.aa-railgroup + .aa-railgroup { margin-top: 14px; }
+/* ---- 1. THE RAIL: ONE OWNER FOR EVERY STATE OF EVERY ROW ----
+ *
+ * 🔴 THE HIERARCHY WAS INVERTED, WHICH IS THE FAULT THE USER LED WITH: "the Quick Actions at the
+ * bottom are bold with two-line descriptions, while the main nav items above them are light grey and
+ * low contrast. The secondary section is louder than the primary one."
+ * MEASURED before: nav rows were 12.9 px at the browser's default weight in `--text-secondary` with
+ * their icons at `opacity: 0.62`; Quick Action titles were 12.6 px at weight 600 in
+ * `--text-primary` with their icons at full `--series-1`. So the group a reader navigates with was
+ * the quieter of the two, and its icons were quieter again than its own text.
+ * The nav rows now carry the larger type, and the Quick Action titles give up the weight they were
+ * borrowing: 13.2 px / 500 against 12.6 px / 500. The nav group also owns the only saturated state in
+ * the rail, the active pill and its accent bar, which nothing in Quick Actions has an equivalent of.
+ *
+ * ⚠ AND THE TRANSITIONS ARE CSS, ALL OF THEM. The Quick Action rows used to nudge on hover through
+ * framer-motion's `whileHover={{ x: 2 }}`, which writes an INLINE transform that no stylesheet can
+ * outrank; a CSS hover transform beside it could never have won. See Workspace.tsx. Everything below
+ * animates `background-color`, `color`, `opacity` and `transform` only, so nothing here can reflow
+ * the rail or the panels beside it.
+ */
+
+/* ---- 1a. SECTION LABELS. Structural headers, so they are typed like headers.
+   🔴 THE OLD VERSION WAS 10 px AT `opacity: 0.72`, and the opacity is what made it decoration. A
+   token chosen for its measured contrast and then multiplied by 0.72 is a token whose measurement no
+   longer applies: --text-secondary is 5.81:1 on `--surface-1` in dark, and at 72 % over the rail's
+   own translucent fill it lands near 3.6:1, under the 4.5:1 floor for text this small. The opacity is
+   gone rather than compensated for, because compensating means guessing at a number the browser can
+   simply be asked for. Measured value is reported by testing/shot_rail.py.
+   `<p>` elements with no handler and no tabindex, so they are non-interactive by construction. */
 .aa-rail-eyebrow {
-  margin: 0 0 6px 10px;
+  margin: 28px 0 10px 10px;
   font-family: var(--font-display);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.11em;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  opacity: 0.72;
+}
+/* The first group opens the rail, so there is nothing above it to be separated from. */
+.aa-railgroup:first-child .aa-rail-eyebrow { margin-top: 0; }
+
+/* ---- 1b. NAV ROWS, RESTING.
+   `min-height` rather than vertical padding, because the brief asks for a ~40 px row and padding plus
+   a 1.25 line-height is an arithmetic problem that changes every time the type size does.
+   ⚠ THE RESTING COLOUR IS DELIBERATELY ONE STEP OFF `--text-primary` RATHER THAN EQUAL TO IT. The
+   brief asks for "darker, near the body text colour, not grey" at rest AND for the text to "darken
+   slightly" on hover; both can only be true if rest leaves somewhere to go. 86 % of the way to
+   primary is near enough to read as body text and far enough that the hover step is visible.
+   ⚠ "Darken" is written for the light palette. In dark the same step BRIGHTENS, because it is a move
+   toward `--text-primary` and in dark that is #fafafa. The instruction is about emphasis, and
+   emphasis is what a move toward the body colour buys in either palette. */
+.aa-tab {
+  gap: 9px;
+  min-height: 40px;
+  padding: 0 11px;
+  border-radius: 8px;
+  font-size: 13.2px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: color-mix(in oklab, var(--text-primary) 86%, var(--text-secondary));
+  cursor: pointer;
+  transition:
+    background-color 150ms ease-out,
+    color 150ms ease-out,
+    transform 150ms ease-out;
 }
 
-/* The icon sits in the pill with the label, so the whole row is one target. */
-.aa-tab { gap: 9px; }
+/* The icon sits in the pill with the label, so the whole row is one target.
+   🔴 `currentColor` AND NO OPACITY, which is the whole of "icons match the text colour rather than
+   sitting lighter than it". It was `opacity: 0.62`, so every icon in the rail was a full step fainter
+   than the label beside it and the row read as two levels of importance where there is one. */
 .aa-tab-icon {
   position: relative;
   z-index: 1;
   flex: none;
-  opacity: 0.62;
-  transition: opacity 0.18s ease, color 0.18s ease;
+  color: currentColor;
+  transition: color 150ms ease-out;
 }
-.aa-tab:hover:not(.is-locked) .aa-tab-icon { opacity: 0.9; }
 
-/* 🔴 THE TAB ROWS HAD NO HOVER FILL AND THE QUICK ACTIONS DID, which is what the user reported:
-   "some of the tabs here including the setup ones and the what the agent found one, they dont get
-   highlighted when the cursor is moved on them. The quick actions tabs do highlight."
-   They were right, and the cause is that `.aa-tab:hover` only lifted the TEXT colour while
-   `.aa-qa:hover` painted a background. On a rail of quiet grey rows a colour shift of one step is
-   close to invisible, so half the rail read as inert.
-   Same fill as the quick actions, deliberately: two hover treatments in one rail would say the two
-   groups behave differently, and they do not. The active row is excluded because it already carries
-   its own pill and a hover on top of that reads as a second state. */
+/* ---- 1c. HOVER. A neutral tint, a step of emphasis, and 2 px of travel.
+   The active row is excluded: it has its own tint, and a neutral fill laid over a blue one reads as a
+   third state that means nothing. Its own deepening rule is in 1d. */
 .aa-tab:hover:not(.is-locked):not(.is-active) {
-  background: color-mix(in oklab, var(--text-primary) 6%, transparent);
+  background: color-mix(in oklab, var(--text-primary) 7%, transparent);
+  color: var(--text-primary);
+  transform: translateX(2px);
 }
 
-/* And a locked row says so on hover rather than doing nothing at all: no fill, but the cursor and a
-   slight lift in opacity acknowledge that the pointer is over something real. */
+/* A locked row says so on hover rather than doing nothing at all: no fill, no travel, but a lift in
+   opacity acknowledges that the pointer is over something real. */
 .aa-tab.is-locked:hover { opacity: 0.55; }
-.aa-tab.is-active .aa-tab-icon { opacity: 1; color: var(--series-1); }
 
-/* ---- 2. Quick actions ---- */
+/* ---- 1d. ACTIVE. Four signals, not one, because one pale pill was not enough:
+   a deeper blue fill, weight 600, the icon in brand blue, and a 3 px accent bar.
+   🔴 THE FILL WENT FROM 17 % TO 28 % OF `--series-1`. At 17 % over the rail's own translucent glass
+   the pill was a shade, not a state, and the user's word for it was "too weak to signal you are
+   here". The neutral hover fill is 7 % of `--text-primary`: a grey wash against a blue one, at four
+   times the strength, with an accent bar the hover state does not have. The two cannot be confused,
+   which is the requirement. */
+.aa-tab.is-active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.aa-tab.is-active .aa-tab-icon { color: var(--series-1); }
+.aa-tab-marker {
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--series-1) 28%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--series-1) 46%, transparent);
+  transition: background-color 150ms ease-out;
+}
+/* THE ACCENT BAR, and it is on the ROW rather than on the marker on purpose. The marker is the
+   element framer-motion slides between tabs by `layoutId`, and a layout projection animates by
+   applying a transform to that element: a 3 px child inside it would be stretched horizontally for
+   the length of the slide. On the row it is exactly 3 px in every frame. `inset 0 auto 0 0` keeps it
+   flush to the row's own left edge and the full height of the row, as asked. */
+.aa-tab.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 3px;
+  border-radius: 8px 0 0 8px;
+  background: var(--series-1);
+}
+/* Hover on the active row DEEPENS its own tint. It must not pick up the neutral fill. */
+.aa-tab.is-active:hover .aa-tab-marker {
+  background: color-mix(in oklab, var(--series-1) 37%, transparent);
+}
+
+/* ---- 1e. FOCUS AND PRESS, on every interactive row in the rail.
+   `:focus-visible` rather than `:focus`, so a mouse click does not leave a ring behind. index.css
+   already carries a global focus ring; these two restate it at the brief's 2 px / 2 px offset in
+   `--series-1` so the rail does not depend on a rule written for the whole page. */
+.aa-tab:focus-visible,
+.aa-qa:focus-visible {
+  outline: 2px solid var(--series-1);
+  outline-offset: 2px;
+}
+.aa-tab:active:not(.is-locked),
+.aa-qa:active:not(.is-off) {
+  transform: scale(0.99);
+  transition: transform 80ms ease-out;
+}
+
+/* ---- 2. QUICK ACTIONS ---- */
 .aa-qa-card {
-  margin-top: 18px;
-  padding-top: 14px;
+  margin-top: 14px;
   border-top: 1px solid var(--border);
 }
 .aa-qa {
@@ -66,22 +168,45 @@
   align-items: center;
   gap: 9px;
   width: 100%;
-  padding: 8px 10px;
+  min-height: 40px;
+  padding: 6px 11px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   background: none;
   text-align: left;
   font: inherit;
-  color: var(--text-primary);
+  color: color-mix(in oklab, var(--text-primary) 86%, var(--text-secondary));
   cursor: pointer;
-  transition: background-color 0.18s ease;
+  transition:
+    background-color 150ms ease-out,
+    color 150ms ease-out,
+    transform 150ms ease-out;
 }
-.aa-qa:hover:not(.is-off) { background: color-mix(in oklab, var(--text-primary) 6%, transparent); }
+.aa-qa:hover:not(.is-off) {
+  background: color-mix(in oklab, var(--text-primary) 7%, transparent);
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
 .aa-qa.is-off { cursor: not-allowed; opacity: 0.4; }
-.aa-qa-icon { flex: none; color: var(--series-1); }
+
+/* 🔴 THE ICON STARTS SOFTENED SO THAT "takes its accent colour" ON HOVER IS A REAL EVENT. It was
+   full `--series-1` at rest, which left the hover state nothing to say. Softened toward
+   `--text-secondary` rather than replaced by it, because the blue is this group's identity and
+   dropping it at rest would be a change nobody asked for. */
+.aa-qa-icon {
+  flex: none;
+  color: color-mix(in oklab, var(--series-1) 68%, var(--text-secondary));
+  transition: color 150ms ease-out;
+}
+.aa-qa:hover:not(.is-off) .aa-qa-icon { color: var(--series-1); }
 .aa-qa.is-off .aa-qa-icon { color: var(--text-secondary); }
+
 .aa-qa-text { display: flex; min-width: 0; flex-direction: column; gap: 1px; }
-.aa-qa-title { font-size: 12.6px; font-weight: 600; line-height: 1.2; }
+/* ⚠ WEIGHT 500, DOWN FROM 600, AND THIS IS THE OTHER HALF OF THE HIERARCHY FIX. Raising the nav rows
+   alone would have left two groups shouting; the primary one has to be the louder of the two, so the
+   secondary one gives back the weight it was carrying. 13.2 px / 500 for a nav row against
+   12.6 px / 500 here. */
+.aa-qa-title { font-size: 12.6px; font-weight: 500; line-height: 1.2; }
 .aa-qa-sub {
   font-size: 10.8px;
   line-height: 1.25;
@@ -90,8 +215,33 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.aa-qa-chev { margin-left: auto; flex: none; color: var(--text-secondary); opacity: 0.55; }
-.aa-qa:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+.aa-qa-chev {
+  margin-left: auto;
+  flex: none;
+  color: var(--text-secondary);
+  opacity: 0.55;
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+.aa-qa:hover:not(.is-off) .aa-qa-chev { opacity: 0.95; transform: translateX(3px); }
+
+/* ---- 2b. REDUCED MOTION. Colour still changes, and it changes instantly. Nothing moves.
+   Every rule that sets a `transform` or a `transition` above is undone here rather than being
+   written twice, so a new state added above cannot forget to be covered: the reset is by property,
+   not by state. */
+@media (prefers-reduced-motion: reduce) {
+  .aa-tab,
+  .aa-tab-icon,
+  .aa-tab-marker,
+  .aa-qa,
+  .aa-qa-icon,
+  .aa-qa-chev { transition: none; }
+
+  .aa-tab:hover:not(.is-locked):not(.is-active),
+  .aa-qa:hover:not(.is-off),
+  .aa-tab:active:not(.is-locked),
+  .aa-qa:active:not(.is-off),
+  .aa-qa:hover:not(.is-off) .aa-qa-chev { transform: none; }
+}
 
 /* ---- 3. The tab heading strip, with the reference's leading icon chip ---- */
 .aa-tabhead {

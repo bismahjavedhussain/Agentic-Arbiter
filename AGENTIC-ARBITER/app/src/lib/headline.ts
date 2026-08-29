@@ -47,6 +47,11 @@ type Trace = {
   cycle: {
     pooled_coverage: number
     margin_trajectory?: Array<{ margin_c: number }>
+    /** One entry per banked day-pair: a vendor forecast plus the elapsed outcome for the same day. */
+    pairs?: unknown[]
+    /** What the conformal split itself reports about its own sample size. Written by the agent, not
+        derived here, so a caption that quotes it cannot drift from the bound it describes. */
+    bound_day_level?: { n?: number; attainable?: number; n_needed_for_nominal?: number }
   }
 }
 type Money = {
@@ -76,6 +81,13 @@ export type Headline = {
   moneyCells: number
   weatherHours: number
   coveragePct: number
+  /** Day-pairs banked, and how many the bound itself says it needs for its nominal 90 %.
+      🔴 BOTH ARE READ, NEVER COMPUTED HERE. `trace.json` already publishes
+      `cycle.bound_day_level.n_needed_for_nominal`, because `core/conformal.mjs:cfMinN` computed it
+      when the bound was built. Re-deriving `ceil(1/alpha) - 1` in the UI would be a second
+      implementation of one fact, and the day the two disagreed the card would be the wrong one. */
+  calPairs: number
+  calNeeded: number
   /* THREE REAL SERIES, and only three. The single-file page's plateSparks() draws exactly these, and
      the other two cards get NO chart because there is no series behind them: a cut percentage and an
      hour count are single measurements, and inventing a shape for them would be decoration posing as
@@ -180,6 +192,8 @@ export function headlineFigures(bt: Backtest, t: Trace, mn: Money, manifest: Man
     moneyCells: moneyRow.length,
     weatherHours: bt.hours,
     coveragePct: 100 * t.cycle.pooled_coverage,
+    calPairs: t.cycle.pairs?.length ?? t.cycle.bound_day_level?.n ?? 0,
+    calNeeded: t.cycle.bound_day_level?.n_needed_for_nominal ?? 0,
   }
 }
 

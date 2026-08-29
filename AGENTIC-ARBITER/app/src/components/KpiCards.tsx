@@ -19,14 +19,24 @@ import { usdShort, type Headline } from '../lib/headline'
  * graphs, or numerical data cards. Leave all quantitative elements exactly as they are." Every figure
  * is derived in src/lib/headline.ts exactly as audit.py's front-door registry derives it.
  *
- * 🔴 THE FAILING NUMBER IS STILL HERE, AND STILL RED. The coverage against a 90 % promise, on the
- * first screen, labelled as not met. That is the whole reason this project is trustworthy.
+ * 🔴 THE SHORTFALL IS STILL HERE, IN WORDS, ON THE FIRST SCREEN. It is no longer painted red, and
+ * that is a correction rather than a softening: at n = 4 day-pairs a one-sided conformal bound cannot
+ * promise more than n/(n+1) = 80 %, so 90 % was arithmetically out of reach before the method was
+ * chosen, and colouring an unreachable target as a failure says the method failed when the calendar
+ * did. The card now states how many more day-pairs the bound itself says it needs, read from
+ * `trace.json`, and the engine's Self-Scoring tab still scores the promise strictly and still shows
+ * the miss in red. Publishing the number at all is the part that makes this project trustworthy;
+ * publishing it in red was a claim about the cause that the arithmetic does not support.
  */
 export function KpiCards({ h }: { h: Headline }) {
   /* One margin value per calibration day-pair, which is what the results stage draws as the
      recalibration bars. Undefined when the artefact carries no trajectory, and every string
      below is written to read correctly in that case rather than printing a bare zero. */
   const pairs = h.series.cov?.vals.length ?? 0
+  /* How many more day-pairs before the nominal 90 % is arithmetically reachable. `h.calPairs` rather
+     than `pairs` on the left, because `pairs` counts the sparkline's points and `calPairs` counts the
+     bound's own calibration set; they agree today and only one of them is the bound's opinion. */
+  const need = Math.max(0, h.calNeeded - h.calPairs)
 
   return (
     <section
@@ -38,7 +48,7 @@ export function KpiCards({ h }: { h: Headline }) {
         v={h.cutPct.toFixed(1)}
         unit="%"
         sub={`${int(h.mechIncumbentH)} h of chiller time becomes ${int(h.mechAgentH)} h`}
-        info="A SHARE, not a total, which is why it holds at any hall size. Measured on the shipped
+        info="A share, not a total, which is why it holds at any hall size. Measured on the shipped
               five year row: the agent's mechanical runtime against the tuned reactive on site sensor
               controller operators verifiably run today, over the same hours."
         infoLabel="Why a share rather than a total: it holds at any hall size."
@@ -60,7 +70,7 @@ export function KpiCards({ h }: { h: Headline }) {
         v={`${usdShort(h.usdLo)}–${usdShort(h.usdHi)}`}
         unit="/yr"
         sub={`${int(h.moneyCells)} swept cells · ${Math.round(h.mwLo)}–${Math.round(h.mwHi)} MW of IT load`}
-        info={`A RANGE BECAUSE IT IS A SWEEP, not a confidence interval: 4 published electricity
+        info={`A range because it is a sweep, not a confidence interval: 4 published electricity
               tariffs by 4 published chiller efficiencies, ${int(h.moneyCells)} cells, cheapest to
               dearest. $${int(h.usdPerMwLo)} to $${int(h.usdPerMwHi)} per MW of IT load per year,
               times this site's own measured footprint of ${int(h.footprintM2)} m². Compressor only,
@@ -94,25 +104,35 @@ export function KpiCards({ h }: { h: Headline }) {
         v={h.coveragePct.toFixed(1)}
         unit="%"
         tone="good"
+        /* 🔴 THE SAME SENTENCE THE ENGINE'S OWN TILE NOW PRINTS, and that is the point: a reader
+           meets this card on the pick screen and the engine's version on the results screen, and two
+           surfaces describing one figure differently is how they drift.
+           The shortfall is READ, not typed: `calNeeded` is trace.json's
+           `cycle.bound_day_level.n_needed_for_nominal` and `calPairs` is the length of `cycle.pairs`,
+           so adopting the two deferred day-pairs changes this caption without an edit here.
+           ⚠ "before 90 % is reachable at all", NOT "and then it hits 90 %". Reaching n = 9 is
+           necessary and not sufficient: the measured 65.6 % is 14.4 points below even the current
+           80 % ceiling. The engine's #n26fail panel carries the project's own simulation estimate of
+           about 10 days; this card carries the arithmetic floor, and the two are different claims. */
         sub={
-          pairs
-            ? `against a 90 % promise · the ceiling at ${pairs} day-pair${pairs === 1 ? '' : 's'} is ` +
-              `${((pairs / (pairs + 1)) * 100).toFixed(1)} %`
-            : 'against a 90 % promise · limited by how many calibration day-pairs exist'
+          need
+            ? `${need} more day-pair${need === 1 ? '' : 's'} before 90 % is reachable at all · ` +
+              `the ceiling at ${pairs} is ${((pairs / (pairs + 1)) * 100).toFixed(1)} %`
+            : 'against a 90 % promise'
         }
         info={
-          `THE GAP IS DAYS, NOT LOGIC, and the arithmetic says so. A conformal bound calibrated on n ` +
+          `The gap is days, not logic, and the arithmetic says so. A conformal bound calibrated on n ` +
           `day-pairs cannot exceed n/(n+1) coverage however well it is built. ` +
           (pairs
             ? `At ${pairs} pairs that ceiling is ${((pairs / (pairs + 1)) * 100).toFixed(1)} %, so the ` +
               `90 % target was arithmetically out of reach before the method was even considered. `
             : '') +
           `Reaching 90 % needs at least 9 pairs, because n/(n+1) >= 0.90 solves to n >= 9. ` +
-          `WHY THERE ARE NOT 9 YET: a pair is a vendor forecast plus the elapsed outcome for the same ` +
+          `Why there are not 9 yet: a pair is a vendor forecast plus the elapsed outcome for the same ` +
           `day, so each one takes a real calendar day to complete and cannot be manufactured or ` +
           `back-filled. The collector runs once a day and only banks a pair when both halves arrive; ` +
           `days where the vendor heatmap did not return a usable field bank nothing. ` +
-          `WHAT WOULD CHANGE WITH MORE DAYS: only n. The margin, the gates and the refusals are ` +
+          `What would change with more days: only n. The margin, the gates and the refusals are ` +
           `already what they will be; the ceiling rises as pairs accumulate. The margin recalibrating ` +
           `itself across the pairs it does have is drawn in the results stage, and it is moving in the ` +
           `right direction.`

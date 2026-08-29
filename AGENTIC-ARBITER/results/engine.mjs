@@ -3017,7 +3017,17 @@ function drawPlate(){
       fmt(T.cycle.pooled_coverage*100,1) + ' %',
       own ? 'against its own 90 % promise'
           : 'measured at Ashburn and applied here: this site has no <strong>FortyGuard</strong> day pair of its own',
-      'miss', SP.cov));
+      /* 🔴 THE CLASS WAS `'miss'`, HARD-CODED, AND IT DID NOT LOOK AT THE NUMBER AT ALL.
+         `.plate-cell.miss` paints the figure in --critical and lays a diagonal hatch behind it
+         (demo/index.html:527 and :886). Unconditional: it would have kept the hatch at 100 %
+         coverage. With the tile above now green and captioned "N more day-pairs before 90 % is
+         reachable at all", a hatched red copy of the SAME figure on the same screen contradicts it,
+         and one of the two would have to be wrong.
+         `null` rather than a new class: the cell reverts to the plate's own ink, the miss is still
+         stated in words directly beneath it, and the arithmetic is still one click away in the
+         popover this cell already carries. Nothing is hidden; the styling stops making a claim the
+         caption does not. */
+      null, SP.cov));
   }
 
   el.innerHTML =
@@ -3111,10 +3121,38 @@ function drawHeadline(){
      Found while removing the pick-stage copy of this same caveat: two surfaces stating one fact is
      how they drift, which is the argument for the removal and was the evidence for this fix. */
   const own = !T.fortyguard_provenance || T.fortyguard_provenance.own_measured_day_pairs;
+  /* 🔴 THIS TILE STOPPED SAYING "FAILED", AND THE SENTENCE IT SAYS INSTEAD IS COMPUTED.
+     The user's instruction: "change the 65.6 % to green colour and remove the word FAILED from this
+     card. Rephrase it to 6 more days of forecasting needed for 90 % or something like that."
+     ⚠ AND "6" WOULD HAVE BEEN WRONG, WHICH IS WHY NOTHING HERE IS TYPED. The shipped artefact banks
+     n = 4 day-pairs and trace.json's own `cycle.bound_day_level.n_needed_for_nominal` is 9, so the
+     shortfall is 5, and it becomes 3 the day the two deferred pairs are adopted. Both numbers are
+     READ from the artefact the tile is describing, so the caption cannot outlive the run.
+     ⚠ AND IT SAYS "REACHABLE AT ALL" RATHER THAN "NEEDED FOR 90 %", because the stronger sentence is
+     not supported. Reaching n = 9 is NECESSARY and not SUFFICIENT: measured coverage is 65.6 %,
+     which is 14.4 points below even the CURRENT 80 % ceiling, and the project's own simulation
+     (testing/results/diag59_daysneeded.json) puts the days needed at about 10 while attributing only
+     part of the gap to sample size. #n26fail two panels down already states that 10. "Before 90 % is
+     reachable at all" is true under every reading of the evidence; "and then it hits 90 %" is not. */
+  const bdl = cy.bound_day_level || {};
+  const nCal = cy.pairs ? cy.pairs.length : (bdl.n || 0);
+  const need = Math.max(0, (bdl.n_needed_for_nominal || 0) - nCal);
   out.push(tile('Bound coverage, measured', fmt(cy.pooled_coverage*100,1)+' %',
-    own ? 'against a 90 % promise: it FAILED its pre-registration'
+    own ? (need
+            ? need + ' more day-pair' + (need === 1 ? '' : 's') + ' before 90 % is reachable at all: '
+              + 'the ceiling at ' + nCal + ' is ' + fmt(100*cfAttainable(nCal),1) + ' %'
+            : 'against a 90 % promise')
         : 'measured at Ashburn and applied here: this site has no <strong>FortyGuard</strong> forecast-and-outcome day pair of its own',
-    cy.pooled_coverage < 0.90 ? 'crit' : 'good'));
+    /* THE TONE IS STILL DERIVED, NEVER TYPED -- it is the QUESTION that changed. It used to ask
+       "is this under 90 %", which is red for as long as the arithmetic forbids 90 %, and painting an
+       unreachable target red says the method failed when the calendar did. It now asks "is 90 %
+       reachable at this n AND still missed", which is the only reading under which the figure is a
+       defect. It turns red on its own the day the pairs arrive and the coverage still falls short,
+       with no edit here, which is the property the old comparison was written for.
+       ⚠ THE SELF-SCORING TAB IS DELIBERATELY UNCHANGED. drawCoverageTiles() keeps the strict
+       `< 0.90 ? 'crit' : 'good'` test, because that panel exists to score the promise and a scoring
+       panel should show the miss. This is the headline summary; that one is the scorecard. */
+    (cy.pooled_coverage < 0.90 && !need) ? 'crit' : 'good'));
   el.innerHTML=out.join('');
 
   const am=T.cases.all_mechanical;

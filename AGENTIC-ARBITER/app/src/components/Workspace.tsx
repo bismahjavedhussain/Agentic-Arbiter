@@ -5,7 +5,6 @@ import {
   ChevronRight,
   DollarSign,
   MapPin,
-  Play,
   Radio,
   SlidersHorizontal,
   Target,
@@ -90,17 +89,24 @@ function useEngineButton(id: string) {
 
 function QuickAction({
   id, icon: Icon, title, subtitle,
-}: { id: string; icon: typeof Play; title: string; subtitle: string }) {
+}: { id: string; icon: typeof Radio; title: string; subtitle: string }) {
   const b = useEngineButton(id)
   if (!b.exists) return null
   return (
-    <motion.button
+    /* 🔴 A PLAIN BUTTON, NOT A `motion.button`, AND THE SPRING IS GONE ON PURPOSE.
+       It carried `whileHover={{ x: 2 }}` with a stiffness-480 spring, which framer-motion applies as
+       an INLINE `transform` on the element. An inline transform beats any stylesheet, so a CSS
+       `:hover { transform: translateX(2px) }` written beside it would simply never win, and the two
+       would fight over the same property with the winner decided by whether the spring had settled.
+       The brief is explicit: "Pure CSS transitions. Do not use GSAP or JS for these - they're state
+       changes, not choreography." A 2 px nudge on hover is a state change. So the transform lives in
+       dashboard.css with the rest of the row's states, where `prefers-reduced-motion` can turn it off
+       in one place. */
+    <button
       type="button"
       onClick={() => document.getElementById(id)?.click()}
       disabled={b.disabled}
       className={`aa-qa ${b.disabled ? 'is-off' : ''}`}
-      whileHover={b.disabled ? undefined : { x: 2 }}
-      transition={{ type: 'spring', stiffness: 480, damping: 32 }}
       /* The engine's own label is the tooltip, so if it says something different from `title` a
          reader can see which one the button itself claims. */
       title={b.label || subtitle}
@@ -111,7 +117,7 @@ function QuickAction({
         <span className="aa-qa-sub">{b.disabled ? 'not available yet' : subtitle}</span>
       </span>
       <ChevronRight className="aa-qa-chev" size={14} strokeWidth={2.2} aria-hidden="true" />
-    </motion.button>
+    </button>
   )
 }
 
@@ -172,11 +178,26 @@ export function TabRail({
 
       {/* QUICK ACTIONS, the reference's pattern: icon, title, one-line subtitle, chevron. Every row
           forwards to a button the engine already owns, so nothing here can run the agent a second
-          way, and a row whose button does not exist yet renders nothing at all. */}
+          way, and a row whose button does not exist yet renders nothing at all.
+
+          🔴 "RUN THE AGENT" WAS REMOVED HERE at the user's instruction: "the button Run the Agent
+          here under the category of Quick Actions is not working. Like it's decorative. So just
+          remove it from here altogether and only keep the bottom two buttons in that category."
+          They are right that it is inert on this screen, and the reason is worth recording rather
+          than deleting silently. The row forwarded to `#runagent`, whose handler is the engine's
+          `runAgent()` (demo/index.html:2770), and that function is three statements:
+              if (streaming) return;  setStage('results');  drawAll();  await streamTape();
+          By the time this rail exists the stage is ALREADY 'results', so `setStage` is a no-op, and
+          the only visible effect left is re-streaming the tape into `#tape` -- a panel that
+          workspace.css shows on the `live` tab alone. Press it from any other tab and there is
+          nothing on screen that could change. Press it while a stream is still running and the guard
+          returns immediately. Either way it reads as decoration, which is exactly what was reported.
+          ⚠ NOTHING WAS DELETED FROM THE ENGINE. `#runagent` is still in demo/index.html, still bound,
+          still driven by verify_app_flow.py step 3, and the engine's own "Run the agent on this site"
+          button is still on the configure tab. What went is one remote control that pointed at a
+          surface the reader could not see. */}
       <div className="aa-qa-card">
         <p className="aa-rail-eyebrow">Quick actions</p>
-        <QuickAction id="runagent" icon={Play} title="Run the agent"
-                     subtitle="Replay, on saved responses" />
         <QuickAction id="livego" icon={Radio} title="Run on live data"
                      subtitle="Calls the vendor for real" />
         <QuickAction id="backtopick" icon={MapPin} title="Choose a different site"

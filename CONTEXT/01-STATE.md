@@ -12,6 +12,126 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE RAIL, THE TOOLTIP, THE HOUR DROPDOWN, THE COVERAGE TILE AND ONE ACRONYM. 2026-08-30
+
+Five reports in one message, and three of them turned out to be the same class of fault: a CSS or DOM
+mechanism doing something invisible that no amount of reading the component would have shown. So the
+first thing built was a way to measure them.
+
+🔴 **`testing/cdp.py` IS NEW, AND IT IS THE REASON ANY OF THIS IS VERIFIED RATHER THAN ASSERTED.** Every
+other browser check here runs Chrome with `--dump-dom` and reads what a probe published. That cannot
+produce the two states this brief is entirely about: `:hover` comes from real pointer position and no
+DOM API sets it, and `:focus-visible` is a heuristic Chrome withholds from a programmatic `.focus()`
+on a button. A ninety-line DevTools Protocol client over the already-installed `websockets` gives
+`Input.dispatchMouseEvent`, `Input.dispatchKeyEvent` and `Page.captureScreenshot`, so a check can
+hover, press Tab, and photograph the result. Three new verifiers use it.
+
+---
+
+**1. THE SIDEBAR RAIL. The hierarchy was inverted, and the user led with that.** MEASURED before: nav
+rows 12.9px at default weight in `--text-secondary` with icons at `opacity: 0.62`; Quick Action titles
+12.6px at weight 600 in `--text-primary` with icons at full `--series-1`. The group a reader navigates
+with was the quieter of the two. Now 13.2px/500 against 12.6px/500, and the nav group owns the only
+saturated state in the rail.
+Section labels are 700 / 11px / 0.09em, and the `opacity: 0.72` is gone: a token chosen for its
+measured contrast and then multiplied by 0.72 is a token whose measurement no longer applies.
+**MEASURED in the browser against `--w-1`, the surface tones.css actually paints the rail with:
+7.45:1 dark, 5.51:1 light**, both over the 4.5:1 floor.
+Rows are 40px, radius 8, icons at `currentColor`. Active: a 28-to-38 % fill (up from 17 %), weight
+600, brand-blue icon, and a **3px accent bar on the row rather than on the marker**, because the
+marker is the element framer-motion slides by `layoutId` and a 3px child inside it would be stretched
+for the length of the slide. Hover: a 7 % neutral fill, a step of ink, `translateX(2px)`, 150ms
+ease-out. Active-on-hover deepens its own tint and never takes the neutral fill. `:focus-visible` 2px
+at 2px offset, `:active` `scale(0.99)` at 80ms, and every transform and transition is undone under
+`prefers-reduced-motion` by PROPERTY rather than by state, so a state added later cannot forget.
+⚠ **THE OWNERSHIP WAS THE OTHER HALF OF THE FIX.** `.aa-rail-eyebrow` was declared in BOTH
+workspace.css and dashboard.css, and dashboard.css loads later, so editing the copy in workspace.css
+changed nothing at all. workspace.css now keeps the box and dashboard.css owns every state; and
+because cinematic.css loads after BOTH, it restates each of those states in `--fg-*`, or the rail
+would be zinc-grey type on a blue-slate panel.
+⚠ **"Run the agent" IS GONE FROM QUICK ACTIONS**, at the user's instruction, and it really was inert:
+it forwarded to `#runagent`, whose handler is `runAgent()` (demo/index.html:2770), which is
+`if (streaming) return; setStage('results'); drawAll(); await streamTape()`. By the time the rail
+exists the stage is already `results`, so the only visible effect left is re-streaming `#tape`, a
+panel workspace.css shows on the `live` tab alone. Nothing was removed from the engine.
+`testing/shot_rail.py`: **208 checks, 0 failed**, both palettes, with rest/hover/focus screenshots.
+
+**2. THE (i) TOOLTIP, AND THE OBVIOUS DIAGNOSIS WAS WRONG.** Reported as "semi-transparent, with the
+card's numbers showing through, correct only once the pointer leaves the card". MEASURED before
+touching anything: the panel's background was **rgb(12,26,42) at alpha 1.0** and its backdrop-filter
+was **`none`** (tones.css:148-160 already handles `[role='note']`). It was never translucent.
+🔴 **THE CAUSE WAS `hover:-translate-y-0.5` ON THE CARD.** Tailwind v4 ships it as the `translate`
+property, a non-none `translate` makes a stacking context, so while the card was hovered the panel's
+`z-index: 300` was scoped inside it and every later sibling card painted over it. The wash was the
+NEIGHBOUR's own `rgba(24,24,27,0.72)` glass fill on top of an opaque panel. Sampled at 80 points with
+a real pointer: **topmost at 24 of 80 hovered, 80 of 80 with the pointer away**; pixel median over the
+overlap band (20,24,31) hovered against (12,26,42) away, matching a predicted 0.72 blend of (21,25,31).
+The fix leaves the card alone and portals the panel to `<body>`, where there is no card ancestor to be
+trapped in and no `overflow` to be clipped by. It now opens on hover after 120ms, on click, and on
+keyboard focus, closes in 60ms or on Escape or on a click outside, auto-flips and shifts to stay in
+the viewport, and carries `pointer-events: none`. **No opacity fade**: an element mid-fade IS
+translucent, which is the one thing the brief forbids, so only a 2px rise animates.
+The ALL CAPS was real inheritance of `text-transform` from `.label`; portalling ends it, and the five
+authored capital openers ("A SHARE", "A RANGE BECAUSE IT IS A SWEEP" and three more) are lowered.
+Wording unchanged, casing only.
+`testing/verify_tooltip.py`: **70 checks, 0 failed**, including a pixel assertion that reads the
+rendered PNG back and requires every pixel inside the panel to be its own fill or its own ink.
+
+**3. THE HOUR DROPDOWN DID NOTHING, AND IT WAS A CLONE.** `<select id="c_hour">` lives in a `<details>`
+inside `#whycard`; the engine binds a real handler to it (`results/engine.mjs:309`) that redraws the
+seven stage lines in `#tkhour`. `lib/declutter.ts` folded that whole block away and serialised its
+`innerHTML` into the fold modal. **Serialising HTML drops event listeners**, so the select a reader
+could see was inert, and because ids are copied too there were two `#c_hour` and `$('#c_hour')` still
+found the hidden original. MEASURED: a real `change` event on the visible clone left the stage text
+byte-identical; the same event on the hidden original redrew it from 12:00 to 00:00.
+One line: the fold exemption list now includes `select, input, textarea`. The block stays a closed
+`<details>` on the card, so nothing is un-decluttered.
+**AND THE ANSWER TO "what is this hour dropdown for then":** it drives the seven stages and nothing
+else. The table below it, `#extable`, is built from ALL 24 hours by `drawExplain()` and never reads
+the selection. Verified: 25 rows, one per hour plus a header.
+
+**4. THE BOUND COVERAGE TILE IS GREEN AND NO LONGER SAYS "FAILED".** The caption is now
+**"5 more day-pairs before 90 % is reachable at all: the ceiling at 4 is 80.0 %"**, and every number
+in it is read from `trace.json`: `cycle.pairs.length` is 4 and `cycle.bound_day_level
+.n_needed_for_nominal` is 9, so the shortfall recomputes to 3 the day the two deferred pairs are
+adopted.
+⚠ **IT SAYS "REACHABLE AT ALL", NOT "NEEDED FOR 90 %", AND THAT IS DELIBERATE.** The user asked for
+"6 more days of forecasting needed for 90 %"; the number is 5 and the claim is not supportable.
+Reaching n = 9 is NECESSARY and not SUFFICIENT: measured coverage is 14.4 points below even the
+current 80 % ceiling, and the project's own simulation (`testing/results/diag59_daysneeded.json`,
+`days_for_90pct_all_three = 10`) attributes only part of the gap to sample size. `#n26fail` already
+states the 10.
+The tone is still DERIVED, and it is the question that changed: from "is this under 90 %", which is
+red for as long as the arithmetic forbids 90 %, to "is 90 % reachable at this n AND still missed",
+which is the only reading under which the figure is a defect. It turns red on its own with no edit.
+⚠ `tone='good'` alone painted nothing: there was a `.tile[data-tone="good"]` border rule and no ink
+rule. Added, and it has a blast radius of one, because this is the only tile in the engine that ever
+passes `'good'`.
+⚠ The plate cell publishing the same figure passed a hard-coded `'miss'` class, red plus a diagonal
+hatch, unconditional. Now `null`, or the two surfaces would contradict each other.
+⚠ **THE SELF-SCORING TAB IS DELIBERATELY UNTOUCHED.** `drawCoverageTiles()` keeps the strict
+`< 0.90 ? 'crit' : 'good'`, because that panel exists to score the promise and a scorecard should show
+the miss. One line to change if that is wanted too.
+
+**5. "LBNL" NOW SAYS WHO IT IS, AND THE SENTENCE AROUND IT IS TRUE.** The card read "the three things
+LBNL measured operators actually worry about". The acronym was expanded in exactly one place in the
+repository, `src/money.py:160`, attached to a DIFFERENT publication. And it credited LBNL with all
+three gates, which `src/environment.py:12-27` does not: humidity is ENERGY STAR plus Honeywell's JADE
+controller, and only contamination is LBNL. That study measured PARTICLE CONCENTRATIONS in eight data
+centres; operator reluctance is its stated motivation, not something it measured.
+Now: "Three gates: temperature, humidity, contamination. Humidity comes from ENERGY STAR and
+Honeywell's JADE controller; contamination comes from Lawrence Berkeley National Laboratory (LBNL),
+which put particle counters in eight real data centres." Every clause has a line to point at.
+`testing/verify_results_surfaces.py`: **23 checks, 0 failed**, covering 3, 4 and 5.
+
+**Verified after:** `shot_rail.py` 208/0, `verify_tooltip.py` 70/0, `verify_results_surfaces.py` 23/0,
+`verify_intro.py` 227/0, `verify_launch.py` 68/0, `verify_core_matches_page.py` 64/0,
+`verify_view_matches_page.py` 9/0, `verify_results_matches_page.py` PASS, `verify_palette.py` 38/0,
+`verify_state_filter.py` 62/0, `verify_stop_control.py` 31/0, `verify_live_report_button.py` 25/0,
+`verify_app_flow.py` PASS, `verify_app_deterministic.py` PASS, `verify_site_panels.py` PASS,
+`verify_shipped_app_is_current.py` PASS, `verify_deployed_root_is_the_app.py` PASS, `audit.py` 2211
+passed with the 5 spend-ledger failures the user deferred, typecheck clean, `sync_context --check` 0.
+
 ### THE TWO SUMMARY CARDS BECAME A GRID COLUMN, AND STOPPED QUOTING ONE SITE. 2026-08-29
 
 **THE LAYOUT WAS THE SMALLER HALF.** The pair used to be `position: absolute; top: 148px; right: 8px`
@@ -2205,7 +2325,7 @@ only `fmt`.
 | Offerable metros | **250** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
 | run_all.py steps | **40** | count of STEPS entries in src/run_all.py |
-| demo/index.html size | **485 KB** | byte length of the shipped page |
+| demo/index.html size | **490 KB** | byte length of the shipped page |
 | Map GeoJSON sources | **2** | one clustered, one flat -- see 02-ARCHITECTURE |
 | Map unisites-* layers | **5** | cluster, halo, points, flat-halo, flat |
 | `#livecard` present | **yes** | standing rule: the live agent is never removed |

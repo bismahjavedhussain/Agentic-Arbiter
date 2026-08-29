@@ -1,14 +1,14 @@
 {
-  "bytes": 41394,
-  "css_bytes": 99365,
-  "css_sha256": "22d7894735b3b5e9bee58cad154702db720b8c2933e8f324570787704a229edf",
+  "bytes": 43022,
+  "css_bytes": 99911,
+  "css_sha256": "7bfcaa41e9b59e5e1cedddec41a6bc8610a246efb9d41800c56d6969199c926b",
   "generated_by": "tools/mkview.py",
   "sections": [
     "rail",
     "stage:configure results",
     "tt"
   ],
-  "sha256": "57b3d46f137fb2d9a75781f687fa51ec6606c3f086b517e8838670093395594d",
+  "sha256": "bafaa6e29c13fcd241150c53d4d78b1c101d04649cedcfd11f1937c993769e05",
   "source": "AGENTIC-ARBITER/demo/index.html",
   "unique_ids": [
     "aerial",

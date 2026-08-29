@@ -880,6 +880,12 @@ body[data-stage="results"] .secgroup{display:block;margin:var(--sp-7) 0 0;
 .tile[data-tone="crit"]{border-left:3px solid var(--critical)}
 .tile[data-tone="warn"] .v{color:var(--warning)}
 .tile[data-tone="crit"] .v{color:var(--critical)}
+/* 🔴 THE `good` TONE HAD A BORDER AND NO INK RULE, so `tone='good'` moved a 3px edge and left the
+   figure in the default colour. Measured: `'good'` is passed by exactly one tile in the whole engine,
+   the coverage tile in drawTiles(), so this rule has a blast radius of one and turning it green is
+   the change the user asked for rather than a page-wide repaint. --good is 7.75:1 on the dark
+   surface and 4.99:1 on the light one, both over the 4.5:1 floor; verify_palette.py measures it. */
+.tile[data-tone="good"] .v{color:var(--good)}
 
 /* ---- THE PLATE'S CELLS, LEVELLED THE SAME WAY, plus the one thing the plate was missing: the
    miss cell was marked in --critical ink and nothing else, so at a glance it read as one more

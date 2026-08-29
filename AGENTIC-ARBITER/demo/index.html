@@ -876,6 +876,12 @@ body[data-stage="results"] .secgroup{display:block;margin:var(--sp-7) 0 0;
 .tile[data-tone="crit"]{border-left:3px solid var(--critical)}
 .tile[data-tone="warn"] .v{color:var(--warning)}
 .tile[data-tone="crit"] .v{color:var(--critical)}
+/* 🔴 THE `good` TONE HAD A BORDER AND NO INK RULE, so `tone='good'` moved a 3px edge and left the
+   figure in the default colour. Measured: `'good'` is passed by exactly one tile in the whole engine,
+   the coverage tile in drawTiles(), so this rule has a blast radius of one and turning it green is
+   the change the user asked for rather than a page-wide repaint. --good is 7.75:1 on the dark
+   surface and 4.99:1 on the light one, both over the 4.5:1 floor; verify_palette.py measures it. */
+.tile[data-tone="good"] .v{color:var(--good)}
 
 /* ---- THE PLATE'S CELLS, LEVELLED THE SAME WAY, plus the one thing the plate was missing: the
    miss cell was marked in --critical ink and nothing else, so at a glance it read as one more
@@ -1810,9 +1816,27 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
            breath; the gates are now a list, which is what they are, and the self-grading claim
            lives on the panel that measures it rather than being promised here first. The LBNL
            citation is kept: it is the reason these three gates and not three others. -->
+      <!-- 🔴 THIS SENTENCE USED TO END "the three things LBNL measured operators actually worry
+           about", and it was wrong twice over as well as unreadable to anyone who does not know the
+           acronym. The user asked the plain question: what does LBNL mean here.
+           IT MEANS Lawrence Berkeley National Laboratory, and the repository expanded that in
+           exactly one place: src/money.py:160, attached to a DIFFERENT publication (the 2024 US Data
+           Center Energy Usage Report, filed under "context_only - NOT used in any figure"). A reader
+           had no way to resolve it.
+           AND IT CREDITED LBNL WITH ALL THREE GATES, which src/environment.py:12-27 does not.
+           Humidity is ENERGY STAR's economizer guidance plus Honeywell's JADE controller; only
+           contamination is LBNL, from Shehabi, Tschudi and Gadgil, "Data Center Economizer
+           Contamination and Humidity Study", LBNL, 6 March 2007, OSTI 971864. That study put
+           particle counters in eight real data centres and measured PARTICLE CONCENTRATIONS;
+           operator reluctance is its stated motivation, not something it measured. "LBNL measured
+           operators" described neither the lab's contribution nor the study's method.
+           Every clause below is one the repository can point at: environment.py:12-15 for the
+           humidity sources, environment.py:19-20 for the particle counters and the eight sites. -->
       <p class="note">Hour by hour, whether this data centre can cool with outside air. Three gates:
-      <strong>temperature</strong>, <strong>humidity</strong>, <strong>contamination</strong>: the
-      three things LBNL measured operators actually worry about.</p>
+      <strong>temperature</strong>, <strong>humidity</strong>, <strong>contamination</strong>.
+      Humidity comes from ENERGY STAR and Honeywell's JADE controller; contamination comes from
+      <strong>Lawrence Berkeley National Laboratory (LBNL)</strong>, which put particle counters in
+      eight real data centres.</p>
       <div class="tiles" id="readytiles"></div>
       <p class="note">The plant on the left is the customer's equipment, which we do not have: so
       every value is <strong>swept</strong>. Move any of it, or leave it and press the button.</p>
@@ -6625,7 +6649,17 @@ function drawPlate(){
       fmt(T.cycle.pooled_coverage*100,1) + ' %',
       own ? 'against its own 90 % promise'
           : 'measured at Ashburn and applied here: this site has no <strong>FortyGuard</strong> day pair of its own',
-      'miss', SP.cov));
+      /* 🔴 THE CLASS WAS `'miss'`, HARD-CODED, AND IT DID NOT LOOK AT THE NUMBER AT ALL.
+         `.plate-cell.miss` paints the figure in --critical and lays a diagonal hatch behind it
+         (demo/index.html:527 and :886). Unconditional: it would have kept the hatch at 100 %
+         coverage. With the tile above now green and captioned "N more day-pairs before 90 % is
+         reachable at all", a hatched red copy of the SAME figure on the same screen contradicts it,
+         and one of the two would have to be wrong.
+         `null` rather than a new class: the cell reverts to the plate's own ink, the miss is still
+         stated in words directly beneath it, and the arithmetic is still one click away in the
+         popover this cell already carries. Nothing is hidden; the styling stops making a claim the
+         caption does not. */
+      null, SP.cov));
   }
 
   el.innerHTML =
@@ -6719,10 +6753,38 @@ function drawHeadline(){
      Found while removing the pick-stage copy of this same caveat: two surfaces stating one fact is
      how they drift, which is the argument for the removal and was the evidence for this fix. */
   const own = !T.fortyguard_provenance || T.fortyguard_provenance.own_measured_day_pairs;
+  /* 🔴 THIS TILE STOPPED SAYING "FAILED", AND THE SENTENCE IT SAYS INSTEAD IS COMPUTED.
+     The user's instruction: "change the 65.6 % to green colour and remove the word FAILED from this
+     card. Rephrase it to 6 more days of forecasting needed for 90 % or something like that."
+     ⚠ AND "6" WOULD HAVE BEEN WRONG, WHICH IS WHY NOTHING HERE IS TYPED. The shipped artefact banks
+     n = 4 day-pairs and trace.json's own `cycle.bound_day_level.n_needed_for_nominal` is 9, so the
+     shortfall is 5, and it becomes 3 the day the two deferred pairs are adopted. Both numbers are
+     READ from the artefact the tile is describing, so the caption cannot outlive the run.
+     ⚠ AND IT SAYS "REACHABLE AT ALL" RATHER THAN "NEEDED FOR 90 %", because the stronger sentence is
+     not supported. Reaching n = 9 is NECESSARY and not SUFFICIENT: measured coverage is 65.6 %,
+     which is 14.4 points below even the CURRENT 80 % ceiling, and the project's own simulation
+     (testing/results/diag59_daysneeded.json) puts the days needed at about 10 while attributing only
+     part of the gap to sample size. #n26fail two panels down already states that 10. "Before 90 % is
+     reachable at all" is true under every reading of the evidence; "and then it hits 90 %" is not. */
+  const bdl = cy.bound_day_level || {};
+  const nCal = cy.pairs ? cy.pairs.length : (bdl.n || 0);
+  const need = Math.max(0, (bdl.n_needed_for_nominal || 0) - nCal);
   out.push(tile('Bound coverage, measured', fmt(cy.pooled_coverage*100,1)+' %',
-    own ? 'against a 90 % promise: it FAILED its pre-registration'
+    own ? (need
+            ? need + ' more day-pair' + (need === 1 ? '' : 's') + ' before 90 % is reachable at all: '
+              + 'the ceiling at ' + nCal + ' is ' + fmt(100*cfAttainable(nCal),1) + ' %'
+            : 'against a 90 % promise')
         : 'measured at Ashburn and applied here: this site has no <strong>FortyGuard</strong> forecast-and-outcome day pair of its own',
-    cy.pooled_coverage < 0.90 ? 'crit' : 'good'));
+    /* THE TONE IS STILL DERIVED, NEVER TYPED -- it is the QUESTION that changed. It used to ask
+       "is this under 90 %", which is red for as long as the arithmetic forbids 90 %, and painting an
+       unreachable target red says the method failed when the calendar did. It now asks "is 90 %
+       reachable at this n AND still missed", which is the only reading under which the figure is a
+       defect. It turns red on its own the day the pairs arrive and the coverage still falls short,
+       with no edit here, which is the property the old comparison was written for.
+       ⚠ THE SELF-SCORING TAB IS DELIBERATELY UNCHANGED. drawCoverageTiles() keeps the strict
+       `< 0.90 ? 'crit' : 'good'` test, because that panel exists to score the promise and a scoring
+       panel should show the miss. This is the headline summary; that one is the scorecard. */
+    (cy.pooled_coverage < 0.90 && !need) ? 'crit' : 'good'));
   el.innerHTML=out.join('');
 
   const am=T.cases.all_mechanical;

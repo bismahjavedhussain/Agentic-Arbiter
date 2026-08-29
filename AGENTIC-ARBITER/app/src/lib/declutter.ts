@@ -149,8 +149,30 @@ function declutterCard(card: HTMLElement, id: string): number {
     if (el.closest(PROTECTED)) continue
     const text = (el.textContent || '').replace(/\s+/g, ' ').trim()
     if (words(text) <= FOLD_ABOVE_WORDS) continue
-    // never fold something that carries a chart, a table or a figure
-    if (el.querySelector('canvas, table, .tile')) continue
+    /* Never fold something that carries a chart, a table, a figure, or A CONTROL THE ENGINE HAS
+       WIRED.
+       🔴 THE LAST CLAUSE IS A BUG FIX, AND IT IS THE ONE THE USER REPORTED: "why does changing the
+       hour do nothing to the output table below? what is this hour dropdown for then?"
+       The `<details>` headed "One hour, all seven stages of the loop" (demo/index.html:2186) holds
+       `<select id="c_hour">`, and the engine binds a real change handler to it
+       (results/engine.mjs:309, `bind('#c_hour', () => { if(TK) drawTicker(); })`) which rewrites the
+       seven stage lines in `#tkhour`. Folding that block hid the live node and serialised its
+       `innerHTML` into the string this file hands to the fold row, and step 3 below re-parses that
+       string with dangerouslySetInnerHTML.
+       SERIALISING HTML DROPS EVENT LISTENERS. So the select a reader could actually see was a dead
+       copy with no handler, and because ids are copied along with everything else there were then
+       TWO `#c_hour` in the document, with `$('#c_hour')` inside the engine still resolving to the
+       hidden original. MEASURED headlessly against this exact bundle: a real bubbling `change` event
+       on the visible clone left the seven stage lines byte-identical, while the same event on the
+       hidden original redrew them from 12:00 to 00:00.
+       Exempting the block keeps the LIVE node on the page. It stays a `<details>`, so it is still
+       closed until a reader opens it and the decluttering brief is still honoured: a disclosure and
+       a modal are the same "behind one click" affordance. Removing the duplicate id also restores
+       `$('#c_hour')` for engine.mjs:808, 1197, 1201 and 1203.
+       ⚠ BLAST RADIUS IS ONE BLOCK, checked rather than assumed: the other engine selects on this
+       stage (#c_alpha, #c_n, #c_chiller, #c_price, #c_field, #c_img) are not inside a `p`, `li` or
+       `details`, so they were never fold candidates in the first place. */
+    if (el.querySelector('canvas, table, .tile, select, input, textarea')) continue
     el.setAttribute(MARK, 'folded')
     el.style.display = 'none'
   }

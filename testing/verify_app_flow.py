@@ -302,7 +302,13 @@ PROBE = r"""
            near-black in the light theme, fine in dark. The heading "One hour, all seven stages of the
            loop" was invisible and the user photographed it.
            So this opens a dialog and computes the WCAG contrast ratio of every text node against the
-           dialog's own background. A tag nobody remembered still fails. */
+           dialog's own background. A tag nobody remembered still fails.
+           ⚠ THE EXAMPLE ABOVE IS HISTORY, THE CHECK IS NOT. Since 2026-08-30 lib/declutter.ts never
+           folds a block containing a form control, so the "One hour, all seven stages" <details> is
+           a live disclosure on the card rather than markup inside this dialog: it held a wired
+           <select> whose handler did not survive being serialised. This loop takes the FIRST matching
+           opener in document order, which is "What a live run costs" in #livecard, and measures every
+           text node it finds there. The mechanism it guards is unchanged. */
         if (!out._contrast) {
           out._contrast = {opened: false, worst: null, worstEl: null, n: 0};
           var opener = null, ab = document.querySelectorAll('button');

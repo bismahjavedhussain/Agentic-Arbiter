@@ -122,18 +122,76 @@ body:not([data-stage='pick']) .aa-rail-nav { max-height: calc(100vh - 128px); ov
   color: var(--fg-dim);
 }
 
-/* ---- 3. THE RAIL AND HEADER, in brand blue ---- */
+/* ---- 3. THE RAIL AND HEADER, in brand blue ----
+ *
+ * 🔴 THIS LAYER IS THE ONE THAT SHIPS, AND FORGETTING THAT WOULD HAVE WASTED THE WHOLE REWRITE.
+ * main.tsx loads cinematic.css AFTER dashboard.css, so every rail colour dashboard.css sets in the
+ * zinc palette is overridden here in the brand palette. dashboard.css section 1 owns the STRUCTURE of
+ * each state (which selector, which property, how long the transition); this block restates the
+ * COLOURS of those same states in `--fg-*`. A state added there and not restated here would fall back
+ * to zinc on a blue shell, which is exactly what the rail looked like before: grey type on a
+ * blue-slate panel.
+ *
+ * ⚠ AND THE PANEL UNDERNEATH IS NEITHER OF THE BACKGROUNDS NAMED IN THIS FILE. tones.css loads later
+ * still and repaints `.aa-rail-nav` with `background: var(--w-1) !important`, so the surface every
+ * contrast figure below is measured against is `--w-1`: #0c1826 dark, #f6fafe light. That is why the
+ * inks here come from the `--w-*` family rather than from `--fg-dim`: measured on #f6fafe, `--fg-dim`
+ * clears the 4.5:1 floor by 0.39 and `--w-dim` clears it by 1.01. Both pass; only one of them still
+ * passes after somebody nudges a token.
+ */
 .aa-rail-nav {
   border-color: var(--fg-hair);
   background: color-mix(in oklab, var(--fg-shell) 78%, transparent);
 }
-.aa-tab.is-active .aa-tab-icon { color: var(--fg-bright); }
-.aa-tab-marker {
-  background: color-mix(in oklab, var(--fg-deep) 26%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg-bright) 40%, transparent);
+
+/* THE SECTION LABELS, in the shell's own secondary ink rather than the page's zinc one.
+   MEASURED against `--w-1`: 7.44:1 in dark, 5.51:1 in light, both well over the 4.5:1 the brief
+   asks for. testing/shot_rail.py measures it in the browser and prints the number. */
+.aa-rail-eyebrow { color: var(--w-dim); }
+
+/* NAV ROWS. One step off the shell's body ink at rest so that the hover step has somewhere to go;
+   full body ink on hover and while active. */
+.aa-tab { color: color-mix(in oklab, var(--w-ink) 86%, var(--w-dim)); }
+.aa-tab:hover:not(.is-locked):not(.is-active) {
+  background: color-mix(in oklab, var(--w-ink) 8%, transparent);
+  color: var(--w-ink);
 }
-.aa-qa-icon { color: var(--fg-bright); }
+.aa-tab.is-active { color: var(--w-ink); }
+.aa-tab.is-active .aa-tab-icon { color: var(--fg-bright); }
+
+/* THE ACTIVE PILL, DEEPENED. It was 26 % of `--fg-deep`, which over this shell is a shade rather than
+   a state: the user's words were "too weak to signal you are here". 38 % here rather than the 28 %
+   dashboard.css uses for `--series-1`, because `--fg-deep` (#1b6ec2) is the darker blue of the two
+   and the same fraction of it reads fainter against a dark panel. */
+.aa-tab-marker {
+  background: color-mix(in oklab, var(--fg-deep) 38%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg-bright) 52%, transparent);
+}
+.aa-tab.is-active:hover .aa-tab-marker {
+  background: color-mix(in oklab, var(--fg-deep) 48%, transparent);
+}
+/* The 3 px accent bar, in the wordmark's lighter half so it reads against the pill behind it. */
+.aa-tab.is-active::before { background: var(--fg-bright); }
+
+/* QUICK ACTIONS. Same two-step treatment as the nav rows, and the icon starts softened so that
+   "takes its accent colour" on hover is an event rather than a no-op. It was full `--fg-bright` at
+   rest, which left the hover state nothing to say. */
+.aa-qa { color: color-mix(in oklab, var(--w-ink) 86%, var(--w-dim)); }
+.aa-qa:hover:not(.is-off) {
+  background: color-mix(in oklab, var(--w-ink) 8%, transparent);
+  color: var(--w-ink);
+}
+.aa-qa-icon { color: color-mix(in oklab, var(--fg-bright) 66%, var(--w-dim)); }
+.aa-qa:hover:not(.is-off) .aa-qa-icon { color: var(--fg-bright); }
+.aa-qa.is-off .aa-qa-icon { color: var(--w-dim); }
+.aa-qa-sub { color: var(--w-dim); }
+.aa-qa-chev { color: var(--w-dim); }
 .aa-qa-card { border-top-color: var(--fg-hair); }
+
+/* The focus ring belongs to the brand too. Same 2 px / 2 px offset the brief specifies; only the hue
+   changes, because a zinc-blue ring on a brand-blue shell reads as a rendering artefact. */
+.aa-tab:focus-visible,
+.aa-qa:focus-visible { outline-color: var(--fg-bright); }
 .aa-tabhead-icon {
   color: var(--fg-bright);
   background: color-mix(in oklab, var(--fg-deep) 20%, transparent);

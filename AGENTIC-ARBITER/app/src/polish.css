@@ -61,6 +61,59 @@ body[data-stage='pick'] .aa-banner #rail { display: flex; }
 .info { isolation: isolate; }
 .info-bub { z-index: 300; }
 
+/* ---- 5b. `.aa-tip`: THE (i) PANEL, PORTALLED, and this is the geometry half of that fix.
+   The surface itself is already handled: tones.css:148-160 names `[role='note']` alongside the two
+   dialogs and gives all of them `--fg-pop` at full opacity with `backdrop-filter: none`. So the panel
+   was never translucent, and the reported "semi-transparent, card numbers showing through" was a
+   NEIGHBOURING card's 0.72 glass fill painted OVER it: `hover:-translate-y-0.5` on a KPI card ships
+   as a `translate`, a `translate` makes a stacking context, and the panel's z-index was trapped
+   inside the hovered card. MEASURED with a real pointer: topmost at 28 of 80 sampled points while
+   the card was hovered, 79 of 80 with the pointer away. See components/Info.tsx.
+
+   `position: fixed` and a portal to <body> is what removes the trap. There is no card ancestor left
+   to make a stacking context, and no ancestor `overflow` left to clip against. The coordinates come
+   from the trigger's measured rect, which is also what lets the panel flip above and shift away from
+   a viewport edge instead of running off it.
+
+   ⚠ NO OPACITY TRANSITION, DELIBERATELY. An element mid-way through an opacity fade IS translucent,
+   and the brief is explicit that no card content may ever be visible through this panel. The only
+   animated property is a 2px rise, which cannot make the surface see-through, and the 120ms open
+   delay in Info.tsx does the softening a fade would otherwise do. ---- */
+.aa-tip {
+  position: fixed;
+  /* Hidden for exactly one frame while its height is measured, because the height is what decides
+     whether it opens downward or flips above. `visibility` rather than `opacity`: a hidden element
+     paints nothing at all, where a transparent one paints a transparent version of itself. */
+  visibility: hidden;
+  width: max-content;
+  max-width: 340px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  /* THE PANEL MUST NOT STEAL HOVER FROM ITS TRIGGER. It is not selectable and carries no controls, so
+     it has no reason to receive the pointer, and receiving it is how a tooltip ends up flickering
+     between open and closed along its own edge. */
+  pointer-events: none;
+  transform: translateY(-2px);
+  transition: transform 120ms ease-out;
+}
+.aa-tip.is-ready {
+  visibility: visible;
+  transform: translateY(0);
+}
+/* Bold runs inside the panel already take `--fg-pop-ink` from tones.css. Links and code do not
+   appear in this copy, so nothing else needs stating. */
+
+@media (prefers-reduced-motion: reduce) {
+  .aa-tip { transition: none; transform: none; }
+  .aa-tip.is-ready { transform: none; }
+}
+
 /* ---- 6. THE FIRST PAGE, IN BLUE.
    The shell was already blue at the configure and results stages; the pick screen was still on the
    page's zinc. Same treatment, same tokens.

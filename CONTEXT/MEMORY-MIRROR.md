@@ -21,6 +21,7 @@
 - [Project renamed AGENTIC-ARBITER](project-renamed-agentic-arbiter.md) — was INTAKE-ARBITER until 2026-08-27; folder, 2,737 strings, wordmark and 266 PDFs all moved
 - [No em dashes](no-em-dashes.md) - never use em dashes in copy; masthead is a header plus 2-3 lines, deeper prose goes in `.info` popovers
 - [Two day-pairs deferred](two-day-pairs-deferred.md) - 2026-08-25/26 measured but not in the figures by the user's decision; run_all.py fails two steps until adopted, and a run rewrites demo/ in place
+- [Prefer the smaller defensible figure](prefer-smaller-defensible-figure.md) - a big modelled number costs more credibility than a small measured one gains; label modelling on the card, not in a popover
 ```
 
 ---
@@ -196,6 +197,42 @@ were not swept. Ask before rewriting those; this rule governs what I write.
 See [[live-agent-is-permanent]] and [[project-renamed-agentic-arbiter]].
 ```
 
+## `prefer-smaller-defensible-figure.md`
+
+```markdown
+---
+name: prefer-smaller-defensible-figure
+description: "When a headline number could be big-and-modelled or small-and-measured, ship the small one and label any modelling in the UI itself, not in a popover"
+metadata: 
+  node_type: memory
+  type: feedback
+  originSessionId: 7ee211e4-2d51-42ee-8d8a-f399d327e017
+  modified: 2026-08-29T18:59:49.223Z
+---
+
+Stated 2026-08-29, on the two portfolio summary cards:
+
+> "A per-site figure multiplied by the site count is a modeled projection, not a measurement.
+> Presenting one as fact is unacceptable. Judges will ask how it was derived, and an unlabeled
+> extrapolation does more damage to credibility than a smaller honest number. If in doubt, prefer
+> the smaller defensible figure."
+
+Plus: **inspect the data layer and report which aggregates can be computed directly BEFORE choosing
+what to display**, and report back the exact computation and source for every number shown.
+
+**Why:** the whole product's claim is that its figures are checkable. One number a judge can pull
+apart costs more than every impressive number gains, and the user has to be able to defend each one
+live.
+
+**How to apply:** when two framings of the same fact are available, pick the one that needs no
+asterisk, and put the caveat on the card in words rather than behind an `.info` popover. Worked
+examples from that day: shipped 4,232,006 hours of weather (98 stations counted once) rather than
+10,820,547 site-hours; headlined chiller-hours rather than dollars, because hours need no tariff,
+no power density and no state; and printed "238 of 250 sites gain hours, the 12 that lose are
+subtracted" and "189 of 250 priced on a Virginia/Illinois reference" directly on the card.
+Companion to [[ship-production-not-mvp]] and [[complete-agent-no-thresholds]].
+```
+
 ## `project-renamed-agentic-arbiter.md`
 
 ```markdown
@@ -364,5 +401,5 @@ Full evidence and the measured before/after table are in `CONTEXT/01-STATE.md` s
 
 ---
 
-*10 memories mirrored, plus the index.*
+*11 memories mirrored, plus the index.*
 

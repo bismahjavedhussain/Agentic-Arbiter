@@ -358,6 +358,69 @@ state and a dead clock leaves a finished page.
 **And the check has to assert the watchdog's result, not the animated value**, which is 5b.13's own
 first consequence.
 
+### 5b.30 A `translate` UTILITY MAKES A STACKING CONTEXT, AND TRAPS EVERY z-index BELOW IT
+**You observe:** a popover renders "semi-transparent, with the card behind showing through", and
+comes right the moment the pointer leaves the card. Its computed `background-color` is fully opaque.
+**Actually:** nothing is transparent. The card carried Tailwind's `hover:-translate-y-0.5`, which v4
+ships as the `translate` PROPERTY, and `translate` other than `none` creates a stacking context
+exactly as `transform` does. While hovered, the popover's `z-index` is scoped inside the card and
+every LATER SIBLING card paints over it. The wash is the neighbour's own translucent glass fill
+composited on top of an opaque panel, with the neighbour's text stamped crisply over the prose.
+**How it was proved rather than argued:** a real CDP pointer, then `document.elementFromPoint` over an
+80-point grid inside the panel. Topmost at 24 of 80 hovered, 80 of 80 with the pointer away. Then the
+pixels: median (20,24,31) hovered against (12,26,42) away, matching a predicted 0.72 blend to within
+one unit per channel.
+**The fix is structural, not cosmetic.** Deleting the utility works today and breaks again the first
+time any ancestor gains a transform, a filter, an opacity or a `will-change`. Portal the overlay to
+`document.body` and position it from the trigger's measured rect; then it has no ancestor to be
+trapped in and none to be clipped by.
+⚠ **THE SAME TRAP HAS A DORMANT SECOND TRIGGER HERE.** `.glass` sets `backdrop-filter`, which is also
+a stacking-context maker, and the built bundle ships only the `-webkit-` spelling. In the Chrome this
+was measured on that prefixed form is inert, so the card is a stacking context ONLY while hovered. In
+any engine that honours it, the card is one permanently and the panel is broken with no hover at all.
+
+### 5b.29 `elementFromPoint` SKIPS `pointer-events: none`, so a paint check reads 0 on a healthy element
+**You observe:** a check that samples "who is painted on top" reports 0 of 80 points for an overlay
+that a screenshot plainly shows painting on top of everything.
+**Actually:** `elementFromPoint` is HIT TESTING, not paint order, and hit testing skips anything with
+`pointer-events: none` -- which a tooltip carries deliberately so it cannot steal hover from its own
+trigger. The check was measuring the wrong property.
+**The fix, and why it is sound:** lend `pointer-events: auto` back for the duration of the sample and
+restore it in a `finally`. `pointer-events` is not one of the properties that create a stacking
+context and has no effect on z-order, so the sample still answers the paint question. Better still,
+back it with a reading of the rendered PNG, which depends on none of this.
+
+### 5b.28 SERIALISING HTML DROPS EVENT LISTENERS, AND DUPLICATES EVERY id IT COPIES
+**You observe:** a `<select>` a reader can see and operate does nothing at all, while the feature it
+is supposed to drive works perfectly when driven from the console.
+**Actually:** something moved the markup by `innerHTML` rather than by node. `declutter.ts` folds long
+blocks by reading `el.innerHTML` into a string and re-parsing it elsewhere with
+`dangerouslySetInnerHTML`. A string carries tags and attributes; it does not carry listeners. So the
+copy is inert. Worse, ids are attributes: there are now TWO `#c_hour` in the document and
+`document.querySelector('#c_hour')` still resolves to the hidden original, so the engine's own code
+keeps working on a node nobody can see and every reader-facing symptom points at the wrong file.
+**The tell:** `typeof el.onchange === 'function'` differs between the two copies, and
+`document.querySelectorAll('[id="x"]').length > 1`.
+**The habit:** never fold, clone or relocate a region by `innerHTML` if anything inside it is wired.
+Move the node, or exempt the region. Here the exemption list gained `select, input, textarea`.
+
+### 5b.27 `.focus()` DOES NOT MATCH `:focus-visible`, AND A POINTER FOCUS FIRES BEFORE THE CLICK
+**You observe, twice, in opposite directions:**
+  * a keyboard check calls `element.focus()`, finds no focus ring, and reports a missing ring on a
+    component that shows one perfectly when you press Tab;
+  * a click-to-toggle opens on the first click and refuses to close on the second.
+**Actually:** `:focus-visible` is a heuristic. Chrome grants it when focus arrived from the keyboard
+and withholds it from a programmatic `.focus()` on a button, so only a REAL Tab keypress can answer
+"does tabbing show a ring". And a mouse press focuses a button BEFORE it clicks it, so a bare
+`onFocus` handler that opens a panel is immediately undone by the click that follows.
+**Both fixes are the same distinction:** press a real key in the harness (CDP
+`Input.dispatchKeyEvent`), and gate the component's `onFocus` on
+`e.currentTarget.matches(':focus-visible')` so a pointer focus leaves the decision to the click.
+⚠ **AND A THIRD RACE HIDES BEHIND THE SAME EVENT ORDER.** A click is also preceded by `pointerenter`,
+so a hover-open scheduled for 120ms later lands AFTER the click has already pinned the panel and
+un-pins it. Cancelling the timer is not enough on its own: make the state a LATCH
+(`setSticky(s => s || asSticky)`) so a late hover-open cannot demote what a click set.
+
 ### 5b.26 A LOCALSTORAGE KEY THAT ALREADY EXISTS CANNOT BE REPURPOSED AS A "HAS CHOSEN" MARKER
 **You observe:** a stage-dependent default theme works perfectly on every fresh profile the harness
 launches, and does not work at all on the deployed site, for you or for anyone who has used it before.
