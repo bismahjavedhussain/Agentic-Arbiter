@@ -54,26 +54,53 @@ body:not([data-stage='pick']) {
     var(--fg-ink);
   background-attachment: fixed;
 }
+/* 🔴 THE WINDOW SCROLLS AGAIN, AND THE SHELL THAT STOPPED IT IS GONE.
+   The user: "I am not able to scroll through this page. If I cant scroll, I cant look at the options
+   under the Quick Actions in the side bar on the left. So add a full screen scroll here too."
+
+   WHAT WAS HERE: `height: 100vh; overflow: hidden` on #app, with `.aa-workspace-main` as the only
+   scroller. A dashboard shell, and it is a reasonable one until the viewport is short.
+   MEASURED at 1366x768: #app clientHeight 672 against scrollHeight 755, so 83 px were CLIPPED with no
+   scroller in the chain able to reach them. `document.scrollingElement` reported 672/672 and
+   `window.scrollTo(0, 4000)` left scrollY at 0. Both Quick Action rows sat entirely below the fold,
+   at 675.0..716.6 and 697.6..739.2. At 1400x820, 49 px clipped and the last row 34 px under.
+   ⚠ AND THE RAIL'S OWN SCROLLBAR WAS NOT A WAY IN, which is the part that makes this containment
+   rather than discoverability. At 1600x1000 and 1400x820 the rail had NOTHING to scroll
+   (scrollHeight 561 == clientHeight 561); at 1366x768 it had 19 px, a real wheel exhausted it in one
+   tick, and both rows were still completely below the fold afterwards. A reader who found the
+   scrollbar and dragged it to the end still could not reach them.
+   THE RULE THAT PERMITTED IT was `max-height: calc(100vh - 128px)` below: 128 is a guess at the
+   rail's top offset, and the rail's top MEASURES 210.6 px, so the rule allowed a box ending 82.6 px
+   past the bottom of the viewport. That is 05-TRAPS 5b.12 exactly, whose own words are "the fix is
+   not a smaller constant, which would just be a guess at the masthead's height" -- advice that was
+   followed for the engine's sidebar and never applied here.
+
+   So the shell goes. The document is the scroller on every stage now, which is also what the landing
+   stage has always done, and the rail is sticky against the window rather than against a container
+   that never moved. Nothing needs to know how tall the masthead is. */
 body:not([data-stage='pick']) #app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   max-width: 1580px;
-  padding-bottom: 0;
-  overflow: hidden;
 }
 body:not([data-stage='pick']) .aa-workspace {
   flex: 1 1 auto;
-  min-height: 0;                 /* without this a grid child refuses to shrink and the page scrolls */
+  min-height: 0;
 }
 body:not([data-stage='pick']) .aa-workspace-main {
-  height: 100%;
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;  /* the panel column stops scrolling the window when it bottoms out */
   padding-right: 4px;
 }
-body:not([data-stage='pick']) .aa-rail-nav { max-height: calc(100vh - 128px); overflow-y: auto; }
+/* The rail sticks to the WINDOW now, so its bound is a window measurement and is correct by
+   construction: 16 px of clearance at the top (its own `top`) and 16 px at the bottom. It only ever
+   becomes its own scroller if the rail is taller than the screen, which is a real case on a laptop
+   and is the one this has to survive. */
+body:not([data-stage='pick']) .aa-rail-nav {
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 
 /* ---- 2. THE FORTYGUARD BANNER. Muted, spanning the top, and behind everything.
    The wordmark is a real RGBA png (demo/fortyguard-logo.png), so it needs no blend trick; opacity is

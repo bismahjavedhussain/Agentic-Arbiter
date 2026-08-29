@@ -116,10 +116,18 @@
    `top: 0` for the same reason: the bezel offset the page sticks below does not exist in this
    layout, and it was pushing the sticky origin down inside a container that already starts below
    the header. ---- */
+/* 🔴 AND AS OF 2026-08-30 THE BASIS IS 100vh AGAIN, because the premise above expired. The whole
+   argument for `--aa-scrollport` was that "here the scrollport is `.aa-workspace-main`", and it is
+   not any more: the fixed-viewport shell that made it one was removed when the page was given back
+   its own scroll (see cinematic.css). The WINDOW is the scrollport on every stage now, which is the
+   same condition the single-file page has always been in and under which this file's own note says
+   "100vh is the correct basis".
+   `top: 16px` rather than 0, and 32 px off the height, so the sidebar sticks with the same clearance
+   as the rail opposite it instead of hard against the top edge of a viewport it no longer starts
+   below. */
 .aa-workspace[data-aa-active='config'] .sidebar {
-  top: 0;
-  /* 18px keeps the border and the focus ring off the container's own edge. */
-  max-height: calc(var(--aa-scrollport, 70vh) - 18px);
+  top: 16px;
+  max-height: calc(100vh - 32px);
   overflow-y: auto;
   overscroll-behavior: contain;   /* bottoming out does not hand the wheel to the panel behind it */
 }

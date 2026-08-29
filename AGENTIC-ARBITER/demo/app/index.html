@@ -19,16 +19,15 @@
 <script>
 (function(){
   try{
-    /* THE READER'S OWN CHOICE IS `aa-theme-choice`, NOT `aa-theme`, AND THE DIFFERENCE IS A BUG FIX.
-       `aa-theme` has been written by this app since long before the theme had a per-stage default, so
-       almost every returning visitor already has one. Treating its presence as "they chose" meant the
-       landing page opened in whatever they last happened to be looking at, which for the owner was
-       light: the dark default never applied to anybody who had used the site before.
-       A separate key means only a real press of the toggle counts. `aa-theme` is still written and
-       still read here, because it is what stops a flash of the wrong palette before React runs; it is
-       now a CACHE of the resolved theme rather than a record of a decision. */
-    var chose = localStorage.getItem('aa-theme-choice');
-    var t = chose ? localStorage.getItem('aa-theme') : 'dark';
+    /* THE CHOICE IS READ PER STAGE GROUP, AND A DOCUMENT ALWAYS OPENS ON THE LANDING GROUP.
+       So this needs exactly one lookup, `-pick`, and cannot be wrong about which screen it is
+       resolving for. See the long note in App.tsx: a choice used to be global, which meant one press
+       of the toggle on the configure screen silently pinned the landing page to light for good.
+       ⚠ THE KEY NAMES ARE NEW ON PURPOSE. Every reader who has ever pressed the toggle carries
+       `aa-theme-choice='1'` from the old scheme; reading a new name is what unsticks them once. The
+       old pair is deliberately never read again, so it simply expires. */
+    var chose = localStorage.getItem('aa-theme-choice-pick');
+    var t = chose ? localStorage.getItem('aa-theme-pick') : 'dark';
     document.documentElement.dataset.theme = (t === 'light') ? 'light' : 'dark';
   }catch(e){ document.documentElement.dataset.theme = 'dark'; }
 })();
@@ -64,8 +63,8 @@
     shows anyway, because gateEnabled() treats an unreadable store as "not seen" */ }
 })();
 </script>
-  <script type="module" crossorigin src="./assets/index-BhOLlOo2.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DmDaAsrr.css">
+  <script type="module" crossorigin src="./assets/index-DlIC_DhI.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-R-Dfoqr6.css">
 </head>
 <body>
 <div id="root"></div>

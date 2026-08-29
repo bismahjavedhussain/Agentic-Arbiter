@@ -92,12 +92,14 @@
   padding: 2px 2px 12px;
   border-bottom: 1px solid var(--w-hair);
 }
+/* ⚠ THIS USED TO RE-DECLARE `.aa-workspace-main` AS A SCROLLER, and it loads after cinematic.css, so
+   it was the copy that won. Both are now the same statement: the panel column is a normal flex child
+   and the DOCUMENT scrolls. See the note in cinematic.css for the measurement that ended the
+   fixed-viewport shell. Kept as a rule rather than deleted, because `flex` and `min-height: 0` are
+   still what stop a grid child refusing to shrink. */
 body:not([data-stage='pick']) .aa-workspace-main {
   flex: 1 1 auto;
   min-height: 0;
-  height: auto;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   padding-right: 4px;
 }
 
@@ -223,21 +225,23 @@ body:not([data-stage='pick']) .aa-workspace-main {
   margin-top: 11px;
 }
 
-/* 🔴 THE VALUE CARD READS PRICE, THEN THE FIGURE, THEN SITES, so its first row is at the TOP of the
-   card and must not carry the divider. `:first-of-type` above matches the first `<p>` of its element
-   type, which on this card is now the price line rather than a row under the headline, and a rule
-   across the top of a card is a rule with nothing above it to separate from.
-   The divider moves to where the break actually is: between the figure and the line that qualifies
-   it. Written as `hero + foot` so it follows the markup rather than a count. */
-.aa-bubble-value .aa-bubble-foot.is-lead {
+/* 🔴 THE VALUE CARD CARRIES TWO HEADLINE FIGURES AND ONE CAPTION, so `:first-of-type` above is not
+   the row it was written for. That rule puts a divider across the top of the first `<p>` of its
+   type, which on this card is the money line: a rule with nothing above it to separate from.
+   The divider goes where the break actually is, between the last figure and the line that qualifies
+   it, and `hero + foot` follows the markup rather than a count of rows.
+   The two figures are separated by margin alone, because a rule between them would read as two cards
+   in one box when they are two readings of the same portfolio. */
+.aa-bubble-value .aa-bubble-foot:first-of-type {
   border-top: 0;
   padding-top: 0;
-  margin: 0 0 12px;
+  margin-top: 0;
 }
+.aa-bubble-value .aa-bubble-hero + .aa-bubble-hero { margin-top: 16px; }
 .aa-bubble-value .aa-bubble-hero + .aa-bubble-foot {
   border-top: 1px solid var(--w-hair);
   padding-top: 10px;
-  margin-top: 11px;
+  margin-top: 12px;
 }
 
 .aa-bubble-foot {

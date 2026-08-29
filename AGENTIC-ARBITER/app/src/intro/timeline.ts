@@ -662,12 +662,14 @@ export function playHeroEntrance(
    * By the time the filter bar and the metric cards are in view, the field and the diagram are gone
    * and nothing on screen is moving.
    *
-   * 🔴 THE WINDOW IS THE SCROLLER, BUT ONLY ON THIS STAGE, and that is worth stating because it is
-   * not true two clicks later. `cinematic.css:57` gives #app `height: 100vh; overflow: hidden` for
-   * `body:not([data-stage='pick'])` and makes `.aa-workspace-main` the scroll container. On the
-   * landing stage none of that applies and the document scrolls normally, which is what ScrollTrigger
-   * defaults to. This is another reason the handoff belongs to the intro layer and is killed when the
-   * stage changes: on the next stage its scroller does not exist.
+   * 🔴 THE WINDOW IS THE SCROLLER, which is what ScrollTrigger defaults to and is why nothing here
+   * has to configure one.
+   * ⚠ THAT USED TO BE TRUE ONLY ON THIS STAGE. `cinematic.css` gave #app `height: 100vh;
+   * overflow: hidden` for `body:not([data-stage='pick'])` and made `.aa-workspace-main` the scroll
+   * container, so the handoff's scroller genuinely did not exist two clicks later. The shell was
+   * removed on 2026-08-30 because it clipped the rail on a short viewport, and the document scrolls
+   * on every stage now. The handoff is still killed when the stage changes, for the reason below
+   * rather than for that one: a scroll listener on a landing page nobody is on is work nobody sees.
    *
    * IT ALSO STOPS PAYING FOR WHAT IT CANNOT SEE. Once the diagram is faded out, its pulse and its
    * five float tweens are work nobody is looking at, so they are paused, and resumed if the reader

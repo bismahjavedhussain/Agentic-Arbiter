@@ -262,18 +262,26 @@ PROBE = r"""
           /* Present but not displayed: that is the contract for the replaced tape card. */
           out._tapeCardInDom = (out._tapeCardInDom !== false) && !!q('#tapecard');
           out._tapeCardShown = out._tapeCardShown || vis(q('#tapecard'));
-          /* 🔴 EVERY TAB MUST OPEN AT ITS OWN TOP. `.aa-workspace-main` is one scroll container
-             shared by all six tabs, so its scrollTop survived a tab change and a reader who had
-             scrolled to the bottom of one tab landed halfway down the next. Reported as "it will
-             show me somewhere middle of the page".
-             The walk below scrolls the container DOWN before moving on, so each tab is entered from
-             a scrolled predecessor, which is the only condition under which the bug appeared. */
+          /* 🔴 EVERY TAB MUST OPEN AT ITS OWN TOP. The tabs share one scroller, so its scroll
+             position survived a tab change and a reader who had scrolled to the bottom of one tab
+             landed halfway down the next. Reported as "it will show me somewhere middle of the page".
+             The walk below scrolls DOWN before moving on, so each tab is entered from a scrolled
+             predecessor, which is the only condition under which the bug appeared.
+             ⚠ THE SCROLLER IS THE WINDOW SINCE 2026-08-30. It was `.aa-workspace-main`, until the
+             fixed-viewport shell was removed so the page could scroll as one; that element's
+             scrollTop is permanently 0 now, so a check still reading it would pass by measuring
+             nothing. Same assertion, the scroller it names is the only thing that changed. */
           (function(){
-            var m = q('.aa-workspace-main');
-            if (!m) return;
+            /* ⚠ ONLY FOR A TAB THAT EXISTS. `out._tabIdx` runs one past the end on the final pass, so
+               `cur` is undefined there and this used to record a reading under the key "undefined"
+               and assert on it. It read 0 while the scroller was `.aa-workspace-main`, whose scrollTop
+               was always 0 after a reset, and started reading a real window position the moment the
+               page got its own scroll. An assertion about a tab that does not exist can only ever be
+               noise. */
+            if (!cur) return;
             out._tabScroll = out._tabScroll || {};
-            out._tabScroll[cur] = Math.round(m.scrollTop);
-            m.scrollTop = 400;                 // leave it scrolled for the next tab to inherit
+            out._tabScroll[cur] = Math.round(window.scrollY);
+            window.scrollTo(0, 400);           // leave it scrolled for the next tab to inherit
           })();
           /* 🔴 THE REPEATED SECTION HEADINGS. The page carries the eyebrow "The decision, and what it
              is worth" TWICE plus two more, and hiding them took three attempts because engine.css's

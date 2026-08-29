@@ -91,10 +91,9 @@ SHOTS = {
         for (var i = 0; i < b.length; i++)
           if (/Configure this plant/.test(b[i].textContent || '')) {
             clearInterval(t); b[i].click();
-            setTimeout(function(){
-              var m = document.querySelector('.aa-workspace-main');
-              if (m) m.scrollTop = 420;
-            }, 2500);
+            /* The window is the scroller on every stage since 2026-08-30; this used to nudge
+               `.aa-workspace-main`, whose scrollTop is now always 0. */
+            setTimeout(function(){ window.scrollTo(0, 420); }, 2500);
           }
       }, 150);
     """,
@@ -103,9 +102,16 @@ SHOTS = {
 
 def shot(name, drive, port, theme):
     src = io.open(os.path.join(DIST, "index.html"), encoding="utf-8", newline="").read()
-    boot = ("<script>try{localStorage.setItem('aa-theme',%s);"
+    # 🔴 BOTH STAGE GROUPS, because this file shoots the landing AND the two work screens with one
+    # requested palette. A choice is recorded per group since 2026-08-30, so seeding one group would
+    # leave the other rendering its own default and half the shots would silently be the wrong theme.
+    boot = ("<script>try{"
+            "localStorage.setItem('aa-theme-choice-pick','1');"
+            "localStorage.setItem('aa-theme-pick',%s);"
+            "localStorage.setItem('aa-theme-choice-work','1');"
+            "localStorage.setItem('aa-theme-work',%s);"
             "document.documentElement.dataset.theme=%s;}catch(e){}</script>"
-            % (json.dumps(theme), json.dumps(theme)))
+            % (json.dumps(theme), json.dumps(theme), json.dumps(theme)))
     page = src.replace("<head>", "<head>" + boot, 1).replace(
         "</body>", "<script>(function(){" + drive + "})();</script></body>")
     tmp = "_shot_%s.html" % name

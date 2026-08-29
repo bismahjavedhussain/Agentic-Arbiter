@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Masthead } from './components/Masthead'
 import { SearchBar, type Filters } from './components/SearchBar'
 import { SelectedBar } from './components/SelectedBar'
@@ -126,56 +126,61 @@ export function App() {
    * light mode" of the configure screen. Both add "the user can change it when they want to", so this
    * is a default and never a lock.
    *
-   * The distinction that makes it work is between an AUTOMATIC theme and a CHOSEN one:
-   *   - `aa-theme` in localStorage means the reader pressed the toggle. It is now written ONLY by the
-   *     toggle, never by this effect, so its presence is exactly the fact "they chose".
-   *   - with no such key, the stage decides, and keeps deciding as they move between screens.
-   * ⚠ THAT KEY USED TO BE WRITTEN ON EVERY CHANGE, which would have made the first automatic switch
-   * indistinguishable from a choice and frozen the theme from then on. It is the one line that had to
-   * move for any of this to be true.
+   * The distinction that makes it work is between an AUTOMATIC theme and a CHOSEN one, and a choice
+   * is now recorded PER STAGE GROUP rather than globally.
    *
-   * The pre-paint script in index.html still reads `aa-theme` before the first paint, so a reader who
-   * HAS chosen never sees a flash of the other palette; one who has not gets the dark landing page,
-   * which is what that script already defaults to, so there is no flash there either.
+   * 🔴 A GLOBAL CHOICE WAS THE PREVIOUS DESIGN AND IT DEFEATED THE RULE ABOVE. One press of the
+   * toggle, anywhere, pinned every screen forever. MEASURED: pressing it TWICE on the configure
+   * screen leaves configure looking identical (light to dark to light) and permanently pins the
+   * LANDING page to light, in the same document and after a real reload. One press on the landing
+   * does it just as directly. Either way the reader has changed a screen they were not looking at,
+   * and the next time they open the site the globe is on white. That is the third time this has been
+   * reported and the second time the mechanism was different, so the mechanism is what changes.
+   *
+   * TWO GROUPS, and only two: 'pick' is the landing page and 'work' is configure plus results. Each
+   * remembers its own choice under its own keys. Pressing the toggle on the landing pins the landing
+   * and nothing else; pressing it on configure pins configure and results and leaves the globe alone.
+   * With no key for the group you are in, the group's default applies and keeps applying.
+   *
+   * ⚠ THE KEY NAMES CHANGED ON PURPOSE, and that is half the fix. Every reader who has ever pressed
+   * the toggle is carrying `aa-theme-choice='1'`, so leaving the names alone would leave them pinned
+   * to whatever they last picked no matter how correct the new logic is. New names unstick them once.
+   *
+   * A fresh document always starts on the landing, so the pre-paint script in index.html needs
+   * exactly one lookup and the no-flash property is unchanged.
    */
-  /* 🔴 THE MARKER IS `aa-theme-choice`, AND THE FIRST VERSION OF THIS WAS WRONG.
-     It read `aa-theme`, on the reasoning that the key only existed if the toggle had written it. That
-     was true of the code as written and false of the world: `aa-theme` has been written by this app
-     for weeks, so every returning visitor already had one and the per-stage default never applied to
-     any of them. Measured on the deployed site: the landing page opened light for the owner.
-     A dedicated key cannot have that history. It is written only by `chooseTheme` below, so its
-     presence means exactly one thing. */
-  const chose = useRef<boolean>(
-    (() => {
-      try { return localStorage.getItem('aa-theme-choice') === '1' } catch { return false }
-    })(),
-  )
+  const group = (s: string | null) => (s === 'configure' || s === 'results' ? 'work' : 'pick')
 
   useEffect(() => {
-    if (chose.current) return
-    setTheme(stage === 'configure' || stage === 'results' ? 'light' : 'dark')
+    const g = group(stage)
+    let pinned: string | null = null
+    try {
+      if (localStorage.getItem('aa-theme-choice-' + g) === '1') {
+        pinned = localStorage.getItem('aa-theme-' + g)
+      }
+    } catch {
+      /* private mode: no choice can be read, so the group default holds, which is the safe way round */
+    }
+    setTheme(pinned === 'light' ? 'light' : pinned === 'dark' ? 'dark' : g === 'work' ? 'light' : 'dark')
   }, [stage])
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    /* `aa-theme` is now a CACHE of whatever is on screen, not a record of a decision: the pre-paint
-       script reads it so a reader who HAS chosen never sees a flash of the other palette. The decision
-       itself lives in `aa-theme-choice`. */
-    try { localStorage.setItem('aa-theme', theme) } catch { /* private mode; the default holds */ }
   }, [theme])
 
-  /** The toggle, and the only thing that records a preference. */
+  /** The toggle, and the only thing that records a preference. It records it for the group the reader
+   *  is actually looking at, which is the whole of the fix above. */
   const chooseTheme = useCallback((next: 'dark' | 'light') => {
-    chose.current = true
+    const g = group(stage)
     try {
-      localStorage.setItem('aa-theme-choice', '1')
-      localStorage.setItem('aa-theme', next)
+      localStorage.setItem('aa-theme-choice-' + g, '1')
+      localStorage.setItem('aa-theme-' + g, next)
     } catch {
       /* private mode: the choice holds for this visit and is forgotten on the next, which is the
          right way round. A theme that cannot be remembered should not pretend it was. */
     }
     setTheme(next)
-  }, [])
+  }, [stage])
 
   /* Stable identity, so SiteMap's create-once effect stays create-once even if its dependency
      array is ever widened again. Belt as well as braces: the ref inside SiteMap is the braces. */
@@ -347,6 +352,46 @@ export function App() {
           under the masthead it explains. */}
       <div id="aa-ringslot" />
 
+      {/* 🔴 THE GATE IS RENDERED BEFORE THE DATA GUARD, AND THAT ORDER IS THE BUG FIX.
+          The user, with a screen recording of the deployed site: "The site load with different page
+          than it is supposed to. It should land directly on the page with the globe without showing
+          the other page before."
+          It was rendered at the END of the `!a || !h` ternary's else-arm, so the gate could not exist
+          until BOTH the artefact bundle and the three headline JSONs had been fetched. Until then
+          React painted the OTHER arm of that same ternary, and that is the page they saw: the
+          FortyGuard banner, the wordmark, the four bullets, both value cards, the REPLAY line and
+          "Loading saved data...".
+          MEASURED on three warm loads: the wrong page held the glass for 451, 470 and 591 ms, and 717
+          ms on a fourth. Confirmed causal by holding backtest.json, trace.json and money.json for 3 s
+          with CDP: the gate's DOM insert moved from 1,253 ms to 3,876 ms, +2.62 s for a +2.9 s hold.
+          Their own recording shows the same thing on the deployed site at t = 1.323 s.
+          Rendered here, the gate is in React's FIRST commit, so the first contentful frame of the
+          document is the splash and everything else is painted UNDERNEATH an opaque
+          `position: fixed; inset: 0; z-index: 200` overlay. Measured on a patched build: the gate
+          enters the DOM in the same tick as `#root`'s first child, and no frame contains the masthead.
+
+          ⚠ "PLACED LAST SO THE GATE IS OVER THE PAGE IN PAINT ORDER" WAS THE OLD REASON FOR THE OLD
+          POSITION, AND IT WAS NOT LOAD-BEARING. `#app` becomes a stacking context under
+          `body[data-aa-intro] #app { position: relative; z-index: 1 }`, and the gate's
+          `z-index: 200 !important` wins inside it regardless of DOM order: measured across 243
+          samples spanning 417 ms to 5,002 ms on the patched build, the gate was the topmost element
+          at 9 of 9 hit-test points every time, including after the map and the cards had rendered.
+
+          ⚠ ONE NARROW CONSEQUENCE, NAMED RATHER THAN DISCOVERED LATER. `launch.ts` looks up
+          `[data-show="pick"]` and `timeline.ts` looks up `[data-aa-hero="cta"]`, and both live inside
+          the guard below, so between first paint and the artefacts landing they are null. Every use
+          of both is null-guarded, so the sequence degrades to a plain fade instead of a crossfade.
+          Two things keep it out of reach anyway: the call to action is disabled until the audio has
+          preloaded (capped at 1,500 ms) and the sequence runs 6.876 s before it hands over, against
+          headline JSONs that resolved at 487 ms warm.
+
+          🔴 WRAPPED, because a decorative layer must not be able to blank the product. A throw inside
+          IntroLayer's subtree used to unmount the entire tree: measured with WebGL disabled, `#root`
+          went to zero children. See IntroBoundary. */}
+      <IntroBoundary>
+        <IntroLayer />
+      </IntroBoundary>
+
       {!a || !h ? (
         <p className="text-[13px] text-muted">Loading saved data…</p>
       ) : (
@@ -413,17 +458,6 @@ export function App() {
               DOM can reach it without React managing those nodes. */}
           <DetailModal />
 
-          {/* THE CINEMATIC INTRO, landing stage only. One mount and nothing else: IntroLayer reads
-              the stage from body[data-stage] through useStage(), renders nothing anywhere but
-              'pick', and returns null outright when the motion kill switch is off -- which is also
-              how the browser checks bypass it (?motion=off). Placed last so the gate is over the
-              page in paint order as well as in z-index. */}
-          {/* 🔴 WRAPPED, because a decorative layer must not be able to blank the product. A throw
-              inside IntroLayer's subtree used to unmount the entire tree: measured with WebGL
-              disabled, `#root` went to zero children. See IntroBoundary. */}
-          <IntroBoundary>
-            <IntroLayer />
-          </IntroBoundary>
         </>
       )}
     </main>

@@ -326,10 +326,10 @@ it four pixels out. The layout was correct; the animation was walking the card o
 that reads the CSS could have seen that, and nothing that reads a screenshot by eye would have
 measured it.
 
-## 5d. `testing/cdp.py`, and the four checks that need a real pointer
+## 5d. `testing/cdp.py`, and the five checks that need a real pointer
 
-⚠ **THREE OF THE FOUR ARE `run_all.py` STEPS**, added 2026-08-30: `verify_tooltip.py`,
-`verify_results_surfaces.py` and `verify_landing_surfaces.py`. Each guards a fault that shipped, so
+⚠ **FOUR OF THE FIVE ARE `run_all.py` STEPS**, added 2026-08-30: `verify_tooltip.py`,
+`verify_results_surfaces.py`, `verify_landing_surfaces.py` and `verify_scroll_and_theme.py`. Each guards a fault that shipped, so
 each belongs in the one command that is supposed to prove the product. `shot_rail.py` is not a step,
 for the same reason `shot_hero.py` is not: it measures and photographs, and exits 0 either way.
 
@@ -392,6 +392,24 @@ after a real click through to the configure stage and back, which is the exact t
 leave the dot gone for good.
 The reload check is a real second `Page.navigate`, and it asserts BOTH directions: the gate returns
 after a document load, and it does NOT return after an in-document round trip.
+
+### `testing/verify_scroll_and_theme.py` - short viewports, and a theme that stays put, 36 checks
+
+🔴 **IT RUNS 1366x768 AND 1400x820 ON PURPOSE, AND THAT IS THE WHOLE REASON IT EXISTS.** Every other
+browser check in this repository uses a tall window (1500x1400, 1500x1000, 1600x1000, 1440x1000), and
+the scroll fault it guards only occurred when the viewport was short enough for a fixed-height shell
+to clip its own content. Roughly 700 green assertions never saw it. See `05-TRAPS` 5b.36.
+
+Three viewport/stage combinations, each asserting that the DOCUMENT has something to scroll, that
+`window.scrollTo` actually moves `scrollY`, that `#app` no longer clips, and that the LAST Quick
+Action row is fully on screen after scrolling to the bottom. It names the row in the output, because
+"Choose a different site" is the control the reader said they could not reach.
+
+The theme half drives the toggle with REAL pointer clicks through the exact sequence that reproduced
+the report: two presses on the configure screen, which leave configure looking identical and used to
+pin the landing page to light for good. It then asserts the landing group's keys are still empty, goes
+back to the landing and requires it to be dark, and finally presses the toggle THERE and requires the
+choice to survive a real reload. Both halves of the rule, in one run.
 
 ### `testing/verify_results_surfaces.py` - three reported surfaces, 23 checks
 

@@ -151,8 +151,22 @@ export function IntroLayer() {
 
   /* MARK THE DOCUMENT while the intro owns the landing stage, and unmark it on the way out. Every
      rule in intro.css hangs off this attribute, so a page that never mounts this component, or has
-     left the landing stage, cannot pick up a single intro style. */
-  useEffect(() => {
+     left the landing stage, cannot pick up a single intro style.
+
+     🔴 useLayoutEffect, NOT useEffect, AND ON THE LIGHT THEME THE DIFFERENCE IS A WHITE FLASH.
+     A plain effect runs AFTER the browser has painted, so the first painted frame of the gate had no
+     `data-aa-intro` on the body. `intro.css` paints the gate `background: var(--page) !important`,
+     and `--page` is #fafafa in the light palette against #09090b in the dark one; the rule that pins
+     the splash to the dark floor is the one hanging off this attribute. So a light-theme reader got a
+     full-viewport WHITE splash, in the wrong layout, until the attribute landed.
+     MEASURED on the user's own recording of the deployed site: white and centred from t = 1.600 s to
+     t = 2.200 s, flipping to the dark floor and the left-aligned layout by t = 2.425 s. Measured
+     again in the harness: 589 ms of gate in the wrong palette even after the gate itself was moved
+     into the first commit.
+     A layout effect runs synchronously after the DOM is in place and BEFORE paint, so there is no
+     frame in which the gate exists unmarked. Same reasoning as the entrance's own layout effect
+     directly above; this one was simply written the other way. */
+  useLayoutEffect(() => {
     if (!flags.motion) return
     const b = document.body
     if (onLanding) b.setAttribute(BODY_ATTR, released ? 'running' : 'gate')

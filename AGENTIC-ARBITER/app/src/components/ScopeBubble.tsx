@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Coins, Gauge, Globe2, TrendingUp } from 'lucide-react'
+import { Gauge, Globe2, TrendingUp } from 'lucide-react'
 import type { Portfolio } from '../lib/artefacts'
 
 /**
@@ -139,16 +139,25 @@ export function ScopeBubble({
           line introduces it and the sites line qualifies it. */}
       {p && (
         <aside className="aa-bubble aa-bubble-value" aria-label="What the portfolio is worth">
-          {/* ---- PRICE, top. */}
-          <p className="aa-bubble-foot is-lead">
-            <Coins size={13} strokeWidth={2.2} aria-hidden="true" />
-            <span>
-              worth <b>{usd(p.usd_mid_lo)}</b> to <b>{usd(p.usd_mid_hi)}</b> a year, modelled: the
-              median of each site's own published tariff-by-efficiency sweep on IT load
+          {/* ---- PRICE, top, AT THE SAME WEIGHT AND SIZE AS THE HOURS.
+              The user: "write the money price in million in big size font (just like the size of the
+              number of free cooling hours font)." So it is a second `.aa-bubble-hero` rather than a
+              caption, and the two figures share one type scale by construction: neither block sets a
+              size of its own, so a change to `.aa-bubble-num` moves both. */}
+          <p className="aa-bubble-hero">
+            <span className="aa-bubble-num">
+              {usd(p.usd_mid_lo)}
+              <span className="aa-bubble-dash">to</span>
+              {usd(p.usd_mid_hi)}
+            </span>
+            <span className="aa-bubble-unit">
+              a year, modelled: each site's median
+              <br />
+              published tariff sweep on inferred IT load
             </span>
           </p>
 
-          {/* ---- FREE-COOLING HOURS, middle, and the loudest thing on the card. */}
+          {/* ---- FREE-COOLING HOURS, middle. */}
           <p className="aa-bubble-hero">
             <span className="aa-bubble-num">+{n(p.gain_h_per_year)}</span>
             <span className="aa-bubble-unit">
@@ -158,13 +167,20 @@ export function ScopeBubble({
             </span>
           </p>
 
-          {/* ---- SITES, bottom. */}
+          {/* ---- SITES, bottom, and now a phrase rather than a paragraph.
+              ⚠ THE SPLIT AND THE NETTING BOTH SURVIVE THE CUT, and that was the constraint. It read
+              "At the other 12 the agent's gates are the more conservative of the two controllers, and
+              every one of them stays in the total above", which is three clauses where the card has
+              room for one. What a reader has to be able to see is that 12 sites do NOT gain and that
+              they are still inside the figure above; "238 of 250" says the first and "all 250 are in
+              the total" says the second. Why those twelve behave that way is in this file's own
+              header and in portfolio.json, which is where a reader who asks the next question goes.
+              What is NOT here is any word implying they failed, which the user ruled out. */}
           <p className="aa-bubble-foot">
             <TrendingUp size={13} strokeWidth={2.2} aria-hidden="true" />
             <span>
-              <b>{p.sites_gaining}</b> of <b>{p.sites_summed}</b> sites gain free-cooling hours. At
-              the other <b>{p.sites_losing}</b> the agent's gates are the more conservative of the
-              two controllers, and every one of them stays in the total above
+              <b>{p.sites_gaining}</b> of <b>{p.sites_summed}</b> sites gain free-cooling hours, and
+              all <b>{p.sites_summed}</b> are in the total above
             </span>
           </p>
         </aside>

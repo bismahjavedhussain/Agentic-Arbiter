@@ -166,9 +166,21 @@ def main():
             if ck(bool(vc), "the value card is on screen"):
                 b = vc["blocks"]
                 ck(len(b) == 3, "three blocks and no more", str(len(b)))
-                ck(b[0]["text"].startswith("worth "), "PRICE is first", b[0]["text"][:74])
+                # 🔴 THE PRICE IS A HEADLINE FIGURE NOW, NOT A CAPTION. The user: "write the money
+                # price in million in big size font (just like the size of the number of free cooling
+                # hours font)." So the assertion is that block 0 is a hero whose figure is the money,
+                # and that both heroes share one computed size rather than one of them being set to
+                # match the other by hand.
+                ck("aa-bubble-hero" in b[0]["cls"] and (b[0]["num"] or "").startswith("$"),
+                   "PRICE is first, at headline size", "%s %s" % (b[0]["num"], b[0]["unit"]))
                 ck("aa-bubble-hero" in b[1]["cls"], "the free-cooling figure is second",
                    "%s %s" % (b[1]["num"], b[1]["unit"]))
+                sizes = json.loads(c.eval(
+                    "JSON.stringify(Array.prototype.map.call("
+                    "document.querySelectorAll('.aa-bubble-value .aa-bubble-num'),"
+                    "function(n){var s=getComputedStyle(n);return s.fontSize+'/'+s.fontWeight;}))"))
+                ck(len(set(sizes)) == 1 and len(sizes) == 2,
+                   "and both headline figures are the same size and weight", " vs ".join(sizes))
                 ck(b[2]["text"].startswith("238 of 250"), "SITES is third", b[2]["text"][:74])
 
                 # the money, against the artefact

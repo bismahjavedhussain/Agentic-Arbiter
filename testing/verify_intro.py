@@ -757,8 +757,11 @@ def main():
     # obey it is asking the wrong question: to test the light palette this harness has to claim the
     # reader CHOSE light, which is what the marker means.
     for theme in ("dark", "light"):
-        seed = ("<script>try{localStorage.setItem('aa-theme-choice','1');"
-                "localStorage.setItem('aa-theme','%s')}catch(e){}</script>" % theme)
+        # ⚠ THE `-pick` KEYS. A choice is recorded per stage group since 2026-08-30, and this fixture
+        # only ever exercises the GATE, which is the landing group. Seeding the old global pair now
+        # seeds a key nothing reads.
+        seed = ("<script>try{localStorage.setItem('aa-theme-choice-pick','1');"
+                "localStorage.setItem('aa-theme-pick','%s')}catch(e){}</script>" % theme)
         io.open(os.path.join(DIST, "_intro_%s.html" % theme), "w",
                 encoding="utf-8", newline="").write(
             src.replace('<meta charset="utf-8">', '<meta charset="utf-8">' + seed)

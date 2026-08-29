@@ -312,6 +312,12 @@ STEPS = [
      [sys.executable, os.path.join(TESTING, "verify_results_surfaces.py")], ROOT),
     ("the landing copy, the value card, the loop's labels, the pulse and the reload",
      [sys.executable, os.path.join(TESTING, "verify_landing_surfaces.py")], ROOT),
+    # ⚠ THIS ONE RUNS SHORT VIEWPORTS ON PURPOSE, 1366x768 and 1400x820. The scroll fault it guards
+    # was invisible to every other browser check in this repository because they all use a tall
+    # window (1500x1400, 1500x1000, 1600x1000, 1440x1000), and the page only clipped when the
+    # viewport was short enough for the rail to run past the bottom of it.
+    ("the page scrolls at a short viewport, and a theme choice stays on its own screen",
+     [sys.executable, os.path.join(TESTING, "verify_scroll_and_theme.py")], ROOT),
     ("the React app renders the same numbers twice, from fresh profiles",
      [sys.executable, "verify_app_deterministic.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The app is a prototype and the "

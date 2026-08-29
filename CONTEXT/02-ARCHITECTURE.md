@@ -198,12 +198,21 @@ The **pre-paint IIFE in `<head>`** resolves the theme and stamps `data-theme` be
 It is there rather than in the main script because the main script runs after parse, which would paint
 light first and repaint dark: a white flash on every load.
 
-🔴 **IN THE REACT APP THERE ARE TWO KEYS, AND ONLY ONE OF THEM IS A DECISION.** `aa-theme-choice` is
-written only by `chooseTheme()` and means the reader pressed the toggle; with it absent the STAGE picks
-the default (dark on the landing page, light on configure and results). `aa-theme` is a CACHE of the
-resolved palette, which the pre-paint script reads so a reader who has chosen never sees a flash of the
-other one. Collapsing the two -- treating the presence of `aa-theme` as a choice -- is `05-TRAPS` 5b.26,
-and it silently disabled the stage default for every returning reader.
+🔴 **IN THE REACT APP A CHOICE IS RECORDED PER STAGE GROUP, AND THERE ARE EXACTLY TWO GROUPS.**
+`pick` is the landing page and `work` is configure plus results. Each keeps its own pair,
+`aa-theme-choice-<group>` and `aa-theme-<group>`, and `chooseTheme()` writes only the group the reader
+is looking at. With no key for the group you are in, the group's default applies and keeps applying:
+dark on the landing, light on configure and results.
+
+⚠ **THIS SUPERSEDES A GLOBAL CHOICE, AND THE REVERSAL WAS THE USER'S.** The scheme was one pair for the
+whole app, so one press of the toggle anywhere pinned every screen. MEASURED: two presses on configure
+leave configure identical and permanently pin the LANDING page to light, in the same document and
+after a reload. That was the specified behaviour and it produced the same complaint twice, so the
+specification changed. The key NAMES changed with it, which is what unsticks a reader already carrying
+the old pair; the old keys are never read again and simply expire.
+A fresh document always opens on the landing, so the pre-paint script needs exactly one lookup,
+`-pick`, and the no-flash property is unchanged. `05-TRAPS` 5b.26 records the previous scheme and why
+its own predecessor was worse still.
 
 `let THEME` re-reads what the pre-paint script wrote. `applyTheme()` also has to repaint the canvases
 and the map, which CSS cannot do for it.

@@ -12,6 +12,95 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE PAGE SCROLLS, THE GLOBE IS THE FIRST FRAME, AND A THEME CHOICE STAYS ON ITS SCREEN. 2026-08-30
+
+Four reports. Three of them were only visible under a condition no check in this repository
+reproduced, and the fourth was a design decision that had to be reversed because it kept producing
+the same complaint.
+
+🔴 **1. THE PAGE COULD NOT SCROLL, AND THE USER CALLED IT THE BIGGEST ISSUE.** `cinematic.css` gave
+`#app` `height: 100vh; overflow: hidden` on every stage but the landing, with `.aa-workspace-main` as
+the only scroller. A dashboard shell, and a reasonable one until the viewport is short.
+**MEASURED at 1366x768:** `main#app` clientHeight **672** against scrollHeight **755**, so 83 px were
+clipped with nothing in the chain able to reach them; `document.scrollingElement` read 672/672 and
+`window.scrollTo(0, 4000)` left scrollY at **0**. Both Quick Action rows sat entirely below the fold.
+⚠ **AND THE RAIL'S OWN SCROLLBAR WAS NOT A WAY IN**, which is what makes this containment rather than
+discoverability: at 1600x1000 and 1400x820 the rail had NOTHING to scroll (scrollHeight 561 ==
+clientHeight 561), and at 1366x768 it had 19 px, exhausted by one real wheel tick, after which both
+rows were still completely below the fold.
+The rule that permitted it was `max-height: calc(100vh - 128px)`: 128 is a guess at the rail's top
+offset and the rail's top **measures 210.6 px**, so the rule allowed a box ending 82.6 px past the
+bottom of the screen. That is `05-TRAPS` 5b.12 word for word, and its own advice ("the fix is not a
+smaller constant, which would just be a guess at the masthead's height") had been followed for the
+engine's sidebar and never applied here.
+**The shell is gone.** `min-height: 100vh` and no overflow clamp, `.aa-workspace-main` is an ordinary
+flex child, and both sticky columns are bounded by `calc(100vh - 32px)`, which needs no measurement of
+anything. `--aa-scrollport` and the effect that published it are removed with their only consumer.
+⚠ **AND THE TAB RESET HAD TO BE TOLD IT MEANT IT.** `lib/noscrolljump.ts` patches `window.scrollTo` to
+swallow any scroll-to-top taken while `body[data-stage]` is unchanged, because the engine re-runs
+`setStage()` on the stage it is already on. A tab change does not change the stage, so "every tab
+opens at its own top" looked exactly like one of those re-runs and was swallowed: MEASURED at window
+scroll 400, money stayed at 400, plume went to 521 and calib clamped to 279. `scrollToTopNow()` is
+that file's new and only sanctioned way to mean it.
+**MEASURED after:** at 1366x768 on results, scrollHeight 837 against clientHeight 672, `scrollY`
+reaches 165, and "Choose a different site" sits fully on screen at 552..593. Same at 1400x820 and on
+the configure stage.
+⚠ **WHY NOTHING CAUGHT IT:** every browser check here uses a tall window, 1500x1400, 1500x1000,
+1600x1000 or 1440x1000. `verify_scroll_and_theme.py` runs 1366x768 and 1400x820 on purpose.
+
+🔴 **2. THE FIRST FRAME WAS THE WRONG PAGE.** `<IntroLayer/>` was rendered at the END of the
+`!a || !h` data-loading ternary, so the gate could not exist until the artefact bundle AND the three
+headline JSONs had landed. Until then React painted the OTHER arm of the same ternary, and that is
+what the user recorded: the banner, the wordmark, the four bullets, both value cards, the REPLAY line
+and "Loading saved data...".
+**MEASURED on four warm loads: 451, 470, 591 and 717 ms of the wrong page.** Confirmed causal by
+holding `backtest.json`, `trace.json` and `money.json` for 3 s over CDP: the gate's DOM insert moved
+from 1,253 ms to 3,876 ms, +2.62 s for a +2.9 s hold. Their own recording of the deployed site shows
+it at t = 1.323 s.
+The gate now renders BEFORE the guard, so it is in React's first commit. **MEASURED after: the first
+frame with `#root` children and the first frame with the gate are the same frame, at 346 ms.**
+⚠ **AND A SECOND, SEPARATE FLASH UNDERNEATH IT, WHICH THE FIRST FIX WOULD NOT HAVE TOUCHED.**
+`body[data-aa-intro]` was set in a `useEffect`, which runs AFTER paint. `intro.css` paints the gate
+`background: var(--page) !important`, and `--page` is **#fafafa in the light palette**; the rule that
+pins the splash to the dark floor is the one hanging off that attribute. So a light-theme reader got a
+full-viewport WHITE splash in the wrong layout until it landed, which is exactly what their recording
+shows between t = 1.600 s and t = 2.425 s. `useLayoutEffect` instead. **MEASURED after: 0 samples with
+the gate present and the attribute unset, and the gate's background is rgb(7,16,24) at first sight.**
+
+🔴 **3. THE LANDING PAGE KEPT COMING BACK LIGHT, AND THE PREVIOUS DESIGN IS REVERSED.** A theme choice
+was recorded GLOBALLY, so one press of the toggle anywhere pinned every screen for good. MEASURED:
+pressing it TWICE on the configure screen leaves configure looking identical, light to dark to light,
+and permanently pins the LANDING page to light, in the same document and after a reload. One press on
+the landing does it just as directly.
+⚠ **THAT WAS THE SPECIFIED BEHAVIOUR** (`02-ARCHITECTURE` section 5, `05-TRAPS` 5b.26) and the user has
+now reported its consequence twice, so the specification changes rather than the code being defended.
+A choice is recorded **per stage group**: `pick` is the landing, `work` is configure plus results.
+Pressing the toggle on the landing pins the landing and nothing else. New key names, `-pick` and
+`-work`, which is the half of the fix that unsticks a reader already carrying the old pair.
+Four harness seeders had to move with it, and one of them silently: `shot_rail.py` drives to RESULTS
+and never asserts the palette, so seeding `-pick` there would have left the run labelled "dark"
+rendering light with nothing to say so. It seeds `-work`.
+
+**4. THE VALUE CARD**, at the user's instruction: the money is a second headline figure at the same
+44 px / 800 as the hours, and the sites line is one phrase, "238 of 250 sites gain free-cooling hours,
+and all 250 are in the total above", down from three clauses. The split and the netting both survive
+the cut, which was the constraint.
+
+**`testing/verify_scroll_and_theme.py` is new**, 36 checks: the document scrolls at three
+short-viewport/stage combinations, the last Quick Action is reachable, and the toggle is driven with
+real pointer clicks through the exact two-press-on-configure sequence that reproduced the report.
+`run_all.py` runs it, so it is 44 steps.
+
+**Verified after:** `verify_scroll_and_theme.py` **36/0**, `verify_landing_surfaces.py` 39/0,
+`verify_tooltip.py` 70/0, `verify_results_surfaces.py` 29/0, `shot_rail.py` 208/0,
+`verify_intro.py` 227/0, `verify_launch.py` 68/0, `verify_app_flow.py` PASS,
+`verify_core_matches_page.py` 64/0, `verify_view_matches_page.py` 9/0,
+`verify_results_matches_page.py` PASS, `verify_palette.py` 38/0, `verify_state_filter.py` 62/0,
+`verify_stop_control.py` 31/0, `verify_live_report_button.py` 25/0,
+`verify_app_deterministic.py` PASS, `verify_site_panels.py` PASS,
+`verify_shipped_app_is_current.py` PASS, `verify_deployed_root_is_the_app.py` PASS, `audit.py` 2211
+passed with the 5 spend-ledger failures the user deferred, typecheck clean, `sync_context --check` 0.
+
 ### THE HERO COPY, THE VALUE CARD, THE LOOP, THE PULSE AND THE REFRESH. 2026-08-30
 
 Six items, and two of them required saying no to the wording as given, with the measurement that
@@ -2420,7 +2509,7 @@ only `fmt`.
 | Of those, ready to run | **246** | sites.json offerable metros, joined on metro_key |
 | Offerable metros | **250** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
-| run_all.py steps | **43** | count of STEPS entries in src/run_all.py |
+| run_all.py steps | **44** | count of STEPS entries in src/run_all.py |
 | demo/index.html size | **490 KB** | byte length of the shipped page |
 | Map GeoJSON sources | **2** | one clustered, one flat -- see 02-ARCHITECTURE |
 | Map unisites-* layers | **5** | cluster, halo, points, flat-halo, flat |

@@ -8,6 +8,7 @@ import { TabHeader, TabRail } from './Workspace'
 import { AgentConsole } from './AgentConsole'
 import { PlumeBadge } from './PlumeBadge'
 import { ART } from '../lib/artefacts'
+import { scrollToTopNow } from '../lib/noscrolljump'
 
 /**
  * The configure and results stages: the page's own markup, driven by the page's own engine.
@@ -232,46 +233,31 @@ export function EngineStage({
      `behavior: 'instant'` on purpose: a smooth scroll would animate through the panels of a tab the
      reader is leaving, which looks like a glitch rather than navigation. */
   useEffect(() => {
-    const main = document.querySelector('.aa-workspace-main')
-    if (main) main.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+    /* 🔴 THE WINDOW, NOT `.aa-workspace-main`, SINCE 2026-08-30. That element was the scroll container
+       until the fixed-viewport shell was removed to give the page back its own scroll; it is an
+       ordinary flex child now and its scrollTop is permanently 0, so scrolling it would silently do
+       nothing and every tab would open wherever the last one was left. Same requirement, new
+       scroller.
+       ⚠ AND IT GOES THROUGH `scrollToTopNow`, NOT `window.scrollTo`, WHICH IS NOT A DETAIL.
+       `lib/noscrolljump.ts` patches `window.scrollTo` to SWALLOW any scroll-to-top taken while
+       `body[data-stage]` is unchanged, because the engine's `setStage()` re-runs itself on the stage
+       it is already on and each re-run was throwing the reader back to the top. A tab change does not
+       change the stage, so this reset looked exactly like one of those and was being swallowed:
+       MEASURED at window scroll 400, switching to money left it at 400, to plume at 521 and to calib
+       at 279. `scrollToTopNow` is that file's sanctioned way to mean it. */
+    scrollToTopNow()
   }, [tab])
 
-  /* PUBLISH THE REAL SCROLLPORT HEIGHT, because CSS cannot read it and the page's own value is
-     wrong here.
+  /* THE SCROLLPORT VARIABLE IS GONE, AND SO IS THE EFFECT THAT PUBLISHED IT.
+     It existed so `lastmile.css` could bound the engine's sidebar by the REAL scrollport, because the
+     scrollport was `.aa-workspace-main` and 100vh overstated it by the height of the masthead and the
+     tab header. That premise ended on 2026-08-30, when the fixed-viewport shell was removed and the
+     DOCUMENT became the scroller again on every stage: 100vh is exactly right now, and lastmile.css
+     says so where it uses it.
+     Removed rather than left publishing: a variable nobody reads is a fact the next reader has to
+     disprove. The measurement that justified it is preserved in lastmile.css and in 05-TRAPS 5b.12,
+     and the two sticky columns are bounded by `calc(100vh - 32px)`, which needs no measurement. */
 
-     MEASURED (scratchpad/probe_railscroll.py, 1502x904): `aside.sidebar` is 876px of content in an
-     832px box, so its own scrollbar covers 44px -- while the box itself runs from y=268 to y=1102,
-     which is 198px BELOW a 904px viewport. The remaining 198px could only be reached by scrolling
-     `.aa-workspace-main`. That is exactly the user's report: "even if I scroll up all the way in
-     the bar itself, it doesn't show till the top of the bar unless I scroll the page itself up too."
-
-     The cause is not a bug in the page. `index.html:896` sets
-     `max-height: calc(100vh - var(--bezel-h) - var(--sp-5))`, which is CORRECT there: the window is
-     the scrollport and the sidebar sticks below a fixed bezel. In this app the scrollport is
-     `.aa-workspace-main`, which starts below the masthead AND the tab header, so 100vh overstates it
-     by however tall those are. A fixed correction would be a guess at the masthead's height; this
-     measures it, and re-measures on resize and on tab change.
-
-     Set on documentElement so one variable serves every rule, and only read by the sidebar rule in
-     lastmile.css. */
-  useEffect(() => {
-    const main = document.querySelector('.aa-workspace-main') as HTMLElement | null
-    if (!main) return
-    const publish = () => {
-      const h = main.clientHeight
-      if (h > 0) document.documentElement.style.setProperty('--aa-scrollport', h + 'px')
-    }
-    publish()
-    /* ResizeObserver rather than a resize listener: the scrollport also changes when the masthead
-       reflows at a different width, which fires no window resize of its own. */
-    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(publish) : null
-    ro?.observe(main)
-    window.addEventListener('resize', publish)
-    return () => {
-      ro?.disconnect()
-      window.removeEventListener('resize', publish)
-    }
-  }, [tab, stage])
 
   return (
     <>

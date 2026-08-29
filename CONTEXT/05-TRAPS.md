@@ -358,6 +358,60 @@ state and a dead clock leaves a finished page.
 **And the check has to assert the watchdog's result, not the animated value**, which is 5b.13's own
 first consequence.
 
+### 5b.36 EVERY BROWSER CHECK USES A TALL WINDOW, so a short-viewport fault is structurally invisible
+**You observe:** a reader cannot scroll a page and cannot reach a control in the sidebar. Roughly 700
+assertions across a dozen headless checks are green, and the page is fine on your own screen.
+**Actually:** the checks all launch Chrome at 1500x1400, 1500x1000, 1600x1000 or 1440x1000. The fault
+only exists when the viewport is SHORT enough that a fixed-height shell clips its own content, so the
+whole suite was testing the one condition under which the bug does not occur.
+**MEASURED at 1366x768:** `main#app` clientHeight 672 against scrollHeight 755, `scrollTo(0, 4000)`
+leaving `scrollY` at 0, and both target rows entirely below the fold. At 1600x1000 every element in
+the chain had zero overflow, which is why it had never been seen.
+**The habit:** when a layout bug is reported and cannot be reproduced, change the VIEWPORT before
+changing anything else, and pick a laptop-shaped one. A new check that guards a layout fault should
+state the viewport it needs in its own header, because the next person will otherwise run it wide.
+⚠ **AND A SECOND-ORDER VERSION OF THE SAME TRAP:** the element that looked like the escape hatch, a
+sidebar with its own `overflow-y: auto`, had 19 px of internal travel and was exhausted by one wheel
+tick, still leaving both rows off screen. Measure whether the alternative scroller can actually REACH
+the target before concluding the fault is discoverability rather than containment.
+
+### 5b.35 A SHIM THAT SWALLOWS `scrollTo` WILL SWALLOW YOURS TOO
+**You observe:** "every tab opens at its own top" works for one tab and silently fails for three
+others, with the failing ones left at whatever the previous tab was scrolled to.
+**Actually:** `lib/noscrolljump.ts` replaces `window.scrollTo` and refuses any scroll-to-top taken
+while `body[data-stage]` is unchanged, because the engine re-runs `setStage()` on the stage it is
+already on and each re-run threw the reader to the top. A tab change does not change the stage, so a
+deliberate reset is indistinguishable from one of those re-runs. MEASURED at window scroll 400:
+money stayed at 400, plume went to 521 and calib clamped to 279, while `live` reset correctly only
+because it happened to be the first top-scroll after the stage changed.
+**The fix is an explicit escape hatch, not a workaround.** `scrollToTopNow()` is exported from the
+shim itself and calls the captured native function, so there is still exactly one owner of "who may
+scroll to the top" and a caller who means it says so. Reaching around the shim with
+`document.scrollingElement.scrollTop = 0` would work and would leave a second, undocumented route.
+**The habit:** before calling a global API, grep for whether this codebase has monkey-patched it.
+
+### 5b.34 A COMPONENT INSIDE A DATA GUARD CANNOT COVER THE PAGE THAT GUARD IS SHOWING
+**You observe:** the site opens on the wrong screen for half a second before the intended splash
+appears. Nothing is mis-styled: at the first sample in which the overlay exists it already computes
+`position: fixed`, `inset: 0`, `z-index: 200`, `opacity: 1`, and covers 9 of 9 hit-test points.
+**Actually:** it is not a styling problem at all, it is a MOUNT ORDER problem. The overlay was
+rendered inside the else-arm of a `{!data ? <Loading/> : <>...</>}` ternary, so it could not exist
+until the data had arrived, and until then React painted the OTHER arm. The reader sees the loading
+screen because that is the only thing rendered.
+**MEASURED four ways:** 451, 470, 591 and 717 ms of the wrong page on warm loads; and causally, by
+holding the three JSONs for 3 s over CDP `Fetch.requestPaused`, which moved the overlay's DOM insert
+from 1,253 ms to 3,876 ms. Emulating network LATENCY is the wrong experiment here, because it also
+slows the 2.18 MB bundle and cannot separate fetch from render.
+**The fix:** render the overlay ABOVE the guard so it is in the first commit. The counter-argument in
+the source ("placed last so the gate is over the page in paint order as well as in z-index") was
+checked and is not load-bearing: the container is a stacking context and `z-index: 200 !important`
+wins inside it regardless of DOM order, measured across 243 samples.
+⚠ **AND CHECK FOR A SECOND FLASH UNDERNEATH THE FIRST.** The body attribute every intro rule hangs off
+was set in a `useEffect`, which runs AFTER paint, and the rule pinning the splash to the dark floor
+was one of them. On the LIGHT palette the overlay therefore painted `var(--page)` = #fafafa: a
+full-viewport white splash in the wrong layout until the attribute landed, 589 ms even after the mount
+order was fixed. `useLayoutEffect` for anything a first frame depends on.
+
 ### 5b.33 A CUBIC NEVER REACHES ITS CONTROL POINTS, so a bounding box built from them is wrong
 **You observe:** labels anchored to "the edge of the curve" still touch the curve, after a fix that
 computed that edge from the path data and was reviewed and shipped.

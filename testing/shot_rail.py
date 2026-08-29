@@ -190,8 +190,13 @@ def seed(theme):
     overwrite it from the stage default; `aa-theme-choice` is the record that a reader pressed the
     toggle, and only that makes the seeded value stick. See app/index.html."""
     src = io.open(os.path.join(DIST, "index.html"), encoding="utf-8", newline="").read()
-    boot = ("<script>try{localStorage.setItem('aa-theme-choice','1');"
-            "localStorage.setItem('aa-theme',%s);"
+    # 🔴 THE `-work` KEYS, NOT `-pick`, AND GETTING THIS WRONG WOULD FAIL SILENTLY. A choice is
+    # recorded per stage group since 2026-08-30, and this file drives pick -> configure -> RESULTS and
+    # photographs the rail there, which is the WORK group. It never asserts the resolved palette, so
+    # seeding the landing group's keys would leave the run labelled "dark" rendering in the light
+    # palette with nothing to say so.
+    boot = ("<script>try{localStorage.setItem('aa-theme-choice-work','1');"
+            "localStorage.setItem('aa-theme-work',%s);"
             "document.documentElement.dataset.theme=%s;}catch(e){}</script>"
             % (json.dumps(theme), json.dumps(theme)))
     name = "_rail_%s.html" % theme

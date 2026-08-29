@@ -40,12 +40,34 @@
  */
 
 let installed = false
+/** The unpatched `window.scrollTo`, captured before the shim replaces it. See `scrollToTopNow`. */
+let native: typeof window.scrollTo | null = null
+
+/**
+ * 🔴 THE ONE SANCTIONED WAY TO SCROLL TO THE TOP DELIBERATELY, and it exists because the shim below
+ * cannot tell a deliberate one from a no-op.
+ *
+ * The shim swallows every scroll-to-top that happens while `body[data-stage]` is what it was at the
+ * last allowed one. That is right for the engine's `setStage()` re-runs, which are the whole reason
+ * it exists. It is WRONG for a tab change: the stage does not change when a reader moves from
+ * Economic Impact to Plume, so the reset that opens each tab at its own top was being swallowed.
+ * MEASURED after the page was given back its own scroll: with the window at 400, switching to money
+ * left it at 400, to plume at 521 and to calib at 279, while `live` reset correctly because it
+ * happened to be the first top-scroll after the stage changed.
+ *
+ * A caller who KNOWS it wants the top says so here instead of hoping. Nothing else changes: the shim
+ * still refuses the anonymous ones, and this is the only export that can get past it.
+ */
+export function scrollToTopNow() {
+  const f = native || (typeof window !== 'undefined' ? window.scrollTo.bind(window) : null)
+  f?.({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+}
 
 export function installNoScrollJump() {
   if (installed || typeof window === 'undefined') return
   installed = true
 
-  const native = window.scrollTo.bind(window)
+  native = window.scrollTo.bind(window)
 
   /* 🔴 TAKE THE BROWSER OUT OF THE ARGUMENT, and this is the half the first version missed.
      MEASURED with scratchpad/reloadprobe.py: scroll to 521, reload, and Chrome puts the page back at
@@ -68,7 +90,7 @@ export function installNoScrollJump() {
   } catch { /* a sandboxed history is not a reason to fail to boot */ }
   /* Through `native`, not the patched function: this must happen even though it is a scroll-to-top
      and the shim below is about to start refusing some of those. */
-  native({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+  scrollToTopNow()
   /* The stage the last ALLOWED scroll-to-top belonged to. `null` until the first one, so the scroll
      at boot is never suppressed. */
   let lastStage: string | null = null
@@ -94,6 +116,6 @@ export function installNoScrollJump() {
       lastStage = stage
     }
     // eslint-disable-next-line prefer-spread
-    return native.apply(window, args as never)
+    return (native as typeof window.scrollTo).apply(window, args as never)
   } as typeof window.scrollTo
 }

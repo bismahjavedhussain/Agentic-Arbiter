@@ -119,7 +119,10 @@ setTimeout(function(){
 
 def page(theme, drive):
     src = io.open(os.path.join(DIST, "index.html"), encoding="utf-8", newline="").read()
-    boot = ("<script>try{localStorage.setItem('aa-theme',%s);"
+    # The splash is the landing group, and the choice keys are per group since 2026-08-30. Seeding
+    # `aa-theme` alone stopped meaning anything when that key lost its role as a cache.
+    boot = ("<script>try{localStorage.setItem('aa-theme-choice-pick','1');"
+            "localStorage.setItem('aa-theme-pick',%s);"
             "document.documentElement.dataset.theme=%s;}catch(e){}</script>"
             % (json.dumps(theme), json.dumps(theme)))
     p = src.replace("<head>", "<head>" + boot, 1)
