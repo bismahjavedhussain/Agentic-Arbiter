@@ -409,7 +409,7 @@ def replay_sequence(replay, hours):
 
 
 def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, max_calls,
-                     on_progress):
+                     on_progress, should_stop=None):
     """Every window's ambient value: free ones first, then submit the rest and POLL THEM TOGETHER.
 
     🔴 WHY THIS IS A BATCH AND NOT A LOOP. It used to fetch windows one at a time, each waiting up
@@ -428,6 +428,32 @@ def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, m
     recs = [None] * n
     pending = {}
     budget = max_calls if max_calls is not None else 10 ** 6
+
+    # THE STOP CONTROL, AND THE ONE PLACE IT SAVES MONEY.
+    # This function is submit-then-poll, and the 4,220 credits attach at SUBMIT, not at poll:
+    # API-USAGE.md's measured table has POST /v1/heatmap at 4,220 and GET /v1/status/{id} at free,
+    # "unchanged meter across 59 polls". So stopping before a submit saves 4,220 per window, and
+    # stopping during the poll saves nothing while forfeiting data already paid for -- which is
+    # exactly the trap the comment at the top of this module warns about. The checks below are
+    # therefore placed at the submit boundary, and the poll loop takes one last FREE reading
+    # instead of dropping billed windows on the floor.
+    def stopped():
+        # A stop request must never be able to crash a run that is mid-spend.
+        try:
+            return bool(should_stop and should_stop())
+        except Exception:
+            return False
+
+    STOP_NOTE = ("the operator stopped the run before this window was requested, so none of its "
+                 "credits were spent")
+
+    def mark_stopped(i, pw):
+        recs[i] = {"source": "would-call", "class": "not_attempted", "no_data_reason": STOP_NOTE,
+                   "stopped_by_operator": True}
+        if on_progress:
+            on_progress({"stage": "perceive", "hour_index": i, "of_hours": n,
+                         "window": pw["window"], "value_c": None, "class": "not_attempted",
+                         "source": "would-call", "stopped": True})
 
     # ---- 1. everything that costs nothing, first. A cached window must never consume a budget.
     for i, pw in enumerate(plan_w):
@@ -449,6 +475,9 @@ def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, m
                              "window": pw["window"], "value_c": None,
                              "class": "not_attempted", "source": "would-call"})
             continue
+        if stopped():
+            mark_stopped(i, pw)
+            continue
         pending[i] = pw
         budget -= 1
 
@@ -469,6 +498,11 @@ def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, m
         # request, since the twelve differ only in `start_time`. A fraction of a second between
         # submits costs ~5 s against a 300 s poll and is free insurance; losing an hour of the
         # horizon to a transient 429 is not.
+        if stopped():
+            # Everything from here on is unsubmitted and therefore unbilled. Mark it and leave.
+            for (j, pj) in list(pending.items())[k:]:
+                mark_stopped(j, pj)
+            break
         if k:
             time.sleep(SUBMIT_STAGGER_S)
         rec = submit_window(key, aoi, pw["window"])
@@ -490,6 +524,7 @@ def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, m
 
     # ---- 3. one poll loop over everything outstanding.
     t0 = time.time()
+    final_sweep = False
     while outstanding and time.time() - t0 < POLL_MAX_S:
         for i in list(outstanding):
             rec = outstanding[i]
@@ -528,6 +563,21 @@ def perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay, m
                 if on_progress:
                     on_progress({"stage": "perceive", "hour_index": i, "of_hours": n,
                                  "value_c": None, "class": rec["class"], "source": "live"})
+        if final_sweep:
+            break
+        if outstanding and stopped():
+            # THESE WINDOWS ARE ALREADY BILLED, so abandoning them instantly would burn 4,220
+            # credits each for nothing. Polling is free, and a window that completes here is
+            # written to the cache below -- so one more pass turns spent credits back into data a
+            # later run gets for nothing. Then the loop ends.
+            final_sweep = True
+            if on_progress:
+                on_progress({"stage": "perceive", "stopped": True,
+                             "outstanding": len(outstanding),
+                             "note": "stopping. %d window(s) were already submitted and billed, "
+                                     "so taking one last free reading rather than discarding what "
+                                     "was paid for" % len(outstanding)})
+            continue
         if outstanding:
             if on_progress:
                 on_progress({"stage": "perceive", "waiting": True,
@@ -1015,7 +1065,7 @@ def site_local_now(tz_name):
 
 
 def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=True,
-             replay=None, on_progress=None, max_calls=None):
+             replay=None, on_progress=None, max_calls=None, should_stop=None):
     """Perceive now, decide the next `hours`, for one site. Returns the emitted dict."""
     metro = metro or M.metro_key()
     # 🔴 SET THE METRO IN THE ENVIRONMENT BEFORE ANY A.* CALL THAT RESOLVES A PATH.
@@ -1225,7 +1275,7 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     # than one per hour, and it heartbeats while it waits.
     windows = [pw["window"] for pw in plan_w]
     temps, recs = perceive_ambient(key, aoi, metro, want_latlon, plan_w, allow_paid, replay,
-                                   max_calls, on_progress)
+                                   max_calls, on_progress, should_stop)
     for i, pw in enumerate(plan_w):
         recs[i]["lead_h"] = pw["lead_h"]
         if verbose:
@@ -1242,6 +1292,33 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
     _append_spend_ledger(out, recs)
     out["windows"] = [{"window": w, **{k: v for k, v in r.items() if k != "window"}}
                       for w, r in zip(windows, recs)]
+
+    # A STOPPED RUN IS ITS OWN OUTCOME, not an incomplete one.
+    # Without this the branch below would classify it as `incomplete_not_attempted` and tell the
+    # operator the horizon was under-budgeted, which is not what happened: they pressed stop. The
+    # distinction matters because the two have opposite remedies -- one needs a bigger budget, the
+    # other needs nothing at all.
+    if should_stop and should_stop():
+        n_stop = sum(1 for r in recs if r.get("stopped_by_operator"))
+        n_have = sum(1 for t in temps if t is not None)
+        saved = n_stop * HEATMAP_CREDITS
+        spent = out["spend"]["credits_spent"] or 0
+        out["status"] = "stopped_by_operator"
+        out["stopped"] = {"stage": "perceive", "hours_perceived": n_have,
+                          "windows_never_requested": n_stop, "calls_prevented": n_stop,
+                          "credits_spent_before_stop": spent, "credits_not_spent": saved,
+                          "credits_per_call": HEATMAP_CREDITS}
+        out["operator_message"] = (
+            "STOPPED. No further calls were made. %d window(s) were never requested, so %s "
+            "credits those calls would have cost were not spent. %s "
+            "There is no schedule, and that is deliberate: a schedule is only published over "
+            "hours the agent actually perceived, and this run was stopped before it had them."
+            % (n_stop, format(saved, ","),
+               ("%s credits had already been spent when the stop arrived, and every window they "
+                "bought is now cached, so those hours cost nothing to fetch again."
+                % format(spent, ",")) if spent else
+               "No credits had been spent when the stop arrived."))
+        return out
 
     got = [i for i, t in enumerate(temps) if t is not None]
     n_not_attempted = sum(1 for r in recs if r.get("class") == "not_attempted")
@@ -1300,6 +1377,22 @@ def live_run(metro=None, hours=HORIZON_H, allow_paid=False, cfg=None, verbose=Tr
         return out
 
     # ---- SOLVE + BOUND + DECIDE -------------------------------------------------
+    # NO NEW STAGE BEGINS AFTER A STOP. Solving and scheduling are local, free and take seconds,
+    # so letting them finish would cost nothing -- but "stop" means stop, and the perception this
+    # run paid for is in the cache either way. Pressing Run again replays those hours at zero
+    # credits and reaches this point almost immediately.
+    if should_stop and should_stop():
+        out["status"] = "stopped_by_operator"
+        out["stopped"] = {"stage": "solve", "hours_perceived": sum(1 for t in temps
+                                                                  if t is not None),
+                          "windows_never_requested": 0, "calls_prevented": 0,
+                          "credits_spent_before_stop": out["spend"]["credits_spent"] or 0,
+                          "credits_not_spent": 0, "credits_per_call": HEATMAP_CREDITS}
+        out["operator_message"] = (
+            "STOPPED after every hour had been perceived and before the schedule was solved. No "
+            "call was prevented, because none was left to make. Every window this run bought is "
+            "cached, so pressing Run again finishes the decision at zero credits.")
+        return out
     if on_progress:
         on_progress({"stage": "solve", "note": "loading this site's 576-solve rise table"})
     tab, refused, tmeta = A.rise_table(cfg["bank_mode"])

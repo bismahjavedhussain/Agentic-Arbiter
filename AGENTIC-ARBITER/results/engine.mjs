@@ -12,7 +12,7 @@
  * WHY ONE BIG MODULE RATHER THAN SIX SMALL ONES, which is what core/ got. core/'s 22 functions were
  * made PURE first: every global became a parameter, so `decide(k)` became `decide(k, trace)`. These
  * are renderers. They read a shared block of loaded artefacts and write the DOM by element id, and
- * threading that through 100 functions would be a rewrite rather than a lift. Together in one module,
+ * threading that through 101 functions would be a rewrite rather than a lift. Together in one module,
  * every reference stays literally `T`, `SITE`, `PF` -- so the text is byte-identical and provable.
  *
  * WHAT IS NOT HERE: the pick stage. The national map, the search, the site picker, boot() and the
@@ -248,6 +248,7 @@ function buildControls(){
   drawModeBanner();          /* the banner quotes T.api_calls_made, so it needs this site's trace */
   drawLiveCost();
   const lg = $('#livego'); if(lg) lg.onclick = runLive;
+  const lsb = $('#livestop'); if(lsb) lsb.onclick = stopLive;
   const ac=$('#apicalls'); if(ac) ac.textContent = T.api_calls_made;
   syncOffday();
   drawReadyTiles();
@@ -955,8 +956,8 @@ function explainHour(R, h) {
       + fmt(k.limit - R.ubD[h], 3) + ' °C under the ' + fmt(k.limit, 1) + ' °C limit. '
       + 'The margin is measured, not chosen: ' + fmt(shape, 3) + ' °C of group-conditional '
       + 'forecast error for this hour of day, plus ' + fmt(R.plumeM[h], 4) + ' °C for how far '
-      + 'the plume could move given the measured wind-direction error the <strong>NWS</strong> '
-      + 'wind forecast carries.';
+      + 'the plume could move if the wind direction differs from the one planned for, at '
+      + 'the <strong>measured spread of wind direction over this lead time</strong>.';
     if (R.truth[h] > k.limit)
       e.why += ' ⚠ THIS WAS WRONG: the intake actually reached ' + fmt(R.truth[h], 3)
              + ' °C. Counted as a breach, not explained away.';
@@ -2071,7 +2072,7 @@ function drawSiteNotes(){
   if(fwrap && fwrap.id !== 'sidebar') fwrap.style.opacity = hasField ? '' : '0.45';
 }
 
-let HEALTH = null, LIVEJOB = null;
+let HEALTH = null, LIVEJOB = null, STOPWANTED = false;
 
 async function probeLive(){
   try{
@@ -2215,9 +2216,24 @@ function liveStreamRow(ev){
   el.appendChild(d);
 }
 
+async function stopLive(){
+  const s = $('#livestop');
+  STOPWANTED = true;
+  if(s){ s.disabled = true; s.textContent = 'Stopping…'; }
+  if(!LIVEJOB) return;
+  try{ await fetch('api/live/stop/' + LIVEJOB, {method:'POST'}); }
+  catch(e){ /* the poll below reports the run's own end state either way */ }
+}
+
 async function runLive(){
   if(!HEALTH || !SITE) return;
   const btn = $('#livego');
+  /* The stop control is only real while a run is in flight: shown here, hidden when it settles.
+     A stop button with nothing to stop misreports what the page is doing. */
+  const stopBtn = $('#livestop');
+  STOPWANTED = false; LIVEJOB = null;
+  if(stopBtn){ stopBtn.hidden = false; stopBtn.disabled = false;
+               stopBtn.textContent = 'Stop agent now'; }
   btn.disabled = true; btn.textContent = 'Working…';
   $('#livestream').innerHTML = '';
   $('#livemsg').innerHTML = '';
@@ -2233,11 +2249,14 @@ async function runLive(){
     if(!r.ok){ throw new Error('server said ' + r.status); }
     const {job_id} = await r.json();
     LIVEJOB = job_id;
+    if(STOPWANTED) fetch('api/live/stop/' + job_id, {method:'POST'}).catch(function(){});
     /* Poll. A single window can take 300 s while FortyGuard decides whether to answer, so this is
        a long wait BY DESIGN and the progress rows are what make that legible. */
     for(let i=0;i<600;i++){
       await new Promise(res=>setTimeout(res, 1500));
       const j = await (await fetch('api/live/job/' + job_id, {cache:'no-store'})).json();
+      if(j.cancel && stopBtn && !stopBtn.disabled){
+        stopBtn.disabled = true; stopBtn.textContent = 'Stopping…'; }
       while(seen < (j.progress||[]).length){ liveStreamRow(j.progress[seen++]); }
       if(j.refusal){ $('#liverefusal').innerHTML = '<strong>The server refused to spend.</strong> '
                                                    + j.refusal; }
@@ -2252,6 +2271,7 @@ async function runLive(){
       + '. Serve this folder with <code>python src/serve_live.py --allow-paid</code>.</span>';
   }
   btn.disabled = false; btn.textContent = 'Run the agent on live data →';
+  if(stopBtn) stopBtn.hidden = true;
 }
 
 function drawLive(L){
@@ -3683,8 +3703,9 @@ export {
   plumeModelled, plumeReason, probeLive, r_i, railIndicator,
   railOnResize, ramp, rampCss, reactive, refusalLimits,
   repaintForTheme, runAgent, runLive, setStage, shippedGain,
-  shortPhrase, siteIsRunnable, sparkSVG, stationName, streamTape,
-  styleMapForTheme, syncOffday, syncRail, tapeHTML, tickerFor,
-  tile, tip, tkEvent, tkFixed, tkFormat,
-  tkRender, untip, wire, wireAerial, wireRail,
+  shortPhrase, siteIsRunnable, sparkSVG, stationName, stopLive,
+  streamTape, styleMapForTheme, syncOffday, syncRail, tapeHTML,
+  tickerFor, tile, tip, tkEvent, tkFixed,
+  tkFormat, tkRender, untip, wire, wireAerial,
+  wireRail,
 };

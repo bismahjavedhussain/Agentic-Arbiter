@@ -193,7 +193,13 @@ PLANT_ENVELOPE = {
 FORECAST_SKILL = [0.00, 0.50, 0.90]
 
 ALPHA = 0.10                       # one-sided 90 % bound. A definition of confidence, not a knob.
-SIGMA_DIR_DEG = [47.0, 72.0]       # MEASURED N-40 forecast wind-direction error range, swept
+# MEASURED N-40, AND IT IS NOT ANY FORECASTER'S ERROR. It is the spread of wind direction over
+# the LEAD TIME, from KIAD ASOS observations: 47.3 deg at a 2 h lead, 71.6 deg at 10 h. (Those
+# are the min and max over leads 1-12 h, not the endpoints of the horizon -- lead 1 h is 52.0.)
+# It is the allowance for not knowing the future direction, and it is deliberately conservative:
+# a real forecast tracks direction better than assuming it holds, so this OVERSTATES the error
+# of any actual forecaster and must not be attributed to one. Swept; both ends are reported.
+SIGMA_DIR_DEG = [47.0, 72.0]
 SPEED_GRID_MS = [0.5, 1.5, 2.5, 3.5, 5.0, 7.0, 9.0, 12.0]
 STEP_DEG = 5
 BEARINGS = np.arange(0.0, 360.0, STEP_DEG)
@@ -1252,8 +1258,9 @@ def run_cases(fg_offsets, extra_note=""):
 
         for mode in PLANT_ENVELOPE["bank_mode"]:
             tab, refused, _ = tabs[mode]
-            # THE AGENT DOES NOT KNOW TOMORROW'S WIND DIRECTION. N-40 measured FortyGuard's
-            # direction forecast error at 47-72 deg, so the agent's plume estimate is the rise at
+            # THE AGENT DOES NOT KNOW TOMORROW'S WIND DIRECTION. N-40 measured the spread of
+            # direction over the lead time at 47-72 deg -- nobody's forecast error, see
+            # SIGMA_DIR_DEG -- so the agent's plume estimate is the rise at
             # the FORECAST bearing while the truth is the rise at the bearing that actually
             # occurred. Before this, both used the same bearing -- which handed the agent a
             # perfect plume forecast for free and left the plume term with no uncertainty at all

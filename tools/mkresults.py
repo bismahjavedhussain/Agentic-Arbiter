@@ -94,7 +94,13 @@ REACT_OWNS = {
     "boot", "wireChrome", "loadScript",
 }
 
-ENTRY = ["drawAll", "runLive", "probeLive", "drawReadyTiles", "setStage", "runAgent",
+# stopLive IS AN ENTRY POINT FOR THE SAME REASON runLive IS: the walk below follows CALLS,
+# matching `name(`, and an event handler is never called -- it is ASSIGNED
+# (`lsb.onclick = stopLive`). Leaving it out lifted the string "api/live/stop/" into the
+# engine, inside runLive, while the function itself stayed behind: the bundle threw
+# "stopLive is not defined" from buildControls and the whole flow stalled at step 1.
+ENTRY = ["drawAll", "runLive", "stopLive", "probeLive", "drawReadyTiles", "setStage",
+         "runAgent",
          "loadSite", "loadField", "streamTape", "autofill", "buildControls", "describeSite",
          "siteIsRunnable", "drawPlate", "drawSiteNotes", "wire", "applyTheme", "wireRail",
          "repaintForTheme", "railOnResize", "wireAerial", "styleMapForTheme"]

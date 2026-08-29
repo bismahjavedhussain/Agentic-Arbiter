@@ -262,6 +262,12 @@ STEPS = [
      [sys.executable, "verify_app_flow.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The single-file page remains "
          "canonical, so this is not a failure of the pipeline."}),
+    # THE STOP CONTROL IS A SPEND CONTROL, so what it is checked against is a CALL COUNT. The
+    # vendor bills at submit and polls free, so pressing stop can only prevent a window that has
+    # not been submitted yet -- and this asserts it prevents exactly those and no more, with the
+    # FortyGuard functions stubbed so the assertion itself costs nothing.
+    ("Stop agent now prevents the un-submitted calls, and only those",
+     [sys.executable, "verify_stop_control.py"], TESTING),
     ("the React app renders the same numbers twice, from fresh profiles",
      [sys.executable, "verify_app_deterministic.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The app is a prototype and the "

@@ -310,6 +310,31 @@ it, and the task's exit code came from the PUSH. Everything was still staged, so
 `commit && push`, read the COMMIT step's output: a zero exit from the push says nothing about whether
 the commit happened.
 
+### 5b.10 `exit=$?` AFTER A PIPELINE READS THE PIPE'S LAST COMMAND, not the test
+Three verifiers were reported as passing on the strength of this loop:
+
+    python testing/$t.py 2>&1 | tail -6
+    echo "exit=$?"
+
+`$?` there is `tail`'s status, and `tail` always succeeds. One of the three had actually FAILED with
+a JavaScript ReferenceError that stalled the whole flow at step 1, and the word PASS never appeared
+in its output -- only the absence of a failure line, which reads the same as success when skimming.
+Run the test, capture the code, THEN look at the output:
+
+    python testing/$t.py > log 2>&1; echo "exit=$?"
+
+The same shape hides in `grep`-filtered summaries: a pattern that matches nothing prints nothing, and
+nothing looks like a clean run.
+
+### 5b.11 A LIFTED STRING IS NOT A LIFTED FUNCTION
+`tools/mkresults.py` walks reachability from `ENTRY` by matching CALLS, `name(`. An event handler is
+never called; it is ASSIGNED (`lsb.onclick = stopLive`). So `stopLive` was skipped while the string
+`"api/live/stop/"` was lifted anyway, inside `runLive` -- and the bundle threw "stopLive is not
+defined" from `buildControls`. `runLive` is in `ENTRY` for exactly this reason; every new handler
+needs adding there too.
+A check for the ROUTE passed while the FUNCTION was missing. When a verifier asserts a lifted string,
+assert the definition as well: `"function stopLive" in engine.mjs`.
+
 ### 5b.9 INSTRUMENT THE BROWSER, do not reason about who scrolled
 "Changing the site jumps to the top, and it alternates" was three plausible theories deep (layout
 shift from a toggling note, a focus change, the map camera) before anything was measured. Patching

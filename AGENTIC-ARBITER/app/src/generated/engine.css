@@ -700,6 +700,16 @@ body[data-stage="results"] .secgroup{display:block;margin:var(--sp-7) 0 0;
 .btn-go:hover{background:color-mix(in srgb, var(--action) 86%, var(--text-primary));
   border-color:color-mix(in srgb, var(--action) 86%, var(--text-primary));
   color:var(--action-ink)}
+/* THE STOP CONTROL. Declared after .btn for the same specificity reason .btn-go is: both are
+   single-class selectors, so source order decides the tie and .btn would otherwise win.
+   The hover is a faint wash of the same hue mixed toward whatever paper is current, so one
+   declaration serves both themes and the red ink keeps its measured contrast instead of being
+   inverted onto a fill whose lightness flips between them. */
+.btn-stop{background:transparent;border-color:var(--critical);color:var(--critical);
+  font-weight:700}
+.btn-stop:hover{background:color-mix(in srgb, var(--critical) 16%, transparent);
+  border-color:var(--critical);color:var(--critical)}
+.btn-stop[disabled]{opacity:.55;pointer-events:none}
 /* 🔴 A GHOST, NOT A FADED SLAB. `opacity:.4` on a filled control leaves a large block of
    washed-out fill -- and `#livego` is `btn-wide` inside a flex column, so on a static host the
    single widest element in that panel was a grey bar reading "Live agent not attached". Fading a

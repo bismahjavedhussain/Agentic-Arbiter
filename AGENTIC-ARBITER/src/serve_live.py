@@ -356,9 +356,21 @@ def start_job(site, hours, limit_c, want_paid, replay):
     with LOCK:
         JOBS[jid] = {"state": "running", "site": site, "hours": hours, "paid": paid,
                      "started": time.time(), "progress": [], "result": None, "error": None,
-                     "refusal": refusal}
+                     "refusal": refusal,
+                     # THE STOP FLAG. Read by the worker between windows, set by POST
+                     # /api/live/stop/<job_id>. It is a flag rather than a thread kill because the
+                     # run is mid-spend: a killed thread could lose the record of a call that was
+                     # already billed, and an unrecorded 4,220 credits is the one outcome worse
+                     # than a slow stop. The poll response carries it back, so the page can show
+                     # the button as taken the instant the request lands.
+                     "cancel": False}
 
     def work():
+        def cancelled():
+            with LOCK:
+                j = JOBS.get(jid)
+                return bool(j and j.get("cancel"))
+
         def prog(ev):
             with LOCK:
                 j = JOBS.get(jid)
@@ -367,7 +379,8 @@ def start_job(site, hours, limit_c, want_paid, replay):
         try:
             out = LV.live_run(metro=site, hours=hours, allow_paid=paid, verbose=False,
                               cfg={"limit_c": limit_c}, replay=replay, on_progress=prog,
-                              max_calls=(allowance if paid else None))
+                              max_calls=(allowance if paid else None),
+                              should_stop=cancelled)
             # RECONCILE against what actually happened, rather than trusting the estimate. The
             # counter now moves by the calls the run really made.
             made = int((out.get("spend") or {}).get("calls_attempted") or 0)
@@ -646,6 +659,20 @@ class Handler(SimpleHTTPRequestHandler):
         self._unprefix_api()      # the live RUN arrives here as /app/api/live/<site>
         if not self.path.startswith("/api/live/"):
             return _json(self, {"error": "unknown endpoint"}, 404)
+        # STOP THIS RUN. Idempotent, and deliberately cheap: it sets a flag and returns. The
+        # worker notices between windows, which is where stopping actually prevents a charge --
+        # the credits attach when a window is SUBMITTED, so there is nothing to interrupt in
+        # between except the next submit. Answering 200 to an already-finished job keeps the
+        # button honest: "stopped" is the truthful end state either way.
+        if self.path.startswith("/api/live/stop/"):
+            jid = self.path[len("/api/live/stop/"):].split("?")[0].strip("/")
+            with LOCK:
+                j = JOBS.get(jid)
+                if j is None:
+                    return _json(self, {"error": "no such job"}, 404)
+                j["cancel"] = True
+                state = j.get("state")
+            return _json(self, {"stopping": True, "job_id": jid, "state": state})
         site = self.path[len("/api/live/"):].split("?")[0].strip("/")
         if site not in offerable_sites():
             return _json(self, {"error": "site %r is not offerable" % site}, 400)

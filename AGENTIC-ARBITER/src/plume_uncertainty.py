@@ -21,9 +21,13 @@ module is that claim actually built.
 --------------------------------------------------------------------------------------------
 WHERE THE UNCERTAINTY COMES FROM -- measured, not assumed
 --------------------------------------------------------------------------------------------
-N-40 MEASURED FortyGuard's wind-direction forecast error at 47-72 deg. So the agent's plume
-estimate is the rise at the FORECAST bearing, the truth is the rise at the ACTUAL bearing, and the
-error between them is a real, measured consequence of a real, measured forecast limitation.
+N-40 MEASURED THE SPREAD OF WIND DIRECTION OVER THE LEAD TIME at 47-72 deg, from KIAD ASOS
+observations. IT IS NOBODY'S FORECAST ERROR. It is how far the direction itself moves between the
+hour a plan is made and the hour that plan applies to (47.3 deg at a 2 h lead, 71.6 deg at 10 h),
+and using it as the allowance is deliberately conservative, because a real forecast tracks
+direction better than assuming it holds. So the agent's plume estimate is the rise at the FORECAST
+bearing, the truth is the rise at the ACTUAL bearing, and the error between them is a real,
+measured consequence of having to commit to a plan before the hour arrives.
 
 The spread of the rise over that direction distribution is the per-hour DIFFICULTY signal, and it
 varies enormously with bearing -- measured on the committed geometry at sigma_dir = 47 deg:
@@ -69,7 +73,7 @@ SPEED_SD_MS = 1.0        # speed perturbation, same value solver.ensemble() has 
 
 
 def spread_table(mode, sigma_dir, cache=True):
-    """sd of the intake rise per (bearing, speed) cell, under the MEASURED direction error.
+    """sd of the intake rise per (bearing, speed) cell, under the MEASURED direction spread.
 
     Costs no PDE solves. The rise table is already a function of (bearing, speed), so the
     ensemble is evaluated by resampling that table at perturbed bearings and speeds -- which is
@@ -304,7 +308,12 @@ def main():
     json.dump({"generated_by": "AGENTIC-ARBITER/src/plume_uncertainty.py", "api_calls_made": 0,
                "metro": M.metro_key(),
                "alpha": ALPHA, "sigma_dir_measured_deg": SIGMA_DIR_DEG,
-               "source_of_sigma_dir": "N-40 measured FortyGuard wind-direction forecast error",
+               "source_of_sigma_dir": ("N-40: the measured spread of wind direction over "
+                                       "the lead time, from KIAD ASOS observations (47.3 "
+                                       "deg at a 2 h lead, 71.6 deg at 10 h). Belongs to "
+                                       "no forecaster: it is used as a deliberately "
+                                       "conservative allowance, because any real forecast "
+                                       "tracks direction better than assuming it holds."),
                "spread_tables": {k: {kk: vv for kk, vv in v.items() if kk != "spread"}
                                  for k, v in metas.items()},
                # PUBLISHED, so a reader is never shown a plume bound that cannot move a decision.

@@ -64,8 +64,8 @@
       "sha256": "bbbc108ddcd517bd05ada2152e2a6323797d8442967f5a8caeb77928c3fa6288"
     },
     "buildControls": {
-      "bytes": 2263,
-      "sha256": "986a00b842401807e3b17b1911b10555e9caf2c14d0e73e90f194f6f4efdfa1e"
+      "bytes": 2325,
+      "sha256": "d2082827543be7705d4c75b0cc302cfed2f49f6cffbaa5191f44c2869d2b8006"
     },
     "buildImageryOptions": {
       "bytes": 925,
@@ -252,8 +252,8 @@
       "sha256": "6a0268b045826dedbc7a75935eb9b998b2d4923d6d1c12edacfe0219aa6ebc5a"
     },
     "explainHour": {
-      "bytes": 4527,
-      "sha256": "f5fc1831ff6e94f6d5a52782d9bf6d844941f5134c77e0b3b29d461b97d27750"
+      "bytes": 4574,
+      "sha256": "3f8bf384fca5361e776188aabdd5a9c50642665a2fe80f5f20afb397dca2ea93"
     },
     "fitCanvas": {
       "bytes": 898,
@@ -348,8 +348,8 @@
       "sha256": "c260731162d2bc0c87b591bf3d41a142acc89ae3564b4d1cc20d63ba94c648e7"
     },
     "runLive": {
-      "bytes": 1803,
-      "sha256": "be77904f95b2da4dd3e6559e8e6d65010af8ecff873867ffb498261049d636df"
+      "bytes": 2423,
+      "sha256": "3f672e4094d91c7e3e89f97d7e2f619c6b8bc09198796fe824ce17a972a473d6"
     },
     "setStage": {
       "bytes": 2806,
@@ -374,6 +374,10 @@
     "stationName": {
       "bytes": 128,
       "sha256": "cd5415b003fa93a5fd818742fe6a80a02864cd205e80f00b466aa2465cd31a5b"
+    },
+    "stopLive": {
+      "bytes": 306,
+      "sha256": "85e6828650e4180b57205d5ca5a5166cf7afd181c93b5449e825a7aa5ebd6dcb"
     },
     "streamTape": {
       "bytes": 1726,

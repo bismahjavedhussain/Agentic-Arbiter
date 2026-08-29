@@ -137,8 +137,8 @@ def explain_hour(st, h, cfg, modes, safe):
                     "%.3f C under the %.1f C plant limit. That bound is the forecast plus a margin "
                     "of %.3f C, and the margin is measured, not chosen: %.3f C of group-conditional "
                     "forecast error for this hour of day, plus %.4f C for how much the plume could "
-                    "move if the wind direction is off by the amount FortyGuard's forecast is "
-                    "actually off by."
+                    "move if the wind direction differs from the one planned for, at the "
+                    "measured spread of wind direction over this lead time."
                     % (st["ub_dry"][h], cfg["limit_c"] - st["ub_dry"][h], cfg["limit_c"],
                        st["marg_total"][h], st["marg_shape"][h], st["marg_plume"][h]))
         if st["truth"][h] > cfg["limit_c"]:

@@ -12,26 +12,79 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
-### 🔴 A FACTUALLY WRONG VENDOR ATTRIBUTION, ON THE VENDOR'S OWN HACKATHON. 2026-08-29
+### THE STOP CONTROL: what "Stop agent now" can and cannot save. 2026-08-29
 
-Every free-cooling explanation ended: *"...given the wind-direction error **FortyGuard** actually
-has."* The user caught it and asked the right question: wind is not taken from FortyGuard, so whose
-error is it?
+The user asked for a red force-stop beside the live run. The honest version of that button is an
+arithmetic one, because FortyGuard bills at SUBMIT and not at poll. `API-USAGE.md`'s measured table:
+`POST /v1/heatmap` **4,220 credits**, `GET /v1/status/{id}` **free**, "unchanged meter across 59
+polls". `perceive_ambient()` is submit-then-poll. So:
 
-**FortyGuard does not supply wind at all.** `live.py:41`: wind bearing and speed come from
-**NWS `api.weather.gov`**, keyless and free, because *"FortyGuard's API carries no wind field"*. And
-the error is `agent.py:196`, `SIGMA_DIR_DEG = [47.0, 72.0]`, a MEASURED forecast wind-direction error
-range, swept. So the sentence attributed an error to a vendor who does not provide the input it is an
-error in, on that vendor's own hackathon.
+* stopping **before** a submit saves 4,220 credits every time. That is where the button earns its
+  keep, and that is where the checks are placed.
+* stopping **during** the poll saves nothing, and abandoning the loop would forfeit windows already
+  billed. So a stop takes **one more free reading** instead, and each window that lands is written to
+  the cache: credits already spent still buy data a later run gets for nothing.
 
-Now: *"the measured wind-direction error the **NWS** wind forecast carries."* True, correctly
-attributed, and it answers the question rather than dodging it.
+`POST /api/live/stop/<job_id>` sets a flag that the worker reads between windows. A flag, not a
+thread kill: the run is mid-spend, and a killed thread could lose the record of a call that was
+already billed. An unrecorded 4,220 credits is the one outcome worse than a slow stop.
 
-**FIXED IN THE PAGE AND RE-LIFTED**, which is the first time this project has edited the audited page
-in this rework. `demo/index.html`, then `tools/mkresults.py` and `tools/mkview.py`. Both identity
-verifiers pass afterwards, which is the point of doing it that way rather than patching the lift.
-⚠ `mkresults.py` prints `!! declarations that touch the DOM at import time (1): let THEME`. That is a
-pre-existing WARNING, not a refusal: it still writes. Checked by grepping the output for the new text.
+`testing/verify_stop_control.py` (run_all step 34) proves it at **zero credits**, stubbing the two
+functions that reach the vendor, and the assertion is a CALL COUNT rather than a flag: stopped after
+2 of 12 submits, `submit_window` is called exactly **2** times and 10 windows come back
+`stopped_by_operator`, which is **42,200 credits not spent**. 29 checks, 0 failed.
+
+`#livego` and `#livecard` are untouched (standing rule C1). `#livestop` is additive and hidden until a
+run is in flight. Outlined red rather than filled: the palette comment above `--critical` says it
+"never appears as a bare mark, only as ink on a figure that also carries the word FAILED", and red ink
+on a control labelled Stop keeps that promise where a red slab would not.
+
+⚠ A stop pressed during the opening POST used to be droppable, since there was no job id yet to name
+in the request. `STOPWANTED` holds it and the request goes out the moment an id exists.
+
+### THE WIND ATTRIBUTION WAS WRONG TWICE, AND THE SECOND TIME WAS MINE. 2026-08-29
+
+Every free-cooling explanation ended *"...given the wind-direction error **FortyGuard** actually
+has."* The user caught it, and I changed it to name **NWS**. That was wrong too, and the user caught
+that as well, with the question that settles it: *what error? why is there error? how did we
+categorize an open source's data as "error"?*
+
+**IT IS NOBODY'S FORECAST ERROR.** `SIGMA_DIR_DEG = [47.0, 72.0]` (`agent.py:196`) is the
+**persistence** error of wind direction: the spread between the direction at the decision hour and the
+direction L hours earlier, from **KIAD ASOS observations**, 1,619 hours over 72 days, cached in
+`testing/results/fixtures/n40_kiad_dir_errors.json`. Both terms are OBSERVATIONS from one station, so
+no forecaster appears in the measurement at all. The fixture states the intent itself:
+`"why_lower_bound": "any real forecast beats persistence; this understates skill"`.
+
+So naming NWS was the same category error as naming FortyGuard, aimed at a different party:
+persistence UNDERSTATES forecast skill, therefore OVERSTATES the error of any real forecaster.
+`live.py:51` already states the correct principle for the temperature margin, "calibrated on de-biased
+*persistence* errors: those describe a different forecaster", and the direction margin was doing the
+exact borrowing that warns against.
+
+**THE STATIC PATH'S WIND IS NOT NWS EITHER.** NWS supplies wind only in the LIVE path;
+`agent.py:307` `load_hours()` reads 43,763 real **KIAD ASOS** hours. The sentence named the wrong
+source even about which source it was describing.
+
+47 and 72 are **lead 2 h (47.33 deg) and lead 10 h (71.58 deg)**, the min and max over leads 1-12 h.
+They are NOT the horizon endpoints: lead 1 h is 52.0 and lead 12 h is 71.0. Reading "47-72" as "1 h to
+12 h" is reading it wrong.
+
+Now, naming no one: *"how far the plume could move if the wind direction differs from the one planned
+for, at the **measured spread of wind direction over this lead time**."*
+
+**THE BLAST RADIUS WAS 500 FILES, AND THE PDF WAS THE ONE THAT MATTERED.** Three adversarial skeptics
+(0 of 3 refuted) plus five parallel sweeps found 19 inaccurate sites, 11 of them reader-facing. The
+earlier HTML fix had touched ONE. `explain.py:139` still said *"the amount FortyGuard's forecast is
+actually off by"*, and `report.py:446` renders that string verbatim into the PDF a judge downloads.
+The same sentence was baked into **500 shipped `*_explanations.json` artefacts**, and
+`plume_uncertainty.py:307` wrote `"source_of_sigma_dir": "N-40 measured FortyGuard wind-direction
+forecast error"` into **82** more. All patched, generator and data together, so a regeneration
+reproduces the corrected text.
+
+⚠ **FIXING THE PAGE IS NOT FIXING THE CLAIM.** The page is one renderer. `explain.py` is the source
+the PDF shares, and the explanation artefacts are precomputed and shipped. Grepping the SENTENCE would
+have found all 500 the first time. I greped the page.
 
 **VRAM is gone entirely**, including from the comment that explained it, so a grep finds nothing in
 the page, the lifted markup or the shipped bundle.
@@ -1346,8 +1399,8 @@ only `fmt`.
 | Of those, ready to run | **246** | sites.json offerable metros, joined on metro_key |
 | Offerable metros | **250** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
-| run_all.py steps | **35** | count of STEPS entries in src/run_all.py |
-| demo/index.html size | **480 KB** | byte length of the shipped page |
+| run_all.py steps | **36** | count of STEPS entries in src/run_all.py |
+| demo/index.html size | **483 KB** | byte length of the shipped page |
 | Map GeoJSON sources | **2** | one clustered, one flat -- see 02-ARCHITECTURE |
 | Map unisites-* layers | **5** | cluster, halo, points, flat-halo, flat |
 | `#livecard` present | **yes** | standing rule: the live agent is never removed |
