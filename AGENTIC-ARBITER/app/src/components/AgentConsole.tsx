@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ART } from '../lib/artefacts'
-import { Download, FileText } from 'lucide-react'
+import { ArrowRight, Download, FileText } from 'lucide-react'
 
 /**
  * The agent as ONE LINE: an orbiting icon, a short reasoning phrase that changes every second or so,
- * and then, on the line below, the Download PDF button.
+ * and then, on the line below, the report download and the way into the findings tabs.
  *
  * THE SEQUENCE, which is what the previous version got wrong. It showed "Decision ready" and the
  * button immediately, because the replay tape had already finished before anyone looked, so a reader
  * never saw the agent reason at all. Now the reasoning always plays first:
  *
  *     reasoning   orbiting icon + rotating phrases, held open for at least MIN_MS
- *     ready       one line: "Decision ready", and the Download PDF button on the row beneath
+ *     ready       one line: "Decision ready", and the button row beneath it
  *
  * Clicking any of the engine's run buttons restarts it, so pressing "Run the agent on live data"
  * replays the reasoning against that run rather than sitting on a stale conclusion.
@@ -54,6 +54,27 @@ const PHRASES: string[] = [
 /** The engine's buttons that mean "a run has started". */
 const RUN_BUTTONS = ['runagent', 'runagent2', 'livego']
 
+/**
+ * 🔴 THE REASONING PLAYS ONCE PER VISIT, AND THIS MODULE-LEVEL FLAG IS WHY.
+ *
+ * The user: "the first time the user runs the agent and lands on this page the circle swirls and this
+ * reasoning is seen, but then later on, when it stops and user goes to different other tabs or runs
+ * the agent live, this reasoning doesnt start again. It remains stopped."
+ *
+ * Two things were making it replay, and only one of them was obvious:
+ *   1. EngineStage mounts this component with `{tab === 'live' && ...}`, so leaving the tab UNMOUNTS
+ *      it and coming back MOUNTS A NEW ONE. React state cannot survive that, which is why this lives
+ *      outside the component rather than in a `useRef`.
+ *   2. a capture-phase listener deliberately restarted the sequence on every run button, including
+ *      "Run the agent on live data". That was a considered decision at the time and the user has now
+ *      reversed it explicitly, naming that case.
+ *
+ * Module scope rather than sessionStorage: the intent is "once while this page is open". A reload is a
+ * new visit and the agent really is starting again, so the swirl belongs there. The flag dies with the
+ * page, which is exactly that rule.
+ */
+let reasoningPlayed = false
+
 function tapeDone(): boolean {
   const el = document.getElementById('tapedone')
   return !!(el?.textContent || '').trim()
@@ -85,7 +106,14 @@ function tapeStage(): number {
   return stage
 }
 
-export function AgentConsole({ pdfHref }: { pdfHref: string | null }) {
+export function AgentConsole({
+  pdfHref,
+  onSeeFindings,
+}: {
+  pdfHref: string | null
+  /** Switch to the first of the findings tabs. Supplied by EngineStage, which owns the tab state. */
+  onSeeFindings?: () => void
+}) {
   const [phase, setPhase] = useState<'reasoning' | 'ready'>('reasoning')
   const [idx, setIdx] = useState(0)
   const [stage, setStage] = useState(0)
@@ -103,24 +131,37 @@ export function AgentConsole({ pdfHref }: { pdfHref: string | null }) {
     setPhase('reasoning')
   }, [])
 
-  /* Start on mount. Opening this tab at the results stage is itself the moment to show the work. */
-  useEffect(() => { begin() }, [begin])
+  /* Start on mount, but ONLY the first time in this visit. Every later mount -- coming back to the
+     tab, or a live run -- opens straight on the conclusion. See `reasoningPlayed` above. */
+  useEffect(() => {
+    if (reasoningPlayed) {
+      setPhase('ready')
+      return
+    }
+    begin()
+  }, [begin])
 
-  /* AND RESTART ON ANY RUN BUTTON. Capture phase, so this sees the click even though the engine's own
-     handler is bound to the same element. It only OBSERVES: the engine's handler is what actually
-     runs the agent, and nothing here interferes with it or duplicates it. */
+  /* Remember it the moment it resolves, rather than when it starts: a sequence the reader never got
+     to see (they left the tab after two seconds) should still be shown in full next time. */
+  useEffect(() => {
+    if (phase === 'ready') reasoningPlayed = true
+  }, [phase])
+
+  /* 🔴 THE RUN BUTTONS NO LONGER RESTART THE SWIRL, only record WHICH run it was.
+     This used to call `begin()`, so pressing "Run the agent on live data" replayed the reasoning. The
+     user reversed that: it must remain stopped. What the listener still has to do is note whether the
+     run was LIVE, because the two paths have different completion signals -- a replay fills #tapedone
+     and a live run does not -- and the first sequence of the visit may still be waiting on one.
+     Capture phase, and it only OBSERVES: the engine's own handler is what runs the agent. */
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const t = e.target as HTMLElement | null
       const btn = t && t.closest ? (t.closest('button, a') as HTMLElement | null) : null
-      if (btn && RUN_BUTTONS.includes(btn.id)) {
-        setWasLive(btn.id === 'livego')
-        begin()
-      }
+      if (btn && RUN_BUTTONS.includes(btn.id)) setWasLive(btn.id === 'livego')
     }
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
-  }, [begin])
+  }, [])
 
   /* One interval drives both the phrase and the stage read, so they cannot drift apart, and it stops
      the moment the sequence resolves. */
@@ -198,8 +239,42 @@ export function AgentConsole({ pdfHref }: { pdfHref: string | null }) {
               whileTap={{ scale: 0.985 }}
             >
               <Download size={15} strokeWidth={2.4} aria-hidden="true" />
-              Download PDF
+              {/* 🔴 "Download PDF" SAID NOTHING ABOUT WHAT THE PDF IS. The user: "change the name of
+                  this button from download pdf to something meaningful, like what pdf the user doesnt
+                  know what the pdf means here." They are right: on a screen with a live-run report
+                  beside it, two buttons both reading "PDF" is a coin toss. This one is the SITE's
+                  report for the configuration on screen, so it says so, and the note underneath still
+                  explains what a snapshot means. */}
+              Download this site&rsquo;s report
             </motion.a>
+            {/* 🔴 THE WAY INTO WHAT THE AGENT FOUND, and it did not exist before.
+                The user: "there is no pop up, or option which takes the users to these tabs ... So
+                before the card of live agent, add a button with some phrase written on it that takes
+                users to these tabs starting from the first one."
+                The rail has always been there, but nothing on this screen POINTED at it, so a reader
+                who ran the agent was left on the live tab with the run finished and no next step. It
+                sits immediately right of the download, which is where the eye already is once the
+                sequence resolves.
+                It calls the same `setTab` the rail calls; there is no second navigation mechanism.
+                'schedule' is the first tab of the WHAT THE AGENT FOUND group, which is the "starting
+                from the first one" the instruction asks for. Rendered only when the caller supplies a
+                handler, so the console still works anywhere that does not have tabs. */}
+            {onSeeFindings && (
+              <motion.button
+                type="button"
+                onClick={onSeeFindings}
+                className="aa-console-dl is-next"
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 30, delay: 0.04 }}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.985 }}
+              >
+                See what the agent found
+                <ArrowRight size={15} strokeWidth={2.4} aria-hidden="true" />
+              </motion.button>
+            )}
+
             {/* 🔴 THE LIVE RUN'S OWN REPORT, and it is a DIFFERENT DOCUMENT from the one beside it.
                 The button on the left downloads the per-site report, generated at build time from
                 saved responses for one named configuration. This one is built at request time from

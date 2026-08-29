@@ -453,3 +453,45 @@ body[data-stage="pick"] #rail { display: none; }
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+/* ---------------------------------------------------------------------------------------------
+   THE HEADLINE'S FOUR POINTS
+
+   🔴 A LIST, WITH A MARKER THAT IS NOT A DISC. The user asked for bullets so the four claims stop
+   reading as one block. A default disc at this type size is a heavy dot that competes with the bold
+   opening of each line, so the marker is a small brand-blue square set on the first line's baseline:
+   enough to say "separate item", quiet enough that the sentence is still the loudest thing.
+   `list-style: none` plus a pseudo-element rather than `list-style-type`, because a marker box cannot
+   be positioned or coloured independently of the text in every browser this has to work in.
+   --------------------------------------------------------------------------------------------- */
+.aa-mast-points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  /* Wider than the 8 px the paragraphs had: the marker only reads as a separator if there is a gap
+     for it to separate. */
+  gap: 11px;
+}
+
+.aa-mast-points > li {
+  position: relative;
+  padding-left: 20px;
+}
+
+.aa-mast-points > li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  /* Aligned to the CAP HEIGHT of the first line rather than to the line box, so the marker sits with
+     the text rather than floating above it. 0.52em of a 1.45 line-height lands on the cap. */
+  top: 0.52em;
+  width: 6px;
+  height: 6px;
+  border-radius: 1.5px;
+  background: var(--fg-bright);
+  /* The square is a decoration; the list semantics are on the <ul>, so this must not be announced. */
+  pointer-events: none;
+}
+
+:root[data-theme='light'] .aa-mast-points > li::before { background: var(--fg-deep); }

@@ -27,7 +27,10 @@
 .aa-banner img {
   position: relative;
   z-index: 1;
-  height: clamp(25px, 2.7vw, 35px);   /* the wordmark's strokes are thin; below ~24px it reads pale */
+  /* Enlarged at the user's instruction: "make it a bit bigger in size. The logo is small". The
+     wordmark's strokes are thin, so size is what carries it; below ~24px it reads pale whatever the
+     filter does. */
+  height: clamp(32px, 3.4vw, 44px);
   width: auto;
   opacity: 1;
   pointer-events: none;
@@ -47,9 +50,12 @@
 .aa-banner-by {
   position: relative;
   z-index: 1;
-  font-size: 10px;
+  /* Scaled with the mark it labels: "make the text of powered by suitably adjusted to the size of
+     the logo". Letter-spacing eases off slightly, because 0.13em at 12.5px is wider than at 10px and
+     the label should not out-measure the wordmark. */
+  font-size: 12.5px;
   font-weight: 600;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--w-dim);
   white-space: nowrap;
@@ -99,12 +105,26 @@ body:not([data-stage='pick']) .aa-workspace-main {
    Absolutely positioned against #app so it occupies space nothing else wanted, and it steps down to
    static flow on a narrow screen rather than overlapping the prose. `will-change: transform` keeps
    the drift on the compositor so an 11-second loop costs nothing per frame. ---- */
-.aa-bubble {
+/* 🔴 THE POSITIONING MOVED FROM THE CARD TO THE STACK, because there are two of them now.
+   The user asked for a second shape under the first, and for both to sit in the empty space right of
+   the headline. If each card positioned itself absolutely they would need two sets of coordinates
+   kept in step by hand; one absolutely positioned STACK with the cards in normal flow inside it means
+   the second card's position is simply "under the first", which is what was asked for and cannot
+   drift. */
+.aa-bubble-stack {
   position: absolute;
   top: 148px;
   right: 8px;
   z-index: 2;
   width: min(276px, 32vw);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  will-change: transform;
+}
+
+.aa-bubble {
+  width: 100%;
   padding: 18px 20px 16px;
   border-radius: 26px 26px 26px 8px;
   border: 1px solid color-mix(in oklab, var(--fg-bright) 26%, var(--w-hair));
@@ -112,8 +132,45 @@ body:not([data-stage='pick']) .aa-workspace-main {
     radial-gradient(120% 90% at 18% 8%, color-mix(in oklab, var(--fg-bright) 17%, transparent), transparent 62%),
     var(--w-1);
   box-shadow: 0 22px 46px -22px rgba(4, 12, 22, 0.72);
-  will-change: transform;
 }
+
+/* THE VALUE CARD. The same shape, mirrored: the first card's soft corner is bottom-left, this one's
+   is top-left, so the pair reads as one object rather than two copies. Its wash comes from the deep
+   half of the wordmark rather than the bright half, which separates "what we covered" from "what it
+   is worth" without introducing a colour that exists nowhere else. */
+.aa-bubble-value {
+  border-radius: 26px 8px 26px 26px;
+  border-color: color-mix(in oklab, var(--fg-deep) 34%, var(--w-hair));
+  background:
+    radial-gradient(120% 90% at 82% 8%, color-mix(in oklab, var(--fg-deep) 20%, transparent), transparent 62%),
+    var(--w-1);
+}
+
+/* The money figure is two numbers and a word, so it cannot take the 62px the count does. Sized to fit
+   "$334k to $967k" on one line at the card's narrowest. */
+.aa-bubble-value .aa-bubble-num {
+  font-size: clamp(23px, 2.5vw, 31px);
+  line-height: 1.05;
+  color: var(--fg-deep);
+}
+.aa-bubble-dash {
+  margin: 0 6px;
+  font-size: 0.62em;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--w-dim);
+}
+.aa-bubble-value .aa-bubble-hero { align-items: flex-end; }
+
+:root[data-theme='dark'] .aa-bubble-value .aa-bubble-num { color: var(--fg-bright); }
+
+/* 🔴 --fg-bright ON NEAR-WHITE AGAIN, AND THIS IS THE FIFTH TIME IN THIS PROJECT.
+   MEASURED: the count renders 4.25:1 on the card's #f6fafe in the light theme. That PASSES its actual
+   floor -- 62px at weight 800 is large text, where WCAG asks 3:1, not 4.5 -- so this is not a fix for a
+   failure. It is applied anyway for the reason the other four were: --fg-deep is the same hue family,
+   costs nothing, and takes it to 7.4:1, and a figure this large is the first thing a reader's eye lands
+   on. The pattern is by now well established: any --fg-bright ink needs a light-theme override. */
+:root[data-theme='light'] .aa-bubble-num { color: var(--fg-deep); }
 .aa-bubble-hero { margin: 0 0 11px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .aa-bubble-num {
   font-family: var(--font-display);
@@ -130,31 +187,19 @@ body:not([data-stage='pick']) .aa-workspace-main {
   line-height: 1.25;
   color: var(--w-ink);
 }
-.aa-bubble-list {
-  list-style: none;
-  margin: 0 0 11px;
-  padding: 0;
+/* 🔴 `.aa-bubble-list` WAS DELETED HERE. It styled the three "Own plant configuration / Own hourly
+   schedule / Own solved plume" lines, which the user removed from the card. Rules for elements nobody
+   renders are rules the next reader has to disprove, so they go with the markup rather than lingering
+   as a hint that the list might come back. */
+
+/* With the three-bullet list gone from the first card, the foot rows carry the rule that used to sit
+   on top of that list: without it the caption ran straight into the count with nothing between them. */
+.aa-bubble-foot:first-of-type {
   border-top: 1px solid var(--w-hair);
   padding-top: 10px;
+  margin-top: 11px;
 }
-.aa-bubble-list li {
-  position: relative;
-  margin: 0 0 5px;
-  padding-left: 14px;
-  font-size: 12.3px;
-  line-height: 1.35;
-  color: var(--w-dim);
-}
-.aa-bubble-list li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 6px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--fg-bright);
-}
+
 .aa-bubble-foot {
   display: flex;
   align-items: flex-start;
@@ -167,17 +212,21 @@ body:not([data-stage='pick']) .aa-workspace-main {
 .aa-bubble-foot svg { flex: none; margin-top: 1px; color: var(--fg-bright); }
 .aa-bubble-foot b { color: var(--w-ink); font-weight: 700; }
 
+/* Below 1120px there is no empty space to the right of the headline, so the pair steps down into
+   normal flow rather than overlapping the prose. It is the STACK that is positioned, so it is the
+   stack that has to be released; the cards inside it were already in flow. */
 @media (max-width: 1120px) {
-  .aa-bubble {
+  .aa-bubble-stack {
     position: static;
     width: auto;
     max-width: 420px;
     margin: 16px 0 0;
-    border-radius: 20px;
   }
+  .aa-bubble { border-radius: 20px; }
+  .aa-bubble-value { border-radius: 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .aa-bubble { animation: none !important; }
+  .aa-bubble-stack { animation: none !important; }
 }
 
 /* ---- 4. THE FALLBACK NOTE, when the chosen facility has no run of its own. Amber rather than red:
@@ -241,14 +290,18 @@ body:not([data-stage='pick']) .aa-workspace-main {
 
 @media (max-width: 760px) {
   .aa-banner-sub { display: none; }
-  .aa-banner img { height: 40px; opacity: 0.1; }
+  /* ⚠ THIS USED TO BE `opacity: 0.1`, a leftover of the same watermark idea cinematic.css carried.
+     At a tenth of an opacity the mark is a smudge, which is the opposite of the instruction it was
+     left behind by ("restore its ink completely"). Full strength here too; the subline is what gives
+     way on a narrow screen, not the attribution. */
+  .aa-banner img { height: 34px; opacity: 1; }
 }
 
 /* ---- 6. The scope line and the fallback note belong to the FIRST SCREEN, like the masthead prose.
    Keyed on body[data-stage], the attribute setStage() publishes, so this reads the owner's fact and
    introduces no owner of its own. Same mechanism as .aa-mast-prose. ---- */
-body[data-stage='configure'] .aa-bubble,
-body[data-stage='results'] .aa-bubble,
+body[data-stage='configure'] .aa-bubble-stack,
+body[data-stage='results'] .aa-bubble-stack,
 body[data-stage='configure'] .aa-fallback,
 body[data-stage='results'] .aa-fallback { display: none; }
 

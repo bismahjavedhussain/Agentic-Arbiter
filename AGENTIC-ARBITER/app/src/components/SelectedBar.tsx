@@ -76,6 +76,9 @@ export function SelectedBar({ a, facility, onClear, onConfigure, busy }: {
           type="button"
           disabled={busy}
           onClick={() => onConfigure(facility.metro_key)}
+          /* The landing intro's call-to-action beat lands on this button, because it is the only
+             action the first screen has. One attribute; nothing about the button changes. */
+          data-aa-hero="cta"
           className="shrink-0 rounded-lg px-3.5 py-2 text-[12.5px] font-bold transition-transform
                      duration-150 hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
           /* BRAND BLUE, not var(--action). --action is one of the 20 canonical palette tokens

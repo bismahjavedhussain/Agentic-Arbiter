@@ -34,9 +34,12 @@ export function Masthead({
 
   return (
     <header className="pt-8 pb-5">
-      <p className="label mb-2">Free-cooling decisions, hour by hour</p>
+      {/* data-aa-hero: the landing intro's animation targets. Attributes rather than classes,
+          because these elements otherwise carry only Tailwind utilities and matching on those would
+          couple intro/timeline.ts to someone else's spacing decisions. Inert without the intro. */}
+      <p className="label mb-2" data-aa-hero="eyebrow">Free-cooling decisions, hour by hour</p>
 
-      <h1 className="display text-[clamp(30px,5.2vw,54px)]">
+      <h1 className="display text-[clamp(30px,5.2vw,54px)]" data-aa-hero="headline">
         AGENTIC<span className="text-ink-2">·</span>ARBITER
       </h1>
 
@@ -51,23 +54,37 @@ export function Masthead({
           a copy for a documented reason: a second owner of one fact, where the last writer wins and
           which one that is depends on render timing. A CSS rule reads the fact the owner published
           and introduces no owner at all. The rule is in index.css. */}
-      <div className="aa-mast-prose mt-4 max-w-[64ch] space-y-2 text-[clamp(14.5px,1.2vw,17px)] leading-[1.45]">
+      {/* 🔴 BULLETS, NOT PARAGRAPHS, at the user's instruction: "show some bullet points to show these
+          are different points and are easily readable like the sentences are not embedded together".
+          They are four separate claims and they were reading as one block, because four paragraphs
+          with 8 px between them and no marker look like a single column of prose at a glance.
+          A real <ul> rather than four paragraphs with a pseudo-element: they are a list, so a screen
+          reader should be told there are four of them and which one it is on. The marker styling is in
+          index.css under `.aa-mast-prose`.
+          ⚠ `data-aa-hero="prose"` STAYS ON THIS ELEMENT. `intro/timeline.ts` selects it to stagger the
+          entrance, and the attribute is the only handle it has; moving it to the <ul> would be fine but
+          moving it away would silently drop those lines out of the hero reveal. */}
+      <div
+        className="aa-mast-prose mt-4 max-w-[64ch] text-[clamp(14.5px,1.2vw,17px)] leading-[1.45]"
+        data-aa-hero="prose"
+      >
+       <ul className="aa-mast-points">
         {/* 🔴 ONE POPOVER FOR THE WHOLE HEADLINE, at the user's instruction. There were FOUR, one
             hanging off every sentence, which made an "i" the most repeated element on the first screen
             and put four essays behind it. The four lines below now read straight through, and the
             single note at the end answers the one question a reader actually has: why does any of
             this need a forecast. Short on purpose. The long-form reasoning has not been deleted, it
             lives in the panels the agent writes. */}
-        <p>
+        <li>
           <b>Data centres run chiller compressors through hours when outside air would have done.</b>
-        </p>
+        </li>
 
-        <p>
+        <li>
           <b>FortyGuard forecasts heat at 2 m,</b> the height a ground-mounted condenser breathes,
           which turns "right now" into hours of notice.
-        </p>
+        </li>
 
-        <p>
+        <li>
           {haveImpact ? (
             <>
               <b>This agent turns that notice into a switching schedule:</b>{' '}
@@ -80,9 +97,9 @@ export function Masthead({
               a minimum dwell time.
             </>
           )}
-        </p>
+        </li>
 
-        <p>
+        <li>
           <b>Every hour carries a safety margin measured from its own past errors,</b> and it refuses
           the hours it cannot stand behind.
           <Info label="Why a forecast is needed at all, and what the margin is.">
@@ -94,11 +111,12 @@ export function Masthead({
             agent's own past errors, and its real coverage is on the card below, including where it
             falls short.
           </Info>
-        </p>
+        </li>
+       </ul>
       </div>
 
       {/* THE MODE, AND THE LIVE LINE DIRECTLY UNDER IT. Plain text, no popover. */}
-      <div className="mt-4 space-y-1 text-[13px]">
+      <div className="mt-4 space-y-1 text-[13px]" data-aa-hero="status">
         {live === 'checking' && <p className="text-muted">Checking for a live agent…</p>}
 
         {/* aa-mast-prose, so this goes with the four paragraphs above: the user listed it among the

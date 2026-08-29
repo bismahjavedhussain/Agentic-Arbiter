@@ -36,6 +36,23 @@
   transition: opacity 0.18s ease, color 0.18s ease;
 }
 .aa-tab:hover:not(.is-locked) .aa-tab-icon { opacity: 0.9; }
+
+/* 🔴 THE TAB ROWS HAD NO HOVER FILL AND THE QUICK ACTIONS DID, which is what the user reported:
+   "some of the tabs here including the setup ones and the what the agent found one, they dont get
+   highlighted when the cursor is moved on them. The quick actions tabs do highlight."
+   They were right, and the cause is that `.aa-tab:hover` only lifted the TEXT colour while
+   `.aa-qa:hover` painted a background. On a rail of quiet grey rows a colour shift of one step is
+   close to invisible, so half the rail read as inert.
+   Same fill as the quick actions, deliberately: two hover treatments in one rail would say the two
+   groups behave differently, and they do not. The active row is excluded because it already carries
+   its own pill and a hover on top of that reads as a second state. */
+.aa-tab:hover:not(.is-locked):not(.is-active) {
+  background: color-mix(in oklab, var(--text-primary) 6%, transparent);
+}
+
+/* And a locked row says so on hover rather than doing nothing at all: no fill, but the cursor and a
+   slight lift in opacity acknowledge that the pointer is over something real. */
+.aa-tab.is-locked:hover { opacity: 0.55; }
 .aa-tab.is-active .aa-tab-icon { opacity: 1; color: var(--series-1); }
 
 /* ---- 2. Quick actions ---- */

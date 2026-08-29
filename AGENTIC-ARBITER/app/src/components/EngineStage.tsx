@@ -336,7 +336,15 @@ export function EngineStage({
               user's instruction. #tapecard stays in the DOM, hidden by cinematic.css, because
               #tape is what verify_app_flow.py counts and #tapedone is the completion signal this
               console reads. It reads them and writes nothing, so the engine's stream is untouched. */}
-          {tab === 'live' && stage === 'results' && <AgentConsole pdfHref={pdfHref} />}
+          {tab === 'live' && stage === 'results' && (
+            <AgentConsole
+              pdfHref={pdfHref}
+              /* 'schedule' is the first tab of the WHAT THE AGENT FOUND group. Passed as a callback
+                 rather than letting the console reach for the tab state, so `setTab` keeps exactly
+                 one owner. */
+              onSeeFindings={() => setTab('schedule')}
+            />
+          )}
           {/* The solver, named on the tab it belongs to. Reads #dialcard and writes nothing. */}
           {tab === 'plume' && stage === 'results' && <PlumeBadge />}
             <div ref={host} className="viz-root" />

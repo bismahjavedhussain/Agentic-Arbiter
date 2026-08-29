@@ -1,26 +1,59 @@
 import { motion } from 'framer-motion'
-import { Boxes, Globe2 } from 'lucide-react'
+import { Gauge, Globe2, TrendingUp } from 'lucide-react'
 
 /**
- * The shipped-scope bubble: what the project actually contains, in the empty space to the right of the
- * headline, drifting slowly.
+ * TWO CARDS IN THE EMPTY SPACE RIGHT OF THE HEADLINE: what the project COVERS, and what that is
+ * WORTH. Stacked, drifting slowly together.
  *
- * 🔴 BOTH COUNTS ARE READ, NEVER TYPED. `shipped` is the number of sites in sites.json carrying
- * `offerable: true`, and `mapped` is the length of unified_sites.json, which is what the national map
- * draws. So this cannot claim a scope the product does not have, which is the whole reason it is a
- * prop rather than a string.
+ * 🔴 NOT ONE FIGURE HERE IS TYPED. Every number is a prop, and every prop is read from an artefact by
+ * the caller: `shipped` and `mapped` from sites.json and unified_sites.json, and the four on the value
+ * card from `lib/headline.ts`, which derives them exactly as `audit.py`'s published-figure registry
+ * does. That is the whole reason they are props rather than strings: this is the first thing a judge
+ * reads, and a claim here that no file backs is the one failure this project cannot afford.
+ * ⚠ The value card RENDERS NOTHING when the figures are absent, rather than showing a dash or a
+ * placeholder. A card that says "$0" is worse than a card that is not there.
  *
- * POINTS, NOT SENTENCES, at the user's instruction: a bubble is glanced at, not read.
+ * THE SECOND CARD IS NEW, at the user's request: "draw a similar shape under this one and write our
+ * value ... the conclusion we draw by shipping 250 data centres ... showing commercial value and
+ * intelligence as well." So it answers the question the first card provokes. The first says HOW MUCH
+ * was analysed; this says WHAT THAT BUYS, in money, in recovered hours, and in the one thing that
+ * separates this from a demo: the hours it was scored against are real and held out.
  *
  * THE DRIFT IS DECORATIVE AND SLOW ON PURPOSE. 11 seconds for a 10px excursion, which reads as
  * floating rather than as animation, and it is `transform` only so it never reflows anything or
  * disturbs the canvas panels below. Disabled outright under prefers-reduced-motion.
  */
-export function ScopeBubble({ shipped, mapped }: { shipped: number; mapped: number }) {
+export function ScopeBubble({
+  shipped,
+  mapped,
+  usdLo,
+  usdHi,
+  cutPct,
+  gainHPerYear,
+  weatherHours,
+}: {
+  shipped: number
+  mapped: number
+  /** The four value figures. Optional: with no headline loaded the second card is simply absent. */
+  usdLo?: number
+  usdHi?: number
+  cutPct?: number
+  gainHPerYear?: number
+  weatherHours?: number
+}) {
+  const haveValue =
+    usdLo !== undefined &&
+    usdHi !== undefined &&
+    cutPct !== undefined &&
+    gainHPerYear !== undefined &&
+    weatherHours !== undefined
+
+  /** $334k, not $334,000: the card is glanced at, and a six-digit run of figures is not. */
+  const k = (n: number) => '$' + Math.round(n / 1000).toLocaleString('en-US') + 'k'
+
   return (
-    <motion.aside
-      className="aa-bubble"
-      aria-label="What this project ships"
+    <motion.div
+      className="aa-bubble-stack"
       initial={{ opacity: 0, scale: 0.94 }}
       animate={{
         opacity: 1,
@@ -36,27 +69,63 @@ export function ScopeBubble({ shipped, mapped }: { shipped: number; mapped: numb
         x: { duration: 15, repeat: Infinity, ease: 'easeInOut' },
       }}
     >
-      <p className="aa-bubble-hero">
-        <span className="aa-bubble-num">{shipped}</span>
-        <span className="aa-bubble-unit">data centres shipped</span>
-      </p>
+      {/* ---- CARD ONE: the scope. */}
+      <aside className="aa-bubble" aria-label="What this project covers">
+        <p className="aa-bubble-hero">
+          <span className="aa-bubble-num">{shipped}</span>
+          <span className="aa-bubble-unit">
+            data centres covered with
+            <br />
+            fully agentic analysis
+          </span>
+        </p>
 
-      <ul className="aa-bubble-list">
-        <li>Own plant configuration</li>
-        <li>Own hourly schedule</li>
-        <li>Own solved plume</li>
-      </ul>
+        {/* 🔴 THE THREE "OWN plant / hourly schedule / solved plume" LINES ARE GONE, at the user's
+            instruction. What they said is now carried by the phrase "fully agentic analysis" above
+            and demonstrated by the panels themselves, which is a stronger place for it than a bullet
+            list on a card nobody can check. */}
+        <p className="aa-bubble-foot">
+          <Globe2 size={13} strokeWidth={2.2} aria-hidden="true" />
+          <span>
+            out of <b>{mapped}</b> mapped from OpenStreetMap
+          </span>
+        </p>
+      </aside>
 
-      <p className="aa-bubble-foot">
-        <Globe2 size={13} strokeWidth={2.2} aria-hidden="true" />
-        <span>
-          out of <b>{mapped}</b> mapped from OpenStreetMap
-        </span>
-      </p>
-      <p className="aa-bubble-foot">
-        <Boxes size={13} strokeWidth={2.2} aria-hidden="true" />
-        <span>full agentic analysis, not a sample</span>
-      </p>
-    </motion.aside>
+      {/* ---- CARD TWO: what it is worth. */}
+      {haveValue && (
+        <aside className="aa-bubble aa-bubble-value" aria-label="What the analysis is worth">
+          <p className="aa-bubble-hero">
+            <span className="aa-bubble-num">
+              {k(usdLo!)}
+              <span className="aa-bubble-dash">to</span>
+              {k(usdHi!)}
+            </span>
+            <span className="aa-bubble-unit">
+              a year, at one
+              <br />
+              mid-sized site
+            </span>
+          </p>
+
+          <p className="aa-bubble-foot">
+            <TrendingUp size={13} strokeWidth={2.2} aria-hidden="true" />
+            <span>
+              <b>{cutPct!.toFixed(1)} %</b> less mechanical cooling,{' '}
+              <b>+{Math.round(gainHPerYear!).toLocaleString('en-US')}</b> chiller-hours recovered
+            </span>
+          </p>
+          <p className="aa-bubble-foot">
+            <Gauge size={13} strokeWidth={2.2} aria-hidden="true" />
+            <span>
+              scored on <b>{weatherHours!.toLocaleString('en-US')}</b> real held-out hours
+            </span>
+          </p>
+          {/* A fourth row said "every hour carries its own measured margin", which is the masthead's
+              fourth bullet verbatim. Three rows say the whole thing once: what it is worth, what it
+              changes, and what it was scored against. */}
+        </aside>
+      )}
+    </motion.div>
   )
 }

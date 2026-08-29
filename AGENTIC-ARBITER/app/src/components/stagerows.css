@@ -1,0 +1,147 @@
+/* THE FIVE AGENT STAGES, below the fold on the landing page.
+ *
+ * 🔴 NOT SCOPED TO `body[data-aa-intro]`, UNLIKE EVERYTHING IN intro.css, AND THE DIFFERENCE MATTERS.
+ * That attribute is present only while the motion layer is mounted, so a rule under it disappears
+ * with `?motion=off`. These rows are CONTENT rather than motion: they are the one place on the
+ * landing page that says in words what the loop does, and they have to survive every kill switch.
+ * They are still landing-page-only, by the same mechanism the rest of the pick screen uses: they sit
+ * inside `[data-show="pick"]`, which the engine's `setStage()` hides on the way to configure.
+ *
+ * 🔴 AND UNLIKE THE HERO, THIS SECTION FOLLOWS THE READER'S THEME. The hero is pinned dark because
+ * its rim glow is additive and vanishes on white (`intro.css` section 8). Nothing here is emissive,
+ * so there is no reason to override the reader's choice, and doing it anyway would make the theme
+ * toggle look broken on two thirds of the page.
+ *
+ * No new design tokens. `verify_palette.py` requires the page and the app to declare the canonical
+ * ones identically, so everything below composes what already exists.
+ */
+
+.aa-stagerows {
+  margin: 40px 0 0;
+}
+
+.aa-stagerows-h {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(19px, 2.1vw, 25px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.aa-stagerows-sub {
+  margin: 8px 0 0;
+  max-width: 62ch;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.aa-stagerows-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  /* Reserve the full height from the first frame, so nothing below this section walks down the page
+     as each row arrives. Five rows plus their gaps, and it is the same arithmetic the splash used. */
+  min-height: calc(5 * 36px + 4 * 7px);
+}
+
+.aa-stagerow {
+  display: grid;
+  grid-template-columns: 20px 88px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--fg-hair);
+  border-radius: 9px;
+  /* 🔴 OPAQUE ON PURPOSE. A translucent fill would be prettier and would also make the contrast probe
+     in verify_intro.py walk PAST this element to the page behind it, so the ratio it reported would
+     be for a background this row does not have. An assertion measuring the wrong surface is worse
+     than no assertion. */
+  background: var(--surface-1);
+  text-align: left;
+  /* 520 ms, the number StageRows.tsx waits before firing the chime. One number, two files.
+   *
+   * 🔴 NO `both` FILL MODE, AND THAT IS A CORRECTION TO A REAL RISK RATHER THAN A TEST FIX.
+   * It was written as `... 520ms ... both`, and `verify_intro.py` measured all five rows at
+   * opacity 0. The cause is the trap this project already recorded for GSAP (05-TRAPS 5b.13): the
+   * ANIMATION CLOCK does not always advance. With `both`, the element holds the keyframes' `from`
+   * state until the animation runs, so a stalled or throttled clock leaves the section permanently
+   * INVISIBLE, and the rows are the only plain-language account of the loop on this page.
+   * With the default fill mode the element's own declared style is its resting state, which here is
+   * the finished state: opacity 1, no transform. So a clock that never ticks leaves a FINISHED
+   * section rather than an empty one, which is the property the rest of this codebase is held to.
+   * There is no flash of the end state first, because React inserts the row and the animation's
+   * first sample applies in the same style recalculation, and there is no `animation-delay`.
+   * ⚠ Do not add `both`, `forwards` or a delay here without re-reading that trap. */
+  animation: aa-stagerow-in 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 🔴 THE WATCHDOG'S OTHER HALF. `data-settled` is written by a wall-clock `setTimeout` in
+   StageRows.tsx once a row has had its 520 ms. Cancelling the animation returns the element to its
+   own declared style, which here IS the finished state: opacity 1, no transform.
+   If the animation clock was healthy this changes nothing a reader can see, because the animation had
+   already ended. If it was frozen -- and 05-TRAPS 5b.13 measured that happening -- this is what stops
+   the section being invisible for the rest of the visit. */
+.aa-stagerow[data-settled] { animation: none; }
+
+@keyframes aa-stagerow-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.aa-stagerow-icon { color: var(--fg-bright); }
+
+.aa-stagerow-label {
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.aa-stagerow-note {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+/* Tabular figures so the columns do not jitter as the milliseconds change, which is the rule
+   index.css already applies to every compared figure in this product. */
+.aa-stagerow-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--fg-bright);
+  white-space: nowrap;
+}
+
+/* 🔴 --fg-bright FAILS AA ON NEAR-WHITE, AND THIS IS THE FOURTH TIME IN THIS PROJECT.
+   #14a1e0 in dark is 6.83:1 on the near-black page; #0d7fb4 in light is 4.27:1 on #fafafa, under the
+   4.5:1 floor for small text, and this is 11px. The gate's eyebrow hit it, the agent loop's data
+   labels hit it, the splash timestamp hit it, and now this one, because the row moved from the
+   pinned-dark hero onto a surface that follows the theme.
+   Same answer every time: --fg-deep, the wordmark's darker half, #12558f in light, 7.39:1. An
+   existing token, same hue family, no literal introduced, no palette value touched.
+   ⚠ THE PATTERN IS THE POINT: any small text painted --fg-bright needs a light-theme override.
+   Anything moved from the hero onto the page inherits this problem by moving. */
+:root[data-theme='light'] .aa-stagerow-time {
+  color: var(--fg-deep);
+}
+
+/* REDUCED MOTION: every row is already rendered by StageRows.tsx rather than waiting for a
+   stagger, so all this has to do is stop the slide. The page still looks finished, which is the
+   test. */
+@media (prefers-reduced-motion: reduce) {
+  .aa-stagerow { animation: none; }
+}
+
+@media (max-width: 767px) {
+  .aa-stagerow { grid-template-columns: 20px 1fr auto; }
+  .aa-stagerow-note { display: none; }
+}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Masthead } from './components/Masthead'
 import { SearchBar, type Filters } from './components/SearchBar'
 import { SelectedBar } from './components/SelectedBar'
@@ -6,7 +6,10 @@ import { KpiCards } from './components/KpiCards'
 import { SiteMap } from './components/SiteMap'
 import { EngineStage } from './components/EngineStage'
 import { DetailModal } from './components/DetailModal'
+import { IntroLayer } from './intro/IntroLayer'
+import { IntroBoundary } from './components/IntroBoundary'
 import { ScopeBubble } from './components/ScopeBubble'
+import { useStage } from './lib/stage'
 import { configureSite } from './lib/engine'
 import { ART, loadArtefacts, type Artefacts } from './lib/artefacts'
 import { DEFAULT_METRO, loadHeadline, type Headline } from './lib/headline'
@@ -60,6 +63,10 @@ export function App() {
   const [pristine, setPristine] = useState(
     () => !new URLSearchParams(typeof location === 'undefined' ? '' : location.search).get('facility'),
   )
+  /* 🔴 READ, NEVER OWNED. `setStage()` in the lifted engine is the single owner of which stage is
+     showing; this is the same read-only MutationObserver IntroLayer uses. A second copy of the stage
+     in React state is the two-writers bug this file already refuses elsewhere. */
+  const stage = useStage()
   const [theme, setTheme] = useState<'dark' | 'light'>(
     () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'),
   )
@@ -111,10 +118,47 @@ export function App() {
       .catch(() => setLive('replay'))
   }, [])
 
+  /**
+   * 🔴 THE DEFAULT THEME DEPENDS ON THE STAGE, AND ONLY THE DEFAULT.
+   *
+   * The user asked for two different things on two screens: "This page should be in dark mode by
+   * default" of the landing page, and "the default mode when the user lands on this page should be
+   * light mode" of the configure screen. Both add "the user can change it when they want to", so this
+   * is a default and never a lock.
+   *
+   * The distinction that makes it work is between an AUTOMATIC theme and a CHOSEN one:
+   *   - `aa-theme` in localStorage means the reader pressed the toggle. It is now written ONLY by the
+   *     toggle, never by this effect, so its presence is exactly the fact "they chose".
+   *   - with no such key, the stage decides, and keeps deciding as they move between screens.
+   * ⚠ THAT KEY USED TO BE WRITTEN ON EVERY CHANGE, which would have made the first automatic switch
+   * indistinguishable from a choice and frozen the theme from then on. It is the one line that had to
+   * move for any of this to be true.
+   *
+   * The pre-paint script in index.html still reads `aa-theme` before the first paint, so a reader who
+   * HAS chosen never sees a flash of the other palette; one who has not gets the dark landing page,
+   * which is what that script already defaults to, so there is no flash there either.
+   */
+  const chose = useRef<boolean>(
+    (() => {
+      try { return localStorage.getItem('aa-theme') !== null } catch { return false }
+    })(),
+  )
+
+  useEffect(() => {
+    if (chose.current) return
+    setTheme(stage === 'configure' || stage === 'results' ? 'light' : 'dark')
+  }, [stage])
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    try { localStorage.setItem('aa-theme', theme) } catch { /* private mode; the default holds */ }
   }, [theme])
+
+  /** The toggle, and the only thing that records a preference. */
+  const chooseTheme = useCallback((next: 'dark' | 'light') => {
+    chose.current = true
+    try { localStorage.setItem('aa-theme', next) } catch { /* private mode; it holds for this visit */ }
+    setTheme(next)
+  }, [])
 
   /* Stable identity, so SiteMap's create-once effect stays create-once even if its dependency
      array is ever widened again. Belt as well as braces: the ref inside SiteMap is the braces. */
@@ -189,7 +233,7 @@ export function App() {
     <main id="app" className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-6">
       <button
         type="button"
-        onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+        onClick={() => chooseTheme(theme === 'dark' ? 'light' : 'dark')}
         aria-label={theme === 'dark' ? 'Switch to the light palette' : 'Switch to the dark palette'}
         className="fixed right-4 top-4 z-50 rounded-lg border border-hair bg-surface-1 p-2
                    text-ink-2 transition-colors hover:text-ink"
@@ -243,6 +287,14 @@ export function App() {
           cannot state a number the artefacts do not support. */}
       <Masthead live={live} cutPct={h?.cutPct} gainHPerYear={h?.gainHPerYear} />
 
+      {/* WHERE THE AGENT-LOOP DIAGRAM GOES, on the landing stage only. An empty div until the intro
+          layer portals into it, and harmless if that never happens -- the same arrangement as
+          #aa-railslot above, which EngineStage fills with the engine's own stepper.
+          It is here rather than inside IntroLayer's own output because IntroLayer renders at the END
+          of this component, next to the modal, and the diagram belongs in the document flow directly
+          under the masthead it explains. */}
+      <div id="aa-ringslot" />
+
       {!a || !h ? (
         <p className="text-[13px] text-muted">Loading saved data…</p>
       ) : (
@@ -263,6 +315,15 @@ export function App() {
           <ScopeBubble
             shipped={a.manifest.sites.filter((s) => (s as { offerable?: boolean }).offerable).length}
             mapped={a.unified.sites.length}
+            /* 🔴 THE VALUE CARD'S FIGURES COME FROM THE SAME `Headline` THE KPI PLATE READS, so the
+               two cannot disagree: `loadHeadline` derives them exactly as audit.py's registry does,
+               from the selected site's own artefacts. Passed as `undefined` until it loads, which is
+               what makes the second card absent rather than showing a placeholder. */
+            usdLo={h?.usdLo}
+            usdHi={h?.usdHi}
+            cutPct={h?.cutPct}
+            gainHPerYear={h?.gainHPerYear}
+            weatherHours={h?.weatherHours}
           />
 
           {/* WHEN THE SELECTED FACILITY HAS NO RUN, say whose figures are on the cards. Showing the
@@ -295,6 +356,16 @@ export function App() {
             <div className="mt-4">
               <SiteMap a={a} filters={mapFilters} onPick={onPick} />
             </div>
+            {/* 🔴 THE FIVE AGENT STAGES USED TO RENDER HERE, AND ARE NOW REMOVED FROM THE PAGE.
+                Moved out of the splash on 2026-08-29 at the user's instruction, then removed
+                outright later the same day: "remove this", with a screenshot of this section.
+                ⚠ `components/StageRows.tsx` and `stagerows.css` ARE STILL IN THE REPOSITORY and are
+                deliberately not deleted, because the instruction that moved them here was explicit
+                that the component and its data wiring must not be deleted. Those two instructions
+                are only compatible one way: gone from the page, kept on disk. Deleting the files is
+                a one-line decision the user can make; putting the section back is this one JSX tag.
+                The five stage names still appear in the product, in `intro/Pipeline.tsx`'s diagram
+                and in `AgentConsole.tsx`'s stage ticks, so nothing about the loop is now unstated. */}
           </div>
 
           {/* THE OTHER TWO STAGES: the page's own markup, drawn by the page's own engine. Rendered
@@ -309,6 +380,18 @@ export function App() {
           {/* Where the folded prose opens. Listens for an event, so the buttons injected into engine
               DOM can reach it without React managing those nodes. */}
           <DetailModal />
+
+          {/* THE CINEMATIC INTRO, landing stage only. One mount and nothing else: IntroLayer reads
+              the stage from body[data-stage] through useStage(), renders nothing anywhere but
+              'pick', and returns null outright when the motion kill switch is off -- which is also
+              how the browser checks bypass it (?motion=off). Placed last so the gate is over the
+              page in paint order as well as in z-index. */}
+          {/* 🔴 WRAPPED, because a decorative layer must not be able to blank the product. A throw
+              inside IntroLayer's subtree used to unmount the entire tree: measured with WebGL
+              disabled, `#root` went to zero children. See IntroBoundary. */}
+          <IntroBoundary>
+            <IntroLayer />
+          </IntroBoundary>
         </>
       )}
     </main>

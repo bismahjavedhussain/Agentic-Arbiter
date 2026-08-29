@@ -173,8 +173,21 @@ select option { background: var(--w-3); color: var(--w-ink); }
   border-radius: 4px;
   padding: 0 3px;
 }
-/* Its Close button, which was a hairline box on glass. */
-[role='dialog'] button {
+/* Its Close button, which was a hairline box on glass.
+   🔴 `.shiny-cta` IS EXCLUDED, AND THIS RULE IS WHY THE SPLASH CTA LOOKED WRONG.
+   MEASURED on the rendered button: `background` here is the SHORTHAND with `!important`, so it did
+   not tint the component, it REPLACED its entire background. The supplied ShinyButton paints a black
+   `padding-box` fill plus a rotating conic gradient in `border-box`; both vanished, leaving
+   `background-image: none` and a flat `oklab(... / 0.12)` wash, which is the "generic purple/blue
+   gradient pill" the user reported. The `border-color` line supplied the outline over the top.
+   The rule is right for what its own comment says it is for: a Close button that was a hairline box
+   on glass. It could not know a self-contained component would later take the same role, and the
+   splash carries `role="dialog"` because it genuinely is modal. One exclusion is the smallest honest
+   fix, it lives at the rule that is wrong rather than being answered with a louder rule elsewhere,
+   and it covers any future ShinyButton in any dialog.
+   Same shape as the collision intro.css section 1 already documents, one level deeper: a
+   project-wide `[role=...]` skin captures every future element that takes that role. */
+[role='dialog'] button:not(.shiny-cta) {
   border-color: color-mix(in oklab, var(--fg-bright) 34%, transparent) !important;
   color: var(--fg-pop-ink) !important;
   background: color-mix(in oklab, var(--fg-bright) 12%, transparent) !important;

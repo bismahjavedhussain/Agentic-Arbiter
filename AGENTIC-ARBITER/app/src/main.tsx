@@ -31,6 +31,10 @@ import './masthead.css'
 /* Truly last: readability and position fixes, each verified against a rendered PNG in both
    themes. Several deliberately override engine.css and my own earlier sheets. */
 import './lastmile.css'
+/* THE INTRO LAYER, after lastmile so it can sit over the finished page. Every rule inside is scoped
+   to `body[data-aa-intro]`, which IntroLayer sets only on the landing stage, so importing it here
+   cannot affect the configure or results screens even though all three are one document. */
+import './intro/intro.css'
 /* BEFORE App, and therefore before EngineStage's layout effect calls setStage('pick'). The shim
    only suppresses a scroll-to-top when the stage has not changed, so the boot scroll still happens;
    installing early just means no re-run can slip past it. */
