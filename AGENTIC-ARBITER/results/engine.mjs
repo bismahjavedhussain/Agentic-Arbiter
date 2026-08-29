@@ -2441,6 +2441,25 @@ function drawLive(L){
       '<strong>This bound is being extrapolated.</strong> ' + (m.EXTRAPOLATION_WARNING || '')
     + (m.site_owns_this_calibration ? ''
        : '<br><br><strong>And it is borrowed.</strong> ' + (m.borrowed_note || ''));
+
+  /* THE DOWNLOAD, offered only for a run that produced a schedule and only once there is a job id
+     to name. `/api/live/report/<job_id>` builds the PDF on demand and REFUSES to serve one that
+     fails its own read-back, so a broken file cannot reach the reader: the failure arrives as an
+     HTTP error rather than as a corrupt download. Cleared on every redraw so a stale link from a
+     previous run can never sit under a new one's numbers. */
+  const rep = $('#livereport');
+  if (rep) {
+    const ok = (L.status === 'ok' || L.status === 'ok_partial' || L.status === 'ok_replay');
+    rep.innerHTML = (ok && LIVEJOB)
+      ? '<a class="btn btn-go" id="livepdf" download href="api/live/report/' + LIVEJOB + '">'
+        + 'Download this run report (PDF)</a>'
+        + '<span class="note" style="margin-left:10px">'
+        + (L.NOT_LIVE
+            ? 'Replay verification run, hour by hour.'
+            : 'The reasoning, hour by hour, for this run only.')
+        + '</span>'
+      : '';
+  }
 }
 
 function wireAerial(){

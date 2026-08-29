@@ -268,6 +268,11 @@ STEPS = [
     # FortyGuard functions stubbed so the assertion itself costs nothing.
     ("Stop agent now prevents the un-submitted calls, and only those",
      [sys.executable, "verify_stop_control.py"], TESTING),
+    # THE DOWNLOAD HAS TO EXIST AND THE ROUTE BEHIND IT HAS TO WORK, and those are separate
+    # claims: a button pointing at a broken route and a working route with no button both look
+    # fine from one side. Driven with a replay fixture, so it costs nothing.
+    ("a live run offers its own report, and the route returns a real PDF",
+     [sys.executable, "verify_live_report_button.py"], TESTING),
     ("the React app renders the same numbers twice, from fresh profiles",
      [sys.executable, "verify_app_deterministic.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The app is a prototype and the "

@@ -40,7 +40,7 @@ it an upper bound on that term rather than a projection (§ *What is honest*).
 ## Start here: two commands
 
 ```bash
-# 1. Prove it. 35 steps, ZERO API calls. Exits non-zero on any failure.
+# 1. Prove it. 37 steps, ZERO API calls. Exits non-zero on any failure.
 cd AGENTIC-ARBITER/src && python run_all.py
 
 # 2. See it: REPLAY mode, no API key needed, works offline.
@@ -79,7 +79,7 @@ error. Any static host serves the demo as-is: there is no build step and no serv
 and it is what every verifier measures. `AGENTIC-ARBITER/app/` is a Vite + React rebuild of the same
 product, started 2026-08-28. It is not a separate demo: it renders the page's own configure and
 results markup and drives the page's own drawing code, lifted byte for byte into
-`AGENTIC-ARBITER/results/engine.mjs`. Three of the 35 steps below exist to prove that, one of them by
+`AGENTIC-ARBITER/results/engine.mjs`. Three of the 37 steps below exist to prove that, one of them by
 driving pick to results in a real browser. Build it with `cd AGENTIC-ARBITER/app && npm ci && npm run
 build`; the output is designed to drop into `demo/`, where the same relative fetches resolve, so the
 shipped artefact still has no install step.

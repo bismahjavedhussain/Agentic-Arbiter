@@ -236,6 +236,43 @@ export function EngineStage({
     if (main) main.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [tab])
 
+  /* PUBLISH THE REAL SCROLLPORT HEIGHT, because CSS cannot read it and the page's own value is
+     wrong here.
+
+     MEASURED (scratchpad/probe_railscroll.py, 1502x904): `aside.sidebar` is 876px of content in an
+     832px box, so its own scrollbar covers 44px -- while the box itself runs from y=268 to y=1102,
+     which is 198px BELOW a 904px viewport. The remaining 198px could only be reached by scrolling
+     `.aa-workspace-main`. That is exactly the user's report: "even if I scroll up all the way in
+     the bar itself, it doesn't show till the top of the bar unless I scroll the page itself up too."
+
+     The cause is not a bug in the page. `index.html:896` sets
+     `max-height: calc(100vh - var(--bezel-h) - var(--sp-5))`, which is CORRECT there: the window is
+     the scrollport and the sidebar sticks below a fixed bezel. In this app the scrollport is
+     `.aa-workspace-main`, which starts below the masthead AND the tab header, so 100vh overstates it
+     by however tall those are. A fixed correction would be a guess at the masthead's height; this
+     measures it, and re-measures on resize and on tab change.
+
+     Set on documentElement so one variable serves every rule, and only read by the sidebar rule in
+     lastmile.css. */
+  useEffect(() => {
+    const main = document.querySelector('.aa-workspace-main') as HTMLElement | null
+    if (!main) return
+    const publish = () => {
+      const h = main.clientHeight
+      if (h > 0) document.documentElement.style.setProperty('--aa-scrollport', h + 'px')
+    }
+    publish()
+    /* ResizeObserver rather than a resize listener: the scrollport also changes when the masthead
+       reflows at a different width, which fires no window resize of its own. */
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(publish) : null
+    ro?.observe(main)
+    window.addEventListener('resize', publish)
+    return () => {
+      ro?.disconnect()
+      window.removeEventListener('resize', publish)
+    }
+  }, [tab, stage])
+
   return (
     <>
       {/* 🔴 className="viz-root" IS LOAD-BEARING, NOT COSMETIC. The engine reads its design tokens

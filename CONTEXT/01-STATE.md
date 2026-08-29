@@ -12,6 +12,56 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE LIVE RUN HAD NO DOWNLOAD, AND THE CONFIG COLUMN COULD NOT SCROLL ITSELF. 2026-08-29
+
+**THE REPORT BUTTON WAS GATED ON THE WRONG SIGNAL, and it was my gate.** The user ran the agent live
+on Ashburn twice and had nothing to download. `AgentConsole.tsx` resolved its ready state on
+`tapeDone()`, which reads `#tapedone` -- and that element is written by `streamTape()`, the REPLAY
+path. A live run never touches it, so `phase` stayed `reasoning` for as long as the tab was open and
+the entire button row, Download PDF included, never rendered at all.
+
+Fixed in two places, because one of them was the wrong home for it:
+
+* the offer now lives at the END OF THE LIVE OUTPUT, in `#livereport`, written by `drawLive()` --
+  the function that actually knows a live run finished. That is also where the user asked for it.
+* the console additionally gets `liveDone()` (the summary line, or a row in the schedule table) and
+  chooses `wasLive ? liveDone() : tapeDone()`, so its own row appears for a live run too.
+
+`testing/verify_live_report_button.py` (run_all step 35) checks BOTH halves, because either alone
+would be a false pass: a button pointing at a broken route, and a working route with no button, look
+identical from one side. 25 checks, 0 failed, and it runs on a REPLAY fixture so it costs nothing.
+The PDF comes back at 14,970 bytes with a complete `%%EOF` trailer, by job id and as `latest`, at
+`/api/...` and at `/app/api/...`.
+
+⚠ Choosing that fixture took three attempts, and the failures were mine not the product's. Any
+populated fixture drew one from another metro, the run returned `fixture_mismatch`, and the report
+route REFUSED to build a PDF with no schedule, which is exactly right. Filtering on "ashburn" in the
+filename matched nothing, because the usable fixtures are named for the experiment that bought them.
+The picker now asks the question the code asks: nearest tile within `MAX_TILE_DIST_M`. 31.5 m.
+
+**THE CONFIGURATION COLUMN, MEASURED BEFORE TOUCHED.** The user: *"even if I scroll up all the way in
+the bar itself, it doesn't show till the top of the bar unless I scroll the page itself up too."*
+`scratchpad/probe_railscroll.py` walked the scroll chain at 1502x904:
+
+    *** aside.sidebar          876/832   rect 268..1102   max-height 834px
+    *** div.aa-workspace-main  834/636   rect 268..904
+
+Two nested scrollers. The sidebar's own scrollbar covered 44px of overflow while its box ran 198px
+past the bottom of the viewport, so the remaining 198px belonged to the container behind it.
+
+**THE PAGE'S VALUE IS CORRECT FOR THE PAGE.** `index.html:896` is
+`max-height: calc(100vh - var(--bezel-h) - var(--sp-5))`, and on the single-file page the WINDOW is
+the scrollport and the sidebar sticks under a fixed bezel, so 100vh is the right basis. In the app
+the scrollport is `.aa-workspace-main`, which begins below the masthead AND the tab header, so 100vh
+overstates it by the height of both. A fixed correction would be a guess at the masthead; instead
+`EngineStage.tsx` publishes `--aa-scrollport` from that container's measured `clientHeight` on a
+ResizeObserver, and `lastmile.css` rule 6 reads it. `top: 0` too, since the bezel offset does not
+exist in this layout.
+
+Re-measured after: sidebar `876/616`, `rect 268..886` inside a 904 viewport, and
+`.aa-workspace-main` at `636/636` **no longer scrolls at all**. One scroller, 260px of it, all of it
+on the bar's own scrollbar.
+
 ### THE STOP CONTROL: what "Stop agent now" can and cannot save. 2026-08-29
 
 The user asked for a red force-stop beside the live run. The honest version of that button is an
@@ -1399,8 +1449,8 @@ only `fmt`.
 | Of those, ready to run | **246** | sites.json offerable metros, joined on metro_key |
 | Offerable metros | **250** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
-| run_all.py steps | **36** | count of STEPS entries in src/run_all.py |
-| demo/index.html size | **483 KB** | byte length of the shipped page |
+| run_all.py steps | **37** | count of STEPS entries in src/run_all.py |
+| demo/index.html size | **485 KB** | byte length of the shipped page |
 | Map GeoJSON sources | **2** | one clustered, one flat -- see 02-ARCHITECTURE |
 | Map unisites-* layers | **5** | cluster, halo, points, flat-halo, flat |
 | `#livecard` present | **yes** | standing rule: the live agent is never removed |

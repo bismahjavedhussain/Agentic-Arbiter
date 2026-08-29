@@ -310,6 +310,18 @@ it, and the task's exit code came from the PUSH. Everything was still staged, so
 `commit && push`, read the COMMIT step's output: a zero exit from the push says nothing about whether
 the commit happened.
 
+### 5b.12 THE PAGE ASSUMES THE WINDOW IS THE SCROLLPORT; IN THE APP IT IS NOT
+`index.html` sizes its sticky panels against `100vh` minus a fixed bezel, which is exact there: the
+window scrolls and the bezel is the only thing above. The React app puts the same markup inside
+`.aa-workspace-main`, a nested scroller starting below the masthead and the tab header, so every
+`100vh`-based height is too tall by however much sits above it. Measured overshoot for
+`aside.sidebar`: 198px, which left 44px of its 260px of overflow on its own scrollbar and the rest on
+the container behind it.
+The tell is TWO scrollers in the chain where the reader expects one. `scratchpad/probe_railscroll.py`
+walks from an element to `html` and prints every ancestor whose `scrollHeight > clientHeight`.
+The fix is not a smaller constant, which would just be a guess at the masthead's height. Measure the
+scrollport and publish it: `--aa-scrollport` from a ResizeObserver on the real container.
+
 ### 5b.10 `exit=$?` AFTER A PIPELINE READS THE PIPE'S LAST COMMAND, not the test
 Three verifiers were reported as passing on the strength of this loop:
 

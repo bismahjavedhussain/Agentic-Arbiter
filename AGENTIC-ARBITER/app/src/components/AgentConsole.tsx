@@ -59,6 +59,19 @@ function tapeDone(): boolean {
   return !!(el?.textContent || '').trim()
 }
 
+/* A LIVE RUN NEVER WRITES #tapedone, and gating on it was a real bug the user hit: the element is
+   filled by streamTape(), which is the REPLAY path. So after "Run the agent on live data" the
+   console stayed in its reasoning state for as long as the tab was open, `phase` never became
+   'ready', and the whole button row -- Download PDF and the live report -- never rendered at all.
+   A live run's own completion signal is the summary line drawLive() writes, or the schedule table
+   it fills. Either one means the run has settled, including when it settled on a refusal. */
+function liveDone(): boolean {
+  const msg = document.getElementById('livemsg')
+  if ((msg?.textContent || '').trim()) return true
+  const table = document.getElementById('livetable')
+  return !!table?.querySelector('tr')
+}
+
 function tapeStage(): number {
   const tape = document.getElementById('tape')
   if (!tape) return 0
@@ -118,10 +131,11 @@ export function AgentConsole({ pdfHref }: { pdfHref: string | null }) {
       setStage(tapeStage())
       /* Resolves only when BOTH the minimum has elapsed AND the real tape has finished, so the console
          can never claim a decision the engine has not actually reached. */
-      if (performance.now() - startedAt.current >= MIN_MS && tapeDone()) setPhase('ready')
+      const settled = wasLive ? liveDone() : tapeDone()
+      if (performance.now() - startedAt.current >= MIN_MS && settled) setPhase('ready')
     }, PHRASE_MS)
     return () => clearInterval(id)
-  }, [phase])
+  }, [phase, wasLive])
 
   const phrase = PHRASES[idx % PHRASES.length]
   const stageLabel = stage >= 1 && stage <= 7 ? STAGE_NAMES[stage - 1] : ''

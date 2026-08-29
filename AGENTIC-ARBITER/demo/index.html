@@ -1916,6 +1916,12 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
   <div class="tiles" id="livetiles"></div>
   <table id="livetable" style="margin-top:12px"></table>
   <p class="note warn" id="livebound" style="margin-top:12px"></p>
+  <!-- THE RUN'S OWN REPORT, at the end of the run's own output. It is written here rather than in
+       the React console because the console resolves on `#tapedone`, which only streamTape() fills
+       -- so after a LIVE run the console never left its reasoning state and its download row never
+       appeared at all. This element is filled by drawLive(), which is the function that actually
+       knows a live run finished. -->
+  <div id="livereport" style="margin-top:14px"></div>
 </div>
 <div class="secgroup"><p class="eyebrow">The decision, and what it is worth</p></div>
 <div data-show="results" class="card" id="decisioncard">
@@ -5029,6 +5035,25 @@ function drawLive(L){
       '<strong>This bound is being extrapolated.</strong> ' + (m.EXTRAPOLATION_WARNING || '')
     + (m.site_owns_this_calibration ? ''
        : '<br><br><strong>And it is borrowed.</strong> ' + (m.borrowed_note || ''));
+
+  /* THE DOWNLOAD, offered only for a run that produced a schedule and only once there is a job id
+     to name. `/api/live/report/<job_id>` builds the PDF on demand and REFUSES to serve one that
+     fails its own read-back, so a broken file cannot reach the reader: the failure arrives as an
+     HTTP error rather than as a corrupt download. Cleared on every redraw so a stale link from a
+     previous run can never sit under a new one's numbers. */
+  const rep = $('#livereport');
+  if (rep) {
+    const ok = (L.status === 'ok' || L.status === 'ok_partial' || L.status === 'ok_replay');
+    rep.innerHTML = (ok && LIVEJOB)
+      ? '<a class="btn btn-go" id="livepdf" download href="api/live/report/' + LIVEJOB + '">'
+        + 'Download this run report (PDF)</a>'
+        + '<span class="note" style="margin-left:10px">'
+        + (L.NOT_LIVE
+            ? 'Replay verification run, hour by hour.'
+            : 'The reasoning, hour by hour, for this run only.')
+        + '</span>'
+      : '';
+  }
 }
 
 function wireAerial(){

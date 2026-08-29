@@ -87,3 +87,38 @@
 
    Scoped to #covtiles so every OTHER 'crit' tone in the product keeps its warning colour. ---- */
 #covtiles .tile[data-tone='crit'] .v { color: var(--good) !important; }
+
+/* ---- 6. THE CONFIGURATION COLUMN SCROLLS ITSELF, ALL THE WAY, WITH ITS OWN SCROLLBAR.
+   The user: "even if I scroll up all the way in the bar itself, it doesn't show till the top of the
+   bar unless I scroll the page itself up too... The whole page is only responsible for the page's
+   scrolling."
+
+   MEASURED, not guessed (scratchpad/probe_railscroll.py at 1502x904):
+
+       *** aside.sidebar          876/832   rect 268..1102   max-height 834px
+       *** div.aa-workspace-main  834/636   rect 268..904
+
+   Two nested scrollers. The sidebar's own scrollbar covered 44px of overflow while its box ran
+   198px past the bottom of the viewport, so the rest belonged to the container behind it.
+
+   THE PAGE'S VALUE IS RIGHT FOR THE PAGE. index.html:896 is
+   `max-height: calc(100vh - var(--bezel-h) - var(--sp-5))`, and on the single-file page the WINDOW
+   is the scrollport and the sidebar sticks under a fixed bezel, so 100vh is the correct basis. Here
+   the scrollport is `.aa-workspace-main`, which begins below the masthead and the tab header, so
+   100vh overstates it by exactly the height of those two. `--aa-scrollport` is that container's
+   measured clientHeight, published by EngineStage.tsx and re-measured on resize.
+
+   `top: 0` for the same reason: the bezel offset the page sticks below does not exist in this
+   layout, and it was pushing the sticky origin down inside a container that already starts below
+   the header. ---- */
+.aa-workspace[data-aa-active='config'] .sidebar {
+  top: 0;
+  /* 18px keeps the border and the focus ring off the container's own edge. */
+  max-height: calc(var(--aa-scrollport, 70vh) - 18px);
+  overflow-y: auto;
+  overscroll-behavior: contain;   /* bottoming out does not hand the wheel to the panel behind it */
+}
+
+/* The other column keeps the container's scroll: it is long-form content and one long scroll is the
+   right reading model for it. This rule exists only to say that is deliberate. */
+.aa-workspace[data-aa-active='config'] .mainpane { min-width: 0; }

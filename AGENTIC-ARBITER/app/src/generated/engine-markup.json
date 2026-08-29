@@ -1,5 +1,5 @@
 {
-  "bytes": 40905,
+  "bytes": 41394,
   "css_bytes": 99365,
   "css_sha256": "22d7894735b3b5e9bee58cad154702db720b8c2933e8f324570787704a229edf",
   "generated_by": "tools/mkview.py",
@@ -8,7 +8,7 @@
     "stage:configure results",
     "tt"
   ],
-  "sha256": "33b7c54d4ff6f0fea8b65604f7bb411ea4c381f94398573a070a3ed88e47c856",
+  "sha256": "57b3d46f137fb2d9a75781f687fa51ec6606c3f086b517e8838670093395594d",
   "source": "AGENTIC-ARBITER/demo/index.html",
   "unique_ids": [
     "aerial",
@@ -86,6 +86,7 @@
     "livego",
     "livemsg",
     "liverefusal",
+    "livereport",
     "livestop",
     "livestream",
     "livetable",
