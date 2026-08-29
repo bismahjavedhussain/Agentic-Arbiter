@@ -92,8 +92,15 @@ export type Portfolio = {
       site-hours and must never be called hours of weather. */
   weather_site_hours: number
   footprint_m2: number
+  /** The cheapest and dearest corner of every site's own sweep, summed. Published, and NOT what the
+      landing card states: summing 250 worst corners describes a world where all 250 land on their
+      worst at once, which is why that pair spans zero. */
   usd_lo: number
   usd_hi: number
+  /** The MEDIAN cell of every site's own sweep, at the two published IT-load densities, summed.
+      Positive at both ends and reproducible from the same cells. This is the pair the card states. */
+  usd_mid_lo: number
+  usd_mid_hi: number
   gain_h_per_year: number
   cut_pct: number
   mw_lo: number

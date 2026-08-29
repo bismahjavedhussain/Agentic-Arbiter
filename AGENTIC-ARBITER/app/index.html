@@ -33,6 +33,37 @@
   }catch(e){ document.documentElement.dataset.theme = 'dark'; }
 })();
 </script>
+
+<!-- A RELOAD RETURNS THE READER TO THE LANDING PAGE, GLOBE AND SOUND AND ALL.
+     The user: "whenever a user hard reloads (refreshes) the website ... they are automatically
+     redirected back to the initial landing page ... while still allowing normal client-side
+     navigation between pages when using the app's internal links or buttons."
+
+     🔴 THERE IS NOTHING TO REDIRECT, AND THAT IS THE POINT. This app has no router: pick, configure
+     and results are three states of ONE document, published as `body[data-stage]` and owned by the
+     engine's `setStage()`. A fresh document already starts on 'pick', so the stage was never the
+     thing that survived a refresh. What survived was `hasSeenSplash` in sessionStorage, which
+     `flags.gateEnabled()` reads to skip the gate -- so a reload landed on the first screen with the
+     globe, the wordmark and the audio all suppressed, which is what "it keeps you where you were"
+     actually looked like.
+
+     ⚠ THIS REVERSES AN EARLIER INSTRUCTION ON PURPOSE. The flag was added to a brief that asked for
+     exactly the opposite: "set a flag (e.g. sessionStorage.setItem('hasSeenSplash','true'))" so that
+     "a reload or a back-button press skips it". The key and the mechanism are kept; only the moment
+     it is cleared is new. It is still sessionStorage, so it still does its other job untouched:
+     within one document, passing the gate and then walking pick -> configure -> results -> pick does
+     NOT bring the gate back, because nothing clears the flag between those transitions. There is no
+     document load between them.
+
+     Here rather than in the bundle, for the same reason as the theme block above it: `readFlags()`
+     runs during React's first render, and a clear that happened after that would be a frame too
+     late. -->
+<script>
+(function(){
+  try{ window.sessionStorage.removeItem('hasSeenSplash'); }catch(e){ /* private mode: the gate
+    shows anyway, because gateEnabled() treats an unreadable store as "not seen" */ }
+})();
+</script>
 </head>
 <body>
 <div id="root"></div>

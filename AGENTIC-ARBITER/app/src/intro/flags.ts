@@ -48,10 +48,19 @@ export const LS_MOTION = 'aa-motion'
 export const LS_AUDIO = 'aa-audio'
 export const LS_CINEMATIC = 'aa-cinematic'
 /**
- * Set once the splash has been passed, so a reload or a back-button press skips it.
+ * Set once the splash has been passed, so the rest of THIS DOCUMENT'S life skips it.
  * Named `hasSeenSplash` because the brief names it: "set a flag (e.g.,
  * sessionStorage.setItem('hasSeenSplash', 'true'))". sessionStorage rather than localStorage, also as
  * specified -- the splash should return for a genuinely new visit, not be suppressed forever.
+ *
+ * ⚠ IT NO LONGER SURVIVES A RELOAD, AND THAT REVERSES HALF OF THE BRIEF THAT INTRODUCED IT.
+ * That brief said the flag should make "a reload or a back-button press" skip the splash. The user
+ * asked on 2026-08-30 for the opposite: a refresh must return them to the landing page with the
+ * globe and the sound. So a script in index.html removes this key on every DOCUMENT LOAD, before the
+ * bundle runs and therefore before `gateEnabled()` reads it.
+ * WHAT IT STILL DOES, unchanged: within one document, passing the gate and then moving pick ->
+ * configure -> results -> pick never shows it again, because those are state changes and not loads.
+ * That is the whole of "normal client-side navigation" in an app with no router.
  */
 export const SS_ENTERED = 'hasSeenSplash'
 

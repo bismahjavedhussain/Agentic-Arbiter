@@ -1816,27 +1816,25 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
            breath; the gates are now a list, which is what they are, and the self-grading claim
            lives on the panel that measures it rather than being promised here first. The LBNL
            citation is kept: it is the reason these three gates and not three others. -->
-      <!-- 🔴 THIS SENTENCE USED TO END "the three things LBNL measured operators actually worry
-           about", and it was wrong twice over as well as unreadable to anyone who does not know the
-           acronym. The user asked the plain question: what does LBNL mean here.
-           IT MEANS Lawrence Berkeley National Laboratory, and the repository expanded that in
-           exactly one place: src/money.py:160, attached to a DIFFERENT publication (the 2024 US Data
-           Center Energy Usage Report, filed under "context_only - NOT used in any figure"). A reader
-           had no way to resolve it.
-           AND IT CREDITED LBNL WITH ALL THREE GATES, which src/environment.py:12-27 does not.
-           Humidity is ENERGY STAR's economizer guidance plus Honeywell's JADE controller; only
-           contamination is LBNL, from Shehabi, Tschudi and Gadgil, "Data Center Economizer
-           Contamination and Humidity Study", LBNL, 6 March 2007, OSTI 971864. That study put
-           particle counters in eight real data centres and measured PARTICLE CONCENTRATIONS;
-           operator reluctance is its stated motivation, not something it measured. "LBNL measured
-           operators" described neither the lab's contribution nor the study's method.
-           Every clause below is one the repository can point at: environment.py:12-15 for the
-           humidity sources, environment.py:19-20 for the particle counters and the eight sites. -->
+      <!-- 🔴 NO SOURCE IS NAMED IN THIS SENTENCE, AT THE USER'S INSTRUCTION, AND IT HAS BEEN NAMED
+           TWO DIFFERENT WRONG WAYS ALREADY. It first read "the three things LBNL measured operators
+           actually worry about", which credited one laboratory with all three gates and described a
+           particle-count study as a survey of operators; neither is what src/environment.py:12-27
+           says. That was corrected on 2026-08-30 by naming all three sources in full, and the user's
+           reply was: "dont mention LBNL or any other publication name neither energy star or
+           honeywell, rephrase it to keep it simple and generic."
+           So the card now makes the only claim it needs to make -- that there are three gates and not
+           one -- and makes no claim about who established them. Nothing is lost that a reader could
+           have checked from here: the acronym was never expanded on this page, and the citations
+           themselves live where they can actually be read, in src/environment.py:12-27 and in the
+           money and plume panels' own sources.
+           ⚠ THE ONE THING THIS SENTENCE MUST KEEP SAYING is that temperature alone is not the test.
+           That is the correction the three-gate design exists for, it is what separates this agent
+           from a thermostat, and it is supported without naming anybody. -->
       <p class="note">Hour by hour, whether this data centre can cool with outside air. Three gates:
-      <strong>temperature</strong>, <strong>humidity</strong>, <strong>contamination</strong>.
-      Humidity comes from ENERGY STAR and Honeywell's JADE controller; contamination comes from
-      <strong>Lawrence Berkeley National Laboratory (LBNL)</strong>, which put particle counters in
-      eight real data centres.</p>
+      <strong>temperature</strong>, <strong>humidity</strong>, <strong>contamination</strong>. Not
+      temperature alone, because a real economizer also limits on moisture and on what the outside
+      air carries in.</p>
       <div class="tiles" id="readytiles"></div>
       <p class="note">The plant on the left is the customer's equipment, which we do not have: so
       every value is <strong>swept</strong>. Move any of it, or leave it and press the button.</p>

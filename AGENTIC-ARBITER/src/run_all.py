@@ -300,6 +300,18 @@ STEPS = [
     ("the Initialize Arbiter cinematic holds, plays, crosses over, and can always be escaped",
      [sys.executable, "verify_launch.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The single-file page is unaffected."}),
+    # THE THREE POINTER-AND-KEYBOARD CHECKS, added 2026-08-30. They are here rather than in a
+    # scratch folder because each one guards a fault that shipped: a tooltip that painted under its
+    # neighbour, a dropdown that was a dead clone of a wired control, and a revolving dot that never
+    # came back after a navigation. All three drive Chrome over the DevTools Protocol
+    # (testing/cdp.py), because `:hover` and `:focus-visible` cannot be produced from inside the page.
+    # Free: a loopback server and a headless browser, no network and no credential.
+    ("the (i) panel is opaque, alone, on top and reachable from the keyboard",
+     [sys.executable, os.path.join(TESTING, "verify_tooltip.py")], ROOT),
+    ("the hour dropdown drives the tape, and the coverage tile states a computed shortfall",
+     [sys.executable, os.path.join(TESTING, "verify_results_surfaces.py")], ROOT),
+    ("the landing copy, the value card, the loop's labels, the pulse and the reload",
+     [sys.executable, os.path.join(TESTING, "verify_landing_surfaces.py")], ROOT),
     ("the React app renders the same numbers twice, from fresh profiles",
      [sys.executable, "verify_app_deterministic.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The app is a prototype and the "

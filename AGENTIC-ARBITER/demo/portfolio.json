@@ -16,6 +16,8 @@
   "distinct_money_files": 250,
   "usd_lo": -25416431.832705352,
   "usd_hi": 65831123.46734549,
+  "usd_mid_lo": 3071953.1577738714,
+  "usd_mid_hi": 6143468.46589583,
   "gain_h_per_year": 61864.44448385198,
   "weather_hours": 10820547.0,
   "mech_incumbent_h": 2487799.1851539053,

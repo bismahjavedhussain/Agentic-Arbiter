@@ -22,6 +22,7 @@
 - [No em dashes](no-em-dashes.md) - never use em dashes in copy; masthead is a header plus 2-3 lines, deeper prose goes in `.info` popovers
 - [Two day-pairs deferred](two-day-pairs-deferred.md) - 2026-08-25/26 measured but not in the figures by the user's decision; run_all.py fails two steps until adopted, and a run rewrites demo/ in place
 - [Prefer the smaller defensible figure](prefer-smaller-defensible-figure.md) - a big modelled number costs more credibility than a small measured one gains; label modelling on the card, not in a popover
+- [Diagnose before fixing](diagnose-before-fixing.md) - measure and report the actual cause before editing; computed styles are not paint order, and a real pointer beats reasoning about one
 ```
 
 ---
@@ -100,6 +101,39 @@ is deliberate redundancy: the two paths fail independently.
 
 See [[live-agent-is-permanent]], [[no-em-dashes]], [[project-renamed-agentic-arbiter]] and
 [[ship-production-not-mvp]] for the rules the pack's `04-STANDING-RULES.md` expands.
+```
+
+## `diagnose-before-fixing.md`
+
+```markdown
+---
+name: diagnose-before-fixing
+description: "For any reported bug: report the measured cause before changing a line, and say which of the candidate explanations it actually is"
+metadata: 
+  node_type: memory
+  type: feedback
+  originSessionId: 7ee211e4-2d51-42ee-8d8a-f399d327e017
+  modified: 2026-08-29T20:23:55.846Z
+---
+
+Stated 2026-08-30, on a tooltip rendering fault, with four candidate causes listed:
+
+> "Diagnose before fixing. Do not guess. Inspect the implementation and tell me the actual cause.
+> ... Report which it is before changing anything."
+
+**Why:** the obvious reading of a UI symptom is often wrong, and a fix applied to the wrong cause
+looks like it worked while leaving the real fault in place. On that occasion the reported symptom was
+"the tooltip is semi-transparent"; the panel measured fully opaque, and the actual cause was a
+`translate` on the hovered card creating a stacking context that trapped the panel's z-index, so a
+neighbouring card painted over it.
+
+**How to apply:** measure before editing, and measure the thing the symptom is about rather than the
+thing that is easy to read. Computed styles are not paint order; `elementFromPoint` is not paint
+order either. Get a real pointer and a real keypress in the loop when the state under test is
+`:hover` or `:focus-visible` (`testing/cdp.py` in this repo exists for that), and back a DOM
+assertion with a pixel assertion when the claim is about what a reader sees. Then state the cause,
+with numbers, and only then change code. Companion to
+[[prefer-smaller-defensible-figure]] and [[ship-production-not-mvp]].
 ```
 
 ## `explain-at-beginner-level.md`
@@ -401,5 +435,5 @@ Full evidence and the measured before/after table are in `CONTEXT/01-STATE.md` s
 
 ---
 
-*11 memories mirrored, plus the index.*
+*12 memories mirrored, plus the index.*
 

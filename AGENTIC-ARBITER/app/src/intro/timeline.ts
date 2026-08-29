@@ -269,6 +269,125 @@ export type HeroHandle = {
 const NOOP: HeroHandle = { kill: () => {}, info: () => ({ ran: false }) }
 
 /**
+ * THE RING'S AMBIENT MOTION, BUILT IN ONE PLACE AND OWNED BY WHOEVER ASKED FOR IT.
+ *
+ * 🔴 THIS WAS A CLOSURE INSIDE `playHeroEntrance`, AND THAT IS WHY THE DOT ONLY EVER APPEARED ONCE.
+ * The user: "the small circle that revolves around the loop only appears on the first page load. If
+ * a user navigates away and then returns, the circle disappears entirely."
+ * The chain: `IntroLayer` returns null off the landing stage, so `Pipeline` unmounts and its SVG goes
+ * with it; leaving also calls `hero.kill()`, which calls `stopLoops()`, which kills the tweens and
+ * deletes `body[data-aa-ring]` -- the attribute intro.css gates the dot's `visibility` on. Coming
+ * back remounts a FRESH `Pipeline` whose pulse is parked at the path origin and hidden, and the only
+ * thing that ever started the loops was a `useLayoutEffect` with an empty dependency array, which by
+ * definition does not run twice. So the dot was gone and nothing could bring it back.
+ * Lifting the builder out means `IntroLayer` can start the loops again on a return without replaying
+ * the whole headline entrance, and there is still exactly one implementation of what they are.
+ *
+ * Returns the animations rather than storing them: `playHeroEntrance` has to put them in its own
+ * `loops` array, which its scroll handoff pauses and its `kill()` empties, and a second owner of
+ * that array is the bug the array's own comment already records.
+ */
+function buildRingLoops(): gsap.core.Animation[] {
+  const out: gsap.core.Animation[] = []
+  const pulse = document.querySelector(SEL.pulse)
+  const nodes = gsap.utils.toArray(SEL.nodes) as SVGGElement[]
+  if (!pulse || !nodes.length) return out
+
+  /* THE PULSE. `repeatDelay` is the brief's "~2s pause": the dot completes the loop, waits, goes
+     again. `ease: 'none'` because a light travelling a wire does not accelerate. */
+  out.push(
+    gsap.to(pulse, {
+      /* No `align`: the dot is positioned BY the path rather than aligned to another element,
+         and MotionPathPlugin's type for that option is a selector or an Element, never a boolean.
+         `autoRotate: false` because a circle has no orientation to rotate. */
+      motionPath: { path: LOOP_PATH, autoRotate: false },
+      duration: PULSE_CYCLE,
+      repeat: -1,
+      repeatDelay: PULSE_PAUSE,
+      ease: 'none',
+      /* PLACED ON THE PATH IMMEDIATELY. A `to()` tween does not render its start state by default,
+         so without this the dot keeps its authored position -- SVG (0, 0), the top-left corner --
+         until the first tick. The same moment makes it visible, so a reader can catch a stray dot
+         in the corner of the diagram. With it, the dot is at the path's start before it is shown. */
+      immediateRender: true,
+    }),
+  )
+
+  /* THE DATA LABELS, lifted as the pulse reaches each node and let back down behind it, so the
+     shapes read as carrying something. Timing derived from FORWARD_FRACTION, not typed. */
+  STAGES.forEach((stage, i) => {
+    const note = document.querySelector('[data-aa-note="' + stage.key + '"]')
+    if (!note) return
+    const at = (i / (STAGES.length - 1)) * FORWARD_FRACTION * PULSE_CYCLE
+    const halo = document.querySelector('[data-aa-node="' + stage.key + '"] .aa-ring-halo')
+    out.push(
+      gsap
+        .timeline({ repeat: -1, repeatDelay: PULSE_PAUSE, delay: at })
+        .to(note, { opacity: 1, duration: 0.35, ease: 'power2.out' }, 0)
+        .to(note, { opacity: NOTE_FLOOR, duration: 0.9, ease: 'power2.in' }, 0.8)
+        /* The node's own response, and the part that is actually visible. Opacity and scale on a
+           decorative circle: no text, no contrast floor, so it can swing far enough to register. */
+        /* OPACITY ONLY, NO SCALE, and dropping the scale is the fix rather than a compromise.
+           A scaled halo has to be told where its centre is, and getting that wrong put it visibly
+           off its own disc -- 8.62px at worst, measured. Opacity has no origin to get wrong. The
+           swing is 0.5 to 1 on a 16 %-alpha fill, which is a clear change in presence and is what
+           a reader actually notices; the extra 16 % of radius was never the signal. */
+        .to(halo, { opacity: 1, duration: 0.35, ease: 'power2.out' }, 0)
+        .to(halo, { opacity: 0.5, duration: 0.9, ease: 'power2.in' }, 0.8),
+    )
+  })
+
+  /* THE FLOAT, `y` only. */
+  nodes.forEach((node, i) => {
+    out.push(
+      gsap.to(node, {
+        y: FLOAT_PX[i % FLOAT_PX.length],
+        duration: FLOAT_PERIOD[i % FLOAT_PERIOD.length] / 2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: i * 0.55,
+      }),
+    )
+  })
+
+  return out
+}
+
+/**
+ * START THE AMBIENT MOTION ON ITS OWN, for a reader who has come BACK to the landing stage.
+ *
+ * The entrance is a one-off: it splits the headline, plays the reveal and hands over. A return visit
+ * needs none of that and would be worse for having it, so this is the loops and nothing else.
+ *
+ * ⚠ IT REFUSES IF THE ENTRANCE ALREADY OWNS THEM. `body[data-aa-ring]` is the entrance's own
+ * published marker, so its presence means a live set exists and a second set would double every
+ * tween on the same elements. Same three refusals as the entrance otherwise: no window, under 768px
+ * the brief disables the pulse outright, and reduced motion means no ambient motion at all.
+ */
+export function startRingLoops(): { kill: () => void } {
+  const NONE = { kill: () => {} }
+  if (typeof window === 'undefined') return NONE
+  if (window.innerWidth < 768) return NONE
+  try {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return NONE
+  } catch {
+    /* no matchMedia: treat it as no preference, which is what the rest of this file does */
+  }
+  if (document.body.dataset.aaRing === 'running') return NONE
+  const anims = buildRingLoops()
+  if (!anims.length) return NONE
+  document.body.dataset.aaRing = 'running'
+  return {
+    kill: () => {
+      for (const a of anims) a.kill()
+      anims.length = 0
+      if (document.body.dataset.aaRing === 'running') delete document.body.dataset.aaRing
+    },
+  }
+}
+
+/**
  * Build and play the entrance. Returns a handle even when nothing runs, so callers never branch.
  *
  * `withAudio` selects the beat map and nothing else. It is NOT used to wait for anything.
@@ -519,76 +638,19 @@ export function playHeroEntrance(
    */
   function startLoops(): void {
     if (window.innerWidth < 768) return
-    const pulse = document.querySelector(SEL.pulse)
-    const nodes = gsap.utils.toArray(SEL.nodes) as SVGGElement[]
-    if (!pulse || !nodes.length) return
+    const built = buildRingLoops()
+    if (!built.length) return
 
     /* Published so the pulse's `visibility` can be CSS-gated: a dot parked at the path's origin must
        not show on a page where the loop never starts. */
     document.body.dataset.aaRing = 'running'
+    loops.push(...built)
 
     /* The handoff is set up with the loops, not with the entrance: it needs the diagram at its final
        size to anchor to, and while the entrance is still scaling nodes the element's box is moving. */
     startHandoff()
-
-    /* THE PULSE. `repeatDelay` is the brief's "~2s pause": the dot completes the loop, waits, goes
-       again. `ease: 'none'` because a light travelling a wire does not accelerate. */
-    loops.push(
-      gsap.to(pulse, {
-        /* No `align`: the dot is positioned BY the path rather than aligned to another element,
-           and MotionPathPlugin's type for that option is a selector or an Element, never a boolean.
-           `autoRotate: false` because a circle has no orientation to rotate. */
-        motionPath: { path: LOOP_PATH, autoRotate: false },
-        duration: PULSE_CYCLE,
-        repeat: -1,
-        repeatDelay: PULSE_PAUSE,
-        ease: 'none',
-        /* PLACED ON THE PATH IMMEDIATELY. A `to()` tween does not render its start state by default,
-           so without this the dot keeps its authored position -- SVG (0, 0), the top-left corner --
-           until the first tick. The same moment makes it visible, so a reader can catch a stray dot
-           in the corner of the diagram. With it, the dot is at the path's start before it is shown. */
-        immediateRender: true,
-      }),
-    )
-
-    /* THE DATA LABELS, lifted as the pulse reaches each node and let back down behind it, so the
-       shapes read as carrying something. Timing derived from FORWARD_FRACTION, not typed. */
-    STAGES.forEach((stage, i) => {
-      const note = document.querySelector('[data-aa-note="' + stage.key + '"]')
-      if (!note) return
-      const at = (i / (STAGES.length - 1)) * FORWARD_FRACTION * PULSE_CYCLE
-      const halo = document.querySelector('[data-aa-node="' + stage.key + '"] .aa-ring-halo')
-      loops.push(
-        gsap
-          .timeline({ repeat: -1, repeatDelay: PULSE_PAUSE, delay: at })
-          .to(note, { opacity: 1, duration: 0.35, ease: 'power2.out' }, 0)
-          .to(note, { opacity: NOTE_FLOOR, duration: 0.9, ease: 'power2.in' }, 0.8)
-          /* The node's own response, and the part that is actually visible. Opacity and scale on a
-             decorative circle: no text, no contrast floor, so it can swing far enough to register. */
-          /* OPACITY ONLY, NO SCALE, and dropping the scale is the fix rather than a compromise.
-             A scaled halo has to be told where its centre is, and getting that wrong put it visibly
-             off its own disc -- 8.62px at worst, measured. Opacity has no origin to get wrong. The
-             swing is 0.5 to 1 on a 16 %-alpha fill, which is a clear change in presence and is what
-             a reader actually notices; the extra 16 % of radius was never the signal. */
-          .to(halo, { opacity: 1, duration: 0.35, ease: 'power2.out' }, 0)
-          .to(halo, { opacity: 0.5, duration: 0.9, ease: 'power2.in' }, 0.8),
-      )
-    })
-
-    /* THE FLOAT, `y` only. */
-    nodes.forEach((node, i) => {
-      loops.push(
-        gsap.to(node, {
-          y: FLOAT_PX[i % FLOAT_PX.length],
-          duration: FLOAT_PERIOD[i % FLOAT_PERIOD.length] / 2,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-          delay: i * 0.55,
-        }),
-      )
-    })
   }
+
 
   /**
    * THE SCROLL HANDOFF. The brief: "As the user scrolls past the hero, background and pipeline fade

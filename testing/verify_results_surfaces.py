@@ -205,22 +205,26 @@ def main():
                    "and the plate cell showing the same figure is no longer hatched red",
                    pc["cls"])
 
-            # ======================================================= 3. LBNL
-            head("3. THE LBNL SENTENCE: expanded, and supported")
-            txt = c.eval("""(function(){
+            # ======================================================= 3. THE THREE GATES
+            head("3. THE THREE-GATES SENTENCE: generic, and still making its point")
+            txt = c.eval(r"""(function(){
               var ps=document.querySelectorAll('p.note');
               for(var i=0;i<ps.length;i++){var t=(ps[i].textContent||'');
-                if(/Three gates/.test(t)) return t.replace(/\\s+/g,' ').trim();}
+                if(/Three gates/.test(t)) return t.replace(/\s+/g,' ').trim();}
               return '';})()""") or ""
-            ck("Lawrence Berkeley National Laboratory" in txt,
-               "the acronym is expanded on the card", txt[:110] + "...")
-            ck("(LBNL)" in txt, "with the short form given once, in brackets")
-            ck("measured operators" not in txt,
-               "and it no longer says LBNL measured operators")
-            ck("particle counters in eight real data centres" in txt,
-               "it states what LBNL actually measured")
-            ck("ENERGY STAR" in txt and "JADE" in txt,
-               "and credits humidity to the sources that supplied it")
+            ck(bool(txt), "the sentence is on screen", txt[:100] + "...")
+            # 🔴 NAMES ARE ASSERTED ABSENT, NOT PRESENT. Two attempts at naming a source here got it
+            # wrong in two different ways, so the user asked for the line to name none: "dont mention
+            # LBNL or any other publication name neither energy star or honeywell, rephrase it to
+            # keep it simple and generic". A check that only forbade the one name that was wrong last
+            # time would let the next one through.
+            for name in ("LBNL", "Lawrence Berkeley", "ENERGY STAR", "Honeywell", "JADE",
+                         "Shehabi", "ASHRAE", "Green Grid"):
+                ck(name not in txt, "names no source: %-18s" % name)
+            ck("temperature" in txt and "humidity" in txt and "contamination" in txt,
+               "the three gates are still named")
+            ck("Not temperature alone" in txt,
+               "and it still says the thing it exists to say: temperature alone is not the test")
             # The literal is escaped rather than typed, so this file itself stays clean under
             # a repository-wide em-dash sweep while still testing for one.
             ck(chr(0x2014) not in txt, "no em dashes in the copy")
@@ -233,7 +237,7 @@ def main():
         print("   FAILED: %-52s %s" % (w, d))
     if not FAIL:
         print("   VERDICT: the hour dropdown drives the tape, the coverage tile states a computed")
-        print("            shortfall in green, and the card names the laboratory it cites.")
+        print("            shortfall in green, and the three-gates line names no source at all.")
     print("=" * 78)
     return 1 if FAIL else 0
 

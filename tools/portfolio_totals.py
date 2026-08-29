@@ -16,9 +16,11 @@ results, so the only modelling in it is whatever was already inside each site's 
   * the IT LOAD is inferred from the site's measured roof footprint by two published power densities
     (average load for the floor, installed capacity for the ceiling). Nobody has told us any site's
     real MW, so the money range is "what this floor area would be worth at published densities".
-  * the TARIFF and CHILLER EFFICIENCY are swept over published values, not chosen. The lo and hi are
-    the cheapest and dearest corners of that sweep, so the range is a sweep and NOT a confidence
-    interval.
+  * the TARIFF and CHILLER EFFICIENCY are swept over published values, not chosen. `usd_lo` and
+    `usd_hi` are the cheapest and dearest corners of that sweep, so the range is a sweep and NOT a
+    confidence interval, and `usd_mid_lo`/`usd_mid_hi` take the MEDIAN cell instead and let the two
+    IT-load densities supply the range. The landing card states the median pair; see the note beside
+    it in `site_figures`.
   * and the tariff is NOT EVERY SITE'S OWN. MEASURED here: 61 of the 250 sites sit in a state whose
     own EIA rows are in the sweep (4 prices x 4 chiller efficiencies = 16 cells). The other 189 do
     not, and fall back to the Virginia and Illinois reference prices (8 x 4 = 32 cells). The count is
@@ -44,6 +46,7 @@ import hashlib
 import io
 import json
 import os
+import statistics
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -81,6 +84,19 @@ def site_figures(bt, tr, mn, footprint_m2, scale):
     return {
         "usd_lo": min(cells) * mw_lo,
         "usd_hi": max(cells) * mw_hi,
+        # 🔴 THE CENTRAL PAIR, ADDED 2026-08-30, AND THE REASON IS THAT SUMMING EXTREMES DOES NOT
+        # PRODUCE A PORTFOLIO RANGE. `usd_lo` is this site's cheapest swept corner and `usd_hi` its
+        # dearest; summing each across 250 sites describes a world in which all 250 land on their own
+        # worst corner at once, and another in which all 250 land on their best. Neither is a
+        # scenario. It is also what made the total span zero: -$25.4M to +$65.8M.
+        # The MEDIAN of a site's own sweep is its central published assumption, and the two IT-load
+        # densities then give the range. Summed, that is +$3.1M to +$6.1M: smaller, positive at both
+        # ends, and a statement anyone can reproduce from the same cells.
+        # ⚠ BOTH PAIRS ARE PUBLISHED. The extremes stay in portfolio.json because they are what every
+        # per-site tile shows, and a card quoting one while the tiles show the other would be two
+        # accounts of one figure. What changed is which pair the landing card states.
+        "usd_mid_lo": statistics.median(cells) * mw_lo,
+        "usd_mid_hi": statistics.median(cells) * mw_hi,
         "footprint_m2": footprint_m2,
         # EIA does not list every state, so a site outside the listed ones is priced on the Virginia
         # and Illinois reference rows instead of its own. The money file says which it got, and the
@@ -105,8 +121,9 @@ def main():
             return 1
 
     offerable = [s for s in manifest["sites"] if s.get("offerable")]
-    tot = {k: 0.0 for k in ("usd_lo", "usd_hi", "gain_h_per_year", "mech_incumbent_h",
-                            "mech_agent_h", "weather_hours", "mw_lo", "mw_hi", "footprint_m2")}
+    tot = {k: 0.0 for k in ("usd_lo", "usd_hi", "usd_mid_lo", "usd_mid_hi", "gain_h_per_year",
+                            "mech_incumbent_h", "mech_agent_h", "weather_hours", "mw_lo", "mw_hi",
+                            "footprint_m2")}
     n = 0
     skipped = []
     gaining = 0
@@ -150,8 +167,14 @@ def main():
         print("   skipped (no usable row)   %d: %s" % (len(skipped), ", ".join(skipped[:6])))
     print("   distinct backtest files   %d   distinct money files %d" % (len(seen_bt), len(seen_mn)))
     print()
-    print("   TOTAL usd_lo              $%s" % format(round(tot["usd_lo"]), ","))
-    print("   TOTAL usd_hi              $%s" % format(round(tot["usd_hi"]), ","))
+    print("   TOTAL usd_lo              $%s   (every site at its own worst swept corner)"
+          % format(round(tot["usd_lo"]), ","))
+    print("   TOTAL usd_hi              $%s   (every site at its own best swept corner)"
+          % format(round(tot["usd_hi"]), ","))
+    print("   TOTAL usd_mid_lo          $%s   (median cell, average-load density)"
+          % format(round(tot["usd_mid_lo"]), ","))
+    print("   TOTAL usd_mid_hi          $%s   (median cell, installed-capacity density)"
+          % format(round(tot["usd_mid_hi"]), ","))
     print("   TOTAL gain_h_per_year     %s chiller-hours" % format(round(tot["gain_h_per_year"]), ","))
     print("   TOTAL weather_hours       %s scored hours" % format(round(tot["weather_hours"]), ","))
     print("   TOTAL mech incumbent h    %s" % format(round(tot["mech_incumbent_h"]), ","))
@@ -198,6 +221,8 @@ def main():
         "distinct_money_files": len(seen_mn),
         "usd_lo": tot["usd_lo"],
         "usd_hi": tot["usd_hi"],
+        "usd_mid_lo": tot["usd_mid_lo"],
+        "usd_mid_hi": tot["usd_mid_hi"],
         "gain_h_per_year": tot["gain_h_per_year"],
         "weather_hours": tot["weather_hours"],
         "mech_incumbent_h": tot["mech_incumbent_h"],

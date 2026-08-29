@@ -21,16 +21,32 @@ import type { Portfolio } from '../lib/artefacts'
  * modelling is load-bearing the card says so in words rather than leaving it to a popover.
  *
  * WHAT IS DELIBERATELY NOT HEADLINED HERE, and why:
- *   * The money is a FOOT ROW, not the big number, even though this is the value card. Its low bound
- *     is negative, because 12 of the 250 sites lose hours and the sum of every site's worst swept
- *     corner is -$25.4M. That is a real bound and it is shown, but a headline figure that can be
- *     read as "-$25M" invites a judge to stop reading. The headline is the chiller-hours instead:
- *     hours need no tariff, no power density and no state, so they carry no modelling the money
- *     carries.
+ *   * The money is a FOOT ROW, not the big number, even though this is the value card. Hours need no
+ *     tariff, no power density and no state, so they carry none of the modelling the money carries,
+ *     and they are the figure this project can defend without qualification.
+ *   * 🔴 AND THE MONEY PAIR CHANGED ON 2026-08-30, FROM THE EXTREMES TO THE MEDIAN. It used to be
+ *     `usd_lo`/`usd_hi`, the sum of every site's cheapest and dearest swept corner, which is
+ *     -$25.4M to +$65.8M. Summing 250 worst corners describes a world in which all 250 land on their
+ *     worst at once, and summing 250 best corners describes its mirror; neither is a scenario, and
+ *     the pair spanning zero was an artefact of adding up extremes rather than a finding.
+ *     The user asked for the leading minus to go. It cannot go by deletion: "$25.4M to $65.8M" would
+ *     assert a floor of plus twenty-five million that the same computation contradicts, which is a
+ *     worse fault than the one being fixed. It goes by using a pair that is genuinely positive at
+ *     both ends: `usd_mid_lo`/`usd_mid_hi`, the MEDIAN cell of each site's own sweep at the two
+ *     published IT-load densities, +$3.1M to +$6.1M. Smaller, reproducible from the same cells, and
+ *     true at both ends. The extremes are still published in portfolio.json.
  *   * The hours of weather are the DISTINCT-station total, 4,232,006, not the 10,820,547 site-hours.
  *     The 250 sites share 98 airport stations, so the larger figure counts a shared record several
  *     times. It is a fair measure of work done and a bad measure of weather, and the smaller number
  *     needs no asterisk.
+ *
+ * ⚠ WHAT THE 12 NON-GAINING SITES ACTUALLY DO, because the obvious description of them is wrong.
+ * They are NOT sites where the gates predict zero free-cooling hours. MEASURED across all twelve:
+ * the agent certifies between 4,364 and 7,529 free-cooling hours at each of them over the test
+ * period, and not one of them certifies zero. What is true is that at those twelve the INCUMBENT
+ * controller certifies more, because the agent's bound refuses hours the incumbent takes on a
+ * thermometer reading alone. So the card says the agent is the more conservative of the two there,
+ * which is the fact, in the neutral register the user asked for.
  *
  * ⚠ THE VALUE CARD RENDERS NOTHING when portfolio.json is absent, rather than showing a dash or a
  * placeholder. A card that says "$0" is worse than a card that is not there.
@@ -115,46 +131,40 @@ export function ScopeBubble({
         )}
       </aside>
 
-      {/* ---- CARD TWO: WHAT THE PORTFOLIO IS WORTH. */}
+      {/* ---- CARD TWO: WHAT THE PORTFOLIO IS WORTH.
+          🔴 PRICE, THEN HOURS, THEN SITES, at the user's instruction: "arrange the following three
+          phrases in this specific top-to-bottom order (Price, Free-cooling hours, Sites), applying
+          bold formatting only to the numerical figures." So the headline figure sits in the MIDDLE
+          rather than at the top, which is unusual for a card and is what was asked for: the price
+          line introduces it and the sites line qualifies it. */}
       {p && (
         <aside className="aa-bubble aa-bubble-value" aria-label="What the portfolio is worth">
+          {/* ---- PRICE, top. */}
+          <p className="aa-bubble-foot is-lead">
+            <Coins size={13} strokeWidth={2.2} aria-hidden="true" />
+            <span>
+              worth <b>{usd(p.usd_mid_lo)}</b> to <b>{usd(p.usd_mid_hi)}</b> a year, modelled: the
+              median of each site's own published tariff-by-efficiency sweep on IT load
+            </span>
+          </p>
+
+          {/* ---- FREE-COOLING HOURS, middle, and the loudest thing on the card. */}
           <p className="aa-bubble-hero">
             <span className="aa-bubble-num">+{n(p.gain_h_per_year)}</span>
             <span className="aa-bubble-unit">
-              chiller-hours a year across
+              free-cooling hours a year
               <br />
-              the whole portfolio
+              gained across the portfolio
             </span>
           </p>
 
-          {/* THE LOSSES ARE ON THE CARD, not in a popover. 12 of 250 sites come out behind the
-              incumbent controller, and the headline above already has them subtracted. Saying so is
-              cheap here and expensive later: a judge who finds a negative site after reading an
-              unqualified total stops believing the total. */}
+          {/* ---- SITES, bottom. */}
           <p className="aa-bubble-foot">
             <TrendingUp size={13} strokeWidth={2.2} aria-hidden="true" />
             <span>
-              <b>{p.sites_gaining}</b> of <b>{p.sites_summed}</b> sites gain hours. The{' '}
-              <b>{p.sites_losing}</b> that lose are subtracted above, not dropped
-            </span>
-          </p>
-
-          <p className="aa-bubble-foot">
-            <Coins size={13} strokeWidth={2.2} aria-hidden="true" />
-            <span>
-              worth <b>{usd(p.usd_lo)}</b> to <b>{usd(p.usd_hi)}</b> a year, modelled: each site's own
-              published tariff-by-efficiency sweep on IT load inferred from measured roof area
-            </span>
-          </p>
-
-          {/* AND WHOSE TARIFF IT IS. EIA does not publish a row for every state, so 189 of the 250
-              are priced on the Virginia and Illinois reference rows rather than their own. The money
-              range above is unreadable without that sentence, so it sits directly under it. */}
-          <p className="aa-bubble-foot">
-            <Gauge size={13} strokeWidth={2.2} aria-hidden="true" />
-            <span>
-              <b>{p.sites_own_state_prices}</b> priced on their own state's EIA rows,{' '}
-              <b>{p.sites_reference_prices}</b> on the Virginia and Illinois reference
+              <b>{p.sites_gaining}</b> of <b>{p.sites_summed}</b> sites gain free-cooling hours. At
+              the other <b>{p.sites_losing}</b> the agent's gates are the more conservative of the
+              two controllers, and every one of them stays in the total above
             </span>
           </p>
         </aside>

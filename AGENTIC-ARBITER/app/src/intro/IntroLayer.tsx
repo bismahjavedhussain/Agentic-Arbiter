@@ -26,7 +26,7 @@ import * as audio from './audio'
 import { IntroGate } from './IntroGate'
 import { Pipeline } from './Pipeline'
 import { ThermalField } from './ThermalField'
-import { playHeroEntrance, type HeroHandle } from './timeline'
+import { playHeroEntrance, type HeroHandle, startRingLoops } from './timeline'
 import { playLaunch, type LaunchHandle } from './launch'
 
 /** Marks the document while the intro is running, so CSS can scope to it without React knowing. */
@@ -40,6 +40,10 @@ const BODY_ATTR = 'data-aa-intro'
 
 export function IntroLayer() {
   const stage = useStage()
+  /** The ambient ring motion when it is NOT owned by an entrance: see the return-visit effect below. */
+  const ring = useRef<{ kill: () => void } | null>(null)
+  /** Has this reader been off the landing stage at least once in this session? */
+  const hasLeft = useRef(false)
 
   /* READ ONCE. A ref, not state: these cannot change during a visit, and re-resolving them on every
      render is how two components end up disagreeing about whether audio is allowed. */
@@ -174,6 +178,46 @@ export function IntroLayer() {
     hero.current = null
   }, [onLanding])
 
+  /**
+   * 🔴 THE REVOLVING DOT COMES BACK. The user: "the small circle that revolves around the loop only
+   * appears on the first page load. If a user navigates away (e.g., clicking Configure this plant)
+   * and then returns, the circle disappears entirely."
+   *
+   * They were right, and there were three separate reasons it could never return:
+   *   1. this component renders `null` off the landing stage, so `Pipeline` UNMOUNTS and its SVG
+   *      goes with it. Coming back mounts a brand new one whose pulse is parked at the path's origin
+   *      with no tween attached to it;
+   *   2. leaving calls `hero.current.kill()`, which calls the entrance's `stopLoops()`, which kills
+   *      the tweens AND deletes `body[data-aa-ring]` -- the attribute intro.css gates the dot's
+   *      `visibility` on, so even a surviving tween would have been invisible;
+   *   3. the only thing that ever started the loops was `playHeroEntrance` in a `useLayoutEffect`
+   *      with an EMPTY dependency array. That runs once per mount of this component, and this
+   *      component never unmounts: it returns null. So it never ran again.
+   *
+   * So the return is handled explicitly. `startRingLoops()` is the entrance's own loop builder with
+   * the entrance taken off it, and it refuses when `body[data-aa-ring]` says a live set already
+   * exists, so the first load is untouched and there is no path on which two sets run at once.
+   * `hasLeft` is what keeps this out of the first load: at mount the reader has not been anywhere,
+   * and the entrance is the thing that should start the motion then.
+   */
+  useEffect(() => {
+    if (!flags.motion) return
+    if (!onLanding) {
+      hasLeft.current = true
+      ring.current?.kill()
+      ring.current = null
+      return
+    }
+    if (!hasLeft.current || !slot) return
+    /* No delay needed: an effect runs after React has committed the portal, so the new `Pipeline`'s
+       `[data-aa-pulse]` is already in the document by the time this line executes. */
+    ring.current = startRingLoops()
+    return () => {
+      ring.current?.kill()
+      ring.current = null
+    }
+  }, [flags.motion, onLanding, slot])
+
   /* AND SO DOES LEAVING THE PAGE. Unmount covers the React side; pagehide covers a real navigation
      or a tab close, which unmount does not reliably reach. `pagehide` rather than `unload` because
      `unload` is ignored in some browsers and blocks the back/forward cache in the rest. */
@@ -190,6 +234,8 @@ export function IntroLayer() {
       launch.current = null
       hero.current?.kill()
       hero.current = null
+      ring.current?.kill()
+      ring.current = null
       audio.teardown()
     }
   }, [])

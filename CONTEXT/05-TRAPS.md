@@ -358,6 +358,50 @@ state and a dead clock leaves a finished page.
 **And the check has to assert the watchdog's result, not the animated value**, which is 5b.13's own
 first consequence.
 
+### 5b.33 A CUBIC NEVER REACHES ITS CONTROL POINTS, so a bounding box built from them is wrong
+**You observe:** labels anchored to "the edge of the curve" still touch the curve, after a fix that
+computed that edge from the path data and was reviewed and shipped.
+**Actually:** the path is `C x1 y1 x2 y2 x3 y3`, and the fix took the CONTROL point x as the extreme.
+A Bezier is a weighted average of its four points and passes through only the first and last. For a
+cubic whose two controls share an offset `d` from its endpoints, the extreme is at t = 0.5 and is
+`endpoint + 0.75 * d`. MEASURED here: the turn was written to bulge 78 units and bulges 58.5, so a
+label anchored at `endpoint - 78 + 16` started 4.5 units OUTSIDE the drawn curve.
+**Two fixes, and take both:** derive the extreme (`0.75 * offset`) instead of using the control point,
+and MEASURE the finished thing rather than the arithmetic. `path.getPointAtLength()` walks the curve
+the browser actually draws, so a check can compare a label's `getBBox()` against the path's real x
+extent at that label's own y. That check cannot be fooled by a future change to the path syntax.
+
+### 5b.32 A COMPONENT THAT RENDERS `null` NEVER UNMOUNTS, so `useEffect(..., [])` never runs again
+**You observe:** an animation plays on first load, and is permanently gone after the reader navigates
+away and comes back, even though the element it animates is visibly back on the page.
+**Actually:** the setup ran in an effect with an EMPTY dependency array, on a component that hides
+itself by returning `null` rather than by being unmounted by its parent. An empty-array effect runs
+once per MOUNT of that component, and it never mounted twice. Meanwhile the thing it animated is in a
+PORTAL, which does unmount and remount, so every load after the first has a fresh element with no
+tween attached and a parked start value.
+**The three-part tell:** the element is present, its computed `visibility` is `hidden` (or its
+transform never changes between two samples a beat apart), and the attribute the CSS gates it on has
+been deleted by the teardown. All three are measurable and none of them is visible in the source.
+**The fix is to separate the one-off from the recurring.** Lift the ambient part out of the entrance
+closure into its own exported starter, call it from an effect keyed on the state that actually
+changes (`[onLanding, slot]`), and have the starter REFUSE when the entrance's own marker says a live
+set exists, so the first load keeps exactly one owner.
+
+### 5b.31 IN AN APP WITH NO ROUTER, "WHAT SURVIVES A REFRESH" IS WHATEVER IS IN STORAGE
+**You observe:** a request to "redirect to the landing page on refresh", in an app where every screen
+is one document and a refresh already returns to the first screen.
+**Actually:** the stage was never what persisted. `sessionStorage['hasSeenSplash']` was, and
+`gateEnabled()` reads it, so a reload arrived on the landing stage with the gate, the globe and the
+audio all suppressed. To a reader that is indistinguishable from "it kept me where I was".
+**Where the fix goes matters:** in the pre-paint script in `index.html`, not in the bundle.
+`readFlags()` runs during React's first render, so a clear that happens in a component effect is a
+frame too late and the gate is already skipped.
+⚠ **AND CHECK WHAT THE FLAG'S OTHER JOB IS BEFORE CLEARING IT.** This one has two: skip the gate after
+a reload (now reversed by instruction) and skip it for the rest of the document's life (still
+required, and the only thing standing between the reader and a gate that reappears every time they
+return from the configure stage). Clearing on document load keeps the second and drops the first,
+which is exactly the split that was asked for. Verify both directions or you have only checked half.
+
 ### 5b.30 A `translate` UTILITY MAKES A STACKING CONTEXT, AND TRAPS EVERY z-index BELOW IT
 **You observe:** a popover renders "semi-transparent, with the card behind showing through", and
 comes right the moment the pointer leaves the card. Its computed `background-color` is fully opaque.

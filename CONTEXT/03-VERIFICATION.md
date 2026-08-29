@@ -326,7 +326,13 @@ it four pixels out. The layout was correct; the animation was walking the card o
 that reads the CSS could have seen that, and nothing that reads a screenshot by eye would have
 measured it.
 
-## 5d. `testing/cdp.py`, and the three checks that need a real pointer
+## 5d. `testing/cdp.py`, and the four checks that need a real pointer
+
+⚠ **THREE OF THE FOUR ARE `run_all.py` STEPS**, added 2026-08-30: `verify_tooltip.py`,
+`verify_results_surfaces.py` and `verify_landing_surfaces.py`. Each guards a fault that shipped, so
+each belongs in the one command that is supposed to prove the product. `shot_rail.py` is not a step,
+for the same reason `shot_hero.py` is not: it measures and photographs, and exits 0 either way.
+
 
 Added 2026-08-30. Every other browser check in this repository runs Chrome with `--dump-dom` or
 `--screenshot`, evaluates a probe, and reads what the page published about itself. That is enough for
@@ -367,6 +373,25 @@ adjacent triggers and requires at most one panel at any instant, checks the two 
 the viewport, checks it paints over the map, and drives focus, Escape and click.
 🔴 **THE PIXEL ASSERTION IS THE ONE THAT WOULD HAVE CAUGHT THE ORIGINAL BUG.** Every computed style was
 already correct; what was wrong was which element painted on top.
+
+### `testing/verify_landing_surfaces.py` - the landing page end to end, 38 checks
+
+The two rewritten hero bullets compared verbatim. The value card read block by block in DOM order,
+with its money pair compared against `demo/portfolio.json`'s `usd_mid_*` rather than against a string,
+every bold run required to match `[+-]?\$?[\d,.]+[kM%]?` so that only figures are emphasised, and the
+word "chiller" required to be absent from it.
+
+🔴 **THE RING LABELS ARE MEASURED AGAINST THE PATH, NOT AGAINST ITS SOURCE.** `getPointAtLength` walks
+`#aa-ring-track` at 2,000 samples and reports the curve's real x extent over each label's own y band,
+which is then compared with the label's `getBBox()`. That is what caught the previous fix: it had
+computed the loop's edge from the control points, which a cubic never reaches. See `05-TRAPS` 5b.33.
+
+🔴 **AND THE PULSE IS PROVED TO BE MOVING, NOT MERELY PRESENT.** Two samples of its computed transform
+a beat apart; equal means the tween was constructed and is not running. Taken on arrival, then again
+after a real click through to the configure stage and back, which is the exact trip that used to
+leave the dot gone for good.
+The reload check is a real second `Page.navigate`, and it asserts BOTH directions: the gate returns
+after a document load, and it does NOT return after an in-document round trip.
 
 ### `testing/verify_results_surfaces.py` - three reported surfaces, 23 checks
 

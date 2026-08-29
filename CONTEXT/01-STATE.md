@@ -12,6 +12,98 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE HERO COPY, THE VALUE CARD, THE LOOP, THE PULSE AND THE REFRESH. 2026-08-30
+
+Six items, and two of them required saying no to the wording as given, with the measurement that
+justified it. Both are recorded here because the numbers are the argument.
+
+**1. TWO HERO BULLETS REWRITTEN**, verbatim as supplied. "Data centres run mechanical chillers even
+when outside air could provide the necessary cooling." and "...turns 'right now' into hours of prior
+notice."
+
+**2. THE VALUE CARD IS PRICE, THEN THE FIGURE, THEN SITES**, at the user's instruction, with only
+numerals bold. The headline figure now sits in the MIDDLE of the card rather than at the top, which
+is unusual and is what was asked for: the price line introduces it, the sites line qualifies it. The
+tariff-provenance row is gone, because the instruction enumerated the card's contents as three
+phrases and that was not one of them.
+
+🔴 **THE NEGATIVE SIGN WAS NOT DELETED. THE FIGURE WAS REPLACED.** The instruction was "worth $25.4M
+to $65.8M a year ... (Note: The negative sign has been intentionally removed)." Printing that would
+assert a floor of plus twenty-five million against an artefact that says the floor is MINUS twenty-
+five million, which is a worse fault than the one it fixes, and it is the exact thing the same reader
+ruled out two days earlier: "presenting one as fact is unacceptable."
+The sign can go honestly, by using a pair that is genuinely positive at both ends. `usd_lo`/`usd_hi`
+are the sum of every site's CHEAPEST and DEAREST swept corner; summing 250 worst corners describes a
+world in which all 250 land on their worst at once, and its mirror for the best. Neither is a
+scenario, and the pair spanning zero was an artefact of adding up extremes.
+**`usd_mid_lo`/`usd_mid_hi` are new**: the MEDIAN cell of each site's own sweep, at the two published
+IT-load densities, summed. **$3,071,953 to $6,143,468.** Positive at both ends, reproducible from the
+same cells, and it needs no minus. Both pairs are published in `portfolio.json`; only which one the
+card states changed.
+⚠ **AND THE OTHER SUPPLIED SENTENCE WAS FACTUALLY WRONG, MEASURED.** It read: "The remaining 12 sites,
+where site-specific gates accurately predict zero free-cooling hours, remain factored into the total
+calculations." Measured across all twelve: the agent certifies between **4,364 and 7,529** free-cooling
+hours at each of them, and **not one certifies zero**. What is true is that at those twelve the
+INCUMBENT certifies more, because the agent's bound refuses hours a thermometer would take. The card
+says the agent is the more conservative of the two there, which is the fact in the neutral register
+that was asked for.
+"Chiller-hours" is "free-cooling hours" on this card. It is unchanged on the per-site KPI tile
+(`Chiller-hours recovered`) and in the masthead's third bullet, because those are a different figure
+about a different thing and renaming them would move `audit.py`'s published-figure registry.
+
+**3. THE LOOP'S OUTER LABELS CLEAR THE CURVE, AND THE PREVIOUS FIX USED THE WRONG NUMBER.** It
+anchored them to `XS[0] - 78`, the x of both control points on the left turn. **A cubic never reaches
+its control points.** For a curve whose two controls share an offset, the extreme is at t = 0.5 and is
+`endpoint + 0.75 * offset`, so the loop bulges 58.5 units, not 78. Measured at the note's baseline the
+turn is at x 60.5 while the note began at x 56: the sentence started four and a half units outside the
+loop. `CURVE_BULGE = 0.75 * TURN` now, derived rather than typed. Measured after: the left note runs
+74.7 to 201.9 against a loop edge at 59.5, the right note ends at 1100.9 against 1116.5.
+
+**4. THE REVOLVING DOT SURVIVES A ROUND TRIP.** Three separate reasons it could not before:
+`IntroLayer` renders `null` off the landing stage so `Pipeline` UNMOUNTS and its SVG goes with it;
+leaving calls the entrance's `stopLoops()`, which kills the tweens and deletes `body[data-aa-ring]`,
+the attribute intro.css gates the dot's `visibility` on; and the only thing that ever started the
+loops was `playHeroEntrance` in a `useLayoutEffect` with an EMPTY dependency array, on a component
+that never unmounts because it returns null.
+The loop builder is lifted out of that closure into `buildRingLoops()`, and `startRingLoops()` starts
+it standalone. `IntroLayer` calls it on a return only, gated on a `hasLeft` ref, and
+`startRingLoops` refuses outright when `body[data-aa-ring]` says a live set already exists, so the
+first load is untouched and no path runs two sets at once.
+
+**5. A REFRESH COMES HOME TO THE GLOBE, AND THERE WAS NOTHING TO REDIRECT.** This app has no router:
+pick, configure and results are three states of ONE document, and a fresh document already starts on
+'pick'. What survived a refresh was `hasSeenSplash` in sessionStorage, which `gateEnabled()` reads to
+skip the gate, so a reload landed on the first screen with the globe, the wordmark and the audio all
+suppressed. A script in `app/index.html` now removes that key on every DOCUMENT LOAD, before the
+bundle runs and therefore before the flag is read.
+⚠ **THIS REVERSES HALF OF THE BRIEF THAT INTRODUCED THE FLAG**, which asked for exactly the opposite:
+"a reload or a back-button press skips it". The other half is untouched and is what "normal
+client-side navigation" means here: within one document, passing the gate and then walking pick ->
+configure -> results -> pick never brings it back, because nothing clears the key between state
+changes. Verified both ways.
+
+**6. THE THREE-GATES SENTENCE NAMES NOBODY.** Two attempts at naming a source got it wrong in two
+different ways, so at the user's instruction it names none: "Three gates: temperature, humidity,
+contamination. Not temperature alone, because a real economizer also limits on moisture and on what
+the outside air carries in." The check asserts the ABSENCE of eight source names rather than the
+presence of one, so the next attempt cannot slip a different one in.
+
+**`testing/verify_landing_surfaces.py` is new**, 38 checks over the DevTools Protocol: the two bullets
+verbatim, the card's three blocks in order with its money read back out of `portfolio.json` and every
+bold run required to be a figure, the ring labels measured against the PATH by `getPointAtLength`
+rather than against its control points, the dot sampled twice a beat apart on arrival and again after
+a real navigation and back, and a real reload.
+`run_all.py` now runs it and the two other pointer-driven verifiers, so it is 43 steps.
+
+**Verified after:** `verify_landing_surfaces.py` **38/0**, `verify_tooltip.py` 70/0,
+`verify_results_surfaces.py` 29/0, `shot_rail.py` 208/0, `verify_intro.py` 227/0, `verify_launch.py`
+68/0, `verify_core_matches_page.py` 64/0, `verify_view_matches_page.py` 9/0,
+`verify_results_matches_page.py` PASS, `verify_palette.py` 38/0, `verify_state_filter.py` 62/0,
+`verify_stop_control.py` 31/0, `verify_live_report_button.py` 25/0, `verify_app_flow.py` PASS,
+`verify_app_deterministic.py` PASS, `verify_site_panels.py` PASS,
+`verify_shipped_app_is_current.py` PASS, `verify_deployed_root_is_the_app.py` PASS, `audit.py` 2211
+passed with the 5 spend-ledger failures the user deferred, typecheck clean, `sync_context --check` 0.
+
 ### THE RAIL, THE TOOLTIP, THE HOUR DROPDOWN, THE COVERAGE TILE AND ONE ACRONYM. 2026-08-30
 
 Five reports in one message, and three of them turned out to be the same class of fault: a CSS or DOM
@@ -113,7 +205,11 @@ hatch, unconditional. Now `null`, or the two surfaces would contradict each othe
 `< 0.90 ? 'crit' : 'good'`, because that panel exists to score the promise and a scorecard should show
 the miss. One line to change if that is wanted too.
 
-**5. "LBNL" NOW SAYS WHO IT IS, AND THE SENTENCE AROUND IT IS TRUE.** The card read "the three things
+**5. "LBNL" NOW SAYS WHO IT IS, AND THE SENTENCE AROUND IT IS TRUE.**
+⚠ **SUPERSEDED THE SAME DAY, see the entry above:** the user asked for the line to name no source at
+all. The correction below stands as a record of what was wrong with the original; the wording it
+introduced lasted one revision.
+** The card read "the three things
 LBNL measured operators actually worry about". The acronym was expanded in exactly one place in the
 repository, `src/money.py:160`, attached to a DIFFERENT publication. And it credited LBNL with all
 three gates, which `src/environment.py:12-27` does not: humidity is ENERGY STAR plus Honeywell's JADE
@@ -2324,7 +2420,7 @@ only `fmt`.
 | Of those, ready to run | **246** | sites.json offerable metros, joined on metro_key |
 | Offerable metros | **250** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
-| run_all.py steps | **40** | count of STEPS entries in src/run_all.py |
+| run_all.py steps | **43** | count of STEPS entries in src/run_all.py |
 | demo/index.html size | **490 KB** | byte length of the shipped page |
 | Map GeoJSON sources | **2** | one clustered, one flat -- see 02-ARCHITECTURE |
 | Map unisites-* layers | **5** | cluster, halo, points, flat-halo, flat |

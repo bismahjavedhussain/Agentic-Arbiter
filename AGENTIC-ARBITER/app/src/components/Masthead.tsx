@@ -76,12 +76,13 @@ export function Masthead({
             this need a forecast. Short on purpose. The long-form reasoning has not been deleted, it
             lives in the panels the agent writes. */}
         <li>
-          <b>Data centres run chiller compressors through hours when outside air would have done.</b>
+          <b>Data centres run mechanical chillers even when outside air could provide the necessary
+          cooling.</b>
         </li>
 
         <li>
           <b>FortyGuard forecasts heat at 2 m,</b> the height a ground-mounted condenser breathes,
-          which turns "right now" into hours of notice.
+          which turns "right now" into hours of prior notice.
         </li>
 
         <li>

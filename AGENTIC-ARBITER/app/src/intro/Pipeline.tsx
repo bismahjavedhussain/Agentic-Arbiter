@@ -42,6 +42,9 @@ const ROW_Y = 56
 /** The return arc's horizontal run. */
 const RETURN_Y = 156
 const NODE_R = 21
+/** How far the return turns bulge OUTSIDE the end nodes, as a control-point offset. See CURVE_BULGE
+ *  below for the part that matters to the labels: the curve only reaches three quarters of this. */
+const TURN = 78
 /** Five nodes, evenly spaced, inset far enough for the return arc to curve outside them.
  *  Exported because timeline.ts needs each node's centre in USER UNITS to scale it in place --
  *  see the svgOrigin note there. Two copies of these numbers would be two things to keep in step. */
@@ -57,9 +60,9 @@ const XS = NODE_XS
  */
 export const LOOP_PATH =
   `M ${XS[0]} ${ROW_Y} L ${XS[4]} ${ROW_Y} ` +
-  `C ${XS[4] + 78} ${ROW_Y} ${XS[4] + 78} ${RETURN_Y} ${XS[4]} ${RETURN_Y} ` +
+  `C ${XS[4] + TURN} ${ROW_Y} ${XS[4] + TURN} ${RETURN_Y} ${XS[4]} ${RETURN_Y} ` +
   `L ${XS[0]} ${RETURN_Y} ` +
-  `C ${XS[0] - 78} ${RETURN_Y} ${XS[0] - 78} ${ROW_Y} ${XS[0]} ${ROW_Y}`
+  `C ${XS[0] - TURN} ${RETURN_Y} ${XS[0] - TURN} ${ROW_Y} ${XS[0]} ${ROW_Y}`
 
 export const STAGES = [
   { key: 'perceive', label: 'PERCEIVE', note: 'The 2 m field, hour by hour' },
@@ -70,13 +73,25 @@ export const STAGES = [
 ] as const
 
 /**
- * WHERE THE LOOP'S OUTER EDGES ARE, in the same user units as everything else here.
- * LOOP_PATH curves out to `XS[0] - 78` on the left and `XS[4] + 78` on the right, so those two
- * numbers are the box every label has to stay inside. Derived from the path rather than typed, so
- * moving a node or widening the curve cannot leave the labels behind.
+ * WHERE THE LOOP'S OUTER EDGES ACTUALLY ARE, in the same user units as everything else here.
+ *
+ * 🔴 A CUBIC NEVER REACHES ITS CONTROL POINTS, AND ASSUMING IT DOES IS WHY THE LABELS STILL TOUCHED
+ * THE CURVE. The previous version took `XS[0] - 78` as the left edge because that is the x of both
+ * control points on the left turn. It is not a point on the curve. For a cubic whose two control
+ * points share an offset from its endpoints, the extreme is reached at t = 0.5 and is
+ *
+ *     x(0.5) = (1/8 + 1/8) * endpoint + (3/8 + 3/8) * control  =  endpoint + 0.75 * offset
+ *
+ * so the curve bulges out by 58.5 units, not 78. MEASURED against the note baseline at y = 116, the
+ * left turn is at x = 60.5 while the note was anchored to start at x = 56: the sentence began four
+ * and a half units OUTSIDE the loop, which is exactly what the user photographed.
+ *
+ * `CURVE_BULGE` is derived from `TURN` rather than typed, so widening the turn moves the labels with
+ * it. The 0.75 is the arithmetic above and nothing else.
  */
-const LOOP_LEFT = XS[0] - 78
-const LOOP_RIGHT = XS[4] + 78
+const CURVE_BULGE = 0.75 * TURN
+const LOOP_LEFT = XS[0] - CURVE_BULGE
+const LOOP_RIGHT = XS[4] + CURVE_BULGE
 /** A little air between a label and the curve it must not touch. */
 const EDGE_PAD = 16
 

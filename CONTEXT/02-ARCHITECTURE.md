@@ -291,6 +291,13 @@ is derived.
 artefact it opens and reports **247 distinct backtests and 250 distinct money files**, so no figure is
 one site's result multiplied by a count.
 
+⚠ **AND TWO MONEY PAIRS, OF WHICH ONLY ONE IS A PORTFOLIO RANGE.** `usd_lo`/`usd_hi` sum every site's
+cheapest and dearest swept corner: that describes a world in which all 250 sites land on their own
+worst corner at once, and its mirror, and it is why the pair spans zero (-$25.4M to +$65.8M). It is
+published because it is what every per-site tile shows. `usd_mid_lo`/`usd_mid_hi` take the MEDIAN cell
+of each site's own sweep at the two published IT-load densities: **$3.07M to $6.14M**, positive at
+both ends. The landing card states the median pair; the tiles keep the extremes.
+
 ⚠ **TWO FIELDS THAT LOOK INTERCHANGEABLE AND ARE NOT.** `weather_site_hours` (**10,820,547**) is the sum
 over 250 sites of the hours each was scored against; `weather_hours_distinct` (**4,232,006**) counts
 each of the **98** airport stations once. The 250 sites share those 98 stations, so only the second is
