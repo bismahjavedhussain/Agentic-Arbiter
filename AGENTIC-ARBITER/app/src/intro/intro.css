@@ -1,0 +1,985 @@
+/* THE INTRO LAYER. Loaded last, after lastmile.css.
+ *
+ * 🔴 EVERY RULE IN THIS FILE IS SCOPED TO `body[data-aa-intro]`, and that is not stylistic caution.
+ * The brief: "Landing page only. Never renders on a data or detail page." This product is ONE
+ * document with three stages, so there is no route boundary to rely on. `IntroLayer.tsx` sets that
+ * attribute only while the landing stage is showing and removes it on the way out, so a selector
+ * that starts there cannot leak onto the configure or results screens even though they are the same
+ * DOM.
+ *
+ * No new design tokens are declared here. `verify_palette.py` requires the page and the app to
+ * declare 20 canonical tokens IDENTICALLY, so inventing one on this side alone would fail that check
+ * -- correctly. Everything below composes existing tokens.
+ */
+
+/* ---------------------------------------------------------------------------------------------
+   1. THE GATE
+
+   🔴 EVERY SELECTOR HERE IS `.aa-gate[role='dialog']`, AND THE `!important`s ARE NOT LAZINESS.
+   MEASURED: the gate first rendered with `background-color: rgb(12,26,42)`, `z-index: 300`, and both
+   of its buttons in the same translucent blue, none of which this file asked for. The cause is
+   `tones.css:150`, which skins EVERY `[role='dialog']` as a popover card:
+
+       [role='dialog'] { background: var(--fg-pop) !important; z-index: 300 !important; ... }
+       [role='dialog'] button { background: color-mix(...) !important; ... }
+
+   That rule is right for what it was written for -- the DetailModal and the folded-prose popovers.
+   It simply cannot know that a later element would adopt the same role for a different reason. The
+   gate IS modal in the accessibility sense (it owns the screen until dismissed), so dropping the
+   role to dodge the collision would trade a real screen-reader affordance for a styling
+   convenience. Instead the attribute is carried into the selector, which both raises specificity
+   (0,2,0 against 0,1,0) and documents at the point of use exactly which rule is being answered.
+
+   The lesson generalises: a project-wide `[role=...]` skin captures every future element that takes
+   that role. Recorded as a trap.
+   --------------------------------------------------------------------------------------------- */
+
+.aa-gate[role='dialog'] {
+  position: fixed;
+  inset: 0;
+  /* Over the theme toggle (z-50) and the engine's chrome, and stated rather than inherited from
+     tones.css's 300 so this file is the truthful record of what the gate does. */
+  z-index: 200 !important;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  /* The page's own paper, not the popover fill. A whisper of the deep blue at top and bottom so the
+     card is not a flat slab; both stops are existing tokens and no new one is declared. */
+  background: var(--page) !important;
+  background-image:
+    radial-gradient(120% 90% at 50% 0%,
+      color-mix(in srgb, var(--fg-deep) 24%, transparent), transparent 70%),
+    radial-gradient(90% 70% at 50% 100%,
+      color-mix(in srgb, var(--fg-shell) 34%, transparent), transparent 72%) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: var(--text-primary) !important;
+  opacity: 1;
+  /* Only opacity is animated, per the performance rule. No backdrop-filter: a blur across a full
+     viewport is the one effect that reliably costs frames on integrated graphics. */
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 🔴 THE EXIT NO LONGER BELONGS TO CSS, AND THIS RULE IS NOW ONLY THE POINTER LOCK.
+   It used to be `opacity: 0` under a 600 ms transition, which was the whole exit. Since 2026-08-29 the
+   launch sequence (`intro/launch.ts`) owns the exit as part of one GSAP timeline, because the brief
+   requires "a single GSAP timeline as the source of truth for the visual sequence" and the transition
+   has to be timed against a whoosh cue.
+   ⚠ LEAVING `opacity: 0` HERE WOULD BE TWO OWNERS OF ONE PROPERTY, which is the bug class this project
+   documents most often: GSAP writes an inline opacity, this rule writes a class-level one, and which
+   wins depends on `!important` and on ordering rather than on intent. So the class keeps exactly the
+   one thing GSAP should not own: whether the element still takes clicks. */
+.aa-gate[role='dialog'].is-leaving {
+  pointer-events: none;
+}
+
+.aa-gate-inner {
+  width: min(720px, 100%);
+  text-align: center;
+}
+
+.aa-gate[role='dialog'] .aa-gate-eyebrow {
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: var(--fs-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-bright) !important;
+}
+
+.aa-gate[role='dialog'] .aa-gate-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 7vw, 68px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  /* lastmile.css gives `[role='dialog'] h1` the popover ink; this is not a popover. */
+  color: var(--text-primary) !important;
+}
+
+.aa-gate[role='dialog'] .aa-gate-dot { color: var(--fg-bright) !important; }
+
+/* 🔴 THE EYEBROW NEEDED DARKENING IN THE LIGHT THEME, AND ONLY THERE. MEASURED: --fg-bright is
+   #14a1e0 in dark, 6.83:1 on the near-black page; in light it is #0d7fb4, which is 4.27:1 on
+   #fafafa at 10.5px and fails. One token, one rule, one theme passing and one failing, which is
+   exactly why this had to be measured in both rather than approved once.
+
+   THE ANSWER IS AN EXISTING TOKEN, NOT A NEW COLOUR. --fg-deep is "the wordmark's darker half" and
+   is #12558f in light, which measures 7.39:1 against #fafafa. Reusing it keeps the brand hue,
+   introduces no literal, and touches no token value (verify_palette.py requires the page and the app
+   to agree on those).
+   ⚠ A `color-mix()` was tried first and had to be abandoned for a reason worth recording: the
+   computed value comes back as `oklab(...)`, not `rgb(...)`, so the browser contrast probe could not
+   parse it and the row silently disappeared from the measurement instead of failing. An unverifiable
+   fix is not a fix. */
+:root[data-theme='light'] .aa-gate[role='dialog'] .aa-gate-eyebrow {
+  color: var(--fg-deep) !important;
+}
+
+/* tones.css:167 claims `[role='dialog'] p` for popover prose, so both paragraphs are restated. */
+.aa-gate[role='dialog'] .aa-gate-sub {
+  margin: 18px auto 0;
+  max-width: 52ch;
+  font-family: var(--font-body);
+  font-size: clamp(14.5px, 1.35vw, 17.5px);
+  line-height: 1.5;
+  color: var(--text-secondary) !important;
+}
+
+.aa-gate-actions {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* THE PRIMARY ACTION, and it has to LOOK primary. Built from --action like the page's own .btn-go
+   rather than from a new colour, so Enter and the product's buttons read as one control family.
+   Without the override below, `[role='dialog'] button` painted this and the mute toggle IDENTICALLY
+   and the hierarchy between them vanished -- visible in the first capture. */
+.aa-gate[role='dialog'] .aa-gate-enter {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 13px 42px;
+  border-radius: 11px;
+  border: 1px solid var(--action) !important;
+  background: var(--action) !important;
+  color: var(--action-ink) !important;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.aa-gate[role='dialog'] .aa-gate-enter:hover {
+  background: color-mix(in srgb, var(--action) 86%, var(--text-primary)) !important;
+  border-color: color-mix(in srgb, var(--action) 86%, var(--text-primary)) !important;
+  color: var(--action-ink) !important;
+  transform: translateY(-1px);
+}
+
+.aa-gate[role='dialog'] .aa-gate-enter:focus-visible {
+  outline: 2px solid var(--fg-bright);
+  outline-offset: 3px;
+}
+
+/* THE SOUND CHOICE, secondary by construction: outlined, quieter, and never competing with Enter
+   for the eye even though it must be findable before the click. */
+.aa-gate[role='dialog'] .aa-gate-mute {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: var(--fs-note);
+  font-weight: 600;
+  padding: 11px 18px;
+  border-radius: 11px;
+  border: 1px solid var(--border) !important;
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.aa-gate[role='dialog'] .aa-gate-mute:hover {
+  color: var(--text-primary) !important;
+  border-color: var(--fg-bright) !important;
+}
+
+.aa-gate[role='dialog'] .aa-gate-mute:focus-visible {
+  outline: 2px solid var(--fg-bright);
+  outline-offset: 3px;
+}
+
+/* ⚠ THE `[aria-pressed='true']` RULE IS GONE, AND SO IS THE OPACITY THAT CAME WITH IT.
+   It set `opacity: 0.72` on a text control, which is the third time that pattern has failed a
+   contrast measurement in this file: --text-secondary at 0.72 composites to about 2.4:1 in dark and
+   2.1:1 in light, against a 4.5:1 floor for small text. The button states its state in words now
+   ("Sound on" / "Sound off"), so there is nothing left to dim and no second signal to contradict. */
+
+/* ---- THE FORTYGUARD MARK, under the action.
+   Sized and corrected the same way the masthead banner's copy is, because it is the same asset in
+   the same two palettes and it went wrong in both of them once already:
+
+     * DARK needs a lift (masthead.css:36). The wordmark's darker blue sits close to the shell floor.
+     * LIGHT needs saturation and contrast (lastmile.css:54). Without it the mid blues wash into pale
+       paper -- which is exactly what the user photographed on the banner, and this element would
+       have repeated the fault because those rules are scoped to `.aa-banner img` and this is not
+       inside the banner.
+
+   Stated per theme rather than left to inherit, so the gate cannot drift from the banner. ---- */
+.aa-gate[role='dialog'] .aa-gate-brand {
+  margin: 26px auto 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.aa-gate[role='dialog'] .aa-gate-by {
+  font-family: var(--font-display);
+  /* Scaled with the mark, same values as .aa-banner-by so the gate and the banner agree. */
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--text-secondary) !important;
+  white-space: nowrap;
+}
+
+.aa-gate[role='dialog'] .aa-gate-brand img {
+  /* Enlarged with the banner's copy so the two read as the same attribution at the same weight. */
+  height: clamp(30px, 3.1vw, 42px);
+  width: auto;
+  pointer-events: none;
+}
+
+:root[data-theme='dark'] .aa-gate[role='dialog'] .aa-gate-brand img {
+  filter: brightness(1.28) saturate(1.15);
+}
+
+:root[data-theme='light'] .aa-gate[role='dialog'] .aa-gate-brand img {
+  filter: saturate(1.35) contrast(1.18) brightness(0.92);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   2. THE PERSISTENT MUTE TOGGLE
+   Bottom left. App.tsx pins the theme toggle to right/top and the engine's controls run along the
+   top, so this is the one corner nothing else claims.
+   --------------------------------------------------------------------------------------------- */
+
+.aa-mutebtn {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.aa-mutebtn:hover {
+  color: var(--text-primary);
+  border-color: var(--fg-bright);
+}
+
+.aa-mutebtn:focus-visible {
+  outline: 2px solid var(--fg-bright);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   3. REDUCED MOTION
+   The gate does not render at all under reduced motion (flags.ts), so there is no entrance to
+   stand down. What remains is to make sure that if it ever DOES appear -- a preference toggled
+   mid-visit, say -- it arrives and leaves without a transition rather than without a fade looking
+   broken.
+   --------------------------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .aa-gate { transition: none; }
+  .aa-gate-enter,
+  .aa-gate-mute,
+  .aa-mutebtn { transition: none; }
+  .aa-gate-enter:hover { transform: none; }
+}
+
+/* ---------------------------------------------------------------------------------------------
+   4. NARROW SCREENS
+   Under 768px the gate is skipped in JS. These rules only matter for the toggle, which still
+   appears if a wide session is resized, and for the gate's own type if it is somehow shown.
+   --------------------------------------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  .aa-gate-actions { flex-direction: column; gap: 10px; }
+  .aa-gate-enter { width: 100%; }
+  .aa-gate-mute { width: 100%; justify-content: center; }
+  .aa-mutebtn { left: 0.75rem; bottom: 0.75rem; }
+}
+
+/* ---------------------------------------------------------------------------------------------
+   5. THE AGENT LOOP
+
+   Every rule is prefixed `body[data-aa-intro]` because this diagram belongs to the landing stage
+   only, and this product is one document: the configure and results screens are the same DOM with a
+   different `data-stage`. IntroLayer removes the attribute on the way out, so nothing here can leak
+   onto a technical screen.
+
+   No new tokens. --fg-bright / --fg-deep are the wordmark's two halves and are already declared in
+   both palettes; --w-* are the workspace neutrals.
+   --------------------------------------------------------------------------------------------- */
+
+body[data-aa-intro] .aa-ring {
+  /* Tight top margin for the same reason the viewBox is 182 units: every pixel here pushes the
+     front screen's only action closer to the fold. See the note in Pipeline.tsx. */
+  margin: 14px 0 2px;
+  width: 100%;
+}
+
+/* 🔴 NOT RENDERED UNDER 768px, AND THAT IS A DECISION RATHER THAN AN OVERSIGHT.
+   The diagram's viewBox is 1180 units wide. Scaled into a 360px phone viewport that puts its 13px
+   labels at roughly 4px, which is not a legible explainer, it is a smudge. The brief's mobile rule
+   is "Keep only the hero text reveal", and the loop's content is already stated in prose by the
+   masthead directly above it, so nothing is lost that a reader cannot read. */
+@media (max-width: 767px) {
+  body[data-aa-intro] .aa-ring { display: none; }
+}
+
+body[data-aa-intro] .aa-ring-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;      /* the halos and the float drift extend past the viewBox */
+}
+
+/* The text alternative for the SVG. Visually hidden, NOT display:none, so it is still announced. */
+body[data-aa-intro] .aa-ring-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- the loop itself. Dim: it is the road, not the traffic. */
+body[data-aa-intro] .aa-ring-track {
+  stroke: color-mix(in srgb, var(--fg-bright) 34%, transparent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+body[data-aa-intro] .aa-ring-arrow {
+  stroke: color-mix(in srgb, var(--fg-bright) 52%, transparent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body[data-aa-intro] .aa-ring-return {
+  fill: var(--fg-bright);
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+}
+
+/* ---- the nodes.
+   ⚠ THE ORIGIN IS SET IN JS, NOT HERE, and this note exists so nobody re-adds it. GSAP bakes an SVG
+   element's transform origin into the matrix it writes and sets `transform-origin: 0px 0px` inline
+   while doing it, so a CSS `transform-origin: center` on these elements is silently overridden --
+   measured as computing to `0px 0px`. The `transformOrigin: 'center'` in timeline.ts is what
+   actually places it. `transform-box` is kept because it costs nothing and is correct for any
+   non-GSAP transform. */
+body[data-aa-intro] .aa-ring-node {
+  transform-box: fill-box;
+}
+
+/* The halo is what lights up as the pulse arrives. Its resting opacity here is the value the loop
+   returns it to (0.5 in timeline.ts), so a page with motion off and a page between pulses look the
+   same rather than subtly different. `transform-box`/`transform-origin` so the scale grows it from
+   its own centre, exactly as for the node group. */
+body[data-aa-intro] .aa-ring-halo {
+  fill: color-mix(in srgb, var(--fg-bright) 16%, transparent);
+  stroke: none;
+  opacity: 0.5;
+  transform-box: fill-box;
+}
+
+body[data-aa-intro] .aa-ring-disc {
+  fill: var(--surface-1);
+  stroke: color-mix(in srgb, var(--fg-bright) 46%, transparent);
+  stroke-width: 1.4;
+}
+
+body[data-aa-intro] .aa-ring-n {
+  fill: var(--fg-bright);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 750;
+}
+
+body[data-aa-intro] .aa-ring-label {
+  fill: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+/* The data label. Its resting opacity is what a motion-off page shows, so it is legible on its own
+   rather than relying on the pulse to bring it up. */
+body[data-aa-intro] .aa-ring-note {
+  fill: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 400;
+}
+
+/* ---- the pulse. `visibility` rather than `opacity`, because timeline.ts animates opacity and the
+   two would fight; and a dot parked at 0,0 must not show on a page where the loop never starts. */
+body[data-aa-intro] .aa-ring-pulse {
+  fill: var(--fg-bright);
+  visibility: hidden;
+}
+body[data-aa-intro][data-aa-ring='running'] .aa-ring-pulse {
+  visibility: visible;
+}
+
+/* ---- REDUCED MOTION: the diagram is complete and still, and the pulse is simply not there.
+   Nothing is hidden that carries meaning: every stage, its number, its name and its description are
+   all static text. */
+@media (prefers-reduced-motion: reduce) {
+  body[data-aa-intro] .aa-ring-pulse { visibility: hidden !important; }
+}
+
+/* ---------------------------------------------------------------------------------------------
+   6. THE HEAT FIELD
+
+   Landing stage only, and enforced twice over: every selector starts at `body[data-aa-intro]`, which
+   IntroLayer sets only while the landing stage is showing, AND the element is portalled by a
+   component that returns null off that stage. Two independent gates, because "never renders on a
+   data page" is the one requirement here whose failure a reader would actually notice.
+   --------------------------------------------------------------------------------------------- */
+
+/* 🔴 THE STACKING IS THE WHOLE PROBLEM, AND `z-index: -1` DOES NOT SOLVE IT.
+   `body` carries an opaque background (index.css:270, `@apply bg-background`), so a negative z-index
+   child paints BEHIND that background and is simply invisible. And a `z-index: 0` positioned element
+   paints ABOVE static block content in the same stacking context, so putting the layer inside #app
+   would cover the prose.
+   So the layer is portalled to <body> as a direct child at z-index 0, and #app is raised to 1. That
+   one declaration is the only thing this feature changes about an existing element, it is scoped to
+   the intro's own attribute, and it disappears with it. */
+body[data-aa-intro] #app {
+  position: relative;
+  z-index: 1;
+}
+
+body[data-aa-intro] .aa-thermal {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;          /* scenery must never intercept a click */
+  overflow: hidden;              /* the oversized inner layers stay inside */
+  contain: paint;                /* isolate the paint; not `strict`, which adds size containment */
+  /* 🔴 TWO FACTORS, NOT ONE NUMBER, and the reason is the scroll handoff.
+     The base belongs to the THEME (0.15 dark, 0.17 light: the same alphas over near-white read as
+     almost nothing). The fade belongs to the SCROLL. If the handoff animated `opacity` directly it
+     would write an inline value that outranks both theme rules, so switching theme while scrolled
+     would keep the wrong base forever. Multiplying two custom properties lets GSAP own one factor
+     and the stylesheet own the other, and neither has to know about the other.
+     The brief's range is 0.12-0.18; both bases sit inside it. */
+  --aa-th-base: 0.15;
+  --aa-th-fade: 1;
+  opacity: calc(var(--aa-th-base) * var(--aa-th-fade));
+
+  /* THE THERMAL RAMP, declared HERE rather than on :root, and that is deliberate.
+     verify_palette.py requires the page and the app to declare 20 canonical tokens identically. A
+     new name on :root would either fail that check or force a matching declaration into
+     demo/index.html, which has no background to paint. Scoped to this element, these are local
+     variables belonging to one component and cannot be mistaken for palette tokens.
+     Two of the three are existing tokens. Only the violet is a literal, because the palette has no
+     violet: it is the midpoint the brief asks for between the cold blue and the warm amber. */
+  --aa-th-blue: color-mix(in oklab, var(--fg-deep) 62%, transparent);
+  --aa-th-violet: color-mix(in oklab, #7b5cc7 52%, transparent);
+  --aa-th-amber: color-mix(in oklab, var(--warning) 44%, transparent);
+}
+
+/* The light theme needs the ramp a touch stronger: the same alphas over near-white read as almost
+   nothing, and a field nobody can see is a layer nobody should be paying for. */
+:root[data-theme='light'] body[data-aa-intro] .aa-thermal {
+  --aa-th-base: 0.17;
+  --aa-th-blue: color-mix(in oklab, var(--fg-deep) 74%, transparent);
+  --aa-th-violet: color-mix(in oklab, #6a4fb8 62%, transparent);
+  --aa-th-amber: color-mix(in oklab, #b8791a 56%, transparent);
+}
+
+body[data-aa-intro] .aa-thermal-a,
+body[data-aa-intro] .aa-thermal-b {
+  position: absolute;
+  /* Oversized well past the viewport, so a few percent of drift can never bring an edge into view. */
+  inset: -35%;
+  will-change: transform;
+}
+
+/* Deep blue into violet, upper field. */
+body[data-aa-intro] .aa-thermal-a {
+  background:
+    radial-gradient(46% 52% at 22% 26%, var(--aa-th-blue), transparent 68%),
+    radial-gradient(40% 46% at 74% 18%, var(--aa-th-violet), transparent 66%);
+  /* 50s ONE WAY. `alternate` means a full there-and-back is 100s, so this is slower than the
+     brief's 45-60s rather than faster, which is the safe direction to err in: the instruction is
+     "if motion is perceptible at a glance, it's too fast". */
+  animation: aa-thermal-a 50s ease-in-out infinite alternate;
+}
+
+/* Warm amber into blue, lower field. A different period from the layer above, so the two never
+   return to the same relative position and the overlap keeps changing shape. */
+body[data-aa-intro] .aa-thermal-b {
+  background:
+    radial-gradient(52% 46% at 62% 78%, var(--aa-th-amber), transparent 70%),
+    radial-gradient(38% 42% at 12% 84%, var(--aa-th-blue), transparent 64%);
+  animation: aa-thermal-b 58s ease-in-out infinite alternate;
+}
+
+/* Small numbers on purpose. Over 50s, 3% of the viewport is about a pixel every two seconds. */
+@keyframes aa-thermal-a {
+  from { transform: translate3d(-2.2%, -1.4%, 0) scale(1.04); }
+  to   { transform: translate3d(2.4%, 1.8%, 0) scale(1.13); }
+}
+
+@keyframes aa-thermal-b {
+  from { transform: translate3d(2.6%, 1.2%, 0) scale(1.11); }
+  to   { transform: translate3d(-2.2%, -1.6%, 0) scale(1.03); }
+}
+
+/* ---- REDUCED MOTION AND NARROW SCREENS: the field stays, the motion stops.
+   The brief for mobile is "disable pipeline pulse and background animation" -- disable the ANIMATION,
+   not the background, and a still gradient is a finished-looking page rather than a missing one.
+   `will-change` is dropped too: promoting a layer that will never move is a wasted compositor
+   surface, and on a phone that is the one place it costs something. ---- */
+@media (prefers-reduced-motion: reduce) {
+  body[data-aa-intro] .aa-thermal-a,
+  body[data-aa-intro] .aa-thermal-b {
+    animation: none !important;
+    will-change: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  body[data-aa-intro] .aa-thermal-a,
+  body[data-aa-intro] .aa-thermal-b {
+    animation: none;
+    will-change: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------
+   7. THE SPLASH: the globe, the staggered widgets, and the sweep
+
+   Every rule sits under `.aa-splash`, which is only ever on the splash element itself, so none of
+   this can reach the page behind it.
+   --------------------------------------------------------------------------------------------- */
+
+/* 🔴 THE 700 ms UPWARD SWEEP IS GONE, AND THAT REVERSES AN EARLIER INSTRUCTION OF THE USER'S.
+   It was theirs: "a seamless sliding page transition that sweeps the current screen away, revealing
+   the main dashboard map", and `translateY(-100%)` was chosen because a transform is the only way to
+   move a full-viewport layer without repainting it every frame. The current brief replaces it:
+   "Landing screen fades/scales out over ~1.2s ... 'Select a data centre site' screen fades in,
+   crossfading rather than cutting."
+   So the exit is a fade and a slight scale, it lasts 1.2 s instead of 0.7 s, and it is timed against
+   the whoosh's landing. All three of those are properties of the sequence, so `launch.ts` owns them
+   and nothing here declares a transform, an opacity or a transition for the leaving state.
+   `will-change` stays: it is a hint about what is about to be animated, not an animation. */
+.aa-gate[role='dialog'].aa-splash {
+  will-change: transform, opacity;
+}
+
+/* ---- THE GLOBE. Behind the content, centred, and never able to take a click meant for the CTA
+   except where it is genuinely the globe: `pointer-events` is enabled on the canvas only, so the
+   drag works but the empty corners of the square do not swallow anything. */
+.aa-splash .aa-splash-globe {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.aa-splash .aa-splash-globe-canvas {
+  /* Square, capped by the smaller axis. The component keeps the drawing buffer square too, so the
+     globe is never drawn as an oval. */
+  width: min(78vmin, 720px);
+  height: min(78vmin, 720px);
+  max-width: 100%;
+  aspect-ratio: 1;
+  pointer-events: auto;   /* drag and wheel land here */
+  /* NO transform here. The zoom is cobe's own `scale` option, applied in the frame loop, so the map
+     stays sharp as it grows instead of being magnified. An earlier version faked it with a CSS scale
+     on this element; reading cobe's typings showed a real camera exists. */
+  /* It is scenery with a job: dim enough that the type over it stays the thing you read. */
+  opacity: 0.72;
+}
+
+:root[data-theme='light'] .aa-splash .aa-splash-globe-canvas { opacity: 0.62; }
+
+/* 🔴 A SCRIM BETWEEN THE GLOBE AND THE TYPE, and it is a legibility fix rather than a mood one.
+   MEASURED BY LOOKING: in the first capture the subtitle ran straight across the globe's dotted
+   landmass. The dots are high-frequency and light, so the text was readable but sat on visual noise
+   -- the sort of thing that measures fine as a contrast ratio against the page and still reads badly,
+   because the interference is texture rather than luminance.
+   A radial wash of the page colour, densest where the column is and gone by the edges, so the globe
+   keeps its limb and its markers and the words get a clean field. `pointer-events: none` because it
+   sits over the canvas and a drag has to pass through it. */
+.aa-splash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    56% 44% at 50% 46%,
+    color-mix(in srgb, var(--page) 88%, transparent),
+    color-mix(in srgb, var(--page) 55%, transparent) 58%,
+    transparent 80%
+  );
+}
+
+/* The content sits above the globe and does not intercept pointer events except on its controls, so
+   a drag that begins on empty space still reaches the globe. */
+.aa-splash .aa-splash-inner {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+.aa-splash .aa-splash-inner button,
+.aa-splash .aa-splash-inner a { pointer-events: auto; }
+
+/* ---- THE FIVE STAGE ROWS USED TO LIVE HERE, between the subhead and the call to action.
+   🔴 MOVED OUT ON 2026-08-29, at the user's instruction that they were "competing with the globe in
+   the hero", and their rules moved with them: `components/stagerows.css`, classes `.aa-stagerow*`.
+   They were deliberately RENAMED rather than carried over under the old `.aa-splash-widget` names,
+   because they are no longer on the splash and a rule scoped to `.aa-splash` describing an element
+   that lives below the map is a rule the next reader has to disprove.
+   That file is NOT scoped to `body[data-aa-intro]`, and that difference is the point of the move: the
+   rows are content and must survive `?motion=off`, which unmounts everything in `intro/`. ---- */
+
+/* ---- THE CTA. ShinyButton brings its own black fill and conic border, which is correct on the dark
+   theme and too heavy on the light one, so the light theme softens its background rather than
+   overriding the border that is the point of the component. */
+.aa-splash .aa-splash-cta { margin-top: 6px; }
+:root[data-theme='light'] .aa-splash .aa-splash-cta {
+  --shiny-cta-bg: #101826;
+  --shiny-cta-bg-subtle: #1d2636;
+}
+
+/* ---- REDUCED MOTION: everything arrives, nothing moves.
+   The widgets appear at their final position with no slide, the sweep becomes an instant, and the
+   globe stops auto-rotating (handled in HeatGlobe.tsx, which reads the same query). The page still
+   looks finished, which is the test. */
+@media (prefers-reduced-motion: reduce) {
+  .aa-gate[role='dialog'].aa-splash { transition: none; }
+  .aa-splash .aa-splash-globe-canvas { transition: none; }
+}
+
+/* ---- NARROW: the splash does not render under 768px at all (flags.ts), so these are only reachable
+   if a wide session is dragged narrow while it is open. */
+@media (max-width: 767px) {
+  .aa-splash .aa-splash-globe { display: none; }
+}
+
+/* ---------------------------------------------------------------------------------------------
+   8. THE HERO IS DARK IN BOTH PALETTES, AND THE EARTH IS TOO BIG FOR THE FRAME
+
+   🔴 WHY THE HERO STOPS FOLLOWING THE THEME, WHICH IS THE ONE THING IN THIS FILE THAT BREAKS THE
+   PRODUCT'S OWN RULE.
+   The user's brief calls it non-negotiable and gives the reason in one line: "The atmospheric glow
+   is emissive -- it is invisible on white." That is arithmetic rather than taste. The rim glow is
+   drawn with ADDITIVE blending, which adds light to whatever is behind it; on the light theme's
+   #fafafa page every channel is already at 250 of 255, so adding cyan moves nothing and the sphere
+   loses the single effect that makes it read as a planet with an atmosphere. It is also the
+   explanation for the flat look reported on the cobe version.
+   So the splash pins itself to the DARK palette in both themes. Everything else on the landing
+   stage still follows the reader's choice; this is scoped to `.aa-splash` and nothing else.
+
+   HOW THE TRANSITION IS HANDLED, since a dark hero over a light page is a seam:
+     - the splash leaves by FADING AND SCALING OUT over 1.2 s, driven by `intro/launch.ts` (it used to
+       sweep upward; see the note in section 7). A dark panel dissolving over a light page is a
+       deliberate crossfade rather than a mismatch, and it is the same gesture in either theme;
+     - the theme toggle is BEHIND the splash and untouched, so the choice the reader made is waiting
+       for them the moment the transition finishes;
+     - nothing under the splash is restyled. `body[data-aa-intro]` scopes this file, and every rule
+       below also carries `.aa-splash`, so the configure and results screens cannot see any of it.
+
+   🔴 HOW IT IS DONE: THE TOKENS ARE PINNED ON THE CONTAINER AND INHERITED, NOT NAMED PER ELEMENT.
+   That is the lesson from the popover-text defect this project already paid for: a rule that lists
+   `p, li, strong, h3` leaves everything it forgot to name inheriting the wrong colour, and a
+   `<summary>` nobody remembered went invisible. So the four palette values the splash needs are
+   re-declared as locals here, and every existing rule in sections 1 and 7 keeps reading
+   `var(--text-primary)` and resolves to the dark value without being touched.
+   The four values are the DARK THEME'S OWN, copied from index.css and cinematic.css rather than
+   invented, so the hero cannot drift to a colour that exists nowhere else:
+       --page #09090b   --text-primary #fafafa   --text-secondary #a1a1aa   --fg-bright #14a1e0
+       --fg-ink #071018 (cinematic.css, "near-black navy, the shell floor")
+   ⚠ These are LOCAL declarations on one component, not root tokens. `verify_palette.py` compares
+   the root declarations in `demo/index.html` against `app/src/index.css` and never reads this file,
+   so no canonical value is changed and no new one is published. The measured contrast on the new
+   floor is asserted by `verify_intro.py` section 13, in both palettes.
+   --------------------------------------------------------------------------------------------- */
+
+body[data-aa-intro] .aa-gate[role='dialog'].aa-splash {
+  /* The hero's own floor: cinematic.css's own dark --fg-ink, which its comment already calls
+     "near-black navy, the shell floor". Exactly what the brief asks for, already measured. */
+  --aa-hero-floor: #071018;
+
+  /* The dark palette, pinned so it applies whichever theme is set. */
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --fg-bright: #14a1e0;
+  --fg-deep: #1b6ec2;
+  --fg-hair: #17293d;
+  --fg-shell: #0a1522;
+  --surface-1: #18181b;
+
+  background: var(--aa-hero-floor) !important;
+  /* Two washes, both from the brand's deep blue, placed where the globe is rather than centred: a
+     symmetric vignette on an asymmetric composition fights it. */
+  background-image:
+    radial-gradient(58% 72% at 76% 62%,
+      color-mix(in srgb, var(--fg-deep) 20%, transparent), transparent 72%),
+    radial-gradient(90% 60% at 20% 0%,
+      color-mix(in srgb, var(--fg-shell) 60%, transparent), transparent 74%) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 🔴 THE TWO LIGHT-THEME REMEDIES HAVE TO BE UNDONE HERE, and forgetting one is how this goes
+   wrong quietly. Both were correct answers to a light BACKGROUND, which the splash no longer has.
+   MEASURED on the new floor: --fg-deep #12558f is 2.48:1 on #071018 and the dark --fg-bright
+   #14a1e0 is 6.58:1, so the remedy is now the failure and the original token is the fix. Restated
+   at (0,6,0) so it beats the (0,5,0) light rules rather than relying on order. */
+:root[data-theme='light'] body[data-aa-intro] .aa-gate[role='dialog'].aa-splash .aa-gate-eyebrow {
+  color: var(--fg-bright) !important;
+}
+
+/* The mark gets the DARK correction in both palettes, because the surface under it is dark in both.
+   Stated per theme rather than collapsed into one rule: verify_intro.py asserts a filter is present
+   in each palette, and that check exists because the banner's washed-out logo was a missing
+   per-theme rule. */
+:root[data-theme='light'] body[data-aa-intro] .aa-gate[role='dialog'].aa-splash .aa-gate-brand img,
+:root[data-theme='dark'] body[data-aa-intro] .aa-gate[role='dialog'].aa-splash .aa-gate-brand img {
+  filter: brightness(1.28) saturate(1.15);
+}
+
+/* The CTA keeps the component's own black fill in both palettes now. The light-theme softening in
+   section 7 existed because the button sat on light paper; it no longer does. */
+:root[data-theme='light'] body[data-aa-intro] .aa-splash .aa-splash-cta {
+  --shiny-cta-bg: #000000;
+  --shiny-cta-bg-subtle: #1a1818;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   8b. THE FRAMING: DELIBERATELY TOO BIG, CROPPED BY THE RIGHT EDGE
+
+   The brief: "Very large and cropped -- the sphere bleeds off the right edge of the viewport, only
+   ~75% visible", and "It should feel too big for the frame. This is a large part of the cinematic
+   effect."
+
+   THREE THINGS DO THE WORK, and they are separate on purpose:
+     1. the CANVAS IS SQUARE and larger than the viewport. Square because a perspective camera at
+        aspect 1 on a non-square canvas draws an oval, and because verify_intro.py asserts the drawn
+        box is square for that reason. The size is driven off `vh` so the globe scales with the
+        viewport's HEIGHT: it is the height that decides whether a sphere feels cropped.
+     2. the WRAPPER crops it. `overflow: hidden` on a box that is `inset: 0` of the splash, so the
+        clip edge IS the viewport edge. Nothing is scaled or distorted to achieve the crop.
+     3. the CAMERA overflows the square by about 8 % on every side (HeatGlobe.tsx explains the fov
+        and distance arithmetic), so even the visible part is tight in its own frame.
+
+   ⚠ NO CSS TRANSFORM, and the reason is the one the old comment here recorded: an earlier version
+   faked cobe's zoom with a CSS scale on this element, which magnifies the drawn pixels instead of
+   moving the camera. Offsets are plain `left`/`top`, which move the element without resampling
+   anything.
+   --------------------------------------------------------------------------------------------- */
+
+body[data-aa-intro] .aa-splash .aa-splash-globe {
+  position: absolute;
+  inset: 0;
+  /* Was `display: grid; place-items: center`. The globe is no longer centred, so a centring layout
+     would be a second opinion about where it sits. */
+  display: block;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+body[data-aa-intro] .aa-splash .aa-splash-globe-canvas {
+  position: absolute;
+
+  /* 🔴 THIS STYLESHEET DECIDES ONE THING: A SQUARE THAT COVERS THE VIEWPORT. Everything about where
+     the planet actually lands is measured and solved in `HeatGlobe.tsx:applyLayout()`.
+     THAT IS A CORRECTION, and the first version's split is worth recording. CSS used to size AND
+     offset the canvas while the component set a camera distance assuming the sphere filled a
+     particular fraction of it: two files each holding half a guess about the other, with a comment in
+     each telling the reader to keep them in step by hand. It also could not accommodate the particle
+     funnel, whose strands have to converge near the LEFT EDGE OF THE VIEWPORT while the planet sits
+     to the right, so the canvas has to cover the viewport rather than be a box positioned inside it.
+
+     `max(100vw, 100vh)` is the smallest square that covers any viewport, and with `left: 0` and a
+     vertical centring it covers it whichever way round the window is.
+     A useful property falls out: the canvas's left edge and the viewport's left edge COINCIDE, so the
+     camera frustum's boundary is the viewport's boundary, and any clipping is the intended crop. The
+     first version clipped the atmosphere at the canvas edge and left a straight vertical line down
+     the screenshot where a curved rim glow belongs. */
+  --aa-globe-side: max(100vw, 100vh);
+  left: 0;
+  top: calc((100vh - var(--aa-globe-side)) / 2);
+  width: var(--aa-globe-side);
+  height: var(--aa-globe-side);
+
+  /* 🔴 max-width MUST BE RELEASED, AND verify_intro.py CAUGHT THIS RATHER THAN A LOOK.
+     Section 7 carries `max-width: 100%`, which was right when the globe was centred and had to fit
+     the viewport. This one is deliberately WIDER than the viewport, so that rule clamped the width to
+     the container while the height kept the declared side: measured at 1382x1426 on a 1400px window,
+     i.e. an Earth drawn as an oval, and only 44 px out of square so it would have read as "slightly
+     odd perspective" rather than as a bug.
+     A rule inherited from an earlier composition is the easiest kind to miss, because nothing in this
+     section mentions it. */
+  max-width: none;
+  max-height: none;
+  pointer-events: auto;   /* the drag lands here */
+  /* FULL INK. The old 0.72 existed because the dotted globe sat directly behind centred type; the
+     type is now beside it rather than on it, and the scrim below protects the column. A photoreal
+     Earth at 72 % opacity over navy is a grey Earth. */
+  opacity: 1;
+}
+
+/* 🔴 THE SCRIM IS NOW LEFT-WEIGHTED, because that is where the words are.
+   It was a centred radial wash, correct when the type sat over the middle of the globe. With the
+   composition asymmetric it has to be too, or it dims the globe's face and leaves the column
+   unprotected. Solid floor on the left, gone by 68 %, so the limb and the rim glow are untouched.
+   `pointer-events: none` because it sits over the canvas and a drag has to pass through it. */
+body[data-aa-intro] .aa-splash::after {
+  background:
+    linear-gradient(96deg,
+      var(--aa-hero-floor) 0%,
+      color-mix(in srgb, var(--aa-hero-floor) 88%, transparent) 26%,
+      color-mix(in srgb, var(--aa-hero-floor) 34%, transparent) 48%,
+      transparent 68%),
+    radial-gradient(64% 58% at 6% 48%,
+      color-mix(in srgb, var(--aa-hero-floor) 55%, transparent), transparent 72%);
+}
+
+/* ---- THE TYPE MOVES LEFT, on wide screens only.
+   ⚠ THIS IS A JUDGEMENT CALL AND IT IS FLAGGED AS ONE. The brief specifies the globe's framing and
+   the hero's contents; it does not ask for the column to move. But a 720 px column centred in the
+   viewport now sits across the globe's face, which is neither the reference's composition nor
+   legible, so the framing change forces this one. It is one media query and reverting it is
+   deleting this block.
+   Below 1024px the column re-centres and the globe drops behind it, because there is not enough
+   width for two columns and the words win. */
+@media (min-width: 1024px) {
+  body[data-aa-intro] .aa-gate[role='dialog'].aa-splash {
+    place-items: center start;
+    padding-left: clamp(30px, 5.5vw, 104px);
+    padding-right: 24px;
+  }
+  body[data-aa-intro] .aa-splash .aa-splash-inner {
+    width: min(560px, 100%);
+    text-align: left;
+  }
+  body[data-aa-intro] .aa-gate[role='dialog'].aa-splash .aa-gate-sub {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 44ch;
+  }
+  body[data-aa-intro] .aa-splash .aa-gate-actions {
+    justify-content: flex-start;
+  }
+  body[data-aa-intro] .aa-gate[role='dialog'].aa-splash .aa-gate-brand {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* ---- NARROW: THE EARTH STAYS, REDUCED.
+   🔴 THIS REVERSES `display: none` IN SECTION 7, and the reversal is the brief's: "Below 768px:
+   drop the particle funnel and the cloud layer, keep the Earth static (no rotation)". A static
+   sphere with its rim glow is a better phone hero than a blank navy panel, and it costs one
+   texture upload and one frame rather than a running loop. The cloud layer and the rotation are
+   both dropped in HeatGlobe.tsx, which is where they live.
+   Centred and behind the type here, since at this width there is no room beside it. */
+@media (max-width: 767px) {
+  body[data-aa-intro] .aa-splash .aa-splash-globe { display: block; }
+  /* No repositioning here. The canvas still covers the viewport and `HeatGlobe.tsx` switches to its
+     NARROW composition (centred, driven off the width, static, no clouds, no funnel), because the
+     composition is solved in one place and this is not it. All that is left for CSS is the ink: it
+     sits behind centred type at this width, so it recedes rather than competing. */
+  body[data-aa-intro] .aa-splash .aa-splash-globe-canvas { opacity: 0.5; }
+  body[data-aa-intro] .aa-splash::after {
+    background: radial-gradient(
+      70% 56% at 50% 46%,
+      color-mix(in srgb, var(--aa-hero-floor) 88%, transparent),
+      color-mix(in srgb, var(--aa-hero-floor) 58%, transparent) 60%,
+      transparent 82%);
+  }
+}
+
+/* ---- REBALANCED FOR THE HERO WITHOUT THE FIVE ROWS, 2026-08-29.
+   The rows occupied 22 px of margin plus about 200 px of their own height between the subhead and the
+   call to action. Removing them left the block top-heavy with a gap under it, which is the
+   "gap-toothed" the user asked to avoid. So the action gets a larger, deliberate gap that reads as
+   space rather than as a hole, and the mark tucks closer under it.
+   Placed at the END of the file rather than in section 7, because these override rules section 7
+   already sets and equal specificity means the later one wins. Stated so nobody moves the block up
+   and wonders why it stopped working. ---- */
+body[data-aa-intro] .aa-gate[role='dialog'].aa-splash .aa-gate-sub { margin-top: 20px; }
+body[data-aa-intro] .aa-gate[role='dialog'].aa-splash .aa-gate-actions { margin-top: 38px; }
+body[data-aa-intro] .aa-gate[role='dialog'].aa-splash .aa-gate-brand { margin-top: 34px; }
+
+/* ---------------------------------------------------------------------------------------------
+   9. THE COMMITTED CALL TO ACTION
+
+   🔴 THE ONE PIECE OF FEEDBACK ON A SCREEN THAT DELIBERATELY DOES NOT CHANGE.
+   The brief: "Button enters an active/committed state: disable further clicks, dim or collapse the
+   label. It must be visually obvious the click registered", and the reason it is called out is that
+   the sequence holds the screen still for several seconds afterwards. Without this the click has no
+   acknowledgement at all and the hold reads as a hang, which is the exact failure the push-in and this
+   state exist to prevent between them.
+
+   ⚠ IT MUST BEAT ShinyButton's OWN `:disabled` HANDLING, and the component is used exactly as
+   supplied, so this is done from outside it. `.shiny-cta` is (0,1,0); this is (0,3,0) and carries the
+   attribute, so it wins without touching the pasted component.
+   --------------------------------------------------------------------------------------------- */
+
+body[data-aa-intro] .aa-splash .shiny-cta.is-committed {
+  /* Still clearly the primary control, just plainly spent: the conic border keeps turning (it is the
+     component's own animation and says "working"), the fill lifts a step so the button reads as held
+     down rather than greyed out, and the label recedes. */
+  cursor: default;
+  opacity: 1;
+  --shiny-cta-bg: #0b1b2c;
+  --shiny-cta-bg-subtle: #16304a;
+  transform: scale(0.985);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body[data-aa-intro] .aa-splash .shiny-cta.is-committed span {
+  opacity: 0.62;
+  letter-spacing: 0.02em;
+  transition: opacity 260ms ease, letter-spacing 260ms ease;
+}
+
+/* A disabled button would otherwise take the browser's default dimming, which reads as "broken" rather
+   than "running". Restated because `disabled` is set at the same moment as the class. */
+body[data-aa-intro] .aa-splash .shiny-cta:disabled {
+  opacity: 1;
+}
+
+/* Before the three audio files are in, the CTA is disabled for at most 1.5 s (IntroGate's ARM_CAP_MS).
+   With local files that window is a few milliseconds and never seen; this makes sure that if it ever IS
+   seen it reads as not-yet rather than as broken. */
+body[data-aa-intro] .aa-splash .shiny-cta:disabled:not(.is-committed) {
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-aa-intro] .aa-splash .shiny-cta.is-committed,
+  body[data-aa-intro] .aa-splash .shiny-cta.is-committed span {
+    transition: none;
+    transform: none;
+  }
+}

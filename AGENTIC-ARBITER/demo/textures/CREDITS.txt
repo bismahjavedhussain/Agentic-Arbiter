@@ -1,0 +1,30 @@
+Earth textures: source, licence and what each one is for
+=========================================================
+
+Files in this directory:
+
+    earth_daymap.jpg     colour (albedo) map, the satellite image of land and ocean
+    earth_clouds.jpg     cloud cover, read as an alpha map on a second, slightly larger sphere
+    earth_normal.png     surface normals, which is what gives mountains and coasts their relief
+    earth_specular.jpg   where the surface is shiny, so oceans catch the light and land does not
+
+SOURCE
+    Solar System Scope, https://www.solarsystemscope.com/textures/
+    "2k_earth_daymap", "2k_earth_clouds", "2k_earth_normal_map", "2k_earth_specular_map"
+
+LICENCE
+    Creative Commons Attribution 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+    Attribution: Solar System Scope (solarsystemscope.com). Textures by Solar System Scope,
+    based on NASA elevation and imagery data.
+    Commercial use is permitted under this licence. Attribution is required, which is what this
+    file is.
+
+WHAT WAS CHANGED FROM THE ORIGINALS
+    The two map files are published only as TIFF, which no browser decodes, so both were converted
+    to JPEG. All four were re-encoded to hold the total payload under the 2 MB budget the brief
+    sets. Nothing was cropped, recoloured or resampled: the pixel dimensions are the originals'.
+    The conversion is reproducible: tools/make_earth_textures.py
+
+    The 2k versions are used deliberately rather than the 8k ones. At the size this globe is drawn
+    the 8k files would cost about sixteen times the bytes for detail no viewport can resolve.
