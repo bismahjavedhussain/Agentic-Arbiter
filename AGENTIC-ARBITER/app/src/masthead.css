@@ -101,31 +101,51 @@ body:not([data-stage='pick']) .aa-workspace-main {
   padding-right: 4px;
 }
 
-/* ---- 3. THE SCOPE BUBBLE, floating in the empty space right of the headline.
-   Absolutely positioned against #app so it occupies space nothing else wanted, and it steps down to
-   static flow on a narrow screen rather than overlapping the prose. `will-change: transform` keeps
-   the drift on the compositor so an 11-second loop costs nothing per frame. ---- */
-/* 🔴 THE POSITIONING MOVED FROM THE CARD TO THE STACK, because there are two of them now.
-   The user asked for a second shape under the first, and for both to sit in the empty space right of
-   the headline. If each card positioned itself absolutely they would need two sets of coordinates
-   kept in step by hand; one absolutely positioned STACK with the cards in normal flow inside it means
-   the second card's position is simply "under the first", which is what was asked for and cannot
-   drift. */
+/* ---- 3. THE HEADLINE ROW: prose on the left, the two summary cards on the right, AS ONE GRID.
+
+   🔴 THIS REPLACES `position: absolute; top: 148px; right: 8px`, AND THE ABSOLUTE POSITIONING WAS
+   ITSELF THE BUG. An absolutely positioned box is laid out against its nearest positioned ancestor,
+   not against the container the rest of the page shares, so its right edge had no reason to agree
+   with anything and did not: MEASURED at a 1920 viewport, the cards ended 22px to the right of the
+   filter panel directly beneath them. Twenty-two pixels is exactly the kind of misalignment an eye
+   registers without being able to name.
+   The proportions were worse than the offset. `min(276px, 32vw)` of card sat in roughly 360px of
+   empty space, so the GAP WAS WIDER THAN THE THING IT SEPARATED and the cards read as cramped and
+   stranded at the same time.
+
+   As a real two-column grid, alignment stops being something to get right and becomes something that
+   cannot go wrong: both columns are bounded by the container, so the cards and the filter panel end
+   on the same pixel by construction. The cards also take back the width the gutter was wasting, which
+   is most of the visual fix on its own.
+
+   1.4fr to 1fr with a clamped gutter. At the 1440px container that is about 548px of card against a
+   76px gutter, where it was 347px of card against 360px of gap.
+   `minmax(0, ...)` on the prose track because a grid track's default `min-width: auto` refuses to
+   shrink below its widest unbreakable word; without it a long compound in the headline would push the
+   cards out of the container instead of wrapping.
+   ---- */
+.aa-mast-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(360px, 1fr);
+  column-gap: clamp(48px, 4.5vw, 76px);
+  align-items: start;
+}
+.aa-mast-col { min-width: 0; }
+
+/* The stack is a grid COLUMN now, so it needs no width of its own and no coordinates. Stretch is the
+   grid default, and it is what makes the two cards exactly equal without either one saying so. */
 .aa-bubble-stack {
-  position: absolute;
-  top: 148px;
-  right: 8px;
-  z-index: 2;
-  width: min(276px, 32vw);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 24px;
   will-change: transform;
 }
 
 .aa-bubble {
   width: 100%;
-  padding: 18px 20px 16px;
+  /* 28px on all four sides, up from an asymmetric 18/20/16. That padding was chosen for a 276px card;
+     at 548px the same values read as a table cell rather than a card. */
+  padding: 28px;
   border-radius: 26px 26px 26px 8px;
   border: 1px solid color-mix(in oklab, var(--fg-bright) 26%, var(--w-hair));
   background:
@@ -146,10 +166,10 @@ body:not([data-stage='pick']) .aa-workspace-main {
     var(--w-1);
 }
 
-/* The money figure is two numbers and a word, so it cannot take the 62px the count does. Sized to fit
-   "$334k to $967k" on one line at the card's narrowest. */
+/* 🔴 NO SIZE OVERRIDE HERE ANY MORE. The count was set at 62px and the money range at 31px, so two
+   sibling cards disagreed by a factor of two about how loud a headline figure is, and the eye read
+   the smaller one as a caption. One scale for both now; see .aa-bubble-num below. */
 .aa-bubble-value .aa-bubble-num {
-  font-size: clamp(23px, 2.5vw, 31px);
   line-height: 1.05;
   color: var(--fg-deep);
 }
@@ -166,15 +186,18 @@ body:not([data-stage='pick']) .aa-workspace-main {
 
 /* 🔴 --fg-bright ON NEAR-WHITE AGAIN, AND THIS IS THE FIFTH TIME IN THIS PROJECT.
    MEASURED: the count renders 4.25:1 on the card's #f6fafe in the light theme. That PASSES its actual
-   floor -- 62px at weight 800 is large text, where WCAG asks 3:1, not 4.5 -- so this is not a fix for a
+   floor -- 44px at weight 800 is large text, where WCAG asks 3:1, not 4.5 -- so this is not a fix for a
    failure. It is applied anyway for the reason the other four were: --fg-deep is the same hue family,
    costs nothing, and takes it to 7.4:1, and a figure this large is the first thing a reader's eye lands
    on. The pattern is by now well established: any --fg-bright ink needs a light-theme override. */
 :root[data-theme='light'] .aa-bubble-num { color: var(--fg-deep); }
 .aa-bubble-hero { margin: 0 0 11px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+/* ONE TYPE SCALE FOR BOTH HEADLINE FIGURES, sized to the LONGER of the two rather than to the
+   shorter. A bare count can carry 62px; a figure with a unit after it cannot, and shrinking that one
+   to fit is what produced the mismatch this replaces. */
 .aa-bubble-num {
   font-family: var(--font-display);
-  font-size: clamp(40px, 5.4vw, 62px);
+  font-size: clamp(30px, 3.1vw, 44px);
   font-weight: 800;
   line-height: 0.92;
   letter-spacing: -0.03em;
@@ -212,18 +235,27 @@ body:not([data-stage='pick']) .aa-workspace-main {
 .aa-bubble-foot svg { flex: none; margin-top: 1px; color: var(--fg-bright); }
 .aa-bubble-foot b { color: var(--w-ink); font-weight: 700; }
 
-/* Below 1120px there is no empty space to the right of the headline, so the pair steps down into
-   normal flow rather than overlapping the prose. It is the STACK that is positioned, so it is the
-   stack that has to be released; the cards inside it were already in flow. */
-@media (max-width: 1120px) {
-  .aa-bubble-stack {
-    position: static;
-    width: auto;
-    max-width: 420px;
-    margin: 16px 0 0;
+/* ---- The two breakpoints do different things, on purpose.
+   Below 1100px the prose track and a 360px card no longer both fit, so the grid collapses to one
+   column and the cards move under the text. They go SIDE BY SIDE there rather than stacking: they are
+   short, summary-shaped things, and a tall stack of two would push the map off the first screen for
+   no gain.
+   Below 700px a single column is too narrow to hold two headline figures beside each other without
+   wrapping both of them, so they stack and take the full width. ---- */
+@media (max-width: 1100px) {
+  .aa-mast-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 24px;
   }
+  .aa-bubble-stack { flex-direction: row; align-items: stretch; }
+  .aa-bubble-stack > .aa-bubble { flex: 1 1 0; min-width: 0; }
   .aa-bubble { border-radius: 20px; }
   .aa-bubble-value { border-radius: 20px; }
+}
+
+@media (max-width: 700px) {
+  .aa-bubble-stack { flex-direction: column; }
+  .aa-bubble { padding: 22px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .aa-bubble-stack { animation: none !important; }
@@ -304,6 +336,14 @@ body[data-stage='configure'] .aa-bubble-stack,
 body[data-stage='results'] .aa-bubble-stack,
 body[data-stage='configure'] .aa-fallback,
 body[data-stage='results'] .aa-fallback { display: none; }
+
+/* 🔴 AND THE GRID HAS TO GIVE THE TRACK BACK, not just hide what was standing in it. A `display:none`
+   child does not remove its column: the 1fr track would still be reserved, so the masthead prose on
+   the configure and results stages would be squeezed into 1.4/2.4 of the page beside 548px of
+   nothing. Hiding a grid item and collapsing its track are two separate statements and both are
+   needed. */
+body[data-stage='configure'] .aa-mast-grid,
+body[data-stage='results'] .aa-mast-grid { grid-template-columns: minmax(0, 1fr); }
 
 /* ---- 7. THE LIVE RUN'S OWN REPORT BUTTON, beside the site report.
    Two documents, so two buttons, and they must not look interchangeable: the site report is the

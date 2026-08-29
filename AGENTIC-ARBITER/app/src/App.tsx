@@ -138,9 +138,16 @@ export function App() {
    * HAS chosen never sees a flash of the other palette; one who has not gets the dark landing page,
    * which is what that script already defaults to, so there is no flash there either.
    */
+  /* 🔴 THE MARKER IS `aa-theme-choice`, AND THE FIRST VERSION OF THIS WAS WRONG.
+     It read `aa-theme`, on the reasoning that the key only existed if the toggle had written it. That
+     was true of the code as written and false of the world: `aa-theme` has been written by this app
+     for weeks, so every returning visitor already had one and the per-stage default never applied to
+     any of them. Measured on the deployed site: the landing page opened light for the owner.
+     A dedicated key cannot have that history. It is written only by `chooseTheme` below, so its
+     presence means exactly one thing. */
   const chose = useRef<boolean>(
     (() => {
-      try { return localStorage.getItem('aa-theme') !== null } catch { return false }
+      try { return localStorage.getItem('aa-theme-choice') === '1' } catch { return false }
     })(),
   )
 
@@ -151,12 +158,22 @@ export function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
+    /* `aa-theme` is now a CACHE of whatever is on screen, not a record of a decision: the pre-paint
+       script reads it so a reader who HAS chosen never sees a flash of the other palette. The decision
+       itself lives in `aa-theme-choice`. */
+    try { localStorage.setItem('aa-theme', theme) } catch { /* private mode; the default holds */ }
   }, [theme])
 
   /** The toggle, and the only thing that records a preference. */
   const chooseTheme = useCallback((next: 'dark' | 'light') => {
     chose.current = true
-    try { localStorage.setItem('aa-theme', next) } catch { /* private mode; it holds for this visit */ }
+    try {
+      localStorage.setItem('aa-theme-choice', '1')
+      localStorage.setItem('aa-theme', next)
+    } catch {
+      /* private mode: the choice holds for this visit and is forgotten on the next, which is the
+         right way round. A theme that cannot be remembered should not pretend it was. */
+    }
     setTheme(next)
   }, [])
 
@@ -209,7 +226,7 @@ export function App() {
 
   if (err) {
     return (
-      <main className="mx-auto max-w-[1180px] px-4 py-16 sm:px-6">
+      <main className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6">
         <p className="text-[14px]" style={{ color: 'var(--critical)' }}>
           <b>Could not load the artefacts:</b> {err}
         </p>
@@ -230,7 +247,7 @@ export function App() {
        widened the container on the results stage on the theory that the panels needed more room --
        a theory I had not measured, and the engine's own .viz-root carries a 1180px measure anyway,
        so the widening did nothing except justify a duplicate copy of the stage in React state. */
-    <main id="app" className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-6">
+    <main id="app" className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-6">
       <button
         type="button"
         onClick={() => chooseTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -285,7 +302,42 @@ export function App() {
       {/* The masthead is on every stage: it carries the headline and the live-agent line. */}
       {/* The impact figures are passed in rather than typed into the masthead, so the headline
           cannot state a number the artefacts do not support. */}
-      <Masthead live={live} cutPct={h?.cutPct} gainHPerYear={h?.gainHPerYear} />
+      {/* 🔴 ONE GRID, NOT A FLOATING CARD, AND THAT IS WHAT FIXES THE ALIGNMENT.
+          The cards used to be `position: absolute; right: 8px`, which meant they were laid out against
+          whatever the nearest positioned ancestor happened to be rather than against the container
+          everything else sits in. MEASURED by the user at 1920: the cards' right edge landed at 1672
+          and the filter panel's at 1650, a visible 22 px overhang, with a 360 px gutter beside 347 px
+          cards -- a gap wider than the thing it was separating.
+          As a real two-column grid the alignment is not something to get right, it is something that
+          cannot go wrong: both columns end where the container ends, so the cards and the filter panel
+          share an edge by construction. The cards also take the width the gutter was wasting. */}
+      <div className="aa-mast-grid">
+        <div className="aa-mast-col">
+          <Masthead live={live} cutPct={h?.cutPct} gainHPerYear={h?.gainHPerYear} />
+        </div>
+
+        {/* WHAT IS ACTUALLY SHIPPED, and what it is worth. Rendered here rather than further down so
+            it is a COLUMN of this grid; it was previously inside the loading guard below, which is why
+            it had to position itself absolutely to appear beside the text at all.
+
+            🔴 THE VALUE CARD READS THE PORTFOLIO, NOT THE SELECTED SITE, AND THAT WAS THE BUG.
+            It used to be handed `h`, the Headline for whichever site is selected, so it restated
+            Ashburn's $334k-$967k, its 6.2 % and its 405 chiller-hours -- the same four numbers the KPI
+            tiles print a few hundred pixels below, for the same one site. Two cards saying one site's
+            figures is not a portfolio summary, it is a duplicate. `a.portfolio` is the sum over all
+            250 sites' OWN artefacts, written by tools/portfolio_totals.py.
+
+            EVERY NUMBER IS READ, NEVER TYPED: `offerable` is the flag sites.json sets on a site with a
+            full run, unified_sites.json is the mapped universe, and the portfolio fields come from
+            demo/portfolio.json. */}
+        {a && (
+          <ScopeBubble
+            shipped={a.manifest.sites.filter((x) => (x as { offerable?: boolean }).offerable).length}
+            mapped={a.unified.sites.length}
+            p={a.portfolio}
+          />
+        )}
+      </div>
 
       {/* WHERE THE AGENT-LOOP DIAGRAM GOES, on the landing stage only. An empty div until the intro
           layer portals into it, and harmless if that never happens -- the same arrangement as
@@ -306,26 +358,6 @@ export function App() {
               one that is depends on render timing. So React labels its screen and lets setStage()
               decide. The map instance survives inside a hidden container, so returning to the pick
               screen does not rebuild it. */}
-          {/* 🔴 WHAT IS ACTUALLY SHIPPED, as a drifting bubble in the empty space to the right of
-              the headline, at the user's request: points rather than sentences, and the count much
-              larger than the words around it.
-              BOTH NUMBERS ARE READ, NEVER TYPED. `offerable` is the flag sites.json sets on a site
-              that carries a full run, and unified_sites.json is the mapped universe the national map
-              draws, so the bubble cannot claim a scope the product does not have. */}
-          <ScopeBubble
-            shipped={a.manifest.sites.filter((s) => (s as { offerable?: boolean }).offerable).length}
-            mapped={a.unified.sites.length}
-            /* 🔴 THE VALUE CARD'S FIGURES COME FROM THE SAME `Headline` THE KPI PLATE READS, so the
-               two cannot disagree: `loadHeadline` derives them exactly as audit.py's registry does,
-               from the selected site's own artefacts. Passed as `undefined` until it loads, which is
-               what makes the second card absent rather than showing a placeholder. */
-            usdLo={h?.usdLo}
-            usdHi={h?.usdHi}
-            cutPct={h?.cutPct}
-            gainHPerYear={h?.gainHPerYear}
-            weatherHours={h?.weatherHours}
-          />
-
           {/* WHEN THE SELECTED FACILITY HAS NO RUN, say whose figures are on the cards. Showing the
               shipped reference silently is the bug this replaces: an Alabama site was selected above
               Ashburn's numbers with nothing saying so. */}

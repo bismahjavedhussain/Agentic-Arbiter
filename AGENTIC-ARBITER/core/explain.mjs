@@ -33,7 +33,8 @@ export function explainHour(R, h) {
       + fmt(k.limit - R.ubD[h], 3) + ' °C under the ' + fmt(k.limit, 1) + ' °C limit. '
       + 'The margin is measured, not chosen: ' + fmt(shape, 3) + ' °C of group-conditional '
       + 'forecast error for this hour of day, plus ' + fmt(R.plumeM[h], 4) + ' °C for how far '
-      + 'the plume could move given the wind-direction error <strong>FortyGuard</strong> actually has.';
+      + 'the plume could move if the wind direction differs from the one planned for, at '
+      + 'the <strong>measured spread of wind direction over this lead time</strong>.';
     if (R.truth[h] > k.limit)
       e.why += ' ⚠ THIS WAS WRONG: the intake actually reached ' + fmt(R.truth[h], 3)
              + ' °C. Counted as a breach, not explained away.';

@@ -198,6 +198,13 @@ The **pre-paint IIFE in `<head>`** resolves the theme and stamps `data-theme` be
 It is there rather than in the main script because the main script runs after parse, which would paint
 light first and repaint dark: a white flash on every load.
 
+🔴 **IN THE REACT APP THERE ARE TWO KEYS, AND ONLY ONE OF THEM IS A DECISION.** `aa-theme-choice` is
+written only by `chooseTheme()` and means the reader pressed the toggle; with it absent the STAGE picks
+the default (dark on the landing page, light on configure and results). `aa-theme` is a CACHE of the
+resolved palette, which the pre-paint script reads so a reader who has chosen never sees a flash of the
+other one. Collapsing the two -- treating the presence of `aa-theme` as a choice -- is `05-TRAPS` 5b.26,
+and it silently disabled the stage default for every returning reader.
+
 `let THEME` re-reads what the pre-paint script wrote. `applyTheme()` also has to repaint the canvases
 and the map, which CSS cannot do for it.
 
@@ -262,11 +269,38 @@ The page fetches these at runtime from `AGENTIC-ARBITER/demo/`:
 | `trace.json` | one site's full agent run |
 | `backtest.json` | the swept configurations and the money cells |
 | `rolling.json`, `money.json`, `ticker.json`, `explanation.json` | the per-site panels' inputs |
+| `portfolio.json` | the **250-site totals** the landing cards state. Written by `tools/portfolio_totals.py`, a `run_all.py` step |
 | the field files | purchased FortyGuard data |
 
 **`offerable` is the only source of truth for "ready to run".** The map once coloured its dots from a
 stale baked `status` string and disagreed with its own caption: it said 246 runnable and painted 3
 green. See `01-STATE` for why 250 and 246 are both correct.
+
+### `portfolio.json`, and why a total is a build-time file
+
+Added 2026-08-29 for the two summary cards beside the headline, which state PORTFOLIO figures rather
+than the selected site's. Every field needs three artefacts per site; across 250 sites that is 750
+fetches and hundreds of megabytes before the first card could paint, so the sum is computed once at
+build time and read as one small file.
+
+🔴 **THE ARITHMETIC MIRRORS `app/src/lib/headline.ts:headlineFigures` LINE FOR LINE, DELIBERATELY.** A
+portfolio total and the site tile a reader clicks into must not be able to disagree about how a figure
+is derived.
+
+🔴 **AND IT IS A SUM, NOT A PROJECTION**, which the tool proves rather than asserts: it hashes every
+artefact it opens and reports **247 distinct backtests and 250 distinct money files**, so no figure is
+one site's result multiplied by a count.
+
+⚠ **TWO FIELDS THAT LOOK INTERCHANGEABLE AND ARE NOT.** `weather_site_hours` (**10,820,547**) is the sum
+over 250 sites of the hours each was scored against; `weather_hours_distinct` (**4,232,006**) counts
+each of the **98** airport stations once. The 250 sites share those 98 stations, so only the second is
+a count of hours of weather. The card states the second.
+
+⚠ **AND THREE FIELDS THAT EXIST SO THE CARD CAN QUALIFY ITSELF:** `sites_gaining` / `sites_losing`
+(**238** / **12** -- the money floor is negative because of those 12) and `sites_own_state_prices` /
+`sites_reference_prices` (**61** / **189** -- EIA publishes no row for most states, so most sites are
+priced on the Virginia and Illinois reference rows). A total that hides its own composition is the
+thing `04-STANDING-RULES` calls an unverified claim.
 
 ## 8. The cinematic intro layer: `AGENTIC-ARBITER/app/src/intro/`
 

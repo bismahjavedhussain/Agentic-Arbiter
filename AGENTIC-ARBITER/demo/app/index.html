@@ -19,13 +19,22 @@
 <script>
 (function(){
   try{
-    var t = localStorage.getItem('aa-theme');
+    /* THE READER'S OWN CHOICE IS `aa-theme-choice`, NOT `aa-theme`, AND THE DIFFERENCE IS A BUG FIX.
+       `aa-theme` has been written by this app since long before the theme had a per-stage default, so
+       almost every returning visitor already has one. Treating its presence as "they chose" meant the
+       landing page opened in whatever they last happened to be looking at, which for the owner was
+       light: the dark default never applied to anybody who had used the site before.
+       A separate key means only a real press of the toggle counts. `aa-theme` is still written and
+       still read here, because it is what stops a flash of the wrong palette before React runs; it is
+       now a CACHE of the resolved theme rather than a record of a decision. */
+    var chose = localStorage.getItem('aa-theme-choice');
+    var t = chose ? localStorage.getItem('aa-theme') : 'dark';
     document.documentElement.dataset.theme = (t === 'light') ? 'light' : 'dark';
   }catch(e){ document.documentElement.dataset.theme = 'dark'; }
 })();
 </script>
-  <script type="module" crossorigin src="./assets/index-v6FYqHbH.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-CjcC818Z.css">
+  <script type="module" crossorigin src="./assets/index-DubG6AVs.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-3_XSUxXl.css">
 </head>
 <body>
 <div id="root"></div>

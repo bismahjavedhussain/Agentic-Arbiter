@@ -307,6 +307,25 @@ covers the whole viewport by design, so a crop computed from the canvas reported
 globe that is visibly cropped. `HeatGlobe.tsx` publishes `data-aa-sphere` after its layout pass and
 this reads that. A measurement of the wrong box is worse than no measurement.
 
+### `testing/shot_cards.py` - the headline row, measured at three widths
+
+**Not a verifier**; it exits 0 either way and nothing runs it in `run_all.py`. It drives the app with
+`?motion=off` -- which `flags.ts` guarantees leaves a FINISHED page rather than a broken one, so what it
+measures is what a reader sees after the gate -- and at 1920, 1024 and 600 it screenshots the page and
+prints the grid template, both card boxes, the gutter, the filter panel's box and both headline figures'
+computed font sizes.
+
+The three figures it exists to produce, at a 1920 window: card width **548 px**, gutter **76 px**, and
+the card right edge and filter panel right edge both at **x 1647**. It prints the gutter only when the
+grid actually has two columns; below 1100 px the cards sit under the prose and
+`cards[0].x - col.right` is a large negative number that measures nothing.
+
+⚠ **IT CAUGHT THE DECORATIVE DRIFT.** The first run read the card right edge at 1651 against the
+panel's 1647, because `.aa-bubble-stack` floated on an `x` axis as well as a `y` and the sample caught
+it four pixels out. The layout was correct; the animation was walking the card off the edge. Nothing
+that reads the CSS could have seen that, and nothing that reads a screenshot by eye would have
+measured it.
+
 ## 6. The two experiment families in `testing/`
 
 Not verifiers, and `run_all.py` runs neither as a family.

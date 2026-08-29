@@ -107,13 +107,13 @@
       ]
     },
     "explainHour": {
-      "core_chars": 4484,
-      "core_sha256": "85d36700a950f9476c9367c5fd091685b666973f08e35b76f47e18c49a33079e",
+      "core_chars": 4557,
+      "core_sha256": "3f8bf384fca5361e776188aabdd5a9c50642665a2fe80f5f20afb397dca2ea93",
       "dir": "core",
       "module": "explain.mjs",
-      "page_chars": 4484,
+      "page_chars": 4557,
       "page_name": "explainHour",
-      "page_sha256": "85d36700a950f9476c9367c5fd091685b666973f08e35b76f47e18c49a33079e",
+      "page_sha256": "3f8bf384fca5361e776188aabdd5a9c50642665a2fe80f5f20afb397dca2ea93",
       "substitutions": []
     },
     "fitCanvas": {

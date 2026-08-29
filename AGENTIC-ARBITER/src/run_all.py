@@ -81,6 +81,15 @@ STEPS = [
      [sys.executable, "build_sites.py", "--others"], HERE),
     ("site manifest again: now with per-site artefact filenames",
      [sys.executable, "metros.py", "--manifest"], HERE),
+    # THE PORTFOLIO TOTALS, added 2026-08-29, and they go HERE because they read the manifest line
+    # above: it is the step that writes each site's artefact filenames, and portfolio_totals.py
+    # opens all 750 of them. Placing it earlier would sum whatever the previous run left behind.
+    # It writes demo/portfolio.json, which the landing page's two summary cards read. A derived
+    # file that no step regenerates is a figure that can outlive the artefacts it was summed from,
+    # which is the one failure mode the whole audit exists to prevent.
+    # Free: pure computation over files already on disk, no network, no credential.
+    ("portfolio totals: 250 sites' own artefacts, summed for the landing cards",
+     [sys.executable, os.path.join(ROOT, "tools", "portfolio_totals.py")], ROOT),
     # THE NATIONAL FOOTPRINT, added 2026-08-23, MERGED into one map 2026-08-24 at the user's
     # instruction. `export_unified_map.py` cross-references sites.json's 5 hand-built metros
     # against the 422-entry national registry BY OSM ID (so the 3 running + 2 refused metros are

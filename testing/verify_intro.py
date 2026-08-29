@@ -210,7 +210,14 @@ PROBE = r"""
     if (cfg) {
       var r = cfg.getBoundingClientRect();
       var bx = Math.round(r.left + r.width / 2), by = Math.round(r.top + r.height / 2);
-      if (by >= 0 && by <= innerHeight && bx >= 0 && bx <= innerWidth) {
+      /* 🔴 STRICTLY LESS THAN, AND THE `<=` HERE COST AN HOUR. The last y a viewport of height H
+         owns is H-1, so elementFromPoint(x, H) is outside it and returns null -- not the gate, not
+         the page, null. MEASURED after the masthead became a two-column grid: the prose column
+         narrowed from 1334px to 742px, the bullets took an extra line each, and the Configure
+         button's centre landed at exactly y=844 in an 844px viewport. The bounds test said "on
+         screen", the hit test said "nothing there", and the check reported that the gate does not
+         cover the page. It does; the probe was asking about a pixel that does not exist. */
+      if (by >= 0 && by < innerHeight && bx >= 0 && bx < innerWidth) {
         cx = bx; cy = by; hitProbe = 'configure-button';
       }
     }
@@ -219,6 +226,15 @@ PROBE = r"""
       hitProbe = 'viewport-centre';
     }
     var el = document.elementFromPoint(cx, cy);
+    /* AND A BELT FOR THAT BRACE. Whatever the arithmetic above decides, a null hit means the point
+       was not inside the viewport, so re-ask at the centre rather than reporting 'none'. The
+       question this check exists to answer is whether a full-viewport overlay is intercepting, and
+       the gate is `inset: 0`, so the centre answers it exactly as well as the button does. */
+    if (!el) {
+      cx = Math.round(innerWidth / 2); cy = Math.round(innerHeight / 2);
+      hitProbe = 'viewport-centre (button point was off-viewport)';
+      el = document.elementFromPoint(cx, cy);
+    }
     hit = el ? (el.tagName.toLowerCase()
                 + (el.id ? '#' + el.id : '')
                 + (el.className && typeof el.className === 'string'
@@ -734,8 +750,15 @@ def main():
     # A THEME-SEEDED COPY FOR EACH PALETTE. The theme is resolved by an inline script in <head> that
     # reads localStorage BEFORE the bundle runs, so the only way to choose it for a fresh profile is
     # to write the key ahead of that script. A query parameter would be read too late.
+    # 🔴 BOTH KEYS, AND SEEDING ONLY `aa-theme` NOW SILENTLY FAILS. The landing page defaults to dark
+    # unless the reader has actually pressed the toggle, and the record of that press is
+    # `aa-theme-choice`, written only by chooseTheme(). `aa-theme` on its own is a cache of the last
+    # resolved palette, which the app is free to overwrite. Seeding the cache and expecting the app to
+    # obey it is asking the wrong question: to test the light palette this harness has to claim the
+    # reader CHOSE light, which is what the marker means.
     for theme in ("dark", "light"):
-        seed = "<script>try{localStorage.setItem('aa-theme','%s')}catch(e){}</script>" % theme
+        seed = ("<script>try{localStorage.setItem('aa-theme-choice','1');"
+                "localStorage.setItem('aa-theme','%s')}catch(e){}</script>" % theme)
         io.open(os.path.join(DIST, "_intro_%s.html" % theme), "w",
                 encoding="utf-8", newline="").write(
             src.replace('<meta charset="utf-8">', '<meta charset="utf-8">' + seed)

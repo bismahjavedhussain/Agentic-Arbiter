@@ -68,9 +68,44 @@ async function grab<T>(name: string): Promise<T> {
   return (await r.json()) as T
 }
 
+/** THE PORTFOLIO TOTALS, summed over all 250 shipped sites by `tools/portfolio_totals.py`.
+ *
+ * 🔴 A FILE RATHER THAN ARITHMETIC IN THE BROWSER, and that is a deliberate trade. Every field here
+ * needs three artefacts per site; across 250 sites that is 750 fetches and hundreds of megabytes
+ * before the first card could paint. The tool computes it once at build time with the SAME arithmetic
+ * as `headline.ts:headlineFigures`, so a portfolio total and the site tile a reader clicks into
+ * cannot disagree.
+ *
+ * ⚠ IT IS A SUM, NOT A PROJECTION. Each of the 250 sites carries its own backtest, trace and money
+ * artefacts (measured: 247 distinct backtests, 250 distinct money files), so none of these is one
+ * site's figure multiplied by a count. */
+export type Portfolio = {
+  sites_summed: number
+  sites_gaining: number
+  sites_losing: number
+  sites_own_state_prices: number
+  sites_reference_prices: number
+  stations: number
+  /** Each of the 98 stations counted ONCE. The honest "hours of weather" figure. */
+  weather_hours_distinct: number
+  /** 250 sites x their own station's record. Real work done, but stations are shared, so this is
+      site-hours and must never be called hours of weather. */
+  weather_site_hours: number
+  footprint_m2: number
+  usd_lo: number
+  usd_hi: number
+  gain_h_per_year: number
+  cut_pct: number
+  mw_lo: number
+  mw_hi: number
+}
+
 export type Artefacts = {
   manifest: Manifest
   unified: UnifiedSites
+  /** null when demo/portfolio.json has not been generated. The cards that read it simply omit their
+      portfolio rows in that case, rather than printing a zero that no file supports. */
+  portfolio: Portfolio | null
   /** metro keys the manifest marks offerable. THE ONLY source of truth for "ready to run". */
   offerable: Set<string>
   /** facility key -> row, so a map click or a dropdown row reads the FULL row, not a truncated copy. */
@@ -78,9 +113,14 @@ export type Artefacts = {
 }
 
 export async function loadArtefacts(): Promise<Artefacts> {
-  const [manifest, unified] = await Promise.all([
+  const [manifest, unified, portfolio] = await Promise.all([
     grab<Manifest>('sites.json'),
     grab<UnifiedSites>('unified_sites.json'),
+    /* TOLERANT ON PURPOSE, unlike the two above. sites.json and unified_sites.json are the product;
+       without them there is no page and throwing is correct. portfolio.json is a summary written by a
+       build tool, and a deployment that predates the tool should still render the product rather than
+       show a loading state forever. */
+    grab<Portfolio>('portfolio.json').catch(() => null),
   ])
   /* 🔴 READY-TO-RUN COMES FROM sites.json AND NOWHERE ELSE.
      unified_sites.json carries a baked `status` string, and the old map coloured its dots from it:
@@ -90,7 +130,7 @@ export async function loadArtefacts(): Promise<Artefacts> {
     manifest.sites.filter((s) => s.offerable).map((s) => s.key),
   )
   const byKey = new Map(unified.sites.map((s) => [s.key, s]))
-  return { manifest, unified, offerable, byKey }
+  return { manifest, unified, portfolio, offerable, byKey }
 }
 
 export const isReady = (a: Artefacts, f: Facility) => a.offerable.has(f.metro_key)

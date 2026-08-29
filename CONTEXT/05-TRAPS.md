@@ -358,6 +358,35 @@ state and a dead clock leaves a finished page.
 **And the check has to assert the watchdog's result, not the animated value**, which is 5b.13's own
 first consequence.
 
+### 5b.26 A LOCALSTORAGE KEY THAT ALREADY EXISTS CANNOT BE REPURPOSED AS A "HAS CHOSEN" MARKER
+**You observe:** a stage-dependent default theme works perfectly on every fresh profile the harness
+launches, and does not work at all on the deployed site, for you or for anyone who has used it before.
+**Actually:** the marker was `aa-theme`, on the reasoning that the key exists only if the toggle wrote
+it. That is true of the code as written and false of the world: this app has written `aa-theme` on
+every theme change for weeks, so every returning reader already had one and every returning reader
+counted as having chosen. The default was never reached by anybody who could report on it.
+**The fix is a key with no history:** `aa-theme-choice`, written only by `chooseTheme()`. The old key
+stays, demoted to a CACHE of the resolved palette that the pre-paint script reads so there is no flash.
+🔴 **AND THE HARNESS HAD TO BE TOLD.** `verify_intro.py` seeded `aa-theme` to choose a palette. Once the
+app treats that key as a cache it is free to overwrite it, so seeding it tests nothing; the fixture now
+writes both keys. A fresh profile is exactly the population a "returning reader" bug is invisible to.
+**The habit:** before making a key's PRESENCE mean something, ask what is already in it in the field. A
+fresh browser profile is not a sample of your readers.
+
+### 5b.25 `elementFromPoint(x, innerHeight)` IS OUTSIDE THE VIEWPORT AND RETURNS null
+**You observe:** an overlay-coverage check reports that a full-screen gate does not cover the page. The
+gate is `inset: 0` and a screenshot shows it covering everything.
+**Actually:** the probe took the centre of a button, checked `by >= 0 && by <= innerHeight`, and hit
+tested there. The last y a viewport of height H owns is H-1, so at exactly H the call returns null, and
+null was reported as "hits none" rather than as "asked about a pixel that does not exist".
+**What made it fire:** a layout change, not a logic change. The masthead prose column narrowed from
+1334 px to 742 px when the summary cards became a real grid column, each bullet took an extra line, and
+the button's centre landed on exactly y=844 in an 844 px viewport. An off-by-one that had been latent
+for as long as the check existed.
+**Two fixes:** strict `<` on both bounds, and -- the general one -- if `elementFromPoint` returns null,
+re-ask at the viewport centre and record which point was used. A probe should never report a null as
+though it were a measurement.
+
 ### 5b.24 `new THREE.WebGLRenderer()` THROWS, AND A THROW IN AN EFFECT BLANKS THE WHOLE APP
 **You observe:** the user says "it's not rendering". Every check is green and the page renders on your
 machine.
