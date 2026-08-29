@@ -12,6 +12,577 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE PAGE WENT BLANK WITH NO WEBGL, AND NOTHING IN THE SUITE COULD SEE IT. 2026-08-29
+
+**The user: "it's not rendering."** They were right, and every check was green.
+
+🔴 **`new THREE.WebGLRenderer()` THROWS WHEN IT CANNOT GET A CONTEXT.** It does not return null. Thrown
+from inside `HeatGlobe`'s effect, with no error boundary above it, React unmounted the entire tree.
+MEASURED with `--disable-webgl`: `#root` went from **1 child to 0**, plus a second cascading error. Not
+a missing globe, not a degraded splash: an empty page, on a machine whose only fault is that 3D
+acceleration is off, which is ordinary on locked-down laptops, in VMs and behind some GPU drivers.
+
+⚠ **AND EVERY BROWSER CHECK IN THIS REPOSITORY MISSED IT FOR THE SAME REASON:** they all launch Chrome
+with `--enable-unsafe-swiftshader --use-gl=angle`, because MapLibre needs a rasteriser. A harness that
+always supplies the thing under test cannot see its absence. That is `05-TRAPS` 5b.7 wearing another
+costume, and it is the second time this project has shipped a fault its own suite was structurally
+unable to catch.
+
+**HOW IT WAS FOUND, and it is the method rather than the luck:** the report was three words with no
+stack. Rather than guess, the app was loaded four ways and instrumented for uncaught errors: the built
+bundle through `serve_app.py`, the deployed `demo/app/` layout through the real `serve_live.py`, the
+Vite dev server, and finally the same page with WebGL taken away. The first three were clean. The
+fourth was the answer in one run.
+
+**TWO FIXES, and the second is the one that matters:**
+* the renderer is attempted inside a `try`, and a failure returns from the effect before anything else
+  is built. No globe, working page, no message: a reader with WebGL off does not need to be told what
+  they are not seeing.
+* **`components/IntroBoundary.tsx`** wraps `IntroLayer`. Everything under `intro/` is scenery, and
+  scenery failing must cost the reader the scenery and nothing else. A class, because error boundaries
+  are the one thing React still has no hook for. ⚠ It catches render and lifecycle errors only, not
+  asynchronous ones, which is why `launch.ts` wraps its own timeline and `audio.ts` wraps every
+  `play()`; this is the last line, not the only one.
+
+**AND A PERMANENT CHECK, `verify_intro.py` section 13b**, which runs the whole page with
+`--disable-webgl --disable-3d-apis` and asserts the splash, its wordmark and its call to action all
+render, that the canvas is present but has no GL context (so the scenario is testing what it claims),
+that the product is reachable with the intro off as well, and that App.tsx really does wrap IntroLayer
+rather than merely importing the boundary. **227 checks, 0 failed**, up from 218.
+
+⚠ **A PROCESS SLIP IN THE DIAGNOSIS, worth recording.** While hunting this I ran
+`npx vite build --mode development`, which overwrote `app/dist` with a development build. Caught
+immediately because `build_app.py` prints the source hash and the asset names, and restored by
+rebuilding properly; `verify_shipped_app_is_current.py` confirms the bundle matches the source. Do not
+run vite directly: `tools/build_app.py` from the repository root is the only build.
+
+**Verified after:** `verify_intro.py` **227 checks, 0 failed**, `verify_launch.py` 68/0,
+`verify_app_flow.py` PASS, `verify_app_deterministic.py` PASS, `verify_palette.py` 38/0,
+`verify_shipped_app_is_current.py` PASS, typecheck clean, `sync_context.py --check` 0.
+
+### EIGHT UI CORRECTIONS, AND ONE THEY DID NOT ASK FOR THAT THE CHECK COUNT FOUND. 2026-08-29
+
+**THE DEFAULT THEME NOW DEPENDS ON THE STAGE.** Dark on the landing page, light on configure and
+results, both at the user's instruction and both only a DEFAULT.
+🔴 The distinction that makes it work is between an AUTOMATIC theme and a CHOSEN one. `aa-theme` in
+localStorage now means "the reader pressed the toggle", because it is written ONLY by the toggle;
+with no such key the stage decides and keeps deciding. ⚠ **That key used to be written on every
+change**, which would have made the first automatic switch indistinguishable from a choice and frozen
+the theme from then on. It is the one line that had to move for any of this to be true. `App.tsx`
+reads the stage through the same read-only `useStage()` observer IntroLayer uses, so no second owner.
+
+**THE HEADLINE IS FOUR BULLETED POINTS**, a real `<ul>` so the count and position are announced, with
+a small brand-blue square marker rather than a disc.
+
+**THE RING'S NOTES ARE INSIDE THE LOOP AND CAPITALISED.** The outer two are now anchored to the LOOP's
+own edges (`start` at `XS[0] - 78 + 16`, `end` at `XS[4] + 78 - 16`) rather than centred on their node.
+Clamping the width would truncate a sentence and nudging x by a measured amount is a guess the next
+wording breaks; anchoring makes containment a property of the geometry.
+
+**THE SCOPE CARD IS REWRITTEN AND HAS A SECOND CARD UNDER IT.** "250 data centres covered with fully
+agentic analysis / out of 637 mapped from OpenStreetMap", with the three "Own plant configuration"
+lines gone. The new value card carries **$334k to $967k a year**, **10.7 % less mechanical cooling and
++406 chiller-hours**, and **43,763 real held-out hours**.
+🔴 Every one of those five figures is a PROP read from an artefact, never typed: the caller passes them
+from the same `Headline` the KPI plate reads, so the card and the plate cannot disagree. The card
+renders NOTHING rather than a placeholder when they are absent.
+⚠ Positioning moved from the card to a STACK, because two absolutely positioned cards would need two
+sets of coordinates kept in step by hand.
+
+**THE AGENT'S REASONING PLAYS ONCE PER VISIT.** A module-level flag, not React state: `EngineStage`
+mounts the console with `{tab === 'live' && ...}`, so leaving the tab UNMOUNTS it and returning mounts
+a new one, which state cannot survive. The run buttons no longer restart it either; they only record
+whether the run was live, because the two paths have different completion signals. ⚠ That reverses a
+considered decision recorded in the file, and the user named the case explicitly.
+
+**THE CONSOLE'S BUTTON ROW.** "Download PDF" became **"Download this site's report"** (two buttons
+reading "PDF" beside each other is a coin toss), and a new **"See what the agent found"** sits beside
+it, switching to `schedule`, the first of the findings tabs. Outlined rather than filled: two
+full-weight primaries side by side means neither is primary.
+
+**THE RAIL HIGHLIGHTS EVERY ROW ON HOVER.** `.aa-tab:hover` only lifted the text colour while
+`.aa-qa:hover` painted a background, so half the rail read as inert. Same fill for both now.
+
+🔴 **AND A REGRESSION I INTRODUCED, CAUGHT BY THE CHECK COUNT RATHER THAN BY ANY FAILURE.**
+`verify_intro` went from 208 checks to 204 with nothing red. Turning the four headline paragraphs into
+list items changed the direct children of `[data-aa-hero="prose"]` from four `<p>` to one `<ul>`, and
+`timeline.ts:SEL.prose` still said `> p`. It matched nothing, so **the four headline lines silently
+dropped out of the hero reveal** and the probe wrote no entry for that target, so its assertions
+removed themselves.
+That is gotcha #74 in a new costume: a check that does not run reports success. Two fixes, and the
+second matters more than the first:
+* the selector is `> ul > li`, with a note saying what broke it;
+* **the probe now reports every hero target whether or not it was found, and the Python side iterates
+  over a NAMED list rather than over whatever the probe happened to return.** A missing target fails
+  by name. 218 checks now, up from 208, because five "was found at all" assertions exist per run that
+  did not before.
+⚠ THE GENERAL RULE, worth carrying: never loop over what a probe found. Loop over what you require.
+
+**THE LIVE AGENT WAS NEVER BROKEN.** The screenshots showing "Live agent not attached" are
+`testing/serve_app.py` on port 8123, a static server with no `/api/` at all, which is the case
+`drawLiveUnavailable()` exists for. Verified against the real server:
+`serve_live.py --port 8131` answers `/api/health` with `key_present: true` and route parity at
+`/app/api/health`; adding `--allow-paid` flips `live_available` to **true** with 250 offerable sites.
+⚠ No POST was made, so no credits were spent: arming the SERVER is only the first of the two
+independent keys.
+
+**Verified:** `verify_intro.py` **218 checks, 0 failed**, `verify_launch.py` 68/0,
+`verify_app_flow.py` PASS, `verify_app_deterministic.py` PASS, `verify_palette.py` 38/0, typecheck
+clean, `sync_context.py --check` 0.
+**Measured by eye and by probe:** the pick stage renders dark with no stored preference, configure
+renders light, both cards sit right of the headline, and both ring end-labels are inside the loop.
+Contrast measured on the new surfaces in both palettes: worst is `.aa-bubble-foot span` at 5.51:1 in
+light. The count at 62px measures 4.25:1 in light, which PASSES its actual floor (3:1 for large text)
+and was moved to `--fg-deep` anyway, the fifth time that remedy has been applied here.
+
+### THE LAUNCH SEQUENCE: WHAT "INITIALIZE ARBITER" NOW STARTS. 2026-08-29
+
+A timed cinematic. The screen deliberately does NOT change on the click: it holds on the globe through
+the voiceover over a slow camera push-in, holds a beat, then crosses over to the site picker on a
+whoosh. `intro/launch.ts` is new and owns all of it.
+
+**MEASURED FIRST, AND THE FIRST MEASUREMENT CONTRADICTED THE BRIEF.** `tools/measure_audio.py` is new
+and counts MPEG frames, because the sequence's beats are derived from the voiceover's length and an
+approximation there compounds through the hold, the whoosh cue and the crossfade:
+
+| file | frames | measured | the brief said |
+|---|---:|---:|---|
+| voiceover.mp3 | 179 | **4.676 s** | ~7 s |
+| intro-swell.mp3 | 125 | 3.265 s | 3.2 s |
+| transition-whoosh.mp3 | 75 | 1.959 s | 1.9 s |
+
+🔴 **THE VOICEOVER IS 4.676 s, NOT 7 s, AND IT IS THE SAME FILE AS THIS MORNING** (identical frame
+count), so the longer take the brief describes has not arrived. The sequence is built from the
+measurement rather than the stated figure, because the brief's own rationale forbids the alternative:
+"Do not play 9 seconds of silence", and 2.3 s of dead air before the hold is exactly that.
+It is also SELF-HEALING: `resolve()` takes whichever is longer, the constant or the duration the
+browser reports for the real element, so dropping in a 7 s take needs no code change. Reading a
+duration cannot stall; waiting for one can, which is why that is a read and never a wait.
+**Total today: 4.676 + 1.0 hold + 1.2 out = 6.876 s.** With a 7 s take it becomes the brief's 9.2 s.
+
+**ONE TIMELINE OWNS THE VISUALS, AND NOTHING LISTENS TO AUDIO.** The brief's reasoning is kept in the
+file: a cue that fails to load must not be able to stall the sequence, so there is no `ended` listener
+anywhere and `playVoice()` / `playWhoosh()` are fired from timeline labels with their returns ignored.
+
+🔴 **AND A WALL-CLOCK WATCHDOG OWNS COMPLETION, WHICH IS ONE STEP FURTHER THAN ASKED.** The brief
+protects against audio stalling. This project has measured a second stall it does not mention: trap
+5b.13, GSAP's clock failing to advance, which would leave a GSAP `onComplete` never firing and the
+reader on the very dead screen the escape hatch exists for. So `finish()` is also scheduled on a plain
+`setTimeout` at total + 400 ms and is idempotent. The division is clean: the TIMELINE owns what the
+pixels do, a TIMER owns when the sequence is over.
+⚠ That is not theoretical here. Under the virtual clock every other browser check uses, GSAP is frozen
+and the watchdog is what completes the sequence, which is why `verify_intro.py` can still measure it at
+all.
+
+**THE ESCAPE HATCH IS UNDOCUMENTED AND BOUND FIRST.** Esc, Space or a click anywhere. Registered before
+the timeline is built, so a throw in the timeline cannot strand the reader; idempotent, so five presses
+queue one transition; and its 250 ms fade completes on a wall-clock timer rather than a tween's
+callback, because the whole point of the path is to work when something is stuck.
+**Nothing visible is rendered for it**, on instruction. `verify_launch.py` walks every displayed text
+node AND every `aria-label` on the splash across three scenarios looking for the vocabulary a hint would
+have to use, and finds none.
+
+**THE PUSH-IN GOES THROUGH A REGISTRY, `intro/globeDolly.ts`, and it is a NUMBER not a camera.** 0 to 1,
+where `HeatGlobe` decides what that means. It has to: the framing is solved from the container's
+measured height and a resize re-solves it, so a timeline writing `camera.position.z` directly would be
+overwritten by the next ResizeObserver tick and the push-in would snap back mid-sequence. `applyCamera()`
+is now the only writer of that property. 16 % of the solved distance, measured 0.084 to 1.0 across the
+sequence.
+
+**FOUR REVERSALS OF EARLIER INSTRUCTIONS, all recorded where a future session will meet them:**
+
+| was | now | where |
+|---|---|---|
+| narration plays on ARRIVAL, with an autoplay fallback | plays on the CLICK, and the fallback is unnecessary rather than unused | IntroGate.tsx header |
+| the splash SWEEPS up, `translateY(-100%)` over 700 ms | fades and scales out over 1.2 s, timed against the whoosh | intro.css section 7 |
+| SWELL_URL pointed at transition-whoosh.mp3 | `intro-swell.mp3` is the bed, the whoosh is its own cue | audio.ts |
+| the hero entrance had an audio-synced beat map | always the SILENT map: the narration finishes before it starts | timeline.ts |
+
+⚠ `ramp()`, `RAMP_MS`, `VOICE_LEAD_MS`, `DUCK` and `FADE_MS` are all DELETED rather than left unused.
+The bed and the voice start together now, so there is nothing to fade up from and nothing to duck from,
+and the gate's exit timing has one owner. Each deletion left a note saying what went and why.
+
+**VERIFIED, and the six scenarios the brief named are each a section of the new
+`testing/verify_launch.py`: 68 checks, 0 failed.** It is `run_all.py` step 37, and it runs on a REAL
+clock (no virtual-time budget, `serve_app.py --hold 15`), which is the only way to reach a GSAP label.
+
+| scenario | measured |
+|---|---|
+| normal run | gate still up at 200 ms with the button reading "Initializing"; voice at **+34 ms** after the click at 0.4, bed at 0.12; whoosh at **+5,841 ms** against 5,876 predicted; gone by the end, on the picker |
+| push-in | dolly **0.084 at 200 ms to 0.99 at 5.2 s**, still 1.0 at 6.4 s, clamped |
+| escape: Esc at 60 ms, before audio can have loaded | gate gone, picker showing, audio stopped |
+| escape: Space at 2.2 s, click at 3.4 s, five presses at once | all four the same, nothing queued |
+| no visible hint | **0 matches** across three scenarios and every sampled moment |
+| muted | **+3,007 ms** to gone, against ~7 s for the audio path |
+| every audio file 404ing | sequence completed, 0 thrown, 0 uncaught rejections |
+| double click | voiceover played **exactly once** |
+| navigate away mid-sequence | every element paused, pause actually issued |
+| `?cinematic=off` | gate gone within the first sample, no audio at all |
+
+**Also verified:** `verify_intro.py` **208 checks, 0 failed** (twice, for stability),
+`verify_app_flow.py` PASS, `verify_palette.py` 38/0, typecheck clean, `sync_context.py --check` 0.
+
+🔴 **FOUR PROCESS FAULTS OF MINE, EACH COSTING A ROUND, AND EACH ONE ALREADY IN THIS PACK.**
+1. **Backticks in a GLSL comment closed the template literal** (trap 5b.21, written yesterday). Hit
+   again in `launch.ts`'s neighbour while editing shaders.
+2. **A heredoc ate `\\n` out of a regex** (trap 5.4, hit nine times before this). The patch file wrote
+   `re.sub(r"//[^` and a real newline. Written with `chr()` and `re.escape()` now.
+3. **A source scan matched the word in a COMMENT** (trap 5b.1). `launch.ts` explains at length why it
+   does not chain off `audio.onended`, and the check searching for that name found the explanation and
+   reported the opposite of the truth. Comments are masked before the scan now.
+4. **A probe that could not report** (trap 5b.3). It published only from inside each scenario branch,
+   so a throw meant no steps, no error, and "the probe ran: FAILED" with nothing to diagnose. There is
+   an unconditional late publish now.
+⚠ AND ONE THAT IS NEW: **`serve_app.py --hold` DELAYS DOMContentLoaded past the hold**, so a probe that
+waits for that event publishes after the DOM has already been dumped. Poll for the element instead.
+Recorded as trap 5b.22.
+
+⚠ **AND I SHIPPED A FLAKY CHECK BEFORE CATCHING IT.** `verify_intro`'s settled sample sat 1.5 s past the
+hero watchdog and failed one run in two on "the pulse is on screen". A check that passes half the time
+is worse than no check. The margin is 4 s now and it was run twice to confirm.
+
+⚠ **ONE THING A READER MIGHT MEET: the CTA is disabled until the three files report enough data**,
+capped at 1,500 ms (`ARM_CAP_MS`). The brief asks for both "before the button becomes interactive" and
+"if they haven't loaded when clicked, run without audio", and those pull against each other; the cap is
+how both are honoured. With local files it resolves in a few milliseconds. It is also what made the
+first version of `verify_launch.py` click into the void, because a disabled button silently ignores
+`.click()`.
+
+### THE HERO, FOURTH PASS: RATIOS NOT PIXELS, AND THE STAGE ROWS ARE GONE. 2026-08-29
+
+**THE FRAMING WAS INVERTED, AND THE USER NAMED IT EXACTLY:** "The globe's top is clipped and the bottom
+sits just inside the frame. The reference is the opposite." It was, and the cause was the previous
+round's own spec: an ABSOLUTE pixel diameter of 980 to 1050 px, which assumed a 1080 px viewport. The
+real container is **924 px** after browser chrome, so a 1,000 px sphere was 1.08 of H and the bottom gap
+that had been solved for pushed the top out of frame.
+
+🔴 **SO THE FRAMING IS NOW THREE RATIOS OF THE MEASURED CONTAINER, AND THE CAMERA IS DERIVED FROM THEM.**
+That reverses the previous round's request for a single `CAMERA_Z` constant, at the user's instruction
+("derive camera distance from the container's measured height so the ratio holds at any viewport size"),
+and the reason is the flaw in the constant: a fixed distance ties apparent size to the CANVAS, and the
+canvas follows the window's aspect ratio rather than its height.
+
+    pxPerWorld = (diameterOfH * H) / 2      halfH = (side/2) / pxPerWorld      cameraZ = halfH / tan(FOV/2)
+
+`FRAME` holds `diameterOfH: 0.90`, `centreOfW: 0.72`, `centreOfH: 0.66`, and `applyLayout()` solves the
+rest from `host.clientWidth/Height` on mount and from the ResizeObserver. **Still the camera and never
+`mesh.scale`**, for the reason the brief has now given twice: the atmosphere is a separate shell at a
+fixed radius, so scaling the earth detaches the glow.
+
+**MEASURED at a 1920 x 1020 window:**
+
+| target | measured |
+|---|---|
+| container H, never assumed | **924 px** (W 1902), derived camera z **9.91** |
+| diameter 0.90 x H | **832 px = 0.900 x H** |
+| centre Y 0.66 x H, below the midpoint | **610 px = 0.660 x H** |
+| centre X 0.72 x W | **1370 px = 0.720 x W** |
+| clearance above about 0.20 x H | **194 px = 0.210 x H** |
+| bottom limb cropped | **cropped by 102 px = 0.11 x H** |
+| left limb fully visible | **x = 954**, 50.2 % across |
+| lattice locked to the globe | apex at x = 780, 174 px left of the sphere's own limb, reframed with it |
+
+⚠ **"CROPPED BY THE VIEWPORT RIGHT EDGE" DOES NOT HAPPEN AT THIS WINDOW, AND IT IS ARITHMETIC.** The
+right edge sits at `0.72 W + 0.45 H`, so it is cropped only when `0.45 H > 0.28 W`, i.e. **W < 1.61 H**,
+which at H = 924 is W < 1486. Measured, it stops **116 px short** of a 1902 px container. It IS cropped
+on any window narrower than that. Flagged rather than quietly fixed because the two ratios it follows
+from are both the user's; cropping it at 1902 wide needs centre X near 0.80 instead of 0.72. This is the
+second round the same conflict has been reported.
+
+**THE FIVE STAGE ROWS ARE REMOVED FROM THE PAGE**, at the user's instruction ("remove this", with a
+screenshot). ⚠ **`components/StageRows.tsx` and `stagerows.css` ARE STILL ON DISK, deliberately**: the
+instruction that moved them out of the hero was explicit that the component and its data wiring must not
+be deleted, and the only reading that honours both is gone from the page, kept on disk. `App.tsx` no
+longer imports it either, so it is tree-shaken out rather than shipped dead. Deleting the two files is a
+decision the user can make in one line.
+**verify_intro section 14 asserts BOTH halves** and is smaller than the two sections it replaces, which
+is stated in the file: there is less product to check, and padding the count with checks of an absent
+feature is the opposite of what these files are for. 228 checks became 206.
+
+🔴 **THE USER REPLACED THE GENERATED AUDIO MID-SESSION, AND THE VERIFIER IS THE ONLY REASON IT WAS
+NOTICED.** `demo/audio/swell.wav` and `chime.wav` disappeared and `transition-whoosh.mp3` appeared at
+19:02. `verify_intro.py` failed on "demo/audio/swell.wav exists", which would otherwise have shipped as
+a silent 404 behind `attempt()`'s catch.
+`SWELL_URL` now points at the sourced file. **This supersedes standing rule C4**: that rule records
+choosing a synthesised WAV because the brief wanted royalty-free stock and there is no MP3 encoder on
+this machine, and a real sourced file is what was wanted all along. The constant keeps its NAME, because
+"the swell" is the concept in a dozen places (the duck, the ramp, the lead) and renaming them to follow a
+filename changes no behaviour. `tools/make_swell.py` is not deleted, so the generated version is
+reproducible.
+⚠ `CHIME_URL` still names an absent file, on purpose: the only caller of `chime()` is the unrendered
+StageRows, which must keep compiling, and nothing requests the file while nothing renders it.
+
+**THE CLOUD LAYER is at opacity 0.45**, up from 0.40, as asked. ⚠ Part of why it read as faint is not the
+opacity: the light moved to the right during the lattice pass, so the left half of the planet is dimmer
+and its clouds with it. That move is what lets a sparse pale grid read against the limb at all, so the
+two pull against each other; the opacity is the free lever and it is at the requested value.
+
+**Verified:** `verify_intro.py` **206 checks, 0 failed**, `verify_app_flow.py` PASS,
+`verify_app_deterministic.py` PASS, `verify_palette.py` 38/0, `verify_shipped_app_is_current.py` PASS,
+typecheck clean, `sync_context.py --check` 0.
+
+### THE HERO, THIRD PASS: ONE SIZE KNOB, AND THE LATTICE IS A GRID NOW. 2026-08-29
+
+Four corrections from the user, all four measured rather than eyeballed.
+
+**1. THE PLANET IS SIZED BY ONE NAMED CONSTANT, `CAMERA_Z`, AND NOTHING ELSE TOUCHES ITS SIZE.**
+Asked for by name. The camera moves; `mesh.scale` is never touched, and the brief is right about why
+that matters: the atmosphere is a separate shell at a fixed radius, so scaling the earth would shrink
+the planet and leave the glow floating at its old size.
+
+    drawn diameter in px  =  canvas side / (CAMERA_Z * tan(FOV/2))
+
+At `CAMERA_Z = 8.32` and a 1920 px canvas that is 999.6 px. **MEASURED at a true 1920x1080 viewport:**
+
+| the brief's target | measured |
+|---|---|
+| diameter 980 to 1050 px | **1000 px** (0.926 x viewport height) |
+| bottom limb visible, 40 to 80 px beneath | **60 px** |
+| centre at about x = 72 % | **72.0 %** |
+| left limb visible, curving through frame | **x = 883**, and the top limb is at y = 20, so the whole left arc is inside the frame |
+
+⚠ **"CROPPED ON THE RIGHT EDGE ONLY" CANNOT HOLD AT THOSE NUMBERS, and it is arithmetic rather than a
+miss.** A centre at 72 % of 1920 is x = 1382, so a sphere is cropped on the right only if
+1382 + D/2 > 1920, i.e. **D > 1076**, which is above the stated 1050 ceiling. Measured, the sphere's
+right edge lands at 1883, 37 px short of the viewport. What IS cropped is the atmosphere, which reaches
+1928. Both numbers are the user's own and both were honoured; moving one of them is their call. To crop
+the sphere itself the centre needs about 76 %, or the diameter needs to exceed 1076.
+
+⚠ **AND THE WINDOW IS NOT THE VIEWPORT.** Measured in this headless build: `--window-size=1920,1080`
+gives an INNER viewport of **1902x984**, because the browser keeps 18 px of width and 96 px of height.
+The first run reported a 990 px diameter and a top limb at y = -61 (cropped) purely because of that,
+and the numbers only made sense once the window was set to 1938x1176. `testing/shot_hero.py` now prints
+the inner size every measurement is against.
+
+**2. THE PARTICLE FIELD IS A LATTICE, AND RANDOMNESS WAS THE MISTAKE RATHER THAN THE DENSITY.**
+The user: "a random, dense spray, it reads as confetti or static", against a reference that is "an
+ordered lattice: regular rows and columns". A random field cannot have rows, so thinning it would never
+have produced one. Every dot now sits at an exact `(u, v)` address on a 38 x 20 grid: **760 dots, down
+from 1,900, which is the requested 60 % cut exactly.** Uniform size, low opacity, additive, and the
+whole grid drifts as one rigid object so the rows stay legible while moving. No noise term anywhere in
+the shape.
+
+🔴 **THE SHEET'S GEOMETRY TOOK TWO ATTEMPTS AND A THIRD FIX.**
+* **A cone slice about the funnel's axis** was the first. Geometrically a converging lattice, and it
+  drew CONCENTRIC RINGS around the planet, because a cone seen end-on does. The rows were there and
+  they arched over the top instead of arriving from the left.
+* **A fan in the screen plane** replaced it: rows radiate from the apex, columns are arcs across them,
+  plus a quadratic bow toward the camera for the "curved surface".
+* **And that fan was invisible**, because its mouth landed at radius 0.70 from the planet's centre,
+  i.e. INSIDE a unit sphere, so the depth test correctly hid most of it. The fix is a **radial clamp**:
+  any point inside `HUG = 1.045` is pushed straight out along its own direction. So the sheet flows in
+  flat and then HUGS the planet where it arrives, which is the brief's "wrapping toward the globe"
+  written as three lines of arithmetic, and because the clamp is a radial scaling the lattice survives
+  it: neighbours stay neighbours and rows stay rows.
+
+⚠ The light moved right again (0.55 to 1.15 in x) and only because the lattice needed it: at
+near-head-on the planet's left limb is its BRIGHTEST region and a sparse pale grid over it competed
+with the ocean. The reference lights its globe from the right for the same reason.
+
+**3. THE LEFT 38 % IS FREE OF PARTICLES, BY TWO MECHANISMS AND ONE MEASUREMENT.** The lattice is placed
+to the right of the boundary, and the vertex shader independently fades any dot whose projected
+position falls left of it, because a placement can be walked out of position by a resize and a
+guarantee cannot. **Measured on the rendered PNG: 0 lattice pixels left of x = 736, 18,917 right of
+it.**
+
+🔴 **THE MEASUREMENT ITSELF WAS WRONG TWICE, AND BOTH FALSE ALARMS ARE WORTH KEEPING.** This is the only
+one of the four requirements that cannot be measured from the DOM, since a shader leaves no trace in the
+document, so it counts cyan pixels in the image. First version: 1,335 hits in a zone the lattice was
+nowhere near, because the EYEBROW and the FortyGuard mark are painted `--fg-bright` #14a1e0 and are
+cyan. Second version: 66 hits, all of them the antialiasing of "POWERED BY" at colours like
+(130,130,159), where r EQUALS g. So the test is now three conditions, and the third is the one that
+matters: a cyan dot has g well above r, and neither the type nor a grey does.
+
+**4. THE ATMOSPHERE IS A THIN HALO. The user diagnosed the cause correctly** and it was this shader's
+own low-rim tail: the shell is additive so it cannot darken anything, but at exponent 3.2 a point a
+third of the way in still added about 0.5 % of full brightness over a very large area, which over
+near-black reads as a dark navy band. Exponent **3.2 to 6.4** (that same point now contributes 4e-6)
+and shell radius **1.15 to 1.09**, which caps how far out the band can reach at all, with intensity
+raised 1.15 to 1.9 because a sharper falloff dims the arc that was already right.
+**MEASURED on the render, scanning the centre row outward from the limb: the glow band is 22 px, 2.2 %
+of the 1,000 px diameter.** The ambient went 0.6 to 0.78 as well, because part of what read as a dark
+band is the PLANET's own unlit limb and no change to the shell can reach that.
+
+🔴 **A NEW TRAP, HIT TWICE IN ONE SESSION: A BACKTICK IN A SHADER COMMENT CLOSES THE TEMPLATE LITERAL.**
+The shaders are template literals, and a comment that quotes an identifier in backticks (`` `uHug` ``,
+`` `HeatGlobe.tsx` ``) terminates the string mid-shader. The errors point at TypeScript syntax dozens of
+lines away and say nothing about backticks. Recorded as `05-TRAPS` 5b.21 with the check: the file's
+backtick count must be even.
+
+⚠ **AND `tools/build_app.py` SAVED A ROUND BY SAYING SO.** The second backtick broke the build, the
+tool printed "vite build failed, exit 1. Nothing was copied", and the screenshot that followed was of
+the OLD bundle with figures that looked plausible. Without that line it would have read as a successful
+run. The identical-PNG-size tell in the pack is the same lesson from the other side.
+
+⚠ **ONE CHECK WAS FLAKY AND IS NOW SIGNAL-DRIVEN.** Section 14 sampled the stage rows 3,600 ms after
+scrolling them into view, which is longer than the 2,320 ms the stagger needs and still failed once with
+four of five rows settled: under a compressed clock the gap between the scroll and the
+IntersectionObserver firing is not fixed, so any constant is a race. It now waits for every row to carry
+`data-settled`. Trap 5b.4, paid for once already on the reasoning tape.
+
+**Verified:** `verify_intro.py` **228 checks, 0 failed**, `verify_app_flow.py` PASS,
+`verify_app_deterministic.py` PASS, `verify_palette.py` 38/0,
+`verify_shipped_app_is_current.py` PASS, typecheck clean, `sync_context.py --check` 0.
+
+### THE HERO IS FINISHED: FUNNEL, ROWS MOVED, BUTTON FIXED. 2026-08-29
+
+All six steps of the brief are in. The globe entry below this one covers steps 1 and 2 and the three
+measurements that got them right; this covers the rest.
+
+**THE PARTICLE FUNNEL, `intro/funnel.ts`.** 1,900 particles under the brief's ~2,000 cap, one
+`THREE.Points`, additive, converging to a point near the left edge and wrapping onto the planet's
+limb.
+
+🔴 **EVERY PARTICLE IS POSITIONED IN THE VERTEX SHADER, and that is the performance decision that
+matters.** The obvious version walks a Float32Array on the CPU and re-uploads 22.8 KB every frame, on
+the same main thread as React, GSAP and a MapLibre map. Here the buffer is written once and the only
+per-frame data crossing the boundary is one float uniform. Each particle carries its own seed, and the
+seeds come from a **hash of the index rather than `Math.random()`**, because this project renders the
+same screen twice and requires the same result.
+
+**THE FUNNEL FORCED THE GLOBE'S CANVAS AND ITS LIGHT TO CHANGE, and both are worth reading.**
+
+1. **The canvas now covers the viewport, and the composition moved out of CSS entirely.** The strands
+   converge near the LEFT EDGE while the planet sits to the right, so a square box positioned inside
+   the viewport cannot hold both. CSS now decides one thing, `max(100vw, 100vh)` left-aligned and
+   vertically centred; `HeatGlobe.tsx:applyLayout()` solves everything else from three fractions
+   (diameter 1.35 of the height, left limb 35 % across, top limb 19 % down) and publishes what it
+   solved on the canvas as `data-aa-sphere`. That removed a real coupling: the two files each used to
+   hold half a guess about the other, with a comment in each telling the reader to keep them in step.
+2. **The light moved from the left to slightly right of head-on.** Lit from the left, the planet's
+   left limb is its BRIGHTEST region, and 1,900 small cyan dots over a bright ocean read as scattered
+   noise. The supplied reference does not have that problem because its globe is lit from the right.
+   ⚠ Two attempts at the fan were wrong first: ending it at -0.55 spread it across the whole visible
+   disc, which is dots ON the globe rather than the brief's "wrapping toward" it. -0.88 terminates it
+   just inside the left surface, so the near half crosses the limb and the far half is occluded.
+
+**THE FIVE STAGE ROWS MOVED BELOW THE MAP**, `components/StageRows.tsx` and `stagerows.css`. Nothing
+was deleted: the data, icons, notes, timestamps, stagger and chime all went across.
+🔴 **THEY LIVE OUTSIDE `intro/` ON PURPOSE.** `?motion=off` unmounts everything in that folder, and
+these rows are the only plain-language account of the loop on the landing page, so they are CONTENT
+and must survive every kill switch. Rendered by `App.tsx` inside `[data-show="pick"]`, which
+`setStage()` hides exactly like the rest of the pick screen. The stagger starts on an
+IntersectionObserver rather than on mount, because below the fold a mount-time stagger plays out while
+the reader is still looking at the hero and every timestamp would read page-load time.
+⚠ **THE CHIME CAME WITH THEM, and that is a judgement call.** `CHIME_ON_ARRIVAL` in StageRows.tsx
+turns it off on its own.
+
+🔴 **AND A REAL PRODUCT DEFECT THE VERIFIER FOUND: AN ANIMATION CLOCK CAN LEAVE A SECTION INVISIBLE
+FOR EVER.** `verify_intro.py` measured all five rows at opacity 0. This is trap 5b.13, which the pack
+recorded for GSAP, and it applies to **CSS animations** too: while an animation is in its active phase
+it overrides the element's declared style, so a frozen clock holds the `from` keyframe, which here is
+`opacity: 0`.
+⚠ **MY FIRST FIX WAS WRONG AND CHANGED NOTHING.** I removed `animation-fill-mode: both`, reasoning
+that the fill was what held the from-state. Fill mode is irrelevant: the animation is ACTIVE, not
+before or after its range. The fix is a wall-clock `setTimeout` watchdog that marks each row
+`data-settled`, and CSS cancels the animation for a settled row, so the element falls back to its own
+declared style, which IS the finished state. Same shape as `intro/timeline.ts`'s watchdog. The check
+now asserts the END STATE, which is the only honest thing to assert about an animation.
+
+**THE SHINY BUTTON WAS NEVER WRONG. `tones.css` WAS.** The user: "The current button is a generic
+purple/blue gradient pill with a heavy outline. That is not the component I picked." Measured on the
+rendered button: the component's own CSS was intact and `[role='dialog'] button` was overriding it.
+That rule sets `background` as the **shorthand** with `!important`, so it did not tint the component,
+it REPLACED its entire background: `background-image: none` and a flat `oklab(... / 0.12)` wash where
+a black `padding-box` fill and a rotating conic `border-box` gradient belong. Its own comment says it
+was written for "Its Close button, which was a hairline box on glass", so the fix is
+`[role='dialog'] button:not(.shiny-cta)` at that rule rather than a louder rule elsewhere. Measured
+after: 18.37:1 on its declared `--shiny-cta-bg`.
+⚠ Nothing in the pasted component changed. The two adaptations remain the two already recorded:
+`<style jsx>` is Next-only so the CSS is a co-located stylesheet, and the Google Fonts `@import` is
+gone because Inter is self-hosted and offline operation is required.
+
+🔴 **THE MOBILE AND REDUCED-MOTION GLOBE CODE IS DEFENSIVE, NOT OBSERVABLE, AND THAT IS WORTH
+KNOWING.** Measured at 504 px and with `prefers-reduced-motion=reduce`: **the splash does not render
+at all** in either case, so the globe never mounts and its narrow and reduced branches are unreachable
+on a fresh load. That is `flags.ts:gateEnabled()` doing what an earlier instruction of the user's asked
+("Mobile (<768px): skip the enter gate entirely"), not something this work changed. The branches exist
+for a wide session dragged narrow. What a phone and a reduced-motion reader DO get, measured: the five
+stage rows present and static (`animationName: none`, `opacity: 1`), the note column dropped at narrow
+width, Configure reachable, zero JS errors.
+
+**THE COST, MEASURED against the committed bundle:**
+
+| | before | after | delta |
+|---|---:|---:|---|
+| `index-*.js` gzipped | 428,213 B | 625,437 B | **+197,224 B, +46.1 %** |
+| `index-*.css` gzipped | 36,921 B | 39,985 B | +3,064 B, +8.3 % |
+| textures, landing stage only | 0 | 1,247,161 B | +1.19 MB |
+
+**Verified after:** `verify_intro.py` **228 checks, 0 failed** (was 207; sections 14 and 15 are new),
+`verify_app_flow.py` PASS, `verify_app_deterministic.py` PASS, `verify_palette.py` 38/0, typecheck
+clean, `sync_context.py --check` 0.
+
+⚠ **I HIT TWO OF THIS PACK'S OWN TRAPS WHILE DOING THIS**, both recorded because they cost a round
+each: `tools/build_app.py` run from inside `app/` does nothing and the grep for "copied" matches
+nothing (05-TRAPS 5.3, and the build-from-root note), and the shell's working directory persists
+between calls so a bare filename resolves against the wrong folder.
+
+### THE HERO IS A THREE.JS EARTH NOW, AND cobe IS UNINSTALLED. 2026-08-29
+
+**THIS WAS THE CHECKPOINT AT STEP 2 OF 6**, taken at the user's instruction: *"Stop after step 2 and
+show me a screenshot before continuing. The globe is the piece most likely to come out wrong."* They
+then said go, and the entry ABOVE this one covers steps 3 to 6. Kept as its own entry because the
+three measurements it records are about the globe alone.
+
+**WHAT "THE HERO" IS, because the word does not appear anywhere in this codebase.** It is the SPLASH,
+`intro/IntroGate.tsx`, matched by its contents: eyebrow, wordmark, subhead, CTA, FortyGuard mark. Not
+the masthead, and not `demo/index.html`.
+
+**THE GLOBE IS A COMPLETE REPLACEMENT, NOT A RETUNE**, which is what the brief asked for and is also
+the only thing that could have worked: cobe takes no texture input at all (it rasterises a dot matrix
+from a landmass mask), has no light and therefore no terminator, and its glow is a flat halo rather
+than a fresnel. `HeatGlobe.tsx` is now Three.js: a 64x64 sphere with the day, normal and specular
+maps, a cloud shell at 1.01 read as an alphaMap, and an atmosphere at 1.15 rendered `BackSide` with a
+custom fresnel shader, additively blended.
+
+🔴 **THE HERO IS PINNED TO THE DARK PALETTE IN BOTH THEMES, AND THAT IS ARITHMETIC RATHER THAN
+TASTE.** The rim glow is ADDITIVE, so on the light theme's `#fafafa` every channel is already at 250
+of 255 and adding cyan moves nothing. That is also the explanation for the flat look reported on the
+cobe version. Done by re-declaring the dark values as LOCALS on `.aa-splash` so every existing rule
+keeps reading `var(--text-primary)` and resolves correctly, rather than naming elements one by one,
+which is the popover-text lesson. ⚠ The two light-theme contrast remedies had to be UNDONE: `--fg-deep`
+is 2.48:1 on the new floor and the dark `--fg-bright` is 6.58:1, so the remedy became the failure.
+
+**THREE THINGS WERE MEASURED, AND ALL THREE FIRST ATTEMPTS WERE WRONG.**
+
+| what | first attempt | what the measurement said |
+|---|---|---|
+| the framing | sphere overflowing its own canvas by 8 % | it clipped the ATMOSPHERE at the canvas edge, leaving a straight vertical line where a curved rim belongs. The crop belongs to the VIEWPORT: camera pulled to d=5.41 so sphere plus atmosphere fit the square at 80 %, and the square is simply bigger than the window |
+| the start longitude | derived from three's SphereGeometry: `L = -90 - a*180/PI` | wrong. At a=0.53 the rendered centre is +5 E, not -120. Measured at two points instead: 0.53 -> +5 E, 1.53 -> -52 E, so `L = 35.4 - a*180/PI` and facing -85 E needs **2.101** |
+| the canvas box | width and height both set to one custom property | `max-width: 100%` survives from section 7 and squashed it to **1382x1426**, an Earth drawn as an oval. `verify_intro.py` caught it, not a look |
+
+**THE NORMAL MAP IS THE ONE ASSET THAT CANNOT BE JPEG.** Measured on the source TIFF: stddev
+**1.36 of 255** with the blue channel a constant 255, because Earth's relief is 9 km on a 6,371 km
+radius and a correctly scaled normal map is nearly flat. It therefore has to be amplified
+(`normalScale` 2.8), and q88 JPEG had already destroyed a quarter of the signal (stddev 1.36 to 1.00).
+It ships as lossless PNG. `tools/make_earth_textures.py` prints the stddev of every file it writes for
+exactly this reason: a texture that encoded to a plausible number of bytes and lost its detail looks
+like a success otherwise.
+
+**THE COST, STATED RATHER THAN BURIED.** Three.js is the largest dependency in this app and the
+previous cobe argument was right on its own terms:
+
+| | before | after | delta |
+|---|---:|---:|---|
+| `index-*.js` gzipped | 428,213 B | 622,680 B | **+194,467 B, +45.4 %** |
+| `index-*.css` gzipped | 36,921 B | 39,986 B | +3,065 B, +8.3 % |
+| textures, landing stage only | 0 | 1,247,161 B | +1.19 MB |
+
+So a first visit carries about **1.39 MB more**, which takes the full journey from the 5.11 MB
+measured on 2026-08-28 to about 6.5 MB, and Render's 5 GiB monthly allowance from about 1,051
+journeys to about **825**. Bandwidth is the one genuinely billable axis on that plan, so this is worth
+watching rather than filing.
+
+**Verified after:** `verify_intro.py` **207 checks, 0 failed**, `verify_app_flow.py` PASS,
+`verify_app_deterministic.py` PASS, `verify_palette.py` 38/0, typecheck clean. The palette check is
+unaffected because it reads `app/src/index.css` and the pinned values are locals in `intro.css`.
+
+⚠ **THE MEASURING HARNESS IS NOT `render_shots.py`, AND CANNOT BE.** That tool passes
+`--force-prefers-reduced-motion=reduce`, and `flags.gateEnabled()` returns false under it, so every
+shot it takes is of the page BEHIND the splash. `scratchpad/shot_hero.py` is the one that sees the
+hero: same `--hold` plus virtual-time-budget mechanism, without that flag.
+
 ### THE LIVE RUN HAD NO DOWNLOAD, AND THE CONFIG COLUMN COULD NOT SCROLL ITSELF. 2026-08-29
 
 **THE REPORT BUTTON WAS GATED ON THE WRONG SIGNAL, and it was my gate.** The user ran the agent live
@@ -61,6 +632,93 @@ exist in this layout.
 Re-measured after: sidebar `876/616`, `rect 268..886` inside a 904 viewport, and
 `.aa-workspace-main` at `636/636` **no longer scrolls at all**. One scroller, 260px of it, all of it
 on the bar's own scrollbar.
+
+### THE CINEMATIC INTRO LAYER, AND IT IS A NEW SUBSYSTEM. 2026-08-29
+
+Six commissioned steps plus a rework, all in `AGENTIC-ARBITER/app/src/intro/`, which did not exist
+this morning. It is the landing stage's opening: a splash screen with a rotating globe, a narrated
+voiceover, a staggered widget load, an animated agent-loop diagram, a heat-field background and a
+scroll handoff into the static technical content.
+
+⚠ THIS PACK WENT SIX STEPS WITHOUT A SINGLE MENTION OF IT, and the user had to ask. The ritual in
+`00-START-HERE.md` section 4 is part of the change, not a thing done afterwards, and it was not
+followed. Recorded here because the failure is more useful than a silent correction.
+
+**WHAT IS THERE**, and `02-ARCHITECTURE.md` section 8 describes each file:
+`flags.ts` (two kill switches), `audio.ts` (voiceover, swell, chime, duck, teardown),
+`IntroGate.tsx` (the splash), `IntroLayer.tsx` (the one mount point and all cleanup),
+`timeline.ts` (the GSAP entrance, the ambient loops, the scroll handoff), `Pipeline.tsx` (the
+five-stage loop), `HeatGlobe.tsx` (cobe), `ThermalField.tsx` (the CSS background), `intro.css`.
+Plus `components/ui/shiny-button.tsx` and its stylesheet.
+
+**THE TWO KILL SWITCHES ARE THE MOST IMPORTANT THING TO KNOW.** `?motion=off` mounts nothing from
+`intro/` at all, and `?audio=off` silences it. `verify_app_flow.py` and `verify_app_deterministic.py`
+both run with `&motion=off`, because the splash is a full-viewport overlay and would otherwise
+swallow the Configure click those checks depend on. They are also how to demo without either.
+
+**AUDIO.** The user supplied `demo/audio/voiceover.mp3`, measured from its own MPEG frame headers at
+**4.676 s** (179 frames of 1152 samples, 44.1 kHz CBR 128 kbps). `swell.wav` and `chime.wav` are
+SYNTHESISED by `tools/make_swell.py` -- there is no MP3 encoder on this machine and a generated tone
+has no licence to be wrong about. 226 KB combined, inside the 300 KB budget. Every audio beat in
+`timeline.ts` is DERIVED from the measured duration; the sentence positions are the one estimated
+number and are apportioned by syllable, which the file says out loud.
+
+**THE SPLASH REWORK, 2026-08-29 (later).** The enter gate became a splash: cobe globe, the supplied
+ShinyButton as the CTA, five widgets staggering in with lucide icons and live `HH:MM:SS.mmm`
+timestamps and a chime as each SETTLES, a 700 ms `translateY(-100%)` sweep, and `hasSeenSplash` in
+sessionStorage. Two instructions were reversed by the user and both are recorded in
+`04-STANDING-RULES.md` section C3 so nobody "restores" them.
+
+**GLOBE MARKERS ARE REAL PLACES.** Eleven facilities read out of `demo/sites.json` bounding boxes,
+with arcs all leaving Ashburn because that is the site whose calibration the others borrow. Nothing on
+the splash states a figure from an artefact, deliberately: it is the first thing a judge sees and the
+one thing it must not do is show a value that has drifted.
+
+**BUNDLE.** 473 KB gzipped before any of this, **500 KB** after. cobe is 18.8 KB with zero
+dependencies; `react-globe.gl` would have been 250-400 KB gzipped because it pulls Three.js.
+
+### A FIVE-DIMENSION REVIEW OF THE INTRO LAYER: 21 OF 36 FINDINGS CONFIRMED. 2026-08-29
+
+Run as a workflow, every finding adversarially verified before it reached me. 15 were dismissed.
+
+**FIXED (all three high, plus two mediums):**
+* the hero text reveal never ran on mobile -- the entrance was gated on `flags.gate`, and
+  `gateEnabled()` is false under 768px, so a phone got NO intro motion at all. It is the one thing the
+  brief's mobile clause says to KEEP. Now a `'headline'` variant from a `useLayoutEffect`, which runs
+  before paint so there is no from-state flash without a gate to cover it;
+* the corner mute toggle's `aria-label` was an ACTION while `aria-pressed` was a STATE, so a screen
+  reader announced "Turn the introduction sound on, toggle button, pressed";
+* the splash declared `aria-modal` with no focus containment, so Tab walked onto controls hidden
+  behind an opaque overlay;
+* `opacity: 0.72` on the gate toggle's pressed state (~2.4:1 dark, 2.1:1 light);
+* `?audio=off` was written to localStorage, turning a per-load demo switch into a permanent
+  preference.
+
+**STILL OPEN, 16, and one cluster matters more than the rest:** returning to the landing stage (via
+"Choose a different site" or `#backtopick`) never re-arms the intro, so the pulse and the scroll
+handoff are dead for the rest of the session. Then: ScrollTrigger's global machinery installed at
+import time and never disabled; 31 of 55 `intro.css` rules not anchored to `body[data-aa-intro]`
+despite the file claiming they all are; reduced-motion overrides that lose on specificity; `kill()`
+clearing props on selectors React has already removed.
+
+### THE SPEND DRIFTED AND THE AUDIT IS FAILING. IT IS NOT THE INTRO. 2026-08-29
+
+The user's live runs moved the meter. Current, and it reconciles to the credit:
+**267 heatmap x 4,220 + 14 env_params x 2,900 = 1,167,340**, remaining **832,660**, **58.37 %** used,
+281 calls.
+
+Two things follow, and only one of them is cosmetic:
+1. `README.md:603` -- the file index a judge reads -- says **"13 calls, 54,860 credits, 2.74 %"**. It
+   was right when 13 calls had been made and has never been updated, because `audit.py` registers the
+   spend figures in API-USAGE.md and HANDOFF.md ONLY. See trap 5b.19.
+2. `testing/bump_spend_docs.py` REFUSES to write, correctly: API-USAGE.md section 3 closes with "those
+   three rows sum to ...", and they now come to 1,166,820 against a headline of 1,167,340 -- **520
+   short**. `api_usage_ledger.py:350-354` divides gap credits by the heatmap price with integer
+   division, so any `env_params` call (2,900) inside an unattributed gap loses its remainder.
+
+⚠ NOTHING WAS HAND-EDITED TO MAKE THE AUDIT PASS. That would be exactly the unverified claim the rule
+exists to prevent. The fix is to correct the ledger's classification and to add README.md to the
+spend check, and it is waiting on the user's go.
 
 ### THE STOP CONTROL: what "Stop agent now" can and cannot save. 2026-08-29
 
@@ -1449,7 +2107,7 @@ only `fmt`.
 | Of those, ready to run | **246** | sites.json offerable metros, joined on metro_key |
 | Offerable metros | **250** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
-| run_all.py steps | **37** | count of STEPS entries in src/run_all.py |
+| run_all.py steps | **39** | count of STEPS entries in src/run_all.py |
 | demo/index.html size | **485 KB** | byte length of the shipped page |
 | Map GeoJSON sources | **2** | one clustered, one flat -- see 02-ARCHITECTURE |
 | Map unisites-* layers | **5** | cluster, halo, points, flat-halo, flat |

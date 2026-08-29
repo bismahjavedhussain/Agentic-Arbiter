@@ -273,6 +273,24 @@ STEPS = [
     # fine from one side. Driven with a replay fixture, so it costs nothing.
     ("a live run offers its own report, and the route returns a real PDF",
      [sys.executable, "verify_live_report_button.py"], TESTING),
+    # THE INTRO IS THE ONLY THING IN THE PRODUCT THAT CAN COVER THE PRODUCT. verify_app_flow runs
+    # with ?motion=off precisely so it never meets the enter gate, which means nothing else in this
+    # list would notice if the gate started swallowing the Configure click forever. This is where
+    # that is checked WITH motion on, along with the two kill switches, the audio rules and the
+    # contrast of every line on the gate in both palettes.
+    ("the cinematic intro opens, unmounts, and never blocks the product",
+     [sys.executable, "verify_intro.py"], TESTING,
+     {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The single-file page is unaffected."}),
+    # 🔴 A SEPARATE STEP FROM verify_intro, AND ON A REAL CLOCK. The launch sequence is GSAP-driven and
+    # runs for about seven seconds; GSAP does not advance under the virtual-time budget every other
+    # browser check uses (05-TRAPS 5b.13), so the cues attached to its labels are never reached there.
+    # This one removes the budget and lets serve_app.py --hold give the page real wall-clock seconds,
+    # which is the only way to measure the whoosh, the push-in and the escape hatch's real timing.
+    # It is therefore SLOW, about three minutes, and it costs nothing: no API calls, no writes outside
+    # app/dist.
+    ("the Initialize Arbiter cinematic holds, plays, crosses over, and can always be escaped",
+     [sys.executable, "verify_launch.py"], TESTING,
+     {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The single-file page is unaffected."}),
     ("the React app renders the same numbers twice, from fresh profiles",
      [sys.executable, "verify_app_deterministic.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The app is a prototype and the "

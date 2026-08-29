@@ -104,7 +104,14 @@ PROBE = r"""
        So the only path that ever reached the give-up was the one where a step had already succeeded,
        and a probe that never found its target could never report. Three runs printed "the probe never
        published", which says nothing about why. Checked at the top, a stall always reports. */
-    if (tries > 40) {
+    /* 🔴 12 SECONDS, NOT 6, AND THE REASON IS MEASURED. At 150ms a tick, `tries > 40` gave the whole
+       flow six seconds. That is ample on an idle machine -- the artefacts land at ~1s -- and not
+       ample with several Chrome instances competing for one CPU, where a run stalled at step 1 with
+       the controls still empty. Doubling the patience costs nothing on a healthy run (the steps
+       advance as soon as they are ready) and removes a false failure that would otherwise train
+       whoever reads this output to re-run rather than believe it. A genuinely stalled flow still
+       reports, six seconds later. */
+    if (tries > 80) {
       out.stalledAt = step;
       out.stage = document.body.dataset.stage || null;
       /* Enough state to diagnose a stall in ONE run rather than three. */
@@ -160,7 +167,29 @@ PROBE = r"""
 
       if (step === 1) {
         /* CONFIGURE: the controls are built and the run button is on screen. */
-        if (document.body.dataset.stage !== 'configure') return;
+        /* 🔴 THE CLICK IS RETRIED, AND THIS IS ABOUT THE HARNESS, NOT THE PRODUCT.
+           Step 0 clicks "Configure this plant" as soon as the button EXISTS, which React renders
+           before the site's artefacts have finished loading. On an idle machine that is fine; with
+           five Chrome instances competing for the CPU it produced one stall at step 1 with
+           `filtersHtml=0`, and a re-run passed.
+           MEASURED THAT THE PRODUCT IS NOT AT FAULT: clicking at the earliest possible moment
+           (~570ms, the instant the button appears) reached the configure stage and built all 3,192
+           characters of controls, three runs out of three. So the stall was a starved renderer, not
+           a race in the app.
+           A false failure is worse than no check, because it teaches you to re-run instead of read.
+           The assertion is unchanged -- the stage must still become 'configure' and the controls must
+           still be built -- this only stops one dropped click from being reported as a defect. */
+        if (document.body.dataset.stage !== 'configure') {
+          /* Every 12 ticks (1.8s), so the retries land at 1.8s, 3.6s and so on, all comfortably
+             inside the 12s budget above rather than one tick before it. */
+          if (tries > 0 && tries % 12 === 0) {
+            var again = null, ab = document.querySelectorAll('button');
+            for (var j = 0; j < ab.length; j++)
+              if (/Configure this plant/.test(ab[j].textContent || '')) again = ab[j];
+            if (again) again.click();
+          }
+          return;
+        }
         if (!n('#filters select')) return;
         record('configure', {
           bodyStage:      document.body.dataset.stage,
@@ -454,7 +483,18 @@ def main():
         return 3
     print("   serving app/dist on port %d, load held %d s" % (port, HOLD))
 
-    url = ("http://127.0.0.1:%d/app/%s?facility=%s"
+    # 🔴 ?motion=off DISABLES THE CINEMATIC INTRO, and this check needs it off for a concrete
+    # reason rather than a general one: step 1 finds "Configure this plant" and CLICKS it, and the
+    # enter gate is a fixed full-viewport overlay at z-index 200. An overlay swallows that click and
+    # the whole flow stalls at step 1 -- the same failure shape as the stopLive ReferenceError.
+    #
+    # The flag is not a test-only escape hatch. It is one of the two kill switches the product ships
+    # (app/src/intro/flags.ts), so what runs here is a configuration a judge can also select, not a
+    # special build. With it off, IntroLayer returns null and the page is byte-for-byte the product
+    # this file was written against.
+    #
+    # testing/verify_intro.py is what exercises the intro WITH motion on.
+    url = ("http://127.0.0.1:%d/app/%s?facility=%s&motion=off"
            % (port, probe_name, FACILITY))
     prof = tempfile.mkdtemp(prefix="flow_")
     try:

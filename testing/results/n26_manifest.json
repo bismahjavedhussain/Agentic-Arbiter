@@ -354,6 +354,44 @@
    "forecast_billed_attempts": 2,
    "forecast_credits_spent": 8440,
    "forecast_error": "completed but never populated after 53 polls over 602 s"
+  },
+  "2026-08-29": {
+   "date": "2026-08-29",
+   "forecast_done": true,
+   "outcome_done": false,
+   "forecast_attempt_log": [
+    {
+     "submit_http": 200,
+     "activity_id": "0421de56-0410-4d66-a6f7-6de542198742",
+     "tiles": 17862,
+     "terminal_status": "completed",
+     "statuses_seen": [
+      "processing",
+      "completed"
+     ],
+     "elapsed_s": 50.9,
+     "polls": 4,
+     "empty_completed_polls": 0,
+     "submit_error_body": null,
+     "error": null,
+     "class": "ok",
+     "billed": true,
+     "credits_if_billed": 4220,
+     "sentence": "FortyGuard answered, activity 0421de56, after 51 s and 4 status polls.",
+     "tag": "n26_f_2026-08-29",
+     "at_utc": "2026-08-29T08:30:56.644338+00:00",
+     "lead_h": 9.498,
+     "leg": "forecast"
+    }
+   ],
+   "forecast_attempts": 1,
+   "forecast_billed_attempts": 1,
+   "forecast_credits_spent": 4220,
+   "forecast_tag": "n26_f_2026-08-29",
+   "forecast_lead_h": 9.498,
+   "forecast_n": 17862,
+   "forecast_mean": 30.7064,
+   "forecast_issued_utc": "2026-08-29T08:30:56.686792+00:00"
   }
  },
  "errors": {
@@ -364,8 +402,8 @@
   "n26_f_2026-08-27": "completed but never populated after 53 polls over 601 s",
   "n26_f_2026-08-28": "completed but never populated after 53 polls over 602 s"
  },
- "credits_last_before": 1044180,
- "credits_last_after": 1039960,
+ "credits_last_before": 832660,
+ "credits_last_after": 832660,
  "off_series_observations": {
   "2026-08-19T19:00": {
    "why_not_in_days": "target hour 19:00, NOT the fixed 14:00 the series controls for. Hour-of-day dominates forecast error here (Mondrian worst group 0.7314 vs 0.8794 pooled), so mixing hours would contaminate the coverage measurement. Kept as a separate observation.",

@@ -322,6 +322,200 @@ walks from an element to `html` and prints every ancestor whose `scrollHeight > 
 The fix is not a smaller constant, which would just be a guess at the masthead's height. Measure the
 scrollport and publish it: `--aa-scrollport` from a ResizeObserver on the real container.
 
+### 5b.13 GSAP DOES NOT ADVANCE UNDER CHROME'S VIRTUAL TIME, and neither does ScrollTrigger
+Every browser check in `testing/` runs Chrome with `--virtual-time-budget`, which is what lets a
+scenario describing 12 seconds finish in two. GSAP's clock does not keep up with it. MEASURED:
+
+* the hero entrance wrote its from-states correctly (`transform: translate(0%, 115%)` inside an
+  `overflow: clip` mask), rAF fired 150 times over 2.5 s, nothing threw, and 5 s of virtual time moved
+  the eyebrow's opacity to **0.9375** and the call to action **0.07px** into a 14px rise;
+* the scroll handoff reported `--aa-th-fade` of exactly **1** at every scroll position from 0 to 750,
+  i.e. it never fired at all;
+* `gsap.delayedCall` scheduled for 2.5 s had still not run at 6.2 s.
+
+THREE CONSEQUENCES, and they are different from each other:
+1. **Do not assert an animated VALUE under virtual time.** Assert the declaration (`transitionProperty`,
+   `animationDuration`), the mounted window, and the END STATE.
+2. **Anything that DECIDES when to start must not be on the animation clock.** `gsap.delayedCall` was
+   replaced with `window.setTimeout` for exactly this: when to begin is a wall-clock question.
+3. **For the few things that must be seen moving, remove the budget.** `testing/serve_app.py --hold N`
+   holds one subresource open, which delays the load event, which is what `--dump-dom` and
+   `--screenshot` wait for. The page then runs on a REAL clock for N seconds.
+   `verify_intro.py`'s `load(..., realtime=True)` is that mode.
+### 5b.13b IT IS NOT ONLY GSAP: A CSS ANIMATION HOLDS ITS `from` KEYFRAME FOR EVER TOO
+**You observe:** five rows that should have faded in are all sitting at `opacity: 0`, long after their
+520 ms animation should have ended. Nothing threw.
+**Actually:** the same frozen animation clock as 5b.13, applied to a plain CSS `animation`. While an
+animation is in its ACTIVE phase it overrides the element's own declared style, so a clock stuck at
+progress 0 paints the `from` keyframe indefinitely.
+⚠ **`animation-fill-mode` IS NOT THE FIX, AND TRYING IT COSTS A ROUND.** The first attempt removed
+`both`, on the reasoning that the fill was what held the from-state. It changed nothing, because fill
+mode only governs the BEFORE and AFTER phases and the animation is neither.
+**The fix is a wall-clock watchdog**, the same shape `intro/timeline.ts` already uses: a
+`window.setTimeout` marks the element `data-settled`, and a CSS rule cancels the animation for a
+settled element, so it falls back to its own declared style. Make that declared style the FINISHED
+state and a dead clock leaves a finished page.
+**And the check has to assert the watchdog's result, not the animated value**, which is 5b.13's own
+first consequence.
+
+### 5b.24 `new THREE.WebGLRenderer()` THROWS, AND A THROW IN AN EFFECT BLANKS THE WHOLE APP
+**You observe:** the user says "it's not rendering". Every check is green and the page renders on your
+machine.
+**Actually:** three.js does not return null when it cannot get a WebGL context, it throws. From inside
+a `useEffect` with no error boundary above it, React unmounts the entire tree. MEASURED with
+`--disable-webgl`: `#root` went from 1 child to 0. A background animation took the agent, the map, the
+panels and the report with it.
+**Two fixes and the second is the general one:** guard the construction, and put an ERROR BOUNDARY
+around anything decorative. `components/IntroBoundary.tsx` is that boundary; a class, because error
+boundaries are still the one thing React has no hook for. ⚠ Boundaries catch render and lifecycle
+errors only, never a throw inside a timer, a promise or an event handler.
+🔴 **AND THE REASON NO CHECK SAW IT: every browser check here passes
+`--enable-unsafe-swiftshader --use-gl=angle`, because MapLibre needs a rasteriser.** A harness that
+always supplies the thing under test cannot see its absence. `verify_intro.py` section 13b now takes it
+away on purpose.
+**The habit:** when a report is "it does not render" and your own load is clean, the difference is in
+the ENVIRONMENT, not the code path. Load it four ways with an error trap attached (built bundle, the
+deployed layout through the real server, the dev server, and then with a capability removed) rather
+than reasoning about which line is wrong.
+
+### 5b.23 A PROBE THAT REPORTS ONLY WHAT IT FOUND LETS ITS OWN CHECKS DISAPPEAR
+**You observe:** a verifier exits 0 with nothing red, and its total has quietly fallen. 208 checks
+became 204.
+**Actually:** the probe built its result with `if (el) { o[k] = ... }` and the Python side looped over
+`result.items()`. A selector that stopped matching therefore wrote no entry, and the assertions for
+that target REMOVED THEMSELVES rather than failing. In this instance the headline's four paragraphs
+became list items, `timeline.ts:SEL.prose` still said `> p`, and the four lines silently dropped out
+of the hero reveal with no symptom other than four fewer checks.
+**This is gotcha #74 in a new costume: a check that does not run reports success.** The 2,215-style
+dynamic totals this project prints are what makes it survivable at all; a fixed count would have said
+nothing.
+**The rule: never loop over what a probe FOUND, loop over what you REQUIRE.** Name the targets on the
+asserting side, have the probe report `{found: false}` for a miss, and fail on it by name.
+⚠ And a corollary for the probe: writing a key only on success is the same mistake one level down.
+Always write the key.
+
+### 5b.22 `serve_app.py --hold` DELAYS DOMContentLoaded, SO A PROBE HUNG OFF IT NEVER REPORTS
+**You observe:** a browser probe publishes nothing at all. No steps, no error, no partial log, and the
+harness can only say "the probe never ran".
+**Actually:** `--hold N` keeps one subresource pending for N seconds, which is exactly how a real-clock
+check buys wall-clock time. It also holds DOMContentLoaded back past the hold, so a listener on that
+event fires AFTER `--dump-dom` has already captured the page. The probe was fine; it was scheduled
+after the only moment anyone would look.
+**The fix:** poll for the element the scenario actually needs rather than waiting for a lifecycle
+event. `verify_launch.py` polls every 100 ms for an ENABLED `.shiny-cta`, which is both earlier and
+more precise, because what the scenario needs is a clickable button rather than a parsed document.
+⚠ **AND POLL FOR THE ENABLED STATE, NOT THE PRESENCE.** A disabled button silently ignores `.click()`.
+The first version clicked into the void while the CTA was still waiting for its audio to preload, and
+every downstream assertion failed in a way that looked like a broken product.
+
+### 5b.21 A BACKTICK IN A GLSL COMMENT CLOSES THE TEMPLATE LITERAL THE SHADER LIVES IN
+**You observe:** TypeScript reports `TS1005: ',' expected` at half a dozen lines scattered through a
+file, none of them where you were working, and the last one is the closing brace of a function that is
+plainly balanced.
+**Actually:** the shader is a template literal, and a comment inside the GLSL that quotes an identifier
+in backticks ends the string there. Everything after it is parsed as TypeScript, which is why the errors
+land in code that was never touched and why not one of them mentions a backtick.
+**Hit twice in one session**, on `` `HeatGlobe.tsx` `` and `` `uHug` ``, both in explanatory comments
+written in this codebase's usual style, which quotes identifiers that way everywhere else.
+**The habit:** inside a shader body, never quote an identifier. **The check:** a file's backtick count
+must be EVEN; an odd count means a literal is unterminated.
+⚠ And the second one broke the build, which matters because `tools/build_app.py` prints
+"vite build failed, exit 1. Nothing was copied" and the screenshot taken afterwards was of the OLD
+bundle, with figures that looked entirely plausible. Read that line. It is the same lesson as the
+identical-PNG-byte-size tell, from the other side.
+
+### 5b.20 A `[role=...]` SKIN THAT SETS `background` AS A SHORTHAND DELETES A COMPONENT'S ENTIRE FILL
+**You observe:** a self-contained component renders as a flat translucent wash with an outline. Its own
+stylesheet is present, correct, and demonstrably loaded.
+**Actually:** `tones.css` carried `[role='dialog'] button { background: color-mix(...) !important; }`,
+written for one Close button. `background` is a SHORTHAND, so with `!important` it does not tint what is
+underneath, it resets every `background-*` longhand. A component painting
+`linear-gradient(...) padding-box, conic-gradient(...) border-box` therefore came back with
+`background-image: none`.
+**The tell:** read the computed `backgroundImage`, not the computed `backgroundColor`. `none` on an
+element whose stylesheet clearly sets a gradient means something replaced the shorthand.
+**Fix it at the rule that is wrong**, with `:not(.the-component)`, rather than answering it with a
+louder rule elsewhere: one selector needs one owner in one file (5b.1's cousin, and the same lesson the
+`!important` war in the dropdown taught).
+⚠ This is the THIRD instance of the project-wide `[role=...]` skin capturing a later element. The gate
+itself hit it, `lastmile.css` hit it for prose, and now a button. **Any element that takes a role this
+project skins inherits that skin, whatever it was written for.**
+
+🔴 AND IT IS ALSO A PRODUCT RISK, NOT ONLY A HARNESS ONE. Every from-state is written by GSAP,
+`opacity: 0` included -- correct, because a stylesheet would leave the page blank whenever the
+animation is off. But it means visibility depends on a timeline completing. `intro/timeline.ts` carries
+a plain `setTimeout` watchdog that jumps the timeline to its end if it has not got there, so a stalled
+or throttled ticker leaves a FINISHED page rather than an invisible one.
+
+### 5b.14 AN SVG SCALE NEEDS `svgOrigin`. CSS `transform-origin` is inert and `transformOrigin` is not enough
+Three attempts, and only the third was right:
+1. `transform-origin: center` in CSS -- **inert**. GSAP bakes an SVG element's origin into the matrix it
+   writes and sets `transform-origin: 0px 0px` inline while doing it. MEASURED: the CSS rule computed
+   to `0px 0px`.
+2. `transformOrigin: 'center'` in the tween -- **did not fix it**. The worst halo-to-disc offset stayed
+   at **8.62px** across 995 samples, and it was worst at the node NEAREST the origin, so the
+   displacement was not the `cx * (scale - 1)` I had assumed.
+3. `svgOrigin: '<x> <y>'` in USER UNITS -- correct. 8.62px became **0px** across 915 samples.
+
+Why 'center' was wrong: a `<g>`'s bounding box includes the label text BELOW the disc, so its centre is
+not the disc's centre. The geometry is exported from `Pipeline.tsx` and named explicitly.
+The symptom was a ghost circle a hundred pixels from its node, and it was found **in a screenshot, not
+by a check**. `verify_intro.py` now samples halo-versus-disc alignment continuously.
+
+### 5b.15 AN ANIMATION PUSHED INTO THE ARRAY ITS OWN CALLBACK PAUSES CAN NEVER REVERSE
+The scroll handoff's `onUpdate` pauses the ambient loops once the fade passes 90 %, so nothing keeps
+tweening behind an invisible diagram. Both handoff tweens were in that same array. Past 90 % they
+**paused themselves**, froze, and could never reverse. MEASURED on a real clock: correct to 0 at
+scrollY 360, back UP to 0.060 at 480, and stuck at 0 after returning to the top -- a reader who
+scrolled down and up was left on a landing page with no background at all.
+Two arrays now: `loops` is ambient motion nobody is looking at, and is pausable. `handoff` is driven by
+the reader's own scroll and never is.
+🔴 THE CHECK IS THE LESSON. Sampling only downwards passed. Any reversible animation has to be swept
+BOTH WAYS, and the same scroll position must give the same value in each direction.
+
+### 5b.16 PASTED COMPONENTS CARRY THEIR FRAMEWORK'S ASSUMPTIONS
+A supplied component used `<style jsx>`, which is styled-jsx, which is Next.js. This project is Vite +
+React 19 and has neither. Left as pasted, React 19 renders a `<style>` element with an invalid `jsx`
+attribute: it warns, and then injects every rule **globally unscoped**, including four `@property`
+registrations and keyframes named `shimmer` and `breathe`. That is worse than not working, because it
+half-works and the failure is a name collision months later.
+The same paste also carried `@import url("https://fonts.googleapis.com/...Inter...")`. Inter is
+self-hosted here and preloaded, and offline operation is a standing requirement.
+CHECK BEFORE PASTING: `next` and `styled-jsx` in package.json, `"use client"` (inert in Vite, keep it
+for portability), any `@import` over the network, and `next/image` or `next/font`.
+
+### 5b.17 `--fg-bright` FAILS AA ON NEAR-WHITE. CHECKING ONE PALETTE IS CHECKING HALF THE PRODUCT
+`--fg-bright` is `#14a1e0` in dark, which is 6.83:1 on the near-black page, and `#0d7fb4` in light,
+which is **4.27:1** on `#fafafa` -- under the 4.5:1 floor for small text. It has now been hit three
+times: the gate's eyebrow, the agent loop's data labels, and the splash's timestamps.
+The answer each time is `--fg-deep`, the wordmark's darker half, `#12558f` in light, **7.39:1**. An
+existing token, same hue family, no literal, no palette value touched.
+TWO GENERAL RULES FROM IT:
+* any small text painted `--fg-bright` needs a light-theme override;
+* **opacity on text is the other repeat offender.** `opacity: 0.72` on `--text-secondary` measures
+  ~2.4:1 dark and ~2.1:1 light. It looks like "slightly quieter" and is arithmetically "less
+  legible". If a line must recede, use a quieter COLOUR that has been measured.
+
+### 5b.18 A GRADIENT FILL IS INVISIBLE TO `background-color`, so a contrast probe will lie
+The contrast helper walks up for the first opaque `background-color`. A button whose fill is
+`linear-gradient(var(--x), var(--x)) padding-box` has a TRANSPARENT background-color, so the walk went
+past it to the page and measured white text on a near-white page: **1.10:1** reported for a control
+that actually renders 15.56:1. The fix is to measure against the colour the gradient is made of, which
+the component declares as a custom property.
+Related: a `color-mix()` computes to `oklab(...)`, which the same regex cannot parse -- and the row
+silently VANISHED from the results while every check still said PASS. An unreadable colour must be
+reported as a failure, never dropped.
+
+### 5b.19 A PUBLISHED FIGURE CAN HAVE A THIRD COPY THAT NOTHING CHECKS
+`audit.py`'s spend section registers **API-USAGE.md and CONTEXT/HANDOFF.md**, and
+`testing/bump_spend_docs.py` writes those same two. `README.md:603` carries a THIRD copy, and it says
+**"13 calls, 54,860 credits, 2.74 %"** against a true 281 calls / 1,167,340 / 58.37 %. It is internally
+consistent (13 x 4,220 = 54,860) because it was right when 13 calls had been made, and it has never
+been updated because nothing looks at it.
+The sentence even claims provenance -- "derived from the credit meter rather than asserted" -- for a
+number that has drifted from the meter by a factor of 21, in the one document a judge reads.
+WHEN A FIGURE IS PUBLISHED IN TWO PLACES, GREP FOR A THIRD.
+
 ### 5b.10 `exit=$?` AFTER A PIPELINE READS THE PIPE'S LAST COMMAND, not the test
 Three verifiers were reported as passing on the strength of this loop:
 

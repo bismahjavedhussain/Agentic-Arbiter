@@ -191,7 +191,13 @@ def main():
         src.replace("</body>", PROBE + "</body>"))
     try:
         global URL
-        URL = "http://127.0.0.1:%d/app/_det.html?probe=1" % PORT
+        # ?motion=off for a reason specific to THIS check: it renders twice from a FRESH PROFILE
+        # each time, so localStorage and sessionStorage are empty on both runs and the enter gate
+        # would show on both. Worse, an animated page is not a pure function of the artefacts at any
+        # given instant -- two captures could differ purely by where a tween had reached, which
+        # would make this check report a determinism failure that is really a timing artefact.
+        # Motion off is the state this check is about: the final rendered page.
+        URL = "http://127.0.0.1:%d/app/_det.html?probe=1&motion=off" % PORT
         a, doma = capture(browser, "a")
         b, _ = capture(browser, "b")
     finally:

@@ -267,3 +267,66 @@ The page fetches these at runtime from `AGENTIC-ARBITER/demo/`:
 **`offerable` is the only source of truth for "ready to run".** The map once coloured its dots from a
 stale baked `status` string and disagreed with its own caption: it said 246 runnable and painted 3
 green. See `01-STATE` for why 250 and 246 are both correct.
+
+## 8. The cinematic intro layer: `AGENTIC-ARBITER/app/src/intro/`
+
+Added 2026-08-29. The landing stage's opening sequence. **App-side only** -- nothing here is lifted
+from `demo/index.html` and nothing here is byte-asserted, so it is the one part of the product that
+can be changed without re-lifting.
+
+### The single most important architectural fact
+
+**"Landing page only" is a STAGE, not a route.** This product is one document: `body[data-stage]`
+moves through `pick` -> `configure` -> `results` and the engine's `setStage()` is its single owner.
+There is no navigation event to hang cleanup off, so **the stage attribute IS the navigation**, read
+through `lib/stage.ts`'s `useStage()`, a read-only MutationObserver. When it leaves `pick`,
+`IntroLayer` unmounts its children, tears down audio, kills every timeline and every ScrollTrigger.
+
+### What each file owns
+
+| File | Owns |
+|---|---|
+| `flags.ts` | The two kill switches, resolved once. URL parameter beats localStorage beats a constant. Also `isNarrow()` (768px, matching `hooks/use-mobile.ts`) and `hasSeenSplash` |
+| `audio.ts` | Two `<audio>` elements plus a three-element chime pool, preload, the duck, mute, and `teardown()` which clears `src` and reloads so the decoder is actually released |
+| `IntroGate.tsx` | The splash: globe, title, staggered widgets, ShinyButton, FortyGuard mark. Focus trap, focus restore, scroll lock |
+| `IntroLayer.tsx` | **The only thing `App.tsx` knows about.** Reads the flags once, exists only on the landing stage, and is where every teardown lives |
+| `timeline.ts` | One GSAP entrance timeline, the ambient pulse and float, and the scroll handoff. Two beat maps: silent (1,520 ms) and audio-synced (4,110 ms, derived from the measured voiceover) |
+| `Pipeline.tsx` | The five-stage agent loop as SVG, and the geometry the timeline needs (`NODE_XS`, `NODE_ROW_Y`, `LOOP_PATH`) |
+| `HeatGlobe.tsx` | **Three.js** since 2026-08-29, replacing cobe entirely. ⚠ **The framing is three ratios of the MEASURED container and the camera distance is derived from them** (`FRAME`: diameter 0.90 of H, centre at 0.72 of W and 0.66 of H), recomputed from the ResizeObserver so it holds at any window size. It moves the CAMERA and never `mesh.scale`, because the atmosphere is a separate shell at a fixed radius and scaling the earth detaches the glow. `applyLayout()` publishes what it solved as `data-aa-sphere`, so a probe measures the applied values rather than re-deriving them, and the particle lattice is offset in the adjacent statement so it cannot reframe separately (see `04-STANDING-RULES` C5). Three spheres: the Earth at radius 1 with day, normal and specular maps; a cloud shell at 1.01 read as an `alphaMap`; an atmosphere at 1.15 rendered `BackSide` through a custom fresnel shader, additively blended. One directional light plus a low blue ambient. Own rAF loop with a real clock, drag to rotate, and a teardown that disposes every geometry, material and texture and calls `forceContextLoss()` |
+| `funnel.ts` | the converging measurement LATTICE, rebuilt 2026-08-29 from a random scatter that read as confetti. One `THREE.Points`, **760 dots on an exact 38 x 20 (u, v) grid**, additive, uniform size. A fan in the SCREEN PLANE with a quadratic bow, plus a radial clamp at 1.045 so the sheet hugs the planet instead of sinking inside it. **Every position is computed in the vertex shader**: the grid is written once and only a `uTime` uniform crosses per frame. No noise term in the shape at all, and the one hash is a flicker phase that displaces nothing |
+| `demo/textures/` | the four Earth maps the globe fetches through `ART`, 1.19 MB, CC BY 4.0. Written by `tools/make_earth_textures.py`, attribution in `CREDITS.txt` beside them. ⚠ `earth_normal.png` is lossless on purpose: its signal is 1.36 of 255 wide and is amplified in the shader |
+| `ThermalField.tsx` | The background. Pure CSS keyframes, no JS in the motion at all |
+| `launch.ts` | **The timed cinematic behind "Initialize Arbiter"**, added 2026-08-29. One GSAP timeline owns the visuals; audio is fired at labels and listened to nowhere; a wall-clock watchdog owns completion so a frozen GSAP clock cannot strand the reader. Carries the undocumented Esc / Space / click escape hatch, bound before the timeline is built |
+| `globeDolly.ts` | The one channel between that timeline and the camera. A number from 0 to 1, never a camera: the framing is re-solved on resize, so a timeline writing `camera.position.z` would be overwritten mid-sequence |
+| `intro.css` | Loaded last, after `lastmile.css`. Section 8 pins the hero to the DARK palette in both themes, for the reason in `04-STANDING-RULES` C5 |
+
+**AND ONE FILE THAT DELIBERATELY LEFT THIS FOLDER.** `components/StageRows.tsx` and its
+`stagerows.css` hold the five agent stages that used to sit in the splash between the subhead and the
+call to action. They were moved below the map on 2026-08-29 and moved OUT of `intro/` in the same
+change, because everything in `intro/` is motion and `?motion=off` unmounts all of it: those rows are
+the only plain-language account of the loop on the landing page, so they are content and must survive
+every kill switch. `App.tsx` renders them inside `[data-show="pick"]`, so `setStage()` still owns
+whether they are visible. Their stylesheet is therefore **not** scoped to `body[data-aa-intro]`, and it
+follows the reader's theme rather than being pinned dark, because nothing in it is emissive.
+
+### Three stacking decisions that are not obvious
+
+* **The heat field is portalled to `<body>`, not rendered inside `#app`.** `z-index: -1` is useless
+  because `body` has an opaque background (`index.css:270`) and a negative-index child paints behind
+  it. A `z-index: 0` positioned element paints ABOVE static block content, so inside `#app` it would
+  cover the prose. As a direct child of body at `z-index: 0` with `#app` raised to `1`, the order is
+  right. That one declaration on `#app` is the only thing the feature changes about an existing
+  element, and it is scoped to `body[data-aa-intro]`.
+* **The agent-loop diagram is portalled into `<div id="aa-ringslot" />`**, which `App.tsx` renders
+  under the masthead. Same pattern as the existing `#aa-railslot` that `EngineStage` fills. The slot
+  is read in a `useEffect`, not during render, because on the first pass React has not put App's own
+  output in the document yet.
+* **The splash locks `documentElement.overflow`, not `body`.** Only the ROOT element's overflow
+  propagates to the viewport; on `<body>` alone it changed nothing and the page still scrolled behind
+  the overlay.
+
+### Five `data-aa-hero` attributes, and why they exist
+
+`Masthead.tsx` carries four and `SelectedBar.tsx` one. They are attributes only -- no class, element
+or nesting level changed. Those elements otherwise carry only Tailwind utilities, and matching on
+those would couple `timeline.ts` to someone else's spacing decisions.

@@ -291,6 +291,22 @@ been asserting that a static host pretends to have a server. The check is now mo
 ⚠ **Still missing for the app:** `verify_palette.py` coverage of `app/src/index.css` (its tokens are
 inherited, not independently verified), and the light theme has not been checked by eye.
 
+### `testing/shot_hero.py` - looking at the hero, and measuring it
+
+**Not a verifier**; it exits 0 either way and nothing runs it in `run_all.py`. It renders the splash to
+PNG in both palettes and prints the composition, the four texture fetches and every text element's
+contrast ratio.
+
+🔴 **`render_shots.py` CANNOT PHOTOGRAPH THE HERO, AND WILL SILENTLY PHOTOGRAPH THE WRONG THING.** It
+passes `--force-prefers-reduced-motion=reduce`, and `flags.gateEnabled()` returns false under that
+query, so every shot it takes is of the page BEHIND the splash. That flag is correct for the shots it
+was written for and fatal for this one.
+
+⚠ **AND IT MEASURES THE SPHERE FROM WHAT THE COMPONENT PUBLISHES, not from the canvas box.** The canvas
+covers the whole viewport by design, so a crop computed from the canvas reported "0 % cropped" for a
+globe that is visibly cropped. `HeatGlobe.tsx` publishes `data-aa-sphere` after its layout pass and
+this reads that. A measurement of the wrong box is worse than no measurement.
+
 ## 6. The two experiment families in `testing/`
 
 Not verifiers, and `run_all.py` runs neither as a family.
@@ -328,3 +344,71 @@ Stated so the gaps are decisions rather than oversights.
 - **Write-only state in the page.** `INSPECT_KEY`, `LIVEJOB` and `ENV` are assigned or declared and
   never read. Harmless; `LIVEJOB` sits inside `runLive()`, which standing rule C1 says to leave alone
   without asking.
+
+## 5c. The three verifiers added 2026-08-29
+
+All three cost nothing to run: no API calls, and the two that need a browser skip cleanly without one.
+
+### `verify_intro.py` - the cinematic intro, 227 checks
+
+**Why it exists:** the splash is a full-viewport overlay at `z-index: 200` over a working product, and
+`verify_app_flow.py` runs with `?motion=off` precisely so it never meets it. Without this file nothing
+in the suite would notice if the splash started eating the Configure click forever.
+
+Thirteen sections. The ones worth knowing about:
+* **the overlay probe uses `elementFromPoint`**, not the absence of a node. It probes the Configure
+  button when it is on screen and the viewport centre when it is not, and records WHICH, so a pass can
+  never be mistaken for the other measurement;
+* **`motion=off` must leave no trace** -- no gate, no diagram, no field, no body attribute;
+* **the audio contract is observed by patching `HTMLMediaElement.prototype`** before the bundle runs
+  (possible because Vite emits a deferred module while a classic inline script in `<head>` executes
+  during parse). `audio.ts` builds its elements with `new Audio()`, so they are never in the DOM;
+* **contrast is measured in both palettes**, compositing the text colour's alpha and every inherited
+  opacity over the nearest opaque background. Eight elements, 4.5:1 floor. It has caught four real
+  failures;
+* **`load(..., realtime=True)`** removes the virtual-time budget for the scroll handoff. See trap
+  5b.13;
+* **the handoff is swept DOWN AND BACK UP**, because the bug it guards against was one-way;
+* **sections 14 and 15, added 2026-08-29 with the hero rebuild.** 14 asserts BOTH HALVES of the
+  instruction that moved the five stage rows out of the hero: zero of them on the splash, and five of
+  them below the map with their labels, notes, icons and timestamps. Either alone is a false pass,
+  because "deleted outright" satisfies the absence and "still in the hero" satisfies the presence.
+  15 measures the rows' own contrast, separately from the splash's, because the hero is pinned dark in
+  both palettes and the rows sit on a surface that follows the theme, so the same token passes in one
+  and fails in the other.
+
+🔴 **SECTION 14 FOUND A REAL PRODUCT DEFECT, which is the whole argument for writing it.** It measured
+all five rows at `opacity: 0`. The cause is `05-TRAPS` 5b.13 in a new guise: a CSS animation in its
+active phase overrides the element's declared style, so a frozen animation clock holds the `from`
+keyframe for ever. `animation-fill-mode` is irrelevant and removing it changed nothing. The product now
+carries a wall-clock watchdog that marks each row `data-settled` and cancels the animation, and the
+check asserts THAT rather than an animated value, per 5b.13's own first consequence.
+
+### `verify_launch.py` - the Initialize Arbiter cinematic, 68 checks
+
+**Why it is a separate file from `verify_intro.py`:** it runs on a REAL clock. Every other browser check
+uses `--virtual-time-budget`, and GSAP does not advance under it (`05-TRAPS` 5b.13), so a GSAP-driven
+seven-second sequence cannot be measured there at all: what completes it is the wall-clock watchdog, and
+every cue attached to a timeline label is never reached. This file removes the budget and lets
+`serve_app.py --hold 15` give the page real seconds. It is slow, about three minutes, and it costs
+nothing.
+
+Eight sections, one per scenario the brief named: the normal run (including the push-in, measured from a
+`data-aa-dolly` the globe publishes), the escape hatch from Esc, Space, a click and five presses at once,
+the absence of any visible skip hint across three scenarios, the muted short path, every audio file
+404ing, a double click, navigating away mid-sequence, and the `?cinematic=off` kill switch. Section 8
+reads the source and asserts the contract: no audio listener, a wall-clock watchdog, and the hatch bound
+literally earlier in the function than the timeline.
+
+⚠ **Its own comment scan masks comments first** (`05-TRAPS` 5b.1): `launch.ts` explains at length why it
+does not chain off `audio.onended`, and a substring search for that name finds the explanation.
+
+### `verify_stop_control.py` - does "Stop agent now" stop the spending, 31 checks
+The assertion is a CALL COUNT, not a flag: stopped after 2 of 12 submits, `submit_window` is called
+exactly 2 times and 10 windows come back `stopped_by_operator`, which is 42,200 credits not spent. The
+two functions that reach FortyGuard are stubbed and one assertion is that the stub was never reached.
+
+### `verify_live_report_button.py` - the live run's PDF, 25 checks
+Checks BOTH halves, because either alone is a false pass: a button pointing at a broken route and a
+working route with no button look identical from one side. Driven with a replay fixture selected by
+TILE DISTANCE rather than by filename, which is the criterion the product itself applies.
