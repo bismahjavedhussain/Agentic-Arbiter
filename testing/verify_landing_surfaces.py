@@ -274,6 +274,61 @@ def main():
             n = int(c.eval("document.querySelectorAll('[data-aa-pulse]').length"))
             ck(n == 1, "exactly one dot, so nothing doubled up", "%d found" % n)
 
+            head("4c. THE HANDOVER: nothing animated is ever visible static first")
+            # 🔴 THE ASSERTION THAT WAS MISSING WHEN THIS SHIPPED. The suite counted WHAT the entrance
+            # animates and never checked WHEN. The user reported the consequence: "The text exists
+            # there static for a few milli second, then disappears and triggers a transition ... If it
+            # has a transition over it, it should not be visible static in the first place."
+            # The rule is one sentence and it is checkable: while the splash is still substantially
+            # opaque, no element the entrance animates may be at its resting opacity. If it is, the
+            # crossfade is revealing a finished page that is about to be blanked.
+            c.goto(settle=2.0)
+            c.eval(HELPERS)
+            armed = c.poll("(function(){var b=document.querySelector('.shiny-cta');"
+                           "return b && !b.disabled ? 1 : 0;})()", timeout=30)
+            ck(bool(armed), "the gate arms again for the ordering check")
+            c.eval("""window.__seq = [];
+              (function(){
+                var sel = ['[data-aa-hero="eyebrow"]', '[data-aa-hero="prose"] > ul > li',
+                           '[data-aa-hero="status"]'];
+                var id = setInterval(function(){
+                  var g = document.querySelector('.aa-gate');
+                  var row = {t: Math.round(performance.now()), gate: g ? +getComputedStyle(g).opacity : null};
+                  for (var i = 0; i < sel.length; i++){
+                    var e = document.querySelector(sel[i]);
+                    row['e' + i] = e ? +getComputedStyle(e).opacity : null;
+                  }
+                  window.__seq.push(row);
+                  if (window.__seq.length > 1400) clearInterval(id);
+                }, 20);
+              })(); 1""")
+            c.eval("document.querySelector('.shiny-cta').click(); 1")
+            c.poll("!document.querySelector('.aa-gate')", timeout=45)
+            time.sleep(2.0)
+            seq = json.loads(c.eval("JSON.stringify(window.__seq)"))
+            # ⚠ THE WINDOW IS THE CROSSFADE, NOT THE WHOLE SEQUENCE, and the first version of this
+            # check got that wrong and failed a working build. While the splash is FULLY opaque the
+            # page behind it is at rest and nobody can see it; that is not the defect. The defect is a
+            # page that is at rest at the moment it starts to become visible. So the samples that
+            # matter are the ones where the gate has begun to fade and has not finished: 283 of 310
+            # samples above 0.9 opacity had text at rest, and every one of them was during the six
+            # second hold, behind an opaque screen.
+            covered = [r for r in seq
+                       if r["gate"] is not None and 0.03 < r["gate"] < 0.995]
+            ck(len(covered) > 8, "the crossfade itself was sampled",
+               "%d samples with the gate part-way out" % len(covered))
+            bad = [r for r in covered
+                   if any((r.get("e%d" % i) or 0) > 0.5 for i in range(3))]
+            ck(not bad,
+               "NO ANIMATED ELEMENT IS AT ITS RESTING OPACITY WHILE THE SPLASH IS FADING OUT",
+               "%d of %d crossfade samples show one; first at t=%s"
+               % (len(bad), len(covered), bad[0]["t"] if bad else "-"))
+            # and they really do arrive afterwards, so the check cannot pass by animating nothing
+            after = [r for r in seq if r["gate"] is None]
+            ck(any((r.get("e0") or 0) > 0.9 for r in after),
+               "and they do arrive once it has gone, so this is not passing on an empty page",
+               "%d samples after the gate left" % len(after))
+
             head("5. A RELOAD RETURNS TO THE LANDING GATE")
             seen = c.eval("(function(){try{return sessionStorage.getItem('hasSeenSplash');}"
                           "catch(e){return 'x';}})()")

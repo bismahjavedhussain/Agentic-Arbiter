@@ -12,6 +12,113 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE GLOBE ARRIVES INSTEAD OF APPEARING, AND THE NEXT PAGE STOPS FLASHING ITS OWN TEXT. 2026-08-30
+
+Two faults, both about ORDER rather than about speed, and both fixed by moving when something happens
+rather than by making anything faster.
+
+🔴 **1. THE GLOBE WAS A BLACK DISC FOR THE FIRST HALF-SECOND OF EVERY LOAD.** The user: "it shows a
+black space in place of globe when the website is loaded and globe takes time to render."
+It is not slow rendering. `HeatGlobe` starts its draw loop on the frame it mounts, and
+`THREE.TextureLoader.load()` has by then only RETURNED a Texture object; nothing has decoded into it.
+**A WebGL sampler bound to an incomplete texture reads (0, 0, 0, 1)**, and `MeshPhongMaterial`
+multiplies its white base colour by that, so the sphere is black until `earth_daymap.jpg` has been
+fetched (197 KB), decoded (2048x1024) and uploaded. The file's own comment already said as much
+("a single render would draw a black sphere") for the reduced-motion branch and the normal branch had
+no equivalent.
+
+**A smaller texture would not have fixed it, because the problem is the round trip.** So the fix is a
+texture that needs no network: `tools/make_globe_poster.py` resamples the shipped day map to **128x64,
+2,681 bytes**, and writes it as a base64 data URI into `app/src/intro/globePoster.ts`. That is INSIDE
+the bundle, so it is in memory before the component runs and the only cost left is a decode.
+The wrapper also starts at `opacity: 0` and is lifted by `data-aa-globe="ready"`, set on the poster's
+decode or after a 1.2 s wall-clock floor, whichever is first: even a data URI decodes asynchronously,
+so without that there would still be a frame or two of black.
+⚠ **THE FADE IS ON THE WRAPPER, NOT THE CANVAS**, and that is not arbitrary: the canvas carries three
+deliberate opacities of its own (0.72 dark, 0.62 light, 0.5 under 768px) which are a legibility
+decision about type over scenery. Fading the parent multiplies with whichever applies. Fading the
+canvas would mean this code picking one of the three.
+⚠ **AND THE POSTER ALONE WAS A HALF FIX, WHICH AN ADVERSARIAL PASS CAUGHT BEFORE IT SHIPPED.** An
+empty `map` is not the only way to get a black sphere: an empty NORMAL MAP is enough on its own.
+`normal_fragment_maps` does `mapN = texture(normalMap).xyz * 2 - 1`, which for an all-zero texture is
+(-1, -1, -1), and the resulting normal points into the surface so every light term goes to zero.
+MEASURED in an isolated scene against the repository's own three build: the real 2048x1024 day map
+with an empty normal map renders **(0, 1, 10)**, still black to a reader, and with `normalMap` left
+null it renders **(48, 78, 113)**, a lit ocean. Throttled to 20 Mbps the poster-only build was still
+near-black for a further 420 ms, waiting on `earth_normal.png`, which at 463 KB is the largest of the
+four. So the normal and specular maps are now requested at the same moment and ATTACHED only when
+they carry pixels.
+**MEASURED after, with a CDP screencast: 0 frames show a black disc, on a fast load and again
+throttled to 20 Mbps with 40 ms of latency.** The sequence is page background, then the globe fading
+in from 750 ms, fully up by 1,379 ms. The full map replaces the poster in place when it decodes, and
+because both are the same photograph the change reads as focus rather than as a swap.
+**For scale, from the user's own recording of the deployed site: 440 ms of empty space, then 480 ms of
+a pure black disc, RGB (0, 0, 0) alpha 255.**
+
+🔴 **2. THE NEXT PAGE SHOWED ITS TEXT, BLANKED IT, THEN ANIMATED IT IN.** The user: "The text exists
+there static for a few milli second, then disappears and triggers a transition ... If it has a
+transition over it, it should not be visible static in the first place."
+An ordering problem, exactly as described. `IntroLayer`'s `finish` did two jobs: unmount the gate AND
+build the hero entrance. But the gate does not vanish at `finish`; it has already spent `outS` = 1.2 s
+crossfading, and during that second the page behind was revealed AT ITS RESTING STATE. Only afterwards
+did `playHeroEntrance` write its opacity-0 from-states, blanking text the reader had been looking at.
+
+**GSAP's `from()` renders its start values on CONSTRUCTION**, not on the first tick, which is what
+makes the fix small: `playLaunch` gained an `onOut` hook that fires at its own `out` label, and
+`playHeroEntrance` gained a `leadS` delay. Building the entrance at the START of the crossfade puts
+every animated element at opacity 0 while the splash is still opaque; the delay holds playback until
+the splash has gone. The crossfade then reveals the page's background, cards, ring and filter bar, and
+the text arrives onto it.
+⚠ **THE COMMENT THIS REPLACES WAS RIGHT ABOUT THE CLICK AND WRONG ABOUT THE CROSSFADE.** It said the
+entrance must start at the end "because it animates the masthead behind the splash and would otherwise
+play out entirely unseen". Starting at the click would indeed waste it behind six seconds of opaque
+splash; starting at the crossfade wastes nothing, because the delay means nothing plays until there is
+something to see it on.
+**MEASURED two ways.** By DOM: at the last sample before the crossfade begins, with the gate still at
+opacity 1, the eyebrow, the four list items and the status line are all already at **opacity 0**, and
+they stay there for all 16 samples of the crossfade. By screencast, counting text pixels per frame:
+splash copy until 1,247 ms, **everything empty at 1,696 ms**, the wordmark from 1,880 ms, the bullets
+from 2,390 ms, the status from 2,591 ms. No frame has the next page's text sitting static.
+`onOut` fires at most once and is also fired by the escape hatch with its own shorter crossfade, so a
+skipped sequence gets the same treatment.
+
+⚠ **AND THE SPLASH WAS NOT FADING OUT AT ALL, WHICH IS A THIRD THING THE SAME PASS FOUND.**
+`intro.css` still carried `transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1)` on the gate, left
+over from when CSS owned the exit. A CSS transition does not step aside for GSAP: it FILTERS every
+value GSAP writes, so a 1.2 s tween from 1 to 0 was being chased 600 ms behind itself and the element
+was unmounted while its computed opacity was still about **0.26**. The splash was being cut off a
+quarter of the way through its own fade, in both the old build and the new one. It is the same
+two-owners-of-one-property fault the rule beside it already documents, in the other direction: that
+change removed `opacity: 0` and left behind the transition that animated it. Removed. MEASURED after:
+the crossfade window went from about 20 samples to 49.
+
+🔴 **AND THE ASSERTION THAT WOULD HAVE CAUGHT ALL OF THIS IS NOW IN THE SUITE.** `verify_intro.py`
+counted WHAT the entrance animates and nothing checked WHEN. `verify_landing_surfaces.py` section 4c
+polls the gate's opacity and three animated targets every 20 ms through a real click, and requires
+that in every sample where the gate is part-way out, NO animated element is at its resting opacity.
+⚠ Its first version used the wrong window, `gate > 0.9`, and failed a working build: 283 of 310 such
+samples had text at rest, every one of them during the six-second hold behind a fully opaque screen.
+The rule is about the moment a page becomes VISIBLE, so the window is `0.03 < gate < 0.995`. It also
+asserts the elements do arrive afterwards, so it cannot pass by animating nothing.
+
+⚠ **`testing/cdp.py` GAINED A SCREENCAST**, and it had to. `Page.captureScreenshot` is a COMMAND
+scheduled on a main thread that is busy parsing 2 MB of JavaScript during exactly the window these two
+faults live in: MEASURED, a capture requested at 300 ms was delivered at **2,053 ms**. A screencast is
+pushed by the compositor instead, so the timestamps are the browser's. `subscribe()`, `pump()` and
+`frames()` are new, and `send()` now buffers subscribed events instead of discarding everything that
+is not a reply.
+
+⚠ **ONE HARNESS ASSERTION HAD TO LOOSEN, AND IT IS WORTH SAYING WHY THAT IS NOT MOVING A GOALPOST.**
+`verify_intro.py` matched the literal string `playHeroEntrance(false, 'full')`, which a third argument
+breaks. What the check exists to prove is that `false` is TYPED at the call site rather than inherited
+from a default, because the silent beat map is a decision. It now matches the call and its two
+required arguments and prints the line it found.
+
+**Verified after:** `verify_intro.py` 227/0, `verify_launch.py` 68/0, `verify_landing_surfaces.py`
+39/0, `verify_scroll_and_theme.py` 36/0, `verify_tooltip.py` 70/0, `verify_results_surfaces.py` 29/0,
+`shot_rail.py` 208/0, `verify_app_flow.py` PASS, plus the palette, determinism, identity, panel and
+audit set.
+
 ### THE PAGE SCROLLS, THE GLOBE IS THE FIRST FRAME, AND A THEME CHOICE STAYS ON ITS SCREEN. 2026-08-30
 
 Four reports. Three of them were only visible under a condition no check in this repository

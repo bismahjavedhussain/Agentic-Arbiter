@@ -55,9 +55,16 @@
   box-shadow: none !important;
   color: var(--text-primary) !important;
   opacity: 1;
-  /* Only opacity is animated, per the performance rule. No backdrop-filter: a blur across a full
-     viewport is the one effect that reliably costs frames on integrated graphics. */
-  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* 🔴 NO TRANSITION HERE, AND THE ONE THAT USED TO BE HERE WAS CUTTING THE EXIT SHORT.
+     It read `transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1)`, left over from when CSS owned
+     the exit. GSAP has owned it since 2026-08-29 (see the note below), and a CSS transition does not
+     step aside for that: it FILTERS every value GSAP writes, so a 1.2 s tween from 1 to 0 was being
+     chased 600 ms behind itself and the element was unmounted while its computed opacity was still
+     about 0.26. MEASURED in both the old build and the new one: the splash does not fade out, it is
+     cut off a quarter of the way through.
+     This is the same two-owners-of-one-property fault the note below describes, in the other
+     direction: that one removed `opacity: 0` and left the transition that animated it.
+     Only opacity is animated, per the performance rule, and it is animated by the timeline. */
 }
 
 /* 🔴 THE EXIT NO LONGER BELONGS TO CSS, AND THIS RULE IS NOW ONLY THE POINTER LOCK.
@@ -601,6 +608,21 @@ body[data-aa-intro] .aa-thermal-b {
   overflow: hidden;
 }
 
+/* 🔴 THE GLOBE FADES IN, AND IT STARTS AT ZERO SO THERE IS NO BLACK DISC TO SEE.
+   `HeatGlobe` draws on the frame it mounts, before any texture has decoded, and a WebGL sampler bound
+   to an incomplete texture reads black. It now paints a 2.6 KB poster compiled into the bundle
+   instead, but a decode is still asynchronous, so there is a frame or two with nothing worth showing.
+   This holds the wrapper invisible until the component sets `data-aa-globe="ready"`, which it does on
+   the poster's decode or after a 1.2 s wall-clock floor, whichever comes first.
+   ⚠ ON THE WRAPPER, NOT THE CANVAS. The canvas carries three deliberate opacities of its own (0.72
+   dark, 0.62 light, 0.5 narrow) and they are a legibility decision about type over scenery. Fading
+   the parent multiplies with whichever applies; fading the canvas would mean picking one. */
+.aa-splash .aa-splash-globe {
+  opacity: 0;
+  transition: opacity 520ms ease-out;
+}
+.aa-splash .aa-splash-globe[data-aa-globe='ready'] { opacity: 1; }
+
 .aa-splash .aa-splash-globe-canvas {
   /* Square, capped by the smaller axis. The component keeps the drawing buffer square too, so the
      globe is never drawn as an oval. */
@@ -675,6 +697,9 @@ body[data-aa-intro] .aa-thermal-b {
 @media (prefers-reduced-motion: reduce) {
   .aa-gate[role='dialog'].aa-splash { transition: none; }
   .aa-splash .aa-splash-globe-canvas { transition: none; }
+  /* The globe still WAITS for something to draw, it just arrives instead of fading. A reader who
+     asked for less motion is asking not to be moved, not to be shown a black disc. */
+  .aa-splash .aa-splash-globe { transition: none; }
 }
 
 /* ---- NARROW: the splash does not render under 768px at all (flags.ts), so these are only reachable

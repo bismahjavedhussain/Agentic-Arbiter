@@ -188,8 +188,8 @@
       "sha256": "84e52e7512baecff66bb4a3bf8f6e4996d013664dfc08a2d8df5dd4be684b3f1"
     },
     "drawHeadline": {
-      "bytes": 8239,
-      "sha256": "b56e5aecfa732235ce9b4429df90903056467022f75dd5bb95dee41eeaf41820"
+      "bytes": 10752,
+      "sha256": "2a8ea4f448401469011690c08c260adca19c2fa60bdd169bbcfb4ddac58cc171"
     },
     "drawLadder": {
       "bytes": 9709,
@@ -220,8 +220,8 @@
       "sha256": "028d525b7f502e44feea00d624f11621af89c74c1755294b4a6a2c54f339b592"
     },
     "drawPlate": {
-      "bytes": 12393,
-      "sha256": "1dd2a1a40943fff1741ffc9c6c928d517c05d09b415331b7edb726b9069cdf62"
+      "bytes": 13248,
+      "sha256": "d4238eee456a885c8a9f06a6d3929f042f49aa711a255fe4f672685f74f2f6a4"
     },
     "drawPlume": {
       "bytes": 8406,

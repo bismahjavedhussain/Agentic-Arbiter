@@ -50,6 +50,7 @@ import * as THREE from 'three'
 import { ART } from '../lib/artefacts'
 import { makeFunnel, type Funnel } from './funnel'
 import { registerDolly } from './globeDolly'
+import { POSTER_DAY } from './globePoster'
 
 /** Prepared by tools/make_earth_textures.py. Fetched through ART for the reason stated above. */
 const TEX = {
@@ -283,6 +284,10 @@ export function HeatGlobe({ reduced, narrow }: { reduced: boolean; narrow: boole
        ITS OWN LoadingManager, not `THREE.DefaultLoadingManager`: the default is module-global and
        shared with anything else in the process that loads through three, so setting `onLoad` on it
        would be this component reaching outside itself. */
+    /* Assigned by the reveal below and called from the poster's decode callback, which is created
+       before it. A plain `let` rather than a ref: it lives and dies with this one effect run. */
+    let showGlobe: () => void = () => {}
+
     const manager = new THREE.LoadingManager()
     const loader = new THREE.TextureLoader(manager)
     const textures: THREE.Texture[] = []
@@ -308,17 +313,45 @@ export function HeatGlobe({ reduced, narrow }: { reduced: boolean; narrow: boole
     globe.rotation.z = TILT
     scene.add(globe)
 
+    /* 🔴 THE POSTER, AND IT IS WHY THE GLOBE IS NO LONGER A BLACK DISC ON ARRIVAL.
+       The user: "it shows a black space in place of globe when the website is loaded and globe takes
+       time to render." The black is not slow rendering. The draw loop starts on the frame this
+       component mounts, and `TextureLoader.load()` has by then only RETURNED a Texture; nothing has
+       decoded into it. A WebGL sampler bound to an incomplete texture reads (0, 0, 0, 1), and this
+       material multiplies its white base colour by that, so the sphere is black until
+       earth_daymap.jpg has been fetched (197 KB), decoded (2048x1024) and uploaded.
+       `POSTER_DAY` is the SAME photograph at 128x64, 2.6 KB, compiled into the bundle as a data URI
+       by tools/make_globe_poster.py. No request, so it is in memory before this line runs and the
+       only cost left is a decode.
+       ⚠ ITS OWN LOADER, DELIBERATELY OUTSIDE THE MANAGER. `manager.onLoad` means "the four real maps
+       are in", and adding a fifth texture to it would make that signal wait on something that is
+       already in memory. The poster reports for itself, through the callback below. */
+    const posterLoader = new THREE.TextureLoader()
+    const dayTex = load(TEX.day, true)
+    const posterTex = posterLoader.load(POSTER_DAY, () => { showGlobe() })
+    posterTex.colorSpace = THREE.SRGBColorSpace
+
+    /* 🔴 THE NORMAL AND SPECULAR MAPS ARE LOADED NOW AND ATTACHED LATER, AND LEAVING THAT OUT WAS A
+       HALF FIX. An empty `map` is not the only way to get a black sphere: an empty NORMAL MAP is
+       enough on its own. MEASURED in isolation, the real 2048x1024 day map bound alongside an
+       undecoded normal map renders (0, 1, 10), which is black to a reader. So a poster that fixes
+       only the colour still leaves the planet black on any connection slow enough to matter: the
+       normal map is the biggest of the four at 463 KB, and throttled to 20 Mbps it held the sphere
+       near-black for a further 420 ms after the poster was already up.
+       They are still requested here, so the LoadingManager still counts them and the swap below still
+       has one signal to wait for. They are simply not on the material until they carry pixels. */
+    const normalTex = load(TEX.normal, false)
+    const specTex = load(TEX.specular, false)
+
     const earthGeo = new THREE.SphereGeometry(1, SEG, SEG)
     const earthMat = new THREE.MeshPhongMaterial({
-      map: load(TEX.day, true),
-      normalMap: load(TEX.normal, false),
+      map: posterTex,
       /* AMPLIFIED, for the measured reason in the header: the source signal is 1.36/255 wide. 2.8 is
          where coastal relief and the Andes read without the flat ocean starting to shimmer. */
       normalScale: new THREE.Vector2(2.8, 2.8),
       /* THE SPECULAR MAP IS WHAT MAKES IT LOOK WET. White over ocean, black over land, so the
          highlight lands only on water. Without it the whole globe takes the same sheen and the
          continents look laminated. */
-      specularMap: load(TEX.specular, false),
       specular: new THREE.Color(0x2a4a6a),
       shininess: 12,
     })
@@ -630,6 +663,48 @@ export function HeatGlobe({ reduced, narrow }: { reduced: boolean; narrow: boole
       raf = requestAnimationFrame(draw)
     }
 
+    /* 🔴 NOTHING IS SHOWN UNTIL THERE IS SOMETHING TO SHOW, AND THEN IT FADES IN.
+       Even with the poster in memory, a texture decode is asynchronous: for the first frame or two
+       the sampler is still incomplete and the sphere would be black. So the wrapper starts at
+       `opacity: 0` in intro.css and this is the one thing that lifts it.
+       ⚠ THE FADE IS ON THE WRAPPER, NOT THE CANVAS, and that is not arbitrary. The canvas already
+       carries three different opacities of its own -- 0.72 dark, 0.62 light, 0.5 under 768px -- and
+       they are a legibility decision about type sitting over scenery. Animating that property would
+       mean this code choosing which of those three to animate to. Fading the parent MULTIPLIES with
+       whichever one applies and needs to know none of them.
+       ⚠ AND THERE IS A WALL-CLOCK FLOOR UNDER IT. If the decode callback never fires -- a corrupt
+       data URI, a context lost during startup, a browser that fails the image quietly -- the globe
+       would stay invisible for ever, which is a worse outcome than the black disc this replaces. The
+       timer shows it regardless after 1.2 s. Whichever happens first wins; `showGlobe` is idempotent.
+       Both are cleared on unmount. */
+    const reveal = (() => {
+      const w = wrap.current
+      if (!w) return () => {}
+      let shown = false
+      return () => {
+        if (shown) return
+        shown = true
+        w.dataset.aaGlobe = 'ready'
+      }
+    })()
+    showGlobe = reveal
+    settle.push(window.setTimeout(() => showGlobe(), 1200))
+
+    /* WHEN THE REAL MAPS ARRIVE, the poster is replaced in place. Same photograph at 16x the
+       resolution, so what a reader sees is the image coming into focus rather than one picture
+       swapping for another, which is the whole reason the poster is a resample of this file and not
+       a flat colour or a gradient. */
+    const onTexturesIn = () => {
+      earthMat.map = dayTex
+      /* Attached only now. See the note beside their load: an undecoded normal map zeroes the shading
+         on its own, so binding these before they carry pixels would keep the sphere black however
+         good the colour map is. */
+      earthMat.normalMap = normalTex
+      earthMat.specularMap = specTex
+      earthMat.needsUpdate = true
+      showGlobe()
+    }
+
     /* 🔴 REDUCED MOTION AND NARROW RENDER ONE FRAME AND STOP, rather than looping over a static
        scene. Looping would burn a GPU on an unchanging image for a reader who asked for less, which
        is the opposite of honouring the preference.
@@ -643,9 +718,16 @@ export function HeatGlobe({ reduced, narrow }: { reduced: boolean; narrow: boole
       funnel?.update(6.5)
       const once = () => renderer.render(scene, camera)
       once()
-      manager.onLoad = once
+      manager.onLoad = () => { onTexturesIn(); once() }
+      /* The poster decodes AFTER this branch has drawn its one frame, so a still page would show the
+         frame that was rendered before it existed. The two settle timers below already exist for
+         exactly this shape of problem with the four real maps, and they cover the poster too: 400 ms
+         is far beyond a decode with no network in front of it. A texture cannot be listened to for
+         an upload -- `Texture.addEventListener` accepts 'dispose' and nothing else -- so a timer is
+         the honest mechanism rather than a second-best one. */
       settle.push(window.setTimeout(once, 400), window.setTimeout(once, 1600))
     } else {
+      manager.onLoad = onTexturesIn
       raf = requestAnimationFrame(draw)
     }
 
@@ -732,6 +814,8 @@ export function HeatGlobe({ reduced, narrow }: { reduced: boolean; narrow: boole
       /* The manager is this effect's own object, so dropping the callback is enough: nothing outside
          holds a reference to it. */
       manager.onLoad = () => {}
+      /* Cleared so a remount fades in again rather than snapping to a globe that has not drawn yet. */
+      if (wrap.current) delete wrap.current.dataset.aaGlobe
 
       earthGeo.dispose()
       earthMat.dispose()

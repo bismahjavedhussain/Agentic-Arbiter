@@ -1044,8 +1044,15 @@ def main():
            "%s ms with audio vs %s ms silent" % (audio_ms, ms))
         lay_src = io.open(os.path.join(AA, "app", "src", "intro", "IntroLayer.tsx"),
                           encoding="utf-8").read()
-        ck("playHeroEntrance(false, 'full')" in lay_src,
-           "and IntroLayer asks for it explicitly at the call site")
+        # ⚠ THE CALL GAINED A THIRD ARGUMENT ON 2026-08-30, so an exact-string match on the two-argument
+        # form now fails against code that is correct. The point of the check is that `false` is
+        # TYPED at the call site rather than inherited from a default, because the silent beat map is
+        # a decision and not an accident. That is what is matched: the call, its two required
+        # arguments in order, and whatever lead-in delay follows.
+        _call = next((ln.strip() for ln in lay_src.splitlines()
+                      if "playHeroEntrance(false, 'full'" in ln), "")
+        ck("playHeroEntrance(false, 'full'" in lay_src,
+           "and IntroLayer asks for it explicitly at the call site", _call)
         tl_src = io.open(os.path.join(AA, "app", "src", "intro", "timeline.ts"),
                          encoding="utf-8").read()
         ck("VOICE.nameEndsS" in tl_src and "VOICE.poweredStartsS" in tl_src,

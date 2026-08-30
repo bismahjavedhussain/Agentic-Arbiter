@@ -69,6 +69,11 @@ class Chrome(object):
         self.ws = None
         self.prof = None
         self._id = 0
+        # Buffered CDP events, and the set of method names worth buffering. Empty by default, so a
+        # caller that never subscribes pays nothing and behaves exactly as before.
+        self._events = []
+        self._want = set()
+        self.polls = []
 
     # ---------------------------------------------------------------- lifecycle
     def __enter__(self):
@@ -148,7 +153,76 @@ class Chrome(object):
                 if "error" in msg:
                     raise RuntimeError("%s: %s" % (method, msg["error"]))
                 return msg.get("result", {})
+            # 🔴 EVENTS ARRIVE ON THE SAME SOCKET AS REPLIES, AND DROPPING THEM LOSES DATA.
+            # A command's reply can be preceded by any number of events, and this loop used to
+            # discard every one of them. That is fine while nothing subscribes; it is fatal the
+            # moment something does, because the frames arrive between commands and there is no
+            # second chance to read them. Buffered instead, for `frames()` below.
+            m = msg.get("method")
+            if m and m in self._want:
+                self._events.append((time.time(), m, msg.get("params", {})))
         raise RuntimeError("%s: timed out" % method)
+
+    def subscribe(self, *methods):
+        """Start keeping the named CDP events. Anything not named here is still discarded."""
+        self._want.update(methods)
+
+    def pump(self, seconds, poll=None):
+        """Read the socket for `seconds`, keeping subscribed events.
+
+        🔴 THE ONLY WAY TO SEE THE FIRST SECOND OF A PAGE. `Page.captureScreenshot` is a COMMAND: it
+        has to be scheduled on a main thread that, during a cold start, is busy parsing 2 MB of
+        JavaScript and initialising WebGL. MEASURED on this repository: a capture requested at 300 ms
+        was delivered at 2,053 ms. Anything that samples by asking is therefore blind over exactly the
+        window a startup fault lives in.
+        A screencast is the other way round: the browser PUSHES a frame whenever it composites one, so
+        the timestamps are the compositor's rather than the harness's. Subscribe to
+        'Page.screencastFrame', call `Page.startScreencast`, then pump.
+        `poll` is an optional callable run between reads, for interleaving a DOM sample with the
+        frames; it is called with the elapsed seconds and its return value is appended to `.polls`.
+        """
+        end = time.time() + seconds
+        while time.time() < end:
+            try:
+                raw = self.ws.recv(timeout=0.08)
+            except TimeoutError:
+                raw = None
+            except Exception:
+                raw = None
+            if raw:
+                msg = json.loads(raw)
+                m = msg.get("method")
+                if m and m in self._want:
+                    self._events.append((time.time(), m, msg.get("params", {})))
+                    # A screencast stalls unless every frame is acknowledged.
+                    if m == "Page.screencastFrame":
+                        try:
+                            self.send("Page.screencastFrameAck",
+                                      sessionId=msg["params"]["sessionId"])
+                        except Exception:
+                            pass
+            if poll:
+                try:
+                    self.polls.append((time.time(), poll(time.time() - (end - seconds))))
+                except Exception:
+                    pass
+
+    def frames(self, out_dir, t0=None):
+        """Write every buffered screencast frame to `out_dir` and return [(ms, path), ...]."""
+        import base64 as _b64
+        if not os.path.isdir(out_dir):
+            os.makedirs(out_dir)
+        base = t0 if t0 is not None else (self._events[0][0] if self._events else time.time())
+        got = []
+        for i, (ts, method, params) in enumerate(self._events):
+            if method != "Page.screencastFrame":
+                continue
+            ms = int(round((ts - base) * 1000))
+            path = os.path.join(out_dir, "f%03d_%05dms.png" % (i, ms))
+            with open(path, "wb") as f:
+                f.write(_b64.b64decode(params["data"]))
+            got.append((ms, path))
+        return got
 
     # ---------------------------------------------------------------- page
     def goto(self, url=None, settle=2.5):

@@ -412,6 +412,24 @@ export function playHeroEntrance(
    * where they are.
    */
   variant: 'full' | 'headline' = 'full',
+  /**
+   * 🔴 SECONDS TO WAIT BEFORE THE REVEAL PLAYS, WHILE ITS FROM-STATES ARE ALREADY APPLIED. This is
+   * what stops the next page showing its own text and then blanking it.
+   *
+   * The user: "The text exists there static for a few milli second, then disappears and triggers a
+   * transition ... If it has a transition over it, it should not be visible static in the first
+   * place." They were describing an ordering problem, not an animation problem. The entrance used to
+   * be built at `onFinish`, AFTER the splash had finished crossfading away, so the crossfade revealed
+   * a page at its resting state and the from-states then blanked what the reader had just seen.
+   * GSAP's `from()` defaults to `immediateRender: true`, which means the start values are written the
+   * moment the tween is CONSTRUCTED, not when it first ticks. So constructing the entrance at the
+   * START of the crossfade puts every animated element at opacity 0 while the splash still covers
+   * them, and `delay` holds the playback until the splash has gone. The crossfade then reveals an
+   * empty page and the text arrives onto it, which is the order that was asked for.
+   *
+   * 0 for a caller with nothing in front of it: the no-gate path, and the kill switch.
+   */
+  leadS = 0,
 ): HeroHandle {
   if (typeof window === 'undefined') return NOOP
   if (!document.querySelector(SEL.headline)) return NOOP
@@ -464,6 +482,9 @@ export function playHeroEntrance(
     split = new SplitText(headline, { type: 'lines', mask: 'lines', linesClass: 'aa-hero-line' })
 
     const tl = gsap.timeline({
+      /* The lead-in. The tweens below are `from()`, so their start values are written NOW and the
+         delay only postpones playback. See the parameter's own note. */
+      delay: leadS,
       defaults: { ease: 'power3.out' },
       /* Put the headline's DOM back the moment the reveal is over, rather than leaving SplitText's
          wrappers in the document for the rest of the visit. Anything reading the page afterwards --

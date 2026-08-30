@@ -345,11 +345,20 @@ two states:
   programmatic `.focus()` on a `<button>`, so a check that calls `.focus()` and finds no ring has
   proved nothing: that is the specified behaviour.
 
-`cdp.py` is a ~200-line DevTools Protocol client over the already-installed `websockets`. It starts
+`cdp.py` is a small DevTools Protocol client over the already-installed `websockets`. It starts
 Chrome with `--remote-debugging-port`, opens the page target's WebSocket, and exposes `goto`, `eval`,
 `poll`, `hover` (`Input.dispatchMouseEvent`), `click`, `key` (`Input.dispatchKeyEvent`) and `shot`
 (`Page.captureScreenshot`, with an optional clip so an element can be photographed rather than a
 viewport). It tears its Chrome down in a `finally` and never leaves a profile behind.
+
+🔴 **AND SINCE 2026-08-30 IT CAN SCREENCAST, WHICH IS THE ONLY WAY TO SEE A PAGE'S FIRST SECOND.**
+`Page.captureScreenshot` is a COMMAND, scheduled on a main thread that during a cold start is busy
+parsing 2 MB of JavaScript: MEASURED, a capture requested at 300 ms arrived at **2,053 ms**. Sampling
+by asking is blind over exactly the window a startup fault lives in. `subscribe()`, `pump()` and
+`frames()` collect `Page.screencastFrame` events instead, which the browser pushes as it composites,
+so the timestamps are the compositor's. `send()` now buffers subscribed events rather than discarding
+anything that is not a reply, and every frame is acknowledged or the cast stalls. See `05-TRAPS`
+5b.38.
 ⚠ **NO `--virtual-time-budget`.** Virtual time and a live CDP session fight: the clock runs ahead of
 the socket and the page can finish before the first command lands. This harness waits on the real
 clock, which is what a hover check has to do anyway.

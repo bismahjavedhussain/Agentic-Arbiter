@@ -78,6 +78,16 @@ export type LaunchOpts = {
   gate: HTMLElement | null
   /** Called once the sequence is over, whether it ran to completion or was escaped. */
   onFinish: () => void
+  /**
+   * 🔴 FIRED WHEN THE CROSSFADE STARTS, NOT WHEN IT ENDS, and it exists so the page behind can be
+   * put into its from-state while the splash is still covering it.
+   * Everything the incoming screen animates has to be invisible BEFORE the splash starts to
+   * disappear, or the reader sees it at rest and then sees it blanked. `onFinish` is too late for
+   * that by exactly the length of the crossfade.
+   * Called at most once per sequence, whichever way the sequence ends: at the 'out' label on a full
+   * run, and at the top of `escape()` on a skipped one.
+   */
+  onOut?: (crossfadeS: number) => void
   /** Called when the sequence actually begins, so the caller can mark the moment. */
   onStart?: (totalMs: number) => void
 }
@@ -100,6 +110,18 @@ export function playLaunch(opts: LaunchOpts): LaunchHandle {
   let watchdog = 0
   let escapeTimer = 0
   let done = false
+  /** `onOut` is at most once. The escape hatch can fire after the label has already passed. */
+  let outFired = false
+  const fireOut = (crossfadeS: number) => {
+    if (outFired) return
+    outFired = true
+    try {
+      opts.onOut?.(crossfadeS)
+    } catch {
+      /* The caller's reveal is not allowed to take the transition down with it. The sequence still
+         completes and the reader still reaches the page, just without the entrance. */
+    }
+  }
   /** The pick screen's own fade-in target. Read once: the engine owns nothing in here. */
   const incoming = document.querySelector<HTMLElement>('[data-show="pick"]')
 
@@ -155,6 +177,9 @@ export function playLaunch(opts: LaunchOpts): LaunchHandle {
    */
   function escape(): void {
     if (done) return
+    /* The skipped path crossfades over `escapeS` rather than `outS`, so the reveal is told the
+       shorter figure and lands with it rather than after it. */
+    fireOut(BEATS.escapeS)
     unbind()
     window.clearTimeout(watchdog)
     tl?.kill()
@@ -184,6 +209,7 @@ export function playLaunch(opts: LaunchOpts): LaunchHandle {
       /* THE MUTED AND REDUCED PATH. "Shorten the sequence to ~1.5s total. Do not play 9 seconds of
          silence." No push-in, no cues, a plain crossfade. */
       tl.addLabel('out', 0)
+      tl.call(() => fireOut(BEATS.shortS), undefined, 0)
       if (opts.gate) {
         tl.to(opts.gate, { opacity: 0, duration: BEATS.shortS, ease: 'power2.inOut' }, 'out')
       }
@@ -225,6 +251,9 @@ export function playLaunch(opts: LaunchOpts): LaunchHandle {
          the new screen becoming visible. */
       const outAt = voiceS + BEATS.holdS
       tl.addLabel('out', outAt)
+      /* At the label rather than one tick before it: the from-states have to be in place for the
+         first frame in which the splash is anything less than opaque. */
+      tl.call(() => fireOut(BEATS.outS), undefined, outAt)
       tl.call(
         () => {
           audio.playWhoosh()

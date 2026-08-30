@@ -92,17 +92,47 @@ export function IntroLayer() {
        *   - `onFinish` is the ONE path out, whether the sequence ran to completion, was escaped with a
        *     key or a click, or was cut short by its own watchdog.
        */
-      const finish = () => {
-        setGateOpen(false)
+      /* 🔴 THE ENTRANCE IS ARMED WHEN THE CROSSFADE STARTS, AND `finish` ONLY UNMOUNTS THE GATE.
+         The user: "The text exists there static for a few milli second, then disappears and triggers
+         a transition ... If it has a transition over it, it should not be visible static in the first
+         place."
+         That was the order this code used to run in. `finish` did both jobs: it unmounted the gate
+         AND built the entrance. But the gate does not vanish at `finish`, it has already spent
+         `outS` = 1.2 s fading out, and during those 1.2 s the page behind was revealed AT ITS RESTING
+         STATE. Only afterwards did `playHeroEntrance` write its opacity-0 from-states, which blanked
+         text the reader had been looking at for over a second and then animated it back in.
+         `onOut` fires at the START of that crossfade. GSAP's `from()` renders its start values on
+         CONSTRUCTION, so building the entrance there puts every animated element at opacity 0 while
+         the splash is still opaque, and the `leadS` delay holds playback until the splash has gone.
+         The crossfade now reveals a page with its background and its unanimated furniture, and the
+         text arrives onto it.
+         ⚠ THE COMMENT THIS REPLACES SAID the entrance must start at the end "because it animates the
+         masthead behind the splash and would otherwise play out entirely unseen". That was right
+         about the click and wrong about the crossfade: starting at the click would waste the reveal
+         behind six seconds of opaque splash, but starting at the crossfade wastes nothing, because
+         the delay means nothing plays until there is something to see it on. */
+      const arm = (crossfadeS: number) => {
         /* 🔴 `withAudio` IS PASSED AS FALSE DELIBERATELY -- see the note in timeline.ts. The narration
            has already finished by the time this runs, so there are no beats left to sync against and
            the silent map is the truthful one. */
-        if (flags.gate) hero.current = playHeroEntrance(false, 'full')
+        if (flags.gate) hero.current = playHeroEntrance(false, 'full', crossfadeS)
+      }
+      const finish = () => {
+        setGateOpen(false)
+        /* Belt: if the sequence somehow reached the end without passing its own `out` label -- a
+           watchdog cutting it short, a throw inside the timeline -- the entrance has not been armed
+           and the page would sit at its resting state with no reveal at all. Arming here with no lead
+           is worse than the crossfade version and much better than nothing. `playHeroEntrance` is
+           only ever called once because `hero.current` is set by whichever path got there first. */
+        if (!hero.current) arm(0)
       }
 
       /* 🔴 THE KILL SWITCH. "One flag that disables the entire audio+cinematic sequence and makes the
          button navigate instantly." No timeline, no audio, no wait. */
       if (!flags.cinematic) {
+        /* No sequence and therefore no crossfade to hide behind: the gate is taken away and the
+           entrance plays immediately, which is what "navigate instantly" means. */
+        arm(0)
         finish()
         return
       }
@@ -111,6 +141,7 @@ export function IntroLayer() {
         audio: withAudio,
         reduced: flags.reduced,
         gate: document.querySelector<HTMLElement>('.aa-gate.aa-splash'),
+        onOut: arm,
         onFinish: finish,
       })
     },

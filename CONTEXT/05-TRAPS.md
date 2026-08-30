@@ -358,6 +358,59 @@ state and a dead clock leaves a finished page.
 **And the check has to assert the watchdog's result, not the animated value**, which is 5b.13's own
 first consequence.
 
+### 5b.38 `Page.captureScreenshot` IS A COMMAND, so it cannot see the window a startup fault lives in
+**You observe:** a burst of screenshots requested at 300, 450 and 600 ms after navigation all arrive
+with timestamps over 2,000 ms, and every one of them shows the same late state. The fault the user
+recorded is nowhere in the capture.
+**Actually:** a capture is scheduled on the main thread, and during a cold start that thread is busy
+parsing megabytes of JavaScript and initialising WebGL. MEASURED here: requested at 300 ms, delivered
+at 2,053 ms. Sampling by ASKING is blind over exactly the interval that matters.
+**Use a screencast.** `Page.startScreencast` makes the browser PUSH a frame whenever it composites
+one, so the timestamps belong to the compositor rather than to the harness. `testing/cdp.py` now has
+`subscribe()`, `pump()` and `frames()` for this.
+⚠ **AND EVENTS SHARE THE SOCKET WITH REPLIES.** A command's response can be preceded by any number of
+events, and a naive request/response loop discards them. That is harmless until something subscribes,
+and then it silently loses most of the data. Buffer them in the same loop that waits for the reply.
+⚠ **ACKNOWLEDGE EVERY FRAME.** A screencast stalls after a handful of frames unless each one is
+answered with `Page.screencastFrameAck`.
+
+### 5b.37 A WEBGL SAMPLER BOUND TO AN UNDECODED TEXTURE READS BLACK, NOT WHITE
+**You observe:** a textured sphere renders as a black disc for the first several hundred milliseconds
+of every load, and the material has no `color` set, so you expect white.
+**Actually:** `TextureLoader.load()` RETURNS a Texture object synchronously and decodes into it later.
+Until then the sampler is incomplete and reads (0, 0, 0, 1); a material that multiplies its base
+colour by the map therefore renders black, however light the base colour is. It is not a slow render
+and it is not a lighting problem.
+**And a smaller texture does not fix it**, because the cost being paid is a network round trip in
+front of the first frame. The fix is a map that needs no request: resample the shipped texture to
+something tiny (128x64 was 2.6 KB here), base64 it into a generated module so it lives inside the
+JavaScript bundle, and use it as the initial map. Swap the full one in on decode; because it is the
+same photograph the change reads as focus rather than as a substitution.
+⚠ **A DATA URI IS STILL ASYNCHRONOUS.** It needs no network and it still needs a decode, so there are
+a frame or two with nothing to show. Hide the object until something is ready and fade it in, with a
+wall-clock floor under the reveal so a decode that never completes cannot leave it invisible for ever.
+🔴 **AND FIXING THE COLOUR MAP IS NOT ENOUGH: AN EMPTY NORMAL MAP IS BLACK ALL BY ITSELF.**
+`normal_fragment_maps` computes `mapN = texture(normalMap).xyz * 2 - 1`, which for an all-zero texture
+is (-1, -1, -1); the resulting normal points into the surface and every light term goes to zero.
+MEASURED in isolation: the real day map with an empty normal map renders (0, 1, 10), still black, and
+with `normalMap` left null it renders (48, 78, 113), a lit ocean. The normal map is also usually the
+biggest file. So request every map at once and ATTACH each only when it carries pixels, or a poster
+buys nothing on the connection that needed it.
+
+### 5b.39 A CSS `transition` DOES NOT STEP ASIDE FOR GSAP, IT FILTERS EVERY VALUE GSAP WRITES
+**You observe:** a 1.2 s fade-out is visibly cut short. The element is removed while it is still
+clearly on screen, and the tween's own duration is correct.
+**Actually:** the element still carried `transition: opacity 600ms` from an earlier version in which
+CSS owned the exit. A transition applies to ANY change of the property, including the inline values a
+tween writes on every frame, so the rendered opacity lags the tween by the transition's duration and
+easing. MEASURED: unmounted at a computed opacity of about 0.26, a quarter of the way through its own
+fade, in two consecutive builds.
+**This is the two-owners-of-one-property fault in its least obvious direction.** The change that gave
+the exit to GSAP correctly removed `opacity: 0` from the stylesheet and left behind the `transition`
+that used to animate it, which reads as harmless and is not.
+**The habit:** when moving an animation from CSS to a timeline, remove the TRANSITION as well as the
+target value, and grep the selector for `transition` before declaring the move done.
+
 ### 5b.36 EVERY BROWSER CHECK USES A TALL WINDOW, so a short-viewport fault is structurally invisible
 **You observe:** a reader cannot scroll a page and cannot reach a control in the sidebar. Roughly 700
 assertions across a dozen headless checks are green, and the page is fine on your own screen.
