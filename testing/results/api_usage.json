@@ -2,10 +2,10 @@
  "plan": "Hackathon",
  "issued": 2000000,
  "heatmap_credits": 4220,
- "remaining": 832660,
- "spent": 1167340,
- "paid_calls": 279,
- "heatmap_calls": 271,
+ "remaining": 815520,
+ "spent": 1184480,
+ "paid_calls": 283,
+ "heatmap_calls": 275,
  "other_endpoint_calls": 8,
  "other_endpoint_credits": 23200,
  "other_endpoint_detail": [
@@ -50,11 +50,11 @@
    "credits": 2900
   }
  ],
- "total_calls_all_endpoints": 279,
- "pct_of_plan": 58.367,
- "whole_call_remainder": 520,
+ "total_calls_all_endpoints": 283,
+ "pct_of_plan": 59.224,
+ "whole_call_remainder": 780,
  "attributed_credits": 520100,
- "unattributed_credits": 647240,
+ "unattributed_credits": 664380,
  "calls_returning_data": 33,
  "calls_returning_zero_tiles_meter_stamped": 75,
  "live_run_calls_with_data": 30,
@@ -63,9 +63,9 @@
  "collector_recorded_failed_attempts": 15,
  "collector_failed_attempt_days": 6,
  "collector_attempts_are_not_all_billed": true,
- "calls_not_individually_identified": 163,
+ "calls_not_individually_identified": 167,
  "credits_that_bought_no_data_floor": 316500,
- "credits_that_bought_no_data_ceiling": 1004360,
+ "credits_that_bought_no_data_ceiling": 1021240,
  "unbilled_frozen_cycle_readings": 8,
  "attributable": [
   {

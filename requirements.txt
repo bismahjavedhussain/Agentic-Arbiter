@@ -11,3 +11,13 @@
 # serve this product completely, which is the point of shipping the fields rather than the solver.
 numpy>=1.26
 psychrolib>=2.5
+# 🔴 ADDED 2026-08-30 AFTER IT BROKE THE LIVE REPORT DOWNLOAD IN PRODUCTION.
+# The derivation above is right that `import pypdf` sits inside a `try`, and a static import-graph
+# walk therefore reads it as optional. It is not optional HERE: `live_report.verify_live()` reads the
+# PDF back before `serve_live.py` will serve a byte of it, that code path runs on the deployed
+# server, and with pypdf absent the check reported "I could not read it back" through the same
+# channel it uses for "this file is broken". The server refused the report and the browser saved the
+# error as a .json. MEASURED on the deployed origin: HTTP 500 on /api/live/report/latest.
+# `verify_live` now separates cannot-check from failed, so this line is the difference between a
+# report that is verified on the host that serves it and one that is merely built there.
+pypdf>=4.0

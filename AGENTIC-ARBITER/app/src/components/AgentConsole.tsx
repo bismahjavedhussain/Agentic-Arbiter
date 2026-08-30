@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ART } from '../lib/artefacts'
-import { ArrowRight, Download, FileText } from 'lucide-react'
+import { ArrowRight, Download } from 'lucide-react'
 
 /**
  * The agent as ONE LINE: an orbiting icon, a short reasoning phrase that changes every second or so,
@@ -275,32 +274,23 @@ export function AgentConsole({
               </motion.button>
             )}
 
-            {/* 🔴 THE LIVE RUN'S OWN REPORT, and it is a DIFFERENT DOCUMENT from the one beside it.
-                The button on the left downloads the per-site report, generated at build time from
-                saved responses for one named configuration. This one is built at request time from
-                the job that just ran: its hours, its bounds, its gates and its reasoning hour by
-                hour, plus the seven stages as they streamed. serve_live.py reads the PDF back before
-                returning a byte of it and refuses to serve one that fails its own check.
-                Shown only after a LIVE run, because after a replay there is no live moment to report
-                on and offering it would imply one. */}
-            {wasLive && (
-              <motion.a
-                href={ART + 'api/live/report/latest'}
-                download
-                className="aa-console-dl is-live"
-                initial={{ opacity: 0, x: -6 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ type: 'spring', stiffness: 420, damping: 30, delay: 0.08 }}
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.985 }}
-              >
-                <FileText size={15} strokeWidth={2.4} aria-hidden="true" />
-                Live run report
-              </motion.a>
-            )}
+            {/* 🔴 THE SECOND LIVE-REPORT BUTTON WAS DELETED HERE, 2026-08-30, AND THE ENGINE KEEPS ITS OWN.
+                The user: "why are there two download report buttons for live run. I only want one
+                report in pdf format." They were right, and this tab is where it showed: `lib/tabs.ts`
+                gives the `live` tab the selectors ['#tapecard', '#livecard'], so the engine's
+                `#livereport` anchor renders on the SAME screen as this console. Two buttons, one
+                document, and the engine's is the better of the two on both counts that matter:
+                  * it links `api/live/report/<LIVEJOB>` with the job's OWN id, where this one linked
+                    `api/live/report/latest`. On a shared host `latest` is whichever visitor ran last,
+                    so the reader could have downloaded a stranger's schedule.
+                  * its label already says PDF and its note says what the document is.
+                And `#livecard` is permanent by standing rule C1, so the engine's button is the one
+                that is guaranteed to still be there.
+                ⚠ The button LEFT above is a different document: the per-site report generated at
+                build time for one named configuration. It is not a duplicate of the live one. */}
             <span className="aa-console-dlnote">
               {wasLive
-                ? 'Two documents: the site report, and this run’s own hours and reasoning.'
+                ? 'This run’s own report is on the live card below, hour by hour.'
                 : 'A snapshot of this configuration. The panels recompute for whatever you select.'}
             </span>
           </motion.div>

@@ -12,6 +12,62 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### "I COULD NOT CHECK IT" WAS BEING REPORTED AS "IT IS BROKEN", AND THAT COST THE LIVE PDF. 2026-08-30
+
+The user, on the deployed site: "pdf is not downloading after live run ... The Live run report button is
+setting up a .json file for download." Both halves were one fault, and the .json WAS the diagnosis.
+
+🔴 **MEASURED FIRST, AGAINST THE DEPLOYED ORIGIN.** `GET /api/live/report/latest` returned **HTTP 500**
+with `{"error": "the report failed its own verification", "problems": ["pypdf not available, so the
+file was not read back"]}`. An anchor carrying `download` saves whatever comes back, so the browser
+wrote the error body to disk as a file. Nothing was corrupt and nothing was mis-routed: `/api/health`
+answered 200, `/app/api/...` rewrites to `/api/...` at `serve_live.py:437`, and the PDF was being built
+correctly on every single request.
+
+**The bug was a category error in one line.** `verify_live()` opened with
+`try: import pypdf / except ImportError: return ["pypdf not available..."]`, and `serve_live.py`
+treats a non-empty problems list as a refusal to serve. So a missing optional library was
+indistinguishable from a broken document. `requirements.txt` ships numpy and psychrolib only, and that
+file was DERIVED by walking the import graph reachable from `serve_live.py`: an import inside a `try`
+reads as optional to that walk, which is defensible, and wrong here because the code path runs on the
+server.
+
+**Both halves fixed, because either alone leaves a hole.**
+* `verify_live()` now separates the two states. A missing library records
+  `meta["read_back"] = "skipped: ..."` and returns no problems, so the report is served. A file that
+  cannot be REOPENED is still a problem, because that one really is broken.
+* ⚠ **THE GEOMETRY CHECK MOVED ABOVE THE IMPORT.** `Pdf.overflows()` reads the writer's own
+  placements rather than the finished file, so it needs no third-party library. It used to sit after
+  the early return, which meant a host with no pypdf ran NO checks at all. Now a report whose text
+  runs off the paper is refused even there.
+* `pypdf>=4.0` is a declared dependency, so the read-back actually happens on the host that serves it.
+
+🔴 **AND THE 25 GREEN CHECKS COULD NOT HAVE SEEN IT.** `verify_live_report_button.py` passes 25/25 and
+did so throughout, because it runs where pypdf is installed. This is **5b.42 one layer further out**:
+a harness that HAS the dependency cannot test the host that does not. `live_report.py selftest` now
+blocks the `pypdf` import through `builtins.__import__` and requires that a real PDF still comes back,
+that `read_back` records a skip rather than a failure, and that a planted overflow is still caught.
+
+**TWO LIVE-REPORT BUTTONS BECAME ONE.** The user: "why are there two download report buttons for live
+run. I only want one report in pdf format." `lib/tabs.ts` gives the `live` tab the selectors
+`['#tapecard', '#livecard']`, so the engine's `#livereport` anchor renders on the same screen as
+`AgentConsole`'s own. The React one was deleted and the engine's kept, on two counts that matter:
+it links `api/live/report/<LIVEJOB>` with the job's **own** id where the React one linked
+`.../latest`, which on a shared host is whichever visitor ran last, so a reader could have downloaded
+a stranger's schedule; and its label already says PDF. `#livecard` is permanent by standing rule C1,
+so the engine's button is the one guaranteed to still be there. The per-site report button beside it
+is a DIFFERENT document, generated at build time for one named configuration, and stays.
+
+**ON `[cached]`, WHICH IS NOT A DEFECT AND IS ASKED ABOUT EVERY TIME.** A heatmap response is
+aggregated over the requested window, so an hourly trajectory costs one call per hour, and windows are
+keyed by exact date and hour range under `data/live_cache/<metro>/`. Because the horizon SLIDES, a
+re-run within the same hour block needs only the new far-end window: the reader's run showed 11 of 12
+hours `[cached]` and one line reading "submitting 1 window to FortyGuard", which is the design working.
+N-55 established that re-requesting an identical window returns **17,862 of 17,862 tiles byte-for-byte
+identical, max delta 0.00000000 C**, so a cache hit is the same data rather than an approximation of
+it. The label exists because this project will not present cached data as a fresh call. A fully
+uncached 12-hour run costs 12 x 4,220 = **50,640 credits** and needs explicit direction under rule 8.
+
 ### THE PRIME SILENCED THE SEQUENCE IT EXISTED TO ENABLE, AND THE PDFs SIT ON A GRID NOW. 2026-08-30
 
 The user, a second time: "I hear no voice altogether although the current version is deployed on

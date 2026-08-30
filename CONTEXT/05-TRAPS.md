@@ -397,6 +397,23 @@ with `normalMap` left null it renders (48, 78, 113), a lit ocean. The normal map
 biggest file. So request every map at once and ATTACH each only when it carries pixels, or a poster
 buys nothing on the connection that needed it.
 
+### 5b.47 "I COULD NOT CHECK IT" MUST NOT TRAVEL DOWN THE SAME CHANNEL AS "IT IS BROKEN"
+`live_report.verify_live()` returned a list of problems, and `serve_live.py` refused to serve any
+report whose list was non-empty. That is the right discipline. But the function opened with
+`try: import pypdf / except ImportError: return ["pypdf not available, so the file was not read
+back"]`, which puts an inability to CHECK into the same list as a failed check. The deployed host has
+no pypdf, so every live-run PDF was built correctly and then refused, and because the button is an
+anchor carrying `download` the browser saved the HTTP 500 error body to disk. The user reported it as
+"the button is setting up a .json file for download", which is exactly what was happening.
+**Two states, two channels.** Absent capability records itself (`meta["read_back"] = "skipped: ..."`)
+and does not block; a genuinely unreadable file still does. And any check that needs no third-party
+library must run BEFORE the import that can fail, or a host missing one dependency silently runs no
+checks at all: the geometry check sat after the early return and was being skipped entirely.
+**The related smell:** a `requirements.txt` derived by walking an import graph will classify every
+import inside a `try` as optional. That is correct for a genuinely optional feature and wrong for a
+verification step the server refuses to work without. Ask of each one: if this is absent in
+production, does the product still function?
+
 ### 5b.46 A RESOLVED `play()` PROMISE IS PERMISSION, NOT SOUND
 `verify_audio_unlock.py` existed precisely to prove the reader hears the intro, and it passed with
 green ticks on all three cues while the reader heard **8 ms of a 4,676 ms narration**. The promise

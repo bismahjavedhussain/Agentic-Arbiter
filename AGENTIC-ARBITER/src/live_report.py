@@ -37,6 +37,7 @@ writer's core assumption with a real chance of emitting a subtly corrupt file. R
 CONTEXT/01-STATE.md as a deliberate deferral rather than an oversight.
 """
 import datetime
+import builtins
 import io
 import json
 import os
@@ -310,19 +311,47 @@ def build_live(job, site_label=None):
 
 
 def verify_live(data, meta):
-    """Read the PDF back and assert the run is really in it. Returns a list of problems."""
+    """Check the PDF, and report what could NOT be checked separately from what FAILED.
+
+    Returns a list of problems. `meta["read_back"]` records whether the reopen-and-read half of the
+    check actually ran, because the caller refuses to serve a report that has problems and must not
+    refuse one merely because a library is absent.
+
+    THIS DISTINCTION IS THE WHOLE FIX FOR A LIVE PRODUCT FAULT, 2026-08-30.
+    The reader pressed the live report button and a JSON file downloaded instead of a PDF. MEASURED
+    against the deployed origin: GET /api/live/report/latest returned HTTP 500 carrying
+    {"error": "the report failed its own verification", "problems": ["pypdf not available, so the
+    file was not read back"]}. The PDF was being built correctly every time. It was REFUSED, because
+    this function returned the sentence "I could not check it" inside the same list it uses for "it
+    is broken", and serve_live.py treats a non-empty list as a refusal. An anchor with the download
+    attribute then saved the error body, which is exactly why a .json arrived.
+    requirements.txt shipped numpy and psychrolib only: pypdf was classified build-time when that
+    file was derived from the import graph, which is defensible for an import inside a try, and wrong
+    here because this code path runs on the server. It is a declared dependency now AND this function
+    no longer confuses the two states, so a future dependency change cannot silently take the
+    download away a second time.
+
+    THE GEOMETRY CHECK RUNS EITHER WAY, and it moved above the import to guarantee that. It reads the
+    writer's own placements rather than the finished file, so it needs no third-party library: with
+    no pypdf at all, a report whose text runs off the paper is still refused.
+    """
     bad = []
+    # Needs nothing but arithmetic, so it runs before anything that can be missing.
+    bad.extend(meta.get("overflow") or [])
     try:
         import pypdf
     except ImportError:
-        return ["pypdf not available, so the file was not read back"]
+        meta["read_back"] = "skipped: pypdf is not installed on this host"
+        return bad
     try:
         r = pypdf.PdfReader(io.BytesIO(data))
         txt = "\n".join((pg.extract_text() or "") for pg in r.pages)
     except Exception as e:                                            # noqa: BLE001
-        return ["the file this wrote could not be reopened: %s" % e]
-
-    bad.extend(meta.get("overflow") or [])
+        # A file that cannot be REOPENED is genuinely broken, and that stays a problem.
+        bad.append("the file this wrote could not be reopened: %s" % e)
+        meta["read_back"] = "failed: %s" % e
+        return bad
+    meta["read_back"] = "ok"
     if "LIVE RUN REPORT" not in txt:
         bad.append("the title is missing")
     if str(meta["label"]).split(",")[0] not in txt:
@@ -384,6 +413,50 @@ def selftest():
         print("   [FAIL] %s" % b)
     if not problems:
         print("   [ok]   read back clean: title, site, reasoning present, no unformatted fields")
+    print("   read_back    : %s" % meta.get("read_back"))
+
+    # ---------------------------------------------------------------- THE DEPLOYED HOST'S SHAPE
+    # 🔴 A NEGATIVE CONTROL FOR THE FAULT THAT REACHED A READER, 2026-08-30.
+    # Everything above runs where pypdf IS installed, so it could never see the bug: the deployed
+    # server has no pypdf, `verify_live` reported that through its problems list, and `serve_live.py`
+    # refused to serve a PDF that was perfectly good. The reader got a .json error body saved by the
+    # anchor's download attribute. This is trap 5b.42 in the shape it keeps taking, one layer out --
+    # a harness that has the dependency cannot test the host that does not.
+    # So the import is BLOCKED here on purpose and the report must still be served.
+    real_import = builtins.__import__
+
+    def no_pypdf(name, *a, **k):
+        if name == "pypdf":
+            raise ImportError("selftest: pretending this host has no pypdf")
+        return real_import(name, *a, **k)
+
+    builtins.__import__ = no_pypdf
+    try:
+        d2, m2 = build_live(job)
+        p2 = verify_live(d2, m2)
+    finally:
+        builtins.__import__ = real_import
+
+    fails = []
+    if p2:
+        fails.append("with no pypdf, verify_live still reported problems: %s" % p2)
+    if not str(m2.get("read_back", "")).startswith("skipped"):
+        fails.append("read_back should record a SKIP, got %r" % m2.get("read_back"))
+    if d2[:5] != b"%PDF-":
+        fails.append("what came back is not a PDF: first bytes %r" % d2[:5])
+    if len(d2) < 4000:
+        fails.append("the PDF is implausibly small at %d bytes" % len(d2))
+    # And the geometry half must STILL have run, because it needs no library at all.
+    m3 = dict(m2, overflow=["a deliberately planted overflow"])
+    if not verify_live(d2, m3):
+        fails.append("with no pypdf the geometry check stopped running, so nothing is checked")
+
+    for f in fails:
+        print("   [FAIL] no-pypdf: %s" % f)
+    if not fails:
+        print("   [ok]   with NO pypdf: a real PDF is still built and served, the read-back is")
+        print("          recorded as skipped rather than failed, and the geometry check still runs")
+    problems = list(problems) + fails
     return 1 if problems else 0
 
 
