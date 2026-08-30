@@ -12,6 +12,84 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE INTRO WENT SILENT, AND THERE WERE THREE CAUSES, NOT ONE. 2026-08-30
+
+The user: "i dont hear the music and the mp3 audio that triggers when the Initialise arbiter button
+is clicked." All three causes were measured with a REAL pointer click and Chrome's real autoplay rule,
+against `serve_live.py`, which is what production runs.
+
+🔴 **1. I BROKE IT MYSELF, TWO COMMITS EARLIER.** `hasSeenSplash` and `aa-intro-audio-played` are both
+sessionStorage keys and they describe ONE fact between them: the reader has already been through the
+intro in this document. They expired together until the "a refresh comes home to the globe" change
+began clearing the first and not the second. After that, **every reload in a tab was completely
+silent**: the gate came back, the reader pressed Initialize Arbiter, and `playVoice()` returned 0 on
+its first line because `alreadyPlayed()` was still true.
+MEASURED, three consecutive loads with HEAD's exact behaviour: load 1 played the voiceover and the
+swell, loads 2 and 3 made **zero** play() calls and sat at `paused vol0 t0` through all 13 samples of
+a 6.9 s hold. ⚠ And the hold still ran FULL LENGTH, because `launch.ts` picks the short 1.5 s path
+from `opts.audio` rather than from whether anything actually played: 6.9 s of silence, not 1.5.
+Both keys are cleared together now, in the same pre-paint script, and `verify_launch.py` asserts the
+two strings match, because the key name is necessarily typed twice (a pre-paint script cannot import
+from the bundle).
+
+🔴 **2. THE TRANSITION WHOOSH WAS REFUSED IN EVERY REAL BROWSER, ON EVERY LOAD, INCLUDING THE FIRST.**
+Chrome's transient user activation lasts **five seconds** and the media unlock it grants is **per
+element**. The voiceover fires at +34 ms and is inside the window; the whoosh fires at **+5,876 ms**
+and is not. That offset is not a choice anyone made, it is where the crossfade lands on the whoosh's
+low pad.
+MEASURED: 8 refusals out of 8, `NotAllowedError: play() can only be initiated by a user gesture`, with
+`navigator.userActivation` reading `{isActive: false, hasBeenActive: true}`. The boundary was measured
+directly with five never-played elements on one click: **+4,812 ms played, +5,110 ms and beyond
+refused**. And the unlock really is per element and permanent: an element played at +1,029 ms replayed
+fine at +7,740 ms with activation long expired.
+So `audio.unlock()` plays and immediately stops all three elements inside the click. ⚠ At **volume 0
+rather than `muted`**: every element is already built at volume 0 so the prime is inaudible, and a
+muted prime might not earn the unlock at all, because Blink grants it on the play request and a muted
+element is allowed to play unconditionally.
+⚠ **AND IT MUST NOT RUN WITH `?cinematic=off`**, which my first version did. That switch navigates
+instantly and plays nothing, and `verify_launch.py` states that as "no audio at all". Caught within
+minutes.
+
+🔴 **3. A ONE-WAY MUTE, THE SAME SHAPE AS THE THEME BUG FIXED THE SAME DAY.** One press of the corner
+toggle wrote `aa-audio = 'off'`, and the toggle was rendered only when `flags.audio` was true, which
+that write makes false. MEASURED: after one press and a reload, `play()` calls 0, `<audio>` elements
+constructed 0, mute button present **False**, and a sweep of every button and `[role=button]` for a
+label matching sound, audio, mute or volume returned **nothing**. The only ways back were `?audio=on`
+or clearing storage.
+It is gated on the cinematic now, which is a fact about the page rather than about the reader's last
+decision. ⚠ **EXCEPT FOR `?audio=off`**, which is deliberately still hidden: a URL parameter is a
+per-load instruction from whoever opened the link, it expires with the URL, and a mute button on a
+page that was told to be silent is a control that lies. `flags.audioOffByParam` is the new distinction.
+The gate's own button also reads the LIVE choice now rather than the mount-time flag, so unmuting and
+then pressing Initialize Arbiter no longer starts a run that had already decided to be silent.
+
+**RULED OUT BY MEASUREMENT**, so nobody has to look again: the three mp3s are tracked, are in the
+Docker image, and return 200 `audio/mpeg` from both servers at both `/audio/` and `/app/audio/`;
+nothing is muted by default (`AUDIO_DEFAULT` is true and a fresh profile resolves to it); nothing is
+muted retroactively by the `setMuted` effect; there is only one call to action; and `CHIME_URL`'s
+missing `chime.wav` is inert because its only caller is a component nothing renders.
+
+🔴 **WHY 71 GREEN CHECKS NEVER SAW ANY OF THIS.** `verify_launch.py` launches Chrome with
+`--autoplay-policy=no-user-gesture-required` AND presses the button with `el.click()`, which carries
+no user activation at all. Between them those two make every permission question unanswerable. The new
+`testing/verify_audio_unlock.py` inverts both: the strict policy, a real `Input.dispatchMouseEvent`,
+and every probe passing `user_gesture=False`, because a CDP evaluate with the default grants an
+activation of its own and would hand the page the permission the check exists to measure.
+⚠ `cdp.py`'s `goto()` and `poll()` were doing exactly that, and the first run of the new check
+reported `isActive = True` before any click. They are reads and they no longer grant a gesture.
+
+**`testing/verify_audio_unlock.py`, 17 checks:** all three cues on a fresh tab and again after a
+reload, the whoosh's LATE attempt specifically, the marker clearing, and a mute control that is on
+screen with the sound off. `run_all.py` runs it, so it is 45 steps.
+
+**Verified after:** `verify_audio_unlock.py` 17/0, `verify_launch.py` 71/0, `verify_intro.py` 227/0,
+`verify_landing_surfaces.py` 43/0, `verify_scroll_and_theme.py` 36/0, `verify_tooltip.py` 70/0,
+`verify_results_surfaces.py` 29/0, `shot_rail.py` 208/0, `verify_app_flow.py` PASS,
+`verify_palette.py` 38/0, `verify_view_matches_page.py` 9/0, `verify_results_matches_page.py` 12/0,
+`verify_core_matches_page.py` 64/0, `verify_shipped_app_is_current.py` PASS, `verify_site_panels.py`
+PASS, `audit.py` 2211 with the 5 deferred spend-ledger failures, typecheck clean,
+`sync_context --check` 0.
+
 ### THE GLOBE ARRIVES INSTEAD OF APPEARING, AND THE NEXT PAGE STOPS FLASHING ITS OWN TEXT. 2026-08-30
 
 Two faults, both about ORDER rather than about speed, and both fixed by moving when something happens
@@ -2616,7 +2694,7 @@ only `fmt`.
 | Of those, ready to run | **246** | sites.json offerable metros, joined on metro_key |
 | Offerable metros | **250** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
-| run_all.py steps | **44** | count of STEPS entries in src/run_all.py |
+| run_all.py steps | **45** | count of STEPS entries in src/run_all.py |
 | demo/index.html size | **490 KB** | byte length of the shipped page |
 | Map GeoJSON sources | **2** | one clustered, one flat -- see 02-ARCHITECTURE |
 | Map unisites-* layers | **5** | cluster, halo, points, flat-halo, flat |

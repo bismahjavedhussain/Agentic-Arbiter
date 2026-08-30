@@ -231,16 +231,27 @@ class Chrome(object):
         # slowly on purpose. Poll readyState and then let the frame settle on the real clock.
         for _ in range(160):
             try:
-                if self.eval("document.readyState") == "complete":
+                # ⚠ `user_gesture=False`: this is a READ, and granting an activation here would leave
+                # the page holding a user gesture it never received. testing/verify_audio_unlock.py
+                # asserts there is none before its click, and this poll was the thing supplying one.
+                if self.eval("document.readyState", user_gesture=False) == "complete":
                     break
             except Exception:
                 pass
             time.sleep(0.25)
         time.sleep(settle)
 
-    def eval(self, expr, wait=False):
+    def eval(self, expr, wait=False, user_gesture=True):
+        """Evaluate in the page.
+
+        ⚠ `user_gesture` DEFAULTS TO TRUE AND THAT IS A HAZARD FOR ONE KIND OF CHECK. CDP grants the
+        page a user activation for the duration of an evaluate with this set, which is convenient for
+        driving a UI and fatal for testing anything gated on activation: a probe that merely READS
+        `navigator.userActivation`, or that calls `play()`, would be handed the very permission the
+        check exists to prove is absent. Pass `user_gesture=False` for those.
+        """
         r = self.send("Runtime.evaluate", expression=expr, returnByValue=True,
-                      awaitPromise=bool(wait), userGesture=True)
+                      awaitPromise=bool(wait), userGesture=bool(user_gesture))
         if r.get("exceptionDetails"):
             raise RuntimeError(json.dumps(r["exceptionDetails"])[:600])
         return r.get("result", {}).get("value")
@@ -250,7 +261,8 @@ class Chrome(object):
         end = time.time() + timeout
         while time.time() < end:
             try:
-                v = self.eval(expr)
+                # A read, so no gesture. See the note in `goto`.
+                v = self.eval(expr, user_gesture=False)
                 if v:
                     return v
             except Exception:

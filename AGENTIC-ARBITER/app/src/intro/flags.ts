@@ -151,6 +151,20 @@ export function motionEnabled(): boolean {
  *   reduced motion, narrow  -> silence
  *   the stored mute choice  -> silence
  */
+/**
+ * Was audio turned off by the URL, as opposed to by the reader's own toggle?
+ *
+ * 🔴 THE DIFFERENCE DECIDES WHETHER THE MUTE CONTROL IS SHOWN. A stored 'off' came from pressing the
+ * toggle, and hiding the toggle because of it is a one-way trap: the control that could undo the
+ * choice is the one the choice removes. `?audio=off` is a per-load instruction from whoever opened
+ * the URL, it lasts exactly as long as that URL, and a mute button on a page that was told to be
+ * silent is a control that lies about what the page does. So one is a trap and the other is correct,
+ * and IntroLayer needs to be able to tell them apart.
+ */
+export function audioOffByParam(): boolean {
+  return isOff(param('audio'))
+}
+
 export function audioEnabled(): boolean {
   if (isOn(param('audio'))) return true
   if (isOff(param('audio'))) return false
@@ -203,6 +217,8 @@ export function storeAudioChoice(on: boolean): void {
  */
 export type IntroFlags = {
   motion: boolean
+  /** True only when `?audio=off` is in the URL. See `audioOffByParam`. */
+  audioOffByParam: boolean
   audio: boolean
   /** The timed launch sequence. False means the CTA navigates instantly. */
   cinematic: boolean
@@ -215,6 +231,7 @@ export function readFlags(): IntroFlags {
   return {
     motion: motionEnabled(),
     audio: audioEnabled(),
+    audioOffByParam: audioOffByParam(),
     cinematic: cinematicEnabled(),
     gate: gateEnabled(),
     reduced: prefersReducedMotion(),

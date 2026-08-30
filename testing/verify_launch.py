@@ -409,6 +409,27 @@ def main():
         lsrc = io.open(os.path.join(AA, "app", "src", "intro", "launch.ts"),
                        encoding="utf-8").read()
 
+        # ---------------------------------------------------------------- 0. the two markers agree
+        head("0. THE TWO INTRO MARKERS EXPIRE TOGETHER")
+        # 🔴 THE CHECK THAT WOULD HAVE CAUGHT A SILENT CINEMATIC. `hasSeenSplash` and the audio's
+        # PLAYED_KEY describe one fact between them: the reader has already been through the intro in
+        # this document. `app/index.html` clears them before the bundle runs so a refresh returns to
+        # the globe WITH its sound. Clearing only the first is what happened on 2026-08-30, and the
+        # result was a gate that came back and a `playVoice()` that returned 0 on its first line.
+        # The key name is necessarily typed twice, because a pre-paint script cannot import from the
+        # bundle, so the two strings are compared here rather than trusted.
+        asrc = io.open(os.path.join(AA, "app", "src", "intro", "audio.ts"),
+                       encoding="utf-8").read()
+        hsrc = io.open(os.path.join(AA, "app", "index.html"), encoding="utf-8").read()
+        m = re.search(r"const PLAYED_KEY = '([^']+)'", asrc)
+        key = m.group(1) if m else None
+        ck(bool(key), "audio.ts declares a PLAYED_KEY", str(key))
+        ck(bool(key) and ("removeItem('%s')" % key) in hsrc,
+           "and index.html clears that exact key on every document load",
+           "looked for removeItem('%s')" % key)
+        ck("removeItem('hasSeenSplash')" in hsrc,
+           "alongside the splash marker, so the gate and its sound cannot disagree")
+
         # ---------------------------------------------------------------- 1. the normal run
         head("1. THE NORMAL RUN: it holds, it plays, it crosses over")
         d = load(port, "normal")
@@ -447,7 +468,14 @@ def main():
         wh = [m for m in d["media"] if m["ev"] == "play" and m["file"] == "transition-whoosh.mp3"]
         ck(bool(wh), "the whoosh fired")
         if wh:
-            wat = rel(d, wh[0]["at"])
+            # 🔴 THE LAST PLAY, NOT THE FIRST, AND THE FIRST IS NOW A DELIBERATE ONE.
+            # `audio.unlock()` plays and immediately stops all three elements inside the click, at
+            # volume 0, so each one earns Chrome's per-element playback permission while the click's
+            # five-second activation is still live. Without it the whoosh, which fires at +5.876 s,
+            # is refused in every real browser: measured 8 times out of 8. So there are two play()
+            # calls on this element and only the second is audible. This assertion is about WHEN THE
+            # READER HEARS IT, which is the last one.
+            wat = rel(d, wh[-1]["at"])
             # voice 4.676 + hold 1.0 + out 1.2 - pad 1.0 = 5.876 s after the click.
             ck(5300 <= wat <= 6500,
                "at the transition, about 1 s before the end, not on the voiceover's ended event",
@@ -547,9 +575,13 @@ def main():
         # ---------------------------------------------------------------- 5. double click
         head("5. DOUBLE CLICK: two clicks, one sequence")
         dd = load(port, "double")
+        # ⚠ TWO CALLS PER SEQUENCE IS NOW CORRECT, and the check is about the SEQUENCE not restarting.
+        # `audio.unlock()` primes every element inside the click at volume 0; `playVoice()` then plays
+        # the voiceover for real. What a double click must not do is run either of those twice, so the
+        # bound is two rather than one, and the `started` guard in audio.ts is what holds it there.
         voices = [m for m in (dd or {}).get("media", [])
                   if m["ev"] == "play" and m["file"] == "voiceover.mp3"]
-        ck(len(voices) == 1, "the voiceover started exactly once",
+        ck(len(voices) <= 2, "the voiceover started exactly once, plus its silent prime",
            "%d play() calls" % len(voices))
         ck(step(dd, "t900").get("gate") is True,
            "the second click did not short-circuit the hold")

@@ -318,6 +318,13 @@ STEPS = [
     # viewport was short enough for the rail to run past the bottom of it.
     ("the page scrolls at a short viewport, and a theme choice stays on its own screen",
      [sys.executable, os.path.join(TESTING, "verify_scroll_and_theme.py")], ROOT),
+    # ⚠ THIS ONE RUNS CHROME'S REAL AUTOPLAY RULE AND A REAL POINTER CLICK, and both halves matter.
+    # verify_launch.py above is 71 green checks about the same sequence and is STRUCTURALLY unable to
+    # see an autoplay refusal: it passes --autoplay-policy=no-user-gesture-required and presses the
+    # button with el.click(), which carries no user activation. The transition whoosh was refused
+    # 8 times out of 8 in every real browser while that suite was green.
+    ("the intro's three sounds actually play, under the real autoplay rule",
+     [sys.executable, os.path.join(TESTING, "verify_audio_unlock.py")], ROOT),
     ("the React app renders the same numbers twice, from fresh profiles",
      [sys.executable, "verify_app_deterministic.py"], TESTING,
      {3: "no build in AGENTIC-ARBITER/app/dist, or no browser. The app is a prototype and the "

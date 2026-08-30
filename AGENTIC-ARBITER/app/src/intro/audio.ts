@@ -93,7 +93,15 @@ const MASTER = 0.4
 const VOICE_GAIN = 1.0
 const WHOOSH_GAIN = 0.8
 const SWELL_GAIN = 0.3
-/** Once per session, and this is where that is remembered. */
+/** Once per DOCUMENT, and this is where that is remembered.
+ *
+ * ⚠ "PER SESSION" IS WHAT THIS USED TO MEAN AND IT IS NO LONGER TRUE. It is sessionStorage, so it
+ * would survive a reload on its own; `app/index.html` clears it on every document load, in the same
+ * breath as `hasSeenSplash`. The two describe one fact between them and they have to expire together:
+ * when only `hasSeenSplash` was cleared, a refresh brought the gate back and this key stayed set, so
+ * `playVoice()` returned 0 on its first line and the cinematic ran silent.
+ * The name is duplicated in that inline script because a pre-paint script cannot import from the
+ * bundle. verify_launch.py asserts the two strings are the same. */
 const PLAYED_KEY = 'aa-intro-audio-played'
 
 type El = HTMLAudioElement | null
@@ -170,6 +178,57 @@ async function attempt(el: HTMLAudioElement): Promise<boolean> {
     /* Autoplay policy, a codec refusal, a missing file, a device with no output. All the same to
        the reader: the intro plays silently and says nothing about it. */
     return false
+  }
+}
+
+/**
+ * 🔴 EARN EVERY ELEMENT'S PLAYBACK PERMISSION INSIDE THE CLICK, BECAUSE ONE OF THEM CANNOT EARN IT
+ * LATER. Called from the Initialize Arbiter handler, synchronously, before anything else.
+ *
+ * Chrome's transient user activation lasts FIVE SECONDS, and the media unlock it grants is PER
+ * ELEMENT and permanent once earned. The sequence fires the voiceover at +34 ms, which is inside the
+ * window, and the transition whoosh at +5,876 ms, which is not: that offset is derived from the
+ * crossfade landing on the whoosh's low pad (BEATS.outS minus whooshPadS after a 4.676 s voiceover),
+ * so it is a consequence of the sound design rather than a number anyone chose.
+ * MEASURED with a real pointer click and Chrome's real autoplay rule: the whoosh was refused 8 times
+ * out of 8 with `NotAllowedError: play() can only be initiated by a user gesture`, on every load
+ * including the first, while `navigator.userActivation` read `{isActive: false, hasBeenActive: true}`.
+ * The boundary was measured directly with five never-played elements on one click: play() at 4,812 ms
+ * succeeded and at 5,110 ms and beyond was refused. And the unlock really is per element and
+ * permanent: an element played at +1,029 ms replayed fine at +7,740 ms with activation long expired.
+ *
+ * So each element is played and immediately stopped, here, while the click's activation is still
+ * live. ⚠ AT VOLUME 0 RATHER THAN `muted`, and the distinction is load-bearing: `make()` already
+ * builds every element at volume 0 and the real levels are set at play time, so this prime is
+ * inaudible; a `muted` prime might not earn the unlock at all, because Blink grants it on the play
+ * request and a muted element is allowed to play unconditionally. Volume is not muting.
+ *
+ * Nothing here waits and nothing here throws: a rejection means that element will ask again when its
+ * turn comes, which is exactly what happens today.
+ */
+export function unlock(): void {
+  preload()
+  for (const el of [voice, swell, whoosh]) {
+    if (!el) continue
+    el.volume = 0
+    const p = el.play()
+    if (p && typeof p.then === 'function') {
+      p.then(
+        () => {
+          /* Stopped the instant it is allowed to start. The element keeps the permission. */
+          el.pause()
+          try {
+            el.currentTime = 0
+          } catch {
+            /* not seekable yet; playVoice sets currentTime again where it matters */
+          }
+        },
+        () => {
+          /* Refused even inside the gesture. Nothing to do: the real call will try again and the
+             existing catch there already covers it. */
+        },
+      )
+    }
   }
 }
 

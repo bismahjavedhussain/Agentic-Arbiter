@@ -59,11 +59,27 @@
      late. -->
 <script>
 (function(){
-  try{ window.sessionStorage.removeItem('hasSeenSplash'); }catch(e){ /* private mode: the gate
-    shows anyway, because gateEnabled() treats an unreadable store as "not seen" */ }
+  try{
+    /* 🔴 BOTH MARKERS, AND CLEARING ONLY THE FIRST ONE BROKE THE SOUND.
+       These two sessionStorage keys describe ONE fact between them: the reader has already been
+       through the intro in this document. They were introduced together and, until 2026-08-30, they
+       expired together, because nothing cleared either of them and a reload kept both.
+       Then this script began clearing `hasSeenSplash` so a refresh returns to the globe. It did not
+       clear `aa-intro-audio-played`, so the two disagreed: the gate came back, the reader pressed
+       Initialize Arbiter, and `audio.ts:playVoice()` returned 0 on its first line because
+       `alreadyPlayed()` was still true from the first visit of the session. A silent cinematic, on
+       exactly the reload the same change had just made more likely. Reported as "i dont hear the
+       music and the mp3 audio that triggers when the Initialise arbiter button is clicked".
+       ⚠ THE KEY NAME IS TYPED TWICE, here and at audio.ts:PLAYED_KEY, because a pre-paint script in
+       the document cannot import from the bundle. testing/verify_launch.py asserts the two strings
+       match, so the copy cannot drift silently. */
+    window.sessionStorage.removeItem('hasSeenSplash');
+    window.sessionStorage.removeItem('aa-intro-audio-played');
+  }catch(e){ /* private mode: the gate shows anyway, because gateEnabled() treats an unreadable
+    store as "not seen", and playVoice() treats it the same way */ }
 })();
 </script>
-  <script type="module" crossorigin src="./assets/index-Cf6d4X3Y.js"></script>
+  <script type="module" crossorigin src="./assets/index-Zjg95oGj.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-CrxpDPQa.css">
 </head>
 <body>

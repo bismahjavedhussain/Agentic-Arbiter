@@ -48,9 +48,16 @@ const ARM_CAP_MS = 1500
 
 export function IntroGate({
   flags,
+  wantsAudio,
   onEnter,
 }: {
   flags: IntroFlags
+  /**
+   * Whether the reader wants sound RIGHT NOW, as opposed to whether audio was allowed when the layer
+   * mounted. `flags` is resolved once; the corner mute toggle lives outside this component and can
+   * change the answer after that, so the live value is passed in rather than read from the snapshot.
+   */
+  wantsAudio: boolean
   /** Called once, with whether sound is wanted. The caller starts the timeline. */
   onEnter: (withAudio: boolean) => void
 }) {
@@ -225,7 +232,12 @@ export function IntroGate({
 
         <div className="aa-gate-actions">
           <ShinyButton
-            onClick={() => go(flags.audio)}
+            /* 🔴 `wantsAudio`, NOT `flags.audio`, BECAUSE THE READER MAY HAVE CHANGED IT SINCE MOUNT.
+               `flags` is resolved once when IntroLayer mounts. The corner mute toggle writes a new
+               choice and lives outside this component, so a reader who turns the sound back on and
+               then presses Initialize Arbiter would otherwise start a run that had already decided to
+               be silent. The live value is passed in. */
+            onClick={() => go(wantsAudio)}
             className={'aa-splash-cta' + (committed ? ' is-committed' : '')}
             /* Disabled once committed, so further clicks cannot reach the handler at all rather than
                being turned away by the ref guard alone. Belt and braces, and the disabled state is

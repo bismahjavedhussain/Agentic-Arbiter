@@ -326,10 +326,11 @@ it four pixels out. The layout was correct; the animation was walking the card o
 that reads the CSS could have seen that, and nothing that reads a screenshot by eye would have
 measured it.
 
-## 5d. `testing/cdp.py`, and the five checks that need a real pointer
+## 5d. `testing/cdp.py`, and the six checks that need a real pointer
 
-⚠ **FOUR OF THE FIVE ARE `run_all.py` STEPS**, added 2026-08-30: `verify_tooltip.py`,
-`verify_results_surfaces.py`, `verify_landing_surfaces.py` and `verify_scroll_and_theme.py`. Each guards a fault that shipped, so
+⚠ **FIVE OF THE SIX ARE `run_all.py` STEPS**, added 2026-08-30: `verify_tooltip.py`,
+`verify_results_surfaces.py`, `verify_landing_surfaces.py`, `verify_scroll_and_theme.py` and
+`verify_audio_unlock.py`. Each guards a fault that shipped, so
 each belongs in the one command that is supposed to prove the product. `shot_rail.py` is not a step,
 for the same reason `shot_hero.py` is not: it measures and photographs, and exits 0 either way.
 
@@ -401,6 +402,26 @@ after a real click through to the configure stage and back, which is the exact t
 leave the dot gone for good.
 The reload check is a real second `Page.navigate`, and it asserts BOTH directions: the gate returns
 after a document load, and it does NOT return after an in-document round trip.
+
+### `testing/verify_audio_unlock.py` - the three cues actually play, 17 checks
+
+🔴 **IT EXISTS BECAUSE `verify_launch.py` CANNOT ANSWER THE QUESTION, AND THAT IS A HARNESS LIMIT
+RATHER THAN A MISSING ASSERTION.** That file passes
+`--autoplay-policy=no-user-gesture-required` and presses the button with `el.click()`, which carries
+no user activation. The flag says permission is never needed and the click would not have granted it,
+so every permission question is unanswerable and all 71 of its checks pass while the transition whoosh
+is refused in every real browser.
+
+This one inverts both: `--autoplay-policy=user-gesture-required`, appended after cdp.py's permissive
+flag so it wins, and a real `Input.dispatchMouseEvent` on the measured centre of the call to action.
+Every probe passes `user_gesture=False`, because CDP's `Runtime.evaluate` grants an activation of its
+own with the default and would hand the page the permission being measured. It asserts there is no
+activation before the click, so a pass cannot come from the harness.
+
+Three scenarios: a fresh tab, a real RELOAD (the path that went silent when only one of the two
+sessionStorage markers was being cleared), and a seeded `aa-audio = 'off'` to prove the mute control
+is still on screen with the sound off. For the whoosh it checks the LAST play attempt specifically,
+not the first, because the first is now the deliberate silent prime that earns the unlock.
 
 ### `testing/verify_scroll_and_theme.py` - short viewports, and a theme that stays put, 36 checks
 

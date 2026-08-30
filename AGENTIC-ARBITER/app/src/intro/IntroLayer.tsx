@@ -73,6 +73,16 @@ export function IntroLayer() {
   /** Released by the gate, or immediately when there is no gate. */
   const release = useCallback(
     (withAudio: boolean) => {
+      /* 🔴 FIRST, AND SYNCHRONOUSLY, BECAUSE THIS IS THE ONLY MOMENT IT CAN HAPPEN.
+         `unlock()` plays and immediately stops all three sounds so each one earns Chrome's per-element
+         playback permission while the click's transient activation is still live. That activation
+         lasts five seconds and the transition whoosh does not fire until +5.9 s, so without this it is
+         refused every time, on every load, in every real browser. See the note on `unlock` itself. */
+      /* ⚠ AND ONLY WHEN THERE IS A SEQUENCE TO UNLOCK FOR. `?cinematic=off` navigates instantly and
+         plays nothing at all; priming three elements there would be work with no purpose and would
+         break that switch's contract, which verify_launch.py states as "no audio at all". Caught by
+         that check within minutes of the first version, which unlocked on every release. */
+      if (withAudio && flags.cinematic) audio.unlock()
       setReleased(true)
       setMuted(!withAudio)
 
@@ -311,15 +321,22 @@ export function IntroLayer() {
           to find the nodes when it is built. Its own CSS hides it under 768px. */}
       {slot && createPortal(<Pipeline />, slot)}
 
-      {gateOpen && <IntroGate flags={flags} onEnter={release} />}
+      {gateOpen && <IntroGate flags={flags} wantsAudio={!muted} onEnter={release} />}
 
       {/* THE PERSISTENT TOGGLE, in a corner, only once the gate is gone.
           Bottom LEFT deliberately: App.tsx pins the theme toggle to `right-4 top-4`, and the
           engine's own controls sit along the top, so the opposite corner is the one piece of chrome
           nothing else claims.
-          It is not rendered at all when audio was never possible for this load -- a mute button on a
-          page that has no sound to mute is a control that lies about what the page does. */}
-      {!gateOpen && released && flags.audio && (
+          🔴 GATED ON THE CINEMATIC, NOT ON `flags.audio`, AND THE DIFFERENCE WAS A ONE-WAY TRAP.
+          It read `flags.audio`, which is resolved once at mount from `audioEnabled()`, which returns
+          false when localStorage holds `aa-audio = 'off'`. This button is the only thing that writes
+          that value. So one press turned the sound off, and on the next load the control that could
+          turn it back on was not rendered at all: MEASURED, a sweep of every button and [role=button]
+          for a label matching sound, audio, mute or volume returned nothing, and the only ways back
+          were `?audio=on` or clearing storage. Exactly the shape of the theme bug fixed the same day.
+          The condition is now "is there a cinematic at all", which is a fact about the page rather
+          than about the reader's own last decision, so the decision always has a way back. */}
+      {!gateOpen && released && flags.motion && flags.cinematic && !flags.audioOffByParam && (
         <button
           type="button"
           className="aa-mutebtn"

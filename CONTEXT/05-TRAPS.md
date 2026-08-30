@@ -397,6 +397,58 @@ with `normalMap` left null it renders (48, 78, 113), a lit ocean. The normal map
 biggest file. So request every map at once and ATTACH each only when it carries pixels, or a poster
 buys nothing on the connection that needed it.
 
+### 5b.42 A HARNESS THAT DISABLES THE RULE CANNOT TEST THE RULE
+**You observe:** 71 green checks about a sequence, and the sequence is audibly broken in a real
+browser on every single load.
+**Actually:** the harness launched Chrome with `--autoplay-policy=no-user-gesture-required` AND
+pressed the button with `el.click()`, which carries no user activation at all. The flag says
+permission is never needed; the synthetic click would not have supplied it anyway. Every permission
+question was unanswerable, so every one of them passed.
+**The fix is a second harness that inverts both**, not more assertions in the first: the real policy
+(`--autoplay-policy=user-gesture-required`, appended after the permissive flag so it wins) and a real
+`Input.dispatchMouseEvent`.
+⚠ **AND THE PROBES HAVE TO DECLINE THE GESTURE TOO.** CDP's `Runtime.evaluate` takes `userGesture`,
+and with it true the page is handed an activation for the duration of the call. `cdp.py`'s own
+`goto()` and `poll()` were passing the default, and the first run of the new check reported
+`isActive = True` before any click had happened: the harness was supplying the very thing it was
+measuring the absence of. Reads pass `user_gesture=False`.
+**The general shape:** whenever a check needs a permissive flag to run at all, ask what that flag
+switches off, and write a second check that does not need it.
+
+### 5b.41 A CONTROL MUST NOT BE GATED ON THE VALUE IT ITSELF WRITES
+**You observe:** a setting can be turned off and never turned back on. There is no error and nothing
+looks broken; the control is simply not on the page any more.
+**Actually:** the toggle was rendered only when the feature was enabled, and the toggle is the thing
+that disables it. One press removes the only way back. MEASURED here: after one press of the mute
+button and a reload, a sweep of every button and `[role=button]` for a label matching sound, audio,
+mute or volume returned nothing, and recovery needed a URL parameter or clearing storage.
+**Gate it on whether the feature EXISTS, not on whether it is currently on.** "Is there a cinematic on
+this page" is a fact about the page; "is the sound currently allowed" is the reader's own last
+decision, and a decision must always have a way back.
+⚠ **A URL PARAMETER IS THE EXCEPTION AND IS WORTH KEEPING SEPARATE.** `?audio=off` is a per-load
+instruction from whoever opened the link, it expires with the URL, and a mute button on a page that
+was told to be silent is a control that lies about what the page does. Distinguish "the reader chose
+this" from "this load was told to", because only the first one traps.
+**This is the third instance of this shape in one day**, after the theme choice and the splash marker.
+When a stored preference decides whether its own control is reachable, that is the bug.
+
+### 5b.40 A USER GESTURE LASTS FIVE SECONDS, AND THE MEDIA UNLOCK IS PER ELEMENT
+**You observe:** a sound that fires early in a click-triggered sequence plays, and one that fires
+later in the same sequence never does, with `NotAllowedError: play() can only be initiated by a user
+gesture`.
+**Actually:** Chrome's transient activation expires five seconds after the gesture, and the unlock it
+grants is per media element and permanent once earned. MEASURED directly with five never-played
+elements on one real click: play() at 4,812 ms succeeded, at 5,110 ms and beyond was refused; and an
+element that played at +1,029 ms replayed fine at +7,740 ms with activation long gone.
+**So do not move the cue earlier, earn the permission for every element inside the click.** Play each
+one and stop it immediately, in the click handler.
+⚠ **PRIME AT VOLUME 0, NOT `muted`.** Volume 0 is inaudible and still counts as a real play request.
+A muted element is allowed to play unconditionally, so a muted prime may earn nothing at all: Blink
+grants the unlock on the request, and a request that never needed permission cannot confer it.
+⚠ **AND CHECK WHETHER THE PATH THAT PLAYS NOTHING STILL RUNS THIS.** A kill switch that navigates
+instantly should not prime three elements; the first version of the fix did, and a check that asserted
+"no audio at all" caught it.
+
 ### 5b.39 A CSS `transition` DOES NOT STEP ASIDE FOR GSAP, IT FILTERS EVERY VALUE GSAP WRITES
 **You observe:** a 1.2 s fade-out is visibly cut short. The element is removed while it is still
 clearly on screen, and the tween's own duration is correct.
