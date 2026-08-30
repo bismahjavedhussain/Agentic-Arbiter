@@ -50,7 +50,14 @@ why `CONTEXT/01-STATE.md` **derives** its figures instead of quoting them.
 ```bash
 python AGENTIC-ARBITER/src/audit.py
 ```
-**Current verdict: 2,215 passed, 0 warnings, 0 failures.** Exits 1 on any failure.
+**Current verdict: 2,211 passed, 0 warnings, 5 failures.** Exits 1 on any failure.
+
+⚠ **THE FIVE ARE THE DEFERRED SPEND LEDGER, AND THEY ARE THE USER'S DECISION RATHER THAN A DEFECT.**
+The 2026-08-25 and 2026-08-26 day-pairs were measured and, by the user's direction, are not in the
+published figures. The ledger and the two documents that quote it therefore disagree with the meter
+until those pairs are adopted: `regenerate the spend ledger from meter readings`, `spend reconciles
+exactly at the measured prices`, two `API-USAGE.md` checks and one `HANDOFF.md` check. Any SIXTH
+failure, or a change in these five, is real and must be read. Do not quote 0 failures here.
 
 **25 numbered sections** from 24 check functions, labelled `1, 2, 2b, 2c, 2d, 2e, 2f, 3, 4, 5, 5b, 6,
 6a, 6b, 6c, 6d, 6e, 6f, 6g, 7, 8, 9, 10`. They are **not** numbered 1 to 10, and the printed order is
@@ -70,13 +77,17 @@ The families worth knowing by name:
   function it names to read a per-site global. Its empirical half is `verify_site_panels.py`.
 - **7 module self-tests.** Runs seven subprocesses: `conformal.py`, `environment.py`,
   `plume_uncertainty.py`, `explain.py`, plus `ticker.py selftest`, `money.py selftest`,
-  `report.py selftest`.
+  `report.py selftest`, 23 assertions. Eight are new on 2026-08-30 and cover the proportional
+  ruler (`text_width` against the published Helvetica advances, including the case that proves Courier
+  was not a conservative estimate: "AVAST" is WIDER in Helvetica), `wrap_measured` never overrunning
+  its budget and never losing a word, and a NEGATIVE CONTROL for `Pdf.overflows()` that places a
+  200-character line and requires a complaint.
 - **8 cross-language.** Regenerates three fixture generators in `demo/` then runs the five node
   verifiers (section 4).
 - **9 / 10 published figures.** The registry holds **exactly 77 entries**, and its own size is a
   published figure re-read by check 10 and cross-checked against the README.
 
-**The 2,215 total is dynamic**, printed as `len(PASSES) + len(WARNS) + len(FAILS)`. Most `ck()` calls
+**The 2,211 total is dynamic**, printed as `len(PASSES) + len(WARNS) + len(FAILS)`. Most `ck()` calls
 sit inside loops over registries, so **it cannot be counted statically** and is only knowable by
 running it. Do not trust a quoted audit total you have not watched print.
 
@@ -403,7 +414,7 @@ leave the dot gone for good.
 The reload check is a real second `Page.navigate`, and it asserts BOTH directions: the gate returns
 after a document load, and it does NOT return after an in-document round trip.
 
-### `testing/verify_audio_unlock.py` - the three cues actually play, 17 checks
+### `testing/verify_audio_unlock.py` - the three cues are AUDIBLE, 31 checks
 
 🔴 **IT EXISTS BECAUSE `verify_launch.py` CANNOT ANSWER THE QUESTION, AND THAT IS A HARNESS LIMIT
 RATHER THAN A MISSING ASSERTION.** That file passes
@@ -417,6 +428,22 @@ flag so it wins, and a real `Input.dispatchMouseEvent` on the measured centre of
 Every probe passes `user_gesture=False`, because CDP's `Runtime.evaluate` grants an activation of its
 own with the default and would hand the page the permission being measured. It asserts there is no
 activation before the click, so a pass cannot come from the harness.
+
+🔴 **AND IT COUNTS AUDIBLE MILLISECONDS, BECAUSE COUNTING RESOLVED PROMISES PASSED WHILE THE PAGE WAS
+SILENT.** A `play()` promise resolves when the browser ALLOWS playback to begin; it says nothing about
+whether playback continued. On 2026-08-30 all three promises resolved green while all three elements
+had already been paused and rewound 13 ms later by `audio.unlock()`'s own cleanup. A rAF sampler now
+accumulates the time each element spends `!paused && !muted && volume > 0`, and each cue has a floor:
+voiceover 3,000 ms of its 4,676, swell 3,000, whoosh 500. Healthy measures 6,851 / 6,851 / 996.
+NEGATIVE CONTROL, with only that one guard removed: **0 ms and 3 ms** of voiceover across two loads.
+⚠ **NOT `currentTime`.** This machine has no audio output device, so the media clock never advances
+and a correctly-playing buffered file reads 47 ms forever; a `currentTime` assertion fails on a
+HEALTHY build. The probe also wraps `pause()` and prints the caller frame, but only for a cue that
+missed its floor.
+
+The four scenarios: a fresh tab; a reload, which is the path that went silent; a reader still carrying
+the RETIRED `aa-audio` key, who must be heard anyway; and a reader whose `aa-audio-choice` is off, who
+must be able to find the control that turns it back on.
 
 Three scenarios: a fresh tab, a real RELOAD (the path that went silent when only one of the two
 sessionStorage markers was being cleared), and a seeded `aa-audio = 'off'` to prove the mute control
@@ -525,7 +552,14 @@ keyframe for ever. `animation-fill-mode` is irrelevant and removing it changed n
 carries a wall-clock watchdog that marks each row `data-settled` and cancels the animation, and the
 check asserts THAT rather than an animated value, per 5b.13's own first consequence.
 
-### `verify_launch.py` - the Initialize Arbiter cinematic, 68 checks
+### `verify_launch.py` - the Initialize Arbiter cinematic, 73 checks
+
+⚠ Section 2a is a NEGATIVE CONTROL for the pointer grace window added 2026-08-30. The escape hatch is
+bound to `pointerdown` on the window, and an impatient SECOND click was cutting the sequence: measured
+on the deployed origin, a real click at +1.5 s took the run from 6,927 ms to 2,060 ms and the reader
+never heard the transition whoosh. A pointerdown inside 600 ms is ignored now, and this scenario fires
+one at 250 ms and requires the gate to still be up. The keyboard route is NOT delayed, which
+`escape-early` proves by pressing Esc at 60 ms and still escaping.
 
 **Why it is a separate file from `verify_intro.py`:** it runs on a REAL clock. Every other browser check
 uses `--virtual-time-budget`, and GSAP does not advance under it (`05-TRAPS` 5b.13), so a GSAP-driven

@@ -251,6 +251,16 @@ PROBE = r"""
       setTimeout(function(){ snap('after-escape'); publish(); }, 3600);
       return;
     }
+    if (SC === 'escape-tooearly') {
+      /* THE GRACE WINDOW. A pointerdown 250 ms after the reader's own click is an impatient second
+         press, not a decision to skip, and it must NOT cut the sequence. */
+      c.click();
+      setTimeout(function(){
+        window.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      }, 250);
+      setTimeout(function(){ snap('after-escape'); publish(); }, 1600);
+      return;
+    }
     if (SC === 'escape-click') {
       c.click();
       setTimeout(function(){
@@ -513,6 +523,21 @@ def main():
 
         ck(not d.get("errors"), "nothing threw", str(d.get("errors"))[:120])
         ck(not d.get("rejections"), "and no promise went uncaught", str(d.get("rejections"))[:120])
+
+        # ------------------------------------------------- 2a. the escape hatch has a grace window
+        # 🔴 A NEGATIVE CONTROL FOR A GUARD ADDED 2026-08-30, and the fault it guards was measured on
+        # the deployed site: a real second click at +1.5 s cut the run from 6,927 ms to 2,060 ms, so a
+        # reader who pressed again because nothing seemed to happen silenced their own intro and never
+        # heard the transition whoosh at +5.9 s. A pointerdown inside 600 ms is now ignored. The
+        # keyboard route is deliberately NOT delayed, and `escape-early` above still presses Esc at
+        # 60 ms and still escapes, which is what keeps this from being a blanket delay.
+        head("2a. AN IMPATIENT SECOND CLICK DOES NOT COUNT AS A SKIP")
+        e = load(port, "escape-tooearly", "")
+        after = step(e, "after-escape")
+        ck(bool(e) and not e.get("err"), "the probe ran", (e or {}).get("err") or "")
+        ck(after.get("gate") is True,
+           "a pointerdown 250 ms after the reader's own click leaves the sequence running",
+           "gate=%s at %s ms" % (after.get("gate"), after.get("at")))
 
         # ---------------------------------------------------------------- 2. the escape hatch
         head("2. THE ESCAPE HATCH: undocumented, and it works from three inputs")

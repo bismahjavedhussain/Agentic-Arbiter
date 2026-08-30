@@ -24,7 +24,15 @@ WHAT IT GUARDS, and all three were live faults on 2026-08-30:
      can never earn its own permission. `audio.unlock()` plays and immediately stops all three inside
      the click. This requires the whoosh's LATE attempt to succeed, not merely its prime.
   3. THE ONE-WAY MUTE. The corner toggle wrote `aa-audio = 'off'` and was then not rendered, because
-     it was gated on the value it had just written. This requires it to be present with the sound off.
+     it was gated on the value it had just written. This requires it to be present with the sound off,
+     and it requires a reader still carrying the retired key to be heard anyway.
+  4. THE PRIME THAT STOPPED THE SEQUENCE, which is fault 2's own fix biting back and is the reason
+     this file no longer trusts a play() promise. `unlock()` pauses each element when its play promise
+     resolves, and that callback landed 13 ms AFTER `playVoice()` had started the same element: the
+     reader heard 8 ms of a 4,676 ms narration while all three promises resolved green. So the checks
+     below sample `paused`, `muted` and `volume` on every animation frame and require a FLOOR OF
+     AUDIBLE MILLISECONDS per file. A permission granted is not a sound heard, and only the second one
+     is what the reader asked for.
 
 Run from the repository root:  python testing/verify_audio_unlock.py
 """
@@ -59,6 +67,7 @@ def head(t):
 # be mistaken for "it was allowed anyway".
 PROBE = r"""
 window.__A = [];
+window.__EL = {};
 (function(){
   var P = HTMLMediaElement.prototype.play;
   HTMLMediaElement.prototype.play = function(){
@@ -72,8 +81,44 @@ window.__A = [];
       function(e){ window.__A.push({f:src, ok:false, t:t, active:active,
                                    err: e && e.name}); });
     else window.__A.push({f:src, ok:'no-promise', t:t, active:active});
+    window.__EL[src] = el;
     return r;
   };
+})();
+
+/* WHO PAUSED IT, which is the question a play() log cannot answer. Recorded rather than asserted on:
+   it is printed only when an element failed to reach its audible floor, and that one frame is what
+   turned "the sound is gone" into a file and a line number in about a minute. */
+window.__P = [];
+(function(){
+  var U = HTMLMediaElement.prototype.pause;
+  HTMLMediaElement.prototype.pause = function(){
+    var src = (this.currentSrc || this.src || '').split('/').pop();
+    var f = (new Error()).stack || '';
+    f = f.split(String.fromCharCode(10))[2] || '';   /* no escape: this string is a raw literal */
+    window.__P.push({f:src, t:Math.round(performance.now()),
+                     ct:Math.round((this.currentTime||0)*1000), at:f.trim().slice(0,90)});
+    return U.apply(this, arguments);
+  };
+})();
+
+/* AUDIBLE MILLISECONDS, WHICH IS THE ONLY THING THAT ANSWERS "DID THE READER HEAR IT".
+   A resolved play() promise says the browser ALLOWED playback to begin. It says nothing about whether
+   playback then continued, and on 2026-08-30 that gap was the whole bug: three promises resolved
+   green while the elements they belonged to had already been paused and rewound 13 ms later. This
+   samples the only two properties that decide whether sound is leaving the machine. */
+window.__MS = {};
+(function(){
+  var last = performance.now();
+  function tick(){
+    var now = performance.now(), dt = now - last; last = now;
+    for (var k in window.__EL) {
+      var el = window.__EL[k];
+      if (!el.paused && !el.muted && el.volume > 0) window.__MS[k] = (window.__MS[k] || 0) + dt;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 })(); 1
 """
 
@@ -92,12 +137,32 @@ def drive(c):
     r = json.loads(r)
     c.click(r["cx"], r["cy"], settle=0.3)
     time.sleep(9.5)
-    return json.loads(c.eval("JSON.stringify(window.__A)", user_gesture=False))
+    return json.loads(c.eval("JSON.stringify({a:window.__A, ms:window.__MS, p:window.__P})",
+                             user_gesture=False))
 
 
-def report(ev, label):
+# HOW MANY MILLISECONDS OF EACH FILE THE READER HAS TO ACTUALLY HEAR.
+#
+# 🔴 EVERY ONE OF THESE FLOORS IS WELL UNDER WHAT A HEALTHY BUILD MEASURES, AND THAT IS DELIBERATE.
+# The point is not to pin the mix down to the millisecond, it is to be unable to pass while an
+# element is paused. Healthy, measured on this machine: voiceover 6,862 ms, swell 6,862 ms,
+# whoosh 996 ms. Broken by the unlock race: voiceover 5 ms, swell 11 ms, whoosh 996 ms - so the
+# whoosh's floor is the loose one because the whoosh was never the casualty.
+#
+# ⚠ DO NOT REPLACE THIS WITH A `currentTime` ASSERTION. It is the obvious thing to reach for and it
+# fails on a healthy build here: this box's Chrome has no audio output device, so the media clock
+# never advances and a fully-buffered voiceover playing correctly sits at currentTime = 47 ms for as
+# long as you watch it. `paused`, `muted` and `volume` are properties of the element and are all
+# truthful without a sound card; the clock is not.
+FLOOR_MS = {'voiceover.mp3': 3000, 'intro-swell.mp3': 3000, 'transition-whoosh.mp3': 500}
+
+
+def report(res, label):
+    ev = (res or {}).get("a") or []
+    ms = (res or {}).get("ms") or {}
+    pauses = (res or {}).get("p") or []
     by = {}
-    for e in ev or []:
+    for e in ev:
         by.setdefault(e["f"], []).append(e)
     ok = True
     for f in WANT:
@@ -114,6 +179,18 @@ def report(ev, label):
                "%s  and its LATE attempt survives the 5 s window" % label,
                "last attempt at t=%d, active=%s, %s"
                % (last["t"], last["active"], "played" if last["ok"] is True else last.get("err")))
+
+    # ---- and now the only question that matters: was any of it AUDIBLE?
+    for f in WANT:
+        got = int(ms.get(f, 0))
+        floor = FLOOR_MS[f]
+        good = ck(got >= floor, "%s  %s is AUDIBLE, not merely allowed" % (label, f[:22]),
+                  "%d ms un-paused at volume > 0, floor %d" % (got, floor))
+        ok = good and ok
+        if not good:
+            # The play() log will be green here, so it cannot explain this. The pause frame can.
+            for q in [x for x in pauses if x["f"] == f][:3]:
+                print("        ^ paused at t=%d, %d ms in, by %s" % (q["t"], q["ct"], q["at"]))
     return ok
 
 
@@ -138,7 +215,7 @@ def main():
                "the page has no user activation before the click, so this test is real",
                "isActive = %s" % act)
             ev = drive(c)
-            ck(ev is not None, "the call to action armed and was clicked")
+            ck(bool(ev and ev.get("a")), "the call to action armed and was clicked")
             report(ev, "fresh:")
 
         # ============================================= 2. after a reload
@@ -147,7 +224,7 @@ def main():
             c.goto(settle=1.5)
             c.eval(PROBE, user_gesture=False)     # before the click, or __A does not exist yet
             first = drive(c)
-            ck(bool(first), "the first load plays")
+            ck(bool(first and first.get("a")), "the first load plays")
             marker = c.eval("(function(){try{return sessionStorage.getItem("
                             "'aa-intro-audio-played');}catch(e){return 'x';}})()",
                             user_gesture=False)
@@ -160,17 +237,34 @@ def main():
                "THE RELOAD CLEARS THAT MARKER, alongside hasSeenSplash", str(after))
             c.eval(PROBE, user_gesture=False)
             ev = drive(c)
-            ck(ev is not None, "the gate is back and was clicked again")
+            ck(bool(ev and ev.get("a")), "the gate is back and was clicked again")
             report(ev, "reload:")
 
-        # ============================================= 3. the mute toggle has a way back
-        head("3. THE MUTE TOGGLE IS REACHABLE WITH THE SOUND OFF")
+        # ============================================= 3. a reader already carrying the OLD key
+        head("3. A STALE `aa-audio` FROM THE BROKEN WINDOW DOES NOT SILENCE A NEW LOAD")
+        # 🔴 THE KEY WAS RENAMED, AND THIS IS WHAT THE RENAME BUYS. Until 2026-08-30 the mute toggle
+        # was rendered only when audio was already on, which is the value it writes, so one press left
+        # a reader with 'off' stored and no control to undo it. Making the control visible again does
+        # nothing for someone already carrying that value: they reported silence a second time with
+        # the fix verifiably deployed. `aa-audio` is dead and `aa-audio-choice` replaces it, so the
+        # trapped value expires once.
+        with Chrome(url, width=1400, height=900, extra=STRICT) as c:
+            c.goto(settle=1.0)
+            c.eval("localStorage.setItem('aa-audio','off'); 1", user_gesture=False)
+            c.goto(settle=1.8)
+            c.eval(PROBE, user_gesture=False)
+            ev = drive(c)
+            ck(bool(ev and ev.get("a")), "the gate opened for a reader carrying the old key")
+            report(ev, "stale:")
+
+        # ============================================= 4. and the CURRENT key still works
+        head("4. THE MUTE TOGGLE IS REACHABLE WITH THE SOUND OFF")
         with Chrome(url, width=1400, height=900, extra=STRICT) as c:
             c.goto(settle=1.0)
             c.eval(PROBE, user_gesture=False)
-            c.eval("localStorage.setItem('aa-audio','off'); 1", user_gesture=False)
+            c.eval("localStorage.setItem('aa-audio-choice','off'); 1", user_gesture=False)
             c.goto(settle=1.8)
-            got = c.eval("(function(){try{return localStorage.getItem('aa-audio');}"
+            got = c.eval("(function(){try{return localStorage.getItem('aa-audio-choice');}"
                          "catch(e){return 'x';}})()", user_gesture=False)
             ck(got == 'off', "the reader's stored choice is 'off'", str(got))
             c.eval(PROBE, user_gesture=False)

@@ -215,7 +215,28 @@ export function unlock(): void {
     if (p && typeof p.then === 'function') {
       p.then(
         () => {
-          /* Stopped the instant it is allowed to start. The element keeps the permission. */
+          /**
+           * 🔴 STOPPED THE INSTANT IT IS ALLOWED TO START, UNLESS THE SEQUENCE HAS ALREADY CLAIMED IT.
+           * The element keeps the permission either way, which is the whole point of the prime.
+           *
+           * ⚠ THIS GUARD IS THE FIX FOR THE SILENCE THE UNLOCK ITSELF CAUSED, AND IT IS A RACE I
+           * SHIPPED. `play()` returns a promise, so this callback is asynchronous, and the sequence
+           * does not wait for it: GSAP fires `playVoice()` on the next animation frame. MEASURED on
+           * the deployed origin with a real pointer, 7 runs out of 7 - unlock plays the voiceover at
+           * t=5036, `playVoice` plays it for real at t=5065, and this callback landed at t=5078 and
+           * paused it 20 ms in. The reader heard 8 ms of a 4,676 ms narration. "I hear no voice
+           * altogether" was literally accurate.
+           * The prime always loses that race, because resolving a play promise takes longer than one
+           * frame, so the ordering cannot be relied on and the callback has to ask instead.
+           *
+           * VOLUME IS THE QUESTION TO ASK, and it answers exactly the right thing. `make()` builds
+           * every element at volume 0 and this prime sets 0 again; the three real levels are 0.400,
+           * 0.120 and 0.320 and are set immediately before their `play()`. So a non-zero volume here
+           * means the element is no longer ours to stop. Correct in both orderings: if the prime
+           * resolves first the volume is still 0 and it pauses and rewinds as designed, and the
+           * whoosh, whose turn does not come until +5.9 s, is still primed and stopped every time.
+           */
+          if (el.volume !== 0) return
           el.pause()
           try {
             el.currentTime = 0

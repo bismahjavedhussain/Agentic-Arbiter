@@ -142,8 +142,25 @@ export function playLaunch(opts: LaunchOpts): LaunchHandle {
   }
   /* `pointerdown` rather than `click`: it is the first event of the gesture, so the escape feels
      immediate. It also cannot receive the click that STARTED the sequence, because that gesture's
-     pointerdown was dispatched before this listener existed. */
-  const onPointer = () => escape()
+     pointerdown was dispatched before this listener existed.
+
+     🔴 BUT IT COULD RECEIVE THE SECOND ONE, AND AN IMPATIENT READER SILENCED THEIR OWN INTRO WITH IT.
+     Nothing visible happens for the first moment after Initialize Arbiter is pressed, so a reader who
+     is not sure the click registered presses again. That second pointerdown landed on this listener
+     and skipped the sequence: MEASURED on the deployed origin, a real second click at +1.5 s cut the
+     run from 6,927 ms to 2,060 ms and the transition whoosh, whose turn does not come until +5.9 s,
+     never played at all. The reader asked for the thing again and was given less of it.
+     A GRACE WINDOW, not a redesign. A deliberate skip is a decision made after watching something;
+     it does not happen a fifth of a second after your own click. 600 ms is longer than any double
+     click and far shorter than the 6.9 s sequence, so the escape hatch keeps working for everyone
+     who actually means it. The keyboard route is deliberately NOT delayed: pressing Escape is
+     unambiguous in a way that clicking twice is not. */
+  const armedAt = performance.now()
+  const POINTER_GRACE_MS = 600
+  const onPointer = () => {
+    if (performance.now() - armedAt < POINTER_GRACE_MS) return
+    escape()
+  }
   window.addEventListener('keydown', onKey, true)
   window.addEventListener('pointerdown', onPointer, true)
 

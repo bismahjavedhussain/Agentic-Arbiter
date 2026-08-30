@@ -336,7 +336,14 @@ export function IntroLayer() {
           were `?audio=on` or clearing storage. Exactly the shape of the theme bug fixed the same day.
           The condition is now "is there a cinematic at all", which is a fact about the page rather
           than about the reader's own last decision, so the decision always has a way back. */}
-      {!gateOpen && released && flags.motion && flags.cinematic && !flags.audioOffByParam && (
+      {/* 🔴 AND `flags.gate`, BECAUSE WITHOUT A GATE NOTHING AUDIBLE EVER RAN. Under 768 px, under
+          prefers-reduced-motion, and on a second visit in the same tab, the intro takes the no-gate
+          path: `playHeroEntrance(false, 'headline')` with `withAudio` false, no unlock, no cues.
+          The toggle still rendered there, announcing "Introduction sound: on" and doing nothing
+          audible when pressed. A control that reports a state the page does not have is the same
+          class of fault as the one-way mute it was added to fix, just pointing the other way. */}
+      {!gateOpen && released && flags.gate && flags.motion && flags.cinematic
+        && !flags.audioOffByParam && (
         <button
           type="button"
           className="aa-mutebtn"

@@ -75,6 +75,34 @@ RGB_RULE = (0.72, 0.76, 0.80)          # light grey: a divider, not a barrier
 RGB_SUB = (0.25, 0.28, 0.32)           # dark grey for bold sub-labels
 LEAD = 12.4                            # baseline-to-baseline; raised with BODY_PT
 
+# 🔴 ONE LABEL COLUMN FOR THE WHOLE DOCUMENT, BECAUSE THERE USED TO BE TWO.
+# The site block padded its labels to 16 by hand and the configuration block padded its own to 23,
+# so two definition lists 39.48 pt apart faced each other across four pages. MEASURED from the
+# rendered glyphs: values at x=132.24 in "The site" and x=171.72 under the configuration. Neither
+# number was written down anywhere; both were spelled out fourteen times as trailing spaces inside
+# string literals, which is exactly how they drifted apart.
+#
+# ⚠ 16 RATHER THAN 17, AND THE REASON IS THE DIFF. 16 was already the site block's column, so
+# `field()`'s wrap budget stays at exactly 90 - 16 = 74 characters and every value in the document
+# breaks where it always did. MEASURED across all 250 reports built from identical JSON: 245
+# unchanged page counts, 5 SHORTER, none longer. At 17 the budget drops to 73 and values start
+# re-wrapping for no reason the reader can see, which buries the changes that were asked for. It
+# clears the longest label in either block ("Notice required", 15) by one space, and `field()`
+# now guarantees a separator even for a label that fills the column outright.
+LABEL_COL = 16
+
+# 🔴 THE HEADER AND THE DATA ROWS OF THE HOUR TABLE ARE ONE FORMAT, and this constant is the fix for
+# the defect the user reported: "table headings like bound limit actual margin not in alignment with
+# their respective columns and written slightly leftwards." The header was a hand-typed literal and
+# the rows were a printf format, and the two disagreed by exactly two characters on all four numeric
+# columns. MEASURED: each heading's right edge sat 11.28 pt left of its own column's right edge.
+# Now neither can move without the other. `live_report.py` already did it this way, which is what
+# proved this was an oversight rather than the house style.
+# ⚠ THE NUMERIC FIELDS TAKE `%7s` AND ARE FED PRE-FORMATTED STRINGS. `"%7s" % ("%.3f" % v)` is
+# byte-identical to `"%7.3f" % v` for every finite float -- the same conversion runs first, then the
+# same right-pad to seven -- so no printed value changes by a digit.
+HOUR_ROW = "%s  %-11s %-4s %-14s %7s %7s %7s %7s"
+
 
 def char_width(size):
     return size * COURIER_EM
@@ -83,6 +111,83 @@ def char_width(size):
 def cols_at(size, width=PAGE_W - 2 * MARGIN):
     """How many characters fit on a line. Exact, because the font is fixed-width."""
     return int(width // char_width(size))
+
+
+# =================================================================================================
+# HOW WIDE A STRING ACTUALLY IS, for the one face in these reports that is not fixed-width.
+#
+# 🔴 HELVETICA PROSE WAS BEING WRAPPED ON COURIER'S RULER, AND A QUARTER OF EVERY LINE WAS THROWN
+# AWAY. `live_report.py` sets its prose in Helvetica but asked `cols_at()` how many characters fit,
+# and `cols_at()` assumes a 0.600 em advance because Courier has one. Helvetica averages nearer
+# 0.50 em on ordinary prose, so the count came out low and every paragraph stopped early. MEASURED
+# on the live report: prose lines ended at x=412.93 while the divider rules above and below them ran
+# to 549.60, a 136.67 pt ragged margin on a 553.28 pt page. The text was never wrong or misplaced,
+# there was just a column and a half of empty paper down the right of every paragraph.
+#
+# These are the published Adobe core-font advances, in 1/1000 em, for ASCII 32 to 126 in order.
+# Spot-checks against the AFM: space 278, "A" 667, "a" 556, "i" 222, "M" 833, "@" 1015. Everything
+# this module emits has already been through `esc()`, which transliterates every non-ASCII character
+# to ASCII, so the table cannot be asked about a character it does not hold.
+#
+# ⚠ A TABLE OF CONSTANTS RATHER THAN A LIBRARY CALL, ON PURPOSE. This module imports json, re, os and
+# sys and nothing else, which is why the same bytes come out of the same JSON on any machine. Asking
+# a PDF library to measure a string at build time would put a third-party version number inside the
+# layout of a deterministic artefact.
+_HELV = (278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278,
+         556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556,
+         1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778,
+         667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556,
+         333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556,
+         556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584)
+_HELV_B = (278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278,
+           556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611,
+           975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778,
+           667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556,
+           333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611,
+           611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584)
+
+
+def text_width(text, size, face="C", bold=False):
+    """How many points a string occupies. Exact for both faces this writer can emit."""
+    if face != "H":
+        return len(text) * char_width(size)
+    t = _HELV_B if bold else _HELV
+    total = 0
+    for ch in str(text):
+        o = ord(ch)
+        total += t[o - 32] if 32 <= o <= 126 else t[0]
+    return total * size / 1000.0
+
+
+def wrap_measured(text, avail_pt, size, face="C", bold=False, indent=""):
+    """Greedy wrap to a WIDTH IN POINTS rather than a character count.
+
+    `wrap()` counts characters, which is exact for Courier and only ever an estimate for Helvetica.
+    This measures instead, so a proportional paragraph fills its line to the same right edge as the
+    rules around it. A word too wide for the line is broken rather than allowed to overflow, which is
+    the same rule `wrap()` follows.
+    """
+    out, cur = [], ""
+    for w in str(text).split():
+        while text_width(w, size, face, bold) > avail_pt:
+            cut = len(w)
+            while cut > 1 and text_width(w[:cut], size, face, bold) > avail_pt:
+                cut -= 1
+            if cur:
+                out.append(cur)
+                cur = ""
+            out.append(w[:cut])
+            w = w[cut:]
+        if not cur:
+            cur = (indent + w) if (out and text_width(indent + w, size, face, bold) <= avail_pt) else w
+        elif text_width(cur + " " + w, size, face, bold) <= avail_pt:
+            cur += " " + w
+        else:
+            out.append(cur)
+            cur = (indent + w) if text_width(indent + w, size, face, bold) <= avail_pt else w
+    if cur:
+        out.append(cur)
+    return out
 
 
 def esc(s):
@@ -118,7 +223,11 @@ def wrap(text, width, indent=""):
             lines.append(w[:width])
             w = w[width:]
         if not cur:
-            cur = w
+            # A word longer than the line was just broken above, so this is a CONTINUATION even
+            # though `cur` is empty. Without `indent` here the line after a break loses the hanging
+            # indent every other continuation carries. Latent today, since nothing in these reports
+            # has a token wider than the column, and cheaper to hold than to rediscover.
+            cur = (indent + w) if (lines and len(indent) + len(w) <= width) else w
         elif len(cur) + 1 + len(w) <= width:
             cur += " " + w
         else:
@@ -158,11 +267,20 @@ class Pdf:
         self.pages[-1].append((x, self.y, size, bold, esc(text), face, rgb))
         self.y -= LEAD * gap
 
-    def para(self, text, size=BODY_PT, bold=False, x=MARGIN, indent="  "):
+    def para(self, text, size=BODY_PT, bold=False, x=MARGIN, indent=""):
+        """A wrapped paragraph, every line on the same left edge.
+
+        🔴 THE DEFAULT WAS TWO SPACES AND THAT IS THE "LINES NOT SITTING RIGHT BELOW EACH OTHER"
+        THE USER REPORTED. It indented every line EXCEPT the first, so each paragraph's opening line
+        hung 11.28 pt to the left of its own body: a reverse hanging indent, in 31 paragraphs and
+        107 lines of this one report. It also disagreed with `field()`, three inches away on the same
+        page, which sets its continuations flush. One left edge per paragraph, and the two agree.
+        The parameter stays, because a caller that wants a hanging indent should be able to ask.
+        """
         for ln in wrap(text, cols_at(size, PAGE_W - MARGIN - x), indent):
             self.line(ln, size, bold, x)
 
-    def field(self, label, value, width=16):
+    def field(self, label, value, width=LABEL_COL):
         """A label and a value, with the value wrapped under a hanging indent.
 
         `line()` does NOT wrap -- it places the string as given -- so a long value written with
@@ -170,10 +288,46 @@ class Pdf:
         the "Plume physics" row, 20.1 pt past the right margin, on all three reports. Any row whose
         value is not a short fixed field goes through here.
         """
+        # 🔴 A LABEL AND ITS VALUE ARE ALWAYS SEPARATED, even when the label fills the column.
+        # `"%-*s" % (17, label)` emits exactly 17 characters for a 17-character label and the value
+        # then starts in the eighteenth, touching it. Not hypothetical: `live_report.py` builds its
+        # labels from whatever keys the live job returns and rendered `Dewpoint limit c15.0` on the
+        # page, which reads as a different number until you count the characters. So a label that
+        # reaches the column is given its own space and pushes the value right by one, which is
+        # ragged but never wrong; a label that fits is unaffected and every row here is unchanged.
         pad = " " * width
         avail = cols_at(BODY_PT) - width
         for i, ln in enumerate(wrap(value, avail)):
-            self.line(("%-*s%s" % (width, label, ln)) if i == 0 else pad + ln)
+            if i:
+                self.line(pad + ln)
+            elif len(label) >= width:
+                self.line(label + " " + ln)
+            else:
+                self.line("%-*s%s" % (width, label, ln))
+
+    def overflows(self):
+        """Every placed string that runs past the right margin, measured in its OWN face.
+
+        🔴 `live_report.py` HAD NO GEOMETRY CHECK AT ALL. `report.py`'s `verify()` recomputes each
+        line's right edge from the bytes it wrote, and that check has caught real overflow twice; the
+        live report only ever asserted that certain words were present, so nothing there could tell
+        text on the paper from text past its edge. Now that `hpara()` fills its lines to the margin
+        instead of stopping a quarter short, that slack is gone and the check is what replaces it.
+        Measured per face, so a Helvetica line is measured as Helvetica.
+        """
+        bad = []
+        for pi, page in enumerate(self.pages, 1):
+            for (x, y, size, bold, txt, face, _rgb) in page:
+                # Same unescaping as verify() does on the bytes: esc() escapes only ( ) and the
+                # backslash itself, so those are the three to reverse before measuring.
+                vis = re.sub(r"\\([()\\])", r"\1", txt)
+                right = x + text_width(vis, size, face, bold)
+                if right > PAGE_W - MARGIN + 0.5:
+                    bad.append("page %d: a line runs %.1f pt past the right margin (%r)"
+                               % (pi, right - (PAGE_W - MARGIN), vis[:44]))
+                if y < MARGIN - 0.5 or y > PAGE_H - MARGIN + 0.5:
+                    bad.append("page %d: a baseline sits outside the margins at y=%.1f" % (pi, y))
+        return bad
 
     def rule(self, ch="-", rgb=RGB_RULE):
         self.line(ch * cols_at(BODY_PT), BODY_PT, rgb=rgb)
@@ -356,15 +510,18 @@ def build(metro_key=None):
     rt_l = t["cycle"]["rise_tables"]["longest"]
     standalone = site.get("osm_receptor") is None
     if standalone:
-        d.line("Building        OSM %s" % site["osm_source"])
+        # Every row of both definition lists goes through `field()` now. It was five hand-padded
+        # literals here and nine more under the configuration, and hand-padding is what let the two
+        # blocks settle on different columns; `field()` also wraps, which a literal cannot.
+        d.field("Building", "OSM %s" % site["osm_source"])
         d.field("", site["operator"])
-        d.line("Facade gap      not applicable -- one building, no second facade")
+        d.field("Facade gap", "not applicable -- one building, no second facade")
     else:
-        d.line("Committed pair  OSM %s -> %s" % (site["osm_source"], site["osm_receptor"]))
+        d.field("Committed pair", "OSM %s -> %s" % (site["osm_source"], site["osm_receptor"]))
         d.field("", site["operator"])
-        d.line("Facade gap      %.1f m between the two halls" % site["facade_gap_m"])
-    d.line("Weather record  %s real hourly records from %s"
-           % (format(t["weather"]["n_hours"], ","), t["weather"]["station"]))
+        d.field("Facade gap", "%.1f m between the two halls" % site["facade_gap_m"])
+    d.field("Weather record", "%s real hourly records from %s"
+            % (format(t["weather"]["n_hours"], ","), t["weather"]["station"]))
     if standalone:
         d.field("Plume physics",
                 # ⚠ DO NOT use the words "undefined", "null", "none" or "nan" in this prose. The
@@ -394,17 +551,17 @@ def build(metro_key=None):
            "changing mode at least once. If the numbers on screen differ from the numbers here, "
            "the configuration differs -- compare the two lists before concluding anything else.")
     d.space(0.4)
-    d.line("Day                    %s   (%s)" % (summ["day"], case))
-    d.line("Plant limit            %.1f C" % cfg["limit_c"])
-    d.line("Notice required        %d h" % cfg["notice_h"])
-    d.line("Forecast skill         %.2f relative to persistence" % cfg["skill"])
-    d.line("Level anchor           %s" % cfg["anchor"])
-    d.line("Condenser bank         %s facade" % cfg["bank_mode"])
-    d.line("Switch budget          %d mode changes per day" % cfg["switch_budget"])
-    d.line("Minimum dwell          %d h" % cfg["min_dwell_h"])
-    d.line("Max dew point          %s"
-           % ("gate off" if cfg["dewpoint_limit_c"] is None
-              else "%.1f C  (Green Grid WP#46 p.6)" % cfg["dewpoint_limit_c"]))
+    d.field("Day", "%s   (%s)" % (summ["day"], case))
+    d.field("Plant limit", "%.1f C" % cfg["limit_c"])
+    d.field("Notice required", "%d h" % cfg["notice_h"])
+    d.field("Forecast skill", "%.2f relative to persistence" % cfg["skill"])
+    d.field("Level anchor", "%s" % cfg["anchor"])
+    d.field("Condenser bank", "%s facade" % cfg["bank_mode"])
+    d.field("Switch budget", "%d mode changes per day" % cfg["switch_budget"])
+    d.field("Minimum dwell", "%d h" % cfg["min_dwell_h"])
+    d.field("Max dew point",
+            "gate off" if cfg["dewpoint_limit_c"] is None
+            else "%.1f C  (Green Grid WP#46 p.6)" % cfg["dewpoint_limit_c"])
 
     d.heading("What the agent did on this day")
     d.para(summ["narrative"])
@@ -422,13 +579,14 @@ def build(metro_key=None):
                 "could not afford them" % summ["safe_but_mechanical_h"], 11)
 
     d.heading("Every hour, and the reason for it")
-    d.line("hh  mode        safe binding        bound   limit  actual  margin", BODY_PT, True,
-           rgb=RGB_SUB)
+    d.line(HOUR_ROW % ("hh", "mode", "safe", "binding",
+                       "bound", "limit", "actual", "margin"), BODY_PT, True, rgb=RGB_SUB)
     for r in hours:
-        d.line("%s  %-11s %-4s %-14s %7.3f %7.1f %7.3f %7.3f"
+        d.line(HOUR_ROW
                % (r["hour"], "FREE" if r["mode"] == "FREE-COOLING" else "mechanical",
                   "yes" if r["safe"] else "no", (r["binding"] or "-")[:14],
-                  r["bound_c"], r["limit_c"], r["actual_intake_c"], r["margin_total_c"]))
+                  "%.3f" % r["bound_c"], "%.1f" % r["limit_c"],
+                  "%.3f" % r["actual_intake_c"], "%.3f" % r["margin_total_c"]))
     d.space(0.6)
     d.line("bound  = the agent's 90 %-nominal upper bound on intake air, forecast plus margin",
            BODY_PT)
@@ -443,7 +601,12 @@ def build(metro_key=None):
         d.line("%s:00  %s%s" % (r["hour"], r["mode"],
                                 "" if not r["binding"] else "  [%s]" % r["binding"]),
                BODY_PT, True)
-        d.para(r["why"], BODY_PT, x=MARGIN + 14)
+        # ⚠ TWO CHARACTERS, NOT FOURTEEN POINTS. 14 pt is 2.4823 Courier characters at this size,
+        # so the reasoning body was the only text in the document sitting on no column at all, and it
+        # was off-grid at the old 8.2 pt too. Written as a multiple of `char_width` it cannot drift
+        # again if the body size moves. It also squares the block's right edge with the six divider
+        # rules, which the 2.72 pt of overhang used to break.
+        d.para(r["why"], BODY_PT, x=MARGIN + 2 * char_width(BODY_PT))
 
     # 🔴 FOUR SECTIONS REMOVED FROM THE PDF, 2026-08-26, AT THE USER'S DIRECTION. The report now ends
     # with the hour-by-hour reasoning, which is what it is for. Gone from here: the five-year
@@ -569,6 +732,34 @@ def selftest():
             ok += 1
         else:
             bad.append(label)
+
+    # ---- the proportional ruler, and the guard that depends on it being right
+    want('Helvetica is measured as Helvetica, not as Courier',
+         # H 722 + e 556 + l 222 + l 222 + o 556 = 2278 thousandths of an em
+         abs(text_width('Hello', 10.0, 'H') - 22.78) < 0.001)
+    want('and bold Helvetica is wider than regular',
+         text_width('Hello', 10.0, 'H', True) > text_width('Hello', 10.0, 'H'))
+    # THE CASE THAT PROVES THE OLD ESTIMATE WAS NOT MERELY CONSERVATIVE: capitals are WIDER in
+    # Helvetica than in Courier, so counting characters at 0.600 em could let a line off the paper.
+    want('a line of capitals is wider in Helvetica than in Courier',
+         text_width('AVAST', 10.0, 'H') > text_width('AVAST', 10.0, 'C'))
+    want('Courier is unchanged, exactly 0.600 em per character',
+         text_width('abcde', 10.0) == 5 * char_width(10.0))
+    # wrap_measured must never hand back a line wider than the budget it was given.
+    _prose = ('The interface recomputes the decision for whatever configuration a reader selects, '
+              'and WWWWW MMMMM AVAST are the widest glyphs Helvetica has to offer. ' * 3)
+    want('wrap_measured never overruns its budget',
+         all(text_width(l, BODY_PT, 'H') <= 300.0 + 1e-9
+             for l in wrap_measured(_prose, 300.0, BODY_PT, 'H')))
+    want('and it loses no words',
+         ' '.join(wrap_measured(_prose, 300.0, BODY_PT, 'H')).split() == _prose.split())
+    # NEGATIVE CONTROL for the geometry guard. A check that has never been seen to fail is not
+    # evidence; this places a string that certainly runs off the paper and requires a complaint.
+    _p = Pdf()
+    _p.line('x' * 200)
+    want('overflows() catches a line past the right margin',
+         any('past the right margin' in b for b in _p.overflows()))
+    want('and says nothing about a line that fits', Pdf().overflows() == [])
 
     want("escapes a backslash", esc("a\\b") == "a\\\\b")
     want("escapes parentheses", esc("(x)") == "\\(x\\)")

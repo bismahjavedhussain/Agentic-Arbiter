@@ -12,6 +12,117 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE PRIME SILENCED THE SEQUENCE IT EXISTED TO ENABLE, AND THE PDFs SIT ON A GRID NOW. 2026-08-30
+
+The user, a second time: "I hear no voice altogether although the current version is deployed on
+render after the fix." Both halves of that sentence were true, and together they ruled out the
+obvious answer.
+
+🔴 **THE DEPLOYED ARTEFACT WAS NOT STALE. THE FIX HAD A BUG.** A GET of the live origin returned the
+inline script carrying `removeItem('aa-intro-audio-played')`, and both referenced assets hashed
+identically to the local build (`sha256 45fc4d00...36b1ee`). So cause 1 above really was fixed and
+really was live, and the silence was something else: **cause 2's own fix, biting back.**
+
+`audio.unlock()` plays each element at volume 0 and pauses it again in the play promise's `.then`.
+That callback is **asynchronous**, and the sequence does not wait for it. GSAP fires `playVoice()` on
+the next animation frame. MEASURED on the deployed origin with a real pointer, **7 runs out of 7**:
+unlock plays the voiceover at t=5036, `playVoice` plays it for real at t=5065, the prime's callback
+lands at t=5078 and **pauses it 20 ms in**. The reader heard **8 ms of a 4,676 ms narration**. The
+whoosh survived, because its turn does not come until +5.9 s, so about one second of whoosh was the
+entire soundtrack. "I hear no voice altogether" was literally accurate.
+The prime always loses that race: resolving a play promise takes longer than one frame, and a machine
+with a real audio device loses it harder, because starting a real renderer takes longer than a null
+sink. So the ordering cannot be relied on and the callback has to **ask**: `if (el.volume !== 0)
+return`. The three real levels are 0.400, 0.120 and 0.320 and are set immediately before their own
+`play()`, so a non-zero volume means the element is no longer the prime's to stop. Correct in both
+orderings, and the whoosh is still primed and stopped every time.
+
+🔴 **A RESOLVED `play()` PROMISE IS NOT A SOUND, AND THAT IS WHY THE CHECK MISSED IT.**
+`verify_audio_unlock.py` counted promises. All three resolved green while all three elements were
+already paused and rewound. It now samples `paused`, `muted` and `volume` on **every animation frame**
+and requires a **floor of audible milliseconds** per file: voiceover 3,000, swell 3,000, whoosh 500.
+NEGATIVE CONTROL, with the guard removed and everything else identical: voiceover **0 ms** and **3 ms**
+on two loads, against **6,851 ms** and **6,866 ms** with it. The check fails on the bug it missed.
+⚠ **DO NOT REWRITE THAT AS A `currentTime` ASSERTION.** This machine's Chrome has no audio output
+device, so the media clock never advances: a fully-buffered voiceover playing correctly sits at
+currentTime = 47 ms for as long as you watch it. `paused`, `muted` and `volume` are properties of the
+element and stay truthful without a sound card. The probe also wraps `pause()` and records the caller
+frame, printed only on failure; that one line is what turned "the sound is gone" into a file and a
+line number.
+
+⚠ **AND `aa-audio` IS RETIRED, RENAMED TO `aa-audio-choice`.** Cause 3 above made the mute toggle
+one-way for a window, and making the control visible again does nothing for a reader already carrying
+`off`. A new key name expires every trapped value exactly once. `verify_audio_unlock.py` seeds the OLD
+key and requires all three cues anyway.
+
+**TWO MORE WAYS THE INTRO COULD GO QUIET, BOTH FOUND WHILE MEASURING THE FIRST.**
+
+⚠ **AN IMPATIENT SECOND CLICK SILENCED THE READER'S OWN INTRO.** Nothing visible happens in the first
+moment after Initialize Arbiter is pressed, so a reader unsure the click registered presses again, and
+`launch.ts` bound the undocumented escape hatch to `pointerdown` on the window. MEASURED on the
+deployed origin: a real second click at +1.5 s cut the run from **6,927 ms to 2,060 ms**, and the
+transition whoosh, whose turn does not come until +5.9 s, never played. There is a **600 ms grace
+window** on the pointer route now: longer than any double click, far shorter than the sequence, so a
+deliberate skip still works. The KEYBOARD route is deliberately not delayed, because pressing Escape
+is unambiguous in a way that clicking twice is not.
+
+⚠ **THE MUTE TOGGLE APPEARED WHERE THERE WAS NO SOUND TO MUTE.** Under 768 px, under
+prefers-reduced-motion, and on a second visit in the same tab, the intro takes the no-gate path:
+`playHeroEntrance(false, 'headline')`, no unlock, no cues, nothing audible at any point. The toggle
+rendered there anyway, announced "Introduction sound: on", and did nothing when pressed. It is gated
+on `flags.gate` now. This is the same class of fault as the one-way mute it was added to fix, pointing
+the other way: a control reporting a state the page does not have.
+
+**THE TWO PDFs SIT ON A CHARACTER GRID NOW.** The user: "table headings like bound limit actual margin
+not in alignment with their respective columns and written slightly leftwards ... lines not sitting
+right below each other." Both were exactly right, and everything below is whitespace and placement:
+no number, no rounding and no agentic logic was touched, and the report is still byte-deterministic
+(same JSON in, same sha256 out, confirmed twice).
+
+* **The hour table's header was a hand-typed literal and its rows were a printf format**, and the two
+  disagreed by exactly **two characters** on all four numeric columns. MEASURED from the rendered
+  glyphs: each heading's right edge sat **11.28 pt** left of its own column's. `HOUR_ROW` is now one
+  format for both. `"%7s" % ("%.3f" % v)` is byte-identical to `"%7.3f" % v`, so no printed value moved
+  a digit.
+* **`para()` indented every line EXCEPT the first**, so each paragraph's opening line hung 11.28 pt
+  left of its own body: 31 paragraphs and 107 lines in one report. The default is now no indent, which
+  also makes `para()` agree with `field()` on the same page.
+* **Two definition lists faced each other 39.48 pt apart**, values at x=132.24 and x=171.72, because
+  fourteen hand-padded string literals each carried their own idea of the column. One `LABEL_COL`, and
+  every row goes through `field()`, which also wraps where a literal could only overflow.
+* **The reasoning body sat at `MARGIN + 14`**, which is 2.4823 characters and therefore no column at
+  all; it was off-grid at the old 8.2 pt too. It is `MARGIN + 2 * char_width(BODY_PT)` now, which also
+  squares the block's right edge with the six divider rules it used to overhang by 2.72 pt.
+* **`field()` could butt a label straight against its value**, and in the LIVE report it did:
+  `Dewpoint limit c15.0` was on the page, because that label is 16 characters and the column was 16.
+  A label that fills the column now gets its own space.
+* **The live report's WIND column was 14 wide and its values reach 18** ("250 deg @ 12.3 m/s"), so any
+  row with a bearing overflowed and shoved RISE, BOUND, DEW PT and MODE three columns right of their
+  own headings while a dashed row stayed put. `LIVE_ROW` is one format at width 18; measured after,
+  every field's right edge is identical across the header and all three rows.
+* **The live report's Helvetica prose was wrapped on Courier's ruler.** MEASURED: lines ending at
+  x=412.93 against rules running to 549.60, a column and a half of blank paper down every paragraph.
+  ⚠ And it was not even conservative in the safe direction: "AVAST" is 30.82 pt in Helvetica against
+  28.20 pt in Courier, so a line of capitals could already run off the paper. `text_width()` and
+  `wrap_measured()` use the published Adobe core-font advances, embedded as a table of constants rather
+  than a library call, because a third-party version number has no business inside the layout of a
+  deterministic artefact.
+* **`live_report.py` had no geometry check at all.** `Pdf.overflows()` measures every placement in its
+  own face and `verify_live` now reports it. `report.py selftest` carries a negative control for it.
+
+**NOT CHANGED, AND DELIBERATELY:** the leading is still not an integer multiple of `LEAD`, so the
+baseline grid drifts about 2.5 pt down a page. Fixing it would move page breaks, which is a different
+class of risk from a whitespace change, and the drift is invisible. **AND A PRE-EXISTING BLEMISH THE
+MEASUREMENT SURFACED:** six of the 250 reports end on a page holding a single line. That is true
+BEFORE this change as well as after (six sites either way, a different six), so it belongs to
+`_room()`'s pagination and not to this work.
+
+⚠ **THE COMMITTED PDFs WERE STALE AGAINST THE COMMITTED JSON**, which nearly cost an hour. Rebuilding
+them changed 39 page counts, and none of it was the layout: the explanation prose in
+`explanations.json` had moved on since those files were last written. Built from identical JSON, old
+layout against new, across all 250 reports: **245 unchanged, 5 SHORTER, none longer.** Always isolate
+the variable before believing a diff.
+
 ### THE INTRO WENT SILENT, AND THERE WERE THREE CAUSES, NOT ONE. 2026-08-30
 
 The user: "i dont hear the music and the mp3 audio that triggers when the Initialise arbiter button

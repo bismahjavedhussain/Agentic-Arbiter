@@ -10,6 +10,7 @@ import { IntroLayer } from './intro/IntroLayer'
 import { IntroBoundary } from './components/IntroBoundary'
 import { ScopeBubble } from './components/ScopeBubble'
 import { useStage } from './lib/stage'
+import { chooseTheme, currentTheme, installStageTheme } from './lib/theme'
 import { configureSite } from './lib/engine'
 import { ART, loadArtefacts, type Artefacts } from './lib/artefacts'
 import { DEFAULT_METRO, loadHeadline, type Headline } from './lib/headline'
@@ -67,9 +68,9 @@ export function App() {
      showing; this is the same read-only MutationObserver IntroLayer uses. A second copy of the stage
      in React state is the two-writers bug this file already refuses elsewhere. */
   const stage = useStage()
-  const [theme, setTheme] = useState<'dark' | 'light'>(
-    () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'),
-  )
+  /* Seeded from what the pre-paint script in index.html already wrote, so the first render agrees
+     with the first paint. `installStageTheme` takes over immediately afterwards. */
+  const [theme, setTheme] = useState<'dark' | 'light'>(currentTheme)
 
   useEffect(() => {
     loadArtefacts()
@@ -124,63 +125,33 @@ export function App() {
    * The user asked for two different things on two screens: "This page should be in dark mode by
    * default" of the landing page, and "the default mode when the user lands on this page should be
    * light mode" of the configure screen. Both add "the user can change it when they want to", so this
-   * is a default and never a lock.
+   * is a default and never a lock. A choice is recorded per STAGE GROUP, so pressing the toggle on
+   * one screen cannot pin the other.
    *
-   * The distinction that makes it work is between an AUTOMATIC theme and a CHOSEN one, and a choice
-   * is now recorded PER STAGE GROUP rather than globally.
-   *
-   * 🔴 A GLOBAL CHOICE WAS THE PREVIOUS DESIGN AND IT DEFEATED THE RULE ABOVE. One press of the
-   * toggle, anywhere, pinned every screen forever. MEASURED: pressing it TWICE on the configure
-   * screen leaves configure looking identical (light to dark to light) and permanently pins the
-   * LANDING page to light, in the same document and after a real reload. One press on the landing
-   * does it just as directly. Either way the reader has changed a screen they were not looking at,
-   * and the next time they open the site the globe is on white. That is the third time this has been
-   * reported and the second time the mechanism was different, so the mechanism is what changes.
-   *
-   * TWO GROUPS, and only two: 'pick' is the landing page and 'work' is configure plus results. Each
-   * remembers its own choice under its own keys. Pressing the toggle on the landing pins the landing
-   * and nothing else; pressing it on configure pins configure and results and leaves the globe alone.
-   * With no key for the group you are in, the group's default applies and keeps applying.
-   *
-   * ⚠ THE KEY NAMES CHANGED ON PURPOSE, and that is half the fix. Every reader who has ever pressed
-   * the toggle is carrying `aa-theme-choice='1'`, so leaving the names alone would leave them pinned
-   * to whatever they last picked no matter how correct the new logic is. New names unstick them once.
-   *
-   * A fresh document always starts on the landing, so the pre-paint script in index.html needs
-   * exactly one lookup and the no-flash property is unchanged.
+   * 🔴 THE DECISION AND THE WRITE BOTH MOVED OUT OF REACT, AND THAT IS A FIX RATHER THAN TIDYING.
+   * They used to be two effects here: one that watched `stage` and called `setTheme`, and one that
+   * watched `theme` and assigned `documentElement.dataset.theme`. A `useEffect` runs AFTER paint, and
+   * a `setState` arriving from `useStage`'s MutationObserver is not a discrete event, so React was
+   * free to paint the new stage before the palette caught up. MEASURED with a per-frame recorder on
+   * the way back from results to the landing page: TWO PAINTED FRAMES, 21 ms, of the dark landing
+   * page rendered in the light palette. The user reported exactly that.
+   * `lib/theme.ts` observes `body[data-stage]` itself and writes the attribute in the observer's own
+   * callback, which is a microtask and therefore lands before the paint. This component now MIRRORS
+   * that value for the one thing it needs it for: `EngineStage` repaints its canvases from the
+   * `theme` prop. It no longer decides it and no longer writes it.
    */
-  const group = (s: string | null) => (s === 'configure' || s === 'results' ? 'work' : 'pick')
+  useEffect(() => installStageTheme(setTheme), [])
 
-  useEffect(() => {
-    const g = group(stage)
-    let pinned: string | null = null
-    try {
-      if (localStorage.getItem('aa-theme-choice-' + g) === '1') {
-        pinned = localStorage.getItem('aa-theme-' + g)
-      }
-    } catch {
-      /* private mode: no choice can be read, so the group default holds, which is the safe way round */
-    }
-    setTheme(pinned === 'light' ? 'light' : pinned === 'dark' ? 'dark' : g === 'work' ? 'light' : 'dark')
-  }, [stage])
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-  }, [theme])
-
-  /** The toggle, and the only thing that records a preference. It records it for the group the reader
-   *  is actually looking at, which is the whole of the fix above. */
-  const chooseTheme = useCallback((next: 'dark' | 'light') => {
-    const g = group(stage)
-    try {
-      localStorage.setItem('aa-theme-choice-' + g, '1')
-      localStorage.setItem('aa-theme-' + g, next)
-    } catch {
-      /* private mode: the choice holds for this visit and is forgotten on the next, which is the
-         right way round. A theme that cannot be remembered should not pretend it was. */
-    }
-    setTheme(next)
-  }, [stage])
+  /** The toggle. It records a preference for the group the reader is actually looking at, and
+   *  `chooseTheme` applies it to the document at once so there is no frame of the old palette here
+   *  either. */
+  const onChooseTheme = useCallback(
+    (next: 'dark' | 'light') => {
+      chooseTheme(stage, next)
+      setTheme(next)
+    },
+    [stage],
+  )
 
   /* Stable identity, so SiteMap's create-once effect stays create-once even if its dependency
      array is ever widened again. Belt as well as braces: the ref inside SiteMap is the braces. */
@@ -255,7 +226,7 @@ export function App() {
     <main id="app" className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-6">
       <button
         type="button"
-        onClick={() => chooseTheme(theme === 'dark' ? 'light' : 'dark')}
+        onClick={() => onChooseTheme(theme === 'dark' ? 'light' : 'dark')}
         aria-label={theme === 'dark' ? 'Switch to the light palette' : 'Switch to the dark palette'}
         className="fixed right-4 top-4 z-50 rounded-lg border border-hair bg-surface-1 p-2
                    text-ink-2 transition-colors hover:text-ink"

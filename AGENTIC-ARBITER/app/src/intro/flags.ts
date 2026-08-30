@@ -45,7 +45,23 @@ export const CINEMATIC_DEFAULT = true
 
 /** The localStorage keys. `aa-` prefixed like `aa-theme`, which this app already stores. */
 export const LS_MOTION = 'aa-motion'
-export const LS_AUDIO = 'aa-audio'
+/**
+ * 🔴 THE KEY WAS RENAMED FROM `aa-audio` ON 2026-08-30, AND THE RENAME IS THE FIX.
+ *
+ * The mute toggle that writes this was, until the same day, rendered ONLY when audio was already
+ * allowed, which is the value it writes. So one press turned the sound off and removed the control
+ * that could turn it back on: MEASURED, after one press and a reload there were zero play() calls,
+ * zero audio elements, and no button anywhere with a label matching sound, audio, mute or volume.
+ * The control is always reachable now, but that does not help a reader who is ALREADY carrying an
+ * 'off' written during the window when it was not. They reported silence twice, and the second time
+ * the fix was verifiably deployed.
+ *
+ * A value recorded by a control the reader could neither see nor reverse is not a preference, it is a
+ * trap they fell into. A new key name expires every one of them exactly once, and any value written
+ * under the new name comes from a control that is always on screen. Same remedy, same day, as
+ * `aa-theme-choice` and `hasSeenSplash`; `05-TRAPS` 5b.41 is the shape.
+ */
+export const LS_AUDIO = 'aa-audio-choice'
 export const LS_CINEMATIC = 'aa-cinematic'
 /**
  * Set once the splash has been passed, so the rest of THIS DOCUMENT'S life skips it.

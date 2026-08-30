@@ -397,6 +397,62 @@ with `normalMap` left null it renders (48, 78, 113), a lit ocean. The normal map
 biggest file. So request every map at once and ATTACH each only when it carries pixels, or a poster
 buys nothing on the connection that needed it.
 
+### 5b.46 A RESOLVED `play()` PROMISE IS PERMISSION, NOT SOUND
+`verify_audio_unlock.py` existed precisely to prove the reader hears the intro, and it passed with
+green ticks on all three cues while the reader heard **8 ms of a 4,676 ms narration**. The promise
+returned by `HTMLMediaElement.play()` resolves when the browser ALLOWS playback to begin. It says
+nothing about whether playback then continued, and something 13 ms later was pausing all three
+elements and rewinding them to 0.
+**The fix is to sample the state, not the event.** A rAF loop accumulating milliseconds for which each
+element is `!paused && !muted && volume > 0` is the only thing that answers "was it audible". Measured
+floors, healthy: voiceover 6,851 ms, swell 6,851 ms, whoosh 996 ms. Broken: 0 ms, 0 ms, 1,004 ms.
+⚠ **AND DO NOT REACH FOR `currentTime`,** which is the obvious substitute and fails on a HEALTHY build
+here: this machine's Chrome has no audio output device, so the media clock never advances and a
+correctly-playing, fully-buffered file sits at 47 ms indefinitely. `paused`, `muted` and `volume` are
+properties of the element and are truthful without a sound card. The clock is not.
+See also 5b.42: a harness that disables the rule cannot test the rule. This is its sibling, a harness
+that measures the wrong property.
+
+### 5b.45 AN ASYNCHRONOUS CLEANUP RACES THE WORK IT WAS CLEANING UP FOR
+`audio.unlock()` plays every element at volume 0 inside the click, to earn Chrome's per-element media
+permission, and pauses each one again in the play promise's `.then`. That callback is asynchronous.
+The sequence it exists to enable does not wait for it: GSAP starts the real narration on the next
+animation frame, and the prime's cleanup then paused the narration. **7 runs out of 7**, on the
+deployed origin and three successive local builds, and it gets MORE reliable on a machine with real
+speakers, because starting a real audio renderer takes longer than a null sink.
+**The shape:** any `p.then(() => undo())` where `undo` touches shared state that something else may
+legitimately have claimed in the meantime. The ordering is not yours to assume, so the callback has to
+ASK whether the state is still its own. Here `if (el.volume !== 0) return` is that question, and it
+works because the three real levels are 0.400, 0.120 and 0.320 and are set immediately before their
+own `play()`. Pick a discriminator the other writer necessarily changes.
+
+### 5b.44 A TABLE HEADER TYPED BY HAND CANNOT STAY ALIGNED WITH ROWS BUILT BY FORMAT
+`report.py` wrote its hour table's header as a 65-character literal and its rows through a 67-character
+printf format. They disagreed by exactly two characters, so `bound`, `limit`, `actual` and `margin` all
+sat **11.28 pt** left of the columns they name, for as long as that table has existed. Nothing could
+catch it: both strings are inside the margin, both read correctly, and the read-back verifier checks
+that words are PRESENT, not where they are.
+**One format string for the header and the rows, always.** `live_report.py` was already doing exactly
+that fifty lines away, which is what proved this was an oversight and not the house style. Feed the
+header row through the same format with `%7s` and pre-format the numbers: `"%7s" % ("%.3f" % v)` is
+byte-identical to `"%7.3f" % v`, so a numeric column can be right-aligned by the same code that
+right-aligns its heading without any value changing.
+The same rule caught the sibling defect: a column WIDTH typed twice drifts too. The live report's WIND
+field was `%14s` holding values up to 18 characters, so every row with a bearing silently pushed four
+columns out of line while a dashed row stayed put.
+
+### 5b.43 ISOLATE THE VARIABLE BEFORE BELIEVING A DIFF: A COMMITTED ARTEFACT CAN BE STALE
+Rebuilding the 250 report PDFs after a whitespace-only layout change showed **39 of them gaining a
+page**, which looked exactly like a layout regression and would have been reported as one. It was not.
+The committed PDFs had been generated from an older `explanations.json`; the prose inside them had
+moved on since. Building old layout and new layout from IDENTICAL inputs, in one process, gave
+**245 unchanged, 5 shorter, none longer**.
+**The habit:** when a generated artefact is under version control, `git show HEAD:file` is not a
+baseline for your change, it is a baseline for your change PLUS every input drift since it was last
+written. Regenerate the baseline from current inputs, or compare two code versions in one process
+against the same data. Copying `git show HEAD:report.py` to a temporary sibling module and importing
+both takes about ten lines and removes the ambiguity completely.
+
 ### 5b.42 A HARNESS THAT DISABLES THE RULE CANNOT TEST THE RULE
 **You observe:** 71 green checks about a sequence, and the sequence is audibly broken in a real
 browser on every single load.

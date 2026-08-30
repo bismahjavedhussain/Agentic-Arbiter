@@ -49,11 +49,32 @@ import report as R                                                   # noqa: E40
 
 
 # ============================================================================
-# HELVETICA PROSE, wrapped on Courier's conservative metric
+# HELVETICA PROSE, wrapped on Helvetica's own metric
 # ============================================================================
+# 🔴 ONE FORMAT FOR THE HEADER AND THE ROWS, and the wind column is 18 wide rather than 14.
+# The header and the rows already shared a format here, spelled out twice; a constant means they
+# cannot come apart the way `report.py`'s pair did. The width is the real fix. WIND carried
+# "%s deg @ %s m/s", which is up to 18 characters ("250 deg @ 12.3 m/s") in a 14-character field, so
+# any row with a bearing OVERFLOWED and shoved RISE, BOUND, DEW PT and MODE two or three columns
+# right of their own headings, while a row reading "--" stayed put. MEASURED in the selftest report:
+# "10 deg @ 3.1 m/s" is 16 characters and pushed that row 2 columns out of line with the row below
+# it. 18 = 3 for the bearing, 7 for " deg @ ", 4 for the speed and 4 for " m/s", so the widest
+# possible value now fits its column instead of moving the table.
+LIVE_ROW = "%-7s %6s %9s %18s %8s %8s %7s  %s"
+
+
 def hpara(pdf, text, size=R.BODY_PT, bold=False, x=R.MARGIN, indent=""):
-    """A wrapped paragraph in Helvetica. See the module docstring for why the metric is safe."""
-    for ln in R.wrap(text, R.cols_at(size, R.PAGE_W - R.MARGIN - x), indent):
+    """A wrapped paragraph in Helvetica, measured in Helvetica.
+
+    🔴 IT USED TO COUNT CHARACTERS AT COURIER'S ADVANCE, and that was wrong in both directions.
+    Ordinary prose came out about a quarter short -- MEASURED, lines ending at x=412.93 against
+    rules running to 549.60 -- so every paragraph on this page had a column and a half of blank
+    paper down its right side that nothing had asked for. And it was not even safe in the other
+    direction: "AVAST" is 30.82 pt in Helvetica against 28.20 pt in Courier, so a line of capitals
+    was already free to run past the margin unnoticed. `wrap_measured` asks the face itself.
+    """
+    avail = R.PAGE_W - R.MARGIN - x
+    for ln in R.wrap_measured(text, avail, size, "H", bold, indent):
         pdf.line(ln, size, bold, x, face="H")
 
 
@@ -212,7 +233,7 @@ def build_live(job, site_label=None):
     p.heading("The schedule, hour by hour")
     hpara(p, "Courier below, because a column of figures wants a fixed advance so the digits line up.")
     p.space()
-    head = ("%-7s %6s %9s %14s %8s %8s %7s  %s"
+    head = (LIVE_ROW
             % ("HOUR", "LEAD", "AMBIENT", "WIND", "RISE", "BOUND", "DEW PT", "MODE"))
     p.line(head, R.BODY_PT, True)
     p.rule("-")
@@ -221,7 +242,7 @@ def build_live(job, site_label=None):
                 ("no data" if h.get("no_data_reason") else "mechanical"))
         wind = ("%s deg @ %s m/s" % (num(h.get("bearing_deg"), 0), num(h.get("speed_ms"), 1))
                 if h.get("bearing_deg") is not None else "--")
-        p.line("%-7s %6s %9s %14s %8s %8s %7s  %s"
+        p.line(LIVE_ROW
                % (str(h.get("hour_site_local") or "--")[:7],
                   ("+%s h" % num(h.get("lead_h"), 1)) if h.get("lead_h") is not None else "--",
                   num(h.get("ambient_c")), wind, num(h.get("rise_c"), 4),
@@ -244,7 +265,7 @@ def build_live(job, site_label=None):
                % (str(h.get("hour_site_local") or "--"),
                   num(h.get("lead_h"), 1), str(h.get("hour_index") or "?"), len(hours)),
                R.BODY_PT, True, face="H")
-        hpara(p, reason_for(h, limit_c, dp_limit), x=R.MARGIN + 10)
+        hpara(p, reason_for(h, limit_c, dp_limit), x=R.MARGIN + 2 * R.char_width(R.BODY_PT))
         p.space()
 
     # ---- the seven stages, as they streamed -----------------------------------------------------
@@ -259,7 +280,7 @@ def build_live(job, site_label=None):
             at = ev.get("at_s")
             p.line("%-12s %s" % (name[:12], ("+%.1fs" % at) if isinstance(at, (int, float)) else ""),
                    R.BODY_PT, True)
-            hpara(p, txt, x=R.MARGIN + 10)
+            hpara(p, txt, x=R.MARGIN + 2 * R.char_width(R.BODY_PT))
         p.space()
 
     # ---- what this report is not -----------------------------------------------------------------
@@ -276,11 +297,14 @@ def build_live(job, site_label=None):
         hpara(p, s, indent="  ")
         p.space(0.4)
 
+    # Measured while the placements are still in hand, and carried out through `meta` so the one
+    # named verifier reports it alongside everything else.
+    overflow = p.overflows()
     data = p.bytes()
     meta = {
         "site": str(site), "label": str(label), "hours": len(hours),
         "free": n_free, "no_data": n_nodata, "status": res.get("status"),
-        "generated": now,
+        "generated": now, "overflow": overflow,
     }
     return data, meta
 
@@ -298,6 +322,7 @@ def verify_live(data, meta):
     except Exception as e:                                            # noqa: BLE001
         return ["the file this wrote could not be reopened: %s" % e]
 
+    bad.extend(meta.get("overflow") or [])
     if "LIVE RUN REPORT" not in txt:
         bad.append("the title is missing")
     if str(meta["label"]).split(",")[0] not in txt:

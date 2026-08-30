@@ -213,6 +213,42 @@ def main():
                 ck(t["theme"] == "dark", "and the landing page is still DARK on the way back",
                    "%s / %s" % (t["theme"], t["bg"]))
 
+            # ---- and the palette must never be WRONG for a painted frame
+            head("THEME: the palette changes in the same frame as the stage")
+            # 🔴 THE ASSERTION FOR A 21 ms DEFECT, WHICH NO SNAPSHOT CHECK COULD HAVE SEEN.
+            # The user: "that page shows the light mode for a few milliseconds before turning into the
+            # default dark mode". It was two painted frames. Anything that samples after the fact sees
+            # the settled state and passes. So this records (stage, theme) on EVERY animation frame
+            # across a real navigation and requires that no frame ever shows a stage beside the
+            # palette that does not belong to it.
+            c.eval("""window.__F = [];
+              (function tick(){
+                window.__F.push([document.body.dataset.stage || '',
+                                 document.documentElement.dataset.theme || '']);
+                if (window.__F.length < 600) requestAnimationFrame(tick);
+              })(); 1""")
+            time.sleep(0.25)
+            c.eval("""(function(){var b=document.querySelectorAll('button');
+                for(var i=0;i<b.length;i++) if(/Configure this plant/.test(b[i].textContent||''))
+                  { b[i].click(); return 1; } return 0;})()""")
+            c.poll("document.body.dataset.stage === 'configure'", timeout=30)
+            time.sleep(0.4)
+            c.eval("""(function(){var b=document.getElementById('backtopick');
+                if(b){b.click(); return 1;} return 0;})()""")
+            c.poll("document.body.dataset.stage === 'pick'", timeout=30)
+            time.sleep(0.8)
+            frames = json.loads(c.eval("JSON.stringify(window.__F)"))
+            want = {'pick': 'dark', 'configure': 'light', 'results': 'light'}
+            seen = set(st for st, _ in frames if st)
+            ck({'pick', 'configure'} <= seen,
+               "both stages were painted during the recording",
+               "stages seen: %s over %d frames" % (sorted(seen), len(frames)))
+            wrong = [(st, th) for st, th in frames if st in want and th and th != want[st]]
+            ck(not wrong,
+               "NOT ONE PAINTED FRAME SHOWS A STAGE IN THE WRONG PALETTE",
+               "%d of %d frames wrong%s" % (len(wrong), len(frames),
+                                            ("; first %s" % (wrong[0],)) if wrong else ""))
+
             # now press it on the LANDING, and check it sticks there and only there
             tg = json.loads(c.eval("JSON.stringify(window.__q.toggle())"))
             if tg["found"]:
