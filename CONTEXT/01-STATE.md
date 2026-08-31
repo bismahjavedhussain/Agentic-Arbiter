@@ -12,6 +12,84 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### "ALMOST NONE DO" WAS ONE SENTENCE FROM ENDING THE PITCH, AND THE NIGHT FRAMING WAS COSTING HALF THE MARKET. 2026-08-31
+
+The user asked for a 2:50 demo voiceover, then twice pushed back on my draft: "why say that it's only
+at night?" and "write full sentences ... the engineering is so bland ... mention the use of NVIDIA warp
+too". `DEMO-SCRIPT-2m50.md` is the result: **431 spoken words, 2:52 at 150 wpm, 3:00 with the user's
+8 s audio budget and 2:57 with the measured 5.4 s bed.** Every stated count and timing in the file is
+now GENERATED from the blockquote text, because three hand-maintained drafts drifted in a row.
+
+🔴 **THE OPENING CLAIM I WROTE WAS FALSE, AND THE PROJECT'S OWN FILES REFUTE IT.** "The plant could
+switch the chillers off ... Almost none do." Nothing in this repository measures free-cooling ADOPTION.
+Worse, the incumbent the +406 h/yr is measured AGAINST free-cools **12,371 safe hours in 913 days,
+13.55 h/day, 56.5 % of every hour in the record** (`backtest.json` n56_audit shipped rung). If almost
+nobody free-cooled, the baseline would be near zero and the gain would be ~5,000 h/yr, not 406. **The
+406 exists only because the baseline already free-cools nearly as much as the agent does.** And the
+screen refutes the voice live: `demo/index.html:1955` draws a legend reading "Incumbent (rooftop sensor,
+no forecast): free cooling", `KpiCards.tsx:62` says "The incumbent is not a straw man", and the 12
+withheld sites are logically impossible under the claim, because the agent cannot lose free-cooling
+hours to a controller that does not free-cool. The one field study held here, LBNL Shehabi quoted at
+`src/environment.py:19-28`, calls free cooling "this common cooling technique".
+
+⚠ **AND IT MADE OUR OWN HEADLINE SOUND SMALL.** Against "almost none do", 406 h/yr is a rounding error.
+Against "your controller already takes 13.55 h/day and still leaves 1.11 on the table", the same number
+is a defensible trim. The framing decided whether the figure landed, in both directions.
+
+**THE REAL PROBLEM IS LEAD TIME, WHICH IS WHAT THE PRODUCT ALREADY SAYS.** `demo/index.html:1601-1606`:
+switching late risks a hall running hot, not switching only costs electricity, one is recoverable and
+the other is not, so with no view ahead running the compressors is the CORRECT choice. An information
+problem, never a competence problem. 🔴 The single figure that proves it: **at notice_h 0 the incumbent
+free-cools 14.744 h/day, MORE than the agent's own shipped rolling controller at 14.715**
+(`backtest.json` sensitivity.rows). The entire gain is the three hours of notice the plant needs.
+
+**THE NIGHT FRAMING IS MEASURABLY WRONG, and I measured it rather than taking a subagent's word.** The
+seasonal figures are NOT in any artefact; `mondrian_hod_x_season` is the BOUND's coverage, not
+availability. Computed from `data/weather/kiad_hourly_2021_2025.json` (43,763 h, keys "YYYY-MM-DD HH" in
+America/New_York, values [tmpc, dwpc, drct, sknt]) at the base-case gates, dry-bulb <= 24 C and dew
+point <= 15 C:
+
+| | passes both gates |
+|---|---|
+| DJF | 99.68 % |
+| MAM | 83.57 % |
+| JJA | 14.49 % |
+| SON | 72.80 % |
+| December | 23.99 h/day, 99.97 % |
+| July | 1.04 h/day, 4.34 % |
+| all hours | 67.46 %, and 65.47 % after the agent's 1.267 C mean margin |
+
+**Winter-to-summer swing 6.9x. Swing across the 24 hours of the clock only 1.27x** (best 05:00 at
+73.75 %, worst 15:00 at 57.97 %). **47.0 % of all qualifying hours fall in daylight.** Free cooling here
+is a cold-season resource available round the clock, not a night shift, so calling it nocturnal
+described a 61 %-of-hours product as a night-shift product. Section 1 now uses December against July,
+which says it in one breath and is the most vivid verified pair in the project.
+
+⚠ **TWO NUMBERS THAT MUST NEVER APPEAR TOGETHER.** The agent has two breach counts and they are not
+interchangeable: **15** is `backtest.json` n56_audit shipped rung `agent_breach_h`, against the
+incumbent's 28 in the same rung; **7** is `rolling.json` `configs[0].executed_breach_h`, and
+**`rolling.json` contains no incumbent at all**. `demo/index.html:6809-6812` already states the rule:
+"Delivered is what the rolling controller actually ran ... Avoided is the day-at-a-time comparison
+against a tuned incumbent. Two different measurements, reported separately rather than blended into one
+flattering figure." The script quotes 15 against 28 and says so in a warning beside the table.
+
+🔴 **A GAP IN THE EVIDENCE CHAIN, FOUND WHILE CHECKING THIS, NOT YET FIXED.** The one EVIDENCED part of
+the incumbent, that operators read their own rooftop sensor, cites `agent.py:93` "HANDOFF section 5.3",
+and `CONTEXT/HANDOFF.md` HAS no section 5.3. Both `HANDOFF.md:157` and `:201` cite **PLAN.md**, which is
+not in this repository and not in git history. So the sensing claim's paper trail terminates in a
+document a judge cannot open. The claim may well be true; it is currently not followable. ⚠ Also:
+`audit.py`'s retracted-claim scanner covers five surfaces and the demo script is NOT one of them
+(`audit.py:2035-2078`), which is why nothing mechanical caught "almost none do".
+
+**FOUR SMALLER CORRECTIONS, ALL FOR THE SAME REASON.** "Every data centre" became "Data centres",
+because 12 measured sites were withheld for having nothing to win and `README.md:413` says "on a large
+share of settings the honest answer is that there is no free cooling to win". Section 5 says "the limits
+this plant must hold" rather than the temperature, because the test is three gates and the humidity gate
+alone binds 2,700 h (`backtest.json` sensitivity base row `humidity_gate_binds_h`). The close says "the
+cold outside was always there" rather than "free", because `06-GLOSSARY.md:25` records that the free is
+relative, fans still run, and `money.py:59` prices the compressor term only as an upper bound. And the
+90 %-once-we-have-9-days line stays out, per `KpiCards.tsx`.
+
 ### THE FILL TARGET WAS MEASURED ACROSS ALL 250, AND THE REMAINING OUTLIERS ARE THE 12 WE DO NOT SELL. 2026-08-31
 
 The user: "Only fix any report issues, leave the API usage for now." This closes the fill item, and

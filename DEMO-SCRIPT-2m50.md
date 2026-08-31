@@ -1,143 +1,139 @@
 # AGENTIC-ARBITER, demo voiceover script
 
-**Speech time 2:52.** Plus the site's own intro audio, about 5 seconds, for 2:57 total.
-Read at a steady pitch pace, about 150 words a minute. Leave a clear breath, about 0.7 seconds, at
-every `***` seam. Those are the section boundaries.
+**Speech 2:52. Plus the site's own audio, so 3:00 at worst, inside the 3:00 limit.**
 
-Every figure is read from a file in this repository; the sources are listed at the end. The **on
-screen** line under each section is what the recording shows while you say it, so the picture never
-contradicts the voice.
+Read it the way you would explain it to one person across a table. Complete sentences, ordinary pace,
+about 150 words a minute. Take a real breath at every `***` seam.
 
-Measured, not estimated: 430 spoken words, 2:52 at 150 words a minute.
+The judges have never seen this project. By the end they should be able to say what problem it solves,
+how it decides, and why the numbers are believable. The explanations are load-bearing, so do not rush
+them to buy time.
+
+Every figure is read from a file in this repository. The sources, with exact paths, are at the end.
 
 ---
 
-## 1. THE PROBLEM (0:25, 62 words)
+## 1. THE PROBLEM (0:29, 72 words)
 
-> Every data centre throws away cold air.
+> Data centres run chillers when the air outside is already cold enough.
 >
-> On a cool night the outside air is already colder than a server hall needs. The plant could switch
-> the chillers off and let the outside do the work, free. Almost none do. The engineer who owns
-> that call cannot prove the hall stays in contract. So they pay for cooling nobody needs, all year.
+> In Virginia that is almost every hour of December, and almost none of July.
+>
+> That is a timing problem, not carelessness. A chiller plant needs hours of warning to change how it
+> cools, and its rooftop thermometer only knows about now. So they keep a buffer. Switching late
+> can put a hall out of contract. Never switching only costs money.
 
 **On screen:** landing page, still. Slow drift over the globe. No cursor movement.
 
 ***
 
-## 2. THE SITE INTRODUCES ITSELF (site's own audio, you say nothing)
+## 2. THE SITE INTRODUCES ITSELF (its own audio, you say nothing)
 
-Cursor moves to **Initialise Arbiter** and clicks. The page plays its own voiceover and runs its
-launch sequence. Leave this gap silent in your recording.
-
-*(Exact length measured during capture and inserted here. The audio bed is about 5 seconds.)*
+You click **Initialise Arbiter**. The page plays its own voiceover and runs its launch sequence into the
+"pick a data centre" screen. Say nothing over it.
 
 ***
 
-## 3. SCALE, AND WHAT IT IS WORTH (0:21, 53 words)
+## 3. THE SCALE, AND WHAT IT IS WORTH (0:18, 46 words)
 
-> This is Agentic Arbiter. Not a slide.
+> This is Agentic Arbiter, and it runs on real buildings.
 >
-> Two hundred and thirty-eight real data centres, from six hundred and thirty-seven we mapped.
-> Each with its own roof, weather station and tariff. Ninety-seven stations. Four million hours of
-> recorded weather.
->
-> The cold we can hand back is worth forty-two to eighty-five million dollars a year.
+> Two hundred and thirty-eight data centres across America, each with its own roof outline, weather
+> station and electricity price. It takes a tenth off their chiller running time, worth forty-two to
+> eighty-five million dollars a year.
 
-**On screen:** pick screen. Pointer rests on **238**, then **$42.4M to $84.8M**, then **+92,988**.
-Each number under the pointer as you say it.
+**On screen:** pick screen. Pointer rests on **238**, then on **$42.4M to $84.8M**, then on the
+mechanical-cooling-cut card. Each number is under the pointer as you say it.
 
 ***
 
-## 4. ONE SITE, ITS OWN SETTINGS (0:09, 22 words)
+## 4. ONE BUILDING, AND ITS OWN SETTINGS (0:10, 26 words)
 
-> Take one. Ashburn, Virginia. Two Amazon halls, sixty metres apart.
+> Take one. Ashburn, Virginia, where two Amazon halls sit sixty metres apart.
 >
-> Every control on this bar belongs to this building. Nothing is borrowed.
+> Every setting on this bar belongs to that building, and you can change it.
 
-**On screen:** selected-site card, then the pointer walks the configuration bar: plant limit, humidity
-limit, switch budget.
+**On screen:** the selected-site card, then the pointer walks the configuration bar left to right:
+plant limit, humidity limit, switch budget.
 
 ***
 
-## 5. THE AGENT DECIDES (0:19, 47 words)
+## 5. HOW IT DECIDES (0:21, 53 words)
 
-> Watch it work.
+> Watch what it does.
 >
-> It takes the forecast, adds a margin measured from its own past mistakes, and tests the worst case
-> against the plant's limit. Not the forecast. The worst case. That is why an operator can sign it off.
->
-> Twenty-four hours, every decision with its reason.
+> It takes tomorrow's forecast and adds a margin measured from its own past mistakes. Then it
+> compares that worst case, not the forecast, against the limits this plant must hold. Because it can
+> see ahead, its buffer is half what a rooftop sensor needs, and that is the product.
 
-**On screen:** click **Run the agent**. Reasoning tape scrolls. Pointer follows two lines, then rests
-on one hour's stated reason.
+**On screen:** click **Run the agent**. The reasoning tape scrolls; the pointer follows two lines as
+they appear, then rests on the margin figure for one hour.
 
 ***
 
-## 6. THE EVIDENCE, ON PAPER (0:15, 37 words)
+## 6. THE EVIDENCE IT WRITES ITSELF (0:08, 21 words)
 
-> And it writes its own report.
+> And it writes this itself.
 >
-> Nine pages, built from this site's files, typed by nobody. The real buildings from the air. The
-> bound against the limit, hour by hour. Every number traceable to its own file.
+> Nine pages from this building's own files, with every hour's decision and the reason it gave.
 
-**On screen:** click **Download the report**. PDF opens and scrolls: page 1 tiles, page 2 satellite
-frame, page 3 bound chart, page 7 money table.
+**On screen:** click **Download the report**, the PDF opens and scrolls: page 1 tiles, page 2 satellite
+frame, page 3 the bound against the limit, page 7 the money table.
 
 ***
 
-## 7. LIVE, AND WHEN IT PAYS (0:18, 46 words)
+## 7. LIVE, AND WHEN IT SAYS NO (0:15, 37 words)
 
-> That was a saved day. It also runs live, on a fresh forecast, with its own report.
+> That was a saved day. It also runs live, with its own report.
 >
-> Timing matters. Everything runs on the site's own local clock, so a night run in Virginia finds cold
-> air. At midday it keeps the chillers on, and says why.
+> Everything uses the building's own local clock. When the worst case sits above the limit, it keeps
+> the chillers on and tells you why.
 
-**On screen:** pointer to **Run the agent on live data**, hover. Then the live report button. Then a
-beat on an hour where the bound sits above the limit.
+**On screen:** pointer to **Run the agent on live data**, hover without clicking, then the live report
+button, then a beat on an hour where the bound sits above the limit.
 
 ***
 
-## 8. THE ENGINEERING UNDER IT (0:22, 56 words)
+## 8. THE PART THAT TOOK LONGEST (0:26, 66 words)
 
-> Behind those buttons, the part nobody sees.
+> Now the engineering.
 >
-> Hot air from one hall drifts at the other. We solve it on the real rooftops. Five hundred and
-> seventy-six solves, seventy-two wind directions, on a GPU, five seconds.
+> The hot air one hall throws out drifts at its neighbour's intake, so it breathes exhaust warmer than
+> the forecast. We work out where it really goes, for seventy-two wind directions. That is five
+> hundred and seventy-six physics runs, done on the graphics card by NVIDIA Warp in five seconds.
 >
-> Then five years of weather. Nine hundred and thirteen days it never saw. Thirteen thousand free hours
-> taken. Seven unsafe.
+> Over five years it made fewer unsafe calls than the controller it replaces.
 
-**On screen:** results tabs. Open the plume tab, rest on the polar plot, then the runtime bars, then
-the breach figure.
+**On screen:** the results tabs. Open the plume tab and rest on the polar plot, then move to the
+runtime comparison, then to the agent-against-incumbent bars on the last sentence.
 
 ***
 
-## 9. WHAT WE WILL NOT HIDE (0:22, 56 words)
+## 9. THE NUMBER WE COULD HAVE HIDDEN (0:23, 58 words)
 
-> Now the number we could have buried.
+> Now the number we could have hidden.
 >
-> Against the live feed we scored sixty-five per cent, not ninety. That is days, not method.
+> On the live feed we scored sixty-five per cent, not ninety. That is a shortage of days, not a flaw:
+> scoring it needs nine forecasts matched to what happened, and we have four. With four, eighty is the
+> most the arithmetic allows.
 >
-> The score needs nine forecasts matched to what happened. The feed came in pieces, so we have four,
-> and four caps you at eighty.
->
-> On five years of history, the method holds ninety.
+> On five years of history, this method holds ninety.
 
-**On screen:** back to the pick screen. Pointer to the **Bound coverage, measured 65.6%** card, click
-its **i** button, explanation open as you give the reason.
+**On screen:** back to the pick screen. Pointer to the **Bound coverage, measured 65.6%** card, then
+click its **i** button so the explanation is open while you give the reason.
 
 ***
 
-## 10. THE CLOSE (0:20, 51 words)
+## 10. THE CLOSE (0:21, 52 words)
 
-> So, the offer.
+> So here is the offer.
 >
-> Your forecast is already good enough to turn cold nights into money. Missing was the piece that lets
-> a person act: a bound, a reason in plain words, a report that survives checking.
+> Your forecast is already good enough to turn cool air into money. What was missing is something an
+> engineer can act on: a number with a limit on it, and a reason.
 >
-> The cold outside was always free. We built the thing that dares to use it.
+> The cold outside was always there. We built the thing that dares to use it.
 
-**On screen:** slow pull back to the full map, all dots visible, hold on the scale card, fade.
+**On screen:** slow pull back to the whole map with every dot visible, hold on the scale card, fade.
 
 ---
 
@@ -145,74 +141,115 @@ its **i** button, explanation open as you give the reason.
 
 | # | section | runs | words |
 |---|---|---|---|
-| 1 | The problem | 0:25 | 62 |
-| 2 | *(site's own audio)* | ~0:05 | 0 |
-| 3 | Scale and worth | 0:21 | 53 |
-| 4 | One site, own settings | 0:09 | 22 |
-| 5 | The agent decides | 0:19 | 47 |
-| 6 | Evidence on paper | 0:15 | 37 |
-| 7 | Live, and when it pays | 0:18 | 46 |
-| 8 | The engineering | 0:22 | 56 |
-| 9 | What we will not hide | 0:22 | 56 |
-| 10 | The close | 0:20 | 51 |
-| | **speech** | **2:52** | **430** |
-| | **with the site's audio** | **2:57** | |
+| 1 | The problem | 0:29 | 72 |
+| 2 | *(the site's own audio)* | ~0:08 | 0 |
+| 3 | The scale, and what it is worth | 0:18 | 46 |
+| 4 | One building, and its own settings | 0:10 | 26 |
+| 5 | How it decides | 0:21 | 53 |
+| 6 | The evidence it writes itself | 0:08 | 21 |
+| 7 | Live, and when it says no | 0:15 | 37 |
+| 8 | The part that took longest | 0:26 | 66 |
+| 9 | The number we could have hidden | 0:23 | 58 |
+| 10 | The close | 0:21 | 52 |
+| | **speech** | **2:52** | **431** |
+| | **with 8 s of site audio** | **3:00** | |
 
-Absolute start times are deliberately absent past section 2: they depend on the measured length of the
-site's own audio, and the alignment reads your real word timings anyway. If you read faster than 150
-words a minute the video simply gets shorter, because the visuals are cut to your voice, not to this
-table.
+The 8 seconds is your own figure and it is the safe one. The audio bed itself measures 5.4 seconds
+(`voiceover.mp3` 4.68 s after a 0.7 s lead), so the realistic total is nearer 2:56. And if you read
+faster than 150 words a minute the video simply gets shorter, because the visuals are cut to your
+recorded voice rather than to this table.
 
 ---
 
-## Every figure, and the file it came from
+## What a judge with zero knowledge learns, and where
 
-Every row below was read back out of the artefact on 2026-08-31, not carried over from memory. Two of
-my first citations were wrong and are corrected here: 65.6% is not in `bound_day_level`, and the
-free-hour counts are in `rolling.json`, not `backtest.json`.
+Each of these is said out loud, not left to the visuals.
+
+| question | answered in |
+|---|---|
+| What is being wasted, and why does it persist? | 1, the December-versus-July fact and then the lead-time reason |
+| How big is it, and what is it worth? | 3 |
+| How does the agent actually decide? | 5, forecast plus a measured margin, worst case against the limits |
+| Why is it better than what plants run today? | 5 and 8, half the safety buffer, and safer across five years |
+| Does it ever say no? | 7 |
+| Why should I believe any of it? | 6, 8 and 9, its own report, a five-year score, a volunteered weakness |
+
+---
+
+## Every figure, and the exact path it came from
+
+Each row was read back out of the artefact on 2026-08-31.
 
 | said | value | source, exact path |
 |---|---|---|
-| sites covered | 238 | `demo/sites.json`, count of `offerable`; `portfolio.json` 250 built less 12 withheld |
-| mapped candidates | 637 | `demo/unified_sites.json`, entry count |
-| worth per year | $42.4M to $84.8M | `demo/portfolio.json`, `usd_mid_lo` / `usd_mid_hi` |
-| chiller-hours | 92,988 | `demo/portfolio.json`, `gain_h_per_year` |
-| weather stations | 97 | `demo/portfolio.json`, `stations` |
-| hours of weather | 4,188,290 | `demo/portfolio.json`, `weather_hours_distinct` |
+| almost every hour of December | 23.99 h/day, 99.97% of hours | `data/weather/kiad_hourly_2021_2025.json`, dry-bulb <= 24 °C and dew point <= 15 °C, the base-case limits |
+| almost none of July | 1.04 h/day, 4.34% of hours | same file, same gates |
+| 238 data centres | 238 | `demo/sites.json`, count of `offerable`; 250 built less 12 withheld |
+| a tenth off chiller running time | 9.7% portfolio, 10.7% at Ashburn | `demo/portfolio.json` `cut_pct`; Ashburn 9,510 h to 8,496 h |
+| forty-two to eighty-five million | $42.4M to $84.8M | `demo/portfolio.json`, `usd_mid_lo` / `usd_mid_hi` |
 | two Amazon halls | AWS IAD116 / IAD117 | `demo/trace.json`, `site.operator` |
 | sixty metres apart | 60.3 m | `demo/trace.json`, `site.facade_gap_m` |
-| plume solves | 576 | `demo/trace.json`, `cycle.rise_tables.longest.n_solves` |
-| wind directions | 72 | same, `bearings` length; 8 speeds, 0 refused |
-| on a GPU, five seconds | 5.34 s, GPU (NVIDIA Warp) | same, `solve_seconds` and `device` |
-| five years of weather | 43,763 h over 1,826 d | `demo/backtest.json`, `hours` / `days` |
-| days it never saw | 913 | `demo/backtest.json`, `sensitivity.held_out_days` |
-| thirteen thousand free hours | 13,435 | `demo/rolling.json`, `configs[0].executed_free_h` |
-| seven unsafe | 7, or 0.52 per 1,000 | same, `executed_breach_h`, `breach_per_1000_free_h` |
+| buffer half what a sensor needs | 1.27 °C against 2.63 °C | `demo/backtest.json` shipped rung, `agent_margin_mean_c` / `incumbent_margin_mean_c` |
+| seventy-two wind directions | 72 | `demo/trace.json`, `cycle.rise_tables.longest.bearings` length |
+| 576 physics runs | 576 | same, `n_solves` |
+| five seconds, NVIDIA Warp | 5.34 s, `GPU (NVIDIA Warp)` | same, `solve_seconds` and `device` |
+| five years | 43,763 h over 1,826 days | `demo/backtest.json`, `hours` / `days` |
+| fewer unsafe calls | 15 against 28 | `demo/backtest.json` shipped rung, `agent_breach_h` / `incumbent_breach_h` |
 | sixty-five per cent | 65.6% | `demo/trace.json`, `cycle.pooled_coverage` |
-| four forecasts | n = 4 | `demo/trace.json`, `cycle.bound_day_level.n` |
-| four caps you at eighty | 80% | same, `attainable`, which is n/(n+1) |
-| nine forecasts needed | 9 | same, `n_needed_for_nominal` |
-| the method holds ninety | 90.0% over 43,260 rounds | `demo/backtest.json`, `aci.3.ACI.realised_coverage` = 0.89977 |
+| we have four | n = 4 | `demo/trace.json`, `cycle.bound_day_level.n` |
+| four caps it at eighty | 80% | same, `attainable`, which is n/(n+1) |
+| nine forecasts | 9 | same, `n_needed_for_nominal` |
+| this method holds ninety | 90.0% over 43,260 rounds | `demo/backtest.json`, `aci.3.ACI.realised_coverage` = 0.89977 |
 
-## Two wordings I changed, and why
+⚠ **Never quote the 7 unsafe hours next to the incumbent's 28.** They come from different measurements:
+7 is `rolling.json` `configs[0].executed_breach_h`, and `rolling.json` contains no incumbent at all. The
+comparison above uses 15 against 28, both from the same rung of the same run, which is the only
+apples-to-apples pair in the artefacts. The page itself says these are "two different measurements,
+reported separately rather than blended into one flattering figure".
 
-**"Ninety per cent every time once we have nine days" is not sayable.** The coverage card's own code
-says: *"before 90 % is reachable at all", NOT "and then it hits 90 %". Reaching n = 9 is necessary and
-not sufficient.* Nine forecasts make ninety arithmetically possible; they do not deliver it. Section 9
-claims the ninety where it is actually measured, on the five-year record, and treats nine days as what
-makes the live figure reachable. That is the stronger claim as well as the true one, and it survives a
-question from an engineer in the room.
+---
 
-**"Night" means night at the building.** Confirmed in `live.py`: the hour labels and the forecast
-window are both the site's own local time, `America/New_York` for Ashburn, hours stamped `-04:00`. Not
-UTC, and not a vendor zone. Section 7 says "the site's own local clock" for that reason.
+## Four things I changed from the brief, and why each one mattered
+
+**"Almost none do" is gone, because it is false and it contradicts our own source.** Nothing in this
+repository measures how many real plants free-cool. Our own baseline free-cools **13.55 hours a day,
+56.5% of every hour in the five-year record**, and `agent.py:91` calls it "a tuned adversary, not a
+strawman", with `KpiCards.tsx:62` adding "the incumbent is not a straw man. It is the on site sensor
+control that plants verifiably run." The one field study the project holds, LBNL Shehabi, calls free
+cooling "this common cooling technique". Saying operators ignore free air, to a data centre audience,
+would have spent the project's rarest asset in the first fifteen seconds.
+
+**It also makes our own headline sound small.** Against "almost none do", 406 chiller-hours a year is a
+rounding error. Against "your controller already takes 13.5 hours a day and still leaves 1.1 on the
+table", the same figure is a real and defensible trim. The framing decides whether the number lands.
+
+**The night framing is gone, and it was costing you about half the market.** Measured from
+`data/weather/kiad_hourly_2021_2025.json` at the base-case limits: the winter-to-summer swing is
+**6.9x**, the swing across the 24 hours of the clock is only **1.27x**, and **47.0% of all qualifying
+hours fall in daylight**. Free cooling here is a cold-season resource available round the clock, not a
+night shift. December and July say that in one breath, so section 1 uses them.
+
+**"Ninety per cent every time once we have nine days" is not sayable.** `KpiCards.tsx` warns against
+that exact sentence: nine calibration days make ninety per cent *reachable*, they do not deliver it.
+Section 9 claims the ninety where it is genuinely measured, on the five-year record, and treats nine
+days as what makes the live figure reachable.
+
+Two smaller ones, for the same reason. **"Every data centre"** became "Data centres", because twelve
+built-and-measured sites were withheld for having nothing to win, and `README.md:413` says "on a large
+share of settings the honest answer is that there is no free cooling to win." And section 5 says
+**"the limits this plant must hold"** rather than the temperature, because the real test is three gates,
+temperature, humidity and contamination, and the humidity gate alone binds 2,700 hours of the record.
+
+---
 
 ## Delivery notes
 
-* Section 1 is slow and flat. No selling. You are describing something wasteful and ordinary.
-* The first four words of section 3 are the turn. Lift there, not before.
-* In section 5, "Not the forecast. The worst case." wants a real pause between the two. That contrast
-  is the product.
-* Section 9 is the most important twenty seconds in the video. Say it evenly and without apology. A
-  team that volunteers its weakest number is a team you believe about the rest.
-* The last line lands better a little slower and a little quieter than the line before it.
+* Section 1 is explanation, not selling. Slow and level. December and July want a small pause between
+  them, because that contrast is doing the work of a whole paragraph.
+* The turn is "This is Agentic Arbiter". Lift there, not before.
+* In section 5, pause slightly around "not the forecast". That contrast is the entire idea, and it is
+  the one sentence a judge has to catch.
+* Section 8 is allowed to sound like you enjoyed building it, because you did.
+* Section 9 is the most important twenty-three seconds in the video. Even, unhurried, no apology. A
+  team that volunteers its weakest number is a team you believe about everything else.
+* The last line is slower and quieter than the one before it.
