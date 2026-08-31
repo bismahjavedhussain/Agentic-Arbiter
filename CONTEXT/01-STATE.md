@@ -12,6 +12,63 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE GLOBE RENDERS UNDER AUTOMATED CHROME, SO THE DEMO NEEDS NO HUMAN SCREEN RECORDING AT ALL. 2026-08-31
+
+The user offered to record the opening themselves ("I can give you a clip ... with proper globe showing
+on the screen") because this repo has a history of the globe coming up black. Measured instead of
+assumed, and the offer turns out to be unnecessary.
+
+**GPU-BACKED CHROME DRIVEN OVER CDP RENDERS THE FULL GLOBE.** Launched headed with
+`--user-data-dir` (a fresh profile), `--app=<url>` and `--autoplay-policy=no-user-gesture-required`,
+then `Emulation.setDeviceMetricsOverride(1920, 1080, dpr 1)`. Reported context: **WebGL 2.0, ANGLE
+(AMD Radeon, Direct3D11)**. `data-aa-sphere` published `896,227,972,1920,1080,8.56,787`, 12 canvases,
+88.6 % of the sphere rectangle above near-black with a dynamic range of 222, and the screenshot shows
+the 2048x1024 Earth with its atmosphere rim and dot grid. ⚠ The pixel statistics alone would not have
+been enough: `HeatGlobe` CATCHES the `WebGLRenderer` constructor throwing and returns silently
+(`HeatGlobe.tsx:227-254`), so a contextless page looks like a page with no globe rather than an error.
+`data-aa-sphere` only exists once a renderer does, which is why it is the check that matters.
+
+🔴 **`--app` PLUS A FORCED VIEWPORT REMOVES THE ENTIRE CLASS OF SPLICE PROBLEMS.** No tab strip, no URL
+bar, no scrollbars, and the CSS viewport is exactly 1920x1080 no matter what the window or the display
+is doing. That matters because the user's own display is **1536 CSS px** wide, and at 1536 the layout
+clamps are NOT saturated: `masthead.css:132` column-gap reads 69.12 px against 76 at 1920, and
+`intro.css:902` padding-left 84.48 against 104. Worse, the hero globe's diameter is `0.9 x container
+HEIGHT` (`HeatGlobe.tsx:120`, `:558`), so a 1080-tall and a 900-tall recording differ by 20 to 25 % in
+planet size. Two recordings at different sizes could never have matched. One capture at a forced size
+cannot mismatch itself.
+
+**THE LANDING PAGE AND THE PICK SCREEN ARE ONE DOCUMENT.** `.aa-splash` is `position: fixed; inset: 0;
+z-index: 200` over an `#app` that is already laid out, with `body[data-stage]` already `pick`
+(`App.tsx:376-378`). The transition is the overlay dismissing, not a navigation, so there is nothing
+behind it waiting to settle and no second page to reproduce.
+
+**THE INTRO IS 7.80 s, MEASURED BY HOOKING `window.Audio` BEFORE ANY PAGE SCRIPT RUNS.** A DOM query
+for `<audio>` finds nothing, because `audio.ts:118` and `:373` build them with `new Audio()` detached
+from the document; the hook goes in through `Page.addScriptToEvaluateOnNewDocument`. From the click:
+
+| t | event |
+|---|---|
+| 0.01 s | `voiceover.mp3` (4.68 s) and `intro-swell.mp3` (3.20 s) start together |
+| 4.08 s | swell ends |
+| 5.53 s | voiceover ends |
+| 5.71 s | the splash starts fading |
+| 5.90 s | `transition-whoosh.mp3` (1.90 s) fires, a SECOND play after a priming play at 0.01 |
+| 6.85 s | overlay gone, pick screen exposed |
+| 7.80 s | whoosh ends |
+
+⚠ **MY EARLIER TWO FIGURES WERE BOTH WRONG, in both directions.** I told the user 5.4 s, from
+`voiceover.mp3` 4.68 s plus a 0.7 s lead: that is the audible BED and it ignores the 1.14 s fade and
+the second whoosh. A coarse screenshot loop then said 8.65 s, because it sampled at 1.5 s intervals
+while also capturing PNGs. The user's own instinct, 8 s, was nearer than either. The script now
+budgets the measured 7.80 s and totals **2:59 with 1.4 s to spare**.
+
+**A SIDE EFFECT WORTH KEEPING: the pick screen never stops moving.** Successive-frame differencing
+after the overlay goes never falls below about 1.7 of mean channel delta, so there is no "settled"
+frame to hold on. Any capture plan that waits for stillness would wait forever.
+
+The script is 427 words at 2:51 and section 2 now carries this table, because the reader records
+against it. The button also reads **Initialize Arbiter**, with a z, and the script said Initialise.
+
 ### "ALMOST NONE DO" WAS ONE SENTENCE FROM ENDING THE PITCH, AND THE NIGHT FRAMING WAS COSTING HALF THE MARKET. 2026-08-31
 
 The user asked for a 2:50 demo voiceover, then twice pushed back on my draft: "why say that it's only

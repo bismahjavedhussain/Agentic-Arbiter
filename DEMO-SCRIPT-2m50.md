@@ -1,6 +1,6 @@
 # AGENTIC-ARBITER, demo voiceover script
 
-**Speech 2:52. Plus the site's own audio, so 3:00 at worst, inside the 3:00 limit.**
+**Speech 2:51, plus the measured 7.8 s intro, for 2:59. Inside the 3:00 limit.**
 
 Read it the way you would explain it to one person across a table. Complete sentences, ordinary pace,
 about 150 words a minute. Take a real breath at every `***` seam.
@@ -27,10 +27,23 @@ Every figure is read from a file in this repository. The sources, with exact pat
 
 ***
 
-## 2. THE SITE INTRODUCES ITSELF (its own audio, you say nothing)
+## 2. THE SITE INTRODUCES ITSELF (its own audio, 7.8 s, you say nothing)
 
-You click **Initialise Arbiter**. The page plays its own voiceover and runs its launch sequence into the
-"pick a data centre" screen. Say nothing over it.
+You click **Initialize Arbiter** (the button's own spelling). Stay silent for **eight seconds**, then
+carry straight on into section 3. Do not try to hit it exactly: leave ten seconds if it is easier and
+the extra silence gets trimmed in the edit, since silence can be cut invisibly.
+
+MEASURED from the click, by hooking the page's own audio objects:
+
+| t | what happens |
+|---|---|
+| 0.01 s | `voiceover.mp3` (4.68 s) and `intro-swell.mp3` (3.20 s) start together |
+| 4.08 s | the swell ends |
+| 5.53 s | the voiceover ends |
+| 5.71 s | the splash overlay starts fading |
+| 5.90 s | `transition-whoosh.mp3` (1.90 s) fires, the real transition |
+| 6.85 s | the overlay is gone and the pick screen is exposed |
+| **7.80 s** | the whoosh ends, and this is the gap the voiceover needs |
 
 ***
 
@@ -71,11 +84,11 @@ they appear, then rests on the margin figure for one hour.
 
 ***
 
-## 6. THE EVIDENCE IT WRITES ITSELF (0:08, 21 words)
+## 6. THE EVIDENCE IT WRITES ITSELF (0:08, 19 words)
 
 > And it writes this itself.
 >
-> Nine pages from this building's own files, with every hour's decision and the reason it gave.
+> Nine pages from this building's own files, with every hour's decision and its reason.
 
 **On screen:** click **Download the report**, the PDF opens and scrolls: page 1 tiles, page 2 satellite
 frame, page 3 the bound against the limit, page 7 the money table.
@@ -124,12 +137,12 @@ click its **i** button so the explanation is open while you give the reason.
 
 ***
 
-## 10. THE CLOSE (0:21, 52 words)
+## 10. THE CLOSE (0:20, 50 words)
 
 > So here is the offer.
 >
 > Your forecast is already good enough to turn cool air into money. What was missing is something an
-> engineer can act on: a number with a limit on it, and a reason.
+> engineer can act on: a number with a limit, and a reason.
 >
 > The cold outside was always there. We built the thing that dares to use it.
 
@@ -142,22 +155,19 @@ click its **i** button so the explanation is open while you give the reason.
 | # | section | runs | words |
 |---|---|---|---|
 | 1 | The problem | 0:29 | 72 |
-| 2 | *(the site's own audio)* | ~0:08 | 0 |
+| 2 | *(the site's own audio, measured)* | 0:07.8 | 0 |
 | 3 | The scale, and what it is worth | 0:18 | 46 |
 | 4 | One building, and its own settings | 0:10 | 26 |
 | 5 | How it decides | 0:21 | 53 |
-| 6 | The evidence it writes itself | 0:08 | 21 |
+| 6 | The evidence it writes itself | 0:08 | 19 |
 | 7 | Live, and when it says no | 0:15 | 37 |
 | 8 | The part that took longest | 0:26 | 66 |
 | 9 | The number we could have hidden | 0:23 | 58 |
-| 10 | The close | 0:21 | 52 |
-| | **speech** | **2:52** | **431** |
-| | **with 8 s of site audio** | **3:00** | |
+| 10 | The close | 0:20 | 50 |
+| | **speech** | **2:51** | **427** |
+| | **total with the intro** | **2:59** | |
 
-The 8 seconds is your own figure and it is the safe one. The audio bed itself measures 5.4 seconds
-(`voiceover.mp3` 4.68 s after a 0.7 s lead), so the realistic total is nearer 2:56. And if you read
-faster than 150 words a minute the video simply gets shorter, because the visuals are cut to your
-recorded voice rather than to this table.
+The intro gap is measured, not estimated: 7.80 s from the click to the transition whoosh ending, timed by hooking the page's own audio objects. Your 8 seconds was very nearly exact. And if you read faster than 150 words a minute the video simply gets shorter, because the visuals are cut to your recorded voice rather than to this table.
 
 ---
 
