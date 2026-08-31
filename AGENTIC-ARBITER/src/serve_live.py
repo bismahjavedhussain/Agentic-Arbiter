@@ -299,7 +299,7 @@ def health():
     }
 
 
-def start_job(site, hours, limit_c, want_paid, replay):
+def start_job(site, hours, run_cfg, want_paid, replay):
     """Kick off a live run on a worker thread and return its id immediately."""
     # A run must never execute code older than the request that asked for it -- both files.
     reload_if_stale()
@@ -378,7 +378,7 @@ def start_job(site, hours, limit_c, want_paid, replay):
                     j["progress"].append(dict(ev, at_s=round(time.time() - j["started"], 1)))
         try:
             out = LV.live_run(metro=site, hours=hours, allow_paid=paid, verbose=False,
-                              cfg={"limit_c": limit_c}, replay=replay, on_progress=prog,
+                              cfg=dict(run_cfg), replay=replay, on_progress=prog,
                               max_calls=(allowance if paid else None),
                               should_stop=cancelled)
             # RECONCILE against what actually happened, rather than trusting the estimate. The
@@ -683,6 +683,29 @@ class Handler(SimpleHTTPRequestHandler):
             body = {}
         hours = max(1, min(int(body.get("hours", 12)), 24))
         limit_c = float(body.get("limit_c", 24.0))
+
+        # 🔴 EVERY PLANT SETTING EXCEPT THE LIMIT USED TO BE DISCARDED HERE, and it made the live
+        # agent look broken. This handler read `limit_c` and nothing else, so live.py:1089 filled
+        # the rest from its own defaults, `dewpoint_limit_c: 15.0` among them. MEASURED on a live
+        # Ashburn run configured with a 27 C limit and the humidity gate OFF: the bound was
+        # 25.75 C, under the limit, and the hour still came back mechanical, because the forecast
+        # dew point was 22.9 C and a 15 C gate the caller never asked for closed every hour.
+        #
+        # ⚠ ABSENT AND NULL ARE DIFFERENT ANSWERS. A client that omits the key wants live.py's
+        # default; a client that sends null is asking for NO GATE, which is exactly what the
+        # page's "off" setting means and what cfg() already encodes as `dp: null`. Collapsing the
+        # two with a plain body.get(key, default) would reintroduce the bug in the other
+        # direction, so presence is tested before the value is read.
+        run_cfg = {"limit_c": limit_c}
+        for key in ("dewpoint_limit_c", "aq_limit_idx"):
+            if key in body:
+                v = body[key]
+                run_cfg[key] = None if v is None else float(v)
+        for key in ("switch_budget", "min_dwell_h"):
+            if body.get(key) is not None:
+                run_cfg[key] = max(0, min(int(body[key]), 24))
+        if body.get("bank_mode") in ("longest", "facing"):
+            run_cfg["bank_mode"] = body["bank_mode"]
         replay = body.get("replay") or None
         if replay:
             # A browser must not be able to name an arbitrary path on this filesystem.
@@ -690,7 +713,7 @@ class Handler(SimpleHTTPRequestHandler):
                                   os.path.basename(str(replay)))
             if not os.path.exists(replay):
                 return _json(self, {"error": "no such fixture"}, 400)
-        jid = start_job(site, hours, limit_c, bool(body.get("paid")), replay)
+        jid = start_job(site, hours, run_cfg, bool(body.get("paid")), replay)
         return _json(self, {"job_id": jid, "poll": "/api/live/job/%s" % jid})
 
 

@@ -2672,7 +2672,15 @@ function buildControls(){
   const cases = T.cases.cases.filter(c=>c.day);
   opt('#c_case', cases.map(c=>c.name), cases.map(c=>c.name.replace(/_/g,' ')+': '+c.day),
       cases.some(c=>c.name==='crossing') ? 'crossing' : cases[0].name);
-  opt('#c_limit', PE().limit_c, PE().limit_c.map(v=>v+' °C'), 18);
+  /* 🔴 THE UI OFFERS ONE MORE PLANT LIMIT THAN THE SWEEP DOES, and the reason is measured.
+     On the real pre-dawn Ashburn window the bound is 21.02 °C, so the 21 °C choice refuses by
+     0.02 °C and the next choice up is 24. A 22 °C rung is the smallest honest fix. It is a SWEEP
+     value, not a standard: only 27 °C is sourced, as ASHRAE's recommended dry-bulb maximum via
+     Green Grid WP46 p.6. PLANT_ENVELOPE is untouched, so scenarios.json and the audit do not
+     move; the explorer computes `bd <= k.limit` rather than looking a scenario up. */
+  const UI_LIMITS = PE().limit_c.concat([22]).sort((a,b)=>a-b);
+  opt('#c_limit', UI_LIMITS,
+      UI_LIMITS.map(v=>v+' °C'+(v===27?' (ASHRAE max)':(v===22?' (swept)':''))), 18);
   opt('#c_notice', PE().notice_h, PE().notice_h.map(v=>v+' h'), 3);
   opt('#c_anchor', PE().anchor, PE().anchor.map(v=>v==='sensor'?'one local reading':'none: believe <strong>FortyGuard</strong>'), 'sensor');
   const fo = T.cases.fg_offsets||[];
@@ -2681,9 +2689,19 @@ function buildControls(){
   const sk = T.cases.summary && T.cases.summary.forecast_skill
     ? T.cases.summary.forecast_skill.filter(r=>r.value!==null).map(r=>r.value) : [0,0.5,0.9];
   opt('#c_skill', sk, sk.map(v=>fmt(v,2)+' vs persistence'), 0.5);
-  const wb = PE().dewpoint_limit_c || [null];
+  /* 🔴 AND ONE MORE HUMIDITY CHOICE, for the same measured reason. A summer night at Ashburn
+     has a dew point around 20.2 °C, so 15 and 18 can NEVER open and "off" was the only setting
+     that could ever certify a free hour. Switching a safety gate off is a poor thing to have to
+     demonstrate; a 21 °C gate is a real gate that can still open. Swept, not sourced: 15 °C is
+     the ASHRAE recommended maximum from WP46 p.6, and 18 was already an uncited looser rung. */
+  const wb = (PE().dewpoint_limit_c || [null]).slice();
+  if (wb.indexOf(21) < 0) {
+    wb.push(21);
+    wb.sort(function(a,b){ if(a===null) return -1; if(b===null) return 1; return a-b; });
+  }
   opt('#c_wb', wb.map(v=>v===null?'off':v),
-      wb.map(v=>v===null?'gate off':v+' °C'+(v===15?' (ASHRAE max)':'')),
+      wb.map(v=>v===null?'gate off':v+' °C'
+                 +(v===15?' (ASHRAE max)':(v===21?' (swept, opens on a humid night)':''))),
       wb.indexOf(15)>=0?15:(wb.length>1?wb[1]:'off'));
   const aq = PE().aq_limit_idx || [null];
   opt('#c_aq', aq.map(v=>v===null?'off':v), aq.map(v=>v===null?'gate off':'index ≤ '+fmt(v,1)), 'off');
@@ -4861,7 +4879,19 @@ async function runLive(){
   try{
     const r = await fetch('api/live/' + SITE.key, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({hours:12, limit_c: parseFloat(cfg().limit) || 24.0, paid:true})});
+      /* THE LIVE RUN GETS THE WHOLE CONFIGURATION, not just the temperature. Sending only
+         limit_c let the server fall back to live.py's defaults, and a 15 C dew-point gate
+         nobody asked for made every humid hour mechanical even with the bound under the limit.
+         cfg() already yields dp:null for "off", so null travels as "no gate" and the server
+         distinguishes an absent key from a null one. */
+      body: JSON.stringify(function(){ const k = cfg(); return {
+        hours: 12, paid: true,
+        limit_c: parseFloat(k.limit) || 24.0,
+        dewpoint_limit_c: (k.dp === null ? null : parseFloat(k.dp)),
+        aq_limit_idx: (k.aq === null ? null : parseFloat(k.aq)),
+        switch_budget: parseInt(k.budget, 10),
+        min_dwell_h: parseInt(k.dwell, 10),
+        bank_mode: k.bank }; }())});
     if(!r.ok){ throw new Error('server said ' + r.status); }
     const {job_id} = await r.json();
     LIVEJOB = job_id;

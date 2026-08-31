@@ -64,8 +64,8 @@
       "sha256": "bbbc108ddcd517bd05ada2152e2a6323797d8442967f5a8caeb77928c3fa6288"
     },
     "buildControls": {
-      "bytes": 2325,
-      "sha256": "d2082827543be7705d4c75b0cc302cfed2f49f6cffbaa5191f44c2869d2b8006"
+      "bytes": 3702,
+      "sha256": "3aa21c8f935f4aef099f0d182abc4b91e76ae97567217691604dfc8fe76cadaf"
     },
     "buildImageryOptions": {
       "bytes": 925,
@@ -348,8 +348,8 @@
       "sha256": "c260731162d2bc0c87b591bf3d41a142acc89ae3564b4d1cc20d63ba94c648e7"
     },
     "runLive": {
-      "bytes": 2423,
-      "sha256": "3f672e4094d91c7e3e89f97d7e2f619c6b8bc09198796fe824ce17a972a473d6"
+      "bytes": 3160,
+      "sha256": "0cc0cb852be08b8a28d55d780ae8b99069075e2a6615f02dd8a058b3f9278418"
     },
     "setStage": {
       "bytes": 2806,
