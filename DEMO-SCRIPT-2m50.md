@@ -1,6 +1,6 @@
 # AGENTIC-ARBITER, demo voiceover script
 
-**Speech 2:47 at 150 words a minute, plus the measured 7.8 s intro, for 2:55. That leaves 5 seconds of slack under the 3:00 limit, and I will measure your actual recording before rendering anything.**
+**Speech 2:50 at 150 words a minute, plus the measured 7.8 s intro, for 2:57. That leaves 2 seconds of slack under the 3:00 limit, and I will measure your actual recording before rendering anything.**
 
 Read it the way you would explain it to one person across a table. Complete sentences, ordinary pace,
 about 150 words a minute. Take a real breath at every `***` seam.
@@ -13,15 +13,15 @@ Every figure is read from a file in this repository. The sources, with exact pat
 
 ---
 
-## 1. THE PROBLEM (0:30, 75 words)
+## 1. THE PROBLEM (0:28, 69 words)
 
 > Data centres run chillers when the air outside is already cold enough.
 >
 > In Virginia that is almost every hour of December, and almost none of July.
 >
-> That is timing, not carelessness. A chiller plant needs hours of notice to change mode, and
-> without a forecast no one can say what the air will do by then. So they keep a buffer.
-> Switching late can let a hall run hot. Never switching only costs money.
+> That is timing, not carelessness. A chiller plant needs hours of notice to change mode, and without
+> a forecast nobody can say what is coming, so they keep a buffer. Switching late can let a hall run
+> hot. Never switching only costs money.
 
 **On screen:** landing page, still. Slow drift over the globe. No cursor movement.
 
@@ -47,22 +47,23 @@ MEASURED from the click, by hooking the page's own audio objects:
 
 ***
 
-## 3. THE SCALE, AND WHAT IT IS WORTH (0:18, 45 words)
+## 3. WHAT CLOSES THE GAP, AND WHAT IT IS WORTH (0:26, 66 words)
 
-> This is Agentic Arbiter, and it runs on real buildings.
+> FortyGuard closes that gap. It forecasts heat two metres above the ground, the height a condenser
+> actually breathes. Agentic Arbiter turns that into an hour-by-hour decision the plant can act on.
 >
-> Two hundred and thirty-eight data centres across America, each with its own roof outline, weather
+> Two hundred and thirty-eight real data centres across America, each with its own roof, weather
 > station and electricity price. It takes a tenth off their chiller time, worth forty-two to
 > eighty-five million dollars a year.
 
-**On screen:** pick screen. Pointer rests on **238**, then on **$42.4M to $84.8M**, then on the
+**On screen:** the pick screen arrives as you say "FortyGuard closes that gap". Pointer to the FortyGuard mark in the header on that sentence, then rests on **238**, then on **$42.4M to $84.8M**, then on the
 mechanical-cooling-cut card. Each number is under the pointer as you say it.
 
 ***
 
-## 4. ONE BUILDING, AND ITS OWN SETTINGS (0:08, 21 words)
+## 4. ONE BUILDING, AND ITS OWN SETTINGS (0:08, 20 words)
 
-> Take one. Ashburn, Virginia, where two Amazon halls sit sixty metres apart.
+> Take Ashburn, Virginia, where two Amazon halls sit sixty metres apart.
 >
 > Every setting on this bar belongs to that building.
 
@@ -71,13 +72,13 @@ plant limit, humidity limit, switch budget.
 
 ***
 
-## 5. HOW IT DECIDES (0:21, 53 words)
+## 5. HOW IT DECIDES (0:20, 49 words)
 
 > Watch what it does.
 >
-> It takes tomorrow's forecast and adds a margin measured from its own past mistakes. Then it
-> compares that worst case, not the forecast, against the limits this plant must hold. Because it can
-> see ahead, its buffer is half what a forecast-blind controller needs, and that is the product.
+> It adds a safety margin measured from its own past mistakes, then tests that worst case, not the
+> forecast, against the limits this plant must hold. Because it can see ahead, its buffer is half what
+> a forecast-blind controller needs, and that is the product.
 
 **On screen:** click **Run the agent**. The reasoning tape scrolls; the pointer follows two lines as
 they appear, then rests on the margin figure for one hour.
@@ -107,42 +108,41 @@ button, then a beat on an hour where the bound sits above the limit.
 
 ***
 
-## 8. THE PART THAT TOOK LONGEST (0:27, 67 words)
+## 8. THE PART THAT TOOK LONGEST (0:24, 60 words)
 
 > Now the engineering.
 >
 > The hot air one hall throws out drifts into the next one's cooling intake, so it draws air hotter
-> than the forecast. We map where it really goes, for seventy-two wind directions. That is five
-> hundred and seventy-six physics runs, done on the graphics card by NVIDIA Warp in five seconds.
->
-> Over five years it made fewer unsafe calls than the controller it replaces.
+> than forecast. We map where it goes, for seventy-two wind directions. That is five hundred and
+> seventy-six physics runs, done on the graphics card by NVIDIA Warp in five seconds. On a processor
+> that would be six minutes.
 
 **On screen:** the results tabs. Open the plume tab and rest on the polar plot, then move to the
-runtime comparison, then to the agent-against-incumbent bars on the last sentence.
+runtime comparison on the six minutes, then to the plume tab once more.
 
 ***
 
-## 9. THE NUMBER WE COULD HAVE HIDDEN (0:22, 56 words)
+## 9. THE SCORE, AND WHY IT IS NOT NINETY (0:26, 65 words)
 
-> Now the number we could have hidden.
+> On the live feed we scored sixty-five per cent, not ninety.
 >
-> On the live feed we scored sixty-five per cent, not ninety. That is a shortage of days, not a flaw:
-> it needs nine forecasts matched to outcomes, and we have four. With four, eighty is the
-> most the arithmetic allows.
+> That is a shortage of days, not a flaw. Scoring it needs nine forecasts matched to outcomes, and we
+> have four, which caps the arithmetic at eighty. Every extra day lifts that ceiling.
 >
-> On five years of history, this method holds ninety.
+> On five years of history it held ninety point zero per cent, with fewer unsafe calls than the
+> controller it replaces.
 
-**On screen:** back to the pick screen. Pointer to the **Bound coverage, measured 65.6%** card, then
+**On screen:** back to the pick screen on the first word, so the 65.6% is already visible as you say it. Pointer to the **Bound coverage, measured 65.6%** card, then
 click its **i** button so the explanation is open while you give the reason.
 
 ***
 
-## 10. THE CLOSE (0:20, 49 words)
+## 10. THE CLOSE (0:17, 43 words)
 
 > Here is the offer.
 >
-> Your forecast is already good enough to turn cool air into money. What was missing is something an
-> engineer can act on: a number with a limit, and a reason.
+> Your forecast is already good enough to turn cool air into money. What was missing was a number with
+> a limit, and a reason.
 >
 > The cold outside was always there. We built the thing that dares to use it.
 
@@ -154,18 +154,18 @@ click its **i** button so the explanation is open while you give the reason.
 
 | # | section | runs | words |
 |---|---|---|---|
-| 1 | The problem | 0:30 | 75 |
+| 1 | The problem | 0:28 | 69 |
 | 2 | *(the site's own audio, measured)* | 0:07.8 | 0 |
-| 3 | The scale, and what it is worth | 0:18 | 45 |
-| 4 | One building, and its own settings | 0:08 | 21 |
-| 5 | How it decides | 0:21 | 53 |
+| 3 | What closes the gap, and what it is worth | 0:26 | 66 |
+| 4 | One building, and its own settings | 0:08 | 20 |
+| 5 | How it decides | 0:20 | 49 |
 | 6 | The evidence it writes itself | 0:07 | 18 |
 | 7 | Live, and when it says no | 0:14 | 35 |
-| 8 | The part that took longest | 0:27 | 67 |
-| 9 | The number we could have hidden | 0:22 | 56 |
-| 10 | The close | 0:20 | 49 |
-| | **speech** | **2:47** | **419** |
-| | **total with the intro** | **2:55** | |
+| 8 | The part that took longest | 0:24 | 60 |
+| 9 | The score, and why it is not ninety | 0:26 | 65 |
+| 10 | The close | 0:17 | 43 |
+| | **speech** | **2:50** | **425** |
+| | **total with the intro** | **2:57** | |
 
 The intro gap is measured, not estimated: 7.80 s from the click to the transition whoosh ending, timed by hooking the page's own audio objects. Your 8 seconds was very nearly exact. And if you read faster than 150 words a minute the video simply gets shorter, because the visuals are cut to your recorded voice rather than to this table.
 
@@ -209,6 +209,11 @@ Each row was read back out of the artefact on 2026-08-31.
 | we have four | n = 4 | `demo/trace.json`, `cycle.bound_day_level.n` |
 | four caps it at eighty | 80% | same, `attainable`, which is n/(n+1) |
 | nine forecasts | 9 | same, `n_needed_for_nominal` |
+| six minutes on a processor | 72.7x, so 5.34 s becomes about 388 s | `demo/trace.json`, `standing_results_quoted_elsewhere.warp_speedup_x.headline_repeat`; `site_report.py:1211` independently puts 100 solves at about a minute, so 576 is about 345 s |
+| CPU and GPU agree | to 0.00007 °C | same node, `cpu_gpu_agreement_c` = 6.95e-05 |
+| every extra day lifts the ceiling | n/(n+1): 4 gives 80%, 9 gives 90% | `demo/trace.json`, `cycle.bound_day_level.attainable` and `n_needed_for_nominal` |
+| ninety point zero per cent | 0.89977 over 43,260 rounds | `demo/backtest.json`, `aci.3.ACI.realised_coverage` |
+| heat forecast two metres up | 2 m, condenser breathing height | `demo/index.html:1607-1610`, the site's own framing |
 | this method holds ninety | 90.0% over 43,260 rounds | `demo/backtest.json`, `aci.3.ACI.realised_coverage` = 0.89977 |
 
 ⚠ **Never quote the 7 unsafe hours next to the incumbent's 28.** They come from different measurements:
