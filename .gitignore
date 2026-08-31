@@ -93,3 +93,15 @@ DEMO-SCRIPT-2m50.md
 # tools/mkview.py all READ files under CONTEXT/, and CLAUDE.md instructs reading it
 # first. Without this folder those checks cannot run. The folder is intact locally.
 CONTEXT/
+
+# Kept on the local drive only at the user's direction. WARNING for a fresh clone:
+# src/audit.py, src/build_national_registry.py and testing/audit_nothing_lost.py all
+# READ this file, so those checks cannot run without it. Intact locally.
+RECIRCULATION-DEFENCE.md
+
+# A stray root-level duplicate of AGENTIC-ARBITER/demo/fortyguard-logo.png, byte for byte
+# (sha256 584a9658...). Nothing in the tree reads it, so removing it is safe. THE COPY
+# UNDER demo/ STAYS: site_report.py:77 draws it on every page of all 250 reports and
+# check_report.py asserts no page is missing it, and IntroGate.tsx:259 plus App.tsx:283
+# render it as the POWERED BY FORTYGUARD credit on the landing page.
+FortyGuard_LOGO-cmyk.png
