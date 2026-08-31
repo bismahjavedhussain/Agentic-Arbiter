@@ -87,6 +87,25 @@ AGENTIC-ARBITER/src/reportassets/_*
 # shipped artefact. Kept on the local drive only, at the user's direction.
 DEMO-SCRIPT-2m50.md
 
+# The FINISHED VIDEO and the recordings it is cut from, for the same reason and by the same
+# instruction. These were untracked but not ignored, which one `git add -A` would have undone:
+# the MP4 alone is 58 MB. AGENTIC-ARBITER-demo.mp4 is rebuilt by the session harness from
+# DEMO_FINAL.wav plus the spliced clips, so nothing here is a source that cannot be remade
+# except the recordings themselves, which are the user's own voice.
+AGENTIC-ARBITER-demo.mp4
+DEMO_FINAL.wav
+live agent.wav
+economic.wav
+FGfield.wav
+# The user's screenshot of the live run that certified four hours, spliced into the film at
+# 106.30 s. Evidence, not scratch: keep the file, just not in the repository.
+LiveAgentRunOnAfternoon.png
+5clips.wav
+# The v2 rewrite and the five-clip recording sheet: working documents for the video, same
+# category as DEMO-SCRIPT-2m50.md above.
+DEMO-SCRIPT-v2.md
+RECORD-THESE-FIVE.md
+
 # The durable-context pack, kept on the local drive only at the user's direction.
 # WARNING for a fresh clone: audit.py, run_all.py, live_report.py,
 # testing/audit_nothing_lost.py, testing/bump_spend_docs.py, tools/mkresults.py and
