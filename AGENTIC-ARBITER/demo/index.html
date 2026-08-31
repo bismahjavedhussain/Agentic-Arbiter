@@ -1792,7 +1792,10 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
     </nav>
     <h3 style="margin:0 0 4px">The plant<br><span class="thin" id="sitename"></span></h3>
     <p class="note" style="margin:0 0 12px">Every control is a <strong>scenario parameter</strong>,
-    not a tuned constant. There is no changeover temperature anywhere in the agent's source.</p>
+    not a tuned constant. There is no changeover temperature anywhere in the agent's source.
+    The six marked <span class="pill">swept</span> or <span class="pill">ASHRAE</span> are sent to
+    a live run; those marked <span class="pill">saved day</span> replay a stored response and do
+    not reach the vendor.</p>
     <!-- THE ACTIONS SIT ABOVE THE CONTROLS. They were below all eleven dropdowns, which put
          "Run the agent" off the bottom of a 900 px screen -- so the instruction "then Run the
          agent" pointed at a button nobody could see. Actions first, settings after. -->
@@ -2666,12 +2669,22 @@ function opt(sel, vals, labels, def){
 /* The plant envelope, built from the trace rather than typed into the HTML -- so the controls are
    exactly the axes agent.py swept, and an axis added there appears here without an edit. */
 const CONTROLS = [
-  ['c_case',   'Day',                 'measured'],
+  /* 🔴 FOUR OF THESE DO NOTHING ON A LIVE RUN, and saying so is the only honest option.
+     live.py reads exactly six caller-settable keys: limit_c, dewpoint_limit_c, aq_limit_idx,
+     switch_budget, min_dwell_h and bank_mode. VERIFIED by grepping every cfg access in the
+     file: `notice_h`, `anchor` and `skill` do not appear in live.py at ALL, and the day and
+     the level day are choices among SAVED responses. They are not being ignored by a bug,
+     they are backtest parameters with no live meaning: skill simulates degrading a perfect
+     forecast and a live run has the real one, notice is the simulated lead where a live run's
+     lead is the actual forecast horizon, and the anchor selects the backtest's level anchor.
+     A bar that implies every control reaches the live agent invites exactly the question
+     "I changed forecast skill and nothing happened", so those four say `saved day` instead. */
+  ['c_case',   'Day',                 'saved day'],
   ['c_limit',  'Plant limit °C', 'swept'],
-  ['c_notice', 'Notice needed, h',    'swept'],
-  ['c_anchor', 'Level anchor',        'swept'],
-  ['c_skill',  'Forecast skill',      'swept'],
-  ['c_offday', '<strong>FortyGuard</strong> level day','measured'],
+  ['c_notice', 'Notice needed, h',    'saved day'],
+  ['c_anchor', 'Level anchor',        'saved day'],
+  ['c_skill',  'Forecast skill',      'saved day'],
+  ['c_offday', '<strong>FortyGuard</strong> level day','saved day'],
   ['c_wb',     'Max dew point °C','ASHRAE'],
   ['c_aq',     'Air-quality limit',   'swept'],
   ['c_bank',   'Condenser bank',      'swept'],
