@@ -24,11 +24,11 @@ FortyGuard Hackathon'26 · Track 3 (Industrial & Enterprise) + Track 6 (Agentic 
 ## The problem, stated as a contract
 
 **Data-centre cooling-plant operators** struggle to **decide, each hour, whether to switch the
-mechanical chillers off and cool with outside air** because **a rooftop thermometer cannot see three
+mechanical chillers off and cool with outside air** because **no thermometer can see three
 hours ahead and a plant needs that much notice to change mode**, so they either switch late or
 carry a conservative buffer. The result is **406 chiller-hours per year left on the table, worth
 $5,522–$7,990 per MW of IT load**, measured across **43,763 hours of real weather** against the
-reactive on-site-sensor control operators verifiably run today.
+reactive sensor-based control plants run today.
 
 Every variable in that sentence is a measured number with a file behind it, not an estimate:
 `audit.py` re-reads all of them. The dollar range is 16 cells: **4 published electricity tariffs ×
@@ -107,7 +107,7 @@ perceive  FortyGuard heatmap + env_params + real wind + its own accuracy record
 
 **What that buys, measured on 43,763 hours of real weather across five years**: 913 held-out days
 the agent never calibrated on, on real Ashburn geometry, against the reactive on-site-sensor
-incumbent that operators verifiably run:
+incumbent that plants run today:
 
 | | |
 |---|---|

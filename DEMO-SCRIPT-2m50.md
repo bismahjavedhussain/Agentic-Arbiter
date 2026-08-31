@@ -21,7 +21,7 @@ Every figure is read from a file in this repository. The sources, with exact pat
 >
 > That is timing, not carelessness. A chiller plant needs hours of notice to change mode, and
 > without a forecast no one can say what the air will do by then. So they keep a buffer.
-> Switching late can put a hall out of contract. Never switching only costs money.
+> Switching late can let a hall run hot. Never switching only costs money.
 
 **On screen:** landing page, still. Slow drift over the globe. No cursor movement.
 

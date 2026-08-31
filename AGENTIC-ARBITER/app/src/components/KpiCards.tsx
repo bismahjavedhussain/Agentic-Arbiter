@@ -49,8 +49,8 @@ export function KpiCards({ h }: { h: Headline }) {
         unit="%"
         sub={`${int(h.mechIncumbentH)} h of chiller time becomes ${int(h.mechAgentH)} h`}
         info="A share, not a total, which is why it holds at any hall size. Measured on the shipped
-              five year row: the agent's mechanical runtime against the tuned reactive on site sensor
-              controller operators verifiably run today, over the same hours."
+              five year row: the agent's mechanical runtime against the tuned reactive sensor-based
+              control plants run today, over the same hours."
         infoLabel="Why a share rather than a total: it holds at any hall size."
       />
 
@@ -59,8 +59,8 @@ export function KpiCards({ h }: { h: Headline }) {
         v={`+${Math.round(h.gainHPerYear)}`}
         unit="h/yr"
         sub="against the reactive controller operators run today"
-        info="The incumbent is not a straw man. It is the on site sensor control that plants
-              verifiably run, reacting to what a thermometer reports now. The sweep that shows what
+        info="The incumbent is not a straw man. It is the sensor-based control plants run today,
+              reacting to what a thermometer reports now. The sweep that shows what
               each hour of forecast notice buys is in the results stage."
         infoLabel="What the comparison is against: the controller operators actually run today."
       />
