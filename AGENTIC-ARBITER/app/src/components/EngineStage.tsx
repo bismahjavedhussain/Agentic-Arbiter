@@ -201,6 +201,29 @@ export function EngineStage({
     else if (stage === 'results') setTab('live')
   }, [stage])
 
+  /* 🔴 AND ON THE BUTTON TOO, BECAUSE A SECOND RUN CHANGES NO STAGE. The effect above keys on
+     `stage`, so it fires once, on configure -> results. Press "Run the agent on this site" again
+     from the configuration tab and `runAgent()`'s `setStage('results')` is a no-op: the stage does
+     not change, this effect does not re-run, and the reader stays on the plant controls while the
+     tape streams into a card only the `live` tab shows. Reported as "it's not clickable", which is
+     exactly what a working control with no visible effect looks like.
+
+     Capture phase, because the engine's own handler may re-render or move the node; capture sees
+     the event on the way down, before anything can swallow it. This listener ONLY navigates. It
+     never starts a run, so the engine keeps the single implementation every verifier drives.
+
+     ⚠ `livego` is not in this list on purpose: its button already lives on the run panel, and the
+     Quick actions row that forwards to it navigates itself. */
+  useEffect(() => {
+    const RUNS = ['runagent', 'runagent2']
+    const onClick = (e: MouseEvent) => {
+      const el = (e.target as HTMLElement | null)?.closest?.('button, a') as HTMLElement | null
+      if (el && RUNS.includes(el.id)) setTab('live')
+    }
+    document.addEventListener('click', onClick, true)
+    return () => document.removeEventListener('click', onClick, true)
+  }, [])
+
   /* 🔴 REDRAW WHEN A TAB OPENS, AND THIS IS THE ONE THING A TABBED VERSION OF THIS PAGE CANNOT SKIP.
      demo/index.html carries the warning in full: "a canvas whose parent has no width never draws".
      It is correct. The engine sizes every canvas from its parent's MEASURED width (cssv/yr in
