@@ -88,8 +88,10 @@ function useEngineButton(id: string) {
 }
 
 function QuickAction({
-  id, icon: Icon, title, subtitle,
-}: { id: string; icon: typeof Radio; title: string; subtitle: string }) {
+  id, icon: Icon, title, subtitle, before,
+}: { id: string; icon: typeof Radio; title: string; subtitle: string
+     /** Run before the engine button is clicked, for a row that also has to navigate. */
+     before?: () => void }) {
   const b = useEngineButton(id)
   if (!b.exists) return null
   return (
@@ -104,7 +106,15 @@ function QuickAction({
        in one place. */
     <button
       type="button"
-      onClick={() => document.getElementById(id)?.click()}
+      /* 🔴 NAVIGATE FIRST, THEN FORWARD. The user: pressing this "is supposed to move to the
+         Live Agent Execution tab automatically upon this click and the Run the agent live button
+         would automatically be clicked there". It always did forward to the engine's own #livego,
+         which is the half that must not change (standing rule C1: one implementation, and it is
+         the engine's). What was missing is that the run writes into #livecard and #livestream,
+         which workspace.css shows on the `live` tab alone, so from any other tab the reader
+         pressed it and nothing they could see happened. The tab is selected first so the panel is
+         already coming in as the run starts. */
+      onClick={() => { before?.(); document.getElementById(id)?.click() }}
       disabled={b.disabled}
       className={`aa-qa ${b.disabled ? 'is-off' : ''}`}
       /* The engine's own label is the tooltip, so if it says something different from `title` a
@@ -199,7 +209,8 @@ export function TabRail({
       <div className="aa-qa-card">
         <p className="aa-rail-eyebrow">Quick actions</p>
         <QuickAction id="livego" icon={Radio} title="Run on live data"
-                     subtitle="Calls the vendor for real" />
+                     subtitle="Calls the vendor for real"
+                     before={() => onSelect('live')} />
         <QuickAction id="backtopick" icon={MapPin} title="Choose a different site"
                      subtitle="Back to the map" />
       </div>

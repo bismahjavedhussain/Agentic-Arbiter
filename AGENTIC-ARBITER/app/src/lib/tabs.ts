@@ -64,7 +64,11 @@ export const TABS: Tab[] = [
        the layout mistake it was.
        It needs no entry: #filters lives inside <aside class="sidebar">, and workspace.css shows that
        aside on this tab and hides it on the others. One rule, no walking up. */
-    selectors: ['[data-show="configure"]'],
+    /* ⚠ `.card[...]`, and the class matters. `[data-show~="configure"]` alone also matches
+       `<div data-show="configure results" class="side">`, the container holding the whole
+       sidebar, and stamping that with this tab hides the sidebar everywhere else: the same
+       shape as the <details> mistake recorded above. Only one `.card` carries configure. */
+    selectors: ['.card[data-show~="configure"]'],
     needs: 'configure',
   },
   {

@@ -1808,10 +1808,16 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
            in the limit list. The rest are swept options, which is what the note above already
            says. Claiming the whole set came from a standard would be the kind of borrowed
            authority this project exists to avoid. -->
+      <!-- 2026-09-01: THIS NOTE CLAIMED A NUMBER AUTO-FILL DOES NOT SET. It read "its 15 °C
+           dew-point ceiling and the 27 °C limit are ASHRAE's recommended maxima", but AUTOFILL
+           below sets c_limit:'18'. 27 °C is an option in the LIST, not a value this button
+           applies, so the sentence lent ASHRAE's authority to a swept value the reader was
+           watching get filled in. Of what auto-fill actually sets, exactly one number is
+           sourced. -->
       <p class="note" style="margin:6px 0 0">Auto-fill restores the configuration this site&rsquo;s
-      saved day was solved at. Its <strong>15&nbsp;&deg;C dew-point ceiling and the
-      27&nbsp;&deg;C limit</strong> are ASHRAE&rsquo;s recommended maxima, published in
-      <strong>The Green Grid</strong> White&nbsp;Paper&nbsp;#46.</p>
+      saved day was solved at. Of the values it sets, the <strong>15&nbsp;&deg;C dew-point
+      ceiling</strong> is ASHRAE&rsquo;s recommended maximum, published in <strong>The Green
+      Grid</strong> White&nbsp;Paper&nbsp;#46; the rest are swept options.</p>
     </div>
     <p class="note" id="runnote" style="margin:10px 0 0"></p>
     <div class="filters col" id="filters"></div>
@@ -1821,7 +1827,14 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
   <main class="mainpane">
 
     <!-- ============ STAGE 2b: READY ============ -->
-    <div data-show="configure" class="card">
+    <!-- 🔴 "configure results", NOT "configure", 2026-09-01. The user: going back to the
+         Configuration & Setup tab after a run "has a complete empty space on the screen to
+         the right of the input bar", where this card sits on the first visit. setStage()
+         hides by stage, the run moves the stage to `results`, and the React tab cannot
+         un-hide it without becoming a second writer of `hidden`. In the app this card DOES
+         belong to both stages, so the stage fact is what was wrong. On the single-file page
+         nothing changes visually: the configure block already scrolls past at results. -->
+    <div data-show="configure results" class="card">
       <h2>What this agent decides</h2>
       <!-- 2026-08-25: 123 WORDS DOWN TO 48. The first paragraph restated the masthead verbatim --
            a reader had just been told a thermometer cannot see three hours ahead, and was told it
