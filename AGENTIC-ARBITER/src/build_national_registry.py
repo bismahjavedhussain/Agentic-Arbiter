@@ -23,7 +23,7 @@ THE THREE KINDS, and why none of them is a refusal
     paired_clear     a real internal pair clears the 60 m facade floor. The existing, unmodified
                      pairwise physics runs on it.
     paired_advisory  every internal pair sits INSIDE the 60 m floor. The plume is not modelled and
-                     -- unlike a standalone site -- that is NOT neutral: RECIRCULATION-DEFENCE.md
+                     -- unlike a standalone site -- that is NOT neutral: RECIRCULATION-PHYSICS.md
                      sections 5 and 171-188 state that below ~60 m the 30 m intake disc physically
                      overlaps the condenser bank, so any number would be an artefact, and that the
                      TIGHTER the pair the LARGER the real recirculation. So the decision still runs

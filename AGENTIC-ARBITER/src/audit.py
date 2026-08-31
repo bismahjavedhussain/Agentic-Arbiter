@@ -2054,7 +2054,7 @@ def check_retracted_claims():
                # front door of the thing being judged was the one document nothing read.
                ("demo/README.md", os.path.join(DEMO, "README.md")),
                ("README.md", os.path.join(ROOT, "README.md")),
-               ("RECIRCULATION-DEFENCE.md", os.path.join(ROOT, "RECIRCULATION-DEFENCE.md")),
+               ("RECIRCULATION-PHYSICS.md", os.path.join(ROOT, "RECIRCULATION-PHYSICS.md")),
                # MOVED 2026-08-28 into CONTEXT/, the durable-context pack. It is still scanned:
                # this list is the set of surfaces a READER meets, and relocating a document does
                # not stop it being read. The absent-file branch below is what makes a wrong path

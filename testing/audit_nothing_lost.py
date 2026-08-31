@@ -129,7 +129,7 @@ KEPT_MD = {
     "README.md",
     "API-USAGE.md",
     "CLAUDE.md",
-    "RECIRCULATION-DEFENCE.md",
+    "RECIRCULATION-PHYSICS.md",
     "money-sources.md",
     "<proj>/demo/README.md",
     "<proj>/demo/money-sources.md",
