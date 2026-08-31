@@ -82,3 +82,7 @@ AGENTIC-ARBITER/demo/app/**/*.map
 # instanced Inter faces in the same folder ARE committed: they are the output of
 # tools/make_report_fonts.py, and committing them means a host can build the report without fontTools.
 AGENTIC-ARBITER/src/reportassets/_*
+
+# The demo voiceover script is a working document for the video, not part of the
+# shipped artefact. Kept on the local drive only, at the user's direction.
+DEMO-SCRIPT-2m50.md
