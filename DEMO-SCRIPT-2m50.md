@@ -1,6 +1,6 @@
 # AGENTIC-ARBITER, demo voiceover script
 
-**Speech 2:51, plus the measured 7.8 s intro, for 2:59. Inside the 3:00 limit.**
+**Speech 2:47 at 150 words a minute, plus the measured 7.8 s intro, for 2:55. That leaves 5 seconds of slack under the 3:00 limit, and I will measure your actual recording before rendering anything.**
 
 Read it the way you would explain it to one person across a table. Complete sentences, ordinary pace,
 about 150 words a minute. Take a real breath at every `***` seam.
@@ -13,15 +13,15 @@ Every figure is read from a file in this repository. The sources, with exact pat
 
 ---
 
-## 1. THE PROBLEM (0:29, 72 words)
+## 1. THE PROBLEM (0:30, 75 words)
 
 > Data centres run chillers when the air outside is already cold enough.
 >
 > In Virginia that is almost every hour of December, and almost none of July.
 >
-> That is a timing problem, not carelessness. A chiller plant needs hours of warning to change how it
-> cools, and its rooftop thermometer only knows about now. So they keep a buffer. Switching late
-> can put a hall out of contract. Never switching only costs money.
+> That is timing, not carelessness. A chiller plant needs hours of notice to change mode, and
+> without a forecast no one can say what the air will do by then. So they keep a buffer.
+> Switching late can put a hall out of contract. Never switching only costs money.
 
 **On screen:** landing page, still. Slow drift over the globe. No cursor movement.
 
@@ -47,12 +47,12 @@ MEASURED from the click, by hooking the page's own audio objects:
 
 ***
 
-## 3. THE SCALE, AND WHAT IT IS WORTH (0:18, 46 words)
+## 3. THE SCALE, AND WHAT IT IS WORTH (0:18, 45 words)
 
 > This is Agentic Arbiter, and it runs on real buildings.
 >
 > Two hundred and thirty-eight data centres across America, each with its own roof outline, weather
-> station and electricity price. It takes a tenth off their chiller running time, worth forty-two to
+> station and electricity price. It takes a tenth off their chiller time, worth forty-two to
 > eighty-five million dollars a year.
 
 **On screen:** pick screen. Pointer rests on **238**, then on **$42.4M to $84.8M**, then on the
@@ -60,11 +60,11 @@ mechanical-cooling-cut card. Each number is under the pointer as you say it.
 
 ***
 
-## 4. ONE BUILDING, AND ITS OWN SETTINGS (0:10, 26 words)
+## 4. ONE BUILDING, AND ITS OWN SETTINGS (0:08, 21 words)
 
 > Take one. Ashburn, Virginia, where two Amazon halls sit sixty metres apart.
 >
-> Every setting on this bar belongs to that building, and you can change it.
+> Every setting on this bar belongs to that building.
 
 **On screen:** the selected-site card, then the pointer walks the configuration bar left to right:
 plant limit, humidity limit, switch budget.
@@ -77,42 +77,42 @@ plant limit, humidity limit, switch budget.
 >
 > It takes tomorrow's forecast and adds a margin measured from its own past mistakes. Then it
 > compares that worst case, not the forecast, against the limits this plant must hold. Because it can
-> see ahead, its buffer is half what a rooftop sensor needs, and that is the product.
+> see ahead, its buffer is half what a forecast-blind controller needs, and that is the product.
 
 **On screen:** click **Run the agent**. The reasoning tape scrolls; the pointer follows two lines as
 they appear, then rests on the margin figure for one hour.
 
 ***
 
-## 6. THE EVIDENCE IT WRITES ITSELF (0:08, 19 words)
+## 6. THE EVIDENCE IT WRITES ITSELF (0:07, 18 words)
 
 > And it writes this itself.
 >
-> Nine pages from this building's own files, with every hour's decision and its reason.
+> Nine pages from this building's own files, with every decision and its reason.
 
 **On screen:** click **Download the report**, the PDF opens and scrolls: page 1 tiles, page 2 satellite
 frame, page 3 the bound against the limit, page 7 the money table.
 
 ***
 
-## 7. LIVE, AND WHEN IT SAYS NO (0:15, 37 words)
+## 7. LIVE, AND WHEN IT SAYS NO (0:14, 35 words)
 
 > That was a saved day. It also runs live, with its own report.
 >
-> Everything uses the building's own local clock. When the worst case sits above the limit, it keeps
-> the chillers on and tells you why.
+> Everything uses the building's local clock. When the worst case sits above the limit, it keeps
+> the chillers on and says why.
 
 **On screen:** pointer to **Run the agent on live data**, hover without clicking, then the live report
 button, then a beat on an hour where the bound sits above the limit.
 
 ***
 
-## 8. THE PART THAT TOOK LONGEST (0:26, 66 words)
+## 8. THE PART THAT TOOK LONGEST (0:27, 67 words)
 
 > Now the engineering.
 >
-> The hot air one hall throws out drifts at its neighbour's intake, so it breathes exhaust warmer than
-> the forecast. We work out where it really goes, for seventy-two wind directions. That is five
+> The hot air one hall throws out drifts into the next one's cooling intake, so it draws air hotter
+> than the forecast. We map where it really goes, for seventy-two wind directions. That is five
 > hundred and seventy-six physics runs, done on the graphics card by NVIDIA Warp in five seconds.
 >
 > Over five years it made fewer unsafe calls than the controller it replaces.
@@ -122,12 +122,12 @@ runtime comparison, then to the agent-against-incumbent bars on the last sentenc
 
 ***
 
-## 9. THE NUMBER WE COULD HAVE HIDDEN (0:23, 58 words)
+## 9. THE NUMBER WE COULD HAVE HIDDEN (0:22, 56 words)
 
 > Now the number we could have hidden.
 >
 > On the live feed we scored sixty-five per cent, not ninety. That is a shortage of days, not a flaw:
-> scoring it needs nine forecasts matched to what happened, and we have four. With four, eighty is the
+> it needs nine forecasts matched to outcomes, and we have four. With four, eighty is the
 > most the arithmetic allows.
 >
 > On five years of history, this method holds ninety.
@@ -137,9 +137,9 @@ click its **i** button so the explanation is open while you give the reason.
 
 ***
 
-## 10. THE CLOSE (0:20, 50 words)
+## 10. THE CLOSE (0:20, 49 words)
 
-> So here is the offer.
+> Here is the offer.
 >
 > Your forecast is already good enough to turn cool air into money. What was missing is something an
 > engineer can act on: a number with a limit, and a reason.
@@ -154,18 +154,18 @@ click its **i** button so the explanation is open while you give the reason.
 
 | # | section | runs | words |
 |---|---|---|---|
-| 1 | The problem | 0:29 | 72 |
+| 1 | The problem | 0:30 | 75 |
 | 2 | *(the site's own audio, measured)* | 0:07.8 | 0 |
-| 3 | The scale, and what it is worth | 0:18 | 46 |
-| 4 | One building, and its own settings | 0:10 | 26 |
+| 3 | The scale, and what it is worth | 0:18 | 45 |
+| 4 | One building, and its own settings | 0:08 | 21 |
 | 5 | How it decides | 0:21 | 53 |
-| 6 | The evidence it writes itself | 0:08 | 19 |
-| 7 | Live, and when it says no | 0:15 | 37 |
-| 8 | The part that took longest | 0:26 | 66 |
-| 9 | The number we could have hidden | 0:23 | 58 |
-| 10 | The close | 0:20 | 50 |
-| | **speech** | **2:51** | **427** |
-| | **total with the intro** | **2:59** | |
+| 6 | The evidence it writes itself | 0:07 | 18 |
+| 7 | Live, and when it says no | 0:14 | 35 |
+| 8 | The part that took longest | 0:27 | 67 |
+| 9 | The number we could have hidden | 0:22 | 56 |
+| 10 | The close | 0:20 | 49 |
+| | **speech** | **2:47** | **419** |
+| | **total with the intro** | **2:55** | |
 
 The intro gap is measured, not estimated: 7.80 s from the click to the transition whoosh ending, timed by hooking the page's own audio objects. Your 8 seconds was very nearly exact. And if you read faster than 150 words a minute the video simply gets shorter, because the visuals are cut to your recorded voice rather than to this table.
 
@@ -216,6 +216,29 @@ Each row was read back out of the artefact on 2026-08-31.
 comparison above uses 15 against 28, both from the same rung of the same run, which is the only
 apples-to-apples pair in the artefacts. The page itself says these are "two different measurements,
 reported separately rather than blended into one flattering figure".
+
+⚠ **NOTHING IN THIS SCRIPT CLAIMS WHERE A DATA CENTRE PUTS A SENSOR, and that is deliberate.** An
+earlier draft of mine said "its rooftop thermometer only knows about now" and "half what a rooftop
+sensor needs". Both are out. Two reasons. First, a data centre audience hears "intake" and
+"thermometer" as the ASHRAE rack inlet, measured inside the white space with sensors up the front face
+of each rack in an 18 to 27 °C envelope, and this project measures nothing of the kind. Second, the
+project's own evidence for what operators run terminates in a document that is not in this repository:
+`agent.py:93` cites "HANDOFF section 5.3", and `CONTEXT/HANDOFF.md` has no section 5.3, while
+`HANDOFF.md:157` and `:201` both cite `PLAN.md`, which is absent from the tree and from git history.
+
+**What the code actually bounds, which is the safe thing to say.** `core/agent.mjs:129-132` pushes
+`ds.temp_c[h] + riseTrue[h]` as truth and tests it against `k.limit`. So the 24 °C limit applies to
+OUTSIDE air plus the exhaust plume it has picked up, which is the temperature of air entering the
+cooling plant. The incumbent reads `sh + pers_bias[N][hod]`, the outdoor temperature as it stood N
+hours earlier, corrected per hour of day. Section 8 therefore says "cooling intake", which cannot be
+misheard, and section 5 describes the incumbent by what it LACKS, a forecast, rather than by where it
+sits.
+
+⚠ **TWO PRODUCT STRINGS ARE NOT MINE TO CHANGE, and both should be reviewed before filming.**
+`KpiCards.tsx:53` and `:63` say the incumbent is "the controller operators **verifiably** run today".
+"Verifiably" is the word carrying the missing document. `demo/index.html:1955` has a visible chart
+legend reading "Incumbent (rooftop sensor, no forecast)"; the React app, which is what a visitor
+actually gets, contains no such string.
 
 ---
 

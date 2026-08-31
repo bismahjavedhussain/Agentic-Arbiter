@@ -12,6 +12,54 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### "ITS ROOFTOP THERMOMETER" WAS A CLAIM ABOUT INDUSTRY PRACTICE THE CODE NEVER MAKES. 2026-08-31
+
+The user: "why are you saying rooftop sensors in section 1 when data centres dont even use it. Please
+dont assert false claims." Then the correct industry account: intake temperature in a data centre means
+RACK INLET, measured inside the white space, ASHRAE's roughly six sensors per rack with three up the
+front face, wired into DCIM, in an 18 to 27 C envelope. Nobody reads a roof thermometer for that.
+
+🔴 **THE OBJECTION IS RIGHT, AND THREE OF MY SENTENCES CARRIED IT, NOT ONE.** `rooftop thermometer` in
+section 1, `half what a rooftop sensor needs` in section 5, and `its neighbour's intake` in section 8.
+All three are out. The literal defence was available and I did not take it: the sentence was about the
+OUTDOOR AMBIENT reading used for economiser control, which the user themself grants is real. But a
+sentence that needs the listener to pick the right reading is the wrong sentence when the listener is
+a data centre CEO, and being misheard in a three minute pitch is the same as being wrong.
+
+**WHAT THE CODE ACTUALLY BOUNDS, DERIVED FROM THE CODE RATHER THAN THE PROSE.** `core/agent.mjs:131-132`:
+
+    truth.push(ds.temp_c[h] + riseTrue[h]);
+    const trulySafe = truth.map((v,h) => v <= k.limit && (k.dp===null || ds.dewpoint_c[h] <= k.dp));
+
+So the 24 C limit is tested against OUTSIDE dry-bulb PLUS the exhaust plume it has picked up: the
+temperature of air entering the COOLING PLANT. `incumbent_src|N` is built at `agent.py:1781` as
+`sh + pers_bias[N][hod]`, the outdoor temperature as it stood N hours earlier, de-biased per hour of
+day, and `agent.mjs:129` tests `(isrc[h]+md[h]) <= k.limit` with NO rise term, which is the incumbent's
+plume blindness. **Nothing in this project is a rack inlet temperature and 24 C is not the ASHRAE
+envelope.** ⚠ The collision is a word: `06-GLOSSARY.md:70-76` defines "intake" as the AIR INTAKE OF A
+COOLING UNIT, the receptor of a plume, which is a third meaning again. Section 8 now says "cooling
+intake", which cannot be misheard, and section 5 describes the incumbent by what it LACKS, a forecast,
+rather than by where a sensor sits. Section 1 makes the lead-time argument with no sensor in it at all:
+without a forecast, no one can say what the air will do, which is true wherever anyone puts a
+thermometer.
+
+⚠ **TWO PRODUCT STRINGS CARRY THE SAME RISK AND ARE NOT MINE TO CHANGE** (standing rule: do not sweep
+the user's prose without asking). `KpiCards.tsx:53` and `:63` call the incumbent "the controller
+operators **verifiably** run today", and "verifiably" is the word resting on the evidence gap already
+logged here: `agent.py:93` cites HANDOFF section 5.3, which does not exist, and `HANDOFF.md:157`
+and `:201` both cite `PLAN.md`, absent from the tree and from git history. `demo/index.html:1955` has a
+VISIBLE legend reading "Incumbent (rooftop sensor, no forecast)"; the React app, which is what a
+visitor gets, contains no "rooftop" string at all, so the deliverable's exposure is the two
+"verifiably" sentences.
+
+**THE SCRIPT IS NOW 419 WORDS, 2:47 OF SPEECH, 2:55 WITH THE MEASURED INTRO, 4.6 s OF SLACK.** ⚠ The
+slack is the point and it was 0.2 s before this pass: the finished video is cut to the user's REAL
+recorded voice, so a delivery slower than 150 wpm lengthens the video rather than the script, and a
+script sitting exactly on 3:00 breaches on any slow read. Their recording gets measured before render.
+🔴 Two of my own arithmetic slips this round, both caught by assertions rather than by review: a
+word-count estimate that was 6 words optimistic, and a `clock()` helper mixing floor and round that
+printed 179.8 s as "2:00".
+
 ### THE GLOBE RENDERS UNDER AUTOMATED CHROME, SO THE DEMO NEEDS NO HUMAN SCREEN RECORDING AT ALL. 2026-08-31
 
 The user offered to record the opening themselves ("I can give you a clip ... with proper globe showing
