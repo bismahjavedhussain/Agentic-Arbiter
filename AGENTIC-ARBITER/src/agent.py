@@ -713,11 +713,34 @@ def bms_commands(modes, hours, bound, limit_c, rise, refused_flags, margin_meta)
             # `"%.3f" % float("nan")` renders the word "nan" into perfectly valid prose, and
             # `json_safe()` then turns the field beside it into a perfectly valid `null` -- so
             # neither the JSON validator nor a reader of the file can see anything wrong.
-            if not math.isfinite(float(bound[i])):
+            #
+            # 🔴 BUT A MISSING FORECAST IS NOT A BUG, AND USED TO CRASH THE RUN. MEASURED on a
+            # live Ashburn run whose hour 10 came back "no field (submit_rejected)": the schedule
+            # put a mode change on that hour, this guard fired, and stage 5 killed a run whose
+            # first four stages had all succeeded. Every replay gives every hour a value, which
+            # is why nothing before that run reached it.
+            #
+            # The distinction the guard exists for is kept. `safe` requires `bound_known`, so a
+            # FREE row can never legitimately carry a NaN bound and one there really is a defect:
+            # that still raises. A MECHANICAL row with no bound is the ordinary case of the
+            # vendor not answering, which is precisely what the plant must be told, so it states
+            # that instead of asserting a number it does not have.
+            _no_bound = not math.isfinite(float(bound[i]))
+            if _no_bound and m == MODE_FREE:
                 raise ValueError(
-                    "stage 5 was handed a non-finite bound at hour %s (index %d). Refusing to "
-                    "write a command row that states a number it does not have."
+                    "stage 5 was handed a non-finite bound on a FREE-COOLING hour, %s (index "
+                    "%d). `safe` requires a known bound, so this is a defect upstream, not a "
+                    "missing forecast. Refusing to certify an hour on a number it does not have."
                     % (hours[i], i))
+            if _no_bound:
+                why = ("NO FORECAST for this hour: the vendor returned no field, so there is no "
+                       "bound to compare against the %.1f C plant limit. Staying on MECHANICAL, "
+                       "which is what an unanswered hour must default to." % limit_c)
+                out.append({"hour": hours[i], "index": i, "command": MODE_NAME[m], "reason": why,
+                            "bound_c": None, "rise_c": round(float(rise[i]), 4),
+                            "refused": bool(refused_flags[i]), "no_forecast": True})
+                prev = m
+                continue
             if refused_flags[i]:
                 why = ("REFUSE to certify: a building lies on the source-to-intake path at this "
                        "bearing, so the solver's answer is not physical (see gotcha #26). "
