@@ -1039,7 +1039,8 @@ def _build_once(site_key, out_path, pages):
     # height 168 not 150: at 150 the chart's own summary line sat on its bottom edge and the
     # caption flowable printed straight over it.
     st.append(_chart(CH.agent_vs_incumbent(h["mech_agent_h"], h["mech_inc_h"],
-                                           h["runtime_cut_pct"], height=168)))
+                                           h["runtime_cut_pct"],
+                                           held_out_days=h["held_out_days"], height=168)))
     st.append(Spacer(1, 4))
     st.append(_caption(
         "The comparison is against a tuned reactive controller using an on-site sensor, which is "

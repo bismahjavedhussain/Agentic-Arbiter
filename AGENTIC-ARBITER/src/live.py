@@ -1992,6 +1992,43 @@ def verify_live_offline():
        m_na["class"] == "not_attempted" and m_na["credits"] == 0,
        "class=%s credits=%d" % (m_na["class"], m_na["credits"]))
 
+    # ---------------------------------------------------------------------------------------
+    # 🔴 THE FREE-COOLING COMMAND ROW, WHICH NOTHING HAS EVER EXERCISED AND WHICH CRASHED.
+    # `A.bms_commands` builds a row only on a mode CHANGE and the free-cooling justification only
+    # on a free row, and it indexed `margin_meta["level_c"]`, `["n_level"]`, `["shape_c"]`,
+    # `["n_shape"]` and `["clamped"]` with brackets. Those five come from `agent.py`'s five-year
+    # backtest; this module passes its own `mprov`, which has none of them. So the FIRST live run
+    # to schedule a free-cooling hour raised `KeyError: 'level_c'` on any of the 238 offerable
+    # sites, and the two checks above could not see it because a dry run correctly emits no
+    # schedule at all, while all three committed live artefacts contain zero free hours.
+    #
+    # ⚠ THIS TEST DOES NOT NEED A RUN, AND THAT IS THE POINT. Waiting for a cold night to exercise
+    # the success path is what let this survive. The provenance dict is read from the committed
+    # `demo/live.json`, so the shape under test is the real one rather than a hand-made stand-in.
+    _mprov_path = M.demo_path("live.json")
+    if os.path.exists(_mprov_path):
+        _mp = (json.load(open(_mprov_path, encoding="utf-8")) or {}).get("margin_provenance")
+        if _mp:
+            try:
+                _rows = A.bms_commands([A.MODE_FREE], ["2026-01-01 03:00"], [11.0], 18.0,
+                                       [0.05], [False], _mp)
+                _reason = (_rows[0] or {}).get("reason") or ""
+                ck("a FREE-COOLING command row builds on THIS module's own margin shape",
+                   len(_rows) == 1 and _rows[0].get("command") == "FREE-COOLING" and _reason,
+                   _reason[:64])
+                # It must describe the margin it was given and not the one it wishes it had: the
+                # live calibration is day-PAIRS with no shape term, so a sentence mentioning a
+                # shape margin here would be describing a decomposition that does not exist.
+                ck("...and does not claim a level and shape split the live margin has no terms for",
+                   "shape margin" not in _reason and "day-PAIRS" in _reason,
+                   "mentions day-pairs, no shape term")
+                ck("...and carries the extrapolation warning the margin's own provenance records",
+                   "EXTRAPOLATION" in _reason,
+                   "one lead, one hour of day, applied to all")
+            except Exception as _e:                                      # noqa: BLE001
+                ck("a FREE-COOLING command row builds on THIS module's own margin shape",
+                   False, "%s: %s" % (type(_e).__name__, _e))
+
     print("   %s" % ("ALL PASS" if not fails else "%d FAILURE(S): %s" % (len(fails), fails)))
     return 1 if fails else 0
 

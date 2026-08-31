@@ -436,7 +436,20 @@ def margin_decomposition(hours, height=430):       # page 4 measured 189 pt free
 
 
 # =========================================================================== 4. agent vs incumbent
-def agent_vs_incumbent(mech_agent_h, mech_inc_h, cut_pct, height=206):  # shares page 3
+def agent_vs_incumbent(mech_agent_h, mech_inc_h, cut_pct, held_out_days=None,
+                       height=206):  # shares page 3
+    """Chiller runtime, agent against incumbent, over the held-out record.
+
+    🔴 THE HELD-OUT DAY COUNT WAS THE LITERAL 913, WHICH IS ASHBURN'S. Every one of the other 249
+    sites got Ashburn's number in this chart's subtitle while its own prose, two lines below on the
+    same page, printed the truth. MEASURED in the shipped GA_way_39083797_report.pdf page 3: the
+    chart said "across 913 days the agent never trained on" and the paragraph under it said "the
+    second half, 908 days, was kept back". Two different values for one quantity, on one page, in a
+    document whose entire argument is that its numbers are checkable.
+
+    The count is a per-site measurement (898 to 913 across the sites sampled), so it is a parameter.
+    `None` renders the phrase without a number rather than inventing one.
+    """
     L, R_, T = PLOT_L, 12, 54
     # 🔴 180, not 120. The value label is drawn to the RIGHT of each bar, so the track has to
     # stop early enough for the label to fit inside the measure. MEASURED at 120: "9,510 h"
@@ -445,7 +458,9 @@ def agent_vs_incumbent(mech_agent_h, mech_inc_h, cut_pct, height=206):  # shares
     hi = max(mech_agent_h, mech_inc_h) * 1.06
     s = _open(W, height)
     s.append(_txt(2, 16, "Chiller runtime, agent against incumbent", T_TITLE, NAVY, bold=True))
-    s.append(_txt(2, 34, "hours of mechanical cooling across 913 days the agent never trained on",
+    s.append(_txt(2, 34, ("hours of mechanical cooling across %s days the agent never trained on"
+                          % format(int(held_out_days), ",")) if held_out_days
+                  else "hours of mechanical cooling over the held-out record",
                   T_AXIS, MUTED))
     # Item 6's mapping: neutral grey is the baseline and nothing else, blue is the agent.
     rows = (("Reactive incumbent", mech_inc_h, NEUTRAL, NEUTRAL_EDGE),
@@ -505,7 +520,12 @@ def coverage(bound, height=440):                   # page 6 measured 156 pt free
     bars = [("FortyGuard days\nn = %d so far" % (bound["n_pairs"] or 4), bound["pooled"],
              ORANGE, True),
             ("worst hour-of-day\ngroup, 5 years", bound["mondrian_worst_group"], BLUE, False),
-            ("adaptive bound\n43,260 rounds", bound["aci_coverage"], BLUE, False),
+            # 🔴 THE ROUND COUNT WAS THE LITERAL 43,260, WHICH IS ALSO ASHBURN'S, AND `bound`
+            # ALREADY CARRIES THE RIGHT ONE. MEASURED: 43,260 on this chart against 42,747 in the
+            # prose of the same page of GA_way_39083797_report.pdf. It varies from 41,986 to 43,273
+            # across the sites sampled, and it was one dictionary lookup away the whole time.
+            ("adaptive bound\n%s rounds" % format(int(bound.get("aci_rounds") or 0), ","),
+             bound["aci_coverage"], BLUE, False),
             ("worst of 12\nper-lead bounds", min(bound["coverage_by_lead"].values()),
              BLUE, False)]
     lo, hi = 0.0, 1.0

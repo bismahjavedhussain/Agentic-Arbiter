@@ -391,6 +391,42 @@ def main():
     print("   violations: %d   %s" % (len(bad_units), "OK" if not bad_units
                                       else bad_units[:6]))
 
+    # ---------------------------------------------------------------- one quantity, one value
+    # 🔴 THIS CHECK EXISTS BECAUSE TWO CHART LABELS CARRIED ASHBURN'S FIGURES ONTO 249 OTHER SITES.
+    # `agent_vs_incumbent` had the literal "913 days" in its subtitle and `coverage` the literal
+    # "43,260 rounds" in a bar label, both Ashburn's. MEASURED in the shipped
+    # GA_way_39083797_report.pdf: page 3 said "across 913 days the agent never trained on" and the
+    # paragraph two lines below said "the second half, 908 days, was kept back"; page 5 said "43,260
+    # rounds" against "42,747 rounds" in its own prose. Every other check in this file passed on
+    # those documents, because none of them compares a number to another number.
+    #
+    # THE RULE IT ENFORCES IS NARROW AND MECHANICAL: take every number that is followed by a unit
+    # noun this document uses for a per-site measurement, and require that all occurrences of the
+    # same noun in the same document agree. It cannot know which value is right; it only knows that
+    # two of them cannot both be.
+    #
+    # ⚠ NOUNS ARE LISTED RATHER THAN INFERRED, and deliberately few. "hours" appears for the day, the
+    # year, the record and the free-cooling total, all legitimately different, so it is not here.
+    # These four are quantities a single site has exactly one of.
+    print()
+    print("ONE QUANTITY, ONE VALUE  (the same noun must not carry two numbers)")
+    import re as _re2
+    NOUNS = ("days the agent never trained on|days, was kept back|days held out", "held-out days"), \
+            ("rounds of the five-year record|rounds", "adaptive-bound rounds"), \
+            ("distinct reasons", "distinct reasons"), \
+            ("per-lead bounds", "per-lead bounds")
+    alltext = " ".join(" ".join(d[i].get_text().split()) for i in range(d.page_count))
+    qbad = []
+    for pat, label in NOUNS:
+        vals = set()
+        for m in _re2.finditer(r"([0-9][0-9,]{1,9})\s+(?:%s)" % pat, alltext):
+            vals.add(m.group(1).replace(",", ""))
+        if len(vals) > 1:
+            qbad.append((label, sorted(vals, key=int)))
+        print("   %-24s %s" % (label, sorted(vals, key=int) if vals else "not stated"))
+    print("   quantities stated two different ways: %d   %s"
+          % (len(qbad), "OK" if not qbad else qbad))
+
     print()
     print("PROSE")
     print("   duplicate paragraphs   %d %s" % (len(dupes), dupes[:3]))

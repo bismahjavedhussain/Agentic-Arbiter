@@ -638,11 +638,73 @@ def bound_series_key(mode, anchor, offset_tag, skill, notice_h):
     return "bound_c|%s|%s|%s|%.2f|%d" % (mode, anchor, offset_tag, skill, notice_h)
 
 
+def _why_free(bound_i, rise_i, limit_c, mm):
+    """The free-cooling justification, phrased for the margin THAT WAS ACTUALLY SUPPLIED.
+
+    🔴 THIS EXISTS BECAUSE THE LIVE AGENT CRASHED THE FIRST TIME IT SAID YES, AND HAD ALWAYS BEEN
+    GOING TO. `bms_commands` built one sentence and indexed `margin_meta["level_c"]`,
+    `["n_level"]`, `["shape_c"]`, `["n_shape"]` and `["clamped"]` with brackets. `agent.py` supplies
+    exactly those five from the five-year backtest; `live.py:1527` passes its own `mprov`, which has
+    NONE of them. REPRODUCED: one MODE_FREE hour with the real provenance dict out of
+    `demo/live.json` raises `KeyError: 'level_c'`; the same call with zero free hours returns a row
+    and no error.
+
+    That is why it was never seen. The row is only built on a mode CHANGE, the sentence only on a
+    free-cooling row, and all three committed live artefacts (ashburn, chicago, dulles) contain zero
+    free-cooling hours, while both of live.py's offline self-tests assert `"commands" not in out`.
+    So the path fires on the first cold hour of the first live run that succeeds, on any of the 238
+    offerable sites, which is the exact moment the product is meant to work.
+
+    ⚠ THE FIX IS NOT A KEY MAPPING, AND THAT WAS THE TEMPTING WRONG ANSWER. The two margins are not
+    the same quantity under different names. The replay margin is a LEVEL term measured over
+    calibration DAYS plus a SHAPE term measured over persistence HOURS, and its sentence says so and
+    then says that summing two one-sided 90 % bounds guarantees 80 %. The live margin is ONE scalar
+    from N measured FortyGuard day-PAIRS with no shape term in existence. Renaming
+    `clamped_to_attainable` to `clamped` and `n_calibration_pairs` to `n_level` would have produced a
+    sentence describing a decomposition the live bound does not have, on a document that claims every
+    number is checkable.
+
+    So the shape of the meta selects the sentence, and each sentence states only what its own margin
+    can support. The live one carries the extrapolation warning, because `live.py`'s margin is
+    measured at one lead and one hour of day and applied to all of them.
+    """
+    if "level_c" in mm:
+        return ("upper bound on intake %.3f C = forecast + level margin %+.3f C (from %s "
+                "calibration DAYS%s) + shape margin %+.3f C (from %s persistence hours) "
+                "+ recirculation %+.3f C, under the %.1f C plant limit. Summing two "
+                "one-sided 90 %% bounds guarantees 80 %%, not 90 %% -- stated, not implied."
+                % (bound_i, mm["level_c"],
+                   ("%d" % mm["n_level"]) if mm.get("n_level") is not None else "no",
+                   ", CLAMPED: guarantee degraded" if mm.get("clamped") else "",
+                   mm["shape_c"], format(mm["n_shape"], ","), rise_i, limit_c))
+
+    # The live margin. One scalar, measured, with its own limitations attached.
+    n = mm.get("n_calibration_pairs")
+    clamp = ("; CLAMPED to the %s attainable at n=%s, so the 90 %% guarantee is degraded"
+             % (("%.0f %%" % (100.0 * mm["attainable_coverage_ceiling"]))
+                if mm.get("attainable_coverage_ceiling") is not None else "ceiling",
+                n if n is not None else "?")
+             if mm.get("clamped_to_attainable") else "")
+    borrowed = ("; margin BORROWED from %s, this site owns no calibration of its own"
+                % mm["borrowed_from"]) if mm.get("borrowed_from") else ""
+    return ("upper bound on intake %.3f C = forecast + measured margin %+.3f C (from %s FortyGuard "
+            "day-PAIRS%s%s) + recirculation %+.3f C, under the %.1f C plant limit. One margin, not "
+            "a level and shape split: this site's live calibration measures a single day-level "
+            "residual. It was measured at one forecast lead and one hour of day and is applied to "
+            "all of them, which is an EXTRAPOLATION and is recorded as one."
+            % (bound_i, mm.get("margin_c") if mm.get("margin_c") is not None else float("nan"),
+               n if n is not None else "no", clamp, borrowed, rise_i, limit_c))
+
+
 def bms_commands(modes, hours, bound, limit_c, rise, refused_flags, margin_meta):
     """The interface an actual plant would receive. Every row carries WHY.
 
     Nothing here talks to real hardware -- there is no plant. The shape is what matters: a
     point in time, a mode, and an auditable reason with the numbers that produced it.
+
+    ⚠ THE FREE-COOLING SENTENCE IS IN `_why_free`, WHICH BRANCHES ON THE MARGIN'S SHAPE. See its
+    docstring: the replay and live margins are different quantities, and this function crashed on
+    the live one for as long as it existed.
     """
     out, prev = [], None
     for i, m in enumerate(modes):
@@ -661,16 +723,7 @@ def bms_commands(modes, hours, bound, limit_c, rise, refused_flags, margin_meta)
                        "bearing, so the solver's answer is not physical (see gotcha #26). "
                        "Falling back to MECHANICAL.")
             elif m == MODE_FREE:
-                why = ("upper bound on intake %.3f C = forecast + level margin %+.3f C (from %s "
-                       "calibration DAYS%s) + shape margin %+.3f C (from %s persistence hours) "
-                       "+ recirculation %+.3f C, under the %.1f C plant limit. Summing two "
-                       "one-sided 90 %% bounds guarantees 80 %%, not 90 %% -- stated, not implied."
-                       % (bound[i], margin_meta["level_c"],
-                          ("%d" % margin_meta["n_level"]) if margin_meta["n_level"] is not None
-                          else "no",
-                          ", CLAMPED: guarantee degraded" if margin_meta["clamped"] else "",
-                          margin_meta["shape_c"], format(margin_meta["n_shape"], ","),
-                          rise[i], limit_c))
+                why = _why_free(bound[i], rise[i], limit_c, margin_meta or {})
             else:
                 why = ("upper bound on intake %.3f C is NOT under the %.1f C plant limit "
                        "(recirculation contributes %+.3f C)." % (bound[i], limit_c, rise[i]))
