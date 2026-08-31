@@ -2718,14 +2718,20 @@ function buildControls(){
      that could ever certify a free hour. Switching a safety gate off is a poor thing to have to
      demonstrate; a 21 °C gate is a real gate that can still open. Swept, not sourced: 15 °C is
      the ASHRAE recommended maximum from WP46 p.6, and 18 was already an uncited looser rung. */
+  /* 24 °C JOINS 21 BECAUSE 21 WAS STILL TOO LOW. MEASURED on a real live run at Ashburn on
+     2026-08-31: the forecast dew point ran 22.0 to 23.5 °C all afternoon, so the 21 °C gate
+     blocked all eleven hours that had data and only "off" could have opened. A swept value,
+     like 18 and 21: the sole sourced number here is 15 °C, ASHRAE's recommended maximum. */
   const wb = (PE().dewpoint_limit_c || [null]).slice();
-  if (wb.indexOf(21) < 0) {
-    wb.push(21);
+  [21, 24].forEach(function (v) { if (wb.indexOf(v) < 0) wb.push(v); });
+  if (true) {
     wb.sort(function(a,b){ if(a===null) return -1; if(b===null) return 1; return a-b; });
   }
   opt('#c_wb', wb.map(v=>v===null?'off':v),
       wb.map(v=>v===null?'gate off':v+' °C'
-                 +(v===15?' (ASHRAE max)':(v===21?' (swept, opens on a humid night)':''))),
+                 +(v===15?' (ASHRAE max)'
+                  :(v===21?' (swept, humid night)'
+                   :(v===24?' (swept, humid day)':'')))),
       wb.indexOf(15)>=0?15:(wb.length>1?wb[1]:'off'));
   const aq = PE().aq_limit_idx || [null];
   opt('#c_aq', aq.map(v=>v===null?'off':v), aq.map(v=>v===null?'gate off':'index ≤ '+fmt(v,1)), 'off');
@@ -5063,8 +5069,18 @@ function drawLive(L){
         : '')
     + tile('Blocked by temperature', s.hours_blocked_by_temperature + ' h',
            'the bound is over the ' + fmt(L.config.limit_c,1) + ' °C plant limit')
+    /* 🔴 THIS TILE USED TO SAY "a published 15 °C maximum" WHATEVER THE CALLER CHOSE. The
+       temperature tile directly above reads L.config.limit_c and this one ignored
+       L.config.dewpoint_limit_c entirely, so a run configured at 21 °C, or with the gate off,
+       reported a 15 °C ceiling it had never used. Caught on a real live run whose dew points
+       were 22.0 to 23.5 °C: the tile blamed a limit the run did not apply. A panel that states
+       a number the run did not use is the one thing this project cannot ship. */
     + tile('Blocked by dew point', s.hours_blocked_by_dewpoint + ' h',
-           'a published 15 °C maximum, not an invented margin')
+           L.config.dewpoint_limit_c === null || L.config.dewpoint_limit_c === undefined
+             ? 'no humidity gate was set for this run'
+             : 'the outside dew point is over the ' + fmt(L.config.dewpoint_limit_c,1)
+               + ' °C ceiling set for this run'
+               + (L.config.dewpoint_limit_c === 15 ? ', ASHRAE’s published maximum' : ''))
     + tile('Solver refused', s.hours_refused_by_solver + ' h',
            'the intake disc would have averaged the exhaust')
     + tile('Peak bound', fmt(s.peak_bound_c,2) + ' °C',

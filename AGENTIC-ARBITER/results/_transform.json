@@ -64,8 +64,8 @@
       "sha256": "bbbc108ddcd517bd05ada2152e2a6323797d8442967f5a8caeb77928c3fa6288"
     },
     "buildControls": {
-      "bytes": 4533,
-      "sha256": "3f7fced7b19f70fbeb3ff1933d23e36a3c796ad782ca91cf897a1447f539a706"
+      "bytes": 5009,
+      "sha256": "edf40c6f9f677ce97ba4cc2ec45d59487bb92601537716d91633d9f049131e8d"
     },
     "buildImageryOptions": {
       "bytes": 925,
@@ -200,8 +200,8 @@
       "sha256": "93c32ffd27229160817817a104a2cb8941a78603c80d86f7647ec072f53356eb"
     },
     "drawLive": {
-      "bytes": 11714,
-      "sha256": "f6c9e903389164e30d00e0722c29d10074544ed1ab8e6234f680b332058f5f85"
+      "bytes": 12569,
+      "sha256": "03764c9dec0602378b25fa7a2d00702d102463d4137bcdd143bdec0607af0b52"
     },
     "drawLiveCost": {
       "bytes": 2359,
