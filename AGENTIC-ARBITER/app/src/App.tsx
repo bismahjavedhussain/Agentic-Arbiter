@@ -56,7 +56,10 @@ export function App() {
   /* 🔴 PRESELECTED IS NOT THE SAME AS FILTERED, and conflating them broke a real check.
      Defaulting `filters.facility` to metro_ashburn also filtered the map to that ONE key
      (SiteMap.tsx:254 clauses on it), so the national footprint collapsed from 637 dots to 1 and
-     verify_app_deterministic.py failed: it loads /app/?probe=1 and asserts 637 dots / 246 halos.
+     verify_app_deterministic.py failed: it loads /app/?probe=1 and asserts the dot and halo counts,
+     which it now JOINS from unified_sites.json and sites.json rather than naming as constants,
+     because the halo count is the offered count and that moved from 246 to 236 when the 12 sites the
+     agent loses on stopped being offered.
      It was right to. The 637-site footprint is the first thing the page claims.
      So the default selection drives the SEARCH BAR and the Configure panel, which is what was asked,
      while the MAP keeps showing everything until the reader actually touches something. `pristine`
@@ -72,14 +75,25 @@ export function App() {
      with the first paint. `installStageTheme` takes over immediately afterwards. */
   const [theme, setTheme] = useState<'dark' | 'light'>(currentTheme)
 
+  /* 🔴 THIS EFFECT LOADS THE ARTEFACTS AND NOTHING ELSE, AND THAT IS THE FIX.
+     It used to also call `loadHeadline(art.manifest, filters.facility)`, which is the very
+     two-key-space bug the block below documents and repairs: `filters.facility` defaults to the
+     UNIFIED map key `metro_ashburn`, while sites.json owns the artefacts under the METRO key
+     `ashburn`. So `loadHeadline` looked for a site called `metro_ashburn`, did not find it, fell
+     back to the shipped reference, and returned `isFallback: true` for the default site. The first
+     screen then announced "This facility has no agent run published yet ... the shipped reference
+     for ashburn" ON ASHBURN ITSELF, which is both false and the exact thing the notice exists to
+     prevent. Photographed by the user, twice now.
+
+     The `headlineKey` memo below already does the join correctly, and the effect after it already
+     reloads on every selection change, including the first one. This call was therefore redundant
+     as well as wrong, and being redundant it also RACED: both paths fetch the same three files and
+     call `setH`, so which verdict survived depended on which fetch resolved last. Removing it
+     leaves exactly one owner of the headline figures. */
   useEffect(() => {
     loadArtefacts()
-      .then(async (art) => {
-        setA(art)
-        setH(await loadHeadline(art.manifest, filters.facility || DEFAULT_METRO))
-      })
+      .then(setA)
       .catch((e: Error) => setErr(e.message))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   /* 🔴 THE FIGURES FOLLOW THE SELECTION. They did not, and that was a regression against the
@@ -301,7 +315,8 @@ export function App() {
             Ashburn's $334k-$967k, its 6.2 % and its 405 chiller-hours -- the same four numbers the KPI
             tiles print a few hundred pixels below, for the same one site. Two cards saying one site's
             figures is not a portfolio summary, it is a duplicate. `a.portfolio` is the sum over all
-            250 sites' OWN artefacts, written by tools/portfolio_totals.py.
+            the OWN artefacts of the 238 sites the agent is offered on, written by
+            tools/portfolio_totals.py. 12 further built sites are excluded; see ScopeBubble.
 
             EVERY NUMBER IS READ, NEVER TYPED: `offerable` is the flag sites.json sets on a site with a
             full run, unified_sites.json is the mapped universe, and the portfolio fields come from

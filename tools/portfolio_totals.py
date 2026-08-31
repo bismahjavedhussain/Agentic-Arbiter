@@ -120,7 +120,20 @@ def main():
             print("sites.json has no scale.%s; cannot derive an IT load" % k)
             return 1
 
+    # 🔴 `offerable` NOW EXCLUDES THE SITES THE AGENT LOSES ON, AND THAT CHANGES WHAT THIS SUM IS.
+    # Until 2026-08-31 every built site was offerable, so summing the offerable set and summing the
+    # built set were the same arithmetic and `sites_losing` came out 12. `metros.py` now withholds a
+    # site whose own five-year measurement is negative, so this sum is over the 238 that pay and
+    # `sites_losing` is 0 BY CONSTRUCTION.
+    #
+    # ⚠ THAT ZERO WOULD READ AS "NO SITE EVER LOSES", WHICH IS THE OPPOSITE OF TRUE. The excluded
+    # count is therefore recorded and printed beside it, so the landing figures carry the fact rather
+    # than the artefact of the filter. The aggregate moves a long way on this: MEASURED, the low end
+    # of the dollar range goes from -25,416,432 to +34,412,699 purely by dropping twelve sites, and a
+    # figure that improves that much deserves to say what was removed.
     offerable = [s for s in manifest["sites"] if s.get("offerable")]
+    withheld = [s for s in manifest["sites"]
+                if s.get("pays") is False and s.get("data_ready")]
     tot = {k: 0.0 for k in ("usd_lo", "usd_hi", "usd_mid_lo", "usd_mid_hi", "gain_h_per_year",
                             "mech_incumbent_h", "mech_agent_h", "weather_hours", "mw_lo", "mw_hi",
                             "footprint_m2")}
@@ -184,6 +197,12 @@ def main():
     print("   TOTAL IT load             %.1f to %.1f MW" % (tot["mw_lo"], tot["mw_hi"]))
     print("   TOTAL roof measured       %s m2" % format(round(tot["footprint_m2"]), ","))
     print()
+    print("   sites withheld            %d built and measured NEGATIVE, excluded before summing"
+          % len(withheld))
+    if withheld:
+        _w = min(withheld, key=lambda x: x.get("gain_h_per_year") or 0)
+        print("                             worst %s at %+.0f h/yr"
+              % (_w["key"], _w.get("gain_h_per_year") or 0))
     print("   sites gaining hours       %d of %d  (the other %d lose, and are SUBTRACTED above)"
           % (gaining, n, n - gaining))
     print("   priced on own state       %d of %d  (the other %d use the VA/IL reference rows)"
@@ -194,6 +213,12 @@ def main():
              format(round(tot["weather_hours"]), ",")))
 
     out = {
+        "_excluded": "Summed over the sites the agent is OFFERED on. %d further sites were built "
+                     "and measured across the same five years and are excluded here because their "
+                     "own result is negative: the agent's constraints make them worse than the "
+                     "incumbent, so they are not offered without site-specific engineering. "
+                     "sites_withheld carries that count and the report's scale page states it."
+                     % len(withheld),
         "_what": "Portfolio totals, summed over every offerable site's OWN artefacts. Written by "
                  "tools/portfolio_totals.py. Not a per-site figure multiplied by a count.",
         "_derivation": "For each offerable site in sites.json: its own backtest.json supplies the "
@@ -210,6 +235,14 @@ def main():
         "sites_summed": n,
         "sites_gaining": gaining,
         "sites_losing": n - gaining,
+        # ⚠ THE TWO COUNTS MEAN DIFFERENT THINGS AND BOTH ARE NEEDED. `sites_losing` is how many of
+        # the SUMMED sites lose, which is now 0 because a losing site is not offered.
+        # `sites_withheld` is how many were built, measured and then excluded for losing. Publishing
+        # only the first would let a filter read as a result.
+        "sites_withheld": len(withheld),
+        "sites_withheld_worst_gain_h": (min((x.get("gain_h_per_year") or 0) for x in withheld)
+                                        if withheld else None),
+        "sites_built": len(offerable) + len(withheld),
         "sites_own_state_prices": own_state_prices,
         "sites_reference_prices": n - own_state_prices,
         "stations": len(station_hours),

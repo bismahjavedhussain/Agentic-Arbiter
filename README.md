@@ -85,7 +85,7 @@ build`; the output is designed to drop into `demo/`, where the same relative fet
 shipped artefact still has no install step.
 
 **If `run_all.py` is not green, do not believe a number on the page.** It re-reads **77 published
-figures** from the files the code actually wrote and runs **2216 audit checks**, including five that
+figures** from the files the code actually wrote and runs **2120 audit checks**, including five that
 re-derive the browser's own arithmetic against Python and one that drives a real browser to render
 every site and diff the panels a reader would look at.
 
@@ -277,7 +277,7 @@ appears.
 | **The hours claim wants a level anchor** | One local reading. Unanchored, five years of data say the agent **loses**. The *safety* guarantee needs no customer hardware; the *hours* do. |
 | **Recirculation here is small, and that is the physics working** | The worst case is a fraction of one weather-station grid step. A model that reported a large rise at this geometry would be wrong, not impressive. |
 | **Only Ashburn has a calibration of its own** | A **field** is one call; a **calibration** needs a forecast leg *and* its elapsed outcome. Many sites hold a purchased **FortyGuard** field, and **Ashburn is the only one with forecast/outcome day-pairs**, so at every other site the *hours, weather and geometry are that site's own* and the **measured level offset and the coverage record are Ashburn's**. The artefact records it per site (`trace.fortyguard_provenance.own_measured_day_pairs`), the coverage figure on each site's results panel says *"measured at Ashburn and applied here"*, and `audit.py` check 6d asserts that **every** borrowing site declares it, so a borrowed number cannot pass as a measured one. |
-| **The imagery is one source at nearly every site, and it cannot certify equipment** | The screening gate reads aerial frames. **3 of 250 offerable sites** have two independent sources (ESRI World Imagery *and* USGS The National Map); **245 carry exactly one**, so the **two-source cross-check is NOT met** there, one vendor and one capture season. And **2 have no screening frame at all**. Separately, at *every* site including those three, imagery at **0.3–0.5 m shows objects, not nameplates**: it cannot certify a unit type or measure a height, so it is evidence about *where* equipment is, never about *what* it is. Both facts are recorded per site in `sites.json` (`imagery.two_source_cross_check`, `imagery.resolution_note`), those three counts are re-read from it by `audit.py` rather than typed here, and the site panel's "Imagery source" control lists exactly the sources that exist, so a single-source site cannot present itself as cross-checked. |
+| **The imagery is one source at nearly every site, and it cannot certify equipment** | The screening gate reads aerial frames. **3 of 238 offerable sites** have two independent sources (ESRI World Imagery *and* USGS The National Map); **233 carry exactly one**, so the **two-source cross-check is NOT met** there, one vendor and one capture season. And **2 have no screening frame at all**. Separately, at *every* site including those three, imagery at **0.3–0.5 m shows objects, not nameplates**: it cannot certify a unit type or measure a height, so it is evidence about *where* equipment is, never about *what* it is. Both facts are recorded per site in `sites.json` (`imagery.two_source_cross_check`, `imagery.resolution_note`), those three counts are re-read from it by `audit.py` rather than typed here, and the site panel's "Imagery source" control lists exactly the sources that exist, so a single-source site cannot present itself as cross-checked. |
 
 **What "no plume is modelled" does and does not mean.** At a facility with no other tagged data
 centre inside the solver's validated 600 m range, the quantity the rise table computes: the
@@ -339,7 +339,7 @@ A reasoning tape whose **32 templates contain not one literal digit**, checked a
 **Three sites live on their own geometry, weather, bound and tariff, and two more were refused on
 aerial evidence.**
 
-**On the size of the verification surface**, because it is fair to ask: **2216 audit checks and a
+**On the size of the verification surface**, because it is fair to ask: **2120 audit checks and a
 gotcha log of 195 entries exist because every one of them actually bit**: a NaN that
 was legal Python JSON and illegal standard JSON, a rounded array that flipped decisions at gate
 boundaries, an invented constant that outlived its own retraction by a day, a site picker that

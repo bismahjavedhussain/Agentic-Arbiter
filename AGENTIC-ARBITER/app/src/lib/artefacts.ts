@@ -68,7 +68,9 @@ async function grab<T>(name: string): Promise<T> {
   return (await r.json()) as T
 }
 
-/** THE PORTFOLIO TOTALS, summed over all 250 shipped sites by `tools/portfolio_totals.py`.
+/** THE PORTFOLIO TOTALS, summed by `tools/portfolio_totals.py` over the sites the agent is OFFERED
+ * on: 238 of the 250 built, since 2026-08-31. `sites_withheld` is the 12 excluded for measuring
+ * negative, and `sites_built` is the total they came out of.
  *
  * 🔴 A FILE RATHER THAN ARITHMETIC IN THE BROWSER, and that is a deliberate trade. Every field here
  * needs three artefacts per site; across 250 sites that is 750 fetches and hundreds of megabytes
@@ -76,13 +78,18 @@ async function grab<T>(name: string): Promise<T> {
  * as `headline.ts:headlineFigures`, so a portfolio total and the site tile a reader clicks into
  * cannot disagree.
  *
- * ⚠ IT IS A SUM, NOT A PROJECTION. Each of the 250 sites carries its own backtest, trace and money
+ * ⚠ IT IS A SUM, NOT A PROJECTION. Each built site carries its own backtest, trace and money
  * artefacts (measured: 247 distinct backtests, 250 distinct money files), so none of these is one
  * site's figure multiplied by a count. */
 export type Portfolio = {
   sites_summed: number
   sites_gaining: number
   sites_losing: number
+  /* Built, measured across the same five years, and excluded from the sum because the agent's own
+     constraints make it worse than the incumbent there. `sites_losing` is 0 by construction now
+     that a losing site is not offered, so this is the count that carries the fact. */
+  sites_withheld?: number
+  sites_built?: number
   sites_own_state_prices: number
   sites_reference_prices: number
   stations: number
@@ -93,7 +100,7 @@ export type Portfolio = {
   weather_site_hours: number
   footprint_m2: number
   /** The cheapest and dearest corner of every site's own sweep, summed. Published, and NOT what the
-      landing card states: summing 250 worst corners describes a world where all 250 land on their
+      landing card states: summing every worst corner describes a world where they all land on their
       worst at once, which is why that pair spans zero. */
   usd_lo: number
   usd_hi: number
@@ -141,6 +148,42 @@ export async function loadArtefacts(): Promise<Artefacts> {
 }
 
 export const isReady = (a: Artefacts, f: Facility) => a.offerable.has(f.metro_key)
+
+/**
+ * WHY A FACILITY IS NOT OFFERED, WHICH IS TWO DIFFERENT FACTS AND WAS ONE SENTENCE.
+ *
+ * 🔴 The map legend read "Real candidate, not yet built" for every grey dot, and the popup
+ * "Real candidate, no agent run published yet". Both are true of the 389 mapped candidates with no
+ * artefacts. Neither is true of the 12 that were BUILT, measured over five years, and then withheld
+ * because the measurement says the agent makes them worse: at those sites its own safety constraints
+ * hand back more free-cooling hours than they win, so it runs the chillers more than the reactive
+ * controller it replaces, the worst by 3,649 hours a year. Telling a reader those have no run is a
+ * false statement about the one number that matters most, and it hides the honest reason.
+ *
+ * `sites.json` publishes `pays` and `gain_h_per_year` per site for exactly this, computed by
+ * `metros.measured_gain_h` from the same backtest field the report's distribution plots.
+ */
+export type Readiness = 'ready' | 'measured-negative' | 'no-run'
+
+export const readiness = (a: Artefacts, f: Facility): Readiness => {
+  if (a.offerable.has(f.metro_key)) return 'ready'
+  const man = a.manifest.sites.find((s) => s.key === f.metro_key) as
+    { pays?: boolean } | undefined
+  return man && man.pays === false ? 'measured-negative' : 'no-run'
+}
+
+/** The gain a withheld site measured, for the one label that quotes it. */
+export const measuredGain = (a: Artefacts, f: Facility): number | null => {
+  const man = a.manifest.sites.find((s) => s.key === f.metro_key) as
+    { gain_h_per_year?: number | null } | undefined
+  return man && typeof man.gain_h_per_year === 'number' ? man.gain_h_per_year : null
+}
+
+export const READINESS_LABEL: Record<Readiness, string> = {
+  ready: 'Ready to run',
+  'measured-negative': 'Measured, not offered',
+  'no-run': 'Real candidate, not yet built',
+}
 
 /** en-US grouping, matching the page's `int()` so the two never disagree on a thousands separator. */
 export const int = (v: number | null | undefined) =>

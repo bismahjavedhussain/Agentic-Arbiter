@@ -894,9 +894,33 @@ def national_readiness(k, m):
     out["kind_ready"] = kind_ready
     out["data_ready"] = bool(out["geometry"] and out["weather"] and out.get("weather_ok")
                              and kind_ready)
-    out["offerable"] = bool(out["data_ready"] and built)
+
+    # 🔴 A THIRD QUESTION, AND IT IS ABOUT THE RESULT RATHER THAN THE INPUTS.
+    #   data_ready -- may this facility BE built?      geometry + its own weather + a runnable kind
+    #   artefacts_built -- has it been?                 the files exist
+    #   pays -- did it WORK?                            the measured five-year result is positive
+    #
+    # MEASURED across the portfolio: 12 of the 250 built sites return a NEGATIVE annual gain, the
+    # worst at -3,649 chiller-hours per year, -183 % runtime and -$16.5 M. At those sites the agent's
+    # own safety constraints hand back more free-cooling hours than they win, so it runs the chillers
+    # MORE than the reactive controller it replaces. That is a true and publishable measurement and
+    # it is not a product: offering it as "ready to run" would be selling a regression.
+    #
+    # ⚠ THE GATE IS THE MEASUREMENT, NOT A LIST OF KEYS. A hardcoded set of twelve would be correct
+    # exactly once. A site whose next build tips positive should be offered automatically, and one
+    # that tips negative should stop being offered without anyone remembering to look.
+    #
+    # ⚠ AND `data_ready` DELIBERATELY STAYS TRUE. These sites keep their artefacts, keep their place
+    # in the portfolio distribution, and keep being rebuilt by the chain. What changes is only
+    # whether the interface offers them, which is what `offerable` has always meant.
+    out["gain_h_per_year"] = measured_gain_h(k)
+    out["pays"] = out["gain_h_per_year"] is None or out["gain_h_per_year"] > 0
+    out["offerable"] = bool(out["data_ready"] and built and out["pays"])
     if not out["offerable"]:
         out["not_offerable_because"] = (
+            "measured, and the agent is worse than the incumbent here: %+.0f chiller-hours a year, "
+            "so it is not offered without site-specific engineering"
+            % out["gain_h_per_year"] if (out["data_ready"] and built and not out["pays"]) else
             "no weather station assigned yet (S5)" if not out["weather"] else
             "its five-year record is %.4f, below the %.2f floor"
             % (out.get("coverage_frac") or 0.0, MIN_WEATHER_COVERAGE) if not out.get("weather_ok")
@@ -990,6 +1014,36 @@ def readiness(k):
     out["offerable"] = bool(out["geometry"] and out["weather"] and out.get("weather_ok")
                             and out.get("n_dc_to_dc_pairs", 0) > 0)
     return out
+
+
+def measured_gain_h(k):
+    """This site's own shipped five-year result, in chiller-hours recovered per year, or None.
+
+    🔴 READ FROM THE SAME FIELD THE REPORT PUBLISHES, so the gate and the document can never
+    disagree about whether a site pays. `site_report_data._portfolio()` takes the last SHIPPED rung
+    of the `C ` ladder in each site's own `*_backtest.json`, meaning the configuration with a real
+    anchor rather than the `anchor: none` diagnostic rungs, and reads `gain_h_per_year` off it. This
+    is that, deliberately duplicated in one small function rather than imported: `metros.py` is
+    imported by everything and must not depend on the report layer.
+
+    Returns None when the site has no backtest yet, which is not the same as zero and must not be
+    treated as a failure to pay.
+    """
+    p = demo_path("backtest.json", k)
+    if not os.path.exists(p):
+        return None
+    try:
+        d = json.load(open(p, encoding="utf-8"))
+    except (ValueError, OSError):
+        return None
+    lad = [r for r in d.get("n56_audit", []) if str(r.get("step", "")).startswith("C ")]
+    ship = [r for r in lad if r.get("anchor") != "none"]
+    if not ship:
+        return None
+    try:
+        return float(ship[-1]["gain_h_per_year"])
+    except (KeyError, TypeError, ValueError):
+        return None
 
 
 def export_manifest():
@@ -1154,6 +1208,17 @@ def export_manifest():
             # made the two synonyms and is half of the circular gate described in
             # `national_readiness`. `build_sites.py` reads THIS field to decide what it may build.
             "data_ready": r.get("data_ready", r["offerable"]),
+            # 🔴 THE MEASURED RESULT, PUBLISHED PER SITE, so the interface can tell the two kinds of
+            # grey dot apart. A facility with no artefacts and a facility whose artefacts say the
+            # agent makes it WORSE are both "not offered" and they are not the same fact, and the map
+            # legend had one sentence for both: "Real candidate, no agent run published yet", which is
+            # false of the second kind. 12 of the 250 built sites are the second kind.
+            #
+            # ⚠ `gain_h_per_year` IS THE SAME FIELD THE REPORT'S DISTRIBUTION PLOTS, read from this
+            # site's own backtest by `measured_gain_h`. Publishing it here means the map, the search
+            # bar and the report cannot disagree about whether a site pays.
+            "gain_h_per_year": r.get("gain_h_per_year"),
+            "pays": r.get("pays"),
             "scope_verdict": imagery_state,
             # `scope_ok` MUST AGREE WITH `scope_verdict`. For a national facility the verdict comes
             # from its own frame, not from `architecture_verdicts.json` (which is keyed by

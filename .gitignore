@@ -76,3 +76,9 @@ AGENTIC-ARBITER/data/*
 # are committed, and this is the deployable artefact. Its sourcemaps are not committed, which is why
 # this is a pattern and not a folder exclusion: 3.6 MB of .map for no reader benefit on a host.
 AGENTIC-ARBITER/demo/app/**/*.map
+
+# The per-site intermediates the report build writes beside its fonts. Every one is regenerated from
+# demo/*.json on each build and named with a leading underscore for exactly this reason. The three
+# instanced Inter faces in the same folder ARE committed: they are the output of
+# tools/make_report_fonts.py, and committing them means a host can build the report without fontTools.
+AGENTIC-ARBITER/src/reportassets/_*

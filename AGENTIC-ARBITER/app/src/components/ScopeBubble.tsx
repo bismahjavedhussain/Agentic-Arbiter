@@ -11,12 +11,14 @@ import type { Portfolio } from '../lib/artefacts'
  * whichever site was selected, so it printed Ashburn's $334k-$967k, its 6.2 % and its +405 h -- and
  * the KPI plate a few hundred pixels below printed the same four numbers for the same site. A reader
  * scrolling past saw one site's result twice and no portfolio result at all. Every figure on the
- * value card now comes from `demo/portfolio.json`, summed over all 250 sites' own artefacts by
- * tools/portfolio_totals.py.
+ * value card now comes from `demo/portfolio.json`, summed by tools/portfolio_totals.py over the
+ * sites the agent is OFFERED on: 238 of the 250 it was built on, since 2026-08-31. The other 12 were
+ * built and measured across the same five years and are excluded from the sum because their own
+ * result is negative, and `sites_withheld` carries that count so the card can say so.
  *
  * 🔴 AND NOT ONE OF THEM IS A PER-SITE FIGURE TIMES A COUNT. That distinction is the whole point:
- * every one of the 250 sites carries its own backtest, trace and money artefacts (measured: 247
- * distinct backtests, 250 distinct money files), so these are sums of 250 real results. The only
+ * every one of the 250 built sites carries its own backtest, trace and money artefacts, so these
+ * are sums of real results and the 238 summed here are a subset chosen by measurement, not a sample. The only
  * modelling in them is the modelling already inside each site's own published figure, and where that
  * modelling is load-bearing the card says so in words rather than leaving it to a popover.
  *
@@ -25,18 +27,22 @@ import type { Portfolio } from '../lib/artefacts'
  *     tariff, no power density and no state, so they carry none of the modelling the money carries,
  *     and they are the figure this project can defend without qualification.
  *   * 🔴 AND THE MONEY PAIR CHANGED ON 2026-08-30, FROM THE EXTREMES TO THE MEDIAN. It used to be
- *     `usd_lo`/`usd_hi`, the sum of every site's cheapest and dearest swept corner, which is
- *     -$25.4M to +$65.8M. Summing 250 worst corners describes a world in which all 250 land on their
- *     worst at once, and summing 250 best corners describes its mirror; neither is a scenario, and
- *     the pair spanning zero was an artefact of adding up extremes rather than a finding.
+ *     `usd_lo`/`usd_hi`, the sum of every site's cheapest and dearest swept corner. Summing every
+ *     worst corner describes a world in which they all land on their worst at once, and summing every
+ *     best corner describes its mirror; neither is a scenario, and the pair spanning zero was an
+ *     artefact of adding up extremes rather than a finding.
+ *     ⚠ IT NO LONGER SPANS ZERO ANYWAY, and not because the arithmetic changed: excluding the 12
+ *     sites the agent loses on moved `usd_lo` from -$25.4M to +$34.4M. The median pair is still the
+ *     one on the card, because its honesty argument never depended on the sign.
  *     The user asked for the leading minus to go. It cannot go by deletion: "$25.4M to $65.8M" would
  *     assert a floor of plus twenty-five million that the same computation contradicts, which is a
  *     worse fault than the one being fixed. It goes by using a pair that is genuinely positive at
  *     both ends: `usd_mid_lo`/`usd_mid_hi`, the MEDIAN cell of each site's own sweep at the two
- *     published IT-load densities, +$3.1M to +$6.1M. Smaller, reproducible from the same cells, and
- *     true at both ends. The extremes are still published in portfolio.json.
- *   * The hours of weather are the DISTINCT-station total, 4,232,006, not the 10,820,547 site-hours.
- *     The 250 sites share 98 airport stations, so the larger figure counts a shared record several
+ *     published IT-load densities. Smaller than the extremes, reproducible from the same cells, and
+ *     true at both ends. Currently +$42.4M to +$84.8M over the 238 offered sites; it was +$3.1M to
+ *     +$6.1M when the sum still included the 12 that lose. The extremes stay in portfolio.json.
+ *   * The hours of weather are the DISTINCT-station total, not the site-hours sum. The summed sites
+ *     share 97 airport stations, so the larger figure counts a shared record several
  *     times. It is a fair measure of work done and a bad measure of weather, and the smaller number
  *     needs no asterisk.
  *
@@ -171,16 +177,34 @@ export function ScopeBubble({
               ⚠ THE SPLIT AND THE NETTING BOTH SURVIVE THE CUT, and that was the constraint. It read
               "At the other 12 the agent's gates are the more conservative of the two controllers, and
               every one of them stays in the total above", which is three clauses where the card has
-              room for one. What a reader has to be able to see is that 12 sites do NOT gain and that
-              they are still inside the figure above; "238 of 250" says the first and "all 250 are in
-              the total" says the second. Why those twelve behave that way is in this file's own
-              header and in portfolio.json, which is where a reader who asks the next question goes.
-              What is NOT here is any word implying they failed, which the user ruled out. */}
+              room for one. Why those twelve behave that way is in this file's own header and in
+              portfolio.json, which is where a reader who asks the next question goes. What is NOT
+              here is any word implying they failed, which the user ruled out.
+              ⚠ SUPERSEDED 2026-08-31: the 12 are no longer inside the figure above. They are
+              excluded from the sum and from what the interface offers, so the sentence below states
+              the exclusion rather than the netting. Kept because the constraint it records, name the
+              twelve without implying failure, still binds. */}
+          {/* 🔴 "238 OF 238" IS A TAUTOLOGY, AND IT ARRIVED BY ACCIDENT. This read "{gaining} of
+              {summed} sites gain free-cooling hours, and all {summed} are in the total above",
+              which was informative while the sum covered every built site and 12 of them lost.
+              `metros.py` now withholds a site whose own five-year result is negative, so both
+              numbers are 238 and the sentence says nothing while appearing to reassure.
+              `sites_withheld` is the count that still carries the fact.
+
+              ⚠ AND STILL NO WORD IMPLYING THOSE SITES FAILED, which the user ruled out and which
+              would be wrong anyway: the measurement is of the AGENT at that geometry, not of the
+              facility. "the agent's own constraints make it worse than the incumbent there" is the
+              same phrasing the report's scale page uses, so the two cannot drift. */}
           <p className="aa-bubble-foot">
             <TrendingUp size={13} strokeWidth={2.2} aria-hidden="true" />
             <span>
-              <b>{p.sites_gaining}</b> of <b>{p.sites_summed}</b> sites gain free-cooling hours, and
-              all <b>{p.sites_summed}</b> are in the total above
+              all <b>{p.sites_summed}</b> sites gain free-cooling hours and are in the total above
+              {p.sites_withheld
+                ? <>
+                    {'; '}<b>{p.sites_withheld}</b> more were measured and excluded, because the
+                    agent&apos;s own constraints make it worse than the incumbent there
+                  </>
+                : null}
             </span>
           </p>
         </aside>

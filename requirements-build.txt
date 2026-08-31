@@ -1,0 +1,34 @@
+# BUILD-TIME ONLY. Everything needed to GENERATE the site report PDFs, and nothing else.
+#
+# ⚠ DELIBERATELY SEPARATE FROM requirements.txt, WHICH IS THE DEPLOYED SERVER'S LIST.
+# The Render image serves pre-built reports; it never generates one. Putting these four packages
+# in the deploy file would add roughly 60 MB to an image that has no use for any of it. The split
+# is the same reasoning that keeps nvidia-warp out of the deploy list: a GPU solver and a report
+# generator are both build-time tools whose OUTPUT ships, not themselves.
+#
+# Install with:  python -m pip install -r requirements-build.txt
+
+# The PDF document engine. Chosen over a headless-browser print because `rl_config.invariant = 1`
+# fixes the document id and drops the timestamp, so the same artefacts produce byte-identical
+# output. Chrome stamps a creation date into every print, which would have cost the determinism
+# that audit.py and every git diff on 250 PDFs rely on. Verified: two independent builds of the
+# Ashburn report hash identically.
+reportlab>=4.0
+
+# SVG to ReportLab vector graphics. Every chart, hand-written or matplotlib, goes through this one
+# path, so all seven arrive as true vectors rather than raster.
+# ⚠ It ignores fonts registered with reportlab and falls back to Helvetica unless you also call
+# svglib.fonts.register_font. See site_report_charts.register().
+svglib>=1.5
+
+# Two charts only: the plume polar plot and the portfolio histogram. Angular axes and binning are
+# where it earns the dependency; the other five charts are hand-written SVG, which costs less code
+# than overriding matplotlib's defaults and inherits the document's own palette and Inter weights.
+# ⚠ It has a THIRD font registry, independent of the other two. See the same register().
+matplotlib>=3.8
+
+# So fontTools can decompress demo/fonts/inter-latin.woff2. The repo ships Inter as a woff2
+# VARIABLE font; ReportLab needs static TTF. tools/make_report_fonts.py instances three weights
+# out of it, which is why the report and the web page render the same outlines by construction and
+# no font download is needed.
+brotli>=1.1

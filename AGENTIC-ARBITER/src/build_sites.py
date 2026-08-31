@@ -76,9 +76,21 @@ CHAIN = [
     ("money, priced in this state's tariff", ["money.py"]),
     ("stage 7 explain, verified", ["explain.py"]),
     ("stage events", ["ticker.py"]),
-    # Last: the PDF quotes the explanation, the ladder, the rolling summary and the money table,
-    # so every one of them has to exist first.
-    ("downloadable PDF report", ["report.py"]),
+    # 🔴 LAST, AND IT IS `site_report.py` SINCE 2026-08-31, NOT `report.py`. The PDF quotes the
+    # explanation, the ladder, the rolling summary and the money table, so all of them have to
+    # exist first. The GENERATOR was replaced: `report.py` writes the monospaced text-style PDF
+    # and is still imported by `live_report.py`, which is why it stays in the tree.
+    # `site_report.py` is the typeset one, with this site's own satellite frame and seven charts.
+    #
+    # ⚠ IT NEEDS `requirements-build.txt` (reportlab, svglib, matplotlib, pillow, brotli), which
+    # the deploy image deliberately does not carry. A host without them cannot run this step, and
+    # that is correct rather than unfortunate: these PDFs are built here and committed, because
+    # `serve_live.py` promises that serving demo/ as static files gives the whole replay demo.
+    #
+    # ⚠ AND IT IS NOT IN SKIP_FOR_STANDALONE. A facility with no neighbour still gets a full
+    # report; what it does not get is the plume section, which `site_report.py` drops from the
+    # document and from its contents page on its own.
+    ("downloadable PDF report", ["site_report.py"]),
 ]
 
 

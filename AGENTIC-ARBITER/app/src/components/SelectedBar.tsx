@@ -1,4 +1,5 @@
-import { CATEGORY_LABEL, facilityName, int, isReady, stateName, type Artefacts, type Facility }
+import { CATEGORY_LABEL, facilityName, int, isReady, measuredGain,
+  readiness, stateName, type Artefacts, type Facility }
   from '../lib/artefacts'
 
 /**
@@ -33,6 +34,8 @@ export function SelectedBar({ a, facility, onClear, onConfigure, busy }: {
   busy?: boolean
 }) {
   const ready = isReady(a, facility)
+  const state = readiness(a, facility)
+  const gain = measuredGain(a, facility)
   const man = a.manifest.sites.find((s) => s.key === facility.metro_key)
   const ops = (facility.operators || []).filter(Boolean)
 
@@ -94,12 +97,28 @@ export function SelectedBar({ a, facility, onClear, onConfigure, busy }: {
           {busy ? `Loading ${facility.metro_key}…` : 'Configure this plant →'}
         </button>
       ) : (
+        /* 🔴 THE SAME FALSE SENTENCE AS THE MAP LEGEND, IN THE PLACE A READER IS MOST LIKELY TO
+           READ IT. "No agent run published yet" is right for the 389 candidates with no artefacts
+           and wrong for the 12 that were built, measured across five years and then withheld
+           because the agent came out worse than the controller it replaces. Those have a run; what
+           they do not have is a result worth selling. Saying so is both more honest and a better
+           argument: a portfolio that reports where it does not work is one a reader can believe
+           about where it does. */
         <span
           className="shrink-0 rounded-lg border border-hair px-3 py-2 text-[11.5px] text-muted"
-          title="Only sites with a published agent run can be configured. This one is a real,
-                 OSM-tagged candidate that has not been built yet."
+          title={
+            state === 'measured-negative'
+              ? `Built and measured over five years. The agent recovered ${int(gain)} chiller-hours `
+                + 'a year here, which is worse than the reactive controller it would replace: its '
+                + 'own safety constraints hand back more free-cooling hours than they win at this '
+                + 'geometry. It is not offered without site-specific engineering.'
+              : 'Only sites with a published agent run can be configured. This one is a real, '
+                + 'OSM-tagged candidate that has not been built yet.'
+          }
         >
-          No agent run published yet
+          {state === 'measured-negative'
+            ? `Measured, not offered · ${int(gain)} h/yr`
+            : 'No agent run published yet'}
         </span>
       )}
     </div>

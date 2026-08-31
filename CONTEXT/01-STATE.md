@@ -12,6 +12,307 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### 250 OFFERED BECAME 238, AND THE CHART HAD NEVER PLOTTED THE 12 IT CLAIMED TO. 2026-08-31
+
+The user: "we remove all those sites which show negative prices in the tiles ... let them stay on map
+but include them in the category of grey dots", and for the wording, "the agent covers 238 sites; 12
+more were measured and excluded because the agent's own constraints made it worse than the incumbent
+there, and we don't sell those without deep dive engineering on it."
+
+**THE GATE IS THE MEASUREMENT, NOT A LIST.** `metros.py` gains `measured_gain_h(k)`, reading the same
+field the report's distribution plots: the last anchored rung of the `C ` ladder in each site's own
+`*_backtest.json`. `offerable` becomes `data_ready and artefacts_built and pays`, where
+`pays = gain is None or gain > 0`. MEASURED: **12 of 250** are negative, worst
+`IL_way_1219083554` at **-3,649 h/yr, -183 % runtime, -$16.5 M**. At those sites the agent runs the
+chillers MORE than the reactive controller it replaces. ⚠ `data_ready` deliberately stays TRUE: they
+keep their artefacts, stay in the distribution and are still rebuilt by the chain. Only the OFFER
+changes, which is what `offerable` has always meant. A hardcoded set of twelve keys would be correct
+exactly once; a site that tips positive is now offered without anyone remembering to look.
+
+🔴 **AND THE GATE EXPOSED A FALSE CAPTION THAT HAD BEEN SHIPPING.** The scale page said those sites
+"are in the chart rather than filtered out of it: publishing them is what makes the rest of the
+distribution worth reading". The chart's own code was `pos = g[g >= 0]` then `ax.hist(pos, ...)`.
+**They were never in it.** The claim was the exact opposite of the code, in the paragraph carrying the
+page's credibility argument, and the rewrite nearly repeated it. Plotting them is not the fix either:
+an axis reaching -3,649 compresses the useful 250-to-850 range into a sixth of the frame. So the
+caller now passes only the offered rows, the title counts what it plots, the excluded are described
+in words with their worst value, and `portfolio_hist` **asserts** it was given no negatives, so the
+silent filter cannot come back and let a caption speak for it.
+
+⚠ **THE MARKER WOULD HAVE SQUASHED TWELVE REPORTS.** `this_site_gain` draws an `axvline`, and
+matplotlib extends an axis to include one, so each withheld site's OWN report would have shown the
+distribution crushed to the right to make room for its own rule. The rule is now omitted when the
+value is off scale and the NOTE is not: "this site -3649 h/yr, off the scale to the left". Skipping
+both, which the first attempt did, removed the single most important number on that page.
+
+**THREE PLACES SAID THE SAME FALSE THING ABOUT THE GREY DOTS.** The map legend, the map popup and the
+selected-site bar all read "no agent run published yet" for every non-offered facility. True of the
+389 candidates with no artefacts, false of these 12, which have a run and a five-year measurement.
+`artefacts.ts` gains `readiness()` returning `ready | measured-negative | no-run` from the `pays`
+flag now published per site, and each surface says which. ⚠ Same grey dot, different sentence: a
+fourth colour would imply a fourth kind of thing, and both are "not offered".
+
+**THE AGGREGATE MOVED A LONG WAY, SO THE ARTEFACT SAYS WHAT WAS REMOVED.** Re-summing over the
+offered set: `usd_lo` **-25,416,432 to +34,412,699**, `cut_pct` 6.19 to 9.73, `gain_h_per_year`
+61,864 to 92,988. ⚠ And `sites_losing` became **0 by construction**, which would read as "no site
+ever loses". `portfolio_totals.py` now also publishes `sites_withheld` and `sites_built`, and the
+landing card's "238 of 238 sites gain" tautology became "all 238 gain and are in the total above; 12
+more were measured and excluded". Still no word implying those sites FAILED, which the user ruled out
+earlier and which would be wrong anyway: the measurement is of the agent at that geometry.
+
+⚠ **THE HALO COUNT WAS A DERIVED QUANTITY PINNED AS A CONSTANT.** `verify_app_deterministic.py`
+asserted 637 dots / 246 halos. Dots are a registry fact and fairly a constant; halos are the OFFERED
+count, a join between `unified_sites.json` and `sites.json`. It now computes both the way the app
+does. MEASURED, the drop is **10, not 12**: two of the twelve excluded keys have no unified facility
+pointing at them and were never drawn. Anyone updating the constant by hand would have written 234.
+
+**THE CROSS-CHECK, ASKED FOR AND THEREFORE DONE PROPERLY.** The user: "have you cross checked the new
+aggregates all over the project attributes including the text rendered on website". Sampling three
+matches and inferring would not have answered it, so the RENDERED text was read:
+* `verify_app_deterministic.py` harvested `.num` only, which is the per-site KPI plate. The portfolio
+  aggregates use `.aa-bubble-num` and `.aa-bubble-foot` and were **unwatched**, which is how a figure
+  that moves by tens of millions gets missed. Both are now harvested, compared across renders and
+  printed. As rendered: **238**, **$42.4M to $84.8M**, **+92,988**, and the footnote "all 238 sites
+  gain free-cooling hours and are in the total above; 12 more were measured and excluded". Reconciled
+  against `portfolio.json`: `usd_mid_lo` 42,409,817 and `usd_mid_hi` 84,813,589. They agree.
+* The CANONICAL single-file page reads **no** portfolio aggregate at all: `portfolio.json`,
+  `sites_summed`, `usd_lo` and `sites_offerable` occur zero times in it. Its three hits for 250, 246
+  and 245 are all inside `/* */` comments. Nothing stale is rendered there.
+* A bounded sweep of every .html, .ts, .tsx, .py and .md found the remaining hits to be comments and
+  docstrings, and **eleven of them contradicted the code beside them** after the change: the
+  ScopeBubble header still described summing 250, the artefacts.ts `Portfolio` doc still said "all 250
+  shipped sites", and one block explained a sentence the same commit had replaced. Updated, because a
+  comment that describes the previous behaviour is worse than none.
+
+README's three derived figures follow (238 offerable, 233 single-source, 2120 checks) and `audit.py`
+passes them. ⚠ Five audit failures remain and are NOT from this work: they are API-spend ledger drift
+in `API-USAGE.md` and `CONTEXT/HANDOFF.md` from live runs in earlier sessions. Neither file has a
+diff this session, and the ledger last changed in 52b1f79.
+
+### ASHBURN ANNOUNCED THAT ASHBURN HAD NO AGENT RUN, FROM THE SECOND OF TWO CALL SITES. 2026-08-31
+
+The user, on the first screen: "the picture shows this pop up appearing for the default site ashburn
+which is selected automatically when the page opens up although ashburn does have agent run on it".
+
+🔴 **THE TWO-KEY-SPACE BUG, FIXED ONCE AND ONLY ONCE.** `App.tsx` already carried a long comment
+explaining it: the map and the search bar address facilities by the UNIFIED key `metro_ashburn`,
+sites.json owns the artefacts under the METRO key `ashburn`, and `loadHeadline` handed the former
+finds nothing, falls back to the shipped reference and returns `isFallback: true`. `headlineKey` was
+added to do the join. But `loadHeadline` had **two** call sites, and the mount effect still passed
+`filters.facility` raw. So the notice fired for the one site that ships a complete run.
+
+⚠ Being redundant, it also RACED: both paths fetch the same three artefacts and call `setH`, so which
+verdict survived depended on which fetch resolved last. The mount effect now loads artefacts and
+nothing else, leaving one owner of the headline figures.
+
+🔴 **AND THE CHECK THAT WOULD HAVE CAUGHT IT DID NOT EXIST, IN EITHER DIRECTION.** Nothing asserted
+on the banner, which is why the same fault reached a screenshot twice.
+`verify_app_deterministic.py` now harvests `.aa-fallback` and asserts BOTH halves:
+* absent on the default load, where it is false;
+* **still present** for a mapped candidate that really has no run, read from the registry rather than
+  hardcoded. ⚠ THIS HALF IS THE IMPORTANT ONE. Asserting absence alone is satisfied by deleting the
+  feature, and the notice is load-bearing for the 389 mapped candidates with no artefacts: it is what
+  stops another site's figures being read as theirs.
+
+⚠ **AND THE CONTROL FAILED FOR ITS OWN REASONS FIRST, WHICH IS WORSE THAN NO CONTROL.** Placed after
+the comparison loop it captured `_det.html` **after the `finally` that deletes it**, harvested a 404,
+and accused a correct fix of having removed the feature. It now captures alongside renders a and b,
+inside the same `try`. A measuring device that reports a failure it caused itself spends the
+credibility of the one signal it exists to give.
+
+### THE REPORT NOW BUILDS FOR EVERY SITE, AND TWO THIRDS OF THEM HAVE NO PLUME. 2026-08-31
+
+Three corrections and the rollout. The user: "NVIDIA (Warp) is exceeding the border ... The
+fortyguard logo is completely embedded into the header line ... yes, go ahead and wire it into the
+chain", and for the 168 single-building sites, "just say that it is a singular site, so plume physics
+doesnt hold here ... then skip the plume physics related pages from the pdf and the content page."
+
+🔴 **THE CELL THAT ESCAPED ITS COLUMN WAS A CHARACTER-COUNT HEURISTIC, AND FIXING IT BROKE A NUMBER.**
+`_table` wrapped a cell in a Paragraph when `len(cell) > 24`. "GPU (NVIDIA Warp)" is 17 characters and
+88 pt wide against 74.5 pt of usable column, so it stayed a raw string, and a raw string in a
+ReportLab cell neither wraps nor clips: it paints straight out. Character count is not width.
+
+Measuring every cell with `stringWidth` fixed that one and **broke the schedule table**: the "safe"
+column is 32 pt, leaving 18 pt against 19.4 pt of the word "safe", so the header became a Paragraph in
+a column too narrow to hold it and split mid-word as "saf" over "e". The hour column did the same to
+"22", printing "2" over "2". ⚠ A Paragraph only helps where there is a space to break AT. So columns
+are now widened to their **widest unbreakable token** first, taking the surplus from whichever column
+has slack, and only then is anything wrapped. Two assertions: no raw cell wider than its column, and
+no column narrower than its narrowest possible content. Tables also gained a light outer BOX, so the
+bounds a cell must stay inside are visible on the page.
+
+🔴 **THE LOGO WAS WELDED TO THE HEADER RULE BECAUSE THE RULE CROSSED IT.** MEASURED: the mark is
+25.9 pt tall drawn 74 pt wide, its bottom edge sat at `top - 23.9`, and the rule was at `top - 16`, so
+the line passed 8 pt above the mark's own baseline, through the wordmark's descender. The mark and the
+running head now lift into the margin's own white, which the header was using only the bottom 16 pt
+of. ⚠ Raising `HEADER_H` instead would have cost every page 12 pt of frame, and two pages are at 99 %.
+
+🔴 **AND THE ROW SAID WIND FROM 0 m/s WHEN THE SLOWEST SPEED IS 0.5.** `_n` is "a whole number with
+thousands separators", correct for hours and dollars, and `_n(0.5)` is `"0"`. The sweep does not
+include dead calm and must not claim to: the plume model needs air movement to advect anything.
+`_sp` keeps the decimal.
+
+**168 OF 249 SITES HAVE ONE BUILDING, AND THE GENERATOR HAD NEVER RUN ON ONE.** `build_standalone_site.py`
+writes `receptor_ring_m: null`, `intake_m: null`, `facade_gap_m: null`, and the solver records
+`n_solves: 0`. Reading `geom["receptor_ring_m"]` raised on every one of them.
+* `collect()` now returns `standalone`, derived from `facade_gap_m` and **cross-checked** against
+  `n_solves` from a different file, so a drift between the two build paths fails the build.
+* The physics section is dropped from the document AND from the contents, per the user's wording, and
+  the site page says why: "the plume physics does not apply here, so the section on it is absent from
+  this document rather than present and empty."
+* The aerial draws one footprint, in BLUE not orange, because with no neighbour the building is purely
+  the thing being protected. No gap segment, no intake ring, and the legend and caption follow.
+* `_worked` loses its rise clause: a rise of exactly 0 is not "a plume rise under 0.01 °C", which is
+  true arithmetic and a false description. The margin chart drops the plume legend entry rather than
+  naming a series with no height.
+
+⚠ **AND FIVE SITES HAVE NO SCREENING FRAME AT ALL.** The site section was entirely inside
+`if aer is not None`, so those five got one apologetic sentence and a page 55 % empty. Whether an
+imagery vendor covers a site is a fact about the vendor, not about the site, so the prose is built
+either way and only the LAYOUT branches. The contents row has four variants, keyed on
+(standalone, has_imagery), because promising "what the imagery can and cannot show" beside a section
+with no imagery is a lie on the first page a reader reads.
+
+🔴 **TWO FAULTS THAT WOULD HAVE HIT ALL 249 THE MOMENT THE CHAIN DROVE IT.** `build_sites.py` passes
+the site in the METRO environment variable and no argument.
+* `M.demo_path("sites.json")` key-prefixes, so under `METRO=AL_way_1540172608` the one global manifest
+  resolved to `AL_way_1540172608_sites.json` and raised FileNotFoundError. `audit.py` lists sites.json
+  in its own `GLOBAL_OK` and reads it straight from DEMO; this now does the same.
+* The output path fell back to `DEFAULT_METRO` when `site_key` was None, which it is on every chain
+  invocation. All 249 sites would have written over ashburn's `demo/report.pdf`, last one winning.
+
+**WIRED IN, IN BOTH PLACES, AND THE SECOND ONE WAS THE DANGEROUS ONE.** `build_sites.py`'s chain step
+"downloadable PDF report" is `site_report.py` rather than `report.py`. So is `run_all.py` step 74,
+which writes `demo/report.pdf`: left pointing at the old generator it would have overwritten the
+typeset report with the monospaced one on every single run_all, silently reverting the whole rebuild
+for anyone who ran the pipeline after building the site. `report.py` stays in the tree because `live_report.py` imports it. ⚠ The step needs
+`requirements-build.txt`, which the deploy image deliberately does not carry, and that is correct: the
+PDFs are built here and committed because `serve_live.py` promises that serving `demo/` as static
+files gives the whole replay demo. Generating on click would work on Render and 404 on GitHub Pages.
+
+⚠ **THE TWO IMAGE WEIGHTS, BOTH THE SAME MISTAKE.** `/Image` was 405 KB of a 472 KB file. The logo was
+embedded at 2362 px for a 74 pt placement, and the `Doc` docstring PRAISED it: "renders at 2,298 dpi
+against a 300 dpi print threshold". Pre-scaled and cached, 12 KB. The aerial at 300 dpi resolved
+0.303 m per pixel against source imagery of 0.2276: finer than the thing it reproduces. At 200 dpi,
+149 KB. **472 KB to 268 KB.**
+
+Verified on all three shapes: paired with imagery 9 pages mean 94.2 %, standalone with imagery 8 pages
+mean 95.7 %, standalone with none 8 pages mean 91.6 %. Zero label overlaps, zero lines through text and
+zero unit-spacing violations on every one.
+
+### A DOCUMENT IN WHICH `<b>` HAD NEVER ONCE WORKED, AND FOUR PAGES THAT WERE MOSTLY PAPER. 2026-08-31
+
+The layout brief on `REPORT-REBUILD-v3-ashburn.pdf`, ten numbered items, plus one named defect: "dont
+make 'dry-bulb' go inside the graph ... write it properly before the graph margin the way 'budget' is
+written." The named defect took four lines. Two of the things found on the way took the rest.
+
+🔴 **EVERY BOLD RUN IN THE DOCUMENT WAS RENDERING AS BODY WEIGHT, AND HAD BEEN ALL ALONG.**
+MEASURED: 16,379 characters of `Inter-Regular` against 945 of `Inter-SemiBold`, and all 945 came from
+styles that name a face directly, such as a heading or a tile value. All **37** `<b>` runs in the prose
+did nothing. `register()` called `pdfmetrics.registerFont` for three faces, which tells ReportLab the
+fonts EXIST, and never called `registerFontFamily`, which is what tells it which face `<b>` means. A
+`Paragraph` then resolves bold against a family that is not registered and silently falls back.
+
+⚠ **AND THE FIX ONLY WORKS AFTER svglib, WHICH IS THE WHOLE OF IT.** Called before
+`svglib.fonts.register_font`, the registration was measurably undone: `tt2ps("Inter", 1, 0)` still
+returned `"Inter"`. svglib registers with ReportLab too and rewrites the family map on its way past.
+Two registries, one clobbering the other, no error from either. There is now an assertion on
+`tt2ps` in `register()`, so this cannot regress quietly.
+
+🔴 **THE PAGE FILL WAS NOT A PAGINATION PROBLEM, AND THE FIRST FIX FOR IT CHANGED NOTHING.** Five of
+nine pages sat under the brief's 85 % floor, one at 60 %. Making the five middle section breaks
+conditional was the obvious move and it moved nothing: every section ends with 150 to 225 pt of a
+705 pt page unused, and a section needs about 300 pt to start, because its first chart is 230 pt or
+more. No section could ever begin in the gap left by the one before it. The gap was a chart smaller
+than its page, so the charts grew into it, page by measured page. **Mean fill 83.0 % to 95.5 %, and
+no page now more than 12 % empty.** Two pages needed content rather than height:
+
+* **Page 9, 60 % empty**, got the one measured thing the report was not using.
+  `explanations.json` carries `would_flip_with_more_switches` per hour and nothing read it. All
+  **12** switch-budget hours come free when the day is re-planned with the budget raised, which is
+  the most commercially direct sentence in the document: the hours were held by a setting, not by the
+  weather. ⚠ The flag means budget **+2**, not +1 (`explain.py:212`), and `explain.py:317` re-plans to
+  re-check it, which is why it can be printed.
+* **Page 5, 71 % empty**, could not be fixed by growing its chart at all: a polar plot is square, so
+  in a 42 % column it can never exceed 209 pt however much height the page has. The dead paper under
+  the circle now holds the solve's own specification, read from `rise_table_longest.json`.
+
+🔴 **THE OVERLAP CHECK REPORTED ZERO WHILE THREE LABELS WERE BEING PRINTED THROUGH BY LINES.** It
+compared text with text. The 90 % rule crossed "87.9%" on page 6, the portfolio marker crossed its own
+"this site" note on page 7, and the runtime track ran under "Reactive incumbent" on page 3. All three
+were obvious on the page. `check_report.py` now tests stroked paths against the middle 62 % of every
+glyph box, ⚠ and understands a knockout: an opaque plate painted after the stroke is the standard fix
+for a label on a rule and is not a collision, so paint order decides. Dropping the text-vs-text
+threshold from 30 % of the smaller box to any real intersection took the count from 0 to 14 before it
+came back to **0**, and one word arriving as two spans ("-400" as "-4" and "00") is now excluded.
+
+**THE AERIAL FIGURE, AND THREE THINGS THE FIRST VERSION GOT WRONG.** Item 7 is the site's own ESRI
+frame with the solver's geometry on it.
+* Per-building registration, which the module previously argued for at length, is **wrong**. The error
+  it corrected is **0.35 m**, not the 3 to 4 m assumed, and registering the two rings independently
+  changes the separation between them, so the segment drawn as the facade gap would no longer be
+  60.3 m. One transform, anchored at the domain centre, keeps the gap exact.
+* The line drawn was **centre to centre**, 165.5 m, and would have been labelled 60.3 m. `facade_gap_m`
+  is facade to facade (`audit.py:2289`). The module now recomputes the closest approach between the
+  two rings and refuses to draw unless it reproduces the artefact, which it does to 0.02 m.
+* The condenser bank was the **boldest object in the frame** and `build_site.py` records its position
+  as "NOT mapped in OSM. Conservative worst case". Solid now means mapped, dashed means modelled, and
+  the legend says which. ⚠ The frame is also resampled to square ground pixels: it covers 318.7 by
+  321.1 m in a 1400x1050 raster, a 34 % vertical squash that made a 158 m hall look 118 m long.
+* ⚠ MEASURED by edge-gradient search, one edge of each ring sits 10 to 20 m off the roofline, the two
+  disagreeing in OPPOSITE directions, so it is neither the projection nor parallax: OSM and ESRI are
+  surveyed independently. No number in the report comes from the picture, and the caption says so.
+
+**THE REST OF THE TEN.** The named defect: under `rotate(-90)` a label grows UPWARD from its anchor,
+so `text-anchor="end"` makes every reason hang DOWNWARD from one common top edge, and the band is
+measured from the longest label rather than a constant that happened to fit "budget". Cell colour now
+carries the reason, three treatments for this site's three states. Every hatch fill is gone, helper
+included. Tile values **auto-fit** their column, which stops the class of bug that printed "43,763"
+as "43,76" over "3". Secondary grey went from **41.7 %** of characters to 12.6 % excluding the running
+furniture, which is reported separately because the same strip counted nine times is not nine reads.
+Bold sentences went from **13 to 1**, and the one is the NVIDIA Warp claim. Tabular figures are baked
+into the cmap, because ReportLab cannot apply `tnum` and Inter's digits vary from 833 to 1323 units.
+The contents page is **measured, not maintained**: a two-pass build, `Mark` flowables recording where
+each heading landed, and `SECTIONS` owning both the heading and its row, because the hand-written
+version advertised three titles that no longer existed and omitted a whole section.
+
+**THE PDFs WERE ALREADY AUTOMATIC, AND MY ROLLOUT QUESTION WAS FRAMED WRONGLY.** The user: "shouldnt
+these pdfs be generated automatically when a site is clicked? why are we making them manually for
+all". Nothing was ever hand-made: `build_sites.py:81` runs `report.py` per site as one step of its
+chain, and the 249 committed `*_report.pdf` are build output. The open question is only whether to
+swap `site_report.py` into that chain.
+
+⚠ **AND GENERATING ON CLICK WOULD BREAK A DOCUMENTED GUARANTEE.** `serve_live.py:24` states that
+GitHub Pages serving `demo/` as static files must give the REPLAY-only demo "with every panel and
+every proof intact", `/api/*` simply 404ing. A PDF built by a Python route exists only where Python
+runs, so on a static host the download button would 404. Render does run Python, so on-demand is
+possible THERE, and that is the objection: it would make the two hosts behave differently, which is
+the thing the split exists to prevent.
+
+🔴 **BUT THE QUESTION FOUND TWO REAL SIZE DEFECTS, BOTH MINE AND BOTH THE SAME MISTAKE.** MEASURED,
+`/Image` was 405 KB of the report's 472 KB.
+* The logo was embedded at 2362 px for a 74 pt placement, and the `Doc` docstring PRAISED it:
+  "renders at 2,298 dpi against a 300 dpi print threshold". True about quality, silent about cost.
+  130 KB per copy, in a document that carries it on every page. Pre-scaled once to
+  `reportassets/_logo.png` at what 300 dpi needs, cached on the source's size and mtime: **12 KB**,
+  and indistinguishable at 420 dpi zoom.
+* The aerial at 300 dpi resolved 0.303 m per pixel against source imagery of 0.2276 m per pixel:
+  finer than the thing it was reproducing. 200 dpi gives 0.455 m per pixel, still rendering a 57 m
+  hall 125 px wide. **275 KB to 149 KB.**
+
+**472 KB to 268 KB**, determinism intact, sha256 `bce46170...`. A 250-site rollout would be 62 MB
+rather than 115 MB, against a repository already tracking 920 MB, of which 763 MB is per-site JSON
+and 108 MB is the aerial JPEGs themselves. ⚠ The logo regression in between was caught by
+`check_report.py`, not by eye: `io` is not imported in `site_report.py`, the header's own
+`except Exception` swallowed the `NameError` into the text fallback, and the harness reported the
+logo missing from 8 of 9 pages.
+
+⚠ **BYTE-DETERMINISM SURVIVED ALL OF IT**, including the second pass and the embedded JPEG: two
+consecutive builds are identical, sha256 `be674aee...`. Verified with `tools/check_report.py`:
+9 pages, mean fill 95.5 %, no page under 85 %, 0 text overlaps, 0 lines through text, 0 paragraphs
+over the three-accent cap, 0 unit-spacing violations, no number past three decimals, contrast passing
+for every ink at its role.
+
 ### "I COULD NOT CHECK IT" WAS BEING REPORTED AS "IT IS BROKEN", AND THAT COST THE LIVE PDF. 2026-08-30
 
 The user, on the deployed site: "pdf is not downloading after live run ... The Live run report button is
@@ -2858,8 +3159,8 @@ only `fmt`.
 | Figure | Value | Derived from |
 |---|---:|---|
 | Real facilities in the registry | **637** | demo/unified_sites.json -> len(sites) |
-| Of those, ready to run | **246** | sites.json offerable metros, joined on metro_key |
-| Offerable metros | **250** | demo/sites.json -> sites[].offerable |
+| Of those, ready to run | **236** | sites.json offerable metros, joined on metro_key |
+| Offerable metros | **238** | demo/sites.json -> sites[].offerable |
 | States represented | **43** | distinct unified_sites.json sites[].state |
 | run_all.py steps | **45** | count of STEPS entries in src/run_all.py |
 | demo/index.html size | **490 KB** | byte length of the shipped page |

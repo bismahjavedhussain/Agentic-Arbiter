@@ -19,7 +19,8 @@ import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&ur
 
 setWorkerUrl(maplibreWorkerUrl)
 import {
-  CATEGORY_LABEL, facilityName, int, isReady, stateName, type Artefacts,
+  CATEGORY_LABEL, facilityName, int, isReady, measuredGain, readiness, stateName,
+  type Artefacts,
 } from '../lib/artefacts'
 import type { Filters } from './SearchBar'
 // @types/geojson exports its types as a MODULE; there is no global `GeoJSON` namespace to
@@ -293,7 +294,14 @@ export function SiteMap({ a, filters, onPick }: {
             [
               `${CATEGORY_LABEL[f.category] || f.category} · ${int(f.n_tagged)} OSM-tagged building${f.n_tagged === 1 ? '' : 's'}`,
               (f.operators || []).length ? `Operated by ${f.operators.join(', ')}` : '',
-              isReady(a, f) ? 'Ready to run' : 'Real candidate, no agent run published yet',
+              // The three states, in the reader's words rather than the manifest's field names.
+              readiness(a, f) === 'ready'
+                ? 'Ready to run'
+                : readiness(a, f) === 'measured-negative'
+                  ? `Measured over five years, not offered: the agent came out ${
+                      int(measuredGain(a, f))} chiller-hours a year here, worse than the controller `
+                    + 'it would replace, so it needs site-specific engineering first'
+                  : 'Real candidate, no agent run published yet',
             ].filter(Boolean),
             'The data centre you selected',
           ))
@@ -489,6 +497,10 @@ function Legend() {
                     text-[11px] leading-[1.6]">
       <Row c="var(--good)" t="Ready to run" />
       <Row c="var(--axis)" t="Real candidate, not yet built" />
+      {/* ⚠ SAME GREY, DIFFERENT SENTENCE. A fourth dot colour for twelve sites would read as a
+          fourth category of thing, and it is not: both are "not offered". What differs is the
+          reason, and the reason is on the popup where a reader who cares can find it. */}
+      <Row c="var(--axis)" t="Measured, not offered: the agent was worse there" />
       <Row c="var(--series-2)" t="Matches the chosen operator" />
     </div>
   )

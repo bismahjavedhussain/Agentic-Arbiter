@@ -71,7 +71,18 @@ STEPS = [
     # names the audited chain reads); this step builds every other offerable site on its own
     # weather, geometry and bound. Without it the site picker offers three sites and only one of
     # them has any data, which is how it shipped for two sessions.
-    ("downloadable PDF report for ashburn", [sys.executable, "report.py", "ashburn"], HERE),
+    # 🔴 `site_report.py`, NOT `report.py`, AND THE ORDER MATTERS MORE THAN THE NAME. This step
+    # writes `demo/report.pdf`. Left pointing at the old generator it would have overwritten the
+    # typeset report with the monospaced one on every single run_all, silently reverting the
+    # rebuild for anyone who ran the pipeline after building the site. `report.py` stays in the
+    # tree because `live_report.py` imports its primitives; it is simply no longer the document a
+    # reader downloads.
+    #
+    # ⚠ THIS STEP NOW NEEDS `requirements-build.txt` (reportlab, svglib, matplotlib, pillow).
+    # run_all still makes ZERO API calls, which is the property it exists to prove; it is not and
+    # never was runnable with no third-party libraries at all.
+    ("downloadable PDF report for ashburn",
+     [sys.executable, "site_report.py", "ashburn"], HERE),
     # NO SITE LIST HERE. This read `["chicago", "dulles"]` as a literal, so a fourth offerable site
     # would have been silently skipped by the one step whose whole job is building the other sites --
     # the same "a name asserting a value" drift as `metros.weather_file` (which asserted kphx while

@@ -60,8 +60,24 @@ PROBE = """
         return (e.innerText || '').replace(/[ \\t\\r\\n]+/g, ' ').trim();
       }).filter(Boolean);
     };
+    /* 🔴 THE FALSE "no agent run published yet" NOTICE, WHICH HAS NOW SHIPPED TWICE. The banner
+       is correct for a facility that really has no artefacts, and wrong for the default site, which
+       ships a full run. It appeared on Ashburn because `loadHeadline` was handed the UNIFIED map key
+       `metro_ashburn` while sites.json owns the artefacts under `ashburn`, so the lookup missed and
+       the shipped-reference fallback fired for the shipped site. Fixed once in one of its two call
+       sites, and photographed by the user again from the other. Harvested here so the third time
+       fails a check instead of a screenshot. */
+    out.fallback   = pick('.aa-fallback');
     out.headings   = pick('h1, .label');
     out.figures    = pick('.num');
+    /* 🔴 THE PORTFOLIO AGGREGATES WERE NOT HARVESTED, AND THEY ARE THE LARGEST NUMBERS ON THE PAGE.
+       `.num` picks the per-site KPI cards; the scale card's figures use `.aa-bubble-num` and its
+       footnote `.aa-bubble-foot`, so a portfolio total could have changed by tens of millions
+       between two renders, or gone stale against portfolio.json, with nothing here noticing. They
+       moved a long way on 2026-08-31 (usd_lo -25,416,432 to +34,412,699 when the 12 sites the agent
+       loses on stopped being offered), which is exactly when an unwatched figure gets missed. */
+    out.scaleNums  = pick('.aa-bubble-num');
+    out.scaleFoot  = pick('.aa-bubble-foot');
     out.paragraphs = pick('p');
     out.buttons    = [].map.call(document.querySelectorAll('button, a'), function(e){
       return ((e.innerText || e.getAttribute('aria-label') || '')
@@ -126,7 +142,51 @@ PROBE = """
 """
 
 
-def capture(browser, tag):
+def expected_map_counts():
+    """(dots, halos) the map must draw, computed the way the app computes them.
+
+    🔴 THESE WERE THE CONSTANTS 637 AND 246, AND ONE OF THEM WAS A DERIVED QUANTITY IN DISGUISE.
+    Dots are every mapped facility, which is a fact about the registry and legitimately a constant to
+    name. Halos are the facilities the interface OFFERS, which `SiteMap.tsx` gets from
+    `isReady(a, f) = a.offerable.has(f.metro_key)`: a join between `unified_sites.json` and the
+    `offerable` flag in `sites.json`. The moment `metros.py` began withholding the 12 sites whose own
+    measurement is negative, 246 became 236 and this check failed on a change that was correct.
+
+    ⚠ MEASURED, THE DROP IS 10 AND NOT 12, which is exactly why this is computed rather than adjusted
+    by hand: two of the twelve excluded keys have no `unified_sites` facility pointing at them, so
+    they were never drawn as a halo to begin with. Anyone updating a constant would have written 234.
+
+    ⚠ AND IT IS STILL NOT A TAUTOLOGY. The join is done here from the files, and the app does it in
+    TypeScript from the same files at runtime; the check compares two independent implementations of
+    the same rule. What it can no longer do is fail because a real count moved.
+    """
+    demo = os.path.join(os.path.dirname(HERE), "AGENTIC-ARBITER", "demo")
+    uni = json.load(io.open(os.path.join(demo, "unified_sites.json"), encoding="utf-8"))
+    sj = json.load(io.open(os.path.join(demo, "sites.json"), encoding="utf-8"))
+    offerable = {x["key"] for x in sj["sites"] if x.get("offerable")}
+    dots = len(uni["sites"])
+    halos = sum(1 for f in uni["sites"] if f.get("metro_key") in offerable)
+    return dots, halos
+
+
+def unbuilt_candidate():
+    """A mapped facility that genuinely has no agent run, read rather than hardcoded.
+
+    Used as the negative control below. Reading it means the control keeps pointing at a real
+    example as the national registry grows, instead of naming a key that may later acquire artefacts
+    and quietly turn the control into a second copy of the positive case.
+    """
+    demo = os.path.join(os.path.dirname(HERE), "AGENTIC-ARBITER", "demo")
+    uni = json.load(io.open(os.path.join(demo, "unified_sites.json"), encoding="utf-8"))
+    sj = json.load(io.open(os.path.join(demo, "sites.json"), encoding="utf-8"))
+    built = {x["key"] for x in sj["sites"] if x.get("offerable")}
+    for x in uni["sites"]:
+        if not x.get("metro_key") and x["key"] not in built:
+            return x["key"]
+    return None
+
+
+def capture(browser, tag, url=None):
     """One render, in a fresh profile, returning the harvested DOM facts."""
     prof = tempfile.mkdtemp(prefix="det_%s_" % tag)
     cmd = [browser, "--headless=new", "--no-first-run", "--no-default-browser-check",
@@ -136,7 +196,7 @@ def capture(browser, tag):
            # Reduced motion, so the bar entrance is at its end state rather than mid-flight. The
            # animation is a fixed-duration CSS keyframe, but a capture should not have to race it.
            "--force-prefers-reduced-motion=reduce",
-           "--dump-dom", URL]
+           "--dump-dom", url or URL]
     dom = subprocess.run(cmd, capture_output=True, text=True, timeout=300,
                          encoding="utf-8", errors="replace").stdout or ""
     m = re.search(r'id="DETPROBE"[^>]*>(.*?)</div>', dom, re.S)
@@ -200,6 +260,15 @@ def main():
         URL = "http://127.0.0.1:%d/app/_det.html?probe=1&motion=off" % PORT
         a, doma = capture(browser, "a")
         b, _ = capture(browser, "b")
+        # 🔴 THE NEGATIVE CONTROL, CAPTURED HERE BECAUSE `_det.html` ONLY EXISTS HERE. The injected
+        # probe page is written above and removed in the `finally` below, so a capture placed after
+        # the comparison loop fetches a 404, harvests nothing, and reports the notice as missing no
+        # matter what the app does. That is exactly what the first version of this control did, and
+        # it accused a correct fix of deleting the feature. A control that fails for its own reasons
+        # is worse than no control: it costs the credibility of the one signal it exists to give.
+        _unbuilt = unbuilt_candidate()
+        _ctl = capture(browser, "unbuilt", "%s&facility=%s" % (URL, _unbuilt))[0] if _unbuilt \
+            else None
     finally:
         try:
             os.remove(probe_file)
@@ -296,12 +365,20 @@ def main():
 
     # The map reports its own state; compare only the fields that are data rather than timing.
     ma, mb = a.get("map") or {}, b.get("map") or {}
-    # The map has to have DRAWN something for its counts to mean anything. 637 facilities, 246 of them
-    # ready: named explicitly, so a map that renders nothing cannot pass by matching another empty one.
+    # The map has to have DRAWN something for its counts to mean anything, so the expected numbers
+    # are stated rather than inferred from the render: a map that draws nothing cannot pass by
+    # matching another empty one. They are computed from the artefacts by the same join the app uses.
+    exp_dots, exp_halos = expected_map_counts()
+    print("   [note]  expected       %d dots / %d halos, joined from unified_sites and sites.json"
+          % (exp_dots, exp_halos))
+    if exp_halos < 100:
+        print("   [FAIL] the join says only %d facilities are offered, which is not a map"
+              % exp_halos)
+        fails.append("map.expectation")
     for side, mm in (("a", ma), ("b", mb)):
-        if mm.get("paintedDots") != 637 or mm.get("paintedHalo") != 246:
-            print("   [FAIL] map drew %s dots / %s halos in render %s, expected 637 / 246"
-                  % (mm.get("paintedDots"), mm.get("paintedHalo"), side))
+        if mm.get("paintedDots") != exp_dots or mm.get("paintedHalo") != exp_halos:
+            print("   [FAIL] map drew %s dots / %s halos in render %s, expected %d / %d"
+                  % (mm.get("paintedDots"), mm.get("paintedHalo"), side, exp_dots, exp_halos))
             fails.append("map.rendered")
     for k in ("paintedDots", "paintedHalo", "srcGiven", "dotFilter", "dotColor", "popupText"):
         same = ma.get(k) == mb.get(k)
@@ -312,10 +389,57 @@ def main():
         if not same:
             fails.append("map." + k)
 
+    # 🔴 CONTENT, NOT JUST DETERMINISM: THE DEFAULT SITE MUST NOT BE CALLED UNPUBLISHED.
+    # Every other assertion in this file compares two renders, which catches a figure that moves and
+    # is blind to a figure that is wrong in both. This one is wrong in both. `?probe=1` carries no
+    # `facility=`, so the page opens on its preselected default, which is the one site the project
+    # ships a complete agent run for. A fallback notice on that screen is false on its face, and it
+    # has now reached the user twice from two different call sites of the same join.
+    #
+    # ⚠ THE BANNER ITSELF IS NOT THE BUG AND MUST NOT BE DELETED. It is right, and load-bearing, for
+    # a facility that genuinely has no artefacts: 391 of the 637 mapped candidates are in that state
+    # and the notice is what stops another site's numbers being read as theirs. What is asserted here
+    # is narrower: not on the default load.
+    for side, seen in (("a", a.get("fallback") or []), ("b", b.get("fallback") or [])):
+        if seen:
+            print("   [FAIL] render %s shows the no-agent-run notice on the DEFAULT site: %r"
+                  % (side, str(seen[0])[:110]))
+            print("          The default selection is the unified map key `metro_ashburn`; the")
+            print("          artefacts are owned by the metro key `ashburn`. Whatever passed the")
+            print("          former to loadHeadline() needs the `metro_key` join. See App.tsx.")
+            fails.append("fallback.on_default")
+    if not (a.get("fallback") or b.get("fallback")):
+        print("   [ok]   fallback       absent on the default site, as it must be")
+
+    # 🔴 ASSERTING ABSENCE ALONE IS SATISFIED BY DELETING THE FEATURE, and the first attempt at this
+    # fix did delete it: a redundant `loadHeadline` call was removed and the notice stopped appearing
+    # anywhere, including on the 389 mapped candidates that really have no run, where it is the only
+    # thing standing between a reader and another site's numbers being read as theirs. A check that
+    # cannot tell "fixed" from "deleted" is not a check.
+    if not _unbuilt:
+        print("   [FAIL] no mapped candidate without a run, so the control has no subject")
+        fails.append("control.no_subject")
+    elif (_ctl or {}).get("fallback"):
+        print("   [ok]   fallback       still shown for %s, which has no run" % _unbuilt)
+    else:
+        print("   [FAIL] %s has no agent run and the notice is ABSENT: the fix removed the feature "
+              "rather than moving it" % _unbuilt)
+        print("          harvest %s" % ("ok" if _ctl else "EMPTY, so the render never reported"))
+        fails.append("fallback.deleted")
+
     print()
     print("   figures on screen, both renders:")
     for f in (a.get("figures") or [])[:12]:
         print("      %s" % f[:70])
+    # The portfolio aggregates, printed as well as compared. They are the biggest claims the landing
+    # screen makes and they are derived from portfolio.json, so a reader of this output can see at a
+    # glance whether the page and the artefact agree.
+    print()
+    print("   portfolio scale card, as rendered:")
+    for f in (a.get("scaleNums") or []):
+        print("      num   %s" % f[:70])
+    for f in (a.get("scaleFoot") or []):
+        print("      foot  %s" % " ".join(f.split())[:150])
 
     print()
     if fails:
