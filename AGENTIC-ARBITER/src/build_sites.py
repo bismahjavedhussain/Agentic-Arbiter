@@ -82,10 +82,12 @@ CHAIN = [
     # and is still imported by `live_report.py`, which is why it stays in the tree.
     # `site_report.py` is the typeset one, with this site's own satellite frame and seven charts.
     #
-    # ⚠ IT NEEDS `requirements-build.txt` (reportlab, svglib, matplotlib, pillow, brotli), which
-    # the deploy image deliberately does not carry. A host without them cannot run this step, and
-    # that is correct rather than unfortunate: these PDFs are built here and committed, because
-    # `serve_live.py` promises that serving demo/ as static files gives the whole replay demo.
+    # ⚠ IT NEEDS `requirements-build.txt`. Two of those packages, reportlab and svglib, are on the
+    # deploy image as well since 2026-08-31, because the LIVE report is typeset and is built at
+    # request time; matplotlib and brotli are not, and this step is the only thing that needs them.
+    # A host without them cannot run this step, and that is correct rather than unfortunate: these
+    # 250 PDFs are built here and committed, because `serve_live.py` promises that serving demo/ as
+    # static files gives the whole replay demo with every proof intact.
     #
     # ⚠ AND IT IS NOT IN SKIP_FOR_STANDALONE. A facility with no neighbour still gets a full
     # report; what it does not get is the plume section, which `site_report.py` drops from the

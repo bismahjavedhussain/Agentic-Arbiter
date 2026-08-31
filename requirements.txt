@@ -21,3 +21,33 @@ psychrolib>=2.5
 # `verify_live` now separates cannot-check from failed, so this line is the difference between a
 # report that is verified on the host that serves it and one that is merely built there.
 pypdf>=4.0
+
+# 🔴 ADDED 2026-08-31, AND IT REVERSES A DECISION THIS FILE AND requirements-build.txt BOTH ARGUED
+# FOR. Until now the split was clean: the deployed image SERVES pre-built reports and never generates
+# one, so a PDF engine had no business here. That is no longer true. The live-run report is built at
+# request time from a job that exists only because that run happened, and it is now the same typeset
+# document as the per-site report rather than a monospaced one. There is no build step that could
+# produce it in advance.
+#
+# ⚠ WHAT WAS WEIGHED. Two options were available: put reportlab and svglib on the server, or
+# re-implement the typeset look on top of report.py's dependency-free writer. The second means two
+# implementations of one document, which is the drift this project spends its effort avoiding: one
+# palette, one type scale, one chart module. `site_report_charts.live_strip` and `.live_horizon` are
+# in the same module as the replay seven for exactly that reason, and they only reach a page through
+# svglib.
+#
+# ⚠ THE COST, MEASURED RATHER THAN ESTIMATED. requirements-build.txt says "roughly 60 MB" for all
+# four build packages. This is the reportlab + svglib closure only, measured from the installed
+# distributions on this checkout: pillow 15.2, lxml 8.9, reportlab 8.1, charset-normalizer 0.7,
+# svglib 0.5, tinycss2 0.2, cssselect2 0.1, webencodings 0.1 -- 33.8 MB. A linux/cp312 wheel set will
+# differ. matplotlib is deliberately still absent, which is most of what was avoided: the two charts
+# that need it, the plume polar and the portfolio histogram, are not in the live document, because
+# one describes a build-time sweep and the other a 250-site portfolio, and neither is what a live run
+# measured.
+#
+# ⚠ AND IT CANNOT TAKE THE LIVE AGENT DOWN. `live_report.build_live` falls back to the monospaced
+# report if either import fails, and records why in `meta`. `#livecard` is permanent by standing
+# rule C1; a presentation upgrade is not allowed to be a single point of failure for it. Verified by
+# blocking the import: 15,613 bytes of monospaced PDF, `typeset: False`, zero problems.
+reportlab>=4.0
+svglib>=1.5

@@ -1,10 +1,17 @@
 # BUILD-TIME ONLY. Everything needed to GENERATE the site report PDFs, and nothing else.
 #
-# ⚠ DELIBERATELY SEPARATE FROM requirements.txt, WHICH IS THE DEPLOYED SERVER'S LIST.
-# The Render image serves pre-built reports; it never generates one. Putting these four packages
-# in the deploy file would add roughly 60 MB to an image that has no use for any of it. The split
-# is the same reasoning that keeps nvidia-warp out of the deploy list: a GPU solver and a report
-# generator are both build-time tools whose OUTPUT ships, not themselves.
+# ⚠ SEPARATE FROM requirements.txt, AND THE LINE MOVED ON 2026-08-31.
+# This file used to say the Render image "serves pre-built reports; it never generates one". That
+# stopped being true when the LIVE-run report became typeset: it is built at request time from a job
+# that only exists because that run happened, so `reportlab` and `svglib` are now in the deploy list
+# too, with the reasoning and the measured 33.8 MB recorded there.
+#
+# WHAT STAYS BUILD-ONLY IS STILL BUILD-ONLY, and that is most of the weight. `matplotlib` draws two
+# charts, the plume polar and the portfolio histogram, and neither belongs in a live document: one
+# describes a build-time sweep and the other a 250-site portfolio. `brotli` only exists so fontTools
+# can decompress the woff2 once, and the three instanced faces it produces are committed. Same
+# reasoning that keeps nvidia-warp out: a GPU solver and a font instancer are tools whose OUTPUT
+# ships, not themselves.
 #
 # Install with:  python -m pip install -r requirements-build.txt
 

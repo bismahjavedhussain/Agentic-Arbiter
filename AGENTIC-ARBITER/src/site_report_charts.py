@@ -596,6 +596,298 @@ def coverage(bound, height=440):                   # page 6 measured 156 pt free
     return "\n".join(s)
 
 
+# =========================================================================== 5b. LIVE: the run
+# 🔴 THESE TWO ARE FOR A LIVE RUN, AND THEY EXIST BECAUSE FIVE OF THE OTHER SEVEN CANNOT BE MADE
+# HONEST FOR A FORECAST. MEASURED against live.py's own hour dicts: `decision_strip` raises
+# KeyError 'mode', `bound_vs_actual` raises KeyError 'actual_intake_c', `margin_decomposition` raises
+# KeyError 'margin_parts'. The first is a shape mismatch and could be translated. The other two are
+# not:
+#
+#   * `bound_vs_actual`'s navy series is "what the intake actually did". A live run is a FORECAST.
+#     There is no actual. Substituting anything for that line would be the precise defect this
+#     module already records fixing once: a caption the chart above it refutes.
+#   * `margin_decomposition` splits the margin into a group-conditional forecast-error part and a
+#     plume part. live.py computes ONE scalar day-level margin, identical in every hour
+#     (live.py:1419 and 1551), so there is nothing to split and a two-part bar would invent a
+#     decomposition.
+#
+# So a live run gets its own two: a strip whose states are the live gates, and a horizon chart that
+# plots the bound against the limit and says outright that the outcome is not known yet.
+LIVE_STATE_LABEL = {"free": "free", "dry-bulb": "dry-bulb", "humidity": "humid",
+                    "refused": "refused", "no-data": "no data"}
+
+
+def live_state(h):
+    """Which of five states this live hour is in, in the order the agent decides them.
+
+    ⚠ NO-FORECAST IS FIRST AND IS NOT A TEMPERATURE VERDICT. live.py's own comment records why:
+    with no field, `bound` is NaN, and `NaN <= limit` is False, so an hour with no data silently
+    counted as blocked-by-temperature and inflated that bucket. It is its own state here.
+    """
+    if h.get("no_data_reason"):
+        return "no-data"
+    if h.get("free_cooling"):
+        return "free"
+    if h.get("bearing_refused"):
+        return "refused"
+    if h.get("gate_dry_ok") is False:
+        return "dry-bulb"
+    if h.get("gate_dewpoint_ok") is False:
+        return "humidity"
+    return "dry-bulb"
+
+
+def live_strip(hours, height=None):
+    """One cell per forecast hour, coloured by what the agent decided and why.
+
+    ⚠ FIVE STATES, NOT THREE. A live run can fail in ways a replay cannot: the vendor can return no
+    field for an hour, and the plume solver can refuse a wind bearing. Both are visible here because
+    both change what the agent was ABLE to say, and a document that hid them would be claiming a
+    completeness the run did not have.
+    """
+    n = len(hours)
+    L, R_, T, cellh = 4, 4, 44, 46
+    cw = (W - L - R_) / float(n)
+    labs = [LIVE_STATE_LABEL[live_state(h)] for h in hours]
+    lab_px = max([_tw(l, T_AXIS) for l in labs] or [0])
+    ty = T + cellh + 11
+    y = ty + lab_px + 12
+    # ⚠ THE LEGEND'S ROW COUNT IS NEEDED BEFORE THE SVG HEADER IS WRITTEN, because the header
+    # carries the height. Counting the wrapped rows here rather than after the cells are drawn is
+    # the difference between a taller chart and a legend printed outside its own viewBox.
+    _texts = {"free": "free cooling: outside air does the work",
+              "dry-bulb": "blocked: the bound is over the plant limit",
+              "humidity": "blocked: humidity",
+              "refused": "the plume solver refused this wind bearing",
+              "no-data": "no forecast for this hour"}
+    _seen = [st for st in ("free", "dry-bulb", "humidity", "refused", "no-data")
+             if any(live_state(h) == st for h in hours)]
+    _rows, _rw = 1, 0.0
+    for st in _seen:
+        _wd = 16 + _tw(_texts[st], T_AXIS) + 20
+        if _rw and _rw + _wd > (W - L - R_):
+            _rows += 1
+            _rw = 0.0
+        _rw += _wd
+    height = max(int(math.ceil(y + 40 + (_rows - 1) * 15)), height or 0)
+    assert ty > T + cellh + 4, "reason labels would touch the hour cells"
+    assert cw > T_AXIS * 1.3, ("%d columns of %.1f px cannot hold %.1f px of rotated text"
+                               % (n, cw, T_AXIS))
+
+    # blue = the agent achieved it; orange = a constraint stopped it; grey = nothing was measured.
+    FILL = {"free": (FREE, FREE, PAPER),
+            "dry-bulb": (ORANGE, ORANGE, PAPER),
+            "humidity": (ORANGE_PALE, ORANGE, BODY),
+            "refused": (ORANGE_PALE, ORANGE, BODY),
+            "no-data": (NEUTRAL, NEUTRAL_EDGE, BODY)}
+
+    s = _open(W, height)
+    s.append(_txt(2, 16, "This run, hour by hour", T_TITLE, NAVY, bold=True))
+    nf = sum(1 for h in hours if live_state(h) == "free")
+    s.append(_txt(W - R_, 16, "%d of %d hours released for free cooling" % (nf, n),
+                  T_LABEL, MUTED, anchor="end"))
+    for i, h in enumerate(hours):
+        x = L + i * cw
+        fill, edge, ink = FILL[live_state(h)]
+        s.append('<rect x="%.2f" y="%d" width="%.2f" height="%d" fill="%s" stroke="%s" '
+                 'stroke-width="0.6"/>' % (x, T, cw - 0.8, cellh, fill, edge))
+        # ⚠ THE HOUR, NOT THE WHOLE TIMESTAMP. live.py labels an hour "YYYY-MM-DD HH:00", which
+        # measures 105 px against a 54.7 px cell on the default 12-hour horizon. The date is the
+        # same for the run and belongs in the prose; the cell carries the clock hour.
+        hh = str(h.get("hour_site_local") or "")[-5:] or "?"
+        s.append(_txt(x + cw / 2 - 0.4, T + 15, hh, T_AXIS, ink, anchor="middle", bold=True))
+        s.append('<g transform="translate(%.2f,%.2f) rotate(-90)">%s</g>'
+                 % (x + cw / 2 + 3, ty, _txt(0, 0, labs[i], T_AXIS, SECOND, anchor="end")))
+    s.append(_rule(L, y, W - R_))
+
+    # 🔴 THE LEGEND WRAPS, BECAUSE FIVE STATES DO NOT FIT ON ONE ROW AND A CHART MUST NOT REFUSE TO
+    # DRAW ITSELF OVER ITS OWN CAPTION. The first version laid the entries out on a single line with
+    # an assertion at the end, and the assertion fired exactly as designed the first time a run had
+    # four states: "the live legend is 127 px too wide". Correct diagnosis, wrong remedy. A live run
+    # does not choose how many ways it failed, so the legend has to accommodate whatever happened.
+    #
+    # ⚠ IT STILL NAMES ONLY THE STATES THIS RUN PRODUCED. A legend describing a colour that is not on
+    # the page is worse than a short one, and on a clean run this is a single entry.
+    TEXTS = {"free": "free cooling: outside air does the work",
+             "dry-bulb": "blocked: the bound is over the plant limit",
+             "humidity": "blocked: humidity",
+             "refused": "the plume solver refused this wind bearing",
+             "no-data": "no forecast for this hour"}
+    seen = [st for st in ("free", "dry-bulb", "humidity", "refused", "no-data")
+            if any(live_state(h) == st for h in hours)]
+    rows_out, row, rw = [], [], 0.0
+    for st in seen:
+        wd = 16 + _tw(TEXTS[st], T_AXIS) + 20
+        if row and rw + wd > (W - L - R_):
+            rows_out.append(row)
+            row, rw = [], 0.0
+        row.append(st)
+        rw += wd
+    if row:
+        rows_out.append(row)
+    # The chart grows for a second legend row rather than overlapping the first.
+    for ri, r in enumerate(rows_out):
+        lx = L
+        ry = y + 8 + ri * 15
+        for st in r:
+            fill, edge, _ = FILL[st]
+            s.append('<rect x="%.2f" y="%.2f" width="11" height="9" fill="%s" stroke="%s" '
+                     'stroke-width="0.6"/>' % (lx, ry, fill, edge))
+            s.append(_txt(lx + 16, ry + 8, TEXTS[st], T_AXIS, GREY))
+            lx += 16 + _tw(TEXTS[st], T_AXIS) + 20
+        assert lx - 20 <= W - R_ + 1, ("a wrapped legend row is still %.0f px too wide"
+                                       % (lx - 20 - (W - R_)))
+    s.append("</svg>")
+    return "\n".join(s)
+
+
+def live_horizon(hours, limit_c, height=300):
+    """The bound the agent committed to, against the plant limit, across the forecast horizon.
+
+    🔴 THERE IS NO "ACTUAL" SERIES AND THERE MUST NOT BE. This is the live analogue of
+    `bound_vs_actual`, and the difference is the whole point: that chart's strongest line is what the
+    intake actually did, measured after the fact. A live run has not happened yet. The chart shows
+    the forecast ambient, the bound built on top of it, and the limit; the outcome is unknown and the
+    caption says so rather than leaving a reader to assume the shaded band was verified.
+
+    ⚠ AND AN HOUR WITH NO FORECAST IS A GAP, NOT A ZERO. `bound_c` is None for those, and joining
+    across them would draw a line through a place where nothing was measured.
+    """
+    n = len(hours)
+    L, R_, T, B = PLOT_L, 12, 48, 60
+    # ⚠ THE BOTTOM BAND GROWS FOR A WRAPPED LEGEND, and that has to be decided before `_open`
+    # writes the height into the svg header. Three entries do not fit one row: MEASURED, the row
+    # came out 9 px too wide on any run with a no-forecast hour, the chart's own assertion fired,
+    # and `build_live` caught it and served the monospaced report instead. A chart cannot control
+    # how many ways a live run failed.
+    _labs = ["the bound the agent committed to", "the forecast ambient it was built on"]
+    if any(h.get("no_data_reason") for h in hours):
+        _labs.append("no forecast for this hour")
+    _rows, _rw = 1, 0.0
+    for _l in _labs:
+        _wd = 21 + _tw(_l, T_AXIS) + 20
+        if _rw and _rw + _wd > (W - L - R_):
+            _rows += 1
+            _rw = 0.0
+        _rw += _wd
+    B += (_rows - 1) * 14
+    height += (_rows - 1) * 14
+    pw, ph = W - L - R_, height - T - B
+    vals = [v for h in hours for v in (h.get("ambient_c"), h.get("bound_c")) if v is not None]
+    vals.append(limit_c)
+    lo, hi = (min(vals), max(vals)) if vals else (0.0, 1.0)
+    pad = (hi - lo) * 0.12 or 1.0
+    lo, hi = lo - pad, hi + pad
+
+    # ⚠ n == 1 IS REACHABLE. serve_live accepts hours=1, and the replay chart divides by n-1.
+    def X(i):
+        return L + pw * (i / float(n - 1)) if n > 1 else L + pw / 2.0
+
+    def Y(v):
+        return T + ph * (1 - (v - lo) / (hi - lo))
+
+    s = _open(W, height)
+    s.append(_txt(2, 16, "The bound this run committed to", T_TITLE, NAVY, bold=True))
+    s.append(_txt(2, 34, "degrees Celsius at the intake, over the forecast horizon", T_AXIS, MUTED))
+    for i in range(5):
+        v = lo + (hi - lo) * i / 4.0
+        yy = Y(v)
+        s.append(_rule(L, yy, W - R_, RULE, 0.6))
+        s.append(_txt(L - 6, yy + 3, "%.0f" % v, T_AXIS, MUTED, anchor="end"))
+
+    # the no-forecast hours, as bands, before anything is drawn over them
+    for i, h in enumerate(hours):
+        if h.get("no_data_reason"):
+            x0 = X(i) - (pw / max(n - 1, 1)) * 0.42 if n > 1 else L
+            s.append('<rect x="%.2f" y="%d" width="%.2f" height="%.2f" fill="%s" opacity="0.55"/>'
+                     % (x0, T, (pw / max(n - 1, 1)) * 0.84 if n > 1 else pw, ph, NEUTRAL))
+
+    # the plant limit
+    s.append('<line x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" stroke="%s" stroke-width="1.6" '
+             'stroke-dasharray="6 3"/>' % (L, Y(limit_c), W - R_, Y(limit_c), ORANGE))
+    _lt = "plant limit %.0f" % limit_c
+    _lw = _tw(_lt, T_AXIS, bold=True)
+    s.append('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f" fill="%s"/>'
+             % (W - R_ - 2 - _lw - 3, Y(limit_c) - 5 - T_AXIS * 0.86, _lw + 6, T_AXIS * 1.06, PAPER))
+    s.append(_txt(W - R_ - 2, Y(limit_c) - 5, _lt, T_AXIS, ORANGE, anchor="end", bold=True))
+
+    # the two series, broken wherever an hour has no number
+    def poly(key, colour, width):
+        out, run = [], []
+        for i, h in enumerate(hours):
+            v = h.get(key)
+            if v is None:
+                if len(run) > 1:
+                    out.append(run)
+                run = []
+            else:
+                run.append((X(i), Y(v)))
+        if len(run) > 1:
+            out.append(run)
+        return "".join(
+            '<path d="%s" fill="none" stroke="%s" stroke-width="%s" stroke-linejoin="round"/>'
+            % (" ".join(("M%.2f %.2f" if k == 0 else "L%.2f %.2f") % pt
+                        for k, pt in enumerate(seg)), colour, width)
+            for seg in out)
+
+    s.append(poly("ambient_c", MUTED, 1.2))
+    s.append(poly("bound_c", FREE, 2.0))
+    # single points, so a one-hour horizon and an isolated hour between gaps still show
+    for i, h in enumerate(hours):
+        if h.get("bound_c") is not None:
+            s.append('<circle cx="%.2f" cy="%.2f" r="2.4" fill="%s"/>'
+                     % (X(i), Y(h["bound_c"]), FREE))
+
+    # ⚠ THE LAST TICK IS ANCHORED AT ITS END, NOT ITS MIDDLE. X(n-1) is the plot's right edge, so a
+    # centred label there hangs half its width past it: MEASURED, "10:00" reached x = 549.4 pt
+    # against the document's 547.1 pt content edge, and `tools/check_report.py` reported the page as
+    # OVERFLOW. The first tick has the mirror problem at the left edge and is anchored at its start.
+    _ticks = list(range(0, n, max(1, n // 8)))
+    if n > 1 and (n - 1) not in _ticks:
+        _ticks.append(n - 1)
+    for i in _ticks:
+        anc = "start" if i == 0 and n > 1 else "end" if i == n - 1 and n > 1 else "middle"
+        s.append(_txt(X(i), height - B + 20, str(hours[i].get("hour_site_local") or "")[-5:],
+                      T_AXIS, MUTED, anchor=anc))
+    # 🔴 LAID OUT BY MEASURED WIDTH, BECAUSE THE CONSTANT OFFSETS WERE WRONG THE FIRST TIME.
+    # These were 0 / 196 / 404, copied from `bound_vs_actual`, whose labels are shorter. MEASURED:
+    # "the bound the agent committed to" runs to x = 248.2 pt and the second entry's swatch line was
+    # drawn from 243.2 to 255.2 at the same y, straight through the end of it, which the
+    # lines-through-text check caught. Every other legend in this module already measures; this one
+    # was the copy that did not.
+    ly = height - 16 - (_rows - 1) * 14
+    ents = [(FREE, 2, None, "the bound the agent committed to"),
+            (MUTED, 1.2, None, "the forecast ambient it was built on")]
+    if any(h.get("no_data_reason") for h in hours):
+        ents.append((None, None, NEUTRAL, "no forecast for this hour"))
+    rows_out, row, rw = [], [], 0.0
+    for e in ents:
+        wd = 21 + _tw(e[3], T_AXIS) + 20
+        if row and rw + wd > (W - L - R_):
+            rows_out.append(row)
+            row, rw = [], 0.0
+        row.append(e)
+        rw += wd
+    if row:
+        rows_out.append(row)
+    for ri, r in enumerate(rows_out):
+        lx = L
+        ry = ly + ri * 14
+        for colour, w, swatch, lab in r:
+            if swatch is not None:
+                s.append('<rect x="%.2f" y="%d" width="11" height="9" fill="%s"/>'
+                         % (lx, ry - 8, swatch))
+            else:
+                s.append('<line x1="%.2f" y1="%d" x2="%.2f" y2="%d" stroke="%s" '
+                         'stroke-width="%s"/>' % (lx, ry - 3, lx + 16, ry - 3, colour, w))
+            s.append(_txt(lx + 21, ry, lab, T_AXIS, GREY))
+            lx += 21 + _tw(lab, T_AXIS) + 20
+        assert lx - 20 <= W - R_ + 1, ("a wrapped horizon legend row is %.0f px too wide"
+                                       % (lx - 20 - (W - R_)))
+    s.append("</svg>")
+    return "\n".join(s)
+
+
 # =========================================================================== 6. plume polar (mpl)
 def plume_polar(rise_table_path, worst_bearing, worst_rise, out_svg, placed_scale=1.0):
     # 🔴 THIS CHART IS PLACED AT 0.86, AND SCALING A DRAWING SCALES ITS TEXT WITH IT.

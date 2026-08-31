@@ -500,7 +500,7 @@ function Legend() {
       {/* ⚠ SAME GREY, DIFFERENT SENTENCE. A fourth dot colour for twelve sites would read as a
           fourth category of thing, and it is not: both are "not offered". What differs is the
           reason, and the reason is on the popup where a reader who cares can find it. */}
-      <Row c="var(--axis)" t="Measured, not offered: the agent was worse there" />
+      <Row c="var(--axis)" t="Measured, not offered" />
       <Row c="var(--series-2)" t="Matches the chosen operator" />
     </div>
   )

@@ -249,14 +249,25 @@ class Doc(BaseDocTemplate):
         if os.path.exists(out) and os.path.exists(stamp):
             if open(stamp, encoding="utf-8").read().strip() == tag:
                 return out
-        im = PILImage.open(LOGO).convert("RGBA")
-        want = int(round(LOGO_W / 72.0 * 300))
-        if im.width > want:
-            im = im.resize((want, int(round(im.height * want / float(im.width)))),
-                           PILImage.LANCZOS)
-        im.save(out, "PNG", optimize=True)
-        open(stamp, "w", encoding="utf-8").write(tag)
-        return out
+        # 🔴 AN UNWRITABLE CACHE FALLS BACK TO THE FULL-SIZE MARK, NOT TO NO MARK.
+        # Render's free plan has no persistent disk, so this directory is whatever the image layer
+        # gave the container: writable today, and not guaranteed to be. When the write raised, the
+        # exception propagated to `_furniture`, whose own `except` draws the word "FortyGuard" in
+        # type instead. MEASURED by blocking the write: a served 41,864 byte PDF with no logo on any
+        # page, against 57,065 with one. The brand mark on every page of a document a CEO may forward
+        # is worth 130 KB more than it is worth losing, so the source PNG is the fallback and the
+        # pre-scale is the optimisation.
+        try:
+            im = PILImage.open(LOGO).convert("RGBA")
+            want = int(round(LOGO_W / 72.0 * 300))
+            if im.width > want:
+                im = im.resize((want, int(round(im.height * want / float(im.width)))),
+                               PILImage.LANCZOS)
+            im.save(out, "PNG", optimize=True)
+            open(stamp, "w", encoding="utf-8").write(tag)
+            return out
+        except (OSError, PermissionError):
+            return LOGO
 
     def _furniture(self, canv, doc):
         canv.saveState()
@@ -437,8 +448,12 @@ def _tiles(rows, weights=None):
         avail = wid - 14 - 8 - 6
         plain = re.sub("<[^>]+>", "", val)
         vsize = _fit_size(plain, avail, 17.0)
+        # ⚠ 1.32, NOT 1.16. `_fit_size` shrinks a value until it fits one line, but it stops at an
+        # 11 pt floor, so a long value can still wrap. At 1.16 the two lines' boxes overlapped by
+        # 4 % and the overlap check reported it. Leading that survives a wrap costs nothing on the
+        # single-line values, which are almost all of them.
         vstyle = ParagraphStyle("tileval-%.2f" % vsize, parent=S["tileval"],
-                                fontSize=vsize, leading=vsize * 1.16)
+                                fontSize=vsize, leading=vsize * 1.32)
         assert (_fit_size(plain, avail, vsize, floor=vsize) == vsize), "tile value cannot fit"
         inner = [[Paragraph(val, vstyle)], [Paragraph(lab, S["tilelab"])]]
         if note:

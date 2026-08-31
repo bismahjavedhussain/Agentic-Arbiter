@@ -127,6 +127,16 @@ def flat(d, prefix=""):
 def reason_for(h, limit_c, dp_limit):
     """Why this hour got the mode it got, in words, from the row itself.
 
+    🔴 THE UNIT HERE IS A BARE "C" ON PURPOSE, AND CHANGING IT BROKE THE MONOSPACED REPORT.
+    `report.py` measures and wraps against base-14 Helvetica metrics and renders a degree sign as the
+    four characters " deg", so making these strings say "°C" produced lines WIDER than the wrapper
+    had budgeted: MEASURED, five ran up to 46.2 pt past the right margin and `verify_live` refused
+    the document, including on the no-pypdf path where the geometry check is the only one there is.
+
+    The typeset live report CAN set the glyph, so it upgrades these sentences itself in
+    `site_report_live._degrees`. A shared function that two readers depend on does not change its
+    output to suit one of them.
+
     🔴 NOTHING HERE IS A TEMPLATE WITH A GUESS IN IT. Every clause is gated on a field live.py
     actually emitted for this hour, and every number quoted is that hour's own. An hour with no
     forecast says so and claims nothing else: live.py's own comment records that counting a missing
@@ -173,7 +183,54 @@ def reason_for(h, limit_c, dp_limit):
 # THE REPORT
 # ============================================================================
 def build_live(job, site_label=None):
-    """One finished live job in, (pdf_bytes, meta) out. Raises if the job is not usable."""
+    """One finished live job in, (pdf_bytes, meta) out. The typeset document where it can be built.
+
+    🔴 A FALLBACK, NOT A CHOICE, AND THE LIVE AGENT'S PERMANENCE IS WHY.
+    The typeset report needs `reportlab` and `svglib`, which reach the deployed image only because
+    `requirements.txt` now asks for them. If that install ever fails, or a host runs this from a
+    checkout without them, `import site_report_live` raises. Inside `serve_live.py`'s report handler
+    an exception becomes HTTP 500, and the download anchor writes that JSON body to disk as a file:
+    that is precisely the fault of 2026-08-30, which cost the live PDF download in production and was
+    diagnosed from a .json in the reader's downloads folder.
+    #
+    `#livecard` and `#livego` are permanent by standing rule. A presentation upgrade must not be able
+    to take the feature down, so a missing library degrades to the monospaced report that needs
+    nothing beyond the standard library. The reader gets a plainer document; they do not get an error.
+    #
+    ⚠ THE FALLBACK REASON TRAVELS IN `meta`, so a plain report is never mistaken for a choice. Nobody
+    reading a monospaced PDF should have to guess whether the server is missing a dependency.
+    """
+    try:
+        import site_report_live as SRL
+    except Exception as e:                                            # noqa: BLE001
+        data, meta = build_live_mono(job, site_label)
+        meta["typeset"] = False
+        meta["typeset_unavailable"] = "%s: %s" % (type(e).__name__, e)
+        return data, meta
+    try:
+        data, meta = SRL.build_live_typeset(job, site_label)
+        meta["typeset"] = True
+        return data, meta
+    except (ValueError, KeyError) as e:
+        # A job this cannot describe is a job the monospaced one cannot describe either: those two
+        # exceptions are `collect_live`'s own refusals (no hours, not finished) and they must
+        # propagate rather than silently produce a different document.
+        raise
+    except Exception as e:                                            # noqa: BLE001
+        # Anything else -- a font that will not load, a chart that will not convert -- is a
+        # presentation failure, and a plain report beats no report.
+        data, meta = build_live_mono(job, site_label)
+        meta["typeset"] = False
+        meta["typeset_failed"] = "%s: %s" % (type(e).__name__, e)
+        return data, meta
+
+
+def build_live_mono(job, site_label=None):
+    """The monospaced report. Needs nothing but the standard library, which is why it is the fallback.
+
+    ⚠ STILL THE ONLY BUILDER THAT CAN RUN ANYWHERE. `report.py`'s Pdf writer has no third-party
+    dependency at all, so this path works on a bare checkout and on a host whose pip install failed.
+    """
     if not isinstance(job, dict) or job.get("state") != "done":
         raise ValueError("live report needs a finished job; this one is state=%r"
                          % (job or {}).get("state"))
@@ -407,8 +464,35 @@ def selftest():
     }
     data, meta = build_live(job)
     problems = verify_live(data, meta)
-    print("   built %d bytes, %d hours, %d free, %d with no forecast"
-          % (len(data), meta["hours"], meta["free"], meta["no_data"]))
+    print("   built %d bytes, %d hours, %d free, %d with no forecast%s"
+          % (len(data), meta["hours"], meta["free"], meta["no_data"],
+             "" if meta.get("typeset") else "   [MONOSPACED FALLBACK]"))
+
+    # 🔴 A SILENT FALLBACK IS THE ONE FAILURE THIS SELF-TEST COULD NOT SEE, AND IT HAPPENED.
+    # `build_live` degrades to the monospaced report when the typeset one raises, which is what keeps
+    # the live agent up when a dependency is missing. It also means a bug in the typeset document
+    # shows up as a slightly plainer PDF and nothing else. MEASURED: the horizon chart's legend was
+    # 9 px too wide on any run containing a no-forecast hour, its own assertion fired, and this
+    # self-test printed ALL PASS while building 9,858 bytes of monospaced PDF in place of 54,000 of
+    # typeset. The fallback worked perfectly and hid a defect for as long as nobody read the size.
+    #
+    # So the requirement is stated in both directions: where reportlab CAN be imported the typeset
+    # path is mandatory, and where it cannot the fallback is. It joins `problems`, because that list
+    # is what decides this function's exit code.
+    try:
+        import reportlab                                             # noqa: F401
+        _rl = True
+    except ImportError:
+        _rl = False
+    if _rl and not meta.get("typeset"):
+        problems.append(
+            "reportlab is installed but the TYPESET report was not built, so the monospaced "
+            "fallback ran and hid a failure: %s"
+            % (meta.get("typeset_failed") or meta.get("typeset_unavailable") or "no reason given"))
+    elif _rl:
+        print("   [ok]   the TYPESET report is what gets built where reportlab is installed")
+    elif meta.get("typeset") is False:
+        print("   [ok]   with no reportlab, the monospaced report is built rather than nothing")
     for b in problems:
         print("   [FAIL] %s" % b)
     if not problems:

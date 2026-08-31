@@ -12,6 +12,85 @@ maintained by hand. Newest change first, always.
 **This is the first thing to read after a restart or a compaction.** Maintained by hand; it is the
 only section describing work IN FLIGHT rather than work finished.
 
+### THE LIVE REPORT IS THE TYPESET DOCUMENT NOW, AND THE FALLBACK IS WHAT MADE IT SAFE. 2026-08-31
+
+The user: "make sure that the format you used for automatic pdf generation in replay mode also holds
+true for the live agent run ... the necessary changes would be made per site for the specific outputs
+the agent derives regarding cooling mode in those live forecasting."
+
+**`site_report_live.py` IS A DIFFERENT DOCUMENT, NOT A MODE OF THE REPLAY ONE**, and that was the
+first design decision. `site_report_data.collect()` reads COMMITTED artefacts; every figure in them
+describes a build-time configuration over five years. Reusing it under a live heading would put
+backtest figures beside forecast hours as though this run produced them, which is the confusion the
+monospaced live report was written to prevent and says so on its own first page. This module reads
+the JOB and nothing else. Three pages: the run's identity and hour-by-hour strip, the bound across
+the horizon plus the per-hour reasoning, then every hour, the margin disclosure and the config.
+
+🔴 **TWO OF THE REPLAY REPORT'S BEST CHARTS ARE FORBIDDEN HERE, not unavailable.** `bound_vs_actual`'s
+strongest series is "what the intake actually did", measured after the fact; a live run is a forecast
+and has no actual, so substituting anything would be a caption the chart refutes.
+`margin_decomposition` splits the margin two ways and `live.py` computes ONE scalar day-level margin,
+identical in every hour, so a two-part bar would invent a decomposition. `live_strip` and
+`live_horizon` replace them, in the same module so there is one palette and one type scale. The strip
+has FIVE states because a live run can fail in ways a replay cannot: no forecast for an hour, and a
+refused wind bearing. Both are visible because both changed what the agent was able to say.
+
+⚠ **`verify_live`'s THREE TEXT CHECKS WERE KEPT, NOT LOOSENED.** It greps for "LIVE RUN REPORT" and
+"the reasoning, hour by hour" and scans for bare nan/None tokens, and `serve_live.py` turns any
+problem into an HTTP 500 that a download anchor writes to disk as a .json: the 2026-08-30 fault
+exactly. Those are good content requirements, so the document satisfies them. Result: **0 problems**,
+and `verify_live_report_button.py` passes 25/25 serving 56,470 bytes through the real route.
+
+🔴 **THE GEOMETRY CHECK HAD TO BE REBUILT, AND MY FIRST VERSION LIED.** `report.Pdf.overflows()` is
+the only library-free check `verify_live` has, and the ReportLab path has no equivalent; dropping the
+key would have undone the 2026-08-30 fix from the other direction, invisibly, because the self-test's
+negative control plants the key itself. So it is rebuilt on pypdf, already a deploy dependency, from
+the finished bytes. ⚠ The first version read `tm[4]` as a page coordinate and reported SIX overflows
+on `demo/report.pdf`, which PyMuPDF measures clean at max x 547.1: text inside a scaled Drawing
+carries its x in the Drawing's space. Composing with the CTM gives 527.1 for the same string. It now
+has a negative control, because the first control tested nothing: ReportLab silently refused the
+over-wide table it planted, so a string is drawn at x = 700 instead and must be caught.
+
+🔴 **THE FALLBACK HID A DEFECT, WHICH IS THE MOST IMPORTANT THING FOUND HERE.** `build_live` degrades
+to the monospaced report when the typeset one raises, so a missing dependency cannot take down a
+feature that is permanent by standing rule C1. It also means a bug in the typeset document shows up
+as a plainer PDF and nothing else. MEASURED: `live_horizon`'s legend was 9 px too wide on any run
+containing a no-forecast hour, its own assertion fired, `build_live` caught it, and the self-test
+printed ALL PASS while building 9,858 bytes of monospaced PDF in place of 55,000 of typeset. The
+fallback worked perfectly and concealed the failure. Both live legends now WRAP rather than assert,
+and the self-test **fails** if the typeset path falls back where reportlab can be imported.
+
+⚠ **A SHARED FUNCTION DOES NOT CHANGE TO SUIT ONE CALLER.** Adding degree signs to
+`live_report.reason_for` broke the monospaced report: `report.py` wraps against base-14 Helvetica and
+renders "°" as the four characters " deg", so five lines ran up to 46.2 pt past the right margin and
+`verify_live` correctly refused the document, including on the no-pypdf path. Reverted;
+`site_report_live._degrees` upgrades the units, trims 4 decimals to 3 and turns "240 deg" into "240°"
+on the way in, for the one reader that can render them.
+
+**THREE FACTS THE LIVE PATH CARRIES THAT NOTHING WAS READING.**
+* `horizon_h` is the REQUESTED horizon and is never rewritten after truncation: `demo/live.json` says
+  12 while carrying 4 hours. The document counts `len(hours)` and states the difference outright.
+* `dewpoint_c` holds FortyGuard's WET-BULB where FortyGuard supplied one and NWS's dew point
+  otherwise, discriminated by `humidity_source_per_hour`. Wet-bulb is the stricter test, so the
+  monospaced report's "DEW PT" column understates what the gate did. The typeset column heading is
+  derived per run: "wet-bulb", "dew point", or both.
+* `margin_provenance` carries the bound's own limits (4 pairs, 9 needed, an 80 % arithmetic ceiling,
+  65.6 % measured, clamped, and the extrapolation) and was being dumped as flat key/value rows capped
+  at 26. It is now a table with a sentence per row.
+
+⚠ **THE FREE PLAN, MEASURED AGAINST THE ACTUAL LIMITS** (0.1 CPU, 512 MB RAM, no persistent disk).
+requirements.txt now asks for reportlab and svglib; matplotlib stays out, which is most of the weight.
+Disk closure **33.8 MB** measured from the installed distributions, against the "roughly 60 MB" this
+repo estimated for all four. RAM: the new imports cost **+10.5 MB**, a build peaks about 18 MB
+transient, six builds in one process reached 78 MB, which is **15 % of 512** and shows no leak. Time:
+0.13 s warm and 0.64 s cold, so roughly 1.3 s to 6.4 s on a tenth of a core. No persistent disk means
+the document is built to a BytesIO and both charts are SVG strings: none of the replay report's three
+file-writing figures is used. ⚠ And the logo cache falls back to the FULL-SIZE mark rather than to no
+mark when the directory is unwritable: blocking the write produced a 41,864 byte PDF with no logo on
+any page before the fix, and 105,041 bytes with one after.
+
+`audit.py` 2115 passed, the same 5 pre-existing spend failures and no new ones.
+
 ### 250 OFFERED BECAME 238, AND THE CHART HAD NEVER PLOTTED THE 12 IT CLAIMED TO. 2026-08-31
 
 The user: "we remove all those sites which show negative prices in the tiles ... let them stay on map
