@@ -388,8 +388,11 @@ function shortPhrase(e){
   try{ return tkRender(d.short, e.numbers); }catch(err){ return null; }
 }
 
+let TAPEGEN = 0;
+
 async function streamTape(){
   const el=$('#tape'); if(!el) return;
+  const gen = ++TAPEGEN;
   if(!TK){ el.innerHTML='<p class="note err">ticker.json did not load for this site.</p>'; return; }
   /* The template/digit counts moved off the screen with the sentence that framed them; what stays
      is the verification result, which is a measurement rather than a claim about the build. */
@@ -410,6 +413,15 @@ async function streamTape(){
     /* the previous line stops pulsing once this one arrives */
     const prev=el.children[el.children.length-2]; if(prev) prev.classList.remove('live');
     await new Promise(r=>setTimeout(r, STREAM_MS));
+    /* SUPERSEDED. A live run started while this was streaming. Stop here and leave the tape
+       exactly as it stands: the rows already written are true, and finishing them now would
+       narrate a replay the reader has moved on from. No #tapedone either, because it did not
+       finish, and #tapedone is the signal the React console resolves a REPLAY on. */
+    if(gen !== TAPEGEN){
+      const cur=el.lastElementChild; if(cur) cur.classList.remove('live');
+      streaming = false;
+      return;
+    }
   }
   const last=el.lastElementChild; if(last) last.classList.remove('live');
   /* WRITTEN INTO THE FOOTER ROW, not appended to the stream. Appending put this inside `#tape`,
@@ -2275,6 +2287,12 @@ async function runLive(){
   /* The stop control is only real while a run is in flight: shown here, hidden when it settles.
      A stop button with nothing to stop misreports what the page is doing. */
   const stopBtn = $('#livestop');
+  /* STOP THE REPLAY REASONING WHERE IT IS. The user: "if I click on the live agent before the
+     replay mode's report is generated and while the reasoning is going on for the replay mode,
+     stop the reasoning there, and keep it static for the live agent." Bumping the token ends the
+     in-flight streamTape at its next await. */
+  TAPEGEN++;
+  streaming = false;
   STOPWANTED = false; LIVEJOB = null;
   if(stopBtn){ stopBtn.hidden = false; stopBtn.disabled = false;
                stopBtn.textContent = 'Stop agent now'; }

@@ -121,6 +121,13 @@ export function AgentConsole({
      this is inferred from WHICH button started the run, which is the same signal `begin`
      already listens for. Only #livego means a vendor call happened. */
   const [wasLive, setWasLive] = useState(false)
+  /* 🔴 FROZEN, BECAUSE THE SWIRL LOOPED FOR THE WHOLE OF A LIVE RUN. Pressing #livego while the
+     reasoning is still playing switches the settle test to liveDone(), which can take minutes over
+     twelve vendor windows, and the interval below went on advancing `idx` the whole time. The six
+     phrases therefore repeated, and a reader watching the same six sentences cycle concludes the
+     agent is stuck in a loop. Frozen holds the phrase and the stage where they were: the live run
+     reports its own progress in #livestream, and this line has nothing left to narrate. */
+  const [frozen, setFrozen] = useState(false)
 
   /* One restartable run of the sequence. `startedAt` is a ref, not state: the interval below reads it
      and must not be re-created every time it changes. */
@@ -156,7 +163,12 @@ export function AgentConsole({
     const onClick = (e: MouseEvent) => {
       const t = e.target as HTMLElement | null
       const btn = t && t.closest ? (t.closest('button, a') as HTMLElement | null) : null
-      if (btn && RUN_BUTTONS.includes(btn.id)) setWasLive(btn.id === 'livego')
+      if (btn && RUN_BUTTONS.includes(btn.id)) {
+        const live = btn.id === 'livego'
+        setWasLive(live)
+        /* A replay restarts the narration; a live run stops it dead and leaves it static. */
+        setFrozen(live)
+      }
     }
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
@@ -167,15 +179,18 @@ export function AgentConsole({
   useEffect(() => {
     if (phase !== 'reasoning') return
     const id = setInterval(() => {
-      setIdx((i) => i + 1)
-      setStage(tapeStage())
+      /* Still ticking, so the settle test below keeps being asked, but the words hold still. */
+      if (!frozen) {
+        setIdx((i) => i + 1)
+        setStage(tapeStage())
+      }
       /* Resolves only when BOTH the minimum has elapsed AND the real tape has finished, so the console
          can never claim a decision the engine has not actually reached. */
       const settled = wasLive ? liveDone() : tapeDone()
       if (performance.now() - startedAt.current >= MIN_MS && settled) setPhase('ready')
     }, PHRASE_MS)
     return () => clearInterval(id)
-  }, [phase, wasLive])
+  }, [phase, wasLive, frozen])
 
   const phrase = PHRASES[idx % PHRASES.length]
   const stageLabel = stage >= 1 && stage <= 7 ? STAGE_NAMES[stage - 1] : ''
@@ -191,7 +206,9 @@ export function AgentConsole({
       >
         {/* THE ORBITING ICON. Two counter-rotating arcs around a core, so it reads as thinking rather
             than as a progress spinner, which would imply a percentage nobody is measuring. */}
-        <span className="aa-orbit" aria-hidden="true" data-state={phase}>
+        {/* data-state drives the orbit animation, so a frozen console stops turning too. */}
+        <span className="aa-orbit" aria-hidden="true"
+              data-state={frozen && phase === 'reasoning' ? 'ready' : phase}>
           <i className="aa-orbit-a" />
           <i className="aa-orbit-b" />
           <i className="aa-orbit-core" />
@@ -205,7 +222,7 @@ export function AgentConsole({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
-              className={phase === 'reasoning' ? 'aa-shimmer' : undefined}
+              className={phase === 'reasoning' && !frozen ? 'aa-shimmer' : undefined}
             >
               {phase === 'ready' ? 'Decision ready. Every hour carries its own bound.' : phrase}
             </motion.span>

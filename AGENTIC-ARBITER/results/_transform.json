@@ -8,7 +8,7 @@
     ],
     "sha256": "6873f3b7dd052d9d1333c93da114d266db31cd3d225f638ae1fd2aa1b48cea03"
   },
-  "declarations": 54,
+  "declarations": 55,
   "dropped_declarations": {
     "BOOTED": "boot"
   },
@@ -348,8 +348,8 @@
       "sha256": "c260731162d2bc0c87b591bf3d41a142acc89ae3564b4d1cc20d63ba94c648e7"
     },
     "runLive": {
-      "bytes": 3160,
-      "sha256": "0cc0cb852be08b8a28d55d780ae8b99069075e2a6615f02dd8a058b3f9278418"
+      "bytes": 3531,
+      "sha256": "293eeed9c311469f559d3972c626c8f984f5976a4cc54606c0383d5edc5e76f1"
     },
     "setStage": {
       "bytes": 2806,
@@ -380,8 +380,8 @@
       "sha256": "85e6828650e4180b57205d5ca5a5166cf7afd181c93b5449e825a7aa5ebd6dcb"
     },
     "streamTape": {
-      "bytes": 1726,
-      "sha256": "3e1bda869eb70507b7a86510bbbaab33d5aa2b3eabe050e5139cc80bad58b07a"
+      "bytes": 2262,
+      "sha256": "c213490c917b125424030b12a71e74f503575ea82f1d83b5711a9d2fc8dc3fcd"
     },
     "styleMapForTheme": {
       "bytes": 2102,
