@@ -1799,6 +1799,20 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
     <div class="actions">
       <button id="runagent" class="btn btn-go btn-wide">Run the agent &rarr;</button>
       <button id="autofill" class="btn btn-sm btn-wide">Auto-fill a realistic plant</button>
+      <!-- WHERE THE AUTO-FILLED NUMBERS COME FROM, because a reader is entitled to ask and the
+           honest answer is not "ASHRAE" for all of them. VERIFIED against the artefacts: auto-fill
+           restores exactly the configuration explanations.json's blocks were solved at (limit 18,
+           dew point 15, budget 2, dwell 3, notice 3, skill 0.50). Of those, ONE is published
+           rather than chosen: 15 C is ASHRAE's recommended maximum dew point, quoted in The Green
+           Grid's White Paper #46 p.6, which is the same page that gives the 27 C dry-bulb maximum
+           in the limit list. The rest are swept options, which is what the note above already
+           says. Claiming the whole set came from a standard would be the kind of borrowed
+           authority this project exists to avoid. -->
+      <p class="note" style="margin:6px 0 0">Auto-fill restores the configuration this site&rsquo;s
+      saved day was solved at. Its <strong>15&nbsp;&deg;C dew-point ceiling and the
+      27&nbsp;&deg;C limit</strong> are ASHRAE&rsquo;s recommended maxima, published in
+      <strong>The Green Grid</strong> White&nbsp;Paper&nbsp;#46; every other value is one of the
+      swept options, not a tuned constant.</p>
     </div>
     <p class="note" id="runnote" style="margin:10px 0 0"></p>
     <div class="filters col" id="filters"></div>
