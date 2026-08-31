@@ -228,9 +228,19 @@ function buildControls(){
      value, not a standard: only 27 °C is sourced, as ASHRAE's recommended dry-bulb maximum via
      Green Grid WP46 p.6. PLANT_ENVELOPE is untouched, so scenarios.json and the audit do not
      move; the explorer computes `bd <= k.limit` rather than looking a scenario up. */
-  const UI_LIMITS = PE().limit_c.concat([22]).sort((a,b)=>a-b);
+  /* 35 °C IS ASHRAE'S CLASS A2 ALLOWABLE MAXIMUM, and unlike 22 it IS sourced. Green Grid
+     WP46's executive summary: "The class A2 Allowable range ... shows that 75 percent of North
+     America could use air side economizers for every hour of a typical year if operators are
+     able to allow temperatures up to 35 C for short periods of time." 27 C is the RECOMMENDED
+     maximum from the same paper; the 2011 release widened the ALLOWABLE envelope precisely to
+     make economising possible, which is the paper's whole subject. It matters here because a
+     summer afternoon at Ashburn bounds near 28.5 C, so under the recommended envelope no
+     daytime hour can ever qualify and under A2 they can. */
+  const UI_LIMITS = PE().limit_c.concat([22, 35]).sort((a,b)=>a-b);
   opt('#c_limit', UI_LIMITS,
-      UI_LIMITS.map(v=>v+' °C'+(v===27?' (ASHRAE max)':(v===22?' (swept)':''))), 18);
+      UI_LIMITS.map(v=>v+' °C'+(v===27?' (ASHRAE recommended max)'
+                               :(v===35?' (ASHRAE A2 allowable)'
+                               :(v===22?' (swept)':'')))), 18);
   opt('#c_notice', PE().notice_h, PE().notice_h.map(v=>v+' h'), 3);
   opt('#c_anchor', PE().anchor, PE().anchor.map(v=>v==='sensor'?'one local reading':'none: believe <strong>FortyGuard</strong>'), 'sensor');
   const fo = T.cases.fg_offsets||[];

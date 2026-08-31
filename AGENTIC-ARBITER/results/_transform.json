@@ -64,8 +64,8 @@
       "sha256": "bbbc108ddcd517bd05ada2152e2a6323797d8442967f5a8caeb77928c3fa6288"
     },
     "buildControls": {
-      "bytes": 3702,
-      "sha256": "3aa21c8f935f4aef099f0d182abc4b91e76ae97567217691604dfc8fe76cadaf"
+      "bytes": 4533,
+      "sha256": "3f7fced7b19f70fbeb3ff1933d23e36a3c796ad782ca91cf897a1447f539a706"
     },
     "buildImageryOptions": {
       "bytes": 925,
