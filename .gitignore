@@ -86,3 +86,10 @@ AGENTIC-ARBITER/src/reportassets/_*
 # The demo voiceover script is a working document for the video, not part of the
 # shipped artefact. Kept on the local drive only, at the user's direction.
 DEMO-SCRIPT-2m50.md
+
+# The durable-context pack, kept on the local drive only at the user's direction.
+# WARNING for a fresh clone: audit.py, run_all.py, live_report.py,
+# testing/audit_nothing_lost.py, testing/bump_spend_docs.py, tools/mkresults.py and
+# tools/mkview.py all READ files under CONTEXT/, and CLAUDE.md instructs reading it
+# first. Without this folder those checks cannot run. The folder is intact locally.
+CONTEXT/
