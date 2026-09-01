@@ -2778,12 +2778,15 @@ def check_api_spend():
     for doc, path in (("API-USAGE.md", os.path.join(ROOT, "API-USAGE.md")),
                       ("HANDOFF.md", os.path.join(ROOT, "CONTEXT", "HANDOFF.md"))):
         if not os.path.exists(path):
-            # HANDOFF.md is still published and must be there. API-USAGE.md is deliberately not,
-            # so its absence is stated rather than scored as a fault.
-            ck("%s exists" % doc, doc == "API-USAGE.md",
-               "not published in the repository, nothing to re-read"
-               if doc == "API-USAGE.md" else "missing",
-               warn=(doc == "API-USAGE.md"))
+            # 🔴 NEITHER DOCUMENT IS PUBLISHED ANY MORE, 2026-09-01, at the user's direction:
+            # API-USAGE.md is the spend ledger and HANDOFF.md is a 406 KB working log carrying
+            # eleven mentions of usage the user has said must not appear in the repository.
+            # A figure nobody is given cannot drift in front of a reader, so absence is stated
+            # rather than scored as a fault. ⚠ THE CHECK BELOW IS NOT WEAKENED: both files are
+            # still written locally by testing/bump_spend_docs.py, and whenever either IS present
+            # every figure in it is re-read and a stale one still fails, with no edit needed.
+            ck("%s exists" % doc, True,
+               "not published in the repository, nothing to re-read", warn=True)
             continue
         txt = open(path, encoding="utf-8").read()
         missing = [s for s in current if s not in txt]

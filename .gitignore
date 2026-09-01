@@ -124,12 +124,13 @@ RECIRCULATION-PHYSICS.md
 # tools/mkview.py all READ files under CONTEXT/, and CLAUDE.md instructs reading it
 # first. Without this folder those checks cannot run. The folder is intact locally.
 CONTEXT/*
-# HANDOFF.md is the ONLY file under CONTEXT/ a clone still needs: the spend checks read it.
-# READING-THE-AGENT.md was negated here too until 2026-09-01, because audit.py scanned it
-# for retracted phrases. It is unpublished now at the user's direction and that scan entry
-# was removed in the same change, so the negation goes with it. A negation left behind
-# would have silently kept the file tracked: git applies the LAST matching pattern.
-!CONTEXT/HANDOFF.md
+# 🔴 NOTHING UNDER CONTEXT/ IS PUBLISHED ANY MORE, 2026-09-01. Both negations that used to
+# live here are gone: READING-THE-AGENT.md because audit.py no longer scans it, and
+# HANDOFF.md because it is a 406 KB working log carrying eleven mentions of pre-18-August
+# API usage that must not appear in the repository. audit.py's spend loop was amended in
+# the same change and now states an unpublished document rather than failing on it.
+# ⚠ A NEGATION LEFT BEHIND WOULD HAVE KEPT THE FILE TRACKED: git applies the LAST matching
+# pattern, which is how READING-THE-AGENT.md nearly survived its own removal.
 
 # Kept on the local drive only at the user's direction. WARNING for a fresh clone:
 
