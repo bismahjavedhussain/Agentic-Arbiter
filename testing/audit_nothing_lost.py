@@ -130,7 +130,10 @@ KEPT_MD = {
     # API-USAGE.md was here until 2026-09-01. It is now local-only at the user's direction,
     # so it is neither KEPT nor lost: it is deliberately unpublished, and listing it here
     # would make every run report a document missing that nobody intends to ship.
-    "CLAUDE.md",
+    # CLAUDE.md was here until 2026-09-01. Unpublished at the user's direction: it is the
+    # agent-instruction file and it points at CONTEXT/, none of which ships, so a clone was
+    # being handed a map to documents it does not have. Still on the local drive, and
+    # CONTEXT/sync_context.py still asserts it exists there.
     # RECIRCULATION-PHYSICS.md was here until 2026-09-01. Local-only now, at the user's
     # direction: it was written for their own understanding, not for a reader of the repo.
     "money-sources.md",

@@ -146,3 +146,8 @@ FortyGuard_LOGO-cmyk.png
 # the probe scripts, a timestamped log cannot have the dates taken out and still be a log.
 # It stays on the local drive, and run_n25_driver.py still writes it. Nothing reads it.
 testing/results/n25_driver.log
+
+# Unpublished 2026-09-01 at the user's direction. It is the agent-instruction file and it
+# points at CONTEXT/, which has no tracked files, so a clone got a map to documents it was
+# never given. It stays on the local drive and sync_context.py still requires it there.
+CLAUDE.md
