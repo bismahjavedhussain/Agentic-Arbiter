@@ -2521,10 +2521,14 @@ function drawLive(L){
          borrowed and must say so.
      Dropping these two would leave a live number with a hidden calibration story, which §9.2c
      calls worse than no live number at all. */
-  $('#livebound').innerHTML =
-      '<strong>This bound is being extrapolated.</strong> ' + (m.EXTRAPOLATION_WARNING || '')
-    + (m.site_owns_this_calibration ? ''
-       : '<br><br><strong>And it is borrowed.</strong> ' + (m.borrowed_note || ''));
+  /* THE EXTRAPOLATION PARAGRAPH IS NO LONGER PRINTED HERE, at the user's direction. It is not
+     deleted: live.py still computes it and asserts it carries "OUTSIDE its calibration domain",
+     and site_report_live.py prints it into the downloadable run report, which is where a reader
+     following the detail arrives. The element stays because both currency verifiers list
+     `livebound` in LIVE_IDS. The borrowed-calibration half is kept and reworded, since "And it is
+     borrowed" only parsed as a continuation of the sentence above it. */
+  $('#livebound').innerHTML = m.site_owns_this_calibration ? ''
+    : '<strong>This bound is borrowed.</strong> ' + (m.borrowed_note || '');
 
   /* THE DOWNLOAD, offered only for a run that produced a schedule and only once there is a job id
      to name. `/api/live/report/<job_id>` builds the PDF on demand and REFUSES to serve one that
@@ -2534,14 +2538,24 @@ function drawLive(L){
   const rep = $('#livereport');
   if (rep) {
     const ok = (L.status === 'ok' || L.status === 'ok_partial' || L.status === 'ok_replay');
+    // THE DRY-SITE POINTER SITS HERE, not in the card body, because declutter.ts folds every
+    // <p class="note"> inside #livecard into the "What a live run costs" modal. This div is
+    // written after that pass, so a line placed here stays on screen. Right-aligned and bottom
+    // aligned with the button row, wrapping under it on a narrow card.
     rep.innerHTML = (ok && LIVEJOB)
-      ? '<a class="btn btn-go" id="livepdf" download href="api/live/report/' + LIVEJOB + '">'
-        + 'Download this run report (PDF)</a>'
+      ? '<div style="display:flex;align-items:flex-end;justify-content:space-between;'
+        + 'gap:14px;flex-wrap:wrap">'
+        + '<div><a class="btn btn-go" id="livepdf" download href="api/live/report/' + LIVEJOB
+        + '">Download this run report (PDF)</a>'
         + '<span class="note" style="margin-left:10px">'
         + (L.NOT_LIVE
             ? 'Replay verification run, hour by hour.'
             : 'The reasoning, hour by hour, for this run only.')
-        + '</span>'
+        + '</span></div>'
+        + '<span class="note" style="text-align:right;max-width:44ch">Both gates bind in warm, '
+        + 'humid air, so for a dry-climate contrast run this live at <strong>Centersquare '
+        + 'Lynnwood SE1, WA</strong>.</span>'
+        + '</div>'
       : '';
   }
 }
