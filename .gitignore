@@ -140,3 +140,9 @@ CONTEXT/*
 # check_report.py asserts no page is missing it, and IntroGate.tsx:259 plus App.tsx:283
 # render it as the POWERED BY FORTYGUARD credit on the landing page.
 FortyGuard_LOGO-cmyk.png
+
+# Unpublished 2026-09-01: 82 lines of polls each stamped with its own date, which is a record
+# of API activity the user has said must not appear in the repository. Unlike the notes in
+# the probe scripts, a timestamped log cannot have the dates taken out and still be a log.
+# It stays on the local drive, and run_n25_driver.py still writes it. Nothing reads it.
+testing/results/n25_driver.log

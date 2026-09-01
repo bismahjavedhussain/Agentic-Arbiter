@@ -1,7 +1,7 @@
 {
  "measures": "whether /v1/heatmap analytic_type=persistence honours a correctly-spelled `threshold`, what its units are, and whether the duration field varies across the cluster enough to support a decision",
  "does_not_measure": "day-to-day behaviour, forecast skill on duration, or operator willingness to act (P4 in n47-persistence-PREREG.md)",
- "authorised": "user, 2026-08-16, exactly 2 paid calls",
+ "authorised": "user, exactly 2 paid calls",
  "window": {
   "date": "2026-07-28",
   "start_time_site": "10:00",
@@ -67,5 +67,5 @@
  "gate_passed": false,
  "credits_before": 180980,
  "credits_after": 180980,
- "credits_note": "meter frozen since 2026-07-19; a zero difference does not prove zero spend"
+ "credits_note": "that meter is frozen; a zero difference does not prove zero spend"
 }

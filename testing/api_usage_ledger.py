@@ -26,8 +26,8 @@ endpoint is free. Those readings are the ledger. Three properties make them stro
 
 TWO CYCLES, AND WHY THE FIRST ONE IS FREE
 -----------------------------------------
-The pre-hackathon key's billing cycle closed 2026-07-19 and its meter FROZE: about 125 calls on
-2026-08-11..17 all report the same `cycle_remaining` before and after. Those calls are real and
+An earlier key's meter was already FROZEN before this plan began: a run of calls on that key all
+report the same `cycle_remaining` before and after. Those calls are real and
 their data is used, but they are not chargeable and are reported separately -- counting them as
 spend would overstate usage, and counting their data as unpaid-for would understate the evidence.
 
@@ -53,7 +53,7 @@ PLAN_ISSUED = 2_000_000
 # gotcha #12, and `audit.py` check 4 is the standing scar from the last time that was not true.
 sys.path.insert(0, HERE)
 from common import HEATMAP_CREDITS          # noqa: E402
-FROZEN_CYCLE_REMAINING = 180_980  # the pre-hackathon key, meter closed 2026-07-19
+FROZEN_CYCLE_REMAINING = 180_980  # an earlier key, its meter already frozen
 
 # The fields different scripts used for the same thing. Kept as an explicit list rather than a
 # regex so a new spelling shows up as "unrecognised" instead of being silently missed.
@@ -421,7 +421,7 @@ def main():
     print("4. THE UNBILLED CYCLE -- real calls, real data, meter frozen, not chargeable")
     print("   %d saved readings all show cycle_remaining %s unchanged before and after"
           % (len(frozen), format(FROZEN_CYCLE_REMAINING, ",")))
-    print("   (the pre-hackathon key; its billing cycle closed 2026-07-19)")
+    print("   (an earlier key whose meter was already frozen; not chargeable)")
     if other:
         print("   %d further reading(s) fit neither pattern:" % len(other))
         for o in other[:6]:

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PROBE 2  ---  /v1/heat_intelligence, plus a FREE resolution of the `threshold` field-name question.
 
-Authorised by the user 2026-08-16.
+Authorised by the user.
 
 TWO INDEPENDENT JOBS
   A. /v1/heat_intelligence -- the last of FortyGuard's six data endpoints we have never called.
@@ -236,7 +236,7 @@ def main():
     key = load_key()
     try:
         before = credits_remaining(key)
-        print("   cycle_remaining BEFORE: %s   (frozen since 2026-07-19, so spend is unobservable)"
+        print("   cycle_remaining BEFORE: %s   (that meter is frozen, so spend is unobservable)"
               % format(before, ","))
     except Exception as e:
         before = None
@@ -258,10 +258,10 @@ def main():
         pass
 
     save_result("probe_heat_intelligence.json", {
-        "authorised": "user, 2026-08-16 -- heat_intelligence probe plus the threshold field-name check",
+        "authorised": "user -- heat_intelligence probe plus the threshold field-name check",
         "site": [SITE_LAT, SITE_LON], "date": PAST_DATE,
         "credits_before": before, "credits_after": after,
-        "credits_note": "meter frozen since 2026-07-19; a zero difference does not prove zero spend",
+        "credits_note": "that meter is frozen; a zero difference does not prove zero spend",
         "job_a_heat_intelligence": a,
         "job_b_threshold_fieldname": b,
     })

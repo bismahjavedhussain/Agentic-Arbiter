@@ -2,7 +2,7 @@
 """N-47  ---  GATE: does FortyGuard's `persistence` analytic support a duration decision?
 
 Pre-registered in n47-persistence-PREREG.md. Conditions P1-P4 were fixed before these calls.
-[PAID: exactly 2 /v1/heatmap calls, user-authorised 2026-08-16.]
+[PAID: exactly 2 /v1/heatmap calls, user-authorised.]
 
 THE TWO UNKNOWNS THIS BUYS, and why everything else was established for free first
     Free from fixtures already on disk: `persistence` returns HOURS and is a different quantity from
@@ -82,7 +82,7 @@ def main():
     key = load_key()
     try:
         before = credits_remaining(key)
-        print("\n   cycle_remaining BEFORE: %s  (frozen since 2026-07-19; spend unobservable)"
+        print("\n   cycle_remaining BEFORE: %s  (that meter is frozen; spend unobservable)"
               % format(before, ","))
     except Exception as e:
         before = None
@@ -183,7 +183,7 @@ def main():
                     "the cluster enough to support a decision",
         "does_not_measure": "day-to-day behaviour, forecast skill on duration, or operator "
                             "willingness to act (P4 in n47-persistence-PREREG.md)",
-        "authorised": "user, 2026-08-16, exactly 2 paid calls",
+        "authorised": "user, exactly 2 paid calls",
         "window": {"date": w["start_date"], "start_time_site": w["start_time"],
                    "end_time_site": w["end_time"], "hours": WIN_H, "filter_type": 2,
                    "tz": "America/New_York"},
@@ -200,7 +200,7 @@ def main():
                        "p3_min_distinct": P3_MIN_DISTINCT},
         "p1": bool(p1), "p2": bool(p2), "p3": bool(p3), "gate_passed": bool(ok),
         "credits_before": before, "credits_after": after,
-        "credits_note": "meter frozen since 2026-07-19; a zero difference does not prove zero spend",
+        "credits_note": "that meter is frozen; a zero difference does not prove zero spend",
     })
     return 0 if ok else 1
 

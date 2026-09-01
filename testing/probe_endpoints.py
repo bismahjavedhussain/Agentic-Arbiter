@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PROBE  ---  what do /v1/satellite and /v1/streetview actually RETURN?   [PAID: 2 calls]
 
-Authorised by the user 2026-08-16 for exactly two calls, one per endpoint, at the project site.
+Authorised by the user for exactly two calls, one per endpoint, at the project site.
 
 WHY
     The OpenAPI spec (hackathon/hackathon/openapi.json) documents six data endpoints. We have only
@@ -21,8 +21,8 @@ SAFETY
     * Every raw response is saved under results/fixtures/ so this never has to be paid for twice.
     * Handles BOTH sync and async replies. common.submit_poll() assumes an activity_id and would
       poll /status/None for 420 s if these endpoints answer synchronously.
-    * cycle_remaining recorded before and after. NOTE: that meter has been frozen at 180,980 since
-      the billing cycle closed 2026-07-19, so spend probably cannot be observed. Recorded anyway.
+    * cycle_remaining recorded before and after. NOTE: that meter is frozen, so spend probably
+      cannot be observed here at all. Recorded anyway.
 """
 import json
 import os
@@ -172,7 +172,7 @@ def main():
         after = credits_remaining(key)
         print("\n   cycle_remaining AFTER: %s" % format(after, ","))
         if before is not None:
-            print("   apparent spend: %s  (the meter has been frozen since 2026-07-19, so 0 here"
+            print("   apparent spend: %s  (that meter is frozen, so 0 here"
                   % format(before - after, ","))
             print("   does NOT prove the calls were free)")
     except Exception as e:
@@ -194,11 +194,11 @@ def main():
         print("      %-11s geometry-related terms present: %s" % ("", hits or "NONE"))
 
     save_result("probe_endpoints.json", {
-        "authorised": "user, 2026-08-16, exactly two calls",
+        "authorised": "user, exactly two calls",
         "site": [SITE_LAT, SITE_LON],
         "sat_payload": sat_payload, "sv_payload": sv_payload,
         "credits_before": before, "credits_after": after,
-        "credits_note": "meter frozen since 2026-07-19; a zero difference does not prove zero spend",
+        "credits_note": "that meter is frozen; a zero difference does not prove zero spend",
         "satellite": {k: v for k, v in out["satellite"].items() if k != "result"},
         "streetview": {k: v for k, v in out["streetview"].items() if k != "result"},
         "fixtures": "results/fixtures/probe_satellite*.json, probe_streetview*.json",

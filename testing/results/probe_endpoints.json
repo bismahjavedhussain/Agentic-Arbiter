@@ -1,5 +1,5 @@
 {
- "authorised": "user, 2026-08-16, exactly two calls",
+ "authorised": "user, exactly two calls",
  "site": [
   39.01,
   -77.446
@@ -24,7 +24,7 @@
  },
  "credits_before": 180980,
  "credits_after": 180980,
- "credits_note": "meter frozen since 2026-07-19; a zero difference does not prove zero spend",
+ "credits_note": "that meter is frozen; a zero difference does not prove zero spend",
  "satellite": {
   "ok": true,
   "sync": false,
