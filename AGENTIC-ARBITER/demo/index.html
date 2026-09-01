@@ -1940,6 +1940,28 @@ select,input{border-radius:8px;border-color:var(--border);background:var(--surfa
          fetched, at no cost. -->
     <p class="note"><strong>Wind and dew point are NWS</strong> (<code>api.weather.gov</code>,
     free). Temperature and the air-quality index are <strong>FortyGuard</strong>'s.</p></details>
+  <!-- WHY A LIVE RUN CAN CORRECTLY RETURN NO FREE HOURS, and why the answer offered here is a
+       different SITE rather than a looser gate. In warm humid air both gates bind at once, which
+       is what the shipped Virginia trace already says in its own climate_note: "mixed-humid: the
+       dew-point gate and the dry-bulb limit both bind". Loosening the dew-point ceiling until the
+       answer improves would mean defaulting above ASHRAE's recommended 15 C maximum, the one
+       sourced number in the configuration bar, so the pointer names a drier site instead.
+       MEASURED over 28 August to 30 September across 2021-2025, share of hours clearing an
+       18 C limit AND a 15 C dew-point ceiling, which are the values this page defaults to:
+         KPAE, assigned to Centersquare Lynnwood SE1, WA   90.5 % of night hours, 67.8 % of all
+         KHEF, assigned to the shipped Virginia site       33.8 % of night hours, 19.7 % of all
+       Read from AGENTIC-ARBITER/data/weather/{kpae,khef}_hourly_2021_2025.json, and the site to
+       station assignment is each site's own trace.json `weather.station`.
+       ⚠ NO TEST RE-READS THE 90.5 % BELOW. It is reproducible from the file named above, but it
+       is not in audit.py's figure registry, so it is the one number on this card that could go
+       stale if the weather archive is ever refreshed. Said here rather than left to be found. -->
+  <p class="note"><strong>Season and climate decide what is on offer.</strong> In warm, humid air
+  the dry-bulb limit and the dew-point ceiling both bind, so a live run can correctly return no
+  free hours: that is the agent refusing, not the agent failing. Raise the plant limit and the
+  dew-point ceiling above to suit local conditions. For a dry-climate contrast, run the agent live
+  at <strong>Centersquare Lynnwood SE1, WA</strong>, where <strong>90.5&nbsp;%</strong> of night
+  hours in this window clear both gates on its station&rsquo;s 2021-2025 record, against
+  33.8&nbsp;% here.</p>
   <div class="f" style="margin-bottom:10px">
     <button id="livego" class="btn btn-go">Run the agent on live data →</button>
     <!-- FORCE-STOP. Hidden until a run is actually in flight, because a stop control with
