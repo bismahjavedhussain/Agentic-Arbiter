@@ -115,6 +115,10 @@
       "bytes": 498,
       "sha256": "df9b665329a5f2b7fc0751b3bdb0c43b9c86dcb867dabfef798d08b9eca208b1"
     },
+    "clearLive": {
+      "bytes": 305,
+      "sha256": "c217f7ce11b4633a4bacc352460050a5c9b7d9734afdee575f6cb39f0ac3d6d1"
+    },
     "countUpText": {
       "bytes": 1521,
       "sha256": "11690a6c86d59daa3b9cc3a3c9f0e61fbf0863879f9c86ea7226e59fc12722e9"
@@ -272,8 +276,8 @@
       "sha256": "3557258bdd02000491513c72ed9d97d66a3a35b1d02bdf4acbcd354b861fbda9"
     },
     "loadSite": {
-      "bytes": 3516,
-      "sha256": "6cf3015e7713c3eba0f4ac1b2f14d85f05d45bd57b010044d1f1bd011de2dc70"
+      "bytes": 5149,
+      "sha256": "4e4c46df370af16c00bd435d0fe0ff7026cfd74c86c461c12e1b28a6f6779f73"
     },
     "loneBuilding": {
       "bytes": 88,
@@ -348,8 +352,8 @@
       "sha256": "c260731162d2bc0c87b591bf3d41a142acc89ae3564b4d1cc20d63ba94c648e7"
     },
     "runLive": {
-      "bytes": 3531,
-      "sha256": "293eeed9c311469f559d3972c626c8f984f5976a4cc54606c0383d5edc5e76f1"
+      "bytes": 3303,
+      "sha256": "f120d397a113c4311cf73b66eb5a0d4564d4e34db54a60d20703940050d08756"
     },
     "setStage": {
       "bytes": 2806,

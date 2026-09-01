@@ -147,6 +147,26 @@ export function AgentConsole({
     begin()
   }, [begin])
 
+  /* 🔴 CHOOSING A DIFFERENT SITE STARTS THE SEQUENCE AGAIN, and the once-per-visit rule above is
+     why it did not. `reasoningPlayed` is module scope on the reasoning that "a reload is a new
+     visit"; a site change is also a new run and is not a reload, so the console mounted straight
+     into 'ready' and the report sat there with no reasoning in front of it. `wasLive` and `frozen`
+     are reset too, and they matter more than they look: after a live run on the previous site the
+     settle test was still liveDone() and the phrases were still held still, so the sequence would
+     have narrated nothing even once it was allowed to run. The engine fires this from loadSite()
+     when the key actually changes. */
+  useEffect(() => {
+    const onSiteChange = () => {
+      reasoningPlayed = false
+      setWasLive(false)
+      setFrozen(false)
+      setStage(0)
+      begin()
+    }
+    window.addEventListener('aa:sitechange', onSiteChange)
+    return () => window.removeEventListener('aa:sitechange', onSiteChange)
+  }, [begin])
+
   /* Remember it the moment it resolves, rather than when it starts: a sequence the reader never got
      to see (they left the tab after two seconds) should still be shown in full next time. */
   useEffect(() => {

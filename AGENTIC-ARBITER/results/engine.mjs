@@ -12,7 +12,7 @@
  * WHY ONE BIG MODULE RATHER THAN SIX SMALL ONES, which is what core/ got. core/'s 22 functions were
  * made PURE first: every global became a parameter, so `decide(k)` became `decide(k, trace)`. These
  * are renderers. They read a shared block of loaded artefacts and write the DOM by element id, and
- * threading that through 101 functions would be a rewrite rather than a lift. Together in one module,
+ * threading that through 102 functions would be a rewrite rather than a lift. Together in one module,
  * every reference stays literally `T`, `SITE`, `PF` -- so the text is byte-identical and provable.
  *
  * WHAT IS NOT HERE: the pick stage. The national map, the search, the site picker, boot() and the
@@ -2281,6 +2281,15 @@ async function stopLive(){
   catch(e){ /* the poll below reports the run's own end state either way */ }
 }
 
+function clearLive(){
+  STOPWANTED = false; LIVEJOB = null;
+  ['#livestream','#livemsg','#liverefusal','#livetiles','#livetable','#livebound',
+   '#liveenv','#livereport'].forEach(function(sel){
+    const el = $(sel); if(el) el.innerHTML = '';
+  });
+  const sb = $('#livestop'); if(sb) sb.hidden = true;
+}
+
 async function runLive(){
   if(!HEALTH || !SITE) return;
   const btn = $('#livego');
@@ -2293,16 +2302,10 @@ async function runLive(){
      in-flight streamTape at its next await. */
   TAPEGEN++;
   streaming = false;
-  STOPWANTED = false; LIVEJOB = null;
+  clearLive();
   if(stopBtn){ stopBtn.hidden = false; stopBtn.disabled = false;
                stopBtn.textContent = 'Stop agent now'; }
   btn.disabled = true; btn.textContent = 'Working…';
-  $('#livestream').innerHTML = '';
-  $('#livemsg').innerHTML = '';
-  $('#liverefusal').innerHTML = '';
-  $('#livetiles').innerHTML = '';
-  $('#livetable').innerHTML = '';
-  $('#livebound').innerHTML = '';
   let seen = 0;
   try{
     const r = await fetch('api/live/' + SITE.key, {
@@ -2801,7 +2804,30 @@ async function loadSite(key){
      written to the globals. The return value still reports whether the FETCH succeeded, because
      that is what the caller asked and the newer load has already assigned what it found. */
   if(gen !== LOAD_GEN) return true;
+  /* 🔴 A SITE CHANGE INVALIDATES THE LIVE HALF AND THE TAPE, and until now it swept neither.
+     The line below replaces the REPLAY artefacts. Everything a live run wrote stayed exactly where
+     it was, so #liveenv and #livebound reported site A's perceive and bound under site B's name,
+     and #tapedone still held site A's completion line -- which is the signal AgentConsole resolves
+     a replay on, so the new site's reasoning was declared finished before it began.
+     Guarded on the previous key: first load has nothing to invalidate. */
+  const prevKey = SITE && SITE.key;
   T=t; BT=bt; RL=rl; MN=mn; TK=tk; EX=ex; PF=pf; SITE=s;
+  if(prevKey && prevKey !== key){
+    /* KILL AN IN-FLIGHT REPLAY FIRST. streamTape() checks TAPEGEN after every await, so bumping it
+       stops the OLD site's stream at its next tick. Without this, switching sites while the
+       reasoning was still playing left that loop writing site A's rows into the tape this block
+       has just cleared, and the reader would watch the previous site narrate itself. */
+    TAPEGEN++; streaming = false;
+    clearLive();
+    ['#tape','#tapedone','#tapeguard'].forEach(function(sel){
+      const el = $(sel); if(el) el.innerHTML = '';
+    });
+    /* The console is React and this is engine code, so they talk by event, exactly as the folded
+       prose does through `aa:detail`. It resets its once-per-visit latch and starts the sequence
+       again, which is what a reader who has just chosen another site is owed. */
+    try{ window.dispatchEvent(new CustomEvent('aa:sitechange', {detail:{key:key}})); }
+    catch(e){ /* an older browser without CustomEvent still gets the clearing above */ }
+  }
 
   /* 🔴 THE WIND DIAL OPENED ON ASHBURN'S CRITICAL BEARING FOR EVERY SITE. `dialBearing` was
      initialised to the literal 255 -- Ashburn's worst direction -- and nothing reset it on a site
@@ -3845,22 +3871,22 @@ export {
   H0, aerialImagery, animatePlate, applyTheme, autofill,
   barTop, buildControls, buildImageryOptions, buildingOf, cardSetAbsent,
   cardSetPresent, casePath, cfAttainable, cfDayResiduals, cfMinN,
-  cfQuantileIndex, cfSplit, cfg, chipText, countUpText,
-  decide, describeSite, drawAerial, drawAll, drawBound,
-  drawBoundStatic, drawConformal, drawConformalCeiling, drawConformalLeads, drawConformalLine,
-  drawConformalSummary, drawConformalTiles, drawCov, drawCoverageTiles, drawDial,
-  drawExplain, drawField, drawHeadline, drawLadder, drawLimits,
-  drawLive, drawLiveCost, drawLiveUnavailable, drawModeBanner, drawMoney,
-  drawPlate, drawPlume, drawReadyTiles, drawReportLink, drawSched,
-  drawSiteNotes, drawTicker, drawZeroNote, explainHour, fitCanvas,
-  getCssVar, liveStreamRow, loadField, loadSite, loneBuilding,
-  motionOK, opt, pairLabel, plan, plateSparks,
-  plumeModelled, plumeReason, probeLive, r_i, railIndicator,
-  railOnResize, ramp, rampCss, reactive, refusalLimits,
-  repaintForTheme, runAgent, runLive, setStage, shippedGain,
-  shortPhrase, siteIsRunnable, sparkSVG, stationName, stopLive,
-  streamTape, styleMapForTheme, syncOffday, syncRail, tapeHTML,
-  tickerFor, tile, tip, tkEvent, tkFixed,
-  tkFormat, tkRender, untip, wire, wireAerial,
-  wireRail,
+  cfQuantileIndex, cfSplit, cfg, chipText, clearLive,
+  countUpText, decide, describeSite, drawAerial, drawAll,
+  drawBound, drawBoundStatic, drawConformal, drawConformalCeiling, drawConformalLeads,
+  drawConformalLine, drawConformalSummary, drawConformalTiles, drawCov, drawCoverageTiles,
+  drawDial, drawExplain, drawField, drawHeadline, drawLadder,
+  drawLimits, drawLive, drawLiveCost, drawLiveUnavailable, drawModeBanner,
+  drawMoney, drawPlate, drawPlume, drawReadyTiles, drawReportLink,
+  drawSched, drawSiteNotes, drawTicker, drawZeroNote, explainHour,
+  fitCanvas, getCssVar, liveStreamRow, loadField, loadSite,
+  loneBuilding, motionOK, opt, pairLabel, plan,
+  plateSparks, plumeModelled, plumeReason, probeLive, r_i,
+  railIndicator, railOnResize, ramp, rampCss, reactive,
+  refusalLimits, repaintForTheme, runAgent, runLive, setStage,
+  shippedGain, shortPhrase, siteIsRunnable, sparkSVG, stationName,
+  stopLive, streamTape, styleMapForTheme, syncOffday, syncRail,
+  tapeHTML, tickerFor, tile, tip, tkEvent,
+  tkFixed, tkFormat, tkRender, untip, wire,
+  wireAerial, wireRail,
 };

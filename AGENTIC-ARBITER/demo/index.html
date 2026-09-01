@@ -4928,6 +4928,21 @@ async function stopLive(){
   catch(e){ /* the poll below reports the run's own end state either way */ }
 }
 
+/* EVERY SURFACE A LIVE RUN OWNS, blanked in one place. It was inline at the top of runLive(),
+   which was fine while a run was the only thing that invalidated it -- then choosing a different
+   site turned out to invalidate it too, and the second caller would have had to copy the list.
+   #liveenv and #livereport are here although runLive() never blanked them: within one run
+   drawLive() overwrites both, so their staleness was invisible, but a SITE change has no run to
+   overwrite anything and both held the previous site's answer. */
+function clearLive(){
+  STOPWANTED = false; LIVEJOB = null;
+  ['#livestream','#livemsg','#liverefusal','#livetiles','#livetable','#livebound',
+   '#liveenv','#livereport'].forEach(function(sel){
+    const el = $(sel); if(el) el.innerHTML = '';
+  });
+  const sb = $('#livestop'); if(sb) sb.hidden = true;
+}
+
 async function runLive(){
   if(!HEALTH || !SITE) return;
   const btn = $('#livego');
@@ -4940,16 +4955,10 @@ async function runLive(){
      in-flight streamTape at its next await. */
   TAPEGEN++;
   streaming = false;
-  STOPWANTED = false; LIVEJOB = null;
+  clearLive();
   if(stopBtn){ stopBtn.hidden = false; stopBtn.disabled = false;
                stopBtn.textContent = 'Stop agent now'; }
   btn.disabled = true; btn.textContent = 'Working…';
-  $('#livestream').innerHTML = '';
-  $('#livemsg').innerHTML = '';
-  $('#liverefusal').innerHTML = '';
-  $('#livetiles').innerHTML = '';
-  $('#livetable').innerHTML = '';
-  $('#livebound').innerHTML = '';
   let seen = 0;
   try{
     const r = await fetch('api/live/' + SITE.key, {
@@ -6408,7 +6417,30 @@ async function loadSite(key){
      written to the globals. The return value still reports whether the FETCH succeeded, because
      that is what the caller asked and the newer load has already assigned what it found. */
   if(gen !== LOAD_GEN) return true;
+  /* 🔴 A SITE CHANGE INVALIDATES THE LIVE HALF AND THE TAPE, and until now it swept neither.
+     The line below replaces the REPLAY artefacts. Everything a live run wrote stayed exactly where
+     it was, so #liveenv and #livebound reported site A's perceive and bound under site B's name,
+     and #tapedone still held site A's completion line -- which is the signal AgentConsole resolves
+     a replay on, so the new site's reasoning was declared finished before it began.
+     Guarded on the previous key: first load has nothing to invalidate. */
+  const prevKey = SITE && SITE.key;
   T=t; BT=bt; RL=rl; MN=mn; TK=tk; EX=ex; PF=pf; SITE=s;
+  if(prevKey && prevKey !== key){
+    /* KILL AN IN-FLIGHT REPLAY FIRST. streamTape() checks TAPEGEN after every await, so bumping it
+       stops the OLD site's stream at its next tick. Without this, switching sites while the
+       reasoning was still playing left that loop writing site A's rows into the tape this block
+       has just cleared, and the reader would watch the previous site narrate itself. */
+    TAPEGEN++; streaming = false;
+    clearLive();
+    ['#tape','#tapedone','#tapeguard'].forEach(function(sel){
+      const el = $(sel); if(el) el.innerHTML = '';
+    });
+    /* The console is React and this is engine code, so they talk by event, exactly as the folded
+       prose does through `aa:detail`. It resets its once-per-visit latch and starts the sequence
+       again, which is what a reader who has just chosen another site is owed. */
+    try{ window.dispatchEvent(new CustomEvent('aa:sitechange', {detail:{key:key}})); }
+    catch(e){ /* an older browser without CustomEvent still gets the clearing above */ }
+  }
 
   /* 🔴 THE WIND DIAL OPENED ON ASHBURN'S CRITICAL BEARING FOR EVERY SITE. `dialBearing` was
      initialised to the literal 255 -- Ashburn's worst direction -- and nothing reset it on a site
