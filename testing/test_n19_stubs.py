@@ -63,7 +63,7 @@ def intake_rise(T, site, ix, iy, radius_m, ambient):
 def baseline_p99(cfg, seed=5):
     """The N-8 v3 headline: p99 intake rise over (speed, load) uncertainty at the worst direction."""
     site, intake = build(**cfg)
-    # 2026-08-12: separation_m=150 put 71 % of the intake disc on condenser SOURCE cells,
+    # Measured: separation_m=150 put 71 % of the intake disc on condenser SOURCE cells,
     # so the old band included a geometry that measured the discharge itself. Guarded now.
     assert_intake_clear(site, intake[0], intake[1], cfg["intake_r"], label=str(cfg))
     rng = np.random.default_rng(seed)

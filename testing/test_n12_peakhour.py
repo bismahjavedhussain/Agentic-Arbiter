@@ -19,7 +19,7 @@ nothing and we must stop calling this agentic. If it moves by an hour or more be
 stands on measured ground instead of a guess.
 
 A saved fixture already hints at trouble: analytic_type=time_of_measure over 01:00-23:00 on
-2026-07-28 returned 14.0 for ALL 43 tiles, sd = 0.000. That is zero SPATIAL variation. But the
+a single day returned 14.0 for ALL 43 tiles, sd = 0.000. That is zero SPATIAL variation. But the
 quantity N-9 needs is DAY-TO-DAY variation, which that single call cannot show. Hence this test.
 
 WHAT IS MEASURED
@@ -30,7 +30,7 @@ WHAT IS MEASURED
         suspect (persistence was already found to be byte-identical to exceedance) rather than
         concluding the atmosphere is deterministic.
 
-Credits are read before and after. The audited key's cycle closed 19 July and reads
+Credits are read before and after. The audited key's cycle has closed and reads
 active: false, so the meter may not move; that is reported, not assumed.
 """
 import json, statistics, sys

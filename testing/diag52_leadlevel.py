@@ -11,7 +11,7 @@ WHY THIS MATTERS
         an urban heat-island offset over a data-centre corridor, and smallest on the coolest day
       * it IS the forecast's LEVEL: a spatially uniform, day-varying offset. Within-day sd across
         17,862 tiles is only 0.06-0.29 C while the day-mean offset ranged -0.84, -0.81, +0.15, -3.71 C.
-        On 2026-08-16 the forecast missed a real 5 C cooling event by +4.58 C against station truth.
+        The forecast missed a real 5 C cooling event by +4.58 C against station truth.
 
     A conformal bound calibrated on previous days cannot absorb an offset that flips sign. The proposed
     operational fix is to SHORTEN THE LEAD: N-26 tests 9.5 h because the original design needed
@@ -24,7 +24,7 @@ THE QUESTION THIS ANSWERS, FOR FREE
       * if it persists at 1.5 h, the offset is NOT a lead-time artefact and shortening will not fix it
 
 WHAT THIS CANNOT ESTABLISH -- stated before running
-    ONE DAY (2026-08-12). This measures the LEAD DEPENDENCE of the offset on that day. It is NOT a
+    ONE DAY. This measures the LEAD DEPENDENCE of the offset on that day. It is NOT a
     coverage measurement: coverage needs several days at the short lead, which needs live access.
     A favourable result here justifies buying that test; it does not substitute for it.
 """
@@ -120,13 +120,13 @@ def main():
                    "coverage test on this basis." % (hi["offset_c"], hi["lead_h"],
                                                      lo["offset_c"], lo["lead_h"]))
     print("\n   VERDICT: %s" % verdict)
-    print("\n   ONE DAY ONLY (2026-08-12). This is the lead dependence of the offset, NOT coverage.")
+    print("\n   ONE DAY ONLY. This is the lead dependence of the offset, NOT coverage.")
 
     save_result("diag52_leadlevel.json", {
         "measures": "how FortyGuard's spatially-uniform forecast LEVEL offset varies with lead, on the "
                     "one day where five leads were purchased",
         "does_not_measure": "coverage. That needs several days at a short lead, which needs live access. "
-                            "This is a single day (2026-08-12).",
+                            "This is a single day.",
         "why": "N-26's live coverage failed at 65.6 % pooled / 0.0 % worst day because the forecast "
                "error is a day-level offset that flips sign; shortening the lead is the proposed fix",
         "outcome_tag": OUTCOME_TAG, "alpha": ALPHA,

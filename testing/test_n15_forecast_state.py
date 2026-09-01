@@ -8,13 +8,13 @@ THE QUESTION
     33.8 C at 16:00-18:00), so start_time is being read as site-local and the request builder is
     not at fault.
 
-    But a 12-hour forecast demonstrably WORKED on this same key on 2026-08-08: fb_1_FCST_12H.json
+    But a 12-hour forecast demonstrably WORKED on this same key earlier: fb_1_FCST_12H.json
     holds 6,875 tiles, and forecast-vs-outcome residuals were measured from it (bias +0.349 C,
     sd 0.150), which is only possible if it was a real forecast that later had an outcome.
 
     So something changed. Three candidates, very different consequences:
 
-      A KEY DEGRADED. The key reports active: false with a billing cycle closed 19 July. An
+      A KEY DEGRADED. The key reports active: false with a closed billing cycle. An
         inactive key may be served history only. -> design intact; forecasts unverifiable until
         a live key on Aug 18.
       B TRANSIENT OUTAGE of the forecast service. -> design intact; retest later.
@@ -26,7 +26,7 @@ WHAT DISCRIMINATES THEM
        plan, tier or expiry field speaks directly to A. (Key value is never printed.)
     2. Try a future hour with filter_type 1 as well as 2 -- maybe forecasts only ever came
        through one filter shape and earlier work never isolated that.
-    3. Try env_params for a FUTURE timestamp. It served future values on 2026-08-08
+    3. Try env_params for a FUTURE timestamp. It served future values earlier
        (fb_10_EP_FUTURE.json). If env_params still forecasts while heatmap does not, the
        forecast product exists and the limitation is specific to heatmap; if neither does, that
        points hard at A.
@@ -96,7 +96,7 @@ def main():
         print("      filter_type=%d -> %s" % (ft, results["heatmap_ft%d" % ft]))
 
     # ---- 3. env_params for a future timestamp ---------------------------
-    print("\n   3. ENV_PARAMS for the same FUTURE hour (it served future values on 2026-08-08)")
+    print("\n   3. ENV_PARAMS for the same FUTURE hour (it served future values earlier)")
     p = {"latitude": round(CENTRE[0], 5), "longitude": round(CENTRE[1], 5), "temperature": 25.0,
          "date_time": {"start_date": fut.strftime("%Y-%m-%d"), "start_time": fut.strftime("%H:00"),
                        "filter_type": 1}}
@@ -163,7 +163,7 @@ def main():
         print("      -> History works, every forecast path is empty. Consistent with hypothesis A")
         print("         (key degraded to history-only) or B (forecast outage). NOT evidence that")
         print("         the forecast product is gone: a 12 h forecast provably worked on this key")
-        print("         on 2026-08-08 and its residuals were measured. The design assumption")
+        print("         earlier, and its residuals were measured. The design assumption")
         print("         cannot be VALIDATED again until a live key on Aug 18 -- record it as")
         print("         unverified-but-previously-demonstrated, and make it day-one call #1.")
     else:
@@ -174,7 +174,7 @@ def main():
         "machine_now": now.isoformat(), "future_hour": fut.isoformat(),
         "usage_response": u, "probes": results,
         "any_future_ok": any_future, "past_control_ok": past_ok,
-        "prior_evidence": "fb_1_FCST_12H.json: 6875-tile 12 h forecast on 2026-08-08, "
+        "prior_evidence": "fb_1_FCST_12H.json: 6875-tile 12 h forecast, "
                           "residuals measured (bias +0.349 C, sd 0.150)",
         "before": before, "after": after})
     return 0

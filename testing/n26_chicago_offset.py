@@ -256,7 +256,7 @@ def collect(allow_paid):
     A day-pair needs a forecast made BEFORE the window and an outcome read AFTER it. Chicago's
     14:00-16:00 local window ends at 21:00 UTC, which is **02:15 PKT the following morning** once the
     15-minute settling delay is added. Scheduling a second task at 02:15 would mean asking a human to
-    leave a machine awake at two in the morning, and sleep is already what lost 2026-08-14 and 08-17.
+    leave a machine awake at two in the morning, and sleep is already what lost two collection days.
 
     So the outcome leg is collected on the NEXT DAY'S RUN, exactly as `test_n26_coverage.py collect`
     does for Ashburn: settle whatever outcome legs are owed from earlier days first, then fire

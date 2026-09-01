@@ -6,7 +6,7 @@ Upwind differencing for advection, central for diffusion, explicit time-stepping
 to steady state. Condenser banks are heat sources. Inflow boundary is held at
 ambient; outflow is zero-gradient.
 
-BUILDINGS ARE TRANSPARENT, NOT HEAT SINKS AND NOT NO-FLOW WALLS -- fixed 2026-08-12 (N-29 V4).
+BUILDINGS ARE TRANSPARENT, NOT HEAT SINKS AND NOT NO-FLOW WALLS -- fixed in N-29 V4.
     Read the comment at the obstacle line in `_step()` for the full reasoning; this is the summary,
     and it is kept here because the two previous versions of this paragraph were both wrong and a
     reader is entitled to see what changed.
@@ -137,7 +137,7 @@ def solve(site, ambient, wind_speed, wind_from_deg, diffusivity=8.0,
     ground level regardless of wind. Pass a value to enable the plume-rise closure above.
     Default is None so every previously-recorded result stays reproducible.
 
-    BUG FIXED 2026-08-12: downwash_exponent defaulted to 2.0 -- the value N-21 FALSIFIED against
+    BUG FIXED: downwash_exponent defaulted to 2.0 -- the value N-21 FALSIFIED against
     field data -- while downwash_fraction() had already been moved to the calibrated 1.25. Any
     caller that passed downwash_uc but not the exponent therefore got 2.0 from this function and
     1.25 from the free function. At 6 m/s with uc = 8 that is a retained fraction of 0.360 versus
@@ -193,7 +193,7 @@ def solve(site, ambient, wind_speed, wind_from_deg, diffusivity=8.0,
         lap = (N + S + E + W - 4 * C) / (dx * dx)
         newT = C + dt * (adv + diffusivity * lap + src)
 
-        # OBSTACLE PINNING REMOVED 2026-08-12.
+        # OBSTACLE PINNING REMOVED.
         #
         # This line used to read `newT = np.where(free, newT, ambient)`, with the comment
         # "obstacles do not hold air". That is a fixed-temperature (Dirichlet) boundary, and a cell
@@ -344,7 +344,7 @@ def intake_source_overlap(site, ix, iy, radius_m=30.0):
     result "the neighbour's intake temperature", which is physically meaningless -- you are reading
     the discharge, not what anyone breathes.
 
-    Added 2026-08-12 after N-27 found that separation_m = 150 m put **71 %** of the disc inside the
+    Added after N-27 found that separation_m = 150 m put **71 %** of the disc inside the
     condenser bank, and that N-19 swept that same value into its published sensitivity band. The
     geometry is only valid when
 

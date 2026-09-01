@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """N-14  ---  where does usable data ACTUALLY start and stop?   PAID.
 
-*** OFFSETS INVALIDATED 2026-08-12 BY THE 9-HOUR TIMEZONE BUG. DO NOT QUOTE ITS BOUNDARIES. ***
+*** OFFSETS INVALIDATED BY THE 9-HOUR TIMEZONE BUG. DO NOT QUOTE ITS BOUNDARIES. ***
 
     This file builds windows from datetime.now() -- machine local, UTC+5 -- while the endpoint reads
     them in the AOI's local zone, UTC-4. Every entry in OFFSETS is therefore shifted by nine hours:
@@ -12,7 +12,7 @@
     from data already on disk -- see the time section of common.py.
 
     The horizon is CONFIRMED at 12 h: 9.25 h and 11.25 h return data, 13.25 h and 17.25 h return
-    zero tiles, and a 9.41 h lead returned 17,862 tiles on 2026-08-12.
+    zero tiles, and a 9.41 h lead returned 17,862 tiles.
 
     If re-run, convert OFFSETS through common.site_window() first.
 

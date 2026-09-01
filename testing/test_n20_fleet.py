@@ -34,7 +34,7 @@ from common import banner, save_result, verdict
 from solver import Site, downwash_fraction, CALIBRATED
 import warp_solver as ws
 
-# RERUN 2026-08-12 on the CALIBRATED solver. The first run used exchange_s = 20 s and the
+# RERUN on the CALIBRATED solver. The first run used exchange_s = 20 s and the
 # downwash exponent 2.0, both falsified against field data in N-21 and refitted in N-22, so its
 # numbers (equal_split 1.1555 vs two_stage 1.2292, -2.0 sigma) are void. The PREDICTION and the
 # pass condition are unchanged -- they were fixed before either run. Archived at

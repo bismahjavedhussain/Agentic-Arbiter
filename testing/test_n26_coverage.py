@@ -10,9 +10,9 @@ WHY THIS RANKS SECOND ONLY TO THE SHARPENING TEST
     the truth breaches the bound 30 % of the time out of sample, the core deliverable is broken no
     matter how good the physics is, and no amount of GPU or solver work fixes it.
 
-    Like the sharpening test, this needs elapsed calendar days, so waiting until 18 Aug is the one
-    choice that guarantees it cannot be fixed in time. Started 2026-08-12, it yields six independent
-    day-pairs before the hackathon.
+    Like the sharpening test, this needs elapsed calendar days, so a late start is the one choice
+    that guarantees it cannot be fixed in time. Started as early as possible, it yields six
+    independent day-pairs.
 
 WHAT A "BOUND" MEANS HERE, PRECISELY
     Split conformal prediction, one-sided upper. Let d = outcome - forecast, per tile.
@@ -43,14 +43,14 @@ PASS CONDITIONS, FIXED NOW, BEFORE ANY OUTCOME EXISTS
 WHAT THIS DOES AND DOES NOT MEASURE -- state this before anyone asks
     DOES      whether a bound calibrated on earlier days covers, across 17,862 locations, on a day
               it has never seen. That is the right question for a multi-site deployment.
-    DOES NOT  the breach rate at ONE fixed site over many days. That needs far more days than exist
-              before 18 Aug. Tiles are also spatially correlated, so the effective sample is much
+    DOES NOT  the breach rate at ONE fixed site over many days. That needs far more days than the
+              schedule allows. Tiles are also spatially correlated, so the effective sample is much
               smaller than the tile count and the finite-sample index is optimistic. Coverage is
               therefore also reported per spatial quadrant.
 
 COST
     One forecast (~9.5 h lead) plus one outcome per day = 2 calls/day. Day 1 reuses the N-25
-    fixtures for 2026-08-12 at zero extra cost, since N-25 already forecasts and scores the same
+    fixtures for that day at zero extra cost, since N-25 already forecasts and scores the same
     14:00-16:00 window.
 
 USAGE

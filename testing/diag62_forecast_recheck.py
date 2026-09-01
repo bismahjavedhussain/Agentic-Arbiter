@@ -8,7 +8,7 @@ ONE PAID CALL (4,220 credits). EXPLICITLY AUTHORISED BY THE USER, 2026-08-19, wh
 WHAT IS ALREADY KNOWN, so this call is not buying an answer we own
 --------------------------------------------------------------------------------------------
     request                         lead        result                         when
-    PAST window 2026-08-16          elapsed     17,862 tiles                   works
+    PAST window                     elapsed     17,862 tiles                   works
     future                          ~8.6 h      0 tiles                        2026-08-18
     future                          9.38 h      0 tiles                        2026-08-19
     future                          2.29 h      0 tiles      <- kills the "12 h horizon" theory

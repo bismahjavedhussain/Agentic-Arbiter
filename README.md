@@ -117,7 +117,6 @@ only one: **`serve_live.py` has no authentication**, deliberately, so a judge ne
 | [`AGENTIC-ARBITER/app/`](AGENTIC-ARBITER/app/) | The React source for that app |
 | [`testing/`](testing/) | Every experiment, including the ones that failed |
 | [`money-sources.md`](money-sources.md) | Every price and efficiency figure, with its document and page |
-| `*-PREREG.md` | Pre-registrations with dated amendment logs, written **before** each test ran |
 
 ---
 

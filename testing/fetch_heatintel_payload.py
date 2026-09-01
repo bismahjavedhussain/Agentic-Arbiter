@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Fetch the /v1/heat_intelligence payload, then REDACT the credential FortyGuard leaked into its URL.
 
-WHY THIS FILE EXISTS -- a severe defect found 2026-08-16
+WHY THIS FILE EXISTS -- a severe defect in the endpoint
     /v1/heat_intelligence does not return data inline. It returns a `download_link` to S3, and that
     link has the CALLER'S API KEY EMBEDDED IN THE OBJECT PATH:
 

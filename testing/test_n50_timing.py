@@ -70,7 +70,7 @@ P2_MIN_BAND = 3             # >= 3 adjacent R values = >= 1 decade
 P3_MIN_OFF_MODAL = 0.25
 P4_MIN_ABS_RHO = 0.15
 
-# BUG FIX 2026-08-16: the grid ran to 3.0 while the margin variable reaches 5.5 C at early hours,
+# BUG FIX: the grid ran to 3.0 while the margin variable reaches 5.5 C at early hours,
 # so 43 % of (day, hour) margins exceeded the grid maximum and NO threshold could suppress firing.
 # Both adversaries degenerated to "always commit", and SCAN-10 could not express "never fire here".
 # Now spans the full observed range plus a sentinel above it so "never fire" IS expressible.

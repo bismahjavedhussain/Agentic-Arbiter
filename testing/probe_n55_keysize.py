@@ -11,7 +11,7 @@ This probe changes exactly ONE variable. It re-issues a request already known to
 same granularity, same analytic type, same target window -- and asks only whether a full-size request
 returns a full field.
 
-  8x8 km @ gran 60, 2026-08-16 14:00-16:00 site-local  ->  expected 17,862 features, 7.4 MB
+  8x8 km @ gran 60, a 14:00-16:00 site-local window   ->  expected 17,862 features, 7.4 MB
 
 PRE-REGISTERED INTERPRETATION -- written before the call, so the answer cannot be rationalised after
 ------------------------------------------------------------------------------------------------------

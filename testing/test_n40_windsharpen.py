@@ -9,7 +9,7 @@ WHY THIS TEST EXISTS -- the short version of a bad night
     computed with the sharpening exponent HELD FIXED AT 0.50 (test_n24_breakeven.py line 211) -- an
     assumed random-walk value, never measured.
 
-    N-25 measured it, on FortyGuard's TEMPERATURE forecast, 2026-08-12, 17,862 tiles x 5 known leads:
+    N-25 measured it, on FortyGuard's TEMPERATURE forecast, 17,862 tiles x 5 known leads:
 
         b = -0.0608,  SE 0.0803,  t = -0.76,  R^2 0.161,  95 % CI [-0.316, +0.195]
 
@@ -96,7 +96,7 @@ N24_SD_C = 0.15035545399123917
 N24_HW_C = 0.49499999999999744
 MEASURED_PEAK_SD_H = 1.4475          # N-38, 15 days, leave-one-out floor 1.1579 h
 
-# N-25's measured ambient forecast error, 2026-08-12, 17,862 tiles per lead.
+# N-25's measured ambient forecast error, 17,862 tiles per lead.
 N25_SIGMA_AMBIENT = {9.41: 0.1056, 7.49: 0.1084, 5.49: 0.0959, 3.49: 0.1299, 1.49: 0.1123}
 
 LEADS = list(range(1, 13))

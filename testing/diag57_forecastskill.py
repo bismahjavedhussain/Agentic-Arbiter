@@ -6,7 +6,7 @@ WHY THIS MATTERS MORE THAN ANYTHING ELSE OUTSTANDING
 N-56 could not state a single free-cooling figure, only a range from +71 to +1,325 h/yr, because the
 answer depends on a number nobody had measured: **how accurate is FortyGuard's forecast N hours ahead?**
 
-That number is already on disk. On 2026-08-12 the project paid for forecasts of ONE target window
+That number is already on disk. The project paid for forecasts of ONE target window
 (14:00-16:00 site-local) issued at FIVE different leads -- 1.49, 3.49, 5.49, 7.49 and 9.41 h -- plus the
 realised outcome for the same window. Same AOI, same granularity, 17,862 tiles each. Comparing them costs
 nothing.

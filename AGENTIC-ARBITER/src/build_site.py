@@ -155,7 +155,7 @@ def verify(rings, n, dx):
 def facing_edge(ring, centroid, toward):
     """The EDGE whose midpoint lies furthest along `toward` -- i.e. the facade facing that way.
 
-    BUG FIXED 2026-08-16: this previously returned the furthest VERTEX. A vertex of a rotated
+    BUG FIXED: this previously returned the furthest VERTEX. A vertex of a rotated
     building is a CORNER, so a 152 m bank strip centred on it extended outside the hall and toward
     the receptor, and solver.assert_intake_clear correctly refused the site (4 % of the intake disc
     landed on source cells). Facades are edges, not corners.

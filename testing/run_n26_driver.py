@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Driver for N-26: runs `collect` once a day until 18 Aug, then reports. FREE except the calls.
+"""Driver for N-26: runs `collect` once a day until the deadline, then reports. FREE except the calls.
 
 Fires at 08:30 UTC daily = 13:30 on this machine's clock = 04:30 site-local, which puts the
 14:00-16:00 site-local target window about 9.5 h ahead -- comfortably inside the confirmed 12 h

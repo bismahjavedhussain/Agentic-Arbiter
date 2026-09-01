@@ -95,7 +95,7 @@ if HAVE_WARP:
         lap = (N + S + E + W - wp.float32(4.0) * C) / (dx * dx)
         val = C + dt[b] * (adv + diffusivity * lap + src[b, i, j])
 
-        # OBSTACLE PINNING REMOVED 2026-08-12. This used to do `if obstacle[i,j]==1: val = amb`,
+        # OBSTACLE PINNING REMOVED. This used to do `if obstacle[i,j]==1: val = amb`,
         # matching the CPU path. Both were wrong: pinning a cell to ambient is a fixed-temperature
         # boundary, which ABSORBS heat without limit. N-29 measured a 120 x 200 m building removing
         # 99.7 % of a crossing plume, against 100.0 % conserved in the open domain. Real air flows

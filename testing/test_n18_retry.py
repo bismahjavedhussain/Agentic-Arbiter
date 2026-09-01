@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """N-18  persistent-retry probe: can forecast windows be obtained by retrying?   PAID.
 
-*** RESULT INVALIDATED 2026-08-12 -- THE FAILURE WAS OURS, NOT FORTYGUARD'S. DO NOT QUOTE. ***
+*** RESULT INVALIDATED -- THE FAILURE WAS OURS, NOT FORTYGUARD'S. DO NOT QUOTE. ***
 
     This file built its windows from datetime.now() -- machine local, UTC+5 -- and sent bare
     "%H:00" strings. The endpoint reads them in the AOI's local zone, UTC-4. So the four leads it
@@ -19,7 +19,7 @@
       - the claim of forecast intermittency against FortyGuard is WITHDRAWN
         (fortyguard-api-findings.md section 1.4b)
       - the 12 h horizon is instead CONFIRMED: 9.25 h and 11.25 h return data, 13.25 h and 17.25 h
-        return zero tiles, and a 9.41 h lead returned a full 17,862-tile field on 2026-08-12
+        return zero tiles, and a 9.41 h lead returned a full 17,862-tile field
       - what survives is the silent-empty-success defect, now stated with the exact boundary
 
     Kept on disk unmodified as the audit trail. Use common.site_window() for any new paid test.

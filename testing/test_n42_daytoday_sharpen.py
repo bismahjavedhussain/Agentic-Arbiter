@@ -21,7 +21,7 @@ WHY THIS FILE EXISTS AND HOW IT DIFFERS FROM N-25
     default averaging footprint (radius_m=30 over 60 m tiles -> a 7x7 block).
 
 THE HONEST PROBLEM WITH THIS TEST, FOUND BEFORE COLLECTING A SINGLE EXTRA DAY
-    N-25's five leads on 2026-08-12, read at the site level rather than the spatial level, show:
+    N-25's five leads, read at the site level rather than the spatial level, show:
         lead 9.41h +0.906C   7.49h +1.135C   5.49h +0.900C   3.49h +1.249C   1.49h +1.087C
     That is a large, PERSISTENT day-level offset (mean +1.06C) with a much smaller lead-specific
     wobble (+/-0.17C) riding on top of it. If a large share of the site-level error is common to
@@ -53,8 +53,8 @@ THE HONEST PROBLEM WITH THIS TEST, FOUND BEFORE COLLECTING A SINGLE EXTRA DAY
     BEST case with zero day-level offset. With a realistic D/e ~ 1.0, n_days=40 gives SE=0.057 on
     a b_hat already attenuated to ~0.12 -- underpowered on both the effect size and the estimate.
 
-    CONCLUSION, STATED BEFORE COLLECTING ONE EXTRA DAY: this test, run for the few days available
-    before Aug 18, is very unlikely to produce a decisive PASS or FAIL. It should still be run,
+    CONCLUSION, STATED BEFORE COLLECTING ONE EXTRA DAY: this test, run for the few days the
+    schedule allows, is very unlikely to produce a decisive PASS or FAIL. It should still be run,
     for two reasons that do not depend on reaching significance by any particular date: (1) it is
     the CORRECT statistic, and reporting the wrong one again would repeat N-25's original mistake
     in the other direction; (2) the fitting and refitting machinery below is exactly the online
@@ -328,7 +328,7 @@ def status():
     for nd, v in pt.items():
         note = "sufficient to separate 0 from 0.187" if v["se"] <= 0.047 else "underpowered"
         print("   %8d %12.4f %12.4f   %s" % (nd, v["mean_b"], v["se"], note))
-    print("   (best case: zero day-level offset. With the D/e~1.0 seen on 2026-08-12, the TRUE b")
+    print("   (best case: zero day-level offset. With the D/e~1.0 measured, the TRUE b")
     print("    itself is already attenuated to roughly 25% of its unresolvable-free value -- see")
     print("    the attenuation table in this file's docstring.)")
 

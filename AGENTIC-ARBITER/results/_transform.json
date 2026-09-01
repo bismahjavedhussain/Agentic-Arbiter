@@ -196,8 +196,8 @@
       "sha256": "34faa7e7d8af34fc10c7391d8ca58f414451b609ea3216694c946352a6c3fa88"
     },
     "drawLimits": {
-      "bytes": 9936,
-      "sha256": "93c32ffd27229160817817a104a2cb8941a78603c80d86f7647ec072f53356eb"
+      "bytes": 9922,
+      "sha256": "7ce1b90b39162135a275870e5dec2bc428cedf69b78c20006dc09dbf55f4bd5f"
     },
     "drawLive": {
       "bytes": 12569,
@@ -432,8 +432,8 @@
       "sha256": "4b84db0f83f670c9af1d62591375a40db093cdfb59f1ad93a9de84c46c5ac8ca"
     },
     "wire": {
-      "bytes": 2592,
-      "sha256": "46c26a4c74268ecf172923500f15f1e0b9f5c0bcbb2eef848ff42ddd0279e891"
+      "bytes": 2585,
+      "sha256": "8d96c4c3f1fbab8b50b313ffbe37eba6d74f6c501aa4c02be53e22bb934dfdcc"
     },
     "wireAerial": {
       "bytes": 656,

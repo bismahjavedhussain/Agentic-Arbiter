@@ -17,8 +17,8 @@ THE TWO UNKNOWNS THIS BUYS, and why everything else was established for free fir
          A 10-hour window bounds the answer: hours-within-window must be <= 10.0.
 
 WINDOW CHOICE IS EVIDENCE-BASED, NOT ARBITRARY
-    2026-06-23 was rejected after inspecting the saved field: max 20.52 C across the whole AOI, so any
-    threshold near 30 C returns zeros and wastes both calls. 2026-07-28 spans 29.98-32.43 C
+    One candidate was rejected after inspecting the saved field: max 20.52 C across the whole AOI, so any
+    threshold near 30 C returns zeros and wastes both calls. The chosen day spans 29.98-32.43 C
     (median 31.15), so thresholds of 31.0 and 32.0 straddle the distribution.
 
 SAFETY / DISCIPLINE
@@ -189,7 +189,7 @@ def main():
                    "tz": "America/New_York"},
         "aoi": {"centre": CENTRE, "side_km": SIDE_KM, "granularity": GRAN},
         "thresholds": THRESHOLDS, "direction": DIRECTION,
-        "field_reconnaissance": "2026-06-23 rejected: max 20.52 C. 2026-07-28 spans 29.98-32.43 C, "
+        "field_reconnaissance": "one candidate rejected: max 20.52 C. the chosen day spans 29.98-32.43 C, "
                                 "median 31.15, from saved fixtures at zero cost",
         "prior_art_note": "verify_api_defects.py:172 and test_n17_recheck.py:49 both sent the ignored "
                           "field name `threshold_temperature`; this is the first test to send "

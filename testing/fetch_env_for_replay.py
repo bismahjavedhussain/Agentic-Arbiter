@@ -4,7 +4,7 @@
 WHY THIS EXISTS
     A replay is supposed to be one site, one date, one set of saved FortyGuard responses. It was
     not: every heatmap in the live cache is 2026-08-20, and every environmental response on disk was
-    2026-07-22..08-11 or 2026-08-22. So a replay paired a temperature field from one day with
+    from some other day. So a replay paired a temperature field from one day with
     humidity and air quality from another, and `live.py` had to warn that the gates were real
     FortyGuard values but not that date's air.
 

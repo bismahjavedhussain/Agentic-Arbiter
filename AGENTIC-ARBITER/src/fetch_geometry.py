@@ -6,7 +6,7 @@ WHY THIS REPLACES A HAND-WRITTEN LAYOUT
     condenser bank on its east face, a neighbour 300 m east. That is a fair reference case but it is
     made up, and "you invented the geometry" is a legitimate objection.
 
-    FortyGuard cannot supply geometry either: /v1/satellite was probed on 2026-08-16 and returns a
+    FortyGuard cannot supply geometry either: /v1/satellite was probed and returns a
     225 x 225 raster with a two-class vocabulary ("earth, ground" 99.78 %, "others" 0.22 %),
     alpha-blended over the photo, with NO georeferencing. No building footprints. So OpenStreetMap.
 

@@ -191,7 +191,7 @@ def simulate_days(state, n_days, err_pool, seed):
             draws = rng.choice(err_pool, size=N_ENSEMBLE_DRAWS, replace=True)
             # Generation uses fc_dir = true_dir + fc_err, i.e. true_dir = fc_dir - fc_err. The
             # inversion must use the SAME sign or it queries a distribution inconsistent with how
-            # the day was generated -- found and fixed 2026-08-15, it was using +draws.
+            # the day was generated -- found and fixed, it was using +draws.
             implied_true = (fc_dir[d] - draws) % 360.0
             bins = np.array([query_bin(t, off) for t in implied_true])
             samples = np.array([rng.choice(tb[b]) for b in bins])

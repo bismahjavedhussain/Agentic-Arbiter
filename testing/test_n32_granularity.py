@@ -26,7 +26,7 @@ THE DESIGN -- fully crossed, identical times, one date
         8 x 8 km AOI    2 NEW CALLS            2 NEW CALLS
 
     Everything else is held constant: centre 39.0100 / -77.4460, analytic_type tcm, filter_type 2,
-    date 2026-07-28, and the two windows 12:00-14:00 and 16:00-18:00 site-local -- exactly the
+    a single fixed date, and the two windows 12:00-14:00 and 16:00-18:00 site-local -- exactly the
     request shape N-12c used, so the two held fields drop straight into the table.
 
     Two times per cell, because that is the statistic the 8 km / 60 m result was already computed

@@ -78,7 +78,7 @@ HONEST LIMITS -- state these, do not let a viewer infer otherwise:
     and it does change decisions, but only inside a ~0.35 C band under the limit.
   * `solver.py` models buildings as TRANSPARENT to the temperature field -- N-29 V4 measured
     0.0 % of plume heat absorbed, so heat is conserved exactly (gotcha #26; the earlier
-    heat-ABSORBING description was retracted 2026-08-12 and this line asserted it for eight days
+    heat-ABSORBING description was retracted and this line asserted it for eight days
     after the code had changed). Transparency is still not deflection, so on a bearing where a
     building lies on the source-to-intake path there is no answer the solver can stand behind and
     the agent REFUSES rather than returning a number.
@@ -2136,7 +2136,7 @@ def run_all():
                              "RETRACTED heat-absorption claim until 2026-08-20; nothing rendered "
                              "it, but it shipped in trace.json for eight days"),
             "retracted_claims_in_this_field": [
-                "buildings absorb heat rather than deflect it -- FALSE since 2026-08-12, measured "
+                "buildings absorb heat rather than deflect it -- FALSE, measured "
                 "0.0 % absorbed by N-29 V4"],
             "source_copies": drift},
         "cycle": cyc,

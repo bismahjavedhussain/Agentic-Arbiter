@@ -14,7 +14,7 @@ THE QUESTION, AND WHY BOTH ANSWERS MATTER
 
 NO NEW API CALLS
     Uses 25 fields already paid for: the same 2 x 2 km AOI at 100 m granularity, on five dates
-    (2026-06-15, 06-30, 07-10, 07-20, 07-28) at five two-hour windows each (10:00-12:00 through
+    (five separate days) at five two-hour windows each (10:00-12:00 through
     18:00-20:00, site-local). Date AND hour are known exactly for every one, which is what makes the
     wind matching valid.
 
@@ -142,7 +142,7 @@ def load_field(path):
 def to_grid(pts):
     """Put the tiles on their own lattice using TILE ORDER; returns (Z, dy_m, dx_m, rot_deg).
 
-    🐛 BUG FIXED 2026-08-12. The first version inferred the lattice from distinct latitude and
+    🐛 BUG FIXED. The first version inferred the lattice from distinct latitude and
     longitude values. That silently produced a 397 x 397 array holding only 397 values, with 2.8 m
     "cells", because THE FORTYGUARD TILE LATTICE IS ROTATED relative to lat/lon: stepping one tile
     east also moves you about 2.7 m north, so no two tiles in a row share a latitude and no two in a
@@ -212,7 +212,7 @@ def shape(Z):
 def _bilinear(Z, fi, fj):
     """Sample Z at fractional row/col offsets by bilinear interpolation. NaN outside or near NaN.
 
-    🐛 BUG FIXED 2026-08-12. The first version of this function converted the lag to INTEGER cell
+    🐛 BUG FIXED. The first version of this function converted the lag to INTEGER cell
     offsets with round(). At 100 m cells and a requested 200 m lag that makes the ACTUAL separation
     vary from 141 m (at 45 deg, offsets 1,1) to 224 m (at 15 deg, offsets 2,1) depending on the
     angle. A shorter actual separation gives a smaller temperature difference, so the angle with the

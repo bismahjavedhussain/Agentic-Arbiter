@@ -46,7 +46,7 @@ from common import (load_key, credits_remaining, box_aoi, save_result, site_now,
                    utc_now, RESULTS, V1, SITE_TZ_NAME)
 from datetime import timedelta
 
-CENTRE = (39.0100, -77.4460)      # the committed N-26 centre, unchanged since 2026-08-12
+CENTRE = (39.0100, -77.4460)      # the committed N-26 centre, unchanged since it was set
 SIDE_KM = 8.0
 GRAN = 60
 TARGET_HOUR = 14

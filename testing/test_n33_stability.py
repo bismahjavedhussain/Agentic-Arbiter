@@ -2,7 +2,7 @@
 """N-33  ---  derive the dispersion constant from REAL WEATHER, hour by hour.   FREE.
 
 THE QUESTION
-    Our solver has one diffusivity D. Until 2026-08-12 it was 8.0 m2/s with, in our own test file's
+    Our solver has one diffusivity D. Previously it was 8.0 m2/s with, in our own test file's
     words, "no basis at all". N-30 fixed the provenance: D can be DERIVED from the published
     Pasquill-Gifford dispersion curves once you know the atmospheric stability class, because our
     solver's plume-width law (sigma_y^2 = 2 D x / u, verified exactly in N-29) can be set equal to the

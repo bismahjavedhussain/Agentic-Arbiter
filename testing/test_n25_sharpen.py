@@ -67,7 +67,7 @@ GRAN = 60
 WIN_H = 2
 TARGET_HOUR_SITE = 14              # 14:00-16:00 site-local: the diurnal peak
 PLANNED_LEADS = [7.5, 5.5, 3.5, 1.5]   # after the immediate first shot
-HORIZON_H = 12.0                   # confirmed 2026-08-12: 11.25 h works, 13.25 h returns zero tiles
+HORIZON_H = 12.0                   # confirmed: 11.25 h works, 13.25 h returns zero tiles
 MANIFEST = os.path.join(RESULTS, "n25_manifest.json")
 
 PASS_B = 0.187                     # pre-registered in N-24: 2-sigma win
@@ -265,7 +265,7 @@ def _iso(s):
 
 # ----------------------------------------------------------------- report
 # Two-sided 95 % critical values of Student's t by degrees of freedom. Hard-coded to avoid a scipy
-# dependency; verified 2026-08-13 against the t CDF to 5 decimal places for dof 2-10, and dof 1
+# dependency; verified against the t CDF to 5 decimal places for dof 2-10, and dof 1
 # against the exact Cauchy form 0.5 + atan(x)/pi.
 TCRIT_95 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365,
             8: 2.306, 9: 2.262, 10: 2.228, 11: 2.201, 12: 2.179, 15: 2.131, 20: 2.086}
@@ -274,7 +274,7 @@ TCRIT_95 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.36
 def _fit_stats(leads, vals):
     """OLS of ln(vals) on ln(lead), WITH the standard error and a 95 % CI on the slope.
 
-    b IS the exponent N-9 and N-24 sweep. The SE and the interval were added 2026-08-13 for a
+    b IS the exponent N-9 and N-24 sweep. The SE and the interval were added for a
     specific reason worth keeping in the file: earlier that day a 4-point slope was fitted from a
     PROXY (the shortest-lead forecast standing in for the outcome), came out at -0.61, and was
     reported as a finding. It had to be withdrawn. The SE was 0.674, t was -0.90, and the 95 % CI
@@ -431,7 +431,7 @@ def report():
     print("      b from rms (bias + sd)    : %+.3f   (total error, if no bias correction)" % br)
 
     # ---------------------------------------------------------------- the interval on b
-    # Added 2026-08-13. See _fit_stats' docstring for the withdrawn claim that motivated it.
+    # Added later. See _fit_stats' docstring for the withdrawn claim that motivated it.
     # This is REPORTING ONLY -- it does not touch the verdict or the exit code, because the
     # pre-registered condition is a POINT-ESTIMATE rule (b >= 0.187) and tightening it to "the CI
     # lower bound clears 0.187" after seeing the data would be moving a threshold after the fact.
@@ -547,7 +547,7 @@ def report():
              "no information and the stopping rule earns nothing over a tuned fixed-hour rule. Report "
              "the null honestly and rebuild the agency claim on the peak-hour risk alone -- N-24's "
              "joint grid says that will not be enough on its own, so this outcome means the central "
-             "decision is not agentic and the project needs rethinking before 18 Aug."
+             "decision is not agentic and the project needs rethinking."
              % (b, MARGINAL_B, n_distinct)))
 
     save_result("n25_sharpen.json", {

@@ -42,7 +42,7 @@ PAST_DATE = "2026-06-23"          # `date` is documented "past or present only"
 INPUT_TEMP_C = 30.0              # this endpoint takes a temperature as an INPUT, like env_params
 # The OpenAPI spec advertises maxItems: 5. The SERVER enforces 2 for this plan:
 #   HTTP 400 "Heat Intelligence analysis types exceed current model limit of 2 types for premium plan"
-# (measured 2026-08-16; the 400 fires before a task is created, so it is not billable.)
+# (measured; the 400 fires before a task is created, so it is not billable.)
 # Of the five available -- geographic | environmental | urban | events | anthropogenic -- these two are
 # the ones that could inform a plume/recirculation model: `anthropogenic` is human-caused heat, i.e.
 # exactly the neighbouring waste-heat source our solver models, and `urban` is the built environment

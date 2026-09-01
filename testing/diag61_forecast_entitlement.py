@@ -20,7 +20,7 @@ THE VARIABLE TABLE, built before writing any cause (gotcha #35)
 
     Exactly one thing differs between the success and every failure: WHETHER THE WINDOW IS IN THE
     PAST OR THE FUTURE. N-55 established that this key serves 8x8 km at granularity 60 and returns
-    17,862 features -- for a PAST target (2026-08-16). So the combination never demonstrated to
+    17,862 features -- for a PAST target. So the combination never demonstrated to
     work is:
 
         this key  x  FUTURE window   =  the only untested thing left.

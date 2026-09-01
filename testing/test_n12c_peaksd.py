@@ -11,7 +11,7 @@ WHY
 
     N-12 tried to read this from analytic_type=time_of_measure and the endpoint FAILED
     validation: it returned modal peak hours of 0, 1, 2 and 22 for summer days in Virginia, and
-    N-12b falsified it directly -- on 2026-07-28 the 12:00-16:00 window is 6.446 C hotter than
+    N-12b falsified it directly -- on one measured day the 12:00-16:00 window is 6.446 C hotter than
     20:00-23:00, so a claimed peak at hour 22 is wrong by about eight hours. The endpoint is
     unusable for this.
 

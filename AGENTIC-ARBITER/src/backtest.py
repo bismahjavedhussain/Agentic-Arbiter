@@ -489,7 +489,7 @@ def score_config(st, bnd_by_N, cal, te, cfg, fg_offsets):
                                "sensor_dither")},
         # DERIVED, not passed: the anchor decides the offset treatment, so a caller cannot claim
         # one offset regime while `anchor` produces another. The old code accepted an
-        # `offset_day="2026-08-16"` that score_config silently ignored.
+        # `offset_day="<a past day>"` that score_config silently ignored.
         "offset_day": ("anchored" if cfg["anchor"] == "sensor" else "rotated-4-measured"),
         "bank_mode": st["bank_mode"],
         "test_days": nd,
@@ -898,7 +898,7 @@ def run_n56_audit(st, fg_offsets):
               dict(base, sensor_err_c=0.3, switch_budget=2, min_dwell_h=3,
                    dewpoint_limit_c=15.0, notice_h=3, skill=0.50)),
              # LABEL CORRECTED 2026-08-19. This row used to read "worst measured FG offset" and
-             # pass offset_day="2026-08-16", which score_config IGNORES when anchor="none" -- it
+             # pass offset_day="<a past day>", which score_config IGNORES when anchor="none" -- it
              # rotates all four measured offsets across days on purpose, so that calibration and
              # test days carry different offsets and a constant bias cannot be learned (gotcha
              # #48). The label described a single-offset run that has not been executed since the

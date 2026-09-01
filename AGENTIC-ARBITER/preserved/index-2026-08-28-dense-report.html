@@ -2699,8 +2699,8 @@ function wire(){
      fully interactive and did nothing: the loop above even carried
      `if(e.target.id==='c_field'){ await loadField(); }`, a branch that could never fire because
      #c_field can never be one of `#filters`'s children. Reported by the user, who changed the
-     field from 2026-08-16 forecast to 2026-08-13 forecast and watched all four tiles and the whole
-     statistics table keep 08-16's numbers.
+     field from one forecast day to another and watched all four tiles and the whole
+     statistics table keep the first day's numbers.
      I had told them the dropdown worked, having traced that dead branch and never driven the
      control. Reading a code path is not testing it.
      `loadField()` only fetches -- it sets FIELD and returns -- so the redraw has to be explicit
@@ -6904,7 +6904,7 @@ function drawLimits(){
   }
   lim.push(...[
     /* CORRECTED 2026-08-19. This entry read "The solver absorbs heat into buildings — a known
-       defect, deliberately not fixed". THAT CLAIM WAS RETRACTED ON 2026-08-12 and this panel kept
+       defect, deliberately not fixed". THAT CLAIM WAS RETRACTED and this panel kept
        asserting it: solver.py carries a dated "OBSTACLE PINNING REMOVED" block, and re-running
        test_n29_verify.py measures 0.0 % absorbed (max |dT| 0.000000 with a 120x200 m wall across
        the plume). The panel whose entire job is honesty was shipping a defect the solver does not

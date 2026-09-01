@@ -182,7 +182,7 @@ def main():
     print("      => statistics agree to %.4f C. %s" % (spread,
           "The claim does not depend on the choice." if a5 else "CHOICE OF STATISTIC MATTERS -- recheck."))
 
-    print("\n   [A4] LEAD DEPENDENCE -- restated from DIAG-57 (5 leads, same window, 2026-08-12)")
+    print("\n   [A4] LEAD DEPENDENCE -- restated from DIAG-57 (5 leads, same window, one day)")
     print("      mean error +1.195 / +1.247 / +1.098 / +1.327 / +1.091 C at 1.49-9.41 h lead")
     print("      slope -0.0063 C per hour of lead; range 0.236 C over a 7.9 h span")
     print("      => NOT lead-dependent. Ordinary forecast degradation would grow with horizon.")

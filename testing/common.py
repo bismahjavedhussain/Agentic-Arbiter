@@ -69,7 +69,7 @@ R_EARTH = 6371000.0
 # bare "%H:00" strings. The AOI is Loudoun County, Virginia, UTC-4 in August. That is a silent
 # NINE HOUR error on every forecast request we ever issued, and it invalidated their lead labels.
 #
-# Established 2026-08-12 from data already on disk, at zero cost, by two independent arguments:
+# Established from data already on disk, at zero cost, by two independent arguments:
 #   1. Across five saved days the diurnal maximum falls in the 16:00-18:00 labelled window and is
 #      already declining by 18:00-20:00. That is a normal local afternoon curve. Under a UTC
 #      reading, 18:00 UTC = 14:00 EDT, essentially the peak, where temperature cannot be falling.

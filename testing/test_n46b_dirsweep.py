@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """N-46b  ---  HOW GOOD must the direction forecast be for a modelled margin to beat a constant?
 
-THE LAST TEST OF THE MARGIN THESIS. Agreed stopping rule 2026-08-16: whatever this returns, no
+THE LAST TEST OF THE MARGIN THESIS. Agreed stopping rule: whatever this returns, no
 further variant of the margin claim is proposed. FREE, GPU table reused, zero API calls, no key.
 
 WHY THIS EXISTS
@@ -186,7 +186,7 @@ def main():
                     "beat the smallest constant margin at equal 90 % coverage",
         "does_not_measure": "whether any real forecast meets that requirement; FortyGuard direction "
                             "skill is NOT measured here. Nothing in energy or money.",
-        "stopping_rule": "agreed 2026-08-16: this is the LAST test of the margin thesis, pass or fail",
+        "stopping_rule": "agreed: this is the LAST test of the margin thesis, pass or fail",
         "lead_h": HEADLINE_LEAD,
         "measured_base_sd_deg": base_sd,
         "n_train": N_TRAIN, "n_test": N_TEST,

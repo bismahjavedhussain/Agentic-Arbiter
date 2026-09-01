@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """N-13  ---  does the forecast SHARPEN as the target hour approaches?   PAID, two legs.
 
-*** SUPERSEDED 2026-08-12 BY test_n25_sharpen.py. DO NOT RUN. DO NOT QUOTE ITS LEADS. ***
+*** SUPERSEDED BY test_n25_sharpen.py. DO NOT RUN. DO NOT QUOTE ITS LEADS. ***
 
     Two independent faults, either of which alone invalidates the result:
 
