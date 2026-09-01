@@ -74,6 +74,19 @@ const RUN_BUTTONS = ['runagent', 'runagent2', 'livego']
  */
 let reasoningPlayed = false
 
+/* 🔴 THE RESET IS REGISTERED AT MODULE SCOPE, NOT IN AN EFFECT, and that distinction IS the fix.
+   The first attempt put this listener in a useEffect and it never fired once. This console only
+   renders while the tab is 'live' AND the stage is 'results'; choosing a different site sets the
+   stage to 'pick', which UNMOUNTS it, and lib/engine.ts then calls loadSite() -- what dispatches
+   the event. So the listener had already been torn down before the event existed, the latch below
+   stayed true, and the next mount went straight to 'ready' exactly as before.
+   The latch is module state, so the thing that clears it belongs beside it, alive whether or not
+   anything is mounted. The in-component listener stays as well, for a site change made while the
+   results are still on screen, where the mounted instance also has to restart its own sequence. */
+if (typeof window !== 'undefined') {
+  window.addEventListener('aa:sitechange', () => { reasoningPlayed = false })
+}
+
 function tapeDone(): boolean {
   const el = document.getElementById('tapedone')
   return !!(el?.textContent || '').trim()
