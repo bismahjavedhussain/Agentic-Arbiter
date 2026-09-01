@@ -5208,9 +5208,15 @@ function drawLive(L){
             ? 'Replay verification run, hour by hour.'
             : 'The reasoning, hour by hour, for this run only.')
         + '</span></div>'
-        + '<span class="note" style="text-align:right;max-width:44ch">Both gates bind in warm, '
+        + '<span class="note" style="text-align:right;max-width:46ch">Both gates bind in warm, '
         + 'humid air, so for a dry-climate contrast run this live at <strong>Centersquare '
-        + 'Lynnwood SE1, WA</strong>.</span>'
+        + 'Lynnwood SE1, WA</strong>.<br>'
+        /* THE TWO PICKER VALUES, so a reader does not have to hunt for the site. The State
+           dropdown lists full names, not codes, because expandStateSuffix() rewrites them for
+           display, so it reads Washington and never WA. Operator is spelled Centersquare, one
+           word, which is how it appears in sites.json and therefore in the dropdown. */
+        + '<span style="font-size:.85em;opacity:.75">State: Washington &nbsp;&middot;&nbsp; '
+        + 'Operator: Centersquare</span></span>'
         + '</div>'
       : '';
   }
