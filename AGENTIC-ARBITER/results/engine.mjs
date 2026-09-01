@@ -2130,6 +2130,8 @@ function drawSiteNotes(){
 
 let HEALTH = null, LIVEJOB = null, STOPWANTED = false;
 
+let LIVEGEN = 0;
+
 async function probeLive(){
   try{
     const r = await fetch('api/health', {cache:'no-store'});
@@ -2282,6 +2284,7 @@ async function stopLive(){
 }
 
 function clearLive(){
+  LIVEGEN++;
   STOPWANTED = false; LIVEJOB = null;
   ['#livestream','#livemsg','#liverefusal','#livetiles','#livetable','#livebound',
    '#liveenv','#livereport'].forEach(function(sel){
@@ -2303,6 +2306,7 @@ async function runLive(){
   TAPEGEN++;
   streaming = false;
   clearLive();
+  const gen = LIVEGEN;            // this run's claim on the live card
   if(stopBtn){ stopBtn.hidden = false; stopBtn.disabled = false;
                stopBtn.textContent = 'Stop agent now'; }
   btn.disabled = true; btn.textContent = 'Working…';
@@ -2329,19 +2333,47 @@ async function runLive(){
     if(STOPWANTED) fetch('api/live/stop/' + job_id, {method:'POST'}).catch(function(){});
     /* Poll. A single window can take 300 s while FortyGuard decides whether to answer, so this is
        a long wait BY DESIGN and the progress rows are what make that legible. */
+    /* `settled` is what separates the three ways out of this loop: a result, a reported
+       failure, or the reader moving on. Only the fourth way -- running out of polls with none of
+       those -- used to be possible without a word on screen. */
+    let settled = false, superseded = false;
     for(let i=0;i<600;i++){
       await new Promise(res=>setTimeout(res, 1500));
-      const j = await (await fetch('api/live/job/' + job_id, {cache:'no-store'})).json();
+      if(gen !== LIVEGEN){ superseded = true; break; }
+      const resp = await fetch('api/live/job/' + job_id, {cache:'no-store'});
+      const j = await resp.json();
+      /* Checked again AFTER the await: the fetch itself is a place the reader can change site. */
+      if(gen !== LIVEGEN){ superseded = true; break; }
+      /* 🔴 THE JOB IS GONE, AND THIS BRANCH IS WHY THE PAGE USED TO SAY NOTHING. serve_live.py
+         answers 404 {"error": "no such job"} for a job it does not hold, and a 404 body parses
+         perfectly well -- so `j.state` was undefined, every test below missed, and the loop polled
+         on in silence until it ran out. JOBS lives in memory, so a restart or a deploy during a run
+         is the ordinary way to arrive here. */
+      if(resp.status === 404 || (!j.state && j.error)){
+        $('#livemsg').innerHTML = '<span class="err"><strong>This run is no longer on the server.'
+          + '</strong> That usually means the service restarted while it was in flight. Windows '
+          + 'already submitted were charged for and their readings are lost, so run it again '
+          + 'rather than waiting.</span>';
+        settled = true; break;
+      }
       if(j.cancel && stopBtn && !stopBtn.disabled){
         stopBtn.disabled = true; stopBtn.textContent = 'Stopping…'; }
       while(seen < (j.progress||[]).length){ liveStreamRow(j.progress[seen++]); }
       if(j.refusal){ $('#liverefusal').innerHTML = '<strong>The server refused to spend.</strong> '
                                                    + j.refusal; }
-      if(j.state === 'done'){ drawLive(j.result); break; }
+      if(j.state === 'done'){ drawLive(j.result); settled = true; break; }
       if(j.state === 'error'){
         $('#livemsg').innerHTML = '<span class="err">The live run failed: ' + j.error + '</span>';
-        break;
+        settled = true; break;
       }
+    }
+    /* 🔴 THE FALL-THROUGH, which never existed. 600 polls at 1.5 s is fifteen minutes, and the
+       server bounds ONE horizon at 600 s -- so arriving here means the run is not slow, it is
+       lost, and the page used to report that by going quiet and re-enabling the button. */
+    if(!settled && !superseded){
+      $('#livemsg').innerHTML = '<span class="err"><strong>No result after 15 minutes.</strong> '
+        + 'The agent stopped waiting. One horizon is bounded at 600 s on the server, so a run that '
+        + 'has not settled by now will not. Anything already submitted was charged for.</span>';
     }
   }catch(e){
     $('#livemsg').innerHTML = '<span class="err">Could not reach the live agent: ' + e.message

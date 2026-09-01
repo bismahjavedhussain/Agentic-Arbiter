@@ -8,7 +8,7 @@
     ],
     "sha256": "6873f3b7dd052d9d1333c93da114d266db31cd3d225f638ae1fd2aa1b48cea03"
   },
-  "declarations": 55,
+  "declarations": 56,
   "dropped_declarations": {
     "BOOTED": "boot"
   },
@@ -116,8 +116,8 @@
       "sha256": "df9b665329a5f2b7fc0751b3bdb0c43b9c86dcb867dabfef798d08b9eca208b1"
     },
     "clearLive": {
-      "bytes": 305,
-      "sha256": "c217f7ce11b4633a4bacc352460050a5c9b7d9734afdee575f6cb39f0ac3d6d1"
+      "bytes": 318,
+      "sha256": "463d3e289fda5738e3638cd5e4ed6372c7db1523c03dee3ef66c710a4f02a78e"
     },
     "countUpText": {
       "bytes": 1521,
@@ -352,8 +352,8 @@
       "sha256": "c260731162d2bc0c87b591bf3d41a142acc89ae3564b4d1cc20d63ba94c648e7"
     },
     "runLive": {
-      "bytes": 3303,
-      "sha256": "f120d397a113c4311cf73b66eb5a0d4564d4e34db54a60d20703940050d08756"
+      "bytes": 5428,
+      "sha256": "6d5da80ff4550a8f6351d2ae53c866ea3f50dd48099e65298ac256504ccf537c"
     },
     "setStage": {
       "bytes": 2806,
