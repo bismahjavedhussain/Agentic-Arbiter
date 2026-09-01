@@ -50,8 +50,13 @@ import type { Portfolio } from '../lib/artefacts'
  * They are NOT sites where the gates predict zero free-cooling hours. MEASURED across all twelve:
  * the agent certifies between 4,364 and 7,529 free-cooling hours at each of them over the test
  * period, and not one of them certifies zero. What is true is that at those twelve the INCUMBENT
- * controller certifies more, because the agent's bound refuses hours the incumbent takes on a
- * thermometer reading alone. So the card says the agent is the more conservative of the two there,
+ * controller certifies more, because the agent's bound refuses hours the incumbent takes with no
+ * forecast behind them. ⚠ NOT "on a thermometer reading alone", which is what this comment
+ * said until 2026-09-01 and which contradicts the retraction recorded at demo/index.html:1535:
+ * operators DO run on-site rooftop stations, so the distinction was never the instrument. The
+ * incumbent is de-biased persistence, the reading from N hours ago carried forward with no
+ * forward view and no plume term, which is exactly what the shipped legend calls it at
+ * demo/index.html:1981, "Incumbent (rooftop sensor, no forecast)". So the card says the agent is the more conservative of the two there,
  * which is the fact, in the neutral register the user asked for.
  *
  * ⚠ THE VALUE CARD RENDERS NOTHING when portfolio.json is absent, rather than showing a dash or a

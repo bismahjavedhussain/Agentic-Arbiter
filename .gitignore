@@ -101,10 +101,22 @@ FGfield.wav
 # 106.30 s. Evidence, not scratch: keep the file, just not in the repository.
 LiveAgentRunOnAfternoon.png
 5clips.wav
+closing.wav
 # The v2 rewrite and the five-clip recording sheet: working documents for the video, same
 # category as DEMO-SCRIPT-2m50.md above.
 DEMO-SCRIPT-v2.md
 RECORD-THESE-FIVE.md
+# The filled-in hackathon submission answers. Working material, and question 8 of that form
+# asks for the FortyGuard API key, so this file must never be somewhere a key could follow it.
+SUBMISSION-ANSWERS.md
+
+# Unpublished at the user's direction, 2026-09-01. All four remain on the local drive; only the
+# repository loses them. audit.py, audit_nothing_lost.py and sync_context.py were amended in the
+# same change so a fresh clone does not fail checks for documents it was never given.
+report (7).pdf
+API-USAGE.md
+hackathon/
+RECIRCULATION-PHYSICS.md
 
 # The durable-context pack, kept on the local drive only at the user's direction.
 # WARNING for a fresh clone: audit.py, run_all.py, live_report.py,
@@ -112,12 +124,12 @@ RECORD-THESE-FIVE.md
 # tools/mkview.py all READ files under CONTEXT/, and CLAUDE.md instructs reading it
 # first. Without this folder those checks cannot run. The folder is intact locally.
 CONTEXT/*
-# These two are the only files audit.py needs to reach its own verdict:
-# audit.py:2057 registers READING-THE-AGENT.md as a surface that must exist to be
-# scanned, and the spend checks read HANDOFF.md. With these two present the audit
-# returns 2115 passed / 5 failures, identical to the full local tree. MEASURED.
+# HANDOFF.md is the ONLY file under CONTEXT/ a clone still needs: the spend checks read it.
+# READING-THE-AGENT.md was negated here too until 2026-09-01, because audit.py scanned it
+# for retracted phrases. It is unpublished now at the user's direction and that scan entry
+# was removed in the same change, so the negation goes with it. A negation left behind
+# would have silently kept the file tracked: git applies the LAST matching pattern.
 !CONTEXT/HANDOFF.md
-!CONTEXT/READING-THE-AGENT.md
 
 # Kept on the local drive only at the user's direction. WARNING for a fresh clone:
 

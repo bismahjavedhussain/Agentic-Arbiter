@@ -127,9 +127,12 @@ MOVED_NOTES = {
 # the baseline calls it INTAKE-ARBITER and the tree calls it AGENTIC-ARBITER.
 KEPT_MD = {
     "README.md",
-    "API-USAGE.md",
+    # API-USAGE.md was here until 2026-09-01. It is now local-only at the user's direction,
+    # so it is neither KEPT nor lost: it is deliberately unpublished, and listing it here
+    # would make every run report a document missing that nobody intends to ship.
     "CLAUDE.md",
-    "RECIRCULATION-PHYSICS.md",
+    # RECIRCULATION-PHYSICS.md was here until 2026-09-01. Local-only now, at the user's
+    # direction: it was written for their own understanding, not for a reader of the repo.
     "money-sources.md",
     "<proj>/demo/README.md",
     "<proj>/demo/money-sources.md",

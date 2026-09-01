@@ -2053,14 +2053,14 @@ def check_retracted_claims():
                # says in as many words that a judge opens the demo before reading anything. The
                # front door of the thing being judged was the one document nothing read.
                ("demo/README.md", os.path.join(DEMO, "README.md")),
-               ("README.md", os.path.join(ROOT, "README.md")),
-               ("RECIRCULATION-PHYSICS.md", os.path.join(ROOT, "RECIRCULATION-PHYSICS.md")),
-               # MOVED 2026-08-28 into CONTEXT/, the durable-context pack. It is still scanned:
-               # this list is the set of surfaces a READER meets, and relocating a document does
-               # not stop it being read. The absent-file branch below is what makes a wrong path
-               # here a FAILURE rather than a silent skip.
-               ("CONTEXT/READING-THE-AGENT.md",
-                os.path.join(ROOT, "CONTEXT", "READING-THE-AGENT.md"))]
+               ("README.md", os.path.join(ROOT, "README.md"))]
+    # 🔴 CONTEXT/READING-THE-AGENT.md WAS SCANNED HERE AND IS NO LONGER PUBLISHED, 2026-09-01.
+    # It was added because "this list is the set of surfaces a READER meets", and it was right to
+    # scan it while it shipped. It is now local-only at the user's direction, so a reader is never
+    # given it and it is not such a surface. The entry is REMOVED rather than left to hit the
+    # absent-file branch, because that branch reports a FAILURE and a document deliberately not
+    # published is not a failure. ⚠ The branch itself stays exactly as it is: for every target that
+    # remains, an absent file is still a failure and not a silent skip (gotcha #74).
     scanned, hits, missing = 0, [], []
     for label, path in targets:
         if not os.path.exists(path):
@@ -2770,10 +2770,20 @@ def check_api_spend():
     # THE TWO DOCUMENTS NO LONGER SIT IN THE SAME DIRECTORY, so the path is carried with the
     # name rather than assembled from ROOT. HANDOFF.md moved into CONTEXT/ on 2026-08-28;
     # API-USAGE.md stays at the root because it is judge-facing.
+    # 🔴 API-USAGE.md IS NO LONGER PUBLISHED, 2026-09-01, at the user's direction. This loop
+    # existed to stop a judge-facing document drifting from the meter; with the document out of the
+    # repository there is no published figure left to drift. It is still written locally by
+    # testing/bump_spend_docs.py, and if it is present it is still checked, which is why the
+    # absent-file branch below now WARNS for it rather than failing.
     for doc, path in (("API-USAGE.md", os.path.join(ROOT, "API-USAGE.md")),
                       ("HANDOFF.md", os.path.join(ROOT, "CONTEXT", "HANDOFF.md"))):
         if not os.path.exists(path):
-            ck("%s exists" % doc, False, "missing")
+            # HANDOFF.md is still published and must be there. API-USAGE.md is deliberately not,
+            # so its absence is stated rather than scored as a fault.
+            ck("%s exists" % doc, doc == "API-USAGE.md",
+               "not published in the repository, nothing to re-read"
+               if doc == "API-USAGE.md" else "missing",
+               warn=(doc == "API-USAGE.md"))
             continue
         txt = open(path, encoding="utf-8").read()
         missing = [s for s in current if s not in txt]
@@ -3038,9 +3048,65 @@ def check_front_door_figures():
          "**%d of %d**" % (MOND3["mondrian_hod_x_season"]["groups_below_target"],
                            MOND3["mondrian_hod_x_season"]["n_groups"])),
     ]
+    # 🔴 THE README WAS CUT FROM 627 LINES TO 136 ON 2026-09-01, at the user's direction, and
+    # these figures are no longer printed there. This check exists because "a number no test
+    # re-reads goes stale", which has happened five times in this project; a number the README
+    # does not print cannot go stale, because no reader is given it. So they are excluded here
+    # rather than the README being padded back out to satisfy a test.
+    # ⚠ NAMED INDIVIDUALLY ON PURPOSE. Dropping a published figure should be visible in a diff.
+    # Every figure the README STILL prints stays registered above and stays strict: a wrong
+    # value there still fails. Putting one of these back on the front page means taking its
+    # line out of this set first, which is a deliberate act.
+    NOT_PUBLISHED = {
+        'free cooling delivered',
+        'chiller-hours avoided',
+        'imagery: two-source sites',
+        'imagery: single-source',
+        'imagery: no frame at all',
+        'gain with NO forecast',
+        'notice 0 h',
+        'notice 1 h',
+        'notice 3 h',
+        'notice 6 h',
+        'plan stability',
+        're-plan count',
+        'hours of real weather',
+        'swept scenarios',
+        'explanations verified',
+        'tape templates',
+        'audit check count',
+        'published-number count',
+        '$/MW-IT/yr floor',
+        '$/MW-IT/yr ceiling',
+        'money cells swept',
+        'national footprint measured',
+        'national average IT load',
+        'density, average load',
+        'density, installed',
+        "the shipped site's footprint",
+        'the shipped site in MW',
+        'the shipped site in dollars',
+        'incumbent chiller hours',
+        'agent chiller hours',
+        'the LLM was declined with room to spare',
+        'no local model was used',
+        'GPU solve count and time',
+        'GPU solve seconds',
+        'pairs needed vs held',
+        'attainable ceiling at n=4',
+        'pooled coverage looks fine on average',
+        'the worst hour it hides',
+        'pooled hours under nominal',
+        'Mondrian-by-hour lifts the worst hour',
+        'Mondrian hours under nominal',
+        'season over-stratifies, worst group',
+        'season groups under nominal',
+    }
+    want = [(lbl, s) for lbl, s in want if lbl not in NOT_PUBLISHED]
     missing = [(lbl, s) for lbl, s in want if re.sub(r"\s+", " ", s) not in txt]
     ck("every README figure matches the emitted JSON", not missing,
-       "%d figures checked" % len(want) if not missing
+       "%d figures checked, %d not published" % (len(want), len(NOT_PUBLISHED))
+       if not missing
        else "; ".join("%s: expected \"%s\"" % (l, s) for l, s in missing))
 
 
